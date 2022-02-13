@@ -1,8 +1,11 @@
+import 'core-js'
 import Vue from 'vue'
 import App from './App.vue'
 
 Vue.config.productionTip = false
 
 new Vue({
-  render: h => h(App),
+    render: h => h(App),
 }).$mount('#app')
+
+console.log((window || global)['__core-js_shared__']?.versions)
