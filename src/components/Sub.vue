@@ -7,15 +7,15 @@
       <br>
       <br>
       <div>
-        <span>or input subtitle manually:</span>
+        <span>or input subtitles manually:</span>
         <p style="white-space: pre-line;" />
         <textarea v-model="words" placeholder="Count subtitle words frequency..."></textarea>
         <button style="position: absolute" @click="displayContents(words)">Count</button>
       </div>
     </div>
-
-    <h3>Contents of the file:</h3>
+    <h3>Statistics of the file:</h3>
     <pre id="vocab-content"></pre>
+    <h3>Contents of the file:</h3>
     <pre id="file-content"></pre>
   </div>
 </template>
@@ -61,7 +61,7 @@ export default {
       console.log('----', freq);
       // str = JSON.stringify(obj);
       let str = JSON.stringify(freq, null, 4); // (Optional) beautiful indented output.
-      str = str.replace(/"/mg, "'")
+      str = str.replace(/"/mg, "")
       console.log('str', str)
       console.log(str); // Logs output to dev tools console.
 
@@ -81,7 +81,7 @@ export default {
       // const regex = /(?<=^|[\s])[a-zA-Z]{2,}(?=[\s]|$)/mg; new RegExp('ab+c', 'i') // constructor
       // const re = '(?<=^|[\s])[a-zA-Z]+(-?[a-zA-Z]+)+(?=[\s]|$)'
       // const reges = new RegExp(re, 'i')
-      const regex = /(?<=^|[\s])[a-zA-Z]+(-?[a-zA-Z]+'?)+(?=[\s]|$)/mg;
+      const regex = /(?<=^|[\s,.])[a-zA-Z]+(-?[a-zA-Z]+'?)+(?=[\s,.]|$)/mg;
 
       let words = content.match(regex);
       console.log('filter', words);
