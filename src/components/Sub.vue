@@ -2,6 +2,7 @@
   <div>
     <input type="file" id="file-input" @change="readSingleFile" />
     <h3>Contents of the file:</h3>
+    <pre id="vocab-content"></pre>
     <pre id="file-content"></pre>
   </div>
 </template>
@@ -40,6 +41,11 @@ export default {
 
       let freq = this.wordFreq(words)
       console.log('----', freq);
+      // str = JSON.stringify(obj);
+      let str = JSON.stringify(freq, null, 4); // (Optional) beautiful indented output.
+      console.log(str); // Logs output to dev tools console.
+
+      document.getElementById('vocab-content').textContent = str
 
       console.log(Object.keys(freq).sort((a, b) => a.length - b.length))
       const ordered = Object.keys(freq).sort((a, b) => a.length - b.length).reduce(
@@ -52,7 +58,11 @@ export default {
     },
 
     getWords(content) {
-      const regex = /(?<=^|[\s])[a-zA-Z]{2,}(?=[\s]|$)/mg;
+      // const regex = /(?<=^|[\s])[a-zA-Z]{2,}(?=[\s]|$)/mg; new RegExp('ab+c', 'i') // constructor
+      // const re = '(?<=^|[\s])[a-zA-Z]+(-?[a-zA-Z]+)+(?=[\s]|$)'
+      // const reges = new RegExp(re, 'i')
+      const regex = /(?<=^|[\s])[a-zA-Z]+(-?[a-zA-Z]+'?)+(?=[\s]|$)/mg;
+
       let words = content.match(regex);
       console.log('filter', words);
       return words;
@@ -107,4 +117,9 @@ export default {
 </script>
 
 <style scoped>
+#vocab-content {
+  text-align: left;
+  margin: auto;
+  width: 300px;
+}
 </style>
