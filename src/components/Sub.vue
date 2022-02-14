@@ -1,6 +1,19 @@
 <template>
   <div>
-    <input type="file" id="file-input" @change="readSingleFile" />
+    <div>
+      <div>
+        <input type="file" id="file-input" @change="readSingleFile" />
+      </div>
+      <br>
+      <br>
+      <div>
+        <span>or input subtitle manually:</span>
+        <p style="white-space: pre-line;" />
+        <textarea v-model="words" placeholder="Count subtitle words frequency..."></textarea>
+        <button style="position: absolute" @click="displayContents(words)">Count</button>
+      </div>
+    </div>
+
     <h3>Contents of the file:</h3>
     <pre id="vocab-content"></pre>
     <pre id="file-content"></pre>
@@ -12,6 +25,11 @@
 // import {stemmer} from 'stemmer';
 export default {
   name: "Sub",
+  data() {
+    return {
+      words: '',
+    }
+  },
   mounted() {
     // console.log(natural.LancasterStemmer.stem("detestable")); // stem a single word
     // stemmer = natural.PorterStemmer;
@@ -43,6 +61,8 @@ export default {
       console.log('----', freq);
       // str = JSON.stringify(obj);
       let str = JSON.stringify(freq, null, 4); // (Optional) beautiful indented output.
+      str = str.replace(/"/mg, "'")
+      console.log('str', str)
       console.log(str); // Logs output to dev tools console.
 
       document.getElementById('vocab-content').textContent = str

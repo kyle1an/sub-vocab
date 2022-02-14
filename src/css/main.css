@@ -1,0 +1,30 @@
+:root {
+    --sys-font-stack: -apple-system, "system-ui", 'SF Pro Text', 'Segoe UI', system-ui, Roboto, 'Helvetica Neue', sans-serif;
+    --sys-font-stack-mono: 'SFMono-Regular', 'SF Mono', 'Ubuntu Mono', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
+}
+
+html, body, input {
+    font-family: var(--sys-font-stack);
+
+    /*-moz-font-feature-settings: "smcp";*/
+    /* -webkit-font-feature-settings: "tnum"  !important;*/
+    font-feature-settings: "cv01",
+        /* "Straight-sided nine"; 6 9. [six six.tnum] by [six.1 six.1.tnum];*/ "ss01" 0,
+        /*   sub [six nine six.tnum nine.tnum] by [six.1 nine.1 six.1.tnum nine.1.tnum];*/ "ss02",
+        /* "Open four"; 4*/ "cv02" 0,
+    "cv03",
+        /* "Vertically centered colon"; : and J*/ "cv05",
+        /* "Seriffed Capital I";*/ "cv06" 0,
+        /* "Tailed lowercase l";*/ "ss07" 0,
+        /* "One storey a";*/ "cv07" 0,
+    "cv08",
+        /* "Slashed zero"; 0 and Chinese*/ "trad" 0,
+    "nlck",
+    "nalt" 0,
+    "ital",
+    "tnum" 0,
+    "ss03" 0,
+        /* -- Mono "Alternate 0 no slash";*/ "ss04"
+    /* "Alternate 1 no serif";;*/
+}
+
