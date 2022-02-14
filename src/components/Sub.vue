@@ -13,7 +13,8 @@
         <button style="position: absolute" @click="displayContents(words)">Count</button>
       </div>
     </div>
-    <h3>Statistics of the file:</h3>
+    <h3>Statistics of the file<span style="font-size: 9px">(1 or 2 letter(s) words are ignored)</span>:</h3>
+
     <pre id="vocab-content"></pre>
     <h3>Contents of the file:</h3>
     <pre id="file-content"></pre>
@@ -81,14 +82,15 @@ export default {
       // const regex = /(?<=^|[\s])[a-zA-Z]{2,}(?=[\s]|$)/mg; new RegExp('ab+c', 'i') // constructor
       // const re = '(?<=^|[\s])[a-zA-Z]+(-?[a-zA-Z]+)+(?=[\s]|$)'
       // const reges = new RegExp(re, 'i')
-      const regex = /(?<=^|[\s,.])[a-zA-Z]+(-?[a-zA-Z]+'?)+(?=[\s,.]|$)/mg;
+      const regex = /[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg;
 
       let words = content.match(regex);
       console.log('filter', words);
-      return words;
+      return words || [];
     },
 
     wordFreq(words) {
+      console.log('words', words)
       const freqMap = words.reduce((p, w) => {
         p[w] = (p[w] || 0) + 1;
         return p;
