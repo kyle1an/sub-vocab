@@ -4,17 +4,15 @@
       <div>
         <input type="file" id="file-input" @change="readSingleFile" />
       </div>
-      <br>
-      <br>
+      <br><br>
       <div>
         <span>or input subtitles manually:</span>
         <p style="white-space: pre-line;" />
-        <textarea v-model="words" placeholder="Count subtitle words frequency..."></textarea>
+        <textarea v-model="words" placeholder="Count subtitle words frequency..." />
         <button style="position: absolute" @click="displayContents(words)">Count</button>
       </div>
     </div>
     <h3>Statistics of the file<span style="font-size: 9px">(1 or 2 letter(s) words are ignored)</span>:</h3>
-
     <pre id="vocab-content"></pre>
     <h3>Contents of the file:</h3>
     <pre id="file-content"></pre>
@@ -22,8 +20,6 @@
 </template>
 
 <script>
-// const natural = require('natural');
-// import {stemmer} from 'stemmer';
 export default {
   name: "Sub",
   data() {
@@ -31,109 +27,89 @@ export default {
       words: '',
     }
   },
+
   mounted() {
-    // console.log(natural.LancasterStemmer.stem("detestable")); // stem a single word
-    // stemmer = natural.PorterStemmer;
-    // var stem = stemmer.stem('stems');
-    // console.log(stem);
   },
 
   methods: {
     readSingleFile(e) {
+
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = (e) => {
         const contents = e.target.result;
         this.displayContents(contents);
-        // console.log(contents)
       };
       reader.readAsText(file);
     },
 
     displayContents(contents) { // getWords
       document.getElementById('file-content').textContent = contents
+      let freq = this.wordFreq(contents)
+      console.log(`(${Object.keys(freq).length})`, freq);
 
-      let words = this.getWords(contents)
-      // document.getElementById('file-content').textContent = words.join(' ')
-      console.log(typeof words);
-
-      let freq = this.wordFreq(words)
-      console.log('----', freq);
-      // str = JSON.stringify(obj);
-      let str = JSON.stringify(freq, null, 4); // (Optional) beautiful indented output.
-      str = str.replace(/"/mg, "")
-      console.log('str', str)
-      console.log(str); // Logs output to dev tools console.
-
-      document.getElementById('vocab-content').textContent = str
-
-      console.log(Object.keys(freq).sort((a, b) => a.length - b.length))
-      const ordered = Object.keys(freq).sort((a, b) => a.length - b.length).reduce(
-          (obj, key) => {
-            obj[key] = freq[key];
-            return obj;
-          }, {}
-      );
-      console.log('sort', ordered);// → '{"a":"baz","b":"foo","c":"bar"}'
+      let str = JSON.stringify(freq, null, 2); // (Optional) beautiful indented output.
+      document.getElementById('vocab-content').textContent = str.replace(/"/mg, "")
     },
 
-    getWords(content) {
-      // const regex = /(?<=^|[\s])[a-zA-Z]{2,}(?=[\s]|$)/mg; new RegExp('ab+c', 'i') // constructor
-      // const re = '(?<=^|[\s])[a-zA-Z]+(-?[a-zA-Z]+)+(?=[\s]|$)'
-      // const reges = new RegExp(re, 'i')
-      const regex = /[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg;
+    wordFreq(content) {
+      const words = content.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || [];
 
-      let words = content.match(regex);
-      console.log('filter', words);
-      return words || [];
-    },
-
-    wordFreq(words) {
       console.log('words', words)
-      const freqMap = words.reduce((p, w) => {
-        p[w] = (p[w] || 0) + 1;
-        return p;
-      }, {});
+      // const upper = /^[a-z]*(?:[A-Z][a-z]*)+$/mg
+      const upper = /[A-Z]/
+      const quote = /['-]/
+      const lowerCase = {};
+      const upperCase = {};
+      const quoteCase = {};
+      let id = 0
 
-      const reg1 = /^.*[^\s\n](?=(es|ed|ing|ly)$)/mg
-      const reg2 = /^.*[^\s\n](?=(s)$)/mg
-      const reg3 = /^[A-Z][a-z]+$/mg
-      const vocabFreq = {};
-      for (let [v, freq] of Object.entries(freqMap)) {
-        let w = v
-        if (reg3.test(w)) {
-          w = w.toLowerCase();
-          if (Object.hasOwn(freqMap, w)) {
-            if (w.length >= 3) vocabFreq[w] = (vocabFreq[w] || 0) + freq;
-            continue
+      words.forEach((origin) => {
+        const inCase = upper.test(origin) ? upperCase :
+            quote.test(origin) ? quoteCase : lowerCase;
+        if (!Object.hasOwn(inCase, origin)) {
+          inCase[origin] = [id + 1, 1]
+        } else {
+          inCase[origin][1] += 1
+        }
+        id += 1;
+      })
+
+      console.log('======= GOT IT =======')
+      for (const [Key, Info] of Object.entries(upperCase)) {
+        for (const [key, info] of Object.entries(lowerCase)) {
+          if (Key.toLowerCase() === key) {
+            const [ID, Freq] = Info
+            const [id,] = info
+            info[1] += Freq
+            if (ID < id) info[0] = ID
+            delete upperCase[Key]
           }
         }
-
-        if (reg1.test(w)) {
-          let rt = w.match(reg1)?.[0];
-          if (Object.hasOwn(freqMap, rt)) {
-            w = rt
-          } else if (Object.hasOwn(freqMap, rt + 'e')) {
-            w = rt + 'e'
-          } else {
-            w = v
-          }
-        } else if (reg2.test(w)) {
-          let rt = w.match(reg2)?.[0];
-          if (Object.hasOwn(freqMap, rt)) {
-            w = rt
-          } else {
-            w = v
-          }
-        }
-
-        if (w.length >= 3) vocabFreq[w] = (vocabFreq[w] || 0) + freq;
       }
 
-      return vocabFreq;
+      const result = [];
+      for (const [key, [id, freq]] of Object.entries(upperCase)) {
+        result[id] = [key, freq]
+      }
+      for (const [key, [id, freq]] of Object.entries(lowerCase)) {
+        result[id] = [key, freq]
+      }
+      for (const [key, [, freq]] of Object.entries(quoteCase)) {
+        result.push([key, freq])
+      }
+
+      return this.array2Obj(result.filter(n => n[0].length >= 3));
     },
 
+    array2Obj(array) {
+      const obj = {}
+      array.forEach(([key, freq]) => {
+        obj[key] = freq
+      })
+      return obj
+    },
   },
 }
 </script>
