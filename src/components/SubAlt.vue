@@ -20,15 +20,61 @@
 </template>
 
 <script>
+import _ from "lodash/fp";
+
 export default {
   name: "Sub",
+
+
   data() {
     return {
       words: '',
+
+      s: [{
+        '$': [],
+        's': { '$': [] }
+      }],
+
+      ed: [{
+        'e': {
+          '$': [],
+          'd': { '$': [] },
+        },
+      }, {
+        '$': [],
+        'e': { 'd': { '$': [] } },
+      }],
+
+      ing: [{
+        'i': { 'n': { 'g': { '$': [] } } },
+      }, {
+        'e': {
+          '$': [],
+          'd': { '$': [] },
+        }
+      }, {
+        '$': []
+      },],
     }
   },
 
   mounted() {
+    const object = {
+      'e': {
+        '$': [1, 1],
+        'd': { '$': [1, 2] },
+        // 'i': {
+        //   '$': []
+        // }
+      }
+    }
+    const cc = _.isMatch({
+      'e': {
+        '$': [],
+        'd': { '$': [] },
+      },
+    }, object); // => true
+    console.log(cc)
   },
 
   methods: {
@@ -55,9 +101,7 @@ export default {
 
     wordFreq(content) {
       const words = content.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || [];
-
       console.log('words', words)
-
       const lowerCase = {};
       const upperCase = {};
       const quoteCase = {};
@@ -69,11 +113,8 @@ export default {
         id += 1
         try {
           let layer = upper.test(origin) ? upperCase : lowerCase;
-          // let layer = lowerCase;
-
           const chars = [...origin].reverse();
           const l = chars.length;
-          // debugger
           // console.log('----- chars:', JSON.stringify(chars).replace(/"/mg, ""))
           for (let i = 0; i < l - 1; i++) {
             const c = chars.pop()
@@ -84,16 +125,16 @@ export default {
           const c = chars.pop()
           if (!Object.hasOwn(layer, c)) {
             layer[c] = { $: [1, id] }
-            return
+            return;
           }
           layer = layer[c]
           if (!Object.hasOwn(layer, '$')) {
-            layer['$'] = [1, id] //{ [id]: 1 }
+            layer['$'] = [1, id]
             return;
           }
           // const { $ } = layer
-          // $[Object.keys($)] += 1
-          layer.$[0] += 1
+          // $[Object.keys($)] += 1;
+          layer.$[0] += 1;
           // console.log(JSON.stringify(lowerCase).replace(/"/mg, ""), '\n', JSON.stringify(layer).replace(/"/mg, ""))
         } catch (e) {
           console.log(id, origin)
@@ -102,18 +143,20 @@ export default {
       })
       console.log(JSON.stringify(lowerCase).replace(/"/mg, ""), '\n')
       console.log(JSON.stringify(upperCase).replace(/"/mg, ""), '\n')
-      console.log('9jdkajkdajkadjk', { ...lowerCase, ...upperCase })
-
+      console.log('9jdkajkdajkadjk', JSON.stringify({ ...lowerCase, ...upperCase }, null, 2).replace(/"/mg, ""));
       return { ...lowerCase, ...upperCase }
     },
 
     flattenObj(test) {
+      const vm = this;
+
       function traverseAndFlatten(currentNode, target, flattenedKey) {
         for (const key in currentNode) {
           if (Object.hasOwn(currentNode, key)) {
             const is$ = key === '$'; // stop at $
             const newKey = (flattenedKey || '') + (is$ ? '' : key);
             const value = currentNode[key];
+            mergeFreq(value);
 
             if (typeof value === 'object' && !is$) {
               traverseAndFlatten(value, target, newKey);
@@ -131,10 +174,69 @@ export default {
       }
 
       const flattened = flatten(test);
-      console.log(JSON.stringify(flattened, null, 2).replace(/"/mg, ""));
-      return flattened
-    },
+      console.log(JSON.stringify(flattened, '\n', 2).replace(/"/mg, ""));
+      return flattened;
 
+      function mergeFreq(layer) {
+        const $ = { '$': [] }
+        const ed = [{
+          ...$,
+          'e': { 'd': $ },
+        }, {
+          'e': {
+            ...$,
+            'd': $,
+          },
+        },]
+        const ing = [{
+          ...$,
+          'i': { 'n': { 'g': $ } },
+        }, {
+          ...ed[0],
+          'i': { 'n': { 'g': $ } },
+        }, {
+          ...ed[1],
+          'i': { 'n': { 'g': $ } },
+        }]
+        const edMod = (l) => {
+          if (_.isMatch(ed[0], l)) {
+            l.$[0] += l.e.d.$[0]
+            l.e.d.$[0] = 0
+          } else if (_.isMatch(ed[1], l)) {
+            l.e.$[0] += l.e.d.$[0]
+            l.e.d.$[0] = 0
+          }
+        }
+        const ingMod = (l) => {
+          if (_.isMatch(ing[0], l)) {
+            l.$[0] += l.i.n.g.$[0]
+            l.i.n.g.$[0] = 0
+          } else if (_.isMatch(ing[1], l)) {
+            l.$[0] += l.i.n.g.$[0] + l.e.d.$[0]
+            l.i.n.g.$[0] = 0
+            l.e.d.$[0] = 0
+          } else if (_.isMatch(ing[2], l)) {
+            l.e.$[0] += l.i.n.g.$[0] + l.e.d.$[0]
+            l.i.n.g.$[0] = 0
+            l.e.d.$[0] = 0
+          }
+        }
+        const sMod = (l) => {
+          if (_.isMatch({
+            ...$,
+            's': $
+          }, l)) {
+            l.$[0] += l.s.$[0]
+            l.s.$[0] = 0
+          }
+        }
+        console.log(vm.ed[0], layer)
+        console.log('?', _.isMatch(vm.ed[0], layer))
+        sMod(layer)
+        edMod(layer)
+        ingMod(layer)
+      }
+    },
   },
 }
 </script>
