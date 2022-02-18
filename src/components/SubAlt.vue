@@ -9,13 +9,13 @@
         <span>or input subtitles manually:</span>
         <p style="white-space: pre-line;" />
         <textarea v-model="words" placeholder="Count subtitle words frequency..." />
-        <button style="position: absolute" @click="displayContents(words)">COUNT!</button>
+        <button style="position: absolute" @click="revealFreq(words)">COUNT!</button>
       </div>
     </div>
     <h3>Statistics of the file<span style="font-size: 9px">(1 or 2 letter(s) words are ignored)</span>:</h3>
-    <pre id="vocab-content"></pre>
+    <pre id="vocab-content">{{ vocabContent }}</pre>
     <h3>Contents of the file:</h3>
-    <pre id="file-content"></pre>
+    <pre id="file-content">{{ fileContent }}</pre>
   </div>
 </template>
 
@@ -28,33 +28,10 @@ export default {
 
   data() {
     return {
+      fileContent: '',
       words: '',
-
-      s: [{
-        '$': [],
-        's': { '$': [] }
-      }],
-
-      ed: [{
-        'e': {
-          '$': [],
-          'd': { '$': [] },
-        },
-      }, {
-        '$': [],
-        'e': { 'd': { '$': [] } },
-      }],
-
-      ing: [{
-        'i': { 'n': { 'g': { '$': [] } } },
-      }, {
-        'e': {
-          '$': [],
-          'd': { '$': [] },
-        }
-      }, {
-        '$': []
-      },],
+      wordsMap: {},
+      vocabContent: '',
     }
   },
 
@@ -83,20 +60,17 @@ export default {
       if (!file) return;
       const reader = new FileReader();
       reader.onload = (e) => {
-        const contents = e.target.result;
-        this.displayContents(contents);
+        this.fileContent = e.target.result
+        this.revealFreq(this.fileContent);
       };
       reader.readAsText(file);
     },
 
-    displayContents(contents) { // getWords
-      document.getElementById('file-content').textContent = contents
-      // let freq = this.wordFreq(contents)
-      let freq = this.flattenObj(this.wordFreq(contents))
-      console.log(freq);
+    revealFreq(contents) {
+      this.wordsMap = this.flattenObj(this.wordFreq(contents))
+      const freq = this.wordsMap;
       console.log(`(${Object.keys(freq).length})`, freq);
-      let str = JSON.stringify(freq, null, 2).replace(/"/mg, "")
-      document.getElementById('vocab-content').textContent = str
+      this.vocabContent = JSON.stringify(freq, null, 2).replace(/"/mg, "")
     },
 
     wordFreq(content) {
@@ -148,8 +122,6 @@ export default {
     },
 
     flattenObj(test) {
-      const vm = this;
-
       function traverseAndFlatten(currentNode, target, flattenedKey) {
         for (const key in currentNode) {
           if (Object.hasOwn(currentNode, key)) {
@@ -174,7 +146,7 @@ export default {
       }
 
       const flattened = flatten(test);
-      console.log(JSON.stringify(flattened, '\n', 2).replace(/"/mg, ""));
+      console.log(JSON.stringify(flattened, null, 2).replace(/"/mg, ""));
       return flattened;
 
       function mergeFreq(layer) {
@@ -230,8 +202,7 @@ export default {
             l.s.$[0] = 0
           }
         }
-        console.log(vm.ed[0], layer)
-        console.log('?', _.isMatch(vm.ed[0], layer))
+
         sMod(layer)
         edMod(layer)
         ingMod(layer)
