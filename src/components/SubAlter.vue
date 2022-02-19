@@ -35,19 +35,19 @@
           label="Vocabulary"
           sortable
           :sort-method="sortByChar"
-          width="180">
+          width="160">
       </el-table-column>
       <el-table-column
           prop="info.0"
           label="Frequency"
           sortable
-          width="180">
+          width="100">
       </el-table-column>
       <el-table-column
           prop="info.1"
           label="Sequence"
           sortable
-          width="180">
+          width="100">
       </el-table-column>
     </el-table>
 
