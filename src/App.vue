@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import Sub from './components/SubAlt.vue'
+import Sub from './components/SubAlter.vue'
 
 export default {
   name: 'App',

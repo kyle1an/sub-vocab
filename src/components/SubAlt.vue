@@ -9,7 +9,8 @@
         <span>or input subtitles manually:</span>
         <p style="white-space: pre-line;" />
         <textarea v-model="words" placeholder="Count subtitle words frequency..." />
-        <button style="position: absolute" @click="revealFreq(words)">COUNT!</button>
+        <button @click="revealFreq(words)">COUNT!</button>
+        <button @click="filterNone(wordsMap)">Filter</button>
       </div>
     </div>
     <h3>Statistics of the file<span style="font-size: 9px">(1 or 2 letter(s) words are ignored)</span>:</h3>
@@ -20,18 +21,23 @@
 </template>
 
 <script>
-import _ from "lodash/fp";
+import fp from "lodash/fp";
 
 export default {
   name: "Sub",
-
 
   data() {
     return {
       fileContent: '',
       words: '',
       wordsMap: {},
-      vocabContent: '',
+    }
+  },
+
+  computed: {
+    vocabContent: function () {
+      console.log(Object.keys(this.wordsMap).length);
+      return JSON.stringify(this.wordsMap, null, 2).replace(/"/mg, "")
     }
   },
 
@@ -45,7 +51,7 @@ export default {
         // }
       }
     }
-    const cc = _.isMatch({
+    const cc = fp.isMatch({
       'e': {
         '$': [],
         'd': { '$': [] },
@@ -70,7 +76,18 @@ export default {
       this.wordsMap = this.flattenObj(this.wordFreq(contents))
       const freq = this.wordsMap;
       console.log(`(${Object.keys(freq).length})`, freq);
-      this.vocabContent = JSON.stringify(freq, null, 2).replace(/"/mg, "")
+      // this.vocabContent = JSON.stringify(freq, null, 2).replace(/"/mg, "")
+    },
+
+    filterNone(wordsMap) {
+      Object.filter = (obj, predicate) => Object.fromEntries(Object.entries(obj).filter(predicate));
+
+      const scores = {
+        John: 2, Sarah: 3, Janet: 1
+      };
+
+      this.wordsMap = Object.filter(wordsMap, ([, [freq, id]]) => freq !== 0);
+      console.log(this.wordsMap);
     },
 
     wordFreq(content) {
@@ -78,7 +95,6 @@ export default {
       console.log('words', words)
       const lowerCase = {};
       const upperCase = {};
-      const quoteCase = {};
       const upper = /[A-Z]/
       // const quote = /['-]/
       let id = 0
@@ -115,13 +131,52 @@ export default {
           console.log(e)
         }
       })
-      console.log(JSON.stringify(lowerCase).replace(/"/mg, ""), '\n')
-      console.log(JSON.stringify(upperCase).replace(/"/mg, ""), '\n')
-      console.log('9jdkajkdajkadjk', JSON.stringify({ ...lowerCase, ...upperCase }, null, 2).replace(/"/mg, ""));
-      return { ...lowerCase, ...upperCase }
+      // console.log(JSON.stringify(lowerCase).replace(/"/mg, ""), '\n')
+      // console.log(JSON.stringify(upperCase).replace(/"/mg, ""), '\n')
+      // console.log('_', JSON.stringify(lowerCase, null, 2).replace(/"/mg, ""));
+      // this.mergeCases(lowerCase, upperCase)
+      return this.mergeCases(lowerCase, upperCase)
+    },
+
+    mergeCases(lowerCase, upperCase) {
+      // console.log('upperCase', JSON.stringify(upperCase, null, 2).replace(/"/mg, ""));
+      // console.log('target', JSON.stringify(lowerCase, null, 2).replace(/"/mg, ""));
+
+      function traverseAndMerge(currentNode, target) {
+        for (const k in currentNode) {
+          debugger
+          const lk = k.toLowerCase()
+          if (Object.hasOwn(target, lk)) {
+            // console.log('currentNode', JSON.stringify(currentNode, null, 2).replace(/"/mg, ""));
+            // console.log('target hasOwn', k, JSON.stringify(target, null, 2).replace(/"/mg, ""));
+
+            if (k === '$') {
+              target.$[0] += currentNode.$[0];
+              target.$[1] = currentNode.$[1] = Math.min(currentNode.$[1], target.$[1])
+              currentNode.$[0] = 0;
+              // if (1) {
+              //
+              // }
+            } else {
+              traverseAndMerge(currentNode[k], target[lk]);
+            }
+          } else {
+            // console.log('currentNode', JSON.stringify(currentNode, null, 2).replace(/"/mg, ""));
+            // console.log('target notOwn', k, JSON.stringify(target, null, 2).replace(/"/mg, ""));
+          }
+        }
+        // console.log('target final', JSON.stringify(target, null, 2).replace(/"/mg, ""));
+        // console.log('upperCase final', JSON.stringify(currentNode, null, 2).replace(/"/mg, ""));
+        return fp.merge(currentNode, target);
+      }
+
+      debugger
+      return traverseAndMerge(upperCase, lowerCase);
     },
 
     flattenObj(test) {
+      console.log('trueWords', JSON.stringify(test, null, 2));
+
       function traverseAndFlatten(currentNode, target, flattenedKey) {
         for (const key in currentNode) {
           if (Object.hasOwn(currentNode, key)) {
@@ -146,7 +201,7 @@ export default {
       }
 
       const flattened = flatten(test);
-      console.log(JSON.stringify(flattened, null, 2).replace(/"/mg, ""));
+      console.log('flattened', JSON.stringify(flattened, null, 2).replace(/"/mg, ""));
       return flattened;
 
       function mergeFreq(layer) {
@@ -171,30 +226,30 @@ export default {
           'i': { 'n': { 'g': $ } },
         }]
         const edMod = (l) => {
-          if (_.isMatch(ed[0], l)) {
+          if (fp.isMatch(ed[0], l)) {
             l.$[0] += l.e.d.$[0]
             l.e.d.$[0] = 0
-          } else if (_.isMatch(ed[1], l)) {
+          } else if (fp.isMatch(ed[1], l)) {
             l.e.$[0] += l.e.d.$[0]
             l.e.d.$[0] = 0
           }
         }
         const ingMod = (l) => {
-          if (_.isMatch(ing[0], l)) {
+          if (fp.isMatch(ing[0], l)) {
             l.$[0] += l.i.n.g.$[0]
             l.i.n.g.$[0] = 0
-          } else if (_.isMatch(ing[1], l)) {
+          } else if (fp.isMatch(ing[1], l)) {
             l.$[0] += l.i.n.g.$[0] + l.e.d.$[0]
             l.i.n.g.$[0] = 0
             l.e.d.$[0] = 0
-          } else if (_.isMatch(ing[2], l)) {
+          } else if (fp.isMatch(ing[2], l)) {
             l.e.$[0] += l.i.n.g.$[0] + l.e.d.$[0]
             l.i.n.g.$[0] = 0
             l.e.d.$[0] = 0
           }
         }
         const sMod = (l) => {
-          if (_.isMatch({
+          if (fp.isMatch({
             ...$,
             's': $
           }, l)) {
