@@ -39,10 +39,19 @@ export default {
   computed: {
     vocabContent: function () {
       console.log(Object.keys(this.wordsMap).length);
-      return JSON.stringify(this.wordsMap, null, 2).replace(/"/mg, "")
+      // return JSON.stringify(this.wordsMap, null, 2).replace(/"/mg, "")
+
+      let output = [], info;
+      const input = this.wordsMap;
+      for (const k in input) {
+        info = {};
+        info.vocab = k;
+        info.info = input[k];
+        output.push(info);
+      }
+      return output;
     }
   },
-
 
   methods: {
     readSingleFile(e) {
@@ -59,16 +68,16 @@ export default {
     revealFreq(contents) {
       const combined = this.wordFreq(contents)
       const merged = this.mergeCases(this.upperCase, combined);
-
       this.wordsMap = this.flattenObj(merged)
 
       const freq = this.wordsMap;
       console.log(`(${Object.keys(freq).length})`, freq);
       // this.vocabContent = JSON.stringify(freq, null, 2).replace(/"/mg, "")
+    },
+    primaryOrd(obj) {
 
 
     },
-
     filterNone(wordsMap) {
       Object.filter = (obj, predicate) => Object.fromEntries(Object.entries(obj).filter(predicate));
       this.wordsMap = Object.filter(wordsMap, ([, [freq, id]]) => freq !== 0);
@@ -82,7 +91,7 @@ export default {
       const upperCase = {};
       const upper = /[A-Z]/
       // const quote = /['-]/
-      let id = 0
+      let id = 1
 
       words.forEach((origin) => {
         // id += 1
@@ -158,14 +167,10 @@ export default {
           if (Object.hasOwn(target, k)) {
             if (k !== '$') {
               lookupWrap(layer[key], target[k])
+            } else if (target.$[0] === layer.$[0]) {
+              target.$ = null;
             } else {
-
-              if (target.$[0] === layer.$[0]) {
-                target.$ = null;
-              } else {
-                layer.$[0] = 0;
-              }
-
+              layer.$[0] = 0;
             }
           }
         }
@@ -177,17 +182,15 @@ export default {
         _.forOwn(current, function (value, key) {
           if (_.isUndefined(value) || _.isNull(value) || _.isNaN(value) ||
               (_.isString(value) && _.isEmpty(value)) ||
-              (_.isObject(value) && _.isEmpty(prune(value)))) {
-
+              (_.isObject(value) && _.isEmpty(prune(value)))
+          ) {
             delete current[key];
           }
         });
         // remove any leftover undefined values from the delete
         // operation on an array
         if (_.isArray(current)) _.pull(current, undefined);
-
         return current;
-
       }(_.cloneDeep(obj));  // Do not modify the original object, create a clone instead
     },
 
@@ -201,11 +204,10 @@ export default {
             const newKey = (flattenedKey || '') + (is$ ? '' : key);
             const value = currentNode[key];
             // mergeFreq(value);
-
             if (typeof value === 'object' && !is$) {
               traverseAndFlatten(value, target, newKey);
             } else {
-              target[newKey] = value;
+              target[newKey] = value; // $:[] -> $: Frequency
             }
           }
         }
@@ -220,11 +222,6 @@ export default {
       const flattened = flatten(words);
       console.log('flattened', JSON.stringify(flattened, null, 0).replace(/"/mg, ""));
       return flattened;
-
-
-    },
-    log4(obj, spc = 2, rpl = "") {
-      return JSON.stringify(obj, null, spc).replace(/"/mg, rpl)
     },
 
     mergeFreq(layer) {
@@ -280,13 +277,11 @@ export default {
           l.s.$[0] = 0
         }
       }
-
       sMod(layer)
       edMod(layer)
       ingMod(layer)
     },
   },
-
 
   mounted() {
     // const object = {
