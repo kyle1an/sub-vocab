@@ -1,22 +1,60 @@
 <template>
   <div>
     <div>
+
       <div>
-        <input type="file" id="file-input" @change="readSingleFile" />
-      </div>
-      <br><br>
-      <div>
-        <span>or input subtitles manually:</span>
-        <p style="white-space: pre-line;" />
-        <textarea v-model="words" placeholder="Count subtitle words frequency..." />
-        <button @click="revealFreq(words)">COUNT!</button>
-        <button @click="filterNone(wordsMap)">Filter</button>
+        <el-input
+            type="textarea"
+            :rows="2"
+            placeholder="input subtitles manually:"
+            v-model="words">
+        </el-input>
+        <br>
+        <br>
+        <el-button @click="revealFreq(words)" type="primary" icon="el-icon-check" circle></el-button>
+
+        <el-divider></el-divider>
+
+        <div>
+          <input type="file" id="file-input" @change="readSingleFile" />
+          <el-divider></el-divider>
+        </div>
+        <el-row>
+          <!--          <el-button @click="filterNone(wordsMap)" type="success">过滤</el-button>-->
+        </el-row>
       </div>
     </div>
-    <h3>Statistics of the file<span style="font-size: 9px">(1 or 2 letter(s) words are ignored)</span>:</h3>
-    <pre id="vocab-content">{{ vocabContent }}</pre>
-    <h3>Contents of the file:</h3>
+
+    <el-table
+        :data="vocabContent"
+        style="width: 100%"
+        :default-sort="{prop: 'info.1', order: 'ascending'}"
+    >
+      <el-table-column
+          prop="vocab"
+          label="Vocabulary"
+          sortable
+          :sort-method="sortByChar"
+          width="180">
+      </el-table-column>
+      <el-table-column
+          prop="info.0"
+          label="Frequency"
+          sortable
+          width="180">
+      </el-table-column>
+      <el-table-column
+          prop="info.1"
+          label="Sequence"
+          sortable
+          width="180">
+      </el-table-column>
+    </el-table>
+
+    <!--    <h3>Statistics of the file<span style="font-size: 9px">(1 or 2 letter(s) words are ignored)</span>:</h3>-->
+    <!--    <pre id="vocab-content">{{ vocabContent }}</pre>-->
     <pre id="file-content">{{ fileContent }}</pre>
+
   </div>
 </template>
 
@@ -33,6 +71,7 @@ export default {
       words: '',
       wordsMap: {},
       upperCase: {},
+      tableData: [],
     }
   },
 
@@ -40,20 +79,15 @@ export default {
     vocabContent: function () {
       console.log(Object.keys(this.wordsMap).length);
       // return JSON.stringify(this.wordsMap, null, 2).replace(/"/mg, "")
-
-      let output = [], info;
-      const input = this.wordsMap;
-      for (const k in input) {
-        info = {};
-        info.vocab = k;
-        info.info = input[k];
-        output.push(info);
-      }
-      return output;
+      return this.primaryOrd(this.obj2Array(this.wordsMap, 'vocab', 'info'))
     }
   },
 
   methods: {
+    sortByChar: function (a, b) {
+      return a['vocab'].localeCompare(b['vocab'], 'en', { sensitivity: 'base' })
+    },
+
     readSingleFile(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -69,15 +103,27 @@ export default {
       const combined = this.wordFreq(contents)
       const merged = this.mergeCases(this.upperCase, combined);
       this.wordsMap = this.flattenObj(merged)
-
+      this.filterNone(this.wordsMap)
       const freq = this.wordsMap;
       console.log(`(${Object.keys(freq).length})`, freq);
       // this.vocabContent = JSON.stringify(freq, null, 2).replace(/"/mg, "")
     },
-    primaryOrd(obj) {
 
-
+    primaryOrd(data) {
+      return data.sort((a, b) => a.info[1] - b.info[1])
     },
+
+    obj2Array(obj, key = 'key', value = 'value') {
+      let a = [], info;
+      for (const k in obj) {
+        info = {};
+        info[key] = k;
+        info[value] = obj[k];
+        a.push(info);
+      }
+      return a;
+    },
+
     filterNone(wordsMap) {
       Object.filter = (obj, predicate) => Object.fromEntries(Object.entries(obj).filter(predicate));
       this.wordsMap = Object.filter(wordsMap, ([, [freq, id]]) => freq !== 0);
@@ -90,12 +136,9 @@ export default {
       const lowerCase = {};
       const upperCase = {};
       const upper = /[A-Z]/
-      // const quote = /['-]/
       let id = 1
-
       words.forEach((origin) => {
         // id += 1
-        // const surface = upper.test(origin) ? upperCase : lowerCase;
         if (upper.test(origin)) {
           wrapLayer(origin, upperCase)
           origin = origin.toLowerCase()
@@ -142,16 +185,12 @@ export default {
       const vm = this;
       deAffix(lowerCase)
       lookupWrap(upperCase, lowerCase)
-      console.log('lowerCases', JSON.stringify(lowerCase).replace(/"/mg, ""), '\n')
-
+      // console.log('lowerCases', JSON.stringify(lowerCase).replace(/"/mg, ""), '\n')
       lowerCase = this.pruneEmpty(lowerCase)
-
-      console.log('pruneEmpty', JSON.stringify(lowerCase).replace(/"/mg, ""), '\n')
-      console.log('upperCases', JSON.stringify(upperCase).replace(/"/mg, ""), '\n')
-      console.log('---> merge', JSON.stringify(fp.merge(upperCase, lowerCase)).replace(/"/mg, ""), '\n')
-
+      // console.log('pruneEmpty', JSON.stringify(lowerCase).replace(/"/mg, ""), '\n')
+      // console.log('upperCases', JSON.stringify(upperCase).replace(/"/mg, ""), '\n')
+      // console.log('---> merge', JSON.stringify(fp.merge(upperCase, lowerCase)).replace(/"/mg, ""), '\n')
       return fp.merge(upperCase, lowerCase)
-
 
       function deAffix(layer) {
         for (const k in layer) {
@@ -195,7 +234,7 @@ export default {
     },
 
     flattenObj(words) {
-      console.log('trueWords', JSON.stringify(words, null, 2));
+      // console.log('trueWords', JSON.stringify(words, null, 2));
 
       function traverseAndFlatten(currentNode, target, flattenedKey) {
         for (const key in currentNode) {
@@ -284,79 +323,6 @@ export default {
   },
 
   mounted() {
-    // const object = {
-    //   'e': {
-    //     '$': [1, 1],
-    //     'd': { '$': [1, 2] },
-    //     // 'i': {
-    //     //   '$': []
-    //     // }
-    //   }
-    // }
-    // const cc = _.isMatch({
-    //   'e': {
-    //     '$': [],
-    //     'd': { '$': [] },
-    //   },
-    // }, object); // => true
-    // console.log(cc)
-
-    var dirty = {
-      key1: 'AAA',
-      key2: {
-        key21: 'BBB'
-      },
-      key3: {
-        key31: true,
-        key32: false
-      },
-      key4: {
-        key41: undefined,
-        key42: null,
-        key43: [],
-        key44: {},
-        key45: {
-          key451: NaN,
-          key452: {
-            key4521: {}
-          },
-          key453: [{ foo: {}, bar: '' }, NaN, null, undefined]
-        },
-        key46: ''
-      },
-      key5: {
-        key51: 1,
-        key52: '  ',
-        key53: [1, '2', {}, []],
-        key54: [{ foo: { bar: true, baz: null } }, { foo: { bar: '', baz: 0 } }]
-      },
-      key6: function () {
-      }
-    };
-
-    function pruneEmpty(obj) {
-      return function prune(current) {
-        _.forOwn(current, function (value, key) {
-          if (_.isUndefined(value) || _.isNull(value) || _.isNaN(value) ||
-              (_.isString(value) && _.isEmpty(value)) ||
-              (_.isObject(value) && _.isEmpty(prune(value)))) {
-
-            delete current[key];
-          }
-        });
-        // remove any leftover undefined values from the delete
-        // operation on an array
-        if (_.isArray(current)) _.pull(current, undefined);
-
-        return current;
-
-      }(_.cloneDeep(obj));  // Do not modify the original object, create a clone instead
-    }
-
-    var clean = pruneEmpty(dirty);
-    console.log(JSON.stringify(clean, null, 2));
-
-
   },
 
 }
@@ -367,5 +333,11 @@ export default {
   text-align: left;
   margin: auto;
   width: 300px;
+}
+
+el-table,
+.el-table__header-wrapper,
+.el-table__body-wrapper {
+  margin: auto;
 }
 </style>
