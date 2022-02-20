@@ -360,6 +360,10 @@ table thead {
   padding: 10px !important;
 }
 
+.el-table__empty-block {
+  margin: auto;
+}
+
 @media only screen  and (max-width: 800px) {
   .submit {
     top: unset;
