@@ -1,5 +1,7 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap");
+
 :root {
-    --sys-font-stack: -apple-system, "system-ui", 'SF Pro Text', 'Segoe UI', system-ui, Roboto, 'Helvetica Neue', sans-serif;
+    --sys-font-stack: -apple-system, "system-ui", 'Inter', 'SF Pro Text', 'Segoe UI', system-ui, Roboto, 'Helvetica Neue', sans-serif;
     --sys-font-stack-mono: 'SFMono-Regular', 'SF Mono', 'Ubuntu Mono', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
 }
 
@@ -21,7 +23,7 @@ textarea,
     "cv03",
         /* "Vertically centered colon"; : and J*/ "cv05",
         /* "Seriffed Capital I";*/ "cv06",
-        /* "Tailed lowercase l";*/ "ss07" ,
+        /* "Tailed lowercase l";*/ "ss07",
         /* "One storey a";*/ "cv07" 0,
     "cv08",
         /* "Slashed zero"; 0 and Chinese*/ "trad" 0,
