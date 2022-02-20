@@ -11,7 +11,7 @@ body,
 input,
 textarea,
 .el-table_1_column_1 {
-    letter-spacing: 0.25px;
+    letter-spacing: 0.02rem;
     font-family: var(--sys-font-stack);
 
     /*-moz-font-feature-settings: 'smcp';*/
