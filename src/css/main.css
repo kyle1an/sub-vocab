@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
 :root {
-    --sys-font-stack: -apple-system, 'system-ui', 'SF Pro Text', 'Inter', 'Segoe UI', system-ui, Roboto, 'Helvetica Neue', sans-serif;
+    --sys-font-stack: -apple-system, 'SF Pro Text', 'Inter', 'system-ui', 'Segoe UI', system-ui, Roboto, 'Helvetica Neue', sans-serif;
     --sys-font-stack-mono: 'SFMono-Regular', 'SF Mono', 'Ubuntu Mono', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
 }
 
