@@ -1,6 +1,5 @@
 <template>
   <div style="margin-top: 10px">
-
     <el-container>
       <el-header>
         <input type="file" id="file-input" @change="readSingleFile" />
@@ -10,7 +9,9 @@
         <el-container>
           <el-main>
             <div style="position: relative">
-              <el-button style="position: absolute; top: 30px; right: -20px; z-index: 1" @click="revealFreq(inputContent)" type="primary" icon="el-icon-check" circle />
+              <div class="submit">
+                <el-button @click="revealFreq(inputContent)" type="primary" icon="el-icon-check" circle />
+              </div>
               <el-input type="textarea" :rows="2" :autosize="{ minRows: 10, maxRows: 100}" placeholder="input subtitles manually:" v-model="inputContent" />
             </div>
           </el-main>
@@ -298,6 +299,13 @@ export default {
   text-align: left;
 }
 
+.submit {
+  position: absolute;
+  top: 30px;
+  right: -20px;
+  z-index: 100
+}
+
 .el-header, .el-footer {
   /*background-color: #B3C0D1;*/
   /*color: #333;*/
@@ -322,7 +330,6 @@ export default {
 body > .el-container {
   margin-bottom: 40px;
 }
-
 
 #vocab-content {
   text-align: left;
@@ -349,8 +356,18 @@ table thead {
   font-size: 10px;
 }
 
+.el-card__body {
+  padding: 10px !important;
+}
 
 @media only screen  and (max-width: 800px) {
+  .submit {
+    top: unset;
+    right: unset;
+    bottom: -20px;
+    width: 100%;
+  }
+
   .el-container {
     display: flex;
     flex-direction: column !important;
