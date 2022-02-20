@@ -37,7 +37,7 @@ $UNIMONO: $UNI_GEN +$UNI___4;
 
 @font-face {
   font-family: 'SF Pro Text';
-  src: url(https://raw.githubusercontent.com/kyle1an/SF-Fonts/master/Fonts/SF-Pro-Text-Regular.otf);
+  src: url($dir-path + '/SF-Pro-Text-Regular.otf');
   unicode-range: $UNIMONO;
   font-weight: 400;
 }
