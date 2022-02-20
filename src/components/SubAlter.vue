@@ -50,7 +50,6 @@ export default {
 
   computed: {
     vocabContent: function () {
-      console.log(Object.keys(this.wordsMap).length);
       return this.obj2Array(this.wordsMap, 'vocab', 'info').sort((a, b) => a.info[1] - b.info[1])
     }
   },
@@ -75,7 +74,7 @@ export default {
       const combined = this.wordFreq(contents)
       const merged = this.mergeCases(this.upperCase, combined);
       this.wordsMap = this.flattenObj(merged)
-      this.filterNone(this.wordsMap)
+      this.filterWords(this.wordsMap)
       const freq = this.wordsMap;
       console.log(`(${Object.keys(freq).length})`, freq);
     },
@@ -91,9 +90,10 @@ export default {
       return a;
     },
 
-    filterNone(wordsMap) {
+    filterWords(wordsMap) {
       Object.filter = (obj, predicate) => Object.fromEntries(Object.entries(obj).filter(predicate));
-      this.wordsMap = Object.filter(wordsMap, ([, [freq, id]]) => freq !== 0);
+      this.wordsMap = Object.filter(wordsMap, ([key, [freq,]]) => freq !== 0 && key.length >= 3);
+      console.log(Object.keys(this.wordsMap).length);
       console.log(this.wordsMap);
     },
 
