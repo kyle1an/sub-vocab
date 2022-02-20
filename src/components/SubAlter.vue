@@ -16,7 +16,6 @@
               </div>
             </el-main>
             <el-footer>
-              <!--                          Statistics of the file (1 or 2 letter(s) words are ignored)-->
             </el-footer>
           </el-container>
           <el-aside width="42%">
