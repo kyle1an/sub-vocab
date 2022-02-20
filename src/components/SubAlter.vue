@@ -1,60 +1,34 @@
 <template>
   <div>
-    <div>
-
-      <div>
-        <el-input
-            type="textarea"
-            :rows="2"
-            placeholder="input subtitles manually:"
-            v-model="words">
-        </el-input>
-        <br>
-        <br>
-        <el-button @click="revealFreq(words)" type="primary" icon="el-icon-check" circle></el-button>
-
-        <el-divider></el-divider>
-
-        <div>
+    <el-card>
+      <el-container>
+        <el-header>
           <input type="file" id="file-input" @change="readSingleFile" />
-          <el-divider></el-divider>
-        </div>
-        <el-row>
-          <!--          <el-button @click="filterNone(wordsMap)" type="success">过滤</el-button>-->
-        </el-row>
-      </div>
-    </div>
-
-    <el-table
-        :data="vocabContent"
-        style="width: 100%"
-        :default-sort="{prop: 'info.1', order: 'ascending'}"
-    >
-      <el-table-column
-          prop="vocab"
-          label="Vocabulary"
-          sortable
-          :sort-method="sortByChar"
-          width="160">
-      </el-table-column>
-      <el-table-column
-          prop="info.0"
-          label="Frequency"
-          sortable
-          width="100">
-      </el-table-column>
-      <el-table-column
-          prop="info.1"
-          label="Sequence"
-          sortable
-          width="100">
-      </el-table-column>
-    </el-table>
-
-    <!--    <h3>Statistics of the file<span style="font-size: 9px">(1 or 2 letter(s) words are ignored)</span>:</h3>-->
-    <!--    <pre id="vocab-content">{{ vocabContent }}</pre>-->
-    <pre id="file-content">{{ fileContent }}</pre>
-
+        </el-header>
+        <el-container>
+          <el-container>
+            <el-header>
+              <el-button @click="revealFreq(inputContent)" type="primary" icon="el-icon-check" circle />
+            </el-header>
+            <el-main>
+              <div>
+                <el-input type="textarea" :rows="2" :autosize="{ minRows: 10, maxRows: 100}" placeholder="input subtitles manually:" v-model="inputContent" />
+              </div>
+            </el-main>
+            <el-footer>
+              <!--                          Statistics of the file (1 or 2 letter(s) words are ignored)-->
+            </el-footer>
+          </el-container>
+          <el-aside width="42%">
+            <el-table :data="vocabContent" style="width: 100%" :default-sort="{prop: 'info.1', order: 'ascending'}">
+              <el-table-column prop="vocab" label="Vocabulary" sortable width="150" align="right" :sort-method="sortByChar" />
+              <el-table-column prop="info.0" label="Frequency" sortable width="100" align="right" />
+              <el-table-column prop="info.1" label="Sequence" sortable width="100" align="center" style="width: 100%" />
+            </el-table>
+          </el-aside>
+        </el-container>
+      </el-container>
+    </el-card>
   </div>
 </template>
 
@@ -64,11 +38,9 @@ import fp from "lodash/fp";
 
 export default {
   name: "Sub",
-
   data() {
     return {
-      fileContent: '',
-      words: '',
+      inputContent: '',
       wordsMap: {},
       upperCase: {},
       tableData: [],
@@ -78,8 +50,7 @@ export default {
   computed: {
     vocabContent: function () {
       console.log(Object.keys(this.wordsMap).length);
-      // return JSON.stringify(this.wordsMap, null, 2).replace(/"/mg, "")
-      return this.primaryOrd(this.obj2Array(this.wordsMap, 'vocab', 'info'))
+      return this.obj2Array(this.wordsMap, 'vocab', 'info').sort((a, b) => a.info[1] - b.info[1])
     }
   },
 
@@ -93,8 +64,8 @@ export default {
       if (!file) return;
       const reader = new FileReader();
       reader.onload = (e) => {
-        this.fileContent = e.target.result
-        this.revealFreq(this.fileContent);
+        this.inputContent = e.target.result
+        this.revealFreq(this.inputContent);
       };
       reader.readAsText(file);
     },
@@ -106,11 +77,6 @@ export default {
       this.filterNone(this.wordsMap)
       const freq = this.wordsMap;
       console.log(`(${Object.keys(freq).length})`, freq);
-      // this.vocabContent = JSON.stringify(freq, null, 2).replace(/"/mg, "")
-    },
-
-    primaryOrd(data) {
-      return data.sort((a, b) => a.info[1] - b.info[1])
     },
 
     obj2Array(obj, key = 'key', value = 'value') {
@@ -138,7 +104,6 @@ export default {
       const upper = /[A-Z]/
       let id = 1
       words.forEach((origin) => {
-        // id += 1
         if (upper.test(origin)) {
           wrapLayer(origin, upperCase)
           origin = origin.toLowerCase()
@@ -209,6 +174,7 @@ export default {
             } else if (target.$[0] === layer.$[0]) {
               target.$ = null;
             } else {
+              target.$[1] = Math.min(layer.$[1], target.$[1])
               layer.$[0] = 0;
             }
           }
@@ -226,8 +192,7 @@ export default {
             delete current[key];
           }
         });
-        // remove any leftover undefined values from the delete
-        // operation on an array
+        // remove any leftover undefined values from the delete operation on an array
         if (_.isArray(current)) _.pull(current, undefined);
         return current;
       }(_.cloneDeep(obj));  // Do not modify the original object, create a clone instead
@@ -328,16 +293,82 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
+.el-header, .el-footer {
+  background-color: #B3C0D1;
+  color: #333;
+  text-align: center;
+  line-height: 60px;
+}
+
+.el-aside {
+  background-color: #D3DCE6;
+  color: #333;
+  text-align: center;
+  line-height: 200px;
+}
+
+.el-main {
+  background-color: #E9EEF3;
+  color: #333;
+  text-align: center;
+  line-height: 160px;
+}
+
+body > .el-container {
+  margin-bottom: 40px;
+}
+
+.el-container:nth-child(5) .el-aside,
+.el-container:nth-child(6) .el-aside {
+  line-height: 260px;
+}
+
+.el-container:nth-child(7) .el-aside {
+  line-height: 320px;
+}
+
 #vocab-content {
   text-align: left;
   margin: auto;
   width: 300px;
 }
 
-el-table,
+.el-table,
 .el-table__header-wrapper,
 .el-table__body-wrapper {
   margin: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+el-table, el-table * {
+  font-variant-numeric: tabular-nums;
+}
+
+table thead {
+  font-size: 10px !important;
+}
+
+.el-table th.el-table__cell > .cell {
+  font-size: 10px;
+}
+
+#file-content {
+  text-align: left;
+}
+
+@media only screen  and (max-width: 800px) {
+  .el-container {
+    display: flex;
+    flex-direction: column !important;
+  }
+
+  .el-aside {
+    width: 100% !important;
+  }
+
+  .el-textarea__inner {
+    max-height: 360px;
+  }
 }
 </style>
