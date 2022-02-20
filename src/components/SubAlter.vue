@@ -1,33 +1,34 @@
 <template>
-  <div>
-    <el-card>
+  <div style="margin-top: 10px">
+
+    <el-container>
+      <el-header>
+        <input type="file" id="file-input" @change="readSingleFile" />
+      </el-header>
+
       <el-container>
-        <el-header>
-          <input type="file" id="file-input" @change="readSingleFile" />
-        </el-header>
         <el-container>
-          <el-container>
-            <el-header>
-              <el-button @click="revealFreq(inputContent)" type="primary" icon="el-icon-check" circle />
-            </el-header>
-            <el-main>
-              <div>
-                <el-input type="textarea" :rows="2" :autosize="{ minRows: 10, maxRows: 100}" placeholder="input subtitles manually:" v-model="inputContent" />
-              </div>
-            </el-main>
-            <el-footer>
-            </el-footer>
-          </el-container>
-          <el-aside width="42%">
-            <el-table :data="vocabContent" style="width: 100%" :default-sort="{prop: 'info.1', order: 'ascending'}">
-              <el-table-column prop="vocab" label="Vocabulary" sortable width="150" align="right" :sort-method="sortByChar" />
-              <el-table-column prop="info.0" label="Frequency" sortable width="100" align="right" />
-              <el-table-column prop="info.1" label="Sequence" sortable width="100" align="center" style="width: 100%" />
-            </el-table>
-          </el-aside>
+          <el-main>
+            <div style="position: relative">
+              <el-button style="position: absolute; top: 30px; right: -20px; z-index: 1" @click="revealFreq(inputContent)" type="primary" icon="el-icon-check" circle />
+              <el-input type="textarea" :rows="2" :autosize="{ minRows: 10, maxRows: 100}" placeholder="input subtitles manually:" v-model="inputContent" />
+            </div>
+          </el-main>
         </el-container>
+
+        <el-aside width="42%">
+          <div style="margin: 20px 10px 10px 10px">
+            <el-card>
+              <el-table :data="vocabContent" style="width: 100%" :default-sort="{prop: 'info.1', order: 'ascending'}">
+                <el-table-column prop="vocab" label="Vocabulary" sortable width="150" align="right" :sort-method="sortByChar" />
+                <el-table-column prop="info.0" label="Frequency" sortable width="100" align="right" />
+                <el-table-column prop="info.1" label="Sequence" sortable width="100" align="center" style="width: 100%" />
+              </el-table>
+            </el-card>
+          </div>
+        </el-aside>
       </el-container>
-    </el-card>
+    </el-container>
   </div>
 </template>
 
@@ -293,39 +294,35 @@ export default {
 </script>
 
 <style>
+#file-content {
+  text-align: left;
+}
+
 .el-header, .el-footer {
-  background-color: #B3C0D1;
-  color: #333;
+  /*background-color: #B3C0D1;*/
+  /*color: #333;*/
   text-align: center;
   line-height: 60px;
 }
 
 .el-aside {
-  background-color: #D3DCE6;
-  color: #333;
+  /*background-color: #D3DCE6;*/
+  /*color: #333;*/
   text-align: center;
-  line-height: 200px;
+  /*line-height: 200px;*/
 }
 
 .el-main {
-  background-color: #E9EEF3;
-  color: #333;
+  /*background-color: #E9EEF3;*/
+  /*color: #333;*/
   text-align: center;
-  line-height: 160px;
+  /*line-height: 160px;*/
 }
 
 body > .el-container {
   margin-bottom: 40px;
 }
 
-.el-container:nth-child(5) .el-aside,
-.el-container:nth-child(6) .el-aside {
-  line-height: 260px;
-}
-
-.el-container:nth-child(7) .el-aside {
-  line-height: 320px;
-}
 
 #vocab-content {
   text-align: left;
@@ -352,9 +349,6 @@ table thead {
   font-size: 10px;
 }
 
-#file-content {
-  text-align: left;
-}
 
 @media only screen  and (max-width: 800px) {
   .el-container {
