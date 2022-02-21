@@ -1,32 +1,34 @@
 <template>
-  <div style="margin-top: 10px">
+  <div style="margin: 10px auto;max-width: 1440px">
     <el-container>
       <el-header>
         <input type="file" id="file-input" @change="readSingleFile" />
       </el-header>
 
       <el-container>
-        <el-container>
+        <el-container style="position: relative">
+          <el-header class="el-card is-always-shadow" style="margin: 20px 20px 0 20px">
+            <el-switch v-model="value1" active-text="Filter common words" inactive-text="">
+            </el-switch>
+          </el-header>
           <el-main>
-            <div style="position: relative">
+            <div class="text-input" style="position: relative">
               <div class="submit">
                 <el-button @click="revealFreq(inputContent)" type="primary" icon="el-icon-check" circle />
               </div>
-              <el-input type="textarea" :rows="2" :autosize="{ minRows: 10, maxRows: 100}" placeholder="input subtitles manually:" v-model="inputContent" />
+              <el-input class="textarea" type="textarea" :rows="2" :autosize="{ minRows: 9, maxRows: 40}" placeholder="input subtitles manually:" v-model="inputContent" />
             </div>
           </el-main>
         </el-container>
 
         <el-aside width="42%">
-          <div style="margin: 20px 10px 10px 10px">
-            <el-card>
-              <el-table :data="vocabContent" style="width: 100%" size="mini" :default-sort="{prop: 'info.1', order: 'ascending'}">
-                <el-table-column prop="vocab" label="Vocabulary" sortable width="150" align="right" :sort-method="sortByChar" style="font-size: 14px !important;" />
-                <el-table-column prop="info.0" label="Frequency" sortable width="100" align="right" />
-                <el-table-column prop="info.1" label="Sequence" sortable width="100" align="center" style="width: 100%" />
-              </el-table>
-            </el-card>
-          </div>
+          <el-card style="margin: 20px 10px 10px 10px">
+            <el-table :data="vocabContent" style="width: 100%" size="mini" :default-sort="{prop: 'info.1', order: 'ascending'}">
+              <el-table-column prop="vocab" label="Vocabulary" sortable width="150" align="right" :sort-method="sortByChar" style="font-size: 14px !important;" />
+              <el-table-column prop="info.0" label="Frequency" sortable width="100" align="right" />
+              <el-table-column prop="info.1" label="Sequence" sortable width="100" align="center" style="width: 100%" />
+            </el-table>
+          </el-card>
         </el-aside>
       </el-container>
     </el-container>
@@ -43,8 +45,10 @@ export default {
     return {
       inputContent: '',
       wordsMap: {},
-      upperCase: {},
       tableData: [],
+      commonWords: {},
+      seq: 1,
+      value1: true
     }
   },
 
@@ -52,6 +56,17 @@ export default {
     vocabContent: function () {
       return this.obj2Array(this.wordsMap, 'vocab', 'info').sort((a, b) => a.info[1] - b.info[1])
     }
+  },
+
+  async mounted() {
+    this.commonWords = await fetch('../words.json', {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    }).then((response) => response.json())
+        .then((data) => data);
+    console.log(this.commonWords);
   },
 
   methods: {
@@ -71,9 +86,8 @@ export default {
     },
 
     revealFreq(contents) {
-      const combined = this.wordFreq(contents)
-      const merged = this.mergeCases(this.upperCase, combined);
-      this.wordsMap = this.flattenObj(merged)
+      const freqTree = this.wordFreq(contents)
+      this.wordsMap = this.flattenObj(freqTree);
       this.filterWords(this.wordsMap)
       const freq = this.wordsMap;
       console.log(`(${Object.keys(freq).length})`, freq);
@@ -97,87 +111,80 @@ export default {
       console.log(this.wordsMap);
     },
 
+    filterCommon(commonWords, words) {
+      function lookupWrap(layer, target) {
+        for (const key in layer) {
+          const k = key === 'end' ? '$' : key
+          if (Object.hasOwn(target, k)) {
+            if (k !== '$') {
+              lookupWrap(layer[key], target[key])
+            } else {
+              target.$[0] = 0;
+            }
+          }
+        }
+      }
+
+      lookupWrap(commonWords, words)
+    },
+
     wordFreq(content) {
       const words = content.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || [];
       console.log('words', words)
-      const lowerCase = {};
+      const loweredCase = {};
       const upperCase = {};
       const upper = /[A-Z]/
-      let id = 1
       words.forEach((origin) => {
         if (upper.test(origin)) {
-          wrapLayer(origin, upperCase)
+          this.wrapLayer(origin, upperCase)
           origin = origin.toLowerCase()
         }
-        wrapLayer(origin, lowerCase)
+        this.wrapLayer(origin, loweredCase)
       })
-      this.upperCase = upperCase;
-      console.log(JSON.stringify(lowerCase).replace(/"/mg, ""), '\n')
+      console.log(JSON.stringify(loweredCase).replace(/"/mg, ""), '\n')
       console.log(JSON.stringify(upperCase).replace(/"/mg, ""), '\n')
-      // console.log('_', JSON.stringify(lowerCase, null, 2).replace(/"/mg, ""));
-      // this.mergeCases(lowerCase, upperCase)
-      return lowerCase;
-
-      function wrapLayer(origin, layer) {
-        const chars = [...origin].reverse();
-        const l = chars.length;
-        // console.log('----- chars:', JSON.stringify(chars).replace(/"/mg, ""))
-        for (let i = 0; i < l - 1; i++) {
-          const c = chars.pop()
-          if (!Object.hasOwn(layer, c)) layer[c] = {}
-          layer = layer[c]
-        }
-        // console.log(JSON.stringify(layer),'\n','----- chars:', JSON.stringify(chars).replace(/"/mg, ""),'\n',JSON.stringify(chars))
-        const c = chars.pop()
-        if (!Object.hasOwn(layer, c)) {
-          layer[c] = { $: [1, id] }
-          id += 1
-          return;
-        }
-        layer = layer[c]
-        if (!Object.hasOwn(layer, '$')) {
-          layer['$'] = [1, id]
-          id += 1
-          return;
-        }
-        // const { $ } = layer
-        // $[Object.keys($)] += 1;
-        layer.$[0] += 1;
-        // console.log(JSON.stringify(lowerCase).replace(/"/mg, ""), '\n', JSON.stringify(layer).replace(/"/mg, ""))
-      }
+      // console.log('_', JSON.stringify(loweredCase, null, 2).replace(/"/mg, ""));
+      if (this.value1) this.filterCommon(this.commonWords, loweredCase)
+      return this.mergeCases(upperCase, loweredCase);
     },
 
-    mergeCases(upperCase, lowerCase) {
-      const vm = this;
-      deAffix(lowerCase)
-      lookupWrap(upperCase, lowerCase)
-      // console.log('lowerCases', JSON.stringify(lowerCase).replace(/"/mg, ""), '\n')
-      lowerCase = this.pruneEmpty(lowerCase)
-      // console.log('pruneEmpty', JSON.stringify(lowerCase).replace(/"/mg, ""), '\n')
-      // console.log('upperCases', JSON.stringify(upperCase).replace(/"/mg, ""), '\n')
-      // console.log('---> merge', JSON.stringify(fp.merge(upperCase, lowerCase)).replace(/"/mg, ""), '\n')
-      return fp.merge(upperCase, lowerCase)
-
-      function deAffix(layer) {
-        for (const k in layer) {
-          const value = layer[k]
-          vm.mergeFreq(value)
-          deAffix(value, layer);
-        }
+    wrapLayer(origin, layer) {
+      const chars = [...origin].reverse();
+      while (chars.length > 0) {
+        const c = chars.pop()
+        if (!Object.hasOwn(layer, c)) layer[c] = {}
+        layer = layer[c]
       }
+      if (!Object.hasOwn(layer, '$')) {
+        layer['$'] = [1, this.seq]
+        this.seq += 1
+        return;
+      }
+      layer.$[0] += 1;
+    },
 
-      function lookupWrap(layer, target) {
-        for (const key in layer) {
-          const k = key.toLowerCase();
-          if (Object.hasOwn(target, k)) {
-            if (k !== '$') {
-              lookupWrap(layer[key], target[k])
-            } else if (target.$[0] === layer.$[0]) {
-              target.$ = null;
-            } else {
-              target.$[1] = Math.min(layer.$[1], target.$[1])
-              layer.$[0] = 0;
-            }
+    mergeCases(upperCase, entireVocab) {
+      this.deAffix(entireVocab)
+      this.mergeMaps(upperCase, entireVocab)
+      // console.log('lowerCases', JSON.stringify(entireVocab).replace(/"/mg, ""), '\n')
+      entireVocab = this.pruneEmpty(entireVocab)
+      // console.log('pruneEmpty', JSON.stringify(entireVocab).replace(/"/mg, ""), '\n')
+      // console.log('upperCases', JSON.stringify(upperCase).replace(/"/mg, ""), '\n')
+      // console.log('---> merge', JSON.stringify(fp.merge(upperCase, entireVocab)).replace(/"/mg, ""), '\n')
+      return fp.merge(upperCase, entireVocab)
+    },
+
+    mergeMaps(layer, target) {
+      for (const key in layer) {
+        const k = key.toLowerCase();
+        if (Object.hasOwn(target, k)) {
+          if (k !== '$') {
+            this.mergeMaps(layer[key], target[k])
+          } else if (target.$[0] === layer.$[0]) {
+            target.$ = null;
+          } else {
+            target.$[1] = Math.min(layer.$[1], target.$[1])
+            layer.$[0] = 0;
           }
         }
       }
@@ -200,15 +207,13 @@ export default {
     },
 
     flattenObj(words) {
-      // console.log('trueWords', JSON.stringify(words, null, 2));
-
       function traverseAndFlatten(currentNode, target, flattenedKey) {
         for (const key in currentNode) {
           if (Object.hasOwn(currentNode, key)) {
             const is$ = key === '$'; // stop at $
             const newKey = (flattenedKey || '') + (is$ ? '' : key);
             const value = currentNode[key];
-            // mergeFreq(value);
+            // mergeSuffix(value);
             if (typeof value === 'object' && !is$) {
               traverseAndFlatten(value, target, newKey);
             } else {
@@ -229,7 +234,15 @@ export default {
       return flattened;
     },
 
-    mergeFreq(layer) {
+    deAffix(layer) {
+      for (const k in layer) {
+        const value = layer[k]
+        this.mergeSuffix(value)
+        this.deAffix(value, layer);
+      }
+    },
+
+    mergeSuffix(layer) {
       const $ = { '$': [] }
       const ed = [{
         ...$,
@@ -282,19 +295,23 @@ export default {
           l.s.$[0] = 0
         }
       }
-      sMod(layer)
-      edMod(layer)
-      ingMod(layer)
+      const merge = () => {
+        sMod(layer);
+        edMod(layer);
+        ingMod(layer);
+      }
+      merge();
     },
-  },
-
-  mounted() {
   },
 
 }
 </script>
 
 <style>
+.el-switch__core {
+  width: 33px !important;
+}
+
 tbody .el-table_1_column_1 {
   font-size: 14px !important;
   font-weight: 500;
@@ -362,7 +379,8 @@ table thead {
 }
 
 .el-card__body {
-  padding: 10px !important;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
 }
 
 .el-table__empty-block {
@@ -375,6 +393,11 @@ table thead {
     right: unset;
     bottom: -20px;
     width: 100%;
+  }
+
+  .textarea > textarea,
+  .text-input {
+    max-height: 200px;
   }
 
   .el-container {
