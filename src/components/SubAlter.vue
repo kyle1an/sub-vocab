@@ -25,7 +25,7 @@
           <el-card style="margin: 20px 10px 10px 10px">
             <el-table :data="vocabContent" style="width: 100%" size="mini" :default-sort="{prop: 'info.1', order: 'ascending'}">
               <el-table-column prop="vocab" label="Vocabulary" sortable width="150" align="right" :sort-method="sortByChar" style="font-size: 14px !important;" />
-              <el-table-column prop="info.0" label="Frequency" sortable width="100" align="right" />
+              <el-table-column prop="info.0" label="Times" sortable width="80" align="right" />
               <el-table-column prop="info.1" label="Sequence" sortable width="100" align="center" style="width: 100%" />
             </el-table>
           </el-card>
@@ -397,7 +397,7 @@ table thead {
 
   .textarea > textarea,
   .text-input {
-    max-height: 200px;
+    max-height: 260px;
   }
 
   .el-container {
