@@ -2,9 +2,11 @@
   <div style="margin: 10px auto;max-width: 1440px">
     <el-container>
       <el-header>
+        <!--        <label for="file-input" class="custom-file-upload">-->
+        <!--          Custom Upload-->
+        <!--        </label>-->
         <input type="file" id="file-input" @change="readSingleFile" />
       </el-header>
-
       <el-container>
         <el-container style="position: relative">
           <el-header class="el-card is-always-shadow" style="margin: 20px 20px 0 20px">
@@ -143,9 +145,11 @@ export default {
       })
       console.log(JSON.stringify(loweredCase).replace(/"/mg, ""), '\n')
       console.log(JSON.stringify(upperCase).replace(/"/mg, ""), '\n')
-      // console.log('_', JSON.stringify(loweredCase, null, 2).replace(/"/mg, ""));
+      this.deAffix(loweredCase)
       if (this.value1) this.filterCommon(this.commonWords, loweredCase)
-      return this.mergeCases(upperCase, loweredCase);
+      this.emigrate(upperCase, loweredCase)
+      this.pruneEmpty(loweredCase, true)
+      return fp.merge(upperCase, loweredCase)
     },
 
     wrapLayer(origin, layer) {
@@ -163,23 +167,12 @@ export default {
       layer.$[0] += 1;
     },
 
-    mergeCases(upperCase, entireVocab) {
-      this.deAffix(entireVocab)
-      this.mergeMaps(upperCase, entireVocab)
-      // console.log('lowerCases', JSON.stringify(entireVocab).replace(/"/mg, ""), '\n')
-      entireVocab = this.pruneEmpty(entireVocab)
-      // console.log('pruneEmpty', JSON.stringify(entireVocab).replace(/"/mg, ""), '\n')
-      // console.log('upperCases', JSON.stringify(upperCase).replace(/"/mg, ""), '\n')
-      // console.log('---> merge', JSON.stringify(fp.merge(upperCase, entireVocab)).replace(/"/mg, ""), '\n')
-      return fp.merge(upperCase, entireVocab)
-    },
-
-    mergeMaps(layer, target) {
+    emigrate(layer, target) {
       for (const key in layer) {
         const k = key.toLowerCase();
         if (Object.hasOwn(target, k)) {
           if (k !== '$') {
-            this.mergeMaps(layer[key], target[k])
+            this.emigrate(layer[key], target[k])
           } else if (target.$[0] === layer.$[0]) {
             target.$ = null;
           } else {
@@ -190,7 +183,8 @@ export default {
       }
     },
 
-    pruneEmpty(obj) {
+    pruneEmpty(obj, mutate = false) {
+      const co = mutate ? obj : _.cloneDeep(obj);
       return function prune(current) {
         _.forOwn(current, function (value, key) {
           if (_.isUndefined(value) || _.isNull(value) || _.isNaN(value) ||
@@ -203,7 +197,7 @@ export default {
         // remove any leftover undefined values from the delete operation on an array
         if (_.isArray(current)) _.pull(current, undefined);
         return current;
-      }(_.cloneDeep(obj));  // Do not modify the original object, create a clone instead
+      }(co);  // Do not modify the original object, create a clone instead
     },
 
     flattenObj(words) {
@@ -308,6 +302,13 @@ export default {
 </script>
 
 <style>
+.custom-file-upload {
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
 .el-switch__core {
   width: 33px !important;
 }
@@ -387,7 +388,7 @@ table thead {
   margin: auto;
 }
 
-@media only screen  and (max-width: 800px) {
+@media only screen  and (max-width: 896px) {
   .submit {
     top: unset;
     right: unset;
