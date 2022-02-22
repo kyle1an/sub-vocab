@@ -18,14 +18,14 @@
               <div class="submit">
                 <el-button @click="revealFreq(inputContent)" type="primary" icon="el-icon-check" circle />
               </div>
-              <el-input class="textarea" type="textarea" :rows="2" :autosize="{ minRows: 9, maxRows: 40}" placeholder="input subtitles manually:" v-model="inputContent" />
+              <el-input class="textarea" type="textarea" :rows="12"   placeholder="input subtitles manually:" v-model="inputContent" />
             </div>
           </el-main>
         </el-container>
 
         <el-aside width="42%">
-          <el-card style="margin: 20px 10px 10px 10px">
-            <el-table :data="vocabContent" style="width: 100%" size="mini" :default-sort="{prop: 'info.1', order: 'ascending'}">
+          <el-card style="margin: 20px 10px 10px 10px;">
+            <el-table height="calc(100vh - 182px)" :data="vocabContent" style="width: 100%" size="mini" :default-sort="{prop: 'info.1', order: 'ascending'}">
               <el-table-column prop="vocab" label="Vocabulary" sortable width="150" align="right" :sort-method="sortByChar" style="font-size: 14px !important;" />
               <el-table-column prop="info.0" label="Times" sortable width="80" align="right" class-name="t-num" />
               <el-table-column prop="info.1" label="Sequence" sortable width="100" align="center" style="width: 100%" />
@@ -326,6 +326,7 @@ export default {
 </script>
 
 <style>
+
 .t-num {
   font-variant-numeric: tabular-nums !important;
 }
@@ -409,6 +410,15 @@ table thead {
 
 .el-table__empty-block {
   margin: auto;
+}
+
+@media only screen  and (min-width: 896px) {
+  .textarea,
+  .textarea > textarea,
+  .text-input {
+    max-height: calc(100vh - 220px) !important;
+    overflow: visible;
+  }
 }
 
 @media only screen  and (max-width: 896px) {
