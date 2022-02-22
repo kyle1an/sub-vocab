@@ -18,7 +18,7 @@
               <div class="submit">
                 <el-button @click="revealFreq(inputContent)" type="primary" icon="el-icon-check" circle />
               </div>
-              <el-input class="textarea" type="textarea" :rows="12"   placeholder="input subtitles manually:" v-model="inputContent" />
+              <el-input class="textarea" type="textarea" :rows="12" placeholder="input subtitles manually:" v-model="inputContent" />
             </div>
           </el-main>
         </el-container>
@@ -416,7 +416,8 @@ table thead {
   .textarea,
   .textarea > textarea,
   .text-input {
-    max-height: calc(100vh - 220px) !important;
+    height: 100vh;
+    max-height: calc(100vh - 220px);
     overflow: visible;
   }
 }
