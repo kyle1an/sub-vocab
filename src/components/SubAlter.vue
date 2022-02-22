@@ -27,7 +27,7 @@
           <el-card style="margin: 20px 10px 10px 10px">
             <el-table :data="vocabContent" style="width: 100%" size="mini" :default-sort="{prop: 'info.1', order: 'ascending'}">
               <el-table-column prop="vocab" label="Vocabulary" sortable width="150" align="right" :sort-method="sortByChar" style="font-size: 14px !important;" />
-              <el-table-column prop="info.0" label="Times" sortable width="80" align="right" />
+              <el-table-column prop="info.0" label="Times" sortable width="80" align="right" class-name="t-num" />
               <el-table-column prop="info.1" label="Sequence" sortable width="100" align="center" style="width: 100%" />
             </el-table>
           </el-card>
@@ -66,13 +66,12 @@ export default {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       }
-    }).then((response) => response.json())
-        .then((data) => data);
-    console.log(this.commonWords);
+    }).then((response) => response.json());
+    console.log('commonWords', this.commonWords);
   },
 
   methods: {
-    sortByChar: function (a, b) {
+    sortByChar(a, b) {
       return a['vocab'].localeCompare(b['vocab'], 'en', { sensitivity: 'base' })
     },
 
@@ -113,22 +112,6 @@ export default {
       console.log(this.wordsMap);
     },
 
-    filterCommon(commonWords, words) {
-      function lookupWrap(layer, target) {
-        for (const key in layer) {
-          const k = key === 'end' ? '$' : key
-          if (Object.hasOwn(target, k)) {
-            if (k !== '$') {
-              lookupWrap(layer[key], target[key])
-            } else {
-              target.$[0] = 0;
-            }
-          }
-        }
-      }
-
-      lookupWrap(commonWords, words)
-    },
 
     wordFreq(content) {
       const words = content.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || [];
@@ -149,6 +132,7 @@ export default {
       if (this.value1) this.filterCommon(this.commonWords, loweredCase)
       this.emigrate(upperCase, loweredCase)
       this.pruneEmpty(loweredCase, true)
+      this.seq = 1;
       return fp.merge(upperCase, loweredCase)
     },
 
@@ -165,6 +149,20 @@ export default {
         return;
       }
       layer.$[0] += 1;
+    },
+
+    filterCommon(layer, target) {
+      this.clearSuffix(target, layer);
+      for (const key in layer) {
+        const k = key === 'end' ? '$' : key
+        if (Object.hasOwn(target, k)) {
+          if (key !== 'end') {
+            this.filterCommon(layer[key], target[key])
+          } else {
+            target.$[0] = 0;
+          }
+        }
+      }
     },
 
     emigrate(layer, target) {
@@ -226,6 +224,29 @@ export default {
       const flattened = flatten(words);
       console.log('flattened', JSON.stringify(flattened, null, 0).replace(/"/mg, ""));
       return flattened;
+    },
+
+    clearSuffix(layer, base) {
+      if (base?.end) {
+        const w = layer
+        if (w?.$) w.$[0] = 0
+        if (w?.e?.d?.$) w.e.d.$[0] = 0
+        if (w?.e?.s?.$) w.e.s.$[0] = 0
+        if (w?.i?.n?.g?.$) w.i.n.g.$[0] = 0
+        if (w?.s?.$) w.s.$[0] = 0
+      }
+      if (base?.e?.end) {
+        const e = layer?.e;
+        if (e) {
+          if (e?.$) e.$[0] = 0
+          if (e?.d?.$) e.d.$[0] = 0
+          if (e?.s?.$) e.s.$[0] = 0
+        } else {
+          const ing = layer?.i?.n?.g
+          if (ing?.$) ing.$[0] = 0
+          if (ing?.s?.$) ing.s.$[0] = 0
+        }
+      }
     },
 
     deAffix(layer) {
@@ -302,6 +323,10 @@ export default {
 </script>
 
 <style>
+.t-num {
+  font-variant-numeric: tabular-nums !important;
+}
+
 .custom-file-upload {
   border: 1px solid #ccc;
   display: inline-block;
@@ -364,11 +389,6 @@ body > .el-container {
 .el-table__header-wrapper,
 .el-table__body-wrapper {
   margin: auto;
-  font-variant-numeric: tabular-nums;
-}
-
-el-table, el-table * {
-  font-variant-numeric: tabular-nums;
 }
 
 table thead {

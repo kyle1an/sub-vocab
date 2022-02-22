@@ -17,7 +17,7 @@ textarea,
     /*-moz-font-feature-settings: 'smcp';*/
     /* -webkit-font-feature-settings: 'tnum'  !important;*/
 
-    font-feature-settings: 'cv01', 'ss01' 0, 'ss02', 'cv02', 'cv03', 'cv04', 'cv05', 'cv06', 'ss07' 0, 'cv07' 0, 'cv08', 'nlck', 'nalt' 0, 'ital', 'tnum' 0, 'ss03' 0, 'ss04' !important;
+    font-feature-settings: 'cv01', 'ss01' 0, 'ss02', 'cv02', 'cv03', 'cv04', 'cv05', 'cv06', 'ss07' 0, 'cv07' 0, 'cv08', 'nlck', 'nalt' 0, 'ital',  'ss03' 0, 'ss04' !important;
 
     /*font-feature-settings: 'cv01',*/
     /*    !* 'Straight-sided nine'; 6 9. [six six.tnum] by [six.1 six.1.tnum];*! 'ss01' 0,*/
