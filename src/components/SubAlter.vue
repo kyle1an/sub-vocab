@@ -227,7 +227,8 @@ export default {
     },
 
     clearSuffix(layer, base) {
-      if (base?.end) {
+      const TER = 'end'
+      if (base?.[TER]) {
         const w = layer
         if (w?.$) w.$[0] = 0
         if (w?.e?.d?.$) w.e.d.$[0] = 0
@@ -235,14 +236,16 @@ export default {
         if (w?.i?.n?.g?.$) w.i.n.g.$[0] = 0
         if (w?.s?.$) w.s.$[0] = 0
       }
-      if (base?.e?.end) {
+
+      if (base?.e?.[TER]) {
         const e = layer?.e;
         if (e) {
           if (e?.$) e.$[0] = 0
           if (e?.d?.$) e.d.$[0] = 0
           if (e?.s?.$) e.s.$[0] = 0
-        } else {
-          const ing = layer?.i?.n?.g
+        }
+        const ing = layer?.i?.n?.g
+        if (ing) {
           if (ing?.$) ing.$[0] = 0
           if (ing?.s?.$) ing.s.$[0] = 0
         }
