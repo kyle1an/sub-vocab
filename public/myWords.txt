@@ -17,7 +17,7 @@ whatever
 what's
 wet
 welcome
-Wednesday
+wednesday
 wedding
 wealth
 we've
@@ -177,7 +177,7 @@ pause
 patient
 patience
 park
-Paris
+paris
 parallel
 panic
 pain
@@ -206,9 +206,9 @@ mother's
 mostly
 mommy
 mom
-Mmm
-Mm-mmm
-Mm-hmm
+mmm
+mm-mmm
+mm-hmm
 mistake
 mirror
 military
@@ -259,7 +259,7 @@ kick
 judge
 jesus
 jeez
-Japan
+japan
 jacket
 it's
 it'll
@@ -303,7 +303,7 @@ hell
 heaven
 health
 he's
-He'll
+he'll
 haven't
 hasn't
 harm
@@ -371,7 +371,7 @@ everything
 everyone
 everybody's
 everybody
-Europe
+europe
 establish
 envelope
 entirely
@@ -445,8 +445,8 @@ closer
 clearly
 circumstance
 cigarette
-Christmas
-Christ
+christmas
+christ
 choice
 chocolate
 childhood
@@ -469,7 +469,7 @@ bus
 bullshit
 built
 broken
-British
+british
 briefly
 brief
 breathe
@@ -538,7 +538,7 @@ angry
 angle
 angel
 analysis
-America
+america
 already
 along
 alone
@@ -547,7 +547,7 @@ alive
 alcohol
 ain't
 aid
-Ahh
+ahh
 ahead
 affair
 admire
