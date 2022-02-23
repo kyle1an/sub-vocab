@@ -10,7 +10,7 @@
       <el-container>
         <el-container style="position: relative">
           <el-header class="el-card is-always-shadow" style="margin: 20px 20px 0 20px">
-            <el-switch v-model="value1" active-text="Filter common words" inactive-text="">
+            <el-switch v-model="isFilter" active-text="Filter common words" inactive-text="">
             </el-switch>
           </el-header>
           <el-main>
@@ -38,8 +38,8 @@
 </template>
 
 <script>
-import _ from "lodash";
-import fp from "lodash/fp";
+import { pruneEmpty, obj2Array } from "./utils";
+import _ from "lodash/fp";
 
 export default {
   name: "Sub",
@@ -47,27 +47,52 @@ export default {
     return {
       inputContent: '',
       wordsMap: {},
-      tableData: [],
-      commonWords: {},
+      wordsJson: {},
+      commonList: '',
+      commonMap: {},
       seq: 1,
-      value1: true
+      isFilter: true
     }
   },
 
   computed: {
     vocabContent: function () {
-      return this.obj2Array(this.wordsMap, 'vocab', 'info').sort((a, b) => a.info[1] - b.info[1])
+      return obj2Array(this.wordsMap, 'vocab', 'info').sort((a, b) => a.info[1] - b.info[1])
     }
   },
 
   async mounted() {
-    this.commonWords = await fetch('../words.json', {
+    this.wordsJson = await fetch('../words.json', {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       }
     }).then((response) => response.json());
-    console.log('commonWords', this.commonWords);
+    console.log('wordsJson', this.wordsJson);
+
+    this.wordsList = (await fetch('../common-words.txt', {
+      headers: {
+        'Content-Type': 'text/plain',
+        'Accept': 'application/json'
+      }
+    }).then((response) => response.text()))
+        .concat(await fetch('../myWords.txt', {
+          headers: {
+            'Content-Type': 'text/plain',
+            'Accept': 'application/json'
+          }
+        }).then((response) => response.text()))
+
+    console.log('wordsJson', this.wordsList);
+    this.commonMap = this.buildMap(this.wordsList)
+    console.log(this.commonMap)
+
+
+    // console.log(this.flattenObj(this.commonMap))
+
+    // this.filter(this.wordsJson, this.commonMap)
+    // pruneEmpty(this.commonMap)
+    // console.log(this.flattenObj(this.commonMap))
   },
 
   methods: {
@@ -87,22 +112,11 @@ export default {
     },
 
     revealFreq(contents) {
-      const freqTree = this.wordFreq(contents)
+      const freqTree = this.freqTree(contents)
       this.wordsMap = this.flattenObj(freqTree);
       this.filterWords(this.wordsMap)
       const freq = this.wordsMap;
       console.log(`(${Object.keys(freq).length})`, freq);
-    },
-
-    obj2Array(obj, key = 'key', value = 'value') {
-      let a = [], info;
-      for (const k in obj) {
-        info = {};
-        info[key] = k;
-        info[value] = obj[k];
-        a.push(info);
-      }
-      return a;
     },
 
     filterWords(wordsMap) {
@@ -112,8 +126,7 @@ export default {
       console.log(this.wordsMap);
     },
 
-
-    wordFreq(content) {
+    freqTree(content) {
       const words = content.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || [];
       console.log('words', words)
       const loweredCase = {};
@@ -129,11 +142,14 @@ export default {
       console.log(JSON.stringify(loweredCase).replace(/"/mg, ""), '\n')
       console.log(JSON.stringify(upperCase).replace(/"/mg, ""), '\n')
       this.deAffix(loweredCase)
-      if (this.value1) this.filterCommon(this.commonWords, loweredCase)
+      if (this.isFilter) {
+        // this.filterCommon(this.wordsJson, loweredCase)
+        this.filterCommon(this.commonMap, loweredCase, '$')
+      }
       this.emigrate(upperCase, loweredCase)
-      this.pruneEmpty(loweredCase, true)
+      pruneEmpty(loweredCase, true)
       this.seq = 1;
-      return fp.merge(upperCase, loweredCase)
+      return _.merge(upperCase, loweredCase)
     },
 
     wrapLayer(origin, layer) {
@@ -144,20 +160,42 @@ export default {
         layer = layer[c]
       }
       if (!Object.hasOwn(layer, '$')) {
-        layer['$'] = [1, this.seq]
+        layer.$ = [1, this.seq]
         this.seq += 1
         return;
       }
       layer.$[0] += 1;
     },
 
-    filterCommon(layer, target) {
-      this.clearSuffix(target, layer);
+    buildMap(list) {
+      const words = list.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || [];
+      const layer = {};
+      words.forEach((origin) => this.buildLayer(origin, layer))
+      return layer;
+    },
+
+    buildLayer(origin, layer) {
+      const chars = [...origin].reverse();
+      while (chars.length > 0) {
+        const c = chars.pop()
+        if (!Object.hasOwn(layer, c)) layer[c] = {}
+        layer = layer[c]
+      }
+      if (!Object.hasOwn(layer, '$')) {
+        layer.$ = [1,]
+        // this.seq += 1
+        return;
+      }
+      layer.$[0] += 1;
+    },
+
+    filterCommon(layer, target, TER = 'end') {
+      this.clearSuffix(target, layer, TER);
       for (const key in layer) {
-        const k = key === 'end' ? '$' : key
+        const k = key === TER ? '$' : key
         if (Object.hasOwn(target, k)) {
-          if (key !== 'end') {
-            this.filterCommon(layer[key], target[key])
+          if (key !== TER) {
+            this.filterCommon(layer[key], target[key], TER)
           } else {
             target.$[0] = 0;
           }
@@ -181,53 +219,31 @@ export default {
       }
     },
 
-    pruneEmpty(obj, mutate = false) {
-      const co = mutate ? obj : _.cloneDeep(obj);
-      return function prune(current) {
-        _.forOwn(current, function (value, key) {
-          if (_.isUndefined(value) || _.isNull(value) || _.isNaN(value) ||
-              (_.isString(value) && _.isEmpty(value)) ||
-              (_.isObject(value) && _.isEmpty(prune(value)))
-          ) {
-            delete current[key];
-          }
-        });
-        // remove any leftover undefined values from the delete operation on an array
-        if (_.isArray(current)) _.pull(current, undefined);
-        return current;
-      }(co);  // Do not modify the original object, create a clone instead
+    flattenObj(tree) {
+      const flattenedObject = {};
+      console.log('flatten', JSON.stringify(tree, null, 0).replace(/"/mg, ""));
+      this.traverseAndFlatten(tree, flattenedObject);
+      console.log('flattened', JSON.stringify(flattenedObject, null, 0).replace(/"/mg, ""));
+      return flattenedObject;
     },
 
-    flattenObj(words) {
-      function traverseAndFlatten(currentNode, target, flattenedKey) {
-        for (const key in currentNode) {
-          if (Object.hasOwn(currentNode, key)) {
-            const is$ = key === '$'; // stop at $
-            const newKey = (flattenedKey || '') + (is$ ? '' : key);
-            const value = currentNode[key];
-            // mergeSuffix(value);
-            if (typeof value === 'object' && !is$) {
-              traverseAndFlatten(value, target, newKey);
-            } else {
-              target[newKey] = value; // $:[] -> $: Frequency
-            }
+    traverseAndFlatten(currentNode, target, flattenedKey) {
+      for (const key in currentNode) {
+        if (Object.hasOwn(currentNode, key)) {
+          const is$ = key === '$'; // stop at $
+          const newKey = (flattenedKey || '') + (is$ ? '' : key);
+          const value = currentNode[key];
+          // mergeSuffix(value);
+          if (typeof value === 'object' && !is$) {
+            this.traverseAndFlatten(value, target, newKey);
+          } else {
+            target[newKey] = value; // $:[] -> $: Frequency
           }
         }
       }
-
-      function flatten(obj) {
-        const flattenedObject = {};
-        traverseAndFlatten(obj, flattenedObject);
-        return flattenedObject;
-      }
-
-      const flattened = flatten(words);
-      console.log('flattened', JSON.stringify(flattened, null, 0).replace(/"/mg, ""));
-      return flattened;
     },
 
-    clearSuffix(layer, base) {
-      const TER = 'end'
+    clearSuffix(layer, base, TER = 'end') {
       if (base?.[TER]) {
         const w = layer
         if (w?.$) w.$[0] = 0
@@ -282,30 +298,30 @@ export default {
         'i': { 'n': { 'g': $ } },
       }]
       const edMod = (l) => {
-        if (fp.isMatch(ed[0], l)) {
+        if (_.isMatch(ed[0], l)) {
           l.$[0] += l.e.d.$[0]
           l.e.d.$[0] = 0
-        } else if (fp.isMatch(ed[1], l)) {
+        } else if (_.isMatch(ed[1], l)) {
           l.e.$[0] += l.e.d.$[0]
           l.e.d.$[0] = 0
         }
       }
       const ingMod = (l) => {
-        if (fp.isMatch(ing[0], l)) {
+        if (_.isMatch(ing[0], l)) {
           l.$[0] += l.i.n.g.$[0]
           l.i.n.g.$[0] = 0
-        } else if (fp.isMatch(ing[1], l)) {
+        } else if (_.isMatch(ing[1], l)) {
           l.$[0] += l.i.n.g.$[0] + l.e.d.$[0]
           l.i.n.g.$[0] = 0
           l.e.d.$[0] = 0
-        } else if (fp.isMatch(ing[2], l)) {
+        } else if (_.isMatch(ing[2], l)) {
           l.e.$[0] += l.i.n.g.$[0] + l.e.d.$[0]
           l.i.n.g.$[0] = 0
           l.e.d.$[0] = 0
         }
       }
       const sMod = (l) => {
-        if (fp.isMatch({
+        if (_.isMatch({
           ...$,
           's': $
         }, l)) {
