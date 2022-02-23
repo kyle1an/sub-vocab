@@ -38,11 +38,11 @@
 </template>
 
 <script>
-import { pruneEmpty, obj2Array } from "./utils";
-import _ from "lodash/fp";
+import { pruneEmpty, obj2Array, deDuplicate } from './utils';
+import _ from 'lodash/fp';
 
 export default {
-  name: "Sub",
+  name: 'Sub',
   data() {
     return {
       inputContent: '',
@@ -83,13 +83,20 @@ export default {
           }
         }).then((response) => response.text()))
 
-    console.log('wordsJson', this.wordsList);
+    // console.log('wordsJson', this.wordsList);
     this.commonMap = this.buildMap(this.wordsList)
-    console.log(this.commonMap)
+    // console.log(this.commonMap)
 
-
+    const myWords = await fetch('../myWords.txt', {
+      headers: {
+        'Content-Type': 'text/plain',
+        'Accept': 'application/json'
+      }
+    }).then((response) => response.text());
+    const myArray = deDuplicate(myWords.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg).sort());
+    console.log('myArray');
+    console.log(myArray.join("\r\n"));
     // console.log(this.flattenObj(this.commonMap))
-
     // this.filter(this.wordsJson, this.commonMap)
     // pruneEmpty(this.commonMap)
     // console.log(this.flattenObj(this.commonMap))

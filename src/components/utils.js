@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from 'lodash';
 
 function pruneEmpty(obj, mutate = true) {
     const co = mutate ? obj : _.cloneDeep(obj);
@@ -28,4 +28,8 @@ function obj2Array(obj, key = 'key', value = 'value') {
     return a;
 }
 
-export { pruneEmpty, obj2Array };
+function deDuplicate(array) {
+    return [...new Set(array)];
+}
+
+export { pruneEmpty, obj2Array, deDuplicate };
