@@ -138,7 +138,7 @@ export default {
       console.log('words', words)
       const loweredCase = {};
       const upperCase = {};
-      const upper = /[A-Z]/
+      const upper = /[A-Z']/
       words.forEach((origin) => {
         if (upper.test(origin)) {
           this.wrapLayer(origin, upperCase)
@@ -259,7 +259,6 @@ export default {
         if (w?.i?.n?.g?.$) w.i.n.g.$[0] = 0
         if (w?.s?.$) w.s.$[0] = 0
       }
-
       if (base?.e?.[TER]) {
         const e = layer?.e;
         if (e) {
@@ -285,25 +284,10 @@ export default {
 
     mergeSuffix(layer) {
       const $ = { '$': [] }
-      const ed = [{
-        ...$,
-        'e': { 'd': $ },
-      }, {
-        'e': {
-          ...$,
-          'd': $,
-        },
-      },]
-      const ing = [{
-        ...$,
-        'i': { 'n': { 'g': $ } },
-      }, {
-        ...ed[0],
-        'i': { 'n': { 'g': $ } },
-      }, {
-        ...ed[1],
-        'i': { 'n': { 'g': $ } },
-      }]
+      const ed = [
+        { ...$, 'e': { 'd': $ }, },
+        { 'e': { ...$, 'd': $, }, },
+      ]
       const edMod = (l) => {
         if (_.isMatch(ed[0], l)) {
           l.$[0] += l.e.d.$[0]
@@ -313,6 +297,12 @@ export default {
           l.e.d.$[0] = 0
         }
       }
+
+      const ing = [
+        { ...$, 'i': { 'n': { 'g': $ } }, },
+        { ...ed[0], 'i': { 'n': { 'g': $ } }, },
+        { ...ed[1], 'i': { 'n': { 'g': $ } }, }
+      ]
       const ingMod = (l) => {
         if (_.isMatch(ing[0], l)) {
           l.$[0] += l.i.n.g.$[0]
@@ -325,6 +315,35 @@ export default {
           l.e.$[0] += l.i.n.g.$[0] + l.e.d.$[0]
           l.i.n.g.$[0] = 0
           l.e.d.$[0] = 0
+        }
+      }
+
+      const apostrophe = [
+        { ...$, "'": { 's': $ }, },
+        { ...$, "'": { 'l': { 'l': $ } }, },
+        { ...$, "'": { 'v': { 'e': $ } }, },
+        { ...$, "'": { 'd': $ }, }
+      ]
+      const apostropheMod = (l) => {
+        if (Object.hasOwn(l, '$')) {
+          const _$ = l?.["'"]
+          const s = _$?.s
+          const d = _$?.d
+          const ll = _$?.l?.l
+          const ve = _$?.v?.e
+          if (s) {
+            l.$[0] += s.$[0]
+            s.$[0] = 0
+          } else if (ll) {
+            l.$[0] += ll.$[0]
+            ll.$[0] = 0
+          } else if (ve) {
+            l.$[0] += ve.$[0]
+            ve.$[0] = 0
+          } else if (d) {
+            l.$[0] += d.$[0]
+            d.$[0] = 0
+          }
         }
       }
       const sMod = (l) => {
@@ -340,6 +359,7 @@ export default {
         sMod(layer);
         edMod(layer);
         ingMod(layer);
+        apostropheMod(layer);
       }
       merge();
     },
