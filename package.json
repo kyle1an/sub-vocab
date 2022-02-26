@@ -2,6 +2,7 @@
   "name": "sub",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -10,8 +11,12 @@
   "dependencies": {
     "core-js": "^3.21.0",
     "element-ui": "^2.15.6",
+    "esrever": "^0.2.0",
+    "fs": "0.0.1-security",
     "lodash": "^4.17.21",
     "natural": "^5.1.13",
+    "node-fetch": "^3.2.0",
+    "path": "^0.12.7",
     "stemmer": "^2.0.0",
     "vue": "^2.6.11"
   },

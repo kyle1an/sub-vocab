@@ -3,7 +3,6 @@ import Vue from 'vue'
 import App from './App.vue'
 import "./css/main.css";
 import "./css/fonts.css";
-
 // import {
 //     Table,
 //     TableColumn,

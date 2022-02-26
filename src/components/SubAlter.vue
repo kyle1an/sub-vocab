@@ -22,7 +22,6 @@
             </div>
           </el-main>
         </el-container>
-
         <el-aside width="42%">
           <el-card style="margin: 20px 10px 10px 10px;">
             <el-table height="calc(100vh - 182px)" :data="vocabContent" style="width: 100%" size="mini" :default-sort="{prop: 'info.1', order: 'ascending'}">
@@ -38,7 +37,8 @@
 </template>
 
 <script>
-import { pruneEmpty, obj2Array, deDuplicate } from './utils';
+import { pruneEmpty, obj2Array, deDuplicate } from '@/utils/utils';
+import { deAffix } from "@/components/ignoreSuffix";
 import _ from 'lodash/fp';
 
 export default {
@@ -62,47 +62,34 @@ export default {
   },
 
   async mounted() {
-    this.wordsJson = await fetch('../words.json', {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
-    }).then((response) => response.json());
-    console.log('wordsJson', this.wordsJson);
-
-    this.wordsList = (await fetch('../common-words.txt', {
+    const init = {
       headers: {
         'Content-Type': 'text/plain',
         'Accept': 'application/json'
       }
-    }).then((response) => response.text()))
-        .concat(await fetch('../myWords.txt', {
-          headers: {
-            'Content-Type': 'text/plain',
-            'Accept': 'application/json'
-          }
-        }).then((response) => response.text()))
-
-    // console.log('wordsJson', this.wordsList);
-    this.commonMap = this.buildMap(this.wordsList)
-    // console.log(this.commonMap)
-
-    const myWords = await fetch('../myWords.txt', {
-      headers: {
-        'Content-Type': 'text/plain',
-        'Accept': 'application/json'
-      }
-    }).then((response) => response.text());
-    const myArray = deDuplicate(myWords.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg).sort());
-    console.log('myArray');
-    console.log(myArray.join("\r\n"));
+    }
+    const w1k = await fetch('../common-words.txt', init).then((response) => response.text());
+    const myRec = await fetch('../myWords.txt', init).then((response) => response.text());
+    this.commonMap = this.buildMap(w1k.concat(myRec))
+    const myWords = await fetch('../myWords.txt', init).then((response) => response.text());
+    // const myArray = deDuplicate(myWords.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg).sort());
+    // console.log('myArray');
+    // console.log(myArray.join("\r\n"));
     // console.log(this.flattenObj(this.commonMap))
     // this.filter(this.wordsJson, this.commonMap)
     // pruneEmpty(this.commonMap)
     // console.log(this.flattenObj(this.commonMap))
+    this.newWords(myWords)
   },
 
   methods: {
+    newWords(wl) {
+      const tarTree = this.buildMap(wl)
+      this.filter(this.commonMap, tarTree, '$')
+      pruneEmpty(tarTree)
+      console.log(this.flattenObj(tarTree))
+    },
+
     sortByChar(a, b) {
       return a['vocab'].localeCompare(b['vocab'], 'en', { sensitivity: 'base' })
     },
@@ -148,7 +135,7 @@ export default {
       })
       console.log(JSON.stringify(loweredCase).replace(/"/mg, ""), '\n')
       console.log(JSON.stringify(upperCase).replace(/"/mg, ""), '\n')
-      this.deAffix(loweredCase)
+      deAffix(loweredCase)
       if (this.isFilter) {
         // this.filterCommon(this.wordsJson, loweredCase)
         this.filterCommon(this.commonMap, loweredCase, '$')
@@ -194,6 +181,20 @@ export default {
         return;
       }
       layer.$[0] += 1;
+    },
+
+    filter(layer, target, TER = 'end') {
+      this.clearSuffix(target, layer, TER);
+      for (const key in layer) {
+        const k = key === TER ? '$' : key
+        if (Object.hasOwn(target, k)) {
+          if (key !== TER) {
+            this.filter(layer[key], target[key], TER)
+          } else {
+            target.$ = null;
+          }
+        }
+      }
     },
 
     filterCommon(layer, target, TER = 'end') {
@@ -273,103 +274,11 @@ export default {
         }
       }
     },
-
-    deAffix(layer) {
-      for (const k in layer) {
-        const value = layer[k]
-        this.mergeSuffix(value)
-        this.deAffix(value, layer);
-      }
-    },
-
-    mergeSuffix(layer) {
-      const $ = { '$': [] }
-      const ed = [
-        { ...$, 'e': { 'd': $ }, },
-        { 'e': { ...$, 'd': $, }, },
-      ]
-      const edMod = (l) => {
-        if (_.isMatch(ed[0], l)) {
-          l.$[0] += l.e.d.$[0]
-          l.e.d.$[0] = 0
-        } else if (_.isMatch(ed[1], l)) {
-          l.e.$[0] += l.e.d.$[0]
-          l.e.d.$[0] = 0
-        }
-      }
-
-      const ing = [
-        { ...$, 'i': { 'n': { 'g': $ } }, },
-        { ...ed[0], 'i': { 'n': { 'g': $ } }, },
-        { ...ed[1], 'i': { 'n': { 'g': $ } }, }
-      ]
-      const ingMod = (l) => {
-        if (_.isMatch(ing[0], l)) {
-          l.$[0] += l.i.n.g.$[0]
-          l.i.n.g.$[0] = 0
-        } else if (_.isMatch(ing[1], l)) {
-          l.$[0] += l.i.n.g.$[0] + l.e.d.$[0]
-          l.i.n.g.$[0] = 0
-          l.e.d.$[0] = 0
-        } else if (_.isMatch(ing[2], l)) {
-          l.e.$[0] += l.i.n.g.$[0] + l.e.d.$[0]
-          l.i.n.g.$[0] = 0
-          l.e.d.$[0] = 0
-        }
-      }
-
-      const apostrophe = [
-        { ...$, "'": { 's': $ }, },
-        { ...$, "'": { 'l': { 'l': $ } }, },
-        { ...$, "'": { 'v': { 'e': $ } }, },
-        { ...$, "'": { 'd': $ }, }
-      ]
-      const apostropheMod = (l) => {
-        if (Object.hasOwn(l, '$')) {
-          const _$ = l?.["'"]
-          const s = _$?.s
-          const d = _$?.d
-          const ll = _$?.l?.l
-          const ve = _$?.v?.e
-          if (s) {
-            l.$[0] += s.$[0]
-            s.$[0] = 0
-          } else if (ll) {
-            l.$[0] += ll.$[0]
-            ll.$[0] = 0
-          } else if (ve) {
-            l.$[0] += ve.$[0]
-            ve.$[0] = 0
-          } else if (d) {
-            l.$[0] += d.$[0]
-            d.$[0] = 0
-          }
-        }
-      }
-      const sMod = (l) => {
-        if (_.isMatch({
-          ...$,
-          's': $
-        }, l)) {
-          l.$[0] += l.s.$[0]
-          l.s.$[0] = 0
-        }
-      }
-      const merge = () => {
-        sMod(layer);
-        edMod(layer);
-        ingMod(layer);
-        apostropheMod(layer);
-      }
-      merge();
-    },
   },
-
 }
 </script>
 
 <style>
-
 .t-num {
   font-variant-numeric: tabular-nums !important;
 }

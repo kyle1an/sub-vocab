@@ -1,5 +1,10 @@
 import _ from 'lodash';
 
+const esrever = require('../components/esrever.js')
+const reverse = (str) => esrever.reverse(str);
+const print = (m, space = 0) => console.log(JSON.stringify(m, null, space).replace(/"/mg, ""))
+const stringify = (m, space = 0) => JSON.stringify(m, null, space)
+
 function pruneEmpty(obj, mutate = true) {
     const co = mutate ? obj : _.cloneDeep(obj);
     return function prune(current) {
@@ -18,18 +23,11 @@ function pruneEmpty(obj, mutate = true) {
 }
 
 function obj2Array(obj, key = 'key', value = 'value') {
-    let a = [], info;
-    for (const k in obj) {
-        info = {};
-        info[key] = k;
-        info[value] = obj[k];
-        a.push(info);
-    }
-    return a;
+    return Object.entries(obj).map(([k, v]) => ({ [key]: k, [value]: [v._, v['#']] }))
 }
 
 function deDuplicate(array) {
     return [...new Set(array)];
 }
 
-export { pruneEmpty, obj2Array, deDuplicate };
+export { pruneEmpty, obj2Array, deDuplicate, print, stringify };
