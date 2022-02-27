@@ -99,6 +99,7 @@ assume
 astonish
 ate
 atmosphere
+attack
 attempt
 attraction
 attractive
@@ -221,7 +222,6 @@ carries
 castle
 caution
 cautious
-cave
 celebrate
 ceremony
 certainly
@@ -237,6 +237,7 @@ chicken
 childhood
 chocolate
 choice
+chose
 christ
 christmas
 church
@@ -465,6 +466,7 @@ fella
 fellow
 female
 fever
+file
 film
 finally
 fix
@@ -481,6 +483,7 @@ fool
 forbid
 forbidden
 foreign
+foreigner
 forget
 forgive
 forgiveness
@@ -632,6 +635,7 @@ invite
 involve
 isn't
 issue
+item
 itself
 jacket
 japan
@@ -662,6 +666,7 @@ later
 laughter
 lawyer
 lazy
+leader
 leadership
 leaf
 lean
@@ -824,6 +829,7 @@ pen
 pencil
 per
 perfected
+perfectly
 perform
 performance
 permanent
@@ -1028,11 +1034,13 @@ soup
 southern
 spark
 specific
+spicy
 spike
 spilt
 spirit
 splendid
 split
+spoken
 sport
 staff
 stage
@@ -1058,6 +1066,7 @@ subscriber
 suck
 suddenly
 suffer
+sufficient
 suggestion
 sunday
 super

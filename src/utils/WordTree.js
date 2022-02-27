@@ -1,9 +1,7 @@
 import { pruneEmpty, print, stringify, } from '../utils/utils.js';
 import { deAffix, clearSuffix } from "../components/ignoreSuffix.js";
-import _ from 'lodash/fp';
+import _ from 'lodash/fp.js';
 
-const esrever = require('../components/esrever.js')
-const reverse = (str) => esrever.reverse(str);
 const has = Object.prototype.hasOwnProperty
 
 class WordTree {
@@ -23,14 +21,18 @@ class WordTree {
     }
 
     #buildLayer(word, layer) {
-        const chars = reverse(word);
+        const chars = [...word].reverse();
         while (chars.length > 0) {
             const c = chars.pop()
             if (!has.call(layer, c)) layer[c] = {}
             layer = layer[c]
         }
         if (!has.call(layer, '$')) {
-            layer.$ = { '_': 1, '#': this.#i['#']++ }
+            layer.$ = {
+                '_': 1,
+                '~': word.length,
+                '@': this.#i['@']++
+            }
             return;
         }
         layer.$._ += 1;
@@ -46,7 +48,7 @@ class WordTree {
         }
 
         const reset = (filtee) => filtee.$._ = 0;
-        const remove = (filtee) => filtee.$ = { '_': null, '#': null }
+        const remove = (filtee) => filtee.$ = { '_': null, '@': null }
         this.#alter(filter, this.layer, isPrune ? remove : reset)
         if (isPrune) pruneEmpty(this.layer)
     }
@@ -81,12 +83,12 @@ class WordTree {
                 if (k !== '$') {
                     this.#emigrate(newTree[key], layer[k])
                 } else if (layer.$._ === newTree.$._) {
-                    layer.$ = { '_': null, '#': null };
+                    layer.$ = { '_': null, '@': null };
                 } else {
                     console.log('now')
                     console.log(layer, newTree)
-                    layer.$['#'] = Math.min(newTree.$['#'], layer.$['#'])
-                    newTree.$ = { '_': null, '#': null };
+                    layer.$['@'] = Math.min(newTree.$['@'], layer.$['@'])
+                    newTree.$ = { '_': null, '@': null };
                 }
             }
         }

@@ -21,10 +21,10 @@
         </el-container>
         <el-aside width="42%">
           <el-card style="margin: 20px 10px 10px 10px;">
-            <el-table height="calc(100vh - 182px)" :data="vocabContent" style="width: 100%" size="mini" :default-sort="{prop: 'info.1', order: 'ascending'}">
+            <el-table height="calc(100vh - 182px)" :data="vocabContent" style="width: 100%" size="mini">
               <el-table-column prop="vocab" label="Vocabulary" sortable width="150" align="right" :sort-method="sortByChar" style="font-size: 14px !important;" />
               <el-table-column prop="info.0" label="Times" sortable width="80" align="right" class-name="t-num" />
-              <el-table-column prop="info.1" label="Sequence" sortable width="100" align="center" style="width: 100%" />
+              <el-table-column prop="info.1" label="Length" sortable width="100" align="center" style="width: 100%" />
             </el-table>
           </el-card>
         </el-aside>
@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import { WordTree } from "@/components/Tree";
+import { WordTree } from "@/utils/WordTree.js";
 import { pruneEmpty, deDuplicate, print, stringify } from '@/utils/utils';
 import { deAffix, clearSuffix } from "@/components/ignoreSuffix";
 import _ from 'lodash/fp';
@@ -50,15 +50,15 @@ export default {
       commonMap: {},
       seq: 1,
       isFilter: true,
-      i: { '#': 1 }
+      i: { '@': 1 }
     }
   },
 
   computed: {
     vocabContent: function () {
       return Object.entries(this.wordsMap)
-          .map(([k, v]) => ({ vocab: k, info: [v._, v['#']] }))
-          .sort((a, b) => a.info[1] - b.info[1])
+          .map(([k, v]) => ({ vocab: k, info: [v._, v['~'], v['@']] }))
+          .sort((a, b) => a.info[2] - b.info[2])
     }
   },
 
@@ -72,7 +72,7 @@ export default {
     const w1k = await fetch('../common-words.txt', init).then((response) => response.text());
     const myRec = await fetch('../myWords.txt', init).then((response) => response.text());
     // this.commonMap = this.buildMap(w1k.concat(myRec))
-    this.commonMap = new WordTree(w1k.concat(myRec), { '#': 1 })
+    this.commonMap = new WordTree(w1k.concat(myRec), { '@': 1 })
 
     const newWords = await fetch('../newWords.txt', init).then((response) => response.text());
     // const myArray = deDuplicate(myWords.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg).sort());
@@ -83,7 +83,7 @@ export default {
     // pruneEmpty(this.commonMap)
     // console.log(this.flattenObj(this.commonMap))
     // const print = (m, space = 0) => console.log(JSON.stringify(m, null, space).replace(/"/mg, ""))
-    const id = { '#': 1 }
+    const id = { '@': 1 }
     const t = new WordTree('say ok', id)
     const t2 = new WordTree('Say Say dd', id)
     t.add('')
@@ -127,7 +127,7 @@ export default {
     },
 
     formTree(content) {
-      const i = { '#': 1 }
+      const i = { '@': 1 }
       const words = content.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || [];
       const tl = new WordTree('', i)
       const tU = new WordTree('', i)
@@ -143,7 +143,7 @@ export default {
       tl.trans(tU)
       tl.pruneEmpty()
       tU.pruneEmpty()
-      i['#'] = 1
+      i['@'] = 1
       tl.merge(tU)
       return tl
     },
