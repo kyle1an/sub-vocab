@@ -5,7 +5,7 @@ import _ from 'lodash/fp.js';
 const has = Object.prototype.hasOwnProperty
 
 class WordTree {
-    layer = {};
+    trunk = {};
     #i;
 
     constructor(words, ct) {
@@ -13,29 +13,29 @@ class WordTree {
         this.add(words)
     }
 
-    add = (newWords, collection = this.layer) => {
+    add = (newWords, collection = this.trunk) => {
         const newList = typeof newWords === 'string' ? newWords.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || [] :
             Array.isArray(newWords) ? newWords : []
 
         newList.forEach((word) => this.#buildLayer(word, collection))
     }
 
-    #buildLayer(word, layer) {
+    #buildLayer(word, branch) {
         const chars = [...word].reverse();
         while (chars.length > 0) {
             const c = chars.pop()
-            if (!has.call(layer, c)) layer[c] = {}
-            layer = layer[c]
+            if (!has.call(branch, c)) branch[c] = {}
+            branch = branch[c]
         }
-        if (!has.call(layer, '$')) {
-            layer.$ = {
+        if (!has.call(branch, '$')) {
+            branch.$ = {
                 '_': 1,
                 '~': word.length,
                 '@': this.#i['@']++
             }
             return;
         }
-        layer.$._ += 1;
+        branch.$._ += 1;
     }
 
     filter(tar, isPrune = false) {
@@ -44,13 +44,13 @@ class WordTree {
             filter = {}
             this.add(tar, filter)
         } else if (typeof tar === 'object') {
-            filter = tar.layer || tar;
+            filter = tar.trunk || tar;
         }
 
         const reset = (filtee) => filtee.$._ = 0;
         const remove = (filtee) => filtee.$ = { '_': null, '@': null }
-        this.#alter(filter, this.layer, isPrune ? remove : reset)
-        if (isPrune) pruneEmpty(this.layer)
+        this.#alter(filter, this.trunk, isPrune ? remove : reset)
+        if (isPrune) pruneEmpty(this.trunk)
     }
 
     #alter(filter, filtee, fn) {
@@ -67,27 +67,27 @@ class WordTree {
     }
 
     trans(addTree) {
-        const newTree = addTree.layer
+        const newTree = addTree.trunk
         console.log('be:', stringify(newTree, 1))
-        console.log('be:', stringify(this.layer, 1))
-        this.#emigrate(newTree, this.layer);
+        console.log('be:', stringify(this.trunk, 1))
+        this.#emigrate(newTree, this.trunk);
         console.log('Af:', stringify(newTree, 1))
-        console.log('Af:', stringify(this.layer, 1))
+        console.log('Af:', stringify(this.trunk, 1))
     }
 
-    #emigrate(newTree, layer) {
+    #emigrate(newTree, branch) {
         for (const key in newTree) {
             const k = key.toLowerCase();
-            if (has.call(layer, k)) {
+            if (has.call(branch, k)) {
                 console.log('has')
                 if (k !== '$') {
-                    this.#emigrate(newTree[key], layer[k])
-                } else if (layer.$._ === newTree.$._) {
-                    layer.$ = { '_': null, '@': null };
+                    this.#emigrate(newTree[key], branch[k])
+                } else if (branch.$._ === newTree.$._) {
+                    branch.$ = { '_': null, '@': null };
                 } else {
                     console.log('now')
-                    console.log(layer, newTree)
-                    layer.$['@'] = Math.min(newTree.$['@'], layer.$['@'])
+                    console.log(branch, newTree)
+                    branch.$['@'] = Math.min(newTree.$['@'], branch.$['@'])
                     newTree.$ = { '_': null, '@': null };
                 }
             }
@@ -95,21 +95,21 @@ class WordTree {
     }
 
     pruneEmpty() {
-        pruneEmpty(this.layer)
+        pruneEmpty(this.trunk)
     }
 
     merge(part) {
-        this.layer = _.merge(this.layer, part.layer || part)
+        this.trunk = _.merge(this.trunk, part.trunk || part)
     }
 
     deAffix() {
-        deAffix(this.layer)
+        deAffix(this.trunk)
     }
 
     flatten() {
         const flattenedObject = {};
-        // console.log('tree:', stringify(this.layer, 1))
-        this.#traverseAndFlatten(this.layer, flattenedObject);
+        // console.log('tree:', stringify(this.trunk, 1))
+        this.#traverseAndFlatten(this.trunk, flattenedObject);
         // console.log('flattened:', stringify(flattenedObject, 1))
         return flattenedObject;
     }

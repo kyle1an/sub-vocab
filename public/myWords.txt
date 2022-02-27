@@ -3,6 +3,7 @@ December
 February
 January
 October
+Ouch
 Sadly
 September
 abandon
@@ -101,6 +102,7 @@ ate
 atmosphere
 attack
 attempt
+attention
 attraction
 attractive
 audience
@@ -129,6 +131,7 @@ barely
 basket
 bastard
 bath
+bathroom
 beach
 bean
 beard
@@ -181,6 +184,7 @@ border
 borrow
 bother
 bottle
+bra
 brain
 brave
 breakfast
@@ -253,6 +257,7 @@ club
 coffee
 coin
 collection
+college
 comfort
 comfortable
 commercial
@@ -281,6 +286,7 @@ connection
 consequence
 contact
 content
+contribution
 convenience
 convenient
 conversation
@@ -446,6 +452,7 @@ expression
 extension
 extra
 extraordinary
+extremely
 factory
 fade
 fail
@@ -501,6 +508,7 @@ friendly
 friendship
 frighten
 fuck
+fucker
 fulfilled
 funeral
 funny
@@ -529,11 +537,14 @@ goddamn
 golden
 gonna
 goodbye
+goodness
+gosh
 gotta
 grab
 grace
 grammar
 grandfather
+grandkid
 grandma
 grape
 grateful
@@ -659,6 +670,7 @@ kneel
 knife
 knock
 knowledge
+label
 ladies
 lair
 lately
@@ -862,6 +874,7 @@ pray
 precious
 prefer
 preference
+pregnant
 president
 pressure
 pretend
@@ -905,6 +918,7 @@ raw
 ray
 reader
 reality
+realize
 really
 recent
 recorder
@@ -931,6 +945,8 @@ reputation
 request
 rescue
 resist
+response
+responsibility
 restaurant
 retire
 return
@@ -961,6 +977,7 @@ satisfy
 saying
 scare
 scary
+schedule
 scientific
 scientist
 scratch
@@ -989,6 +1006,7 @@ shirt
 shit
 shock
 shoot
+shopping
 shorten
 shot
 shower
@@ -1131,10 +1149,12 @@ treasure
 treat
 trick
 tried
+tries
 truly
 trust
 truth
 turkey
+twelve
 twice
 twist
 twitter
@@ -1196,6 +1216,7 @@ wherever
 whistle
 whoever
 whom
+whoo
 widely
 widow
 width
