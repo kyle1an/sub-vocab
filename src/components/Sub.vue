@@ -18,9 +18,9 @@
           </el-main>
         </el-container>
         <el-aside width="42%">
-          <el-card class="table-card" style="margin: 20px 10px 10px 10px;">
-            <el-switch v-model="isFilter" active-text="no common words" inactive-text="" />
-            <el-table fit height="calc(100vh - 182px)" :data="vocabContent" style="width: 100%" stripe size="mini">
+          <el-card class="table-card" style="margin: 20px 20px 10px 20px;">
+            <el-switch v-model="isFilter" active-text="Hide Common" inactive-text="" style="font-size: 18px !important; letter-spacing: -0.02em" />
+            <el-table fit height="calc(100vh - 182px)" :data="vocabContent" style="width: 100%" size="mini">
               <el-table-column prop="vocab" label="Vocabulary" sortable align="right" :sort-method="sortByChar" style="font-size: 14px !important;" />
               <el-table-column prop="info.0" label="Times" sortable align="right" class-name="t-num" />
               <el-table-column prop="info.1" label="Length" sortable align="center" style="width: 100%" />
@@ -145,9 +145,15 @@ export default {
 </script>
 
 <style>
+.el-switch__label * {
+  font-size: 14px !important;
+  letter-spacing: -0.01em;
+}
+
 .table-card .el-card__body {
   padding-left: 0 !important;
   padding-right: 0 !important;
+  padding-top: 12px;
 }
 
 .t-num {
@@ -224,11 +230,6 @@ table thead {
 
 .el-table th.el-table__cell > .cell {
   font-size: 10px;
-}
-
-.el-card__body {
-  padding-left: 10px !important;
-  padding-right: 10px !important;
 }
 
 .el-table__empty-block {
