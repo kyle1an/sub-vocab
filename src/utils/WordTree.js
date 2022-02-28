@@ -8,8 +8,8 @@ class WordTree {
     trunk = {};
     #i;
 
-    constructor(words, ct) {
-        this.#i = ct;
+    constructor(words, counter) {
+        this.#i = counter;
         this.add(words)
     }
 
@@ -46,7 +46,6 @@ class WordTree {
         } else if (typeof tar === 'object') {
             filter = tar.trunk || tar;
         }
-
         const reset = (filtee) => filtee.$._ = 0;
         const remove = (filtee) => filtee.$ = { '_': null, '@': null }
         this.#alter(filter, this.trunk, isPrune ? remove : reset)
@@ -94,17 +93,13 @@ class WordTree {
         }
     }
 
-    pruneEmpty() {
-        pruneEmpty(this.trunk)
-    }
+    pruneEmpty = () => pruneEmpty(this.trunk)
 
-    merge(part) {
+    merge = (part) => {
         this.trunk = _.merge(this.trunk, part.trunk || part)
     }
 
-    deAffix() {
-        deAffix(this.trunk)
-    }
+    deAffix = () => deAffix(this.trunk)
 
     flatten() {
         const flattenedObject = {};
@@ -128,6 +123,12 @@ class WordTree {
                 }
             }
         }
+    }
+
+    cloneTree() {
+        const co = new WordTree('')
+        co.trunk = _.cloneDeep(this.trunk)
+        return co;
     }
 }
 

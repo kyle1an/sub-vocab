@@ -6,25 +6,24 @@
       </el-header>
       <el-container>
         <el-container style="position: relative">
-          <el-header class="el-card is-always-shadow" style="margin: 20px 20px 0 20px">
-            <el-switch v-model="isFilter" active-text="Filter common words" inactive-text="">
-            </el-switch>
-          </el-header>
+          <!--          <el-header class="el-card is-always-shadow" style="margin: 20px 20px 0 20px">-->
+          <!--          </el-header>-->
           <el-main>
             <div class="text-input" style="position: relative">
               <div class="submit">
-                <el-button @click="getFreq(inputContent)" type="primary" icon="el-icon-check" circle />
+                <el-button @click="formWords(inputContent)" type="primary" icon="el-icon-check" circle />
               </div>
               <el-input class="textarea" type="textarea" :rows="12" placeholder="input subtitles manually:" v-model="inputContent" />
             </div>
           </el-main>
         </el-container>
         <el-aside width="42%">
-          <el-card style="margin: 20px 10px 10px 10px;">
-            <el-table height="calc(100vh - 182px)" :data="vocabContent" style="width: 100%" size="mini">
-              <el-table-column prop="vocab" label="Vocabulary" sortable width="150" align="right" :sort-method="sortByChar" style="font-size: 14px !important;" />
-              <el-table-column prop="info.0" label="Times" sortable width="80" align="right" class-name="t-num" />
-              <el-table-column prop="info.1" label="Length" sortable width="100" align="center" style="width: 100%" />
+          <el-card class="table-card" style="margin: 20px 10px 10px 10px;">
+            <el-switch v-model="isFilter" active-text="no common words" inactive-text="" />
+            <el-table fit height="calc(100vh - 182px)" :data="vocabContent" style="width: 100%" stripe size="mini">
+              <el-table-column prop="vocab" label="Vocabulary" sortable align="right" :sort-method="sortByChar" style="font-size: 14px !important;" />
+              <el-table-column prop="info.0" label="Times" sortable align="right" class-name="t-num" />
+              <el-table-column prop="info.1" label="Length" sortable align="center" style="width: 100%" />
             </el-table>
           </el-card>
         </el-aside>
@@ -44,11 +43,11 @@ export default {
   data() {
     return {
       inputContent: '',
+      UPPER: {},
+      words: {},
+      vocab: {},
       wordsMap: {},
-      wordsJson: {},
-      commonList: '',
       commonMap: {},
-      seq: 1,
       isFilter: true,
       i: { '@': 1 }
     }
@@ -62,6 +61,12 @@ export default {
     }
   },
 
+  watch: {
+    isFilter() {
+      this.formList();
+    }
+  },
+
   async mounted() {
     const init = {
       headers: {
@@ -70,24 +75,14 @@ export default {
       }
     }
     const w1k = await fetch('../common-words.txt', init).then((response) => response.text());
-    const myRec = await fetch('../myWords.txt', init).then((response) => response.text());
-    // this.commonMap = this.buildMap(w1k.concat(myRec))
-    this.commonMap = new WordTree(w1k.concat(myRec), { '@': 1 })
-
-    const newWords = await fetch('../newWords.txt', init).then((response) => response.text());
+    const myW = await fetch('../myWords.txt', init).then((response) => response.text());
+    this.commonMap = new WordTree(w1k.concat(myW), { '@': 1 })
     // const myArray = deDuplicate(myWords.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg).sort());
-    // console.log('myArray');
-    // console.log(myArray.join("\r\n"));
-    // console.log(this.flattenObj(this.commonMap))
-    // this.filter(this.wordsJson, this.commonMap)
-    // pruneEmpty(this.commonMap)
-    // console.log(this.flattenObj(this.commonMap))
     // const print = (m, space = 0) => console.log(JSON.stringify(m, null, space).replace(/"/mg, ""))
     const id = { '@': 1 }
     const t = new WordTree('say ok', id)
     const t2 = new WordTree('Say Say dd', id)
     t.add('')
-
     t.trans(t2)
     t.filter(t2, 0)
   },
@@ -103,55 +98,58 @@ export default {
       const reader = new FileReader();
       reader.onload = (e) => {
         this.inputContent = e.target.result
-        this.getFreq(this.inputContent);
+        this.formWords(this.inputContent)
       };
       reader.readAsText(file);
     },
 
-    getFreq(contents) {
-      const freqTree = this.formTree(contents)
-      console.log('freqTree', stringify(freqTree));
-      this.wordsMap = freqTree.flatten()
-      // console.log('Before', stringify(this.wordsMap));
-      this.filterWords(this.wordsMap)
-      // console.log('After', stringify(this.wordsMap));
+    formWords(content) {
+      const { i } = this
+      this.UPPER = new WordTree('', i);
+      this.words = new WordTree('', i);
+      (content.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || []).forEach((origin) => {
+        if (/[A-Z']/.test(origin)) {
+          this.UPPER.add(origin)
+          origin = origin.toLowerCase()
+        }
+        this.words.add(origin)
+      })
+      this.words.deAffix()
+      this.formList();
+    },
 
+    formList() {
+      const { i } = this;
+      this.vocab = this.words.cloneTree();
+      if (this.isFilter) {
+        this.vocab.filter(this.commonMap)
+      }
+      this.vocab.trans(this.UPPER)
+      this.vocab.pruneEmpty()
+      this.UPPER.pruneEmpty()
+      i['@'] = 1
+      this.vocab.merge(this.UPPER)
+      this.wordsMap = this.vocab.flatten()
+      this.filterVocab(this.wordsMap)
       console.log(`(${Object.keys(this.wordsMap).length})`, this.wordsMap);
     },
 
-    filterWords(wordsMap) {
+    filterVocab(wordsMap) {
       Object.filter = (obj, predicate) => Object.fromEntries(Object.entries(obj).filter(predicate));
       this.wordsMap = Object.filter(wordsMap, ([key, i]) => i._ !== 0 && key.length >= 3);
       console.log(Object.keys(this.wordsMap).length);
       console.log(this.wordsMap);
-    },
-
-    formTree(content) {
-      const i = { '@': 1 }
-      const words = content.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || [];
-      const tl = new WordTree('', i)
-      const tU = new WordTree('', i)
-      words.forEach((origin) => {
-        if (/[A-Z']/.test(origin)) {
-          tU.add(origin)
-          origin = origin.toLowerCase()
-        }
-        tl.add(origin)
-      })
-      tl.deAffix()
-      if (this.isFilter) tl.filter(this.commonMap)
-      tl.trans(tU)
-      tl.pruneEmpty()
-      tU.pruneEmpty()
-      i['@'] = 1
-      tl.merge(tU)
-      return tl
     },
   },
 }
 </script>
 
 <style>
+.table-card .el-card__body {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
 .t-num {
   font-variant-numeric: tabular-nums !important;
 }
@@ -164,7 +162,7 @@ export default {
 }
 
 .el-switch__core {
-  width: 33px !important;
+  width: 32px !important;
 }
 
 tbody .el-table_1_column_1 {
@@ -242,7 +240,7 @@ table thead {
   .textarea > textarea,
   .text-input {
     height: 100vh;
-    max-height: calc(100vh - 220px);
+    max-height: calc(100vh - 118px);
     overflow: visible;
   }
 }

@@ -302,6 +302,7 @@ court
 cousin
 crash
 crazy
+cream
 creative
 creature
 crime
@@ -640,6 +641,7 @@ interruption
 into
 introduce
 introduction
+invade
 invention
 investment
 invite
@@ -774,6 +776,7 @@ murder
 muscle
 musician
 myself
+mysteries
 mystery
 nah
 nail
@@ -783,6 +786,7 @@ narrow
 national
 native
 nearly
+neat
 negative
 neighborhood
 neither
@@ -804,6 +808,7 @@ obey
 obvious
 oddity
 offense
+officer
 official
 officially
 okay
@@ -1005,6 +1010,7 @@ shelf
 shirt
 shit
 shock
+shook
 shoot
 shopping
 shorten
@@ -1018,6 +1024,7 @@ silence
 silly
 simplicity
 simply
+sin
 sincere
 sink
 sir
@@ -1111,6 +1118,7 @@ teacher
 tear
 technique
 telephone
+temporary
 terrible
 terribly
 theater
@@ -1209,10 +1217,12 @@ weird
 welcome
 well-known
 weren't
+western
 wet
 whatever
 whenever
 wherever
+whiskey
 whistle
 whoever
 whom
@@ -1227,6 +1237,7 @@ wise
 within
 without
 witness
+wives
 won
 wonderful
 worried
