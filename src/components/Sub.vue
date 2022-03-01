@@ -1,13 +1,13 @@
 <template>
   <div style="margin: 10px auto;max-width: 1440px">
     <el-container>
-      <el-header>
+      <el-header height="100%" style="position: relative">
+        <label for="file-input" class="word-content">Browse files</label>
         <input type="file" id="file-input" @change="readSingleFile" />
+        <span class="file-info">{{ fileInfo }}</span>
       </el-header>
       <el-container>
         <el-container style="position: relative">
-          <!--          <el-header class="el-card is-always-shadow" style="margin: 20px 20px 0 20px">-->
-          <!--          </el-header>-->
           <el-main>
             <div class="text-input" style="position: relative">
               <div class="submit">
@@ -48,7 +48,8 @@ export default {
       wordsMap: {},
       commonMap: {},
       isFilter: true,
-      i: { '@': 1 }
+      i: { '@': 1 },
+      fileInfo: 'No file chosen',
     }
   },
 
@@ -95,9 +96,11 @@ export default {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
+      reader.fileName = file.name
       reader.onload = (e) => {
         this.inputContent = e.target.result
         this.formWords(this.inputContent)
+        this.fileInfo = e.target.fileName;
       };
       reader.readAsText(file);
     },
@@ -144,6 +147,49 @@ export default {
 </script>
 
 <style>
+.file-info {
+  max-width: calc(50vw - 90px);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  box-sizing: border-box;
+  color: #29296e;
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: -0.01rem;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.word-content {
+  background: #1a73e8;
+  border-radius: 4px;
+  box-sizing: border-box;
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  font-family: 'Google Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: .3px;
+  line-height: 16px;
+  height: 36px;
+  margin: 0 16px 0 16px;
+  padding: 10px 12px
+}
+
+.word-content:hover {
+  border-width: 0;
+  box-shadow: 0px 1px 2px 0px rgba(60, 64, 67, .30), 0px 1px 3px 1px rgba(60, 64, 67, .15);
+  background: #1967d2
+}
+
+input#file-input {
+  width: 0;
+  height: 0;
+}
 
 .table-card .el-card__body {
   padding-left: 0 !important;
