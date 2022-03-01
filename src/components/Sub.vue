@@ -13,14 +13,14 @@
               <div class="submit">
                 <el-button @click="formWords(inputContent)" type="primary" icon="el-icon-check" circle />
               </div>
-              <el-input class="textarea" type="textarea" :rows="12" placeholder="input subtitles manually:" v-model="inputContent" />
+              <el-input class="input-area" type="textarea" :rows="12" placeholder="input subtitles manually:" v-model="inputContent" />
             </div>
           </el-main>
         </el-container>
         <el-aside width="42%">
-          <el-card class="table-card" style="margin: 20px 20px 10px 20px;">
+          <el-card class="table-card">
             <el-switch v-model="isFilter" active-text="Hide Common" inactive-text="" style="font-size: 18px !important; letter-spacing: -0.02em" />
-            <el-table fit height="calc(100vh - 182px)" :data="vocabContent" style="width: 100%" size="mini">
+            <el-table fit class="r-table" height="calc(100vh - 100px)" :data="vocabContent" size="mini">
               <el-table-column prop="vocab" label="Vocabulary" sortable align="right" :sort-method="sortByChar" style="font-size: 14px !important;" />
               <el-table-column prop="info.0" label="Times" sortable align="right" class-name="t-num" />
               <el-table-column prop="info.1" label="Length" sortable align="center" style="width: 100%" />
@@ -34,8 +34,7 @@
 
 <script>
 import { WordTree } from "@/utils/WordTree.js";
-import { pruneEmpty, deDuplicate, print, stringify } from '@/utils/utils';
-import { deAffix, clearSuffix } from "@/components/ignoreSuffix";
+import { print, stringify } from '@/utils/utils';
 import _ from 'lodash/fp';
 
 export default {
@@ -145,15 +144,16 @@ export default {
 </script>
 
 <style>
-.el-switch__label * {
-  font-size: 14px !important;
-  letter-spacing: -0.01em;
-}
 
 .table-card .el-card__body {
   padding-left: 0 !important;
   padding-right: 0 !important;
   padding-top: 12px;
+}
+
+.table-card {
+  margin: 20px 20px 10px 20px;
+  border-radius: 12px !important;
 }
 
 .t-num {
@@ -169,6 +169,11 @@ export default {
 
 .el-switch__core {
   width: 32px !important;
+}
+
+.el-switch__label * {
+  font-size: 14px !important;
+  letter-spacing: -0.01em;
 }
 
 tbody .el-table_1_column_1 {
@@ -237,12 +242,16 @@ table thead {
 }
 
 @media only screen  and (min-width: 896px) {
-  .textarea,
-  .textarea > textarea,
+  .input-area > textarea,
   .text-input {
     height: 100vh;
-    max-height: calc(100vh - 118px);
+    max-height: calc(100vh - 118px) !important;
     overflow: visible;
+  }
+
+  .r-table {
+    max-height: calc(100vh - 174px);
+    width: 100%;
   }
 }
 
@@ -254,7 +263,7 @@ table thead {
     width: 100%;
   }
 
-  .textarea > textarea,
+  .input-area > textarea,
   .text-input {
     max-height: 260px;
   }
