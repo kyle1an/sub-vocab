@@ -139,8 +139,8 @@ export default {
     filterVocab(wordsMap) {
       Object.filter = (obj, predicate) => Object.fromEntries(Object.entries(obj).filter(predicate));
       this.wordsMap = Object.filter(wordsMap, ([key, i]) => i._ !== 0 && key.length >= 3);
-      console.log(Object.keys(this.wordsMap).length);
-      console.log(this.wordsMap);
+      // console.log(Object.keys(this.wordsMap).length);
+      // console.log(this.wordsMap);
     },
   },
 }

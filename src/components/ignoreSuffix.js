@@ -81,7 +81,7 @@ function deSuffix(layer) {
             const _$ = l?.["'"];
             [_$?.s, _$?.d, _$?.l?.l, _$?.v?.e].forEach((_) => {
                 if (_) {
-                    console.log(_)
+                    // console.log(_)
                     l.$._ += _.$._
                     _.$._ = 0
                 }

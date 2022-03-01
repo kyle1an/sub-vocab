@@ -67,25 +67,25 @@ class WordTree {
 
     trans(addTree) {
         const newTree = addTree.trunk
-        console.log('be:', stringify(newTree, 1))
-        console.log('be:', stringify(this.trunk, 1))
+        // console.log('be:', stringify(newTree, 1))
+        // console.log('be:', stringify(this.trunk, 1))
         this.#emigrate(newTree, this.trunk);
-        console.log('Af:', stringify(newTree, 1))
-        console.log('Af:', stringify(this.trunk, 1))
+        // console.log('Af:', stringify(newTree, 1))
+        // console.log('Af:', stringify(this.trunk, 1))
     }
 
     #emigrate(newTree, branch) {
         for (const key in newTree) {
             const k = key.toLowerCase();
             if (has.call(branch, k)) {
-                console.log('has')
+                // console.log('has')
                 if (k !== '$') {
                     this.#emigrate(newTree[key], branch[k])
                 } else if (branch.$._ === newTree.$._) {
                     branch.$ = { '_': null, '@': null };
                 } else {
-                    console.log('now')
-                    console.log(branch, newTree)
+                    // console.log('now')
+                    // console.log(branch, newTree)
                     branch.$['@'] = Math.min(newTree.$['@'], branch.$['@'])
                     newTree.$ = { '_': null, '@': null };
                 }
