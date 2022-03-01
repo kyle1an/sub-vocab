@@ -21,9 +21,9 @@ class WordTree {
     }
 
     #buildLayer(word, branch) {
-        const chars = [...word].reverse();
-        while (chars.length > 0) {
-            const c = chars.pop()
+        const { length } = word;
+        for (let i = 0; i < length; i++) {
+            const c = word.charAt(i);
             if (!has.call(branch, c)) branch[c] = {}
             branch = branch[c]
         }
