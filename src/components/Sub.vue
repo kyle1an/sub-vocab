@@ -20,7 +20,7 @@
         <el-aside width="42%">
           <el-card class="table-card">
             <el-switch v-model="isFilter" active-text="Hide Common" inactive-text="" style="font-size: 18px !important; letter-spacing: -0.02em" />
-            <el-table fit class="r-table" height="calc(100vh)" :data="vocabContent" size="mini">
+            <el-table fit class="r-table" height="calc(100vh - 90px)" :data="vocabContent" size="mini">
               <el-table-column prop="vocab" label="Vocabulary" sortable align="right" :sort-method="sortByChar" style="font-size: 14px !important;" />
               <el-table-column prop="info.0" label="Times" sortable align="right" class-name="t-num" />
               <el-table-column prop="info.1" label="Length" sortable align="center" style="width: 100%" />
