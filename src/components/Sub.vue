@@ -34,8 +34,6 @@
 
 <script>
 import { WordTree } from "@/utils/WordTree.js";
-import { print, stringify } from '@/utils/utils';
-import _ from 'lodash/fp';
 
 export default {
   name: 'Sub',
@@ -85,6 +83,11 @@ export default {
     t.add('')
     t.trans(t2)
     t.filter(t2, 0)
+
+    const me = Object.create(null);
+    const aaa = {}
+    console.log(me)
+    console.log(aaa)
   },
 
   methods: {
@@ -99,13 +102,16 @@ export default {
       reader.fileName = file.name
       reader.onload = (e) => {
         this.inputContent = e.target.result
+        console.time('╘═ All ═╛')
         this.formWords(this.inputContent)
+        console.timeEnd('╘═ All ═╛')
         this.fileInfo = e.target.fileName;
       };
       reader.readAsText(file);
     },
 
     formWords(content) {
+      console.time('formWords')
       const { i } = this
       this.UPPER = new WordTree('', i);
       this.words = new WordTree('', i);
@@ -116,8 +122,16 @@ export default {
         }
         this.words.add(origin)
       })
+      console.timeEnd('formWords')
+
+      console.time('deAffix')
       this.words.deAffix()
+      console.timeEnd('deAffix')
+
+      console.time('formList')
       this.formList();
+      console.timeEnd('formList')
+      console.log(this.words.trunk)
     },
 
     formList() {
@@ -127,8 +141,8 @@ export default {
         this.vocab.filter(this.commonMap)
       }
       this.vocab.trans(this.UPPER)
-      this.vocab.pruneEmpty()
-      this.UPPER.pruneEmpty()
+      // this.vocab.pruneEmpty()
+      // this.UPPER.pruneEmpty()
       i['@'] = 1
       this.vocab.merge(this.UPPER)
       this.wordsMap = this.vocab.flatten()
@@ -138,9 +152,8 @@ export default {
 
     filterVocab(wordsMap) {
       Object.filter = (obj, predicate) => Object.fromEntries(Object.entries(obj).filter(predicate));
-      this.wordsMap = Object.filter(wordsMap, ([key, i]) => i._ !== 0 && key.length >= 3);
+      this.wordsMap = Object.filter(wordsMap, ([key, i]) => i._ && key.length >= 3);
       // console.log(Object.keys(this.wordsMap).length);
-      // console.log(this.wordsMap);
     },
   },
 }

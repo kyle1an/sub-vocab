@@ -5,7 +5,7 @@ import _ from 'lodash/fp.js';
 const has = Object.prototype.hasOwnProperty
 
 class WordTree {
-    trunk = {};
+    trunk = Object.create(null);
     #i;
 
     constructor(words, counter) {
@@ -24,10 +24,10 @@ class WordTree {
         const { length } = word;
         for (let i = 0; i < length; i++) {
             const c = word.charAt(i);
-            if (!has.call(branch, c)) branch[c] = {}
+            if (!branch[c]) branch[c] = Object.create(null)
             branch = branch[c]
         }
-        if (!has.call(branch, '$')) {
+        if (!branch.$) {
             branch.$ = {
                 '_': 1,
                 '~': word.length,
@@ -41,7 +41,7 @@ class WordTree {
     filter(tar, isPrune = false) {
         let filter;
         if (typeof tar === 'string') {
-            filter = {}
+            filter = Object.create(null)
             this.add(tar, filter)
         } else if (typeof tar === 'object') {
             filter = tar.trunk || tar;
@@ -55,7 +55,7 @@ class WordTree {
     #alter(filter, filtee, fn) {
         clearSuffix(filtee, filter);
         for (const key in filter) {
-            if (has.call(filtee, key)) {
+            if (filtee[key]) {
                 if (key !== '$') {
                     this.#alter(filter[key], filtee[key], fn)
                 } else {
@@ -77,7 +77,7 @@ class WordTree {
     #emigrate(newTree, branch) {
         for (const key in newTree) {
             const k = key.toLowerCase();
-            if (has.call(branch, k)) {
+            if (branch[k]) {
                 // console.log('has')
                 if (k !== '$') {
                     this.#emigrate(newTree[key], branch[k])
@@ -111,7 +111,7 @@ class WordTree {
 
     #traverseAndFlatten(currentNode, target, flattenedKey) {
         for (const key in currentNode) {
-            if (has.call(currentNode, key)) {
+            if (currentNode[key]) {
                 const is$ = key === '$'; // stop at $
                 const newKey = (flattenedKey || '') + (is$ ? '' : key);
                 const value = currentNode[key];

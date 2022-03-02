@@ -77,7 +77,7 @@ function deSuffix(layer) {
         { ...$, "'": { 'd': $ }, }
     ]
     const apostropheMod = (l) => {
-        if (Object.hasOwn(l, '$')) {
+        if (l.$) {
             const _$ = l?.["'"];
             [_$?.s, _$?.d, _$?.l?.l, _$?.v?.e].forEach((_) => {
                 if (_) {
