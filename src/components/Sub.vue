@@ -20,7 +20,7 @@
         <el-aside width="42%">
           <el-card class="table-card">
             <el-switch v-model="isFilter" active-text="Hide Common" inactive-text="" style="font-size: 18px !important; letter-spacing: -0.02em" />
-            <el-table fit class="r-table" height="calc(100vh - 90px)" :data="vocabContent" size="mini">
+            <el-table fit class="r-table" height="calc(100vh - 90px)" :data="vocabData" size="mini">
               <el-table-column prop="vocab" label="Vocabulary" sortable align="right" :sort-method="sortByChar" style="font-size: 14px !important;" />
               <el-table-column prop="info.0" label="Times" sortable align="right" class-name="t-num" />
               <el-table-column prop="info.1" label="Length" sortable align="center" style="width: 100%" />
@@ -48,14 +48,7 @@ export default {
       isFilter: true,
       i: { '@': 1 },
       fileInfo: 'No file chosen',
-    }
-  },
-
-  computed: {
-    vocabContent: function () {
-      return Object.entries(this.wordsMap)
-          .map(([k, v]) => ({ vocab: k, info: [v._, v['~'], v['@']] }))
-          .sort((a, b) => a.info[2] - b.info[2])
+      vocabData: [],
     }
   },
 
@@ -140,20 +133,22 @@ export default {
       if (this.isFilter) {
         this.vocab.filter(this.commonMap)
       }
-      this.vocab.trans(this.UPPER)
-      // this.vocab.pruneEmpty()
-      // this.UPPER.pruneEmpty()
       i['@'] = 1
+      this.vocab.trans(this.UPPER)
       this.vocab.merge(this.UPPER)
-      this.wordsMap = this.vocab.flatten()
-      this.filterVocab(this.wordsMap)
-      console.log(`(${Object.keys(this.wordsMap).length})`, this.wordsMap);
+      const flat = this.vocab.flatten()
+      this.vocabData = this.map2Array(flat).sort((a, b) => a.info[2] - b.info[2])
+      console.log(`(${Object.keys(this.vocabData).length})`, this.vocabData);
     },
 
-    filterVocab(wordsMap) {
-      Object.filter = (obj, predicate) => Object.fromEntries(Object.entries(obj).filter(predicate));
-      this.wordsMap = Object.filter(wordsMap, ([key, i]) => i._ && key.length >= 3);
-      // console.log(Object.keys(this.wordsMap).length);
+    map2Array(words) {
+      const array = [];
+      for (const [key, value] of Object.entries(words)) {
+        if (key.length >= 3 && value._) {
+          array.push({ vocab: key, info: [value._, value['~'], value['@']] })
+        }
+      }
+      return array;
     },
   },
 }
