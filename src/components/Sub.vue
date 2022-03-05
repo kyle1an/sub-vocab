@@ -42,7 +42,6 @@ export default {
       inputContent: '',
       UPPER: {},
       words: {},
-      vocab: {},
       wordsMap: {},
       commonMap: {},
       isFilter: true,
@@ -54,7 +53,7 @@ export default {
 
   watch: {
     isFilter() {
-      this.formList();
+      this.vocabData = this.formList(this.words);
     }
   },
 
@@ -120,25 +119,24 @@ export default {
       console.time('deAffix')
       this.words.deAffix()
       console.timeEnd('deAffix')
-
+//
       console.time('formList')
-      this.formList();
+      const vocabData = this.formList(this.words);
       console.timeEnd('formList')
       console.log(this.words.trunk)
+      this.vocabData = vocabData;
     },
 
-    formList() {
+    formList(words) {
       const { i } = this;
-      this.vocab = this.words.cloneTree();
-      if (this.isFilter) {
-        this.vocab.filter(this.commonMap)
-      }
+      const vocab = words.cloneTree();
+      if (this.isFilter) vocab.filter(this.commonMap)
       i['@'] = 1
-      this.vocab.trans(this.UPPER)
-      this.vocab.merge(this.UPPER)
-      const flat = this.vocab.flatten()
-      this.vocabData = this.map2Array(flat).sort((a, b) => a.info[2] - b.info[2])
-      console.log(`(${Object.keys(this.vocabData).length})`, this.vocabData);
+      vocab.trans(this.UPPER)
+      vocab.merge(this.UPPER)
+      const vocabData = this.map2Array(vocab.flatten()).sort((a, b) => a.info[2] - b.info[2])
+      console.log(`(${Object.keys(vocabData).length})`, vocabData);
+      return vocabData;
     },
 
     map2Array(words) {
