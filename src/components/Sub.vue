@@ -1,5 +1,5 @@
 <template>
-  <div style="margin: 10px auto;max-width: 1440px">
+  <div style="margin: 10px auto;max-width: 1440px;">
     <el-container>
       <el-header height="100%" style="position: relative">
         <label for="file-input" class="word-content s-btn">Browse files</label>
@@ -170,6 +170,11 @@ export default {
 </script>
 
 <style>
+.r-table *,
+.r-table .el-table__body-wrapper {
+  overscroll-behavior: contain !important;
+}
+
 label.form-switch {
   display: flex;
   justify-content: center;
@@ -358,6 +363,25 @@ table thead {
 }
 
 @media only screen  and (max-width: 896px) {
+  html {
+    overflow: hidden;
+    height: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /*.r-table *,*/
+  /*.r-table .el-table__body-wrapper,*/
+  body {
+    height: 100%;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .r-table {
+    max-height: calc(100vh - 172px);
+    width: 100%;
+  }
+
   .submit {
     top: unset;
     right: unset;
