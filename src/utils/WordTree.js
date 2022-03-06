@@ -1,5 +1,5 @@
 import { pruneEmpty, print, stringify, } from '../utils/utils.js';
-import { deAffix, clearSuffix } from "../components/ignoreSuffix.js";
+import { deAffix, clearSuffix } from '../utils/ignoreSuffix.js';
 import _ from 'lodash/fp.js';
 
 class WordTree {

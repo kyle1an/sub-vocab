@@ -53,7 +53,6 @@ function deSuffix(layer) {
             ...$,
             'i': { 'n': { 'g': $ } },
         },
-        {},
         {
             'e': { ...$, 'd': $, },
             'i': { 'n': { 'g': $ } },
@@ -63,7 +62,7 @@ function deSuffix(layer) {
         if (_.isMatch(ing[0], l)) {
             l.$._ += l.i.n.g.$._
             l.i.n.g.$._ = 0
-        } else if (_.isMatch(ing[2], l)) {
+        } else if (_.isMatch(ing[1], l)) {
             l.e.$._ += l.i.n.g.$._ + l.e.d.$._
             l.i.n.g.$._ = 0
             l.e.d.$._ = 0
@@ -79,11 +78,11 @@ function deSuffix(layer) {
     const apostropheMod = (l) => {
         if (l.$) {
             const _$ = l?.["'"];
-            [_$?.s, _$?.d, _$?.l?.l, _$?.v?.e].forEach((_) => {
-                if (_) {
+            [_$?.s, _$?.d, _$?.l?.l, _$?.v?.e].forEach((aft) => {
+                if (aft) {
                     // console.log(_)
-                    l.$._ += _.$._
-                    _.$._ = 0
+                    l.$._ += aft.$._
+                    aft.$._ = 0
                 }
             });
         }

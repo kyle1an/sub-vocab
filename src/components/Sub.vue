@@ -19,7 +19,10 @@
         </el-container>
         <el-aside width="42%">
           <el-card class="table-card">
-            <el-switch v-model="isFilter" active-text="Hide Common" inactive-text="" style="font-size: 18px !important; letter-spacing: -0.02em" />
+            <label class="form-switch">
+              <span>Hide Common</span>
+              <input type="checkbox" v-model="isFilter" /><i></i>
+            </label>
             <el-table fit class="r-table" height="calc(100vh - 90px)" :data="vocabData" size="mini">
               <el-table-column prop="vocab" label="Vocabulary" sortable align="right" :sort-method="sortByChar" style="font-size: 14px !important;" />
               <el-table-column prop="info.0" label="Times" sortable align="right" class-name="t-num" />
@@ -40,20 +43,22 @@ export default {
   data() {
     return {
       inputContent: '',
-      UPPER: {},
-      words: {},
+      UPPER: new WordTree(''),
+      words: new WordTree(''),
       wordsMap: {},
       commonMap: {},
       isFilter: true,
       i: { '@': 1 },
       fileInfo: 'No file chosen',
+      notFiltered: [],
+      hasFiltered: [],
       vocabData: [],
     }
   },
 
   watch: {
     isFilter() {
-      this.vocabData = this.formList(this.words, this.isFilter);
+      this.vocabData = this.isFilter ? this.hasFiltered : this.notFiltered;
     }
   },
 
@@ -121,12 +126,21 @@ export default {
       console.time('deAffix')
       this.words.deAffix()
       console.timeEnd('deAffix')
-//
       console.time('formList')
-      const vocabData = this.formList(this.words, this.isFilter);
+      if (this.isFilter) {
+        this.hasFiltered = this.formList(this.words, true);
+        this.vocabData = this.hasFiltered;
+
+        this.notFiltered = this.formList(this.words, false);
+      } else {
+        this.notFiltered = this.formList(this.words, false);
+        this.vocabData = this.notFiltered;
+
+        this.hasFiltered = this.formList(this.words, true);
+      }
       console.timeEnd('formList')
-      console.log(this.words.trunk)
-      this.vocabData = vocabData;
+      console.log(`(${Object.keys(this.notFiltered).length})`, this.notFiltered);
+      console.log(`(${Object.keys(this.hasFiltered).length})`, this.hasFiltered);
     },
 
     formList(words, isFilter = false) {
@@ -137,9 +151,7 @@ export default {
       const UPPER = this.UPPER.cloneTree()
       vocab.trans(UPPER)
       vocab.merge(UPPER)
-      const vocabData = this.map2Array(vocab.flatten()).sort((a, b) => a.info[2] - b.info[2])
-      console.log(`(${Object.keys(vocabData).length})`, vocabData);
-      return vocabData;
+      return this.map2Array(vocab.flatten()).sort((a, b) => a.info[2] - b.info[2]);
     },
 
     map2Array(words) {
@@ -156,6 +168,20 @@ export default {
 </script>
 
 <style>
+label.form-switch {
+  display: flex;
+  justify-content: center;
+}
+
+label.form-switch span {
+  font-size: 16px;
+  letter-spacing: -0.04rem;
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: center;
+  margin: 0 10px;
+}
+
 .el-card {
   border: 0 !important;
 }
@@ -309,6 +335,11 @@ table thead {
   margin: auto;
 }
 
+/*.el-card__body {*/
+/*  display: flex;*/
+/*  flex-direction: column;*/
+/*}*/
+
 @media only screen  and (min-width: 896px) {
   .input-area > textarea,
   .text-input {
@@ -317,8 +348,12 @@ table thead {
     overflow: visible;
   }
 
+  /*.table-card {*/
+  /*  max-height: calc(100vh - 150px);*/
+  /*}*/
+
   .r-table {
-    max-height: calc(100vh - 176px);
+    max-height: calc(100vh - 180px);
     width: 100%;
   }
 }
