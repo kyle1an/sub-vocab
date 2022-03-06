@@ -1,9 +1,13 @@
+:root {
+  --switch-color: #0a95ff;
+  --switch-bg-color: #e6e6e6;
+}
+
 .form-switch {
   display: inline-block;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-
 .form-switch i {
   position: relative;
   display: inline-block;
@@ -15,19 +19,17 @@
   vertical-align: text-bottom;
   transition: all 0.3s linear;
 }
-
 .form-switch i::before {
   content: "";
   position: absolute;
   left: 0;
   width: 42px;
   height: 22px;
-  background-color: #e6e6e6;
+  background-color: var(--switch-bg-color);
   border-radius: 11px;
   transform: translate3d(2px, 2px, 0) scale3d(1, 1, 1);
   transition: all 0.25s linear;
 }
-
 .form-switch i::after {
   content: "";
   position: absolute;
@@ -53,15 +55,12 @@
 .form-switch input {
   display: none;
 }
-
 .form-switch input:checked + i {
-  background-color: #0a95ff;
+  background-color: var(--switch-color);
 }
-
 .form-switch input:checked + i::before {
   transform: translate3d(18px, 2px, 0) scale3d(0, 0, 0);
 }
-
 .form-switch input:checked + i::after {
   transform: translate3d(22px, 2px, 0);
 }

@@ -19,10 +19,12 @@
         </el-container>
         <el-aside width="42%">
           <el-card class="table-card">
-            <label class="form-switch">
-              <span>Hide Common</span>
-              <input type="checkbox" v-model="isFilter" /><i></i>
-            </label>
+            <div>
+              <label class="form-switch">
+                <span>Hide Common</span>
+                <input type="checkbox" v-model="isFilter" /><i></i>
+              </label>
+            </div>
             <el-table fit class="r-table" height="calc(100vh - 90px)" :data="vocabData" size="mini">
               <el-table-column prop="vocab" label="Vocabulary" sortable align="right" :sort-method="sortByChar" style="font-size: 14px !important;" />
               <el-table-column prop="info.0" label="Times" sortable align="right" class-name="t-num" />
@@ -351,7 +353,6 @@ table thead {
   /*.table-card {*/
   /*  max-height: calc(100vh - 150px);*/
   /*}*/
-
   .r-table {
     max-height: calc(100vh - 180px);
     width: 100%;
