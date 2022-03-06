@@ -2,8 +2,6 @@ import { pruneEmpty, print, stringify, } from '../utils/utils.js';
 import { deAffix, clearSuffix } from "../components/ignoreSuffix.js";
 import _ from 'lodash/fp.js';
 
-const has = Object.prototype.hasOwnProperty
-
 class WordTree {
     trunk = Object.create(null);
     #i;

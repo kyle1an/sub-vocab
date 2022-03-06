@@ -66,7 +66,9 @@ export default {
     }
     const w1k = await fetch('../common-words.txt', init).then((response) => response.text());
     const myW = await fetch('../myWords.txt', init).then((response) => response.text());
+    console.time('══ prepare ══')
     this.commonMap = new WordTree(w1k.concat(myW), { '@': 1 })
+    console.timeEnd('══ prepare ══')
     // const myArray = deDuplicate(myWords.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg).sort());
     // const print = (m, space = 0) => console.log(JSON.stringify(m, null, space).replace(/"/mg, ""))
     const id = { '@': 1 }
@@ -154,6 +156,10 @@ export default {
 </script>
 
 <style>
+.el-card {
+  border: 0 !important;
+}
+
 .file-info {
   max-width: calc(50vw - 90px);
   text-overflow: ellipsis;
