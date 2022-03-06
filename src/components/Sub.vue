@@ -2,7 +2,7 @@
   <div style="margin: 10px auto;max-width: 1440px">
     <el-container>
       <el-header height="100%" style="position: relative">
-        <label for="file-input" class="word-content">Browse files</label>
+        <label for="file-input" class="word-content s-btn">Browse files</label>
         <input type="file" id="file-input" @change="readSingleFile" />
         <span class="file-info">{{ fileInfo }}</span>
       </el-header>
@@ -11,7 +11,7 @@
           <el-main>
             <div class="text-input" style="position: relative">
               <div class="submit">
-                <el-button @click="formWords(inputContent)" type="primary" icon="el-icon-check" circle />
+                <el-button class="s-btn" @click="formWords(inputContent)" type="primary" icon="el-icon-check" circle />
               </div>
               <el-input class="input-area" type="textarea" :rows="12" placeholder="input subtitles manually:" v-model="inputContent" />
             </div>
@@ -53,7 +53,7 @@ export default {
 
   watch: {
     isFilter() {
-      this.vocabData = this.formList(this.words);
+      this.vocabData = this.formList(this.words, this.isFilter);
     }
   },
 
@@ -121,16 +121,16 @@ export default {
       console.timeEnd('deAffix')
 //
       console.time('formList')
-      const vocabData = this.formList(this.words);
+      const vocabData = this.formList(this.words, 1);
       console.timeEnd('formList')
       console.log(this.words.trunk)
       this.vocabData = vocabData;
     },
 
-    formList(words) {
+    formList(words, isFilter = false) {
       const { i } = this;
       const vocab = words.cloneTree();
-      if (this.isFilter) vocab.filter(this.commonMap)
+      if (isFilter) vocab.filter(this.commonMap)
       i['@'] = 1
       vocab.trans(this.UPPER)
       vocab.merge(this.UPPER)
@@ -178,18 +178,27 @@ export default {
   display: inline-block;
   font-family: 'Google Sans', sans-serif;
   font-size: 14px;
-  font-weight: 500;
-  letter-spacing: .3px;
-  line-height: 16px;
+  font-weight: 400;
+  letter-spacing: 0.3px;
   height: 36px;
   margin: 0 16px 0 16px;
-  padding: 10px 12px
+  padding: 10px 12px;
+
 }
 
-.word-content:hover {
-  border-width: 0;
-  box-shadow: 0px 1px 2px 0px rgba(60, 64, 67, .30), 0px 1px 3px 1px rgba(60, 64, 67, .15);
-  background: #1967d2
+.s-btn {
+  box-shadow: inset 0 1px 0 0 hsl(0deg 0% 100% / 40%);
+  line-height: 14px;
+  border: 1px solid transparent;
+  background-color: hsl(206, 100%, 52%);
+}
+
+/* .s-btn:focus,*/
+/* .s-btn:active,*/
+.s-btn:hover {
+  background-color: hsl(206, 100%, 40%) !important;
+  /*box-shadow: 0px 1px 2px 0px rgba(60, 64, 67, .30), 0px 1px 3px 1px rgba(60, 64, 67, .15);*/
+  border: 1px solid transparent !important;
 }
 
 input#file-input {
