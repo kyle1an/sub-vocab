@@ -211,14 +211,12 @@ label.form-switch span {
   color: #fff;
   cursor: pointer;
   display: inline-block;
-  font-family: 'Google Sans', sans-serif;
   font-size: 14px;
   font-weight: 400;
   letter-spacing: 0.3px;
   height: 36px;
   margin: 0 16px 0 16px;
   padding: 10px 12px;
-
 }
 
 .s-btn {

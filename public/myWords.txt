@@ -23,6 +23,7 @@ Korean
 London
 March
 May
+Mm-hm
 Monday
 November
 October
@@ -307,6 +308,7 @@ coffee
 coin
 collection
 college
+com
 comfort
 comfortable
 commercial
@@ -638,6 +640,7 @@ greatest
 greatly
 greed
 greet
+grown
 grown-up
 growth
 guard
@@ -645,6 +648,7 @@ guest
 guilt
 gunshot
 guy
+ha-ha
 habit
 hadn't
 hah
@@ -1063,6 +1067,7 @@ reality
 realize
 really
 recent
+recognize
 recorder
 reduce
 reference
