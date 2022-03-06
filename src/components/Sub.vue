@@ -121,7 +121,7 @@ export default {
       console.timeEnd('deAffix')
 //
       console.time('formList')
-      const vocabData = this.formList(this.words, 1);
+      const vocabData = this.formList(this.words, this.isFilter);
       console.timeEnd('formList')
       console.log(this.words.trunk)
       this.vocabData = vocabData;
@@ -132,8 +132,9 @@ export default {
       const vocab = words.cloneTree();
       if (isFilter) vocab.filter(this.commonMap)
       i['@'] = 1
-      vocab.trans(this.UPPER)
-      vocab.merge(this.UPPER)
+      const UPPER = this.UPPER.cloneTree()
+      vocab.trans(UPPER)
+      vocab.merge(UPPER)
       const vocabData = this.map2Array(vocab.flatten()).sort((a, b) => a.info[2] - b.info[2])
       console.log(`(${Object.keys(vocabData).length})`, vocabData);
       return vocabData;

@@ -55,9 +55,10 @@ class WordTree {
     #alter(filter, filtee, fn) {
         clearSuffix(filtee, filter);
         for (const key in filter) {
-            if (filtee[key]) {
-                if (key !== '$') {
-                    this.#alter(filter[key], filtee[key], fn)
+            const k = key.toLowerCase();
+            if (filtee[k]) {
+                if (k !== '$') {
+                    this.#alter(filter[key], filtee[k], fn)
                 } else {
                     fn(filtee);
                 }
@@ -85,6 +86,8 @@ class WordTree {
                     branch.$ = { '_': null, '@': null };
                 } else {
                     // console.log('now')
+                    // print(newTree, 1)
+                    // print(branch, 1)
                     // console.log(branch, newTree)
                     branch.$['@'] = Math.min(newTree.$['@'], branch.$['@'])
                     newTree.$ = { '_': null, '@': null };
