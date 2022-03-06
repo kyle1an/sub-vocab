@@ -18,6 +18,12 @@
     border-radius: 23px;
     vertical-align: text-bottom;
     transition: all 0.3s linear;
+
+    user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
   }
 
   i::before {
