@@ -25,8 +25,8 @@
                 <input type="checkbox" v-model="isFilter" /><i></i>
               </label>
             </div>
-            <el-table fit class="r-table" height="calc(100vh - 90px)" :data="vocabData" size="mini">
-              <el-table-column prop="vocab" label="Vocabulary" sortable align="right" :sort-method="sortByChar" style="font-size: 14px !important;" />
+            <el-table fit class="r-table" height="calc(100vh - 90px)" :data="vocabData" @cell-mouse-enter="selectText" size="mini">
+              <el-table-column prop="vocab" label="Vocabulary" sortable :sort-method="sortByChar" class-name="vocab-col" align="right" style="font-size: 14px !important;" />
               <el-table-column prop="info.0" label="Times" sortable align="right" class-name="t-num" />
               <el-table-column prop="info.1" label="Length" sortable align="center" style="width: 100%" />
             </el-table>
@@ -61,8 +61,10 @@ export default {
   watch: {
     isFilter() {
       this.vocabData = this.isFilter ? this.hasFiltered : this.notFiltered;
-    }
+      this.selectOnClick();
+    },
   },
+
 
   async mounted() {
     const init = {
@@ -76,8 +78,6 @@ export default {
     console.time('══ prepare ══')
     this.commonMap = new WordTree(w1k.concat(myW), { '@': 1 })
     console.timeEnd('══ prepare ══')
-    // const myArray = deDuplicate(myWords.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg).sort());
-    // const print = (m, space = 0) => console.log(JSON.stringify(m, null, space).replace(/"/mg, ""))
     const id = { '@': 1 }
     const t = new WordTree('say ok', id)
     const t2 = new WordTree('Say Say dd', id)
@@ -85,13 +85,29 @@ export default {
     t.trans(t2)
     t.filter(t2, 0)
 
-    const me = Object.create(null);
-    const aaa = {}
-    console.log(me)
-    console.log(aaa)
+    console.log(Object.create(null));
+    console.log({})
   },
 
   methods: {
+    selectOnClick() {
+      console.log('listen click')
+      this.$el.querySelectorAll('.vocab-col').forEach((e) => {
+        e.addEventListener('touchstart', () => {
+          console.log(e)
+          window.getSelection().selectAllChildren(e);
+        });
+      })
+    },
+
+    selectText(row, column, cell, event) {
+      if (cell.classList.contains('vocab-col')) window.getSelection().selectAllChildren(cell);
+    },
+
+    select(id) {
+      window.getSelection().selectAllChildren(document.getElementById("target-div"));
+    },
+
     sortByChar(a, b) {
       return a['vocab'].localeCompare(b['vocab'], 'en', { sensitivity: 'base' })
     },
@@ -132,12 +148,17 @@ export default {
       if (this.isFilter) {
         this.hasFiltered = this.formList(this.words, true);
         this.vocabData = this.hasFiltered;
+        setTimeout(() => {
+          this.selectOnClick();
+        }, 0)
 
         this.notFiltered = this.formList(this.words, false);
       } else {
         this.notFiltered = this.formList(this.words, false);
         this.vocabData = this.notFiltered;
-
+        setTimeout(() => {
+          this.selectOnClick();
+        }, 0)
         this.hasFiltered = this.formList(this.words, true);
       }
       console.timeEnd('formList')
@@ -202,7 +223,6 @@ label.form-switch span {
   color: #29296e;
   display: inline-block;
   font-size: 10px;
-  font-weight: 500;
   letter-spacing: -0.01rem;
   position: absolute;
   top: 50%;
@@ -217,8 +237,6 @@ label.form-switch span {
   cursor: pointer;
   display: inline-block;
   font-size: 14px;
-  font-weight: 400;
-  letter-spacing: 0.3px;
   height: 36px;
   margin: 0 16px 0 16px;
   padding: 10px 12px;
@@ -275,9 +293,11 @@ input#file-input {
   letter-spacing: -0.01em;
 }
 
-tbody .el-table_1_column_1 {
-  font-size: 14px !important;
-  font-weight: 500;
+td.vocab-col .cell {
+  font-family: 'SF Compact Text', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 400;
+  letter-spacing: 0.01rem;
 }
 
 #file-content {
@@ -353,9 +373,6 @@ table thead {
     overflow: visible;
   }
 
-  /*.table-card {*/
-  /*  max-height: calc(100vh - 150px);*/
-  /*}*/
   .r-table {
     max-height: calc(100vh - 180px);
     width: 100%;
@@ -375,6 +392,7 @@ table thead {
     height: 100%;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
+    margin: 0 !important;
   }
 
   .r-table {

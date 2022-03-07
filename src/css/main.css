@@ -5,38 +5,41 @@
     --sys-font-stack-mono: 'SFMono-Regular', 'SF Mono', 'Ubuntu Mono', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
 }
 
-.cell,
 html,
 body,
 input,
-textarea,
-.el-table_1_column_1 {
+textarea {
     letter-spacing: 0.02rem;
     font-family: var(--sys-font-stack);
 
     /*-moz-font-feature-settings: 'smcp';*/
     /* -webkit-font-feature-settings: 'tnum'  !important;*/
 
-    font-feature-settings: 'cv01', 'ss01' 0, 'ss02', 'cv02', 'cv03', 'cv04', 'cv05', 'cv06', 'ss07' 0, 'cv07' 0, 'cv08', 'nlck', 'nalt' 0, 'ital',  'ss03' 0, 'ss04' !important;
+    /*  'cv01' 96, 'ss01' 1, 'ss02' 4, 'cv02', 'cv03' :J, 'cv04', 'cv05' I, 'cv06' l, 'ss07' a, 'cv07' , 'cv08' 0 zh, 'nlck', 'nalt' 0, 'ital',  'ss03' 0, 'ss04' 1, */
+    font-feature-settings: 'cv01', 'ss02', 'cv02', 'cv03', 'cv04', 'cv05', 'cv06', 'cv08', 'nlck', 'ital', 'ss04' !important;
+    /*  "cv01",  "Straight-sided nine"; 6 9. [six six.tnum] by [six.1 six.1.tnum];*/
+    /*  "ss01",  sub [six nine six.tnum nine.tnum] by [six.1 nine.1 six.1.tnum nine.1.tnum];*/
+    /*  "ss02",  "Open four"; 4*/
+    /*  "cv02",*/
+    /*  "cv03",  "Vertically centered colon"; : and J*/
+    /*  "cv05",  "Seriffed Capital I";*/
+    /*  "cv06",  "Tailed lowercase l";*/
+    /*  "ss07",  "One storey a";*/
+    /*  "cv07",*/
+    /*  "cv08",  "Slashed zero"; 0 and Chinese*/
+    /*  "trad",*/
+    /*  "nlck",*/
+    /*  "nalt",*/
+    /*  "ital",*/
+    /*  "tnum",*/
+    /*  "ss03",  -- Mono "Alternate 0 no slash";*/
+    /*  "ss04";   "Alternate 1 no serif";;*/
 
-    /*font-feature-settings: 'cv01',*/
-    /*    !* 'Straight-sided nine'; 6 9. [six six.tnum] by [six.1 six.1.tnum];*! 'ss01' 0,*/
-    /*    !*   sub [six nine six.tnum nine.tnum] by [six.1 nine.1 six.1.tnum nine.1.tnum];*! 'ss02',*/
-    /*    !* 'Open four'; 4*! 'cv02',*/
-    /*'cv03', 'cv04',*/
-    /*    !* 'Vertically centered colon'; : and J*! 'cv05',*/
-    /*    !* 'Seriffed Capital I';*! 'cv06',*/
-    /*    !* 'Tailed lowercase l';*! 'ss07',*/
-    /*    !* 'One storey a';*! 'cv07' 0,*/
-    /*'cv08',*/
-    /*    !* 'Slashed zero'; 0 and Chinese*! 'trad' 0,*/
-    /*'nlck',*/
-    /*'nalt' 0,*/
-    /*'ital',*/
-    /*'tnum' 0,*/
-    /*'ss03' 0,*/
-    /*    !* -- Mono 'Alternate 0 no slash';*! 'ss04' !important;*/
-    /*!* 'Alternate 1 no serif';;*!*/
+    /*  // font-feature-settings: "dnom" !important;*/
+}
+
+.el-table__cell {
+    font-feature-settings: 'cv01', 'ss02', 'cv03', 'cv05', 'cv08', 'nlck', 'ital', 'tnum', 'ss04'
 }
 
 table,
@@ -46,23 +49,3 @@ table,
     margin: auto;
 }
 
-.el-table__cell {
-    font-feature-settings: 'cv01',
-        /* 'Straight-sided nine'; 6 9. [six six.tnum] by [six.1 six.1.tnum];*/ 'ss01' 0,
-        /*   sub [six nine six.tnum nine.tnum] by [six.1 nine.1 six.1.tnum nine.1.tnum];*/ 'ss02',
-        /* 'Open four'; 4*/ 'cv02' 0,
-    'cv03',
-        /* 'Vertically centered colon'; : and J*/ 'cv05',
-        /* 'Seriffed Capital I';*/ 'cv06' 0,
-        /* 'Tailed lowercase l';*/ 'ss07',
-        /* 'One storey a';*/ 'cv07' 0,
-    'cv08',
-        /* 'Slashed zero'; 0 and Chinese*/ 'trad' 0,
-    'nlck',
-    'nalt' 0,
-    'ital',
-    'tnum',
-    'ss03' 0,
-        /* -- Mono 'Alternate 0 no slash';*/ 'ss04'
-    /* 'Alternate 1 no serif';;*/
-}
