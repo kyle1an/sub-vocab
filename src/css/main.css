@@ -5,7 +5,7 @@
     --sys-font-stack-mono: 'SFMono-Regular', 'SF Mono', 'Ubuntu Mono', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
 }
 
-html,
+html *,
 body,
 input,
 textarea {
@@ -36,10 +36,6 @@ textarea {
     /*  "ss04";   "Alternate 1 no serif";;*/
 
     /*  // font-feature-settings: "dnom" !important;*/
-}
-
-.el-table__cell {
-    font-feature-settings: 'cv01', 'ss02', 'cv03', 'cv05', 'cv08', 'nlck', 'ital', 'tnum', 'ss04'
 }
 
 table,

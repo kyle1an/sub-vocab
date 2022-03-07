@@ -293,10 +293,13 @@ input#file-input {
   letter-spacing: -0.01em;
 }
 
+.file-info,
 td.vocab-col .cell {
-  font-family: 'SF Compact Text', sans-serif !important;
+  font-family: 'SF Compact Text', -apple-system, sans-serif !important;
+}
+
+td.vocab-col .cell {
   font-size: 16px !important;
-  font-weight: 400;
   letter-spacing: 0.01rem;
 }
 
