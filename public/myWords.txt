@@ -4,6 +4,8 @@ American
 April
 Asia
 August
+CEO
+CIA
 China
 Chinese
 Christmas
@@ -11,6 +13,7 @@ DNA
 December
 Europe
 European
+FBI
 February
 French
 Friday
@@ -24,6 +27,7 @@ London
 March
 May
 Mm-hm
+Mm-mm
 Monday
 November
 October
@@ -71,6 +75,7 @@ afternoon
 afterwards
 agent
 agriculture
+aha
 ahead
 ahh
 aid
@@ -282,6 +287,7 @@ certainly
 certainty
 chain
 charm
+chase
 cheap
 cheat
 cheers
@@ -301,6 +307,7 @@ civilization
 classify
 clearly
 clever
+closely
 closer
 cloth
 club
@@ -372,6 +379,7 @@ curse
 curve
 customer
 cute
+cutting
 daddies
 daddy
 damage
@@ -478,6 +486,7 @@ electrical
 electricity
 elephant
 elsewhere
+emotions
 emphasize
 empire
 empty
@@ -505,6 +514,7 @@ everyone
 everything
 everywhere
 evil
+ex-boyfriend
 exactly
 excellence
 excellent
@@ -534,6 +544,7 @@ faith
 fake
 false
 familiar
+families
 famously
 fan
 fancy
@@ -550,6 +561,8 @@ fellow
 female
 fever
 fewer
+fifth
+fifty-fifty
 file
 film
 finally
@@ -781,6 +794,7 @@ kitchen
 knee
 kneel
 knife
+knives
 knock
 knowledge
 known
@@ -838,6 +852,7 @@ lying
 ma'am
 mad
 madam
+madness
 magazine
 mail
 male
@@ -871,6 +886,7 @@ mercy
 mess
 message
 met
+microphone
 microphones
 midnight
 mild
@@ -883,6 +899,7 @@ mistake
 mm-hmm
 mm-mmm
 mmm
+mobile
 modest
 mom
 mommy
@@ -946,6 +963,7 @@ older
 oldest
 online
 onto
+ooh
 operation
 opinion
 opportunity
@@ -1124,6 +1142,7 @@ sacred
 sacrifice
 sad
 sadness
+safer
 safest
 safety
 salary
@@ -1193,6 +1212,7 @@ site
 sitting
 situation
 sixth
+sixty
 skirt
 slide
 slight
@@ -1368,6 +1388,7 @@ understood
 unexpected
 unfamiliar
 unforgivable
+unfortunately
 unique
 unite
 universal
@@ -1423,6 +1444,7 @@ whenever
 wherever
 whiskey
 whistle
+whoa
 whoever
 whom
 whoo
