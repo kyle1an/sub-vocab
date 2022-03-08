@@ -1,26 +1,23 @@
-import _ from "lodash/fp.js";
-
-function clearSuffix(layer, base, TER = '$') {
-    if (base?.[TER]) {
-        const w = layer
-        if (w?.$) w.$._ = 0
-        if (w?.e?.d?.$) w.e.d.$._ = 0
-        if (w?.e?.s?.$) w.e.s.$._ = 0
-        if (w?.i?.n?.g?.$) w.i.n.g.$._ = 0
-        if (w?.s?.$) w.s.$._ = 0
+function clearSuffix(layer, base, $ = '$') {
+    const w = layer;
+    const a = [
+        w?.e?.d?.$,
+        w?.e?.s?.$,
+        w?.i?.n?.g?.$,
+        w?.i?.n?.g?.s?.$,
+    ]
+    if (base?.[$]) {
+        [
+            w?.$,
+            ...a,
+            w?.s?.$,
+        ].filter(Boolean).forEach((p) => p._ = 0);
     }
-    if (base?.e?.[TER]) {
-        const e = layer?.e;
-        if (e) {
-            if (e?.$) e.$._ = 0
-            if (e?.d?.$) e.d.$._ = 0
-            if (e?.s?.$) e.s.$._ = 0
-        }
-        const ing = layer?.i?.n?.g
-        if (ing) {
-            if (ing?.$) ing.$._ = 0
-            if (ing?.s?.$) ing.s.$._ = 0
-        }
+    if (base?.e?.[$]) {
+        [
+            w?.e?.$,
+            ...a,
+        ].filter(Boolean).forEach((p) => p._ = 0);
     }
 }
 
@@ -32,77 +29,40 @@ function deAffix(layer) {
     }
 }
 
-function deSuffix(layer) {
-    const $ = { '$': {} }
-    const ed = [
-        { ...$, 'e': { 'd': $ }, },
-        { 'e': { ...$, 'd': $, }, },
-    ]
-    const edMod = (l) => {
-        if (_.isMatch(ed[0], l)) {
-            l.$._ += l.e.d.$._
-            l.e.d.$._ = 0
-        } else if (_.isMatch(ed[1], l)) {
-            l.e.$._ += l.e.d.$._
-            l.e.d.$._ = 0
-        }
-    }
+function deSuffix(O) {
+    [O?.s?.$,].filter(Boolean).forEach((_s$) => {
+        [O?.$, O?.e?.d?.$, O?.i?.n?.g?.$, O?.i?.n?.g?.s?.$,].filter(Boolean).forEach((_x$) => {
+            const sum = _x$._ + _s$._;
+            _s$._ = 0
+            _x$._ = 0
+            if (!O.$?._) {
+                O.$ = { '_': sum }
+            } else {
+                O.$._ += sum
+            }
+        })
+    });
 
-    const ing = [
-        {
-            ...$,
-            'i': { 'n': { 'g': $ } },
-        },
-        {
-            'e': { ...$, 'd': $, },
-            'i': { 'n': { 'g': $ } },
-        }
-    ]
-    const ingMod = (l) => {
-        if (_.isMatch(ing[0], l)) {
-            l.$._ += l.i.n.g.$._
-            l.i.n.g.$._ = 0
-        } else if (_.isMatch(ing[1], l)) {
-            l.e.$._ += l.i.n.g.$._ + l.e.d.$._
-            l.i.n.g.$._ = 0
-            l.e.d.$._ = 0
-        }
-    }
+    [O?.e?.d?.$].filter(Boolean).forEach((_xx$) => {
+        [O?.$, O?.e?.$].filter(Boolean).forEach((_$) => {
+            _$._ += _xx$._
+            _xx$._ = 0
+        })
+    });
 
-    const apostrophe = [
-        { ...$, "'": { 's': $ }, },
-        { ...$, "'": { 'l': { 'l': $ } }, },
-        { ...$, "'": { 'v': { 'e': $ } }, },
-        { ...$, "'": { 'd': $ }, }
-    ]
-    const apostropheMod = (l) => {
-        if (l.$) {
-            const _$ = l?.["'"];
-            [_$?.s, _$?.d, _$?.l?.l, _$?.v?.e].forEach((aft) => {
-                if (aft) {
-                    // console.log(_)
-                    l.$._ += aft.$._
-                    aft.$._ = 0
-                }
-            });
-        }
-    }
-    const sMod = (l) => {
-        if (_.isMatch({
-            ...$,
-            's': $
-        }, l)) {
-            l.$._ += l.s.$._
-            l.s.$._ = 0
-        }
-    }
-    const merge = () => {
-        sMod(layer);
-        edMod(layer);
-        ingMod(layer);
-        apostropheMod(layer);
-    }
-    merge();
+    [O?.i?.n?.g?.$].filter(Boolean).forEach((_xx$) => {
+        [O?.$, O?.e?.$].filter(Boolean).forEach((_$) => {
+            _$._ += _xx$._
+            _xx$._ = 0
+        })
+    });
+
+    [O?.$].filter(Boolean).forEach((O$) => {
+        [O?.["'"]?.s?.$, O?.["'"]?.l?.l?.$, O?.["'"]?.v?.e?.$, O?.["'"]?.d?.$,].filter(Boolean).forEach((_x$) => {
+            O$._ += _x$._
+            _x$._ = 0
+        })
+    });
 }
 
 export { deAffix, clearSuffix };

@@ -104,13 +104,7 @@ export default {
       if (cell.classList.contains('vocab-col')) window.getSelection().selectAllChildren(cell);
     },
 
-    select(id) {
-      window.getSelection().selectAllChildren(document.getElementById("target-div"));
-    },
-
-    sortByChar(a, b) {
-      return a['vocab'].localeCompare(b['vocab'], 'en', { sensitivity: 'base' })
-    },
+    sortByChar: (a, b) => a['vocab'].localeCompare(b['vocab'], 'en', { sensitivity: 'base' }),
 
     readSingleFile(e) {
       const file = e.target.files[0];
@@ -315,22 +309,16 @@ td.vocab-col .cell {
 }
 
 .el-header, .el-footer {
-  /*background-color: #B3C0D1;*/
-  /*color: #333;*/
   text-align: center;
   line-height: 60px;
 }
 
 .el-aside {
-  /*background-color: #D3DCE6;*/
-  /*color: #333;*/
   text-align: center;
   /*line-height: 200px;*/
 }
 
 .el-main {
-  /*background-color: #E9EEF3;*/
-  /*color: #333;*/
   text-align: center;
   /*line-height: 160px;*/
 }
@@ -362,11 +350,6 @@ table thead {
 .el-table__empty-block {
   margin: auto;
 }
-
-/*.el-card__body {*/
-/*  display: flex;*/
-/*  flex-direction: column;*/
-/*}*/
 
 @media only screen  and (min-width: 896px) {
   .input-area > textarea,
