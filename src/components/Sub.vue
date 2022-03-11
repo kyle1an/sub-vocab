@@ -48,7 +48,7 @@ export default {
       UPPER: new WordTree(''),
       words: new WordTree(''),
       wordsMap: {},
-      commonMap: {},
+      common: {},
       isFilter: true,
       i: { '@': 1 },
       fileInfo: 'No file chosen',
@@ -65,7 +65,6 @@ export default {
     },
   },
 
-
   async mounted() {
     const init = {
       headers: {
@@ -76,17 +75,15 @@ export default {
     const w1k = await fetch('../common-words.txt', init).then((response) => response.text());
     const myW = await fetch('../myWords.txt', init).then((response) => response.text());
     console.time('══ prepare ══')
-    this.commonMap = new WordTree(w1k.concat(myW), { '@': 1 })
+    this.common = new WordTree(w1k.concat(myW), { '@': 1 })
     console.timeEnd('══ prepare ══')
     const id = { '@': 1 }
     const t = new WordTree('say ok', id)
     const t2 = new WordTree('Say Say dd', id)
-    t.add('')
-    t.trans(t2)
-    t.filter(t2, 0)
-
-    console.log(Object.create(null));
-    console.log({})
+    t.add('').trans(t2).filter(t2, 0)
+    console.log(t)
+    // console.log(Object.create(null));
+    // console.log({})
   },
 
   methods: {
@@ -134,27 +131,18 @@ export default {
         this.words.add(origin)
       })
       console.timeEnd('formWords')
-
       console.time('deAffix')
       this.words.deAffix()
       console.timeEnd('deAffix')
-      console.time('formList')
-      if (this.isFilter) {
-        this.hasFiltered = this.formList(this.words, true);
-        this.vocabData = this.hasFiltered;
-        setTimeout(() => {
-          this.selectOnClick();
-        }, 0)
 
-        this.notFiltered = this.formList(this.words, false);
-      } else {
-        this.notFiltered = this.formList(this.words, false);
-        this.vocabData = this.notFiltered;
-        setTimeout(() => {
-          this.selectOnClick();
-        }, 0)
-        this.hasFiltered = this.formList(this.words, true);
-      }
+      console.time('formList')
+      this.vocabData = this.formList(this.words, this.isFilter);
+      setTimeout(() => {
+        this.selectOnClick();
+      }, 0)
+      const opp = this.formList(this.words, !this.isFilter);
+      this.hasFiltered = this.isFilter ? this.vocabData : opp;
+      this.notFiltered = this.isFilter ? opp : this.vocabData;
       console.timeEnd('formList')
       console.log(`(${Object.keys(this.notFiltered).length})`, this.notFiltered);
       console.log(`(${Object.keys(this.hasFiltered).length})`, this.hasFiltered);
@@ -163,7 +151,7 @@ export default {
     formList(words, isFilter = false) {
       const { i } = this;
       const vocab = words.cloneTree();
-      if (isFilter) vocab.filter(this.commonMap)
+      if (isFilter) vocab.filter(this.common)
       i['@'] = 1
       const UPPER = this.UPPER.cloneTree()
       vocab.trans(UPPER)

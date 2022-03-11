@@ -4,6 +4,7 @@ import _ from 'lodash/fp.js';
 
 class WordTree {
     trunk = Object.create(null);
+    #tUPPER;
     #i;
 
     constructor(words, counter) {
@@ -11,57 +12,64 @@ class WordTree {
         this.add(words)
     }
 
-    add = (newWords, collection = this.trunk) => {
-        const newList = typeof newWords === 'string' ? newWords.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || [] :
-            Array.isArray(newWords) ? newWords : []
-
-        newList.forEach((word) => this.#buildLayer(word, collection))
+    add = (newWords) => {
+        this.trunk = this.#insert(newWords, this.trunk)
+        return this;
     }
 
-    #buildLayer(word, branch) {
-        const { length } = word;
-        for (let i = 0; i < length; i++) {
-            const c = word.charAt(i);
-            if (!branch[c]) branch[c] = Object.create(null)
-            branch = branch[c]
-        }
-        if (!branch.$) {
-            branch.$ = {
-                '_': 1,
-                '~': word.length,
-                '@': this.#i['@']++
+    #insert = (newWords, collection,) => {
+        const wordList = Array.isArray(newWords) ? newWords : String(newWords).match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || []
+        return wordList.reduce((collected, word) => {
+            let branch = collected;
+            const { length } = word;
+            for (let i = 0; i < length; i++) {
+                const c = word.charAt(i);
+                if (!branch[c]) branch[c] = Object.create(null)
+                branch = branch[c]
             }
-            return;
-        }
-        branch.$._ += 1;
+            if (!branch.$) {
+                branch.$ = { '_': 1, '~': word.length, '@': this.#i['@']++ }
+            } else {
+                branch.$._ += 1;
+            }
+            return collected;
+        }, collection);
     }
 
-    filter(tar, isPrune = false) {
-        let filter;
-        if (typeof tar === 'string') {
-            filter = Object.create(null)
-            this.add(tar, filter)
-        } else if (typeof tar === 'object') {
-            filter = tar.trunk || tar;
+    // pseudo filter
+    filter(sieve) {
+        const remove = (word) => word.$._ = null;
+        if (typeof sieve === 'object') {
+            this.#alteration(remove, sieve.trunk || sieve)
+        } else {
+            this.#alterRay(remove, (Array.isArray(sieve) ? sieve : String(sieve).match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || []))
         }
-        const reset = (filtee) => filtee.$._ = 0;
-        const remove = (filtee) => filtee.$ = { '_': null, '@': null }
-        this.#alter(filter, this.trunk, isPrune ? remove : reset)
-        if (isPrune) pruneEmpty(this.trunk)
     }
 
-    #alter(filter, filtee, fn) {
-        clearSuffix(filtee, filter);
-        for (const key in filter) {
+    #alteration(fn, sieve, impurities = this.trunk) {
+        clearSuffix(impurities, sieve);
+        for (const key in sieve) {
             const k = key.toLowerCase();
-            if (filtee[k]) {
+            if (impurities[k]) {
                 if (k !== '$') {
-                    this.#alter(filter[key], filtee[k], fn)
+                    this.#alteration(fn, sieve[key], impurities[k])
                 } else {
-                    fn(filtee);
+                    fn(impurities);
                 }
             }
         }
+    }
+
+    #alterRay(fn, sieve, impurities = this.trunk) {
+        sieve.forEach((sie) => {
+            let branch = impurities
+            const { length } = sie;
+            for (let i = 0; i < length; i++) {
+                const c = sie.charAt(i);
+                if (branch[c]) branch = branch[c]
+            }
+            if (branch.$) fn(branch);
+        });
     }
 
     trans(addTree) {
@@ -71,6 +79,7 @@ class WordTree {
         this.#emigrate(newTree, this.trunk);
         // console.log('Af:', stringify(newTree, 1))
         // console.log('Af:', stringify(this.trunk, 1))
+        return this;
     }
 
     #emigrate(newTree, branch) {
@@ -98,6 +107,7 @@ class WordTree {
 
     merge = (part) => {
         this.trunk = _.merge(this.trunk, part.trunk || part)
+        return this;
     }
 
     deAffix = () => deAffix(this.trunk)

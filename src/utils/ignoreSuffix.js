@@ -1,23 +1,13 @@
-function clearSuffix(layer, base, $ = '$') {
-    const w = layer;
-    const a = [
-        w?.e?.d?.$,
-        w?.e?.s?.$,
-        w?.i?.n?.g?.$,
-        w?.i?.n?.g?.s?.$,
-    ]
-    if (base?.[$]) {
+function clearSuffix(O, base, $ = '$') {
+    if (base?.[$] || base?.e?.[$]) {
         [
-            w?.$,
-            ...a,
-            w?.s?.$,
+            O?.e?.d?.$,
+            O?.e?.s?.$,
+            O?.i?.n?.g?.$,
+            O?.i?.n?.g?.s?.$,
         ].filter(Boolean).forEach((p) => p._ = 0);
-    }
-    if (base?.e?.[$]) {
-        [
-            w?.e?.$,
-            ...a,
-        ].filter(Boolean).forEach((p) => p._ = 0);
+        if (base?.[$]) [O?.$, O?.s?.$,].filter(Boolean).forEach((p) => p._ = 0);
+        if (base?.e?.[$]) [O?.e?.$,].filter(Boolean).forEach((p) => p._ = 0);
     }
 }
 
@@ -25,42 +15,51 @@ function deAffix(layer) {
     for (const k in layer) {
         const value = layer[k]
         deSuffix(value)
-        deAffix(value, layer);
+        deAffix(value);
     }
 }
 
 function deSuffix(O) {
-    [O?.s?.$,].filter(Boolean).forEach((_s$) => {
-        [O?.$, O?.e?.d?.$, O?.i?.n?.g?.$, O?.i?.n?.g?.s?.$,].filter(Boolean).forEach((_x$) => {
-            const sum = _x$._ + _s$._;
-            _s$._ = 0
-            _x$._ = 0
+    [O?.s?.$,].filter(Boolean).forEach((Os$) => {
+        [
+            O?.$,
+            O?.e?.d?.$,
+            O?.i?.n?.g?.$,
+            O?.i?.n?.g?.s?.$,
+        ].filter(Boolean).forEach((_x$) => {
+            const sum = _x$._ + Os$._;
+            Os$._ = _x$._ = null
             if (!O.$?._) {
-                O.$ = { '_': sum }
+                O.$ = { '_': sum, '~': Os$['~'] - 1, '@': Math.min(_x$['@'], Os$['@']) }
             } else {
                 O.$._ += sum
             }
         })
     });
 
-    [O?.e?.d?.$].filter(Boolean).forEach((_xx$) => {
-        [O?.$, O?.e?.$].filter(Boolean).forEach((_$) => {
-            _$._ += _xx$._
-            _xx$._ = 0
+    [O?.e?.d?.$].filter(Boolean).forEach((Oed$) => {
+        [O?.$, O?.e?.$].filter(Boolean).forEach((Ox$) => {
+            Ox$._ += Oed$._;
+            Oed$._ = null;
         })
     });
 
-    [O?.i?.n?.g?.$].filter(Boolean).forEach((_xx$) => {
-        [O?.$, O?.e?.$].filter(Boolean).forEach((_$) => {
-            _$._ += _xx$._
-            _xx$._ = 0
+    [O?.i?.n?.g?.$].filter(Boolean).forEach((Ong$) => {
+        [O?.$, O?.e?.$].filter(Boolean).forEach((Ox$) => {
+            Ox$._ += Ong$._
+            Ong$._ = null
         })
     });
 
     [O?.$].filter(Boolean).forEach((O$) => {
-        [O?.["'"]?.s?.$, O?.["'"]?.l?.l?.$, O?.["'"]?.v?.e?.$, O?.["'"]?.d?.$,].filter(Boolean).forEach((_x$) => {
+        [
+            O?.["'"]?.s?.$,
+            O?.["'"]?.l?.l?.$,
+            O?.["'"]?.v?.e?.$,
+            O?.["'"]?.d?.$,
+        ].filter(Boolean).forEach((_x$) => {
             O$._ += _x$._
-            _x$._ = 0
+            _x$._ = null
         })
     });
 }

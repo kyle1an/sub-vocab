@@ -9,10 +9,10 @@ $uniGen=U+0000-024F, U+02B0-052F, U+1DC0-20CF, U+2190-22FF, U+2460-24FF, U+25A0-
 $uni___4=U+0250-02AF, U+1D00-1DBF, U+2190-22FF;
 // @formatter:on
 $uniMono = $uniGen, $uni___4;
-$mono = 'SF Mono', 'SFMono-Regular'//, 'Cascadia Mono-SemiLight', Consolas, Courier, 'courier new', 'DejaVu Sans Mono', docs-Consolas, Menlo, Meslo, Monaco, Monospace, monospaced, 'Roboto Mono', 'Source Code Pro', 'source-code-pro', 'SourceCodePro', 'PT Mono', Ubuntu Mono;
+$mono = 'SF Mono'//, 'SFMono-Regular', 'Cascadia Mono-SemiLight', Consolas, Courier, 'courier new', 'DejaVu Sans Mono', docs-Consolas, Menlo, Meslo, Monaco, Monospace, monospaced, 'Roboto Mono', 'Source Code Pro', 'source-code-pro', 'SourceCodePro', 'PT Mono', Ubuntu Mono;
+$comp = 'SF Compact Text'//, Mulish;
 $proX = 'SF Pro Text'//, 'SF Pro Display', Akzidenz, AlibabaPuHuiTi, 'Arial', arial, 'Arial Unicode MS', Arimo, Avenir, 'Benton Sans', 'Crisp Noto Sans Regular', Content-font, CustomSansSerif, 'dosis', font-regular, Geneva, Helvetica, 'Helvetica Neue', HelveticaNeue, HelveticaNowDisplay-Regular, 'Helvetica Neue For Number', 'HelveticaNeue-Medium', 'HelveticaNeue-Bold', Hind, Inter, 'Lantinghei SC', lato, 'Lucida Grande', muli, mwf-segoeui-web, Noto, 'Noto Sans', 'Noto Sans SC', 'Noto Sans TC', 'Open Sans', opensans, 'PingFang SC', '.PingFang SC', 'PingFangSC', 'PingFang SC Light', 'PingFangSC-Light', 'PingFangSC-Regular', 'PingFangSC-Medium', 'PingFangSC-Semibold', 'PingFang SC', 'pt sans', Roboto, Roboto-Light, Roboto-Regular, Roboto-Medium, sans-serif, 'Segoe UI Web (West European)', 'Segoe UI', SegoeUI, '-apple-system', 'Source Han Sans CN', 'source sans pro', system-ui, Tahoma, 'Times New Roman', 'Trebuchet MS', 'Ubuntu Light', Ubuntu, Verdana, 'wf_segoe-ui', Whitney, '方正仿宋_gbk', '宋体', '微軟正黑體', '微软雅黑', 'Hiragino Sans GB', 'Microsoft JhengHei', 'Microsoft Yahei';
 $proB = 'Arial Black', HelveticaNowDisplay-XBd;
-$comp = 'SF Compact Text'//, Mulish;
 
 wts = {
 	Light: 300, Regular: 400, Medium: 500, Semibold: 600, Bold: 700
@@ -60,32 +60,32 @@ import(o, fn) {
   }
 }
 
-src_url(prefix-path, dir, weight, i) {
-  url(prefix-path + dir + weight + i + '.otf');
+src_url(path, dir, weight, i) {
+  url(path + dir + weight + i + '.otf');
 }
 
-import(proText, @(prefix-path, dir, weight, style) {
+import(proText, @(path, dir, weight, style) {
 // local('SF Pro Text '+ weight + (style == 'Italic'? ' Italic':''))  \,
-    local('-apple-system') \, src_url(prefix-path, dir, weight, style);
+    local('-apple-system') \, src_url(path, dir, weight, style);
 }
 
 );
 
-//import(prob, @(prefix-path, dir, weight, style) {
-//    src_url(prefix-path, dir, 'Bold', style);
+//import(prob, @(path, dir, weight, style) {
+//    src_url(path, dir, 'Bold', style);
 //}
 //
 //);
 
 /* ──────── Fira Mono, IBM Plex Mono ui-monospace */
-import(mono, @(prefix-path, dir, weight, style) {
-    local('SF Mono '+ weight + (style == 'Italic'? ' Italic':'')) \, src_url(prefix-path, dir, weight, style);
+import(mono, @(path, dir, weight, style) {
+    local('SF Mono '+ weight + (style == 'Italic'? ' Italic':'')) \, src_url(path, dir, weight, style);
 }
 
 );
 
-import(comp, @(prefix-path, dir, weight, style) {
-    local('SF Compact Text '+ weight + (style == 'Italic'? ' Italic':'')) \,src_url(prefix-path, dir, weight, style);
+import(comp, @(path, dir, weight, style) {
+    local('SF Compact Text '+ weight + (style == 'Italic'? ' Italic':'')) \,src_url(path, dir, weight, style);
 }
 );
 // @formatter:off
@@ -103,7 +103,7 @@ zh_font(o, fn) {
   for font-name in o[families] {
     @font-face {
       font-family: font-name;
-      src: fn(prefix-path, o[dir], o[weights], style, font-name);
+      src: fn(path, o[dir], o[weights], style, font-name);
       unicode-range: o[unicode];
     }
   }
