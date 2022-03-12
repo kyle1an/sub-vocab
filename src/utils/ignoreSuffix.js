@@ -1,14 +1,24 @@
-function clearSuffix(O, base, $ = '$') {
-    if (base?.[$] || base?.e?.[$]) {
+function clearSuffix(O, base) {
+    if (base?.$ || base?.e?.$) {
         [
+            ...(base?.$ ? [O?.$, O?.s?.$,] : base?.e?.$ ? [O?.e?.$,] : []),
             O?.e?.d?.$,
             O?.e?.s?.$,
             O?.i?.n?.g?.$,
             O?.i?.n?.g?.s?.$,
-        ].filter(Boolean).forEach((p) => p._ = 0);
-        if (base?.[$]) [O?.$, O?.s?.$,].filter(Boolean).forEach((p) => p._ = 0);
-        if (base?.e?.[$]) [O?.e?.$,].filter(Boolean).forEach((p) => p._ = 0);
+        ].filter(Boolean).forEach(($) => $._ = 0);
     }
+}
+
+function resetSuffix(O, last) {
+    O = (last === 'e') ? O : O?.[last];
+    [
+        ...(last === 'e' ? [O?.e?.$,] : [O?.$, O?.s?.$,]),
+        O?.e?.d?.$,
+        O?.e?.s?.$,
+        O?.i?.n?.g?.$,
+        O?.i?.n?.g?.s?.$,
+    ].filter(Boolean).forEach(($) => $._ = 0);
 }
 
 function deAffix(layer) {
@@ -64,4 +74,4 @@ function deSuffix(O) {
     });
 }
 
-export { deAffix, clearSuffix };
+export { deAffix, clearSuffix, resetSuffix };

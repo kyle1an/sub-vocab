@@ -48,6 +48,7 @@ export default {
       UPPER: new WordTree(''),
       words: new WordTree(''),
       wordsMap: {},
+      commonW: '',
       common: {},
       isFilter: true,
       i: { '@': 1 },
@@ -75,7 +76,9 @@ export default {
     const w1k = await fetch('../common-words.txt', init).then((response) => response.text());
     const myW = await fetch('../myWords.txt', init).then((response) => response.text());
     console.time('══ prepare ══')
-    this.common = new WordTree(w1k.concat(myW), { '@': 1 })
+    this.commonW = w1k.concat(myW);
+    this.common = new WordTree(this.commonW, { '@': 1 });
+
     console.timeEnd('══ prepare ══')
     const id = { '@': 1 }
     const t = new WordTree('say ok', id)
@@ -132,14 +135,19 @@ export default {
       })
       console.timeEnd('formWords')
       console.time('deAffix')
+
       this.words.deAffix()
+
       console.timeEnd('deAffix')
 
       console.time('formList')
+
       this.vocabData = this.formList(this.words, this.isFilter);
+
       setTimeout(() => {
         this.selectOnClick();
       }, 0)
+
       const opp = this.formList(this.words, !this.isFilter);
       this.hasFiltered = this.isFilter ? this.vocabData : opp;
       this.notFiltered = this.isFilter ? opp : this.vocabData;
@@ -151,7 +159,7 @@ export default {
     formList(words, isFilter = false) {
       const { i } = this;
       const vocab = words.cloneTree();
-      if (isFilter) vocab.filter(this.common)
+      if (isFilter) vocab.filter(this.commonW)
       i['@'] = 1
       const UPPER = this.UPPER.cloneTree()
       vocab.trans(UPPER)
