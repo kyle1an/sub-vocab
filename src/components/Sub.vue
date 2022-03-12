@@ -164,18 +164,10 @@ export default {
       const UPPER = this.UPPER.cloneTree()
       vocab.trans(UPPER)
       vocab.merge(UPPER)
-      return this.map2Array(vocab.flatten()).sort((a, b) => a.info[2] - b.info[2]);
+      return vocab.flatten().sort((a, b) => a.info[2] - b.info[2]);
     },
 
-    map2Array(words) {
-      const array = [];
-      for (const [key, value] of Object.entries(words)) {
-        if (key.length >= 3 && value._) {
-          array.push({ vocab: key, info: [value._, value['~'], value['@']] })
-        }
-      }
-      return array;
-    },
+    map2Array: (wL) => Object.entries(wL).filter(([key, val]) => key.length > 2 && val._).map(([key, val]) => ({ vocab: key, info: [val._, val['~'], val['@']] })),
   },
 }
 </script>

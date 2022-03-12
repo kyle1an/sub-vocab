@@ -116,25 +116,17 @@ class WordTree {
     deAffix = () => deAffix(this.trunk)
 
     flatten() {
-        const flattenedObject = {};
-        // console.log('tree:', stringify(this.trunk, 1))
-        this.#traverseAndFlatten(this.trunk, flattenedObject);
-        // console.log('flattened:', stringify(flattenedObject, 1))
-        return flattenedObject;
+        const flattened = [];
+        this.#traverseAndFlatten(this.trunk, flattened, '');
+        return flattened;
     }
 
-    #traverseAndFlatten(currentNode, target, flattenedKey) {
-        for (const key in currentNode) {
-            if (currentNode[key]) {
-                const is$ = key === '$'; // stop at $
-                const newKey = (flattenedKey || '') + (is$ ? '' : key);
-                const value = currentNode[key];
-                // mergeSuffix(value);
-                if (typeof value === 'object' && !is$) {
-                    this.#traverseAndFlatten(value, target, newKey);
-                } else {
-                    target[newKey] = value; // $:[] -> $: Frequency
-                }
+    #traverseAndFlatten(node, target, concatKey) {
+        for (const k in node) {
+            if (k !== '$') {
+                this.#traverseAndFlatten(node[k], target, concatKey + k);
+            } else if (concatKey.length > 2 && node.$._) {
+                target.push({ vocab: concatKey, info: [node.$._, node.$['~'], node.$['@']] })
             }
         }
     }
