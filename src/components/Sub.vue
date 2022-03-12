@@ -45,8 +45,8 @@ export default {
   data() {
     return {
       inputContent: '',
-      UPPER: new WordTree(''),
-      words: new WordTree(''),
+      UPPER: null,
+      words: null,
       wordsMap: {},
       commonW: '',
       common: {},
@@ -83,7 +83,7 @@ export default {
     const id = { '@': 1 }
     const t = new WordTree('say ok', id)
     const t2 = new WordTree('Say Say dd', id)
-    t.add('').trans(t2).filter(t2, 0)
+    t.add('').trans(t2).form(t2, 0)
     console.log(t)
     // console.log(Object.create(null));
     // console.log({})
@@ -126,48 +126,40 @@ export default {
       const { i } = this
       this.UPPER = new WordTree('', i);
       this.words = new WordTree('', i);
-      (content.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || []).forEach((origin) => {
-        if (/[A-Z']/.test(origin)) {
-          this.UPPER.add(origin)
-          origin = origin.toLowerCase()
+      (content.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || []).forEach((word) => {
+        if (/[A-Z']/.test(word)) {
+          this.UPPER.add(word)
+          word = word.toLowerCase()
         }
-        this.words.add(origin)
+        this.words.add(word)
       })
       console.timeEnd('formWords')
+
       console.time('deAffix')
-
       this.words.deAffix()
-
       console.timeEnd('deAffix')
 
       console.time('formList')
-
-      this.vocabData = this.formList(this.words, this.isFilter);
-
+      this.hasFiltered = this.formList(this.words, this.commonW);
+      this.notFiltered = this.formList(this.words);
+      this.vocabData = this.isFilter ? this.hasFiltered : this.notFiltered
       setTimeout(() => {
         this.selectOnClick();
       }, 0)
-
-      const opp = this.formList(this.words, !this.isFilter);
-      this.hasFiltered = this.isFilter ? this.vocabData : opp;
-      this.notFiltered = this.isFilter ? opp : this.vocabData;
       console.timeEnd('formList')
+
       console.log(`(${Object.keys(this.notFiltered).length})`, this.notFiltered);
       console.log(`(${Object.keys(this.hasFiltered).length})`, this.hasFiltered);
     },
 
-    formList(words, isFilter = false) {
-      const { i } = this;
+    formList(words, sieve) {
       const vocab = words.cloneTree();
-      if (isFilter) vocab.filter(this.commonW)
-      i['@'] = 1
+      if (sieve) vocab.form(sieve)
       const UPPER = this.UPPER.cloneTree()
       vocab.trans(UPPER)
       vocab.merge(UPPER)
       return vocab.flatten().sort((a, b) => a.info[2] - b.info[2]);
     },
-
-    map2Array: (wL) => Object.entries(wL).filter(([key, val]) => key.length > 2 && val._).map(([key, val]) => ({ vocab: key, info: [val._, val['~'], val['@']] })),
   },
 }
 </script>

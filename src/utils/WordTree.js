@@ -13,24 +13,22 @@ class WordTree {
     }
 
     add = (newWords) => {
-        this.trunk = this.#insert(Array.isArray(newWords) ? newWords : String(newWords).match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || [], this.trunk)
+        this.trunk = (Array.isArray(newWords) ? newWords : String(newWords).match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || []).reduce((cll, word) => this.#insert(word, cll), this.trunk)
         return this;
     }
 
-    #insert = (wordList, collection) => {
-        return wordList.reduce((collected, word) => {
-            let branch = collected;
-            for (let i = 0; i < word.length; i++) {
-                const c = word.charAt(i);
-                branch = branch[c] ??= {}
-            }
-            branch.$ = branch.$ ? { ...branch.$, '_': branch.$._ + 1 } : { '_': 1, '~': word.length, '@': this.#i['@']++ }
-            return collected;
-        }, collection);
+    #insert = (word, collection) => {
+        let branch = collection;
+        for (let i = 0; i < word.length; i++) {
+            const c = word.charAt(i);
+            branch = branch[c] ??= {}
+        }
+        branch.$ = branch.$ ? { ...branch.$, '_': branch.$._ + 1 } : { '_': 1, '~': word.length, '@': this.#i['@']++ }
+        return collection;
     }
 
     // pseudo filter
-    filter(sieve) {
+    form(sieve) {
         const remove = (word) => word.$._ = null;
         if (Array.isArray(sieve)) {
             this.#alterRay(remove, sieve)
@@ -40,7 +38,6 @@ class WordTree {
             this.#alterRay(remove, String(sieve).match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || []);
         }
     }
-
 
     #alteration(fn, sieve, impurities = this.trunk) {
         clearSuffix(impurities, sieve);
@@ -77,11 +74,7 @@ class WordTree {
 
     trans(addTree) {
         const newTree = addTree.trunk
-        // console.log('be:', stringify(newTree, 1))
-        // console.log('be:', stringify(this.trunk, 1))
         this.#emigrate(newTree, this.trunk);
-        // console.log('Af:', stringify(newTree, 1))
-        // console.log('Af:', stringify(this.trunk, 1))
         return this;
     }
 
@@ -89,24 +82,17 @@ class WordTree {
         for (const key in newTree) {
             const k = key.toLowerCase();
             if (branch[k]) {
-                // console.log('has')
                 if (k !== '$') {
                     this.#emigrate(newTree[key], branch[k])
                 } else if (branch.$._ === newTree.$._) {
                     branch.$ = { '_': null, '@': null };
                 } else {
-                    // console.log('now')
-                    // print(newTree, 1)
-                    // print(branch, 1)
-                    // console.log(branch, newTree)
                     branch.$['@'] = Math.min(newTree.$['@'], branch.$['@'])
                     newTree.$ = { '_': null, '@': null };
                 }
             }
         }
     }
-
-    pruneEmpty = () => pruneEmpty(this.trunk)
 
     merge = (part) => {
         this.trunk = _.merge(this.trunk, part.trunk || part)
