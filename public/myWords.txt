@@ -41,6 +41,7 @@ Sunday
 Thursday
 Tuesday
 Wednesday
+Yep
 abandon
 ability
 absent
@@ -58,6 +59,7 @@ action
 active
 actor
 actress
+actual
 actually
 addicted
 additional
@@ -82,6 +84,7 @@ aid
 aim
 ain't
 airplane
+airport
 alarm
 alcohol
 alien
@@ -119,6 +122,7 @@ apart
 apartment
 apologize
 apology
+app
 appearance
 applause
 application
@@ -246,9 +250,11 @@ briefly
 brighten
 brilliant
 british
+bro
 broken
 brush
 bucket
+buddy
 built
 bullshit
 bus
@@ -396,6 +402,7 @@ daylight
 deaf
 decade
 decent
+decision
 declaration
 decorate
 decrease
@@ -405,6 +412,7 @@ deepest
 defeat
 defend
 define
+definitely
 delay
 delicate
 delicious
@@ -428,9 +436,11 @@ didn't
 difference
 different
 differently
+difficulties
 dining
 dinner
 dinosaur
+direction
 directly
 dirt
 dirty
@@ -467,6 +477,7 @@ dust
 duty
 dying
 dynamic
+e-mail
 earlier
 earn
 easier
@@ -486,6 +497,7 @@ electrical
 electricity
 elephant
 elsewhere
+email
 emotions
 emphasize
 empire
@@ -588,6 +600,7 @@ forget
 forgive
 forgiveness
 forgot
+forgotten
 fork
 fortunate
 fortune
@@ -629,6 +642,7 @@ getting
 ghost
 giant
 gift
+girlfriend
 given
 glory
 glove
@@ -640,6 +654,7 @@ gonna
 goodbye
 goodness
 gosh
+gotcha
 gotta
 government
 grab
@@ -786,6 +801,7 @@ kick
 kid
 kidding
 killer
+kinda
 kindly
 kindness
 kingdom
@@ -1029,6 +1045,7 @@ police
 polite
 politics
 population
+positive
 possession
 postpone
 poverty
@@ -1074,6 +1091,7 @@ qualify
 quality
 queen
 quickly
+quit
 rabbit
 rainbow
 rank
@@ -1218,6 +1236,7 @@ slide
 slight
 slightly
 slowly
+smaller
 smart
 smoke
 smooth
@@ -1244,6 +1263,7 @@ soup
 southern
 spark
 specific
+spent
 spicy
 spike
 spilt
@@ -1287,6 +1307,7 @@ sufficient
 suggestion
 suitable
 sunday
+sunshine
 super
 supper
 supreme
@@ -1322,6 +1343,7 @@ television
 temporary
 terrible
 terribly
+text
 thank-you
 theater
 themselves
