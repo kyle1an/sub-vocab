@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 const print = (m, space = 0) => console.log(JSON.stringify(m, null, space).replace(/"/mg, ""))
-const stringify = (m, space = 0) => JSON.stringify(m, null, space)
+const stringify = (m, space = 0) => ({ s:  JSON.stringify(m, null).replace(/"/mg, "'") })
 
 function pruneEmpty(obj, mutate = true) {
     const co = mutate ? obj : _.cloneDeep(obj);

@@ -1,10 +1,10 @@
-import { pruneEmpty, print, stringify, } from '../utils/utils.js';
+import {  print, stringify, } from '../utils/utils.js';
 import { deAffix, clearSuffix, resetSuffix } from '../utils/ignoreSuffix.js';
 import _ from 'lodash/fp.js';
 
 class WordTree {
     trunk = Object.create(null);
-    #tUPPER = Object.create(null);
+    #tUPPER = [];
     #i;
 
     constructor(words, counter) {
@@ -12,9 +12,15 @@ class WordTree {
         this.add(words)
     }
 
-    add = (newWords) => {
-        this.trunk = (Array.isArray(newWords) ? newWords : String(newWords).match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || []).reduce((cll, word) => this.#insert(word, cll), this.trunk)
-        return this;
+    add = (neW) => (Array.isArray(neW) ? neW : neW.match(/[A-Za-z]+(?:-?[A-Za-z]'?)+/mg) || []).reduce((col, word) => this.#insert(word, col), this.trunk);
+
+    put = (neW, upper) => {
+        if (upper) {
+            this.#tUPPER.push(upper)
+            this.#insert(upper.toLowerCase(), this.trunk)
+        } else {
+            this.#insert(neW, this.trunk)
+        }
     }
 
     #insert = (word, collection) => {
@@ -28,30 +34,7 @@ class WordTree {
     }
 
     // pseudo filter
-    form(sieve) {
-        const remove = (word) => word.$._ = null;
-        if (Array.isArray(sieve)) {
-            this.#alterRay(remove, sieve)
-        } else if (typeof sieve === 'object') {
-            this.#alteration(remove, sieve.trunk || sieve)
-        } else {
-            this.#alterRay(remove, String(sieve).match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || []);
-        }
-    }
-
-    #alteration(fn, sieve, impurities = this.trunk) {
-        clearSuffix(impurities, sieve);
-        for (const key in sieve) {
-            const k = key.toLowerCase();
-            if (impurities[k]) {
-                if (k !== '$') {
-                    this.#alteration(fn, sieve[key], impurities[k])
-                } else {
-                    fn(impurities);
-                }
-            }
-        }
-    }
+    flt = (sieve) => this.#alterRay((word) => word.$._ = null, Array.isArray(sieve) ? sieve : sieve.match(/[A-Za-z]+(?:-?[A-Za-z]'?)+/mg) || []);
 
     #alterRay(fn, sieve, impurities = this.trunk) {
         sieve.forEach((sie) => {
@@ -73,30 +56,26 @@ class WordTree {
     }
 
     trans(addTree) {
-        const newTree = addTree.trunk
-        this.#emigrate(newTree, this.trunk);
+        const upper = addTree.trunk || addTree
+        this.#emigrate(upper, this.trunk);
+        this.trunk = _.merge(this.trunk, upper)
         return this;
     }
 
-    #emigrate(newTree, branch) {
-        for (const key in newTree) {
+    #emigrate(upper, branch) {
+        for (const key in upper) {
             const k = key.toLowerCase();
             if (branch[k]) {
                 if (k !== '$') {
-                    this.#emigrate(newTree[key], branch[k])
-                } else if (branch.$._ === newTree.$._) {
-                    branch.$ = { '_': null, '@': null };
+                    this.#emigrate(upper[key], branch[k])
+                } else if (branch.$._ !== upper.$._) {
+                    branch.$['@'] = Math.min(upper.$['@'], branch.$['@'])
+                    upper.$ = { '_': null, '@': null };
                 } else {
-                    branch.$['@'] = Math.min(newTree.$['@'], branch.$['@'])
-                    newTree.$ = { '_': null, '@': null };
+                    branch.$ = { '_': null, '@': null };
                 }
             }
         }
-    }
-
-    merge = (part) => {
-        this.trunk = _.merge(this.trunk, part.trunk || part)
-        return this;
     }
 
     deAffix = () => deAffix(this.trunk)

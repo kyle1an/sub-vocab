@@ -83,8 +83,9 @@ export default {
     const id = { '@': 1 }
     const t = new WordTree('say ok', id)
     const t2 = new WordTree('Say Say dd', id)
-    t.add('').trans(t2).form(t2, 0)
-    console.log(t)
+    t.add('');
+    t.trans(t2)//.flt(t2, 0)
+    // console.log(t)
     // console.log(Object.create(null));
     // console.log({})
   },
@@ -126,15 +127,16 @@ export default {
       const { i } = this
       this.UPPER = new WordTree('', i);
       this.words = new WordTree('', i);
-      (content.match(/[a-zA-Z]+(?:-?[a-zA-Z]+'?)+/mg) || []).forEach((word) => {
-        if (/[A-Z']/.test(word)) {
-          this.UPPER.add(word)
-          word = word.toLowerCase()
+      for (const m of content.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:-?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
+        if (m[1]) {
+          this.UPPER.add(m[1])
+          this.words.add(m[1].toLowerCase())
+        } else {
+          this.words.add(m[0])
         }
-        this.words.add(word)
-      })
+      }
       console.timeEnd('formWords')
-
+      this.i['@'] = 1;
       console.time('deAffix')
       this.words.deAffix()
       console.timeEnd('deAffix')
@@ -154,10 +156,9 @@ export default {
 
     formList(words, sieve) {
       const vocab = words.cloneTree();
-      if (sieve) vocab.form(sieve)
+      if (sieve) vocab.flt(sieve)
       const UPPER = this.UPPER.cloneTree()
       vocab.trans(UPPER)
-      vocab.merge(UPPER)
       return vocab.flatten().sort((a, b) => a.info[2] - b.info[2]);
     },
   },
