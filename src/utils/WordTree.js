@@ -1,5 +1,5 @@
-import {  print, stringify, } from '../utils/utils.js';
-import { deAffix, clearSuffix, resetSuffix } from '../utils/ignoreSuffix.js';
+import { print, } from '../utils/utils.js';
+import { deAffix, resetSuffix } from '../utils/ignoreSuffix.js';
 import _ from 'lodash/fp.js';
 
 class WordTree {
@@ -33,8 +33,14 @@ class WordTree {
         return collection;
     }
 
+    formList(words, sieve, upper) {
+        const vocab = _.cloneDeep(words.trunk);
+        if (sieve) this.flt(sieve, vocab)
+        return this.flatten(this.trans(_.cloneDeep(upper), vocab)).sort((a, b) => a.info[2] - b.info[2]);
+    }
+
     // pseudo filter
-    flt = (sieve) => this.#alterRay((word) => word.$._ = null, Array.isArray(sieve) ? sieve : sieve.match(/[A-Za-z]+(?:-?[A-Za-z]'?)+/mg) || []);
+    flt = (sieve, vocab) => this.#alterRay((word) => word.$._ = null, Array.isArray(sieve) ? sieve : sieve.match(/[A-Za-z]+(?:-?[A-Za-z]'?)+/mg) || [], vocab);
 
     #alterRay(fn, sieve, impurities = this.trunk) {
         sieve.forEach((sie) => {
@@ -55,11 +61,9 @@ class WordTree {
         });
     }
 
-    trans(addTree) {
-        const upper = addTree.trunk || addTree
-        this.#emigrate(upper, this.trunk);
-        this.trunk = _.merge(this.trunk, upper)
-        return this;
+    trans(upper, trunk = this.trunk) {
+        this.#emigrate(upper, trunk);
+        return  _.merge(trunk, upper);
     }
 
     #emigrate(upper, branch) {
@@ -69,8 +73,8 @@ class WordTree {
                 if (k !== '$') {
                     this.#emigrate(upper[key], branch[k])
                 } else if (branch.$._ !== upper.$._) {
-                    branch.$['@'] = Math.min(upper.$['@'], branch.$['@'])
-                    upper.$ = { '_': null, '@': null };
+                    if (upper.$['@'] < branch.$['@']) branch.$['@'] = upper.$['@']
+                    upper.$._ = null;
                 } else {
                     branch.$ = { '_': null, '@': null };
                 }
@@ -80,9 +84,9 @@ class WordTree {
 
     deAffix = () => deAffix(this.trunk)
 
-    flatten() {
+    flatten(trie = this.trunk) {
         const flattened = [];
-        this.#traverseAndFlatten(this.trunk, flattened, '');
+        this.#traverseAndFlatten(trie, flattened, '');
         return flattened;
     }
 
@@ -94,12 +98,6 @@ class WordTree {
                 target.push({ vocab: concatKey, info: [node.$._, node.$['~'], node.$['@']] })
             }
         }
-    }
-
-    cloneTree() {
-        const co = new WordTree('')
-        co.trunk = _.cloneDeep(this.trunk)
-        return co;
     }
 }
 

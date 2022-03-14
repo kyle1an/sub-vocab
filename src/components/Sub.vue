@@ -101,9 +101,7 @@ export default {
       })
     },
 
-    selectText(row, column, cell, event) {
-      if (cell.classList.contains('vocab-col')) window.getSelection().selectAllChildren(cell);
-    },
+    selectText: (row, column, cell, event) => cell.classList.contains('vocab-col') && window.getSelection().selectAllChildren(cell),
 
     sortByChar: (a, b) => a['vocab'].localeCompare(b['vocab'], 'en', { sensitivity: 'base' }),
 
@@ -142,24 +140,16 @@ export default {
       console.timeEnd('deAffix')
 
       console.time('formList')
-      this.hasFiltered = this.formList(this.words, this.commonW);
-      this.notFiltered = this.formList(this.words);
+      this.hasFiltered = this.words.formList(this.words, this.commonW, this.UPPER.trunk);
+      this.notFiltered = this.words.formList(this.words, false, this.UPPER.trunk);
       this.vocabData = this.isFilter ? this.hasFiltered : this.notFiltered
       setTimeout(() => {
         this.selectOnClick();
       }, 0)
       console.timeEnd('formList')
 
-      console.log(`(${Object.keys(this.notFiltered).length})`, this.notFiltered);
-      console.log(`(${Object.keys(this.hasFiltered).length})`, this.hasFiltered);
-    },
-
-    formList(words, sieve) {
-      const vocab = words.cloneTree();
-      if (sieve) vocab.flt(sieve)
-      const UPPER = this.UPPER.cloneTree()
-      vocab.trans(UPPER)
-      return vocab.flatten().sort((a, b) => a.info[2] - b.info[2]);
+      console.log(`not(${Object.keys(this.notFiltered).length})`, this.notFiltered);
+      console.log(`fil(${Object.keys(this.hasFiltered).length})`, this.hasFiltered);
     },
   },
 }
