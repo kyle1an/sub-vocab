@@ -45,13 +45,10 @@ export default {
   data() {
     return {
       inputContent: '',
-      UPPER: null,
-      words: null,
-      wordsMap: {},
+      words: new WordTree(''),
       commonW: '',
       common: {},
       isFilter: true,
-      i: { '@': 1 },
       fileInfo: 'No file chosen',
       notFiltered: [],
       hasFiltered: [],
@@ -60,10 +57,7 @@ export default {
   },
 
   watch: {
-    isFilter() {
-      this.vocabData = this.isFilter ? this.hasFiltered : this.notFiltered;
-      this.selectOnClick();
-    },
+    isFilter: () => this.toggleFilter(),
   },
 
   async mounted() {
@@ -78,11 +72,10 @@ export default {
     console.time('══ prepare ══')
     this.commonW = w1k.concat(myW);
     this.common = new WordTree(this.commonW, { '@': 1 });
-
     console.timeEnd('══ prepare ══')
-    const id = { '@': 1 }
-    const t = new WordTree('say ok', id)
-    const t2 = new WordTree('Say Say dd', id)
+
+    const t = new WordTree('say ok')
+    const t2 = new WordTree('Say Say dd')
     t.add('');
     t.trans(t2)//.flt(t2, 0)
     // console.log(t)
@@ -91,6 +84,11 @@ export default {
   },
 
   methods: {
+    toggleFilter() {
+      this.vocabData = this.isFilter ? this.hasFiltered : this.notFiltered
+      setTimeout(() => this.selectOnClick(), 0)
+    },
+
     selectOnClick() {
       console.log('listen click')
       this.$el.querySelectorAll('.vocab-col').forEach((e) => {
@@ -101,7 +99,7 @@ export default {
       })
     },
 
-    selectText: (row, column, cell, event) => cell.classList.contains('vocab-col') && window.getSelection().selectAllChildren(cell),
+    selectText: (row, column, cell,) => cell.classList.contains('vocab-col') && window.getSelection().selectAllChildren(cell),
 
     sortByChar: (a, b) => a['vocab'].localeCompare(b['vocab'], 'en', { sensitivity: 'base' }),
 
@@ -121,32 +119,21 @@ export default {
     },
 
     formWords(content) {
-      console.time('formWords')
-      const { i } = this
-      this.UPPER = new WordTree('', i);
-      this.words = new WordTree('', i);
+      console.time('--formWords')
       for (const m of content.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:-?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
-        if (m[1]) {
-          this.UPPER.add(m[1])
-          this.words.add(m[1].toLowerCase())
-        } else {
-          this.words.add(m[0])
-        }
+        this.words.put(m[0], m[1])
       }
-      console.timeEnd('formWords')
-      this.i['@'] = 1;
-      console.time('deAffix')
-      this.words.deAffix()
-      console.timeEnd('deAffix')
+      console.timeEnd('--formWords')
 
-      console.time('formList')
-      this.hasFiltered = this.words.formList(this.words, this.commonW, this.UPPER.trunk);
-      this.notFiltered = this.words.formList(this.words, false, this.UPPER.trunk);
-      this.vocabData = this.isFilter ? this.hasFiltered : this.notFiltered
-      setTimeout(() => {
-        this.selectOnClick();
-      }, 0)
-      console.timeEnd('formList')
+      console.time('--deAffix')
+      this.words.deAffix()
+      console.timeEnd('--deAffix')
+
+      console.time('--formList')
+      this.hasFiltered = this.words.formList(this.words, this.commonW);
+      this.notFiltered = this.words.formList(this.words);
+      this.toggleFilter();
+      console.timeEnd('--formList')
 
       console.log(`not(${Object.keys(this.notFiltered).length})`, this.notFiltered);
       console.log(`fil(${Object.keys(this.hasFiltered).length})`, this.hasFiltered);
@@ -322,7 +309,8 @@ table thead {
   margin: auto;
 }
 
-@media only screen  and (min-width: 896px) {
+@media only screen
+and (min-width: 896px) {
   .input-area > textarea,
   .text-input {
     height: 100vh;
@@ -336,7 +324,8 @@ table thead {
   }
 }
 
-@media only screen  and (max-width: 896px) {
+@media only screen
+and (max-width: 896px) {
   html {
     overflow: hidden;
     height: 100%;

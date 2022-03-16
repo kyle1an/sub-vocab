@@ -4,19 +4,18 @@ import _ from 'lodash/fp.js';
 
 class WordTree {
     trunk = Object.create(null);
-    #tUPPER = [];
-    #i;
+    #tUPPER = {};
+    #i = 1;
 
-    constructor(words, counter) {
-        this.#i = counter;
+    constructor(words) {
         this.add(words)
     }
 
-    add = (neW) => (Array.isArray(neW) ? neW : neW.match(/[A-Za-z]+(?:-?[A-Za-z]'?)+/mg) || []).reduce((col, word) => this.#insert(word, col), this.trunk);
+    add = (neW) => (Array.isArray(neW) ? neW : neW.match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg) || []).reduce((col, word) => this.#insert(word, col), this.trunk);
 
     put = (neW, upper) => {
         if (upper) {
-            this.#tUPPER.push(upper)
+            this.#insert(upper, this.#tUPPER)
             this.#insert(upper.toLowerCase(), this.trunk)
         } else {
             this.#insert(neW, this.trunk)
@@ -29,18 +28,18 @@ class WordTree {
             const c = word.charAt(i);
             branch = branch[c] ??= {}
         }
-        branch.$ = branch.$ ? { ...branch.$, '_': branch.$._ + 1 } : { '_': 1, '~': word.length, '@': this.#i['@']++ }
+        branch.$ = branch.$ ? { ...branch.$, '_': branch.$._ + 1 } : { '_': 1, '~': word.length, '@': this.#i++ }
         return collection;
     }
 
-    formList(words, sieve, upper) {
+    formList(words, sieve, upper = this.#tUPPER) {
         const vocab = _.cloneDeep(words.trunk);
         if (sieve) this.flt(sieve, vocab)
         return this.flatten(this.trans(_.cloneDeep(upper), vocab)).sort((a, b) => a.info[2] - b.info[2]);
     }
 
     // pseudo filter
-    flt = (sieve, vocab) => this.#alterRay((word) => word.$._ = null, Array.isArray(sieve) ? sieve : sieve.match(/[A-Za-z]+(?:-?[A-Za-z]'?)+/mg) || [], vocab);
+    flt = (sieve, vocab) => this.#alterRay((word) => word.$._ = null, Array.isArray(sieve) ? sieve : sieve.match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg) || [], vocab);
 
     #alterRay(fn, sieve, impurities = this.trunk) {
         sieve.forEach((sie) => {
@@ -63,7 +62,7 @@ class WordTree {
 
     trans(upper, trunk = this.trunk) {
         this.#emigrate(upper, trunk);
-        return  _.merge(trunk, upper);
+        return _.merge(trunk, upper);
     }
 
     #emigrate(upper, branch) {

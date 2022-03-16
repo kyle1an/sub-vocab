@@ -1,15 +1,3 @@
-function clearSuffix(O, base) {
-    if (base?.$ || base?.e?.$) {
-        [
-            ...(base?.$ ? [O?.$, O?.s?.$,] : base?.e?.$ ? [O?.e?.$,] : []),
-            O?.e?.d?.$,
-            O?.e?.s?.$,
-            O?.i?.n?.g?.$,
-            O?.i?.n?.g?.s?.$,
-        ].filter(Boolean).forEach(($) => $._ = 0);
-    }
-}
-
 function resetSuffix(O, last) {
     O = (last === 'e') ? O : O?.[last];
     [
@@ -74,4 +62,4 @@ function deSuffix(O) {
     });
 }
 
-export { deAffix, clearSuffix, resetSuffix };
+export { deAffix, resetSuffix };
