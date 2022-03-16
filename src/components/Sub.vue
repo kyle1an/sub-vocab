@@ -22,7 +22,7 @@
             <div>
               <label class="form-switch">
                 <span>Hide Common</span>
-                <input type="checkbox" v-model="isFilter" /><i></i>
+                <input type="checkbox" v-model="isFilter" @change="toggleFilter" /><i></i>
               </label>
             </div>
             <el-table fit class="r-table" height="calc(100vh - 90px)" :data="vocabData" @cell-mouse-enter="selectText" size="mini">
@@ -56,10 +56,6 @@ export default {
     }
   },
 
-  watch: {
-    isFilter: () => this.toggleFilter(),
-  },
-
   async mounted() {
     const init = {
       headers: {
@@ -86,10 +82,10 @@ export default {
   methods: {
     toggleFilter() {
       this.vocabData = this.isFilter ? this.hasFiltered : this.notFiltered
-      setTimeout(() => this.selectOnClick(), 0)
+      setTimeout(() => this.selectOnTouch(), 0)
     },
 
-    selectOnClick() {
+    selectOnTouch() {
       console.log('listen click')
       this.$el.querySelectorAll('.vocab-col').forEach((e) => {
         e.addEventListener('touchstart', () => {

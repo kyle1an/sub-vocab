@@ -57,6 +57,7 @@ achieve
 across
 action
 active
+activity
 actor
 actress
 actual
@@ -624,6 +625,7 @@ funeral
 funny
 fur
 furniture
+further
 future
 gain
 galaxy
@@ -681,6 +683,7 @@ ha-ha
 habit
 hadn't
 hah
+hall
 handkerchief
 handle
 handshake
@@ -1026,6 +1029,7 @@ personal
 personally
 pet
 phone
+photo
 photograph
 photography
 piano
