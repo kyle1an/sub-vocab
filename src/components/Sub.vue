@@ -115,11 +115,9 @@ export default {
     },
 
     formWords(content) {
-      console.time('--formWords')
-      for (const m of content.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:-?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
-        this.words.put(m[0], m[1])
-      }
-      console.timeEnd('--formWords')
+      console.time('--formWords--deAffix')
+      this.words.add(content);
+      console.timeEnd('--formWords--deAffix')
 
       console.time('--deAffix')
       this.words.deAffix()

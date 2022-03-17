@@ -11,16 +11,21 @@ class WordTree {
         this.add(words)
     }
 
-    add = (neW) => (Array.isArray(neW) ? neW : neW.match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg) || []).reduce((col, word) => this.#insert(word, col), this.trunk);
-
-    put = (neW, upper) => {
-        if (upper) {
-            this.#insert(upper, this.#tUPPER)
-            this.#insert(upper.toLowerCase(), this.trunk)
+    add = (neW) => {
+        if (Array.isArray(neW)) {
+            neW.reduce((col, word) => this.#insert(word, col), this.trunk);
         } else {
-            this.#insert(neW, this.trunk)
+            for (const m of neW.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:-?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
+                if (m[1]) {
+                    this.#insert(m[1], this.#tUPPER)
+                    this.#insert(m[1].toLowerCase(), this.trunk)
+                } else {
+                    this.#insert(m[0], this.trunk)
+                }
+            }
         }
-    }
+        return this;
+    };
 
     #insert = (word, collection) => {
         let branch = collection;
