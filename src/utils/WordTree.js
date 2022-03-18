@@ -116,13 +116,15 @@ class WordTree {
 
         function traverseAndFlatten(node, concatKey) {
             for (const k in node) {
-                if (k === '$') {
+                if (k !== '$') {
+                    traverseAndFlatten(node[k], concatKey + k);
+                } else if (node.$._) {
                     if (node.$.F) {
                         common.push({ vocab: concatKey, info: [node.$._, node.$['~'], node.$['@']] })
-                    } else if (concatKey.length > 2 && node.$._) {
+                    } else if (concatKey.length > 2) {
                         target.push({ vocab: concatKey, info: [node.$._, node.$['~'], node.$['@']] })
                     }
-                } else traverseAndFlatten(node[k], concatKey + k);
+                }
             }
         }
 
