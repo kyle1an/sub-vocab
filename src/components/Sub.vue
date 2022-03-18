@@ -140,9 +140,9 @@ export default {
       this.hasFiltered = tar
       this.commonFiltered = com
       this.notFiltered = this.words.formList(this.words);
+      if (this.value === '1' && !this.hasFiltered.length) this.value = '0';
       this.toggleFilter(this.value);
-      console.timeEnd('--formList')
-      setTimeout(() => this.selectOnTouch(), 0)
+      console.timeEnd('--formList') setTimeout(() => this.selectOnTouch(), 0)
       console.log(`not(${Object.keys(this.notFiltered).length})`, this.notFiltered);
       console.log(`fil(${Object.keys(this.hasFiltered).length})`, this.hasFiltered);
     },
