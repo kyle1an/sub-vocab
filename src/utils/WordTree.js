@@ -17,23 +17,23 @@ class WordTree {
         } else {
             for (const m of neW.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:-?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
                 if (m[1]) {
-                    this.#insert(m[1], this.#tUPPER)
-                    this.#insert(m[1].toLowerCase(), this.trunk)
+                    this.#insert(m[1].toLowerCase(), this.trunk, 1)
+                    this.#insert(m[1], this.#tUPPER, 0)
                 } else {
-                    this.#insert(m[0], this.trunk)
+                    this.#insert(m[0], this.trunk, 1)
                 }
             }
         }
         return this;
     };
 
-    #insert = (word, collection) => {
+    #insert = (word, collection, j) => {
         let branch = collection;
         for (let i = 0; i < word.length; i++) {
             const c = word.charAt(i);
             branch = branch[c] ??= {}
         }
-        branch.$ = branch.$ ? { ...branch.$, '_': branch.$._ + 1 } : { '_': 1, '~': word.length, '@': this.#i++ }
+        branch.$ = branch.$ ? { ...branch.$, '_': branch.$._ + 1 } : { '_': 1, '~': word.length, '@': this.#i += j }
         return collection;
     }
 
@@ -83,9 +83,10 @@ class WordTree {
                     this.#emigrate(upper[key], branch[k])
                 } else if (branch.$._ !== upper.$._) {
                     if (upper.$['@'] < branch.$['@']) branch.$['@'] = upper.$['@']
-                    upper.$._ = null;
+                    upper.$ = false;
                 } else {
-                    branch.$ = { '_': null, '@': null };
+                    upper.$ = branch.$;
+                    branch.$ = false;
                 }
             }
         }
@@ -95,13 +96,13 @@ class WordTree {
 
     flatten(trie = this.trunk) {
         const target = [];
-        traverseAndFlatten(trie, target, '');
+        traverseAndFlatten(trie, '');
 
-        function traverseAndFlatten(node, target, concatKey) {
+        function traverseAndFlatten(node, concatKey) {
             for (const k in node) {
                 if (k === '$') {
                     if (concatKey.length > 2 && node.$._) target.push({ vocab: concatKey, info: [node.$._, node.$['~'], node.$['@']] })
-                } else traverseAndFlatten(node[k], target, concatKey + k);
+                } else traverseAndFlatten(node[k], concatKey + k);
             }
         }
 
@@ -111,17 +112,17 @@ class WordTree {
     segregate(trie = this.trunk) {
         const target = [];
         const common = [];
-        traverseAndFlatten(trie, target, '');
+        traverseAndFlatten(trie, '');
 
-        function traverseAndFlatten(node, target, concatKey) {
+        function traverseAndFlatten(node, concatKey) {
             for (const k in node) {
                 if (k === '$') {
                     if (node.$.F) {
                         common.push({ vocab: concatKey, info: [node.$._, node.$['~'], node.$['@']] })
-                    } else if (concatKey.length > 2 && node.$._ && !node.$.U) {
+                    } else if (concatKey.length > 2 && node.$._) {
                         target.push({ vocab: concatKey, info: [node.$._, node.$['~'], node.$['@']] })
                     }
-                } else traverseAndFlatten(node[k], target, concatKey + k);
+                } else traverseAndFlatten(node[k], concatKey + k);
             }
         }
 

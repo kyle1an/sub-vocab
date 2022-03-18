@@ -6,10 +6,7 @@ function resetSuffix(O, last) {
         O?.e?.s?.$,
         O?.i?.n?.g?.$,
         O?.i?.n?.g?.s?.$,
-    ].filter(Boolean).forEach(($) => {
-        $._ = null;
-        $.F = true
-    });
+    ].filter(Boolean).forEach(($) => $.F = true);
 }
 
 function deAffix(layer) {

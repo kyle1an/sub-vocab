@@ -126,9 +126,9 @@ export default {
     },
 
     formWords(content) {
-      console.time('--formWords--deAffix')
+      console.time('--formWords')
       this.words.add(content);
-      console.timeEnd('--formWords--deAffix')
+      console.timeEnd('--formWords')
 
       console.time('--deAffix')
       this.words.deAffix()
