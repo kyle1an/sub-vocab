@@ -8,7 +8,7 @@ class WordTree {
     #i = 1;
 
     constructor(words) {
-        this.add(words)
+        if (words) this.add(words)
     }
 
     add = (neW) => {

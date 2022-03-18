@@ -50,7 +50,7 @@ export default {
         { title: 'Common', id: '2' },
       ],
       inputContent: '',
-      words: new WordTree(''),
+      words: null,
       commonW: '',
       common: {},
       isFilter: true,
@@ -126,6 +126,7 @@ export default {
     },
 
     formWords(content) {
+      this.words = new WordTree();
       console.time('--formWords')
       this.words.add(content);
       console.timeEnd('--formWords')
