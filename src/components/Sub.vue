@@ -19,12 +19,7 @@
         </el-container>
         <el-aside width="42%">
           <el-card class="table-card">
-            <div>
-              <label class="form-switch">
-                <span>Hide Common</span>
-                <input type="checkbox" v-model="isFilter" @change="toggleFilter" /><i></i>
-              </label>
-            </div>
+            <ios13-segmented-control v-model="value" :segments="segments" />
             <el-table fit class="r-table" height="calc(100vh - 90px)" :data="vocabData" @cell-mouse-enter="selectText" size="mini">
               <el-table-column prop="vocab" label="Vocabulary" sortable :sort-method="sortByChar" class-name="vocab-col" align="right" style="font-size: 14px !important;" />
               <el-table-column prop="info.0" label="Times" sortable align="right" class-name="t-num" />
@@ -38,12 +33,22 @@
 </template>
 
 <script>
-import { WordTree } from "@/utils/WordTree.js";
+import { WordTree } from '@/utils/WordTree.js';
+import iOS13SegmentedControl from './segmented-control.vue'
 
 export default {
   name: 'Sub',
+  components: {
+    'ios13-segmented-control': iOS13SegmentedControl
+  },
   data() {
     return {
+      value: '1',
+      segments: [
+        { title: 'Origin', id: '0' },
+        { title: 'Filtered', id: '1' },
+        { title: 'Common', id: '2' },
+      ],
       inputContent: '',
       words: new WordTree(''),
       commonW: '',
@@ -52,6 +57,7 @@ export default {
       fileInfo: 'No file chosen',
       notFiltered: [],
       hasFiltered: [],
+      commonFiltered: [],
       vocabData: [],
     }
   },
@@ -78,11 +84,16 @@ export default {
     // console.log(Object.create(null));
     // console.log({})
   },
-
+  watch: {
+    value(v) {
+      this.toggleFilter(v)
+    },
+  },
   methods: {
-    toggleFilter() {
-      this.vocabData = this.isFilter ? this.hasFiltered : this.notFiltered
-      setTimeout(() => this.selectOnTouch(), 0)
+    toggleFilter(v) {
+      this.vocabData = v === '0' ? this.notFiltered
+          : v === '1' ? this.hasFiltered
+              : this.commonFiltered
     },
 
     selectOnTouch() {
@@ -124,11 +135,13 @@ export default {
       console.timeEnd('--deAffix')
 
       console.time('--formList')
-      this.hasFiltered = this.words.formList(this.words, this.commonW);
+      const [tar, com] = this.words.formList(this.words, this.commonW);
+      this.hasFiltered = tar
+      this.commonFiltered = com
       this.notFiltered = this.words.formList(this.words);
-      this.toggleFilter();
+      this.toggleFilter(this.value);
       console.timeEnd('--formList')
-
+      setTimeout(() => this.selectOnTouch(), 0)
       console.log(`not(${Object.keys(this.notFiltered).length})`, this.notFiltered);
       console.log(`fil(${Object.keys(this.hasFiltered).length})`, this.hasFiltered);
     },

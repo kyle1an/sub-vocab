@@ -1,4 +1,4 @@
-import { print, } from '../utils/utils.js';
+import { print, stringify, } from '../utils/utils.js';
 import { deAffix, resetSuffix } from '../utils/ignoreSuffix.js';
 import _ from 'lodash/fp.js';
 
@@ -37,16 +37,21 @@ class WordTree {
         return collection;
     }
 
-    formList(words, sieve, upper = this.#tUPPER) {
+    formList(words, sieve) {
         const vocab = _.cloneDeep(words.trunk);
-        if (sieve) this.flt(sieve, vocab)
-        return this.flatten(this.trans(_.cloneDeep(upper), vocab)).sort((a, b) => a.info[2] - b.info[2]);
+        if (sieve) {
+            this.flt(sieve, vocab)
+            const [target, common] = this.segregate(this.trans(_.cloneDeep(this.#tUPPER), vocab));
+            return [target.sort((a, b) => a.info[2] - b.info[2]), common.sort((a, b) => a.info[2] - b.info[2])];
+        } else {
+            return this.flatten(this.trans(_.cloneDeep(this.#tUPPER), vocab)).sort((a, b) => a.info[2] - b.info[2]);
+        }
     }
 
     // pseudo filter
-    flt = (sieve, vocab) => this.#alterRay((word) => word.$._ = null, Array.isArray(sieve) ? sieve : sieve.match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg) || [], vocab);
+    flt = (sieve, vocab) => this.#alterRay(Array.isArray(sieve) ? sieve : sieve.match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg) || [], vocab);
 
-    #alterRay(fn, sieve, impurities = this.trunk) {
+    #alterRay(sieve, impurities = this.trunk) {
         sieve.forEach((sie) => {
             let branch = impurities
             let isBreak = false;
@@ -89,19 +94,38 @@ class WordTree {
     deAffix = () => deAffix(this.trunk)
 
     flatten(trie = this.trunk) {
-        const flattened = [];
-        this.#traverseAndFlatten(trie, flattened, '');
-        return flattened;
-    }
+        const target = [];
+        traverseAndFlatten(trie, target, '');
 
-    #traverseAndFlatten(node, target, concatKey) {
-        for (const k in node) {
-            if (k !== '$') {
-                this.#traverseAndFlatten(node[k], target, concatKey + k);
-            } else if (concatKey.length > 2 && node.$._) {
-                target.push({ vocab: concatKey, info: [node.$._, node.$['~'], node.$['@']] })
+        function traverseAndFlatten(node, target, concatKey) {
+            for (const k in node) {
+                if (k === '$') {
+                    if (concatKey.length > 2 && node.$._) target.push({ vocab: concatKey, info: [node.$._, node.$['~'], node.$['@']] })
+                } else traverseAndFlatten(node[k], target, concatKey + k);
             }
         }
+
+        return target;
+    }
+
+    segregate(trie = this.trunk) {
+        const target = [];
+        const common = [];
+        traverseAndFlatten(trie, target, '');
+
+        function traverseAndFlatten(node, target, concatKey) {
+            for (const k in node) {
+                if (k === '$') {
+                    if (node.$.F) {
+                        common.push({ vocab: concatKey, info: [node.$._, node.$['~'], node.$['@']] })
+                    } else if (concatKey.length > 2 && node.$._ && !node.$.U) {
+                        target.push({ vocab: concatKey, info: [node.$._, node.$['~'], node.$['@']] })
+                    }
+                } else traverseAndFlatten(node[k], target, concatKey + k);
+            }
+        }
+
+        return [target, common];
     }
 }
 

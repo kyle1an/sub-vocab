@@ -10,12 +10,9 @@ console.log(wordsNew)
 
 reorder(pathMy);
 
-function reorder(path) {
+function reorder(path) { //   sieve.match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg
     const words = fs.readFileSync(path, 'utf8')
-    const t = new WordTree(words, { '@': 1 })
-    const wordsA = t.flatten()
-    console.log('-------', wordsA)
-    const wList = wordsA.map(({ vocab }) => vocab).sort().join('\n');
+    const wList = [...new Set(words.match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg))].sort().join('\n');
     console.log(wList)
     fs.writeFile(path, wList, (err) => {
         if (err) return console.log(err);
