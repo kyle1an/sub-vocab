@@ -40,7 +40,7 @@ class WordTree {
     formList(words, sieve) {
         const vocab = _.cloneDeep(words.trunk);
         if (sieve) {
-            this.flt(sieve, vocab)
+            this.mark(sieve, vocab)
             const [target, common] = this.segregate(this.trans(_.cloneDeep(this.#tUPPER), vocab));
             return [target.sort((a, b) => a.info[2] - b.info[2]), common.sort((a, b) => a.info[2] - b.info[2])];
         } else {
@@ -49,24 +49,11 @@ class WordTree {
     }
 
     // pseudo filter
-    flt = (sieve, vocab) => this.#alterRay(Array.isArray(sieve) ? sieve : sieve.match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg) || [], vocab);
-
-    #alterRay(sieve, impurities = this.trunk) {
-        sieve.forEach((sie) => {
-            let branch = impurities
-            let isBreak = false;
-            sie = sie.toLowerCase();
-            const { length } = sie;
-            for (let i = 0; i < length - 1; i++) {
-                const c = sie.charAt(i);
-                if (branch[c]) {
-                    branch = branch[c]
-                } else {
-                    isBreak = true;
-                    break;
-                }
-            }
-            if (!isBreak) resetSuffix(branch, sie.slice(-1))
+    mark = (sieve, root = this.trunk) => {
+        (Array.isArray(sieve) ? sieve : sieve.toLowerCase().match(/[a-z]+(?:['-]?[a-z]'?)+/gm) || []).forEach(([...word]) => {
+            let branch = root
+            const l = word.pop();
+            if (word.every((c) => branch[c] && (branch = branch[c]))) resetSuffix(branch, l)
         });
     }
 
@@ -100,9 +87,11 @@ class WordTree {
 
         function traverseAndFlatten(node, concatKey) {
             for (const k in node) {
-                if (k === '$') {
-                    if (concatKey.length > 2 && node.$._) target.push({ vocab: concatKey, info: [node.$._, node.$['~'], node.$['@']] })
-                } else traverseAndFlatten(node[k], concatKey + k);
+                if (k !== '$') {
+                    traverseAndFlatten(node[k], concatKey + k);
+                } else if (node.$._ && concatKey.length > 2) {
+                    target.push({ vocab: concatKey, info: [node.$._, node.$['~'], node.$['@']] })
+                }
             }
         }
 

@@ -13,7 +13,6 @@
           <span>{{ segment.title }}</span>
         </label>
       </div>
-
     </div>
   </main>
   </body>
@@ -58,11 +57,13 @@ export default {
       return "transform:translateX(" + (this.selectedSegmentWidth * this.selectedSegmentIndex) + "px)";
     }
   },
+
   mounted() {
     window.addEventListener('resize', this.recalculateSelectedSegmentWidth);
     const segmentElement = document.querySelector(`input[type='radio'][value='${this.value}']`);
     this.selectedSegmentWidth = segmentElement && segmentElement.offsetWidth;
   },
+
   methods: {
     recalculateSelectedSegmentWidth() {
       // Wait for UI to rerender before measuring
