@@ -102,15 +102,14 @@ export default {
       reader.fileName = file.name
       reader.onload = (e) => {
         this.inputContent = e.target.result
-        console.time('╘═ All ═╛')
         this.formWords(this.inputContent)
-        console.timeEnd('╘═ All ═╛')
         this.fileInfo = e.target.fileName;
       };
       reader.readAsText(file);
     },
 
     formWords(content) {
+      console.time('╘═ All ═╛')
       this.words = new WordTree();
       console.time('--formWords')
       this.words.add(content);
@@ -128,12 +127,17 @@ export default {
       setTimeout(() => this.selectOnTouch(), 0)
       console.log(`not(${Object.keys(this.vocabs[0]).length})`, this.vocabs[0]);
       console.log(`fil(${Object.keys(this.vocabs[1]).length})`, this.vocabs[1]);
+      console.timeEnd('╘═ All ═╛')
     },
   },
 }
 </script>
 
 <style>
+html > body {
+  background-color: rgb(243 241 246);
+}
+
 .r-table *,
 .r-table .el-table__body-wrapper {
   overscroll-behavior: contain !important;
@@ -214,6 +218,10 @@ input#file-input {
 .table-card {
   margin: 20px 20px 10px 20px;
   border-radius: 12px !important;
+}
+
+.el-card.is-always-shadow {
+  box-shadow: 0 0 8px 0 rgb(0 0 0 / 4%) !important;
 }
 
 .t-num {
