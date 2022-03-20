@@ -135,7 +135,7 @@ export default {
 
 <style>
 html > body {
-  background-color: rgb(243 241 246);
+  background-color: rgb(252 251 253);
 }
 
 .r-table *,
@@ -220,8 +220,13 @@ input#file-input {
   border-radius: 12px !important;
 }
 
+
 .el-card.is-always-shadow {
-  box-shadow: 0 0 8px 0 rgb(0 0 0 / 4%) !important;
+}
+
+.input-area textarea {
+  border-radius: 8px;
+  box-shadow: 0 2px 2px 0 rgb(0 0 0 / 4%);
 }
 
 .t-num {

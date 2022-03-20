@@ -3,7 +3,7 @@ import { deAffix, resetSuffix } from '../utils/ignoreSuffix.js';
 import { merge } from 'lodash/fp.js';
 
 class WordTree {
-    trunk = Object.create(null);
+    trunk = {};
     #tUPPER = {};
     #i = 1;
 
@@ -14,14 +14,12 @@ class WordTree {
     add = (neW) => {
         if (Array.isArray(neW)) {
             neW.reduce((col, word) => this.#insert(word, col), this.trunk);
-        } else {
-            for (const m of neW.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:-?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
-                if (m[1]) {
-                    this.#insert(m[1].toLowerCase(), this.trunk, 1)
-                    this.#insert(m[1], this.#tUPPER, 0)
-                } else {
-                    this.#insert(m[0], this.trunk, 1)
-                }
+        } else for (const m of neW.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:-?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
+            if (m[1]) {
+                this.#insert(m[1].toLowerCase(), this.trunk, 1)
+                this.#insert(m[1], this.#tUPPER, 0)
+            } else {
+                this.#insert(m[0], this.trunk, 1)
             }
         }
         return this;
@@ -41,6 +39,8 @@ class WordTree {
         return collection;
     }
 
+    deAffix = () => deAffix(this.trunk)
+
     formList(words, sieve) {
         sieve && this.mark(sieve, words.trunk)
         const target = [];
@@ -53,7 +53,7 @@ class WordTree {
                 target.push(v)
             }
         })
-        return [origin, target, common,];
+        return [origin, target, common];
     }
 
     // pseudo filter
@@ -86,8 +86,6 @@ class WordTree {
             }
         }
     }
-
-    deAffix = () => deAffix(this.trunk)
 
     flatten(trie = this.trunk) {
         const origin = [];

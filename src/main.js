@@ -10,7 +10,7 @@ import 'element-ui/lib/theme-chalk/index.css';
 Vue.use(ElementUI);
 
 Vue.config.productionTip = false
-Vue.config.devtools = false
+// Vue.config.devtools = false
 
 new Vue({
     render: h => h(App),
