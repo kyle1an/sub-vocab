@@ -43,21 +43,17 @@ export default {
   },
   data() {
     return {
-      value: '1',
+      value: 1,
       segments: [
-        { title: 'Origin', id: '0' },
-        { title: 'Filtered', id: '1' },
-        { title: 'Common', id: '2' },
+        { id: 0, title: 'Origin', },
+        { id: 1, title: 'Filtered', },
+        { id: 2, title: 'Common', },
       ],
       inputContent: '',
       words: null,
       commonW: '',
-      common: {},
-      isFilter: true,
       fileInfo: 'No file chosen',
-      notFiltered: [],
-      hasFiltered: [],
-      commonFiltered: [],
+      vocabs: [[], [], []],
       vocabData: [],
     }
   },
@@ -73,9 +69,7 @@ export default {
     const myW = await fetch('../myWords.txt', init).then((response) => response.text());
     console.time('══ prepare ══')
     this.commonW = w1k.concat(myW);
-    this.common = new WordTree(this.commonW, { '@': 1 });
     console.timeEnd('══ prepare ══')
-
     const t = new WordTree('say ok')
     const t2 = new WordTree('Say Say dd')
     t.add('');
@@ -86,23 +80,14 @@ export default {
   },
   watch: {
     value(v) {
-      this.toggleFilter(v)
+      this.vocabData = this.vocabs[v]
     },
   },
   methods: {
-    toggleFilter(v) {
-      this.vocabData = v === '0' ? this.notFiltered
-          : v === '1' ? this.hasFiltered
-              : this.commonFiltered
-    },
-
     selectOnTouch() {
       console.log('listen click')
       this.$el.querySelectorAll('.vocab-col').forEach((e) => {
-        e.addEventListener('touchstart', () => {
-          console.log(e)
-          window.getSelection().selectAllChildren(e);
-        });
+        e.addEventListener('touchstart', () => window.getSelection().selectAllChildren(e));
       })
     },
 
@@ -135,17 +120,14 @@ export default {
       this.words.deAffix()
       console.timeEnd('--deAffix')
 
-      console.time('--formList')
-      const [tar, com] = this.words.formList(this.words, this.commonW);
-      this.hasFiltered = tar
-      this.commonFiltered = com
-      this.notFiltered = this.words.formList(this.words);
-      if (this.value === '1' && !this.hasFiltered.length) this.value = '0';
-      this.toggleFilter(this.value);
+      console.time('--formList');
+      this.vocabs = this.words.formList(this.words, this.commonW);
+      if (!this.vocabs[this.value].length) this.value = 0;
+      this.vocabData = this.vocabs[this.value]
       console.timeEnd('--formList');
       setTimeout(() => this.selectOnTouch(), 0)
-      console.log(`not(${Object.keys(this.notFiltered).length})`, this.notFiltered);
-      console.log(`fil(${Object.keys(this.hasFiltered).length})`, this.hasFiltered);
+      console.log(`not(${Object.keys(this.vocabs[0]).length})`, this.vocabs[0]);
+      console.log(`fil(${Object.keys(this.vocabs[1]).length})`, this.vocabs[1]);
     },
   },
 }

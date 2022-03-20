@@ -33,19 +33,28 @@ class WordTree {
             const c = word.charAt(i);
             branch = branch[c] ??= {}
         }
-        branch.$ = branch.$ ? { ...branch.$, '_': branch.$._ + 1 } : { '_': 1, '~': word.length, '@': this.#i += j }
+        if (branch.$) {
+            branch.$._ += 1
+        } else {
+            branch.$ = { '_': 1, '~': word.length, '@': this.#i += j }
+        }
         return collection;
     }
 
     formList(words, sieve) {
         const vocab = _.cloneDeep(words.trunk);
-        if (sieve) {
-            this.mark(sieve, vocab)
-            const [target, common] = this.segregate(this.trans(_.cloneDeep(this.#tUPPER), vocab));
-            return [target.sort((a, b) => a.info[2] - b.info[2]), common.sort((a, b) => a.info[2] - b.info[2])];
-        } else {
-            return this.flatten(this.trans(_.cloneDeep(this.#tUPPER), vocab)).sort((a, b) => a.info[2] - b.info[2]);
-        }
+        sieve && this.mark(sieve, vocab)
+        const target = [];
+        const common = [];
+        const origin = this.flatten(this.trans(_.cloneDeep(this.#tUPPER), vocab)).sort((a, b) => a.info[2] - b.info[2]);
+        origin.forEach((v) => {
+            if (v.info[3]) {
+                common.push(v)
+            } else if (v.info[1] > 2) {
+                target.push(v)
+            }
+        })
+        return [origin, target, common,];
     }
 
     // pseudo filter
@@ -82,25 +91,7 @@ class WordTree {
     deAffix = () => deAffix(this.trunk)
 
     flatten(trie = this.trunk) {
-        const target = [];
-        traverseAndFlatten(trie, '');
-
-        function traverseAndFlatten(node, concatKey) {
-            for (const k in node) {
-                if (k !== '$') {
-                    traverseAndFlatten(node[k], concatKey + k);
-                } else if (node.$._ && concatKey.length > 2) {
-                    target.push({ vocab: concatKey, info: [node.$._, node.$['~'], node.$['@']] })
-                }
-            }
-        }
-
-        return target;
-    }
-
-    segregate(trie = this.trunk) {
-        const target = [];
-        const common = [];
+        const origin = [];
         traverseAndFlatten(trie, '');
 
         function traverseAndFlatten(node, concatKey) {
@@ -108,16 +99,12 @@ class WordTree {
                 if (k !== '$') {
                     traverseAndFlatten(node[k], concatKey + k);
                 } else if (node.$._) {
-                    if (node.$.F) {
-                        common.push({ vocab: concatKey, info: [node.$._, node.$['~'], node.$['@']] })
-                    } else if (concatKey.length > 2) {
-                        target.push({ vocab: concatKey, info: [node.$._, node.$['~'], node.$['@']] })
-                    }
+                    origin.push({ vocab: concatKey, info: [node.$._, node.$['~'], node.$['@'], ...(node.$.F ? [node.$.F] : [])] })
                 }
             }
         }
 
-        return [target, common];
+        return origin;
     }
 }
 
