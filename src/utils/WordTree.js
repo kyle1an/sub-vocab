@@ -1,6 +1,6 @@
 import { print, stringify, } from '../utils/utils.js';
 import { deAffix, resetSuffix } from '../utils/ignoreSuffix.js';
-import { merge } from 'lodash/fp.js';
+import _ from 'lodash/fp.js';
 
 class WordTree {
     trunk = {};
@@ -67,7 +67,7 @@ class WordTree {
 
     trans(upper, trunk = this.trunk) {
         this.#emigrate(upper, trunk);
-        return merge(trunk, upper);
+        return _.merge(trunk, upper);
     }
 
     #emigrate(upper, branch) {

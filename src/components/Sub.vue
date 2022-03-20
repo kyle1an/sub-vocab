@@ -135,7 +135,11 @@ export default {
 
 <style>
 html > body {
-  background-color: rgb(252 251 253);
+  background-color: rgb(243 241 246);
+}
+
+html > body::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }
 
 .r-table *,
@@ -227,6 +231,13 @@ input#file-input {
 .input-area textarea {
   border-radius: 8px;
   box-shadow: 0 2px 2px 0 rgb(0 0 0 / 4%);
+}
+
+.input-area textarea {
+  box-shadow: none;
+  border: 0;
+  padding-left: 30px;
+  padding-right: 30px;
 }
 
 .t-num {
@@ -373,6 +384,14 @@ and (max-width: 896px) {
 
   .el-textarea__inner {
     max-height: 360px;
+  }
+}
+
+@media only screen
+and (max-width: 428px) {
+  .el-main {
+    padding-right: 0 !important;
+    padding-left: 0 !important;
   }
 }
 </style>
