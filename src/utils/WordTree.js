@@ -1,6 +1,6 @@
 import { print, stringify, } from '../utils/utils.js';
 import { deAffix, resetSuffix } from '../utils/ignoreSuffix.js';
-import _ from 'lodash/fp.js';
+import { merge } from 'lodash/fp.js';
 
 class WordTree {
     trunk = Object.create(null);
@@ -42,11 +42,10 @@ class WordTree {
     }
 
     formList(words, sieve) {
-        const vocab = _.cloneDeep(words.trunk);
-        sieve && this.mark(sieve, vocab)
+        sieve && this.mark(sieve, words.trunk)
         const target = [];
         const common = [];
-        const origin = this.flatten(this.trans(_.cloneDeep(this.#tUPPER), vocab)).sort((a, b) => a.info[2] - b.info[2]);
+        const origin = this.flatten(this.trans(this.#tUPPER, words.trunk)).sort((a, b) => a.info[2] - b.info[2]);
         origin.forEach((v) => {
             if (v.info[3]) {
                 common.push(v)
@@ -68,7 +67,7 @@ class WordTree {
 
     trans(upper, trunk = this.trunk) {
         this.#emigrate(upper, trunk);
-        return _.merge(trunk, upper);
+        return merge(trunk, upper);
     }
 
     #emigrate(upper, branch) {
