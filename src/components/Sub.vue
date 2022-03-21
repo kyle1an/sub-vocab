@@ -21,9 +21,9 @@
           <el-card class="table-card">
             <ios13-segmented-control v-model="value" :segments="segments" />
             <el-table fit class="r-table" height="calc(100vh - 90px)" :data="vocabData" @cell-mouse-enter="selectText" size="mini">
-              <el-table-column prop="vocab" label="Vocabulary" sortable :sort-method="sortByChar" class-name="vocab-col" align="right" style="font-size: 14px !important;" />
-              <el-table-column prop="info.0" label="Times" sortable align="right" class-name="t-num" />
-              <el-table-column prop="info.1" label="Length" sortable align="center" style="width: 100%" />
+              <el-table-column prop="vocab" label="Vocabulary" sortable :sort-method="sortByChar" min-width="10" class-name="vocab-col" align="right" style="font-size: 14px !important;" />
+              <el-table-column prop="info.0" label="Times" sortable align="right" min-width="5" class-name="t-num" />
+              <el-table-column prop="info.1" label="Length" sortable align="center" min-width="7" style="width: 100%" />
             </el-table>
           </el-card>
         </el-aside>
