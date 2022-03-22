@@ -1,14 +1,14 @@
 <template>
   <main>
-    <div class="ios13-segmented-control">
+    <div class="ios13-segmented-control leading-6">
       <span class="selection" :style="pillTransformStyles"></span>
       <div v-for="segment of segments" :key="segment.id" class="option">
         <input type="radio"
                :id="segment.id"
                :value="segment.id"
                v-model="selectedSegmentId">
-        <label :for="segment.id">
-          <span>{{ segment.title }}</span>
+        <label :for="segment.id" class="w-24">
+          <span class="flex justify-center">{{ segment.title }}</span>
         </label>
       </div>
     </div>
@@ -42,6 +42,7 @@ export default {
       },
       set(segmentId) {
         this.selected = segmentId;
+        this.setBold()
         this.$emit("input", segmentId);
       }
     },
@@ -50,11 +51,12 @@ export default {
     },
     pillTransformStyles() {
       return 'transform:translateX(' + (this.selectedSegmentWidth * this.selectedSegmentIndex) + 'px)';
-    }
+    },
   },
 
   mounted() {
     this.selected = this.value
+    this.setBold()
     window.addEventListener('resize', this.recalculateSelectedSegmentWidth);
     const segmentElement = document.querySelector(`input[type='radio'][value='${this.value}']`);
     this.selectedSegmentWidth = segmentElement && segmentElement.offsetWidth;
@@ -67,7 +69,11 @@ export default {
         const segmentElement = document.querySelector(`input[type='radio'][value='${this.value}']`);
         this.selectedSegmentWidth = segmentElement && segmentElement.offsetWidth;
       })
-    }
+    },
+    setBold(select = this.selected) {
+      document.querySelectorAll('.font-medium').forEach(e => e.classList.remove('font-medium'))
+      document.querySelector(`[for="${select}"]`).classList.add('font-medium');
+    },
   },
 
   beforeUnmount() {
@@ -76,7 +82,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 main {
   height: 100%;
   margin: 0;
@@ -90,6 +96,7 @@ main {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   display: flex;
   justify-content: center;
+  font-feature-settings: 'cv08';
 }
 
 * {
@@ -136,9 +143,9 @@ label {
   position: relative;
   display: block;
   text-align: center;
-  padding: 3px 5vmin;
+  padding: 0 5vmin;
   background: rgba(255, 255, 255, 0);
-  font-weight: 500;
+  //font-weight: 400;
   color: rgba(0, 0, 0, 1);
   font-size: 14px;
 }
@@ -210,7 +217,7 @@ label {
 }
 
 .ios13-segmented-control .option label span {
-  display: block;
+  //display: block;
   position: relative;
   z-index: 2;
   -webkit-transition: all .2s ease;

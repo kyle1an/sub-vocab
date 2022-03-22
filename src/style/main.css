@@ -5,7 +5,7 @@
     --sys-font-stack-mono: 'SF Mono', 'SFMono-Regular', 'Ubuntu Mono', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
 }
 
-html *,
+html,
 body,
 input,
 textarea {
