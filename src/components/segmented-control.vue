@@ -1,12 +1,10 @@
 <template>
-  <body>
   <main>
     <div class="ios13-segmented-control">
       <span class="selection" :style="pillTransformStyles"></span>
       <div v-for="segment of segments" :key="segment.id" class="option">
         <input type="radio"
                :id="segment.id"
-               :name="elementName"
                :value="segment.id"
                v-model="selectedSegmentId">
         <label :for="segment.id">
@@ -15,7 +13,6 @@
       </div>
     </div>
   </main>
-  </body>
 </template>
 
 <script>
@@ -30,15 +27,11 @@ export default {
       required: true,
       type: Array
     },
-    elementName: {
-      type: String,
-      required: false
-    }
   },
   data() {
     return {
       selectedSegmentWidth: 0,
-      selected:0,
+      selected: 0,
     };
   },
 
@@ -77,14 +70,14 @@ export default {
     }
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener('resize', this.recalculateSelectedSegmentWidth);
   },
 }
 </script>
 
 <style scoped>
-body, html {
+main {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -95,18 +88,12 @@ body, html {
   -webkit-overflow-scrolling: touch !important;
   touch-action: manipulation !important;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-}
-
-body {
   display: flex;
+  justify-content: center;
 }
 
 * {
   box-sizing: border-box;
-}
-
-body main {
-  margin: auto;
 }
 
 label {
@@ -149,7 +136,7 @@ label {
   position: relative;
   display: block;
   text-align: center;
-  padding: 3px 2vmin;
+  padding: 3px 5vmin;
   background: rgba(255, 255, 255, 0);
   font-weight: 500;
   color: rgba(0, 0, 0, 1);

@@ -1,5 +1,3 @@
-import { WordTree } from "../utils/WordTree.js";
-import { stringify } from "../utils/utils.js";
 import fs from "fs";
 
 const pathMy = '../../public/myWords.txt'

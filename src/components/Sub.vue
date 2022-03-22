@@ -3,7 +3,7 @@
     <el-container>
       <el-header height="100%" style="position: relative">
         <label for="file-input" class="word-content s-btn">Browse files</label>
-        <input type="file" id="file-input" @change="readSingleFile" />
+        <input type="file" id="file-input" class="h-0 w-0" @change="readSingleFile" />
         <span class="file-info">{{ fileInfo }}</span>
       </el-header>
       <el-container>
@@ -19,7 +19,7 @@
         </el-container>
         <el-aside width="42%">
           <el-card class="table-card">
-            <ios13-segmented-control v-model="value" :value="value" :segments="segments" @input="switchSec" />
+            <ios13-segmented-control :value="value" :segments="segments" @input="switchSec" />
             <el-table fit class="r-table" height="calc(100vh - 90px)" :data="vocabData" @cell-mouse-enter="selectText" size="small">
               <el-table-column prop="vocab" label="Vocabulary" sortable :sort-method="sortByChar" min-width="14" class-name="vocab-col" align="right" style="font-size: 14px !important;" />
               <el-table-column prop="info.0" label="Times" sortable align="right" min-width="7" class-name="t-num" />
@@ -121,7 +121,7 @@ export default {
       console.time('--formList');
       this.vocabs = this.words.formList(this.words, this.commonW);
       if (!this.vocabs[this.value].length) this.value = 0;
-      this.vocabData = this.vocabs[this.value]
+      this.switchSec(this.value)
       console.timeEnd('--formList');
       setTimeout(() => this.selectOnTouch(), 0)
       console.log(`not(${Object.keys(this.vocabs[0]).length})`, this.vocabs[0]);
@@ -132,32 +132,18 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 html > body {
   background-color: rgb(243 241 246);
-}
 
-html > body::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
+  &::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+  }
 }
 
 .r-table *,
 .r-table .el-table__body-wrapper {
   overscroll-behavior: contain !important;
-}
-
-label.form-switch {
-  display: flex;
-  justify-content: center;
-}
-
-label.form-switch span {
-  font-size: 16px;
-  letter-spacing: -0.04rem;
-  display: flex;
-  flex-direction: column-reverse;
-  justify-content: center;
-  margin: 0 10px;
 }
 
 .el-card {
@@ -197,42 +183,29 @@ label.form-switch span {
   line-height: 14px;
   border: 1px solid transparent;
   background-color: hsl(206, 100%, 52%);
-}
-
-/* .s-btn:focus,*/
-/* .s-btn:active,*/
-.s-btn:hover {
-  background-color: hsl(206, 100%, 40%) !important;
-  /*box-shadow: 0px 1px 2px 0px rgba(60, 64, 67, .30), 0px 1px 3px 1px rgba(60, 64, 67, .15);*/
-  border: 1px solid transparent !important;
-}
-
-input#file-input {
-  width: 0;
-  height: 0;
-}
-
-.table-card .el-card__body {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  padding-top: 12px;
+  /* .s-btn:focus,*/
+  /* .s-btn:active,*/
+  &:hover {
+    background-color: hsl(206, 100%, 40%) !important;
+    /*box-shadow: 0px 1px 2px 0px rgba(60, 64, 67, .30), 0px 1px 3px 1px rgba(60, 64, 67, .15);*/
+    border: 1px solid transparent !important;
+  }
 }
 
 .table-card {
   margin: 20px 20px 10px 20px;
   border-radius: 12px !important;
-}
 
-
-.el-card.is-always-shadow {
+  .el-card__body {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 12px;
+  }
 }
 
 .input-area textarea {
   border-radius: 8px;
-  box-shadow: 0 2px 2px 0 rgb(0 0 0 / 4%);
-}
-
-.input-area textarea {
+  //box-shadow: 0 2px 2px 0 rgb(0 0 0 / 4%);
   box-shadow: none;
   border: 0;
   padding-left: 30px;
@@ -280,7 +253,8 @@ td.vocab-col .cell {
   z-index: 100
 }
 
-.el-header, .el-footer {
+.el-header,
+.el-footer {
   text-align: center;
   line-height: 60px;
 }
@@ -323,8 +297,7 @@ table thead {
   margin: auto;
 }
 
-@media only screen
-and (min-width: 896px) {
+@media only screen and (min-width: 896px) {
   .input-area > textarea,
   .text-input {
     height: 100vh;
@@ -338,8 +311,7 @@ and (min-width: 896px) {
   }
 }
 
-@media only screen
-and (max-width: 896px) {
+@media only screen and (max-width: 896px) {
   html {
     overflow: hidden;
     height: 100%;
@@ -386,8 +358,7 @@ and (max-width: 896px) {
   }
 }
 
-@media only screen
-and (max-width: 428px) {
+@media only screen and (max-width: 428px) {
   .el-main {
     padding-right: 0 !important;
     padding-left: 0 !important;

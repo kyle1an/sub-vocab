@@ -1,3 +1,55 @@
+<template>
+  <div>
+    <label class="form-switch">
+      <span>Hide Common</span>
+      <input type="checkbox" v-model="isFilter" @change="toggleFilter" /><i></i>
+    </label>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "switch",
+  props: {
+    value: {
+      required: false,
+      type: [Number, String]
+    },
+  },
+  data() {
+    return {
+      isFilter: true,
+    }
+  },
+  watch: {
+    value(v) {
+      this.toggleFilter(v)
+    },
+  },
+  methods: {
+    toggleFilter() {
+      this.vocabData = this.isFilter ? this.hasFiltered : this.notFiltered
+      setTimeout(() => this.selectOnTouch(), 0)
+    },
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+label.form-switch {
+  display: flex;
+  justify-content: center;
+}
+
+label.form-switch span {
+  font-size: 16px;
+  letter-spacing: -0.04rem;
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: center;
+  margin: 0 10px;
+}
+
 :root {
   --switch-color: #4BD763; // #0a95ff; //#4BD763;
   --switch-bg-color: #e6e6e6;
@@ -78,4 +130,4 @@
     transform: translate3d(22px, 2px, 0);
   }
 }
-
+</style>
