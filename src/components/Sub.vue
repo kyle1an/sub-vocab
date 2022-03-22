@@ -19,11 +19,11 @@
         </el-container>
         <el-aside width="42%">
           <el-card class="table-card">
-            <ios13-segmented-control v-model="value" :segments="segments" />
-            <el-table fit class="r-table" height="calc(100vh - 90px)" :data="vocabData" @cell-mouse-enter="selectText" size="mini">
-              <el-table-column prop="vocab" label="Vocabulary" sortable :sort-method="sortByChar" min-width="10" class-name="vocab-col" align="right" style="font-size: 14px !important;" />
-              <el-table-column prop="info.0" label="Times" sortable align="right" min-width="5" class-name="t-num" />
-              <el-table-column prop="info.1" label="Length" sortable align="center" min-width="7" style="width: 100%" />
+            <ios13-segmented-control v-model="value" :value="value" :segments="segments" @input="switchSec" />
+            <el-table fit class="r-table" height="calc(100vh - 90px)" :data="vocabData" @cell-mouse-enter="selectText" size="small">
+              <el-table-column prop="vocab" label="Vocabulary" sortable :sort-method="sortByChar" min-width="14" class-name="vocab-col" align="right" style="font-size: 14px !important;" />
+              <el-table-column prop="info.0" label="Times" sortable align="right" min-width="7" class-name="t-num" />
+              <el-table-column prop="info.1" label="Length" sortable align="center" min-width="9" style="width: 100%" />
             </el-table>
           </el-card>
         </el-aside>
@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import { WordTree } from '@/utils/WordTree.js';
+import { WordTree } from '../utils/WordTree.js';
 import iOS13SegmentedControl from './segmented-control.vue'
 
 export default {
@@ -78,12 +78,11 @@ export default {
     // console.log(Object.create(null));
     // console.log({})
   },
-  watch: {
-    value(v) {
+
+  methods: {
+    switchSec(v) {
       this.vocabData = this.vocabs[v]
     },
-  },
-  methods: {
     selectOnTouch() {
       console.log('listen click')
       this.$el.querySelectorAll('.vocab-col').forEach((e) => {

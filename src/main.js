@@ -1,19 +1,16 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './App.vue'
 import './style/main.css';
 import './style/fonts.css';
-import './style/switch.css';
+import './index.css'
 
-import ElementUI from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css';
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
 
-Vue.use(ElementUI);
+const app = createApp(App)
+app.use(ElementPlus)
 
-Vue.config.productionTip = false
-// Vue.config.devtools = false
+app.config.productionTip = false
+// app.config.devtools = false
 
-new Vue({
-    render: h => h(App),
-}).$mount('#app')
-
-console.log((window || global)['__core-js_shared__']?.versions)
+app.mount('#app')

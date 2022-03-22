@@ -4,7 +4,7 @@ import _ from 'lodash/fp.js';
 
 class WordTree {
     trunk = {};
-    #tUPPER = {};
+    tUPPER = {};
     #i = 1;
 
     constructor(words) {
@@ -17,7 +17,7 @@ class WordTree {
         } else for (const m of neW.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:-?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
             if (m[1]) {
                 this.#insert(m[1].toLowerCase(), this.trunk, 1)
-                this.#insert(m[1], this.#tUPPER, 0)
+                this.#insert(m[1], this.tUPPER, 0)
             } else {
                 this.#insert(m[0], this.trunk, 1)
             }
@@ -45,7 +45,7 @@ class WordTree {
         sieve && this.mark(sieve, words.trunk)
         const target = [];
         const common = [];
-        const origin = this.flatten(this.trans(this.#tUPPER, words.trunk)).sort((a, b) => a.info[2] - b.info[2]);
+        const origin = this.flatten(this.trans(this.tUPPER, words.trunk)).sort((a, b) => a.info[2] - b.info[2]);
         origin.forEach((v) => {
             if (v.info[3]) {
                 common.push(v)
@@ -66,16 +66,16 @@ class WordTree {
     }
 
     trans(upper, trunk = this.trunk) {
-        this.#emigrate(upper, trunk);
+        this.emigrate(upper, trunk);
         return _.merge(trunk, upper);
     }
 
-    #emigrate(upper, branch) {
+    emigrate(upper, branch) {
         for (const key in upper) {
             const k = key.toLowerCase();
             if (branch[k]) {
                 if (k !== '$') {
-                    this.#emigrate(upper[key], branch[k])
+                    this.emigrate(upper[key], branch[k])
                 } else if (branch.$._ !== upper.$._) {
                     if (upper.$['@'] < branch.$['@']) branch.$['@'] = upper.$['@']
                     upper.$ = false;

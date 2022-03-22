@@ -19,12 +19,11 @@
 </template>
 
 <script>
-const getRandomInt = (max) => Math.floor(Math.random() * Math.floor(max));
 export default {
   name: "segmented-control",
   props: {
     value: {
-      // required: true,
+      required: true,
       type: [Number, String]
     },
     segments: {
@@ -33,27 +32,28 @@ export default {
     },
     elementName: {
       type: String,
-      required: false,
-      default: () => '' + getRandomInt(100000)
+      required: false
     }
   },
   data() {
     return {
       selectedSegmentWidth: 0,
+      selected:0,
     };
   },
 
   computed: {
     selectedSegmentId: {
       get() {
-        return this.value;
+        return this.selected;
       },
       set(segmentId) {
-        this.$emit('input', segmentId);
+        this.selected = segmentId;
+        this.$emit("input", segmentId);
       }
     },
     selectedSegmentIndex() {
-      return this.segments.findIndex((segment) => segment.id === this.value);
+      return this.segments.findIndex(segment => segment.id === this.selected);
     },
     pillTransformStyles() {
       return 'transform:translateX(' + (this.selectedSegmentWidth * this.selectedSegmentIndex) + 'px)';
@@ -61,6 +61,7 @@ export default {
   },
 
   mounted() {
+    this.selected = this.value
     window.addEventListener('resize', this.recalculateSelectedSegmentWidth);
     const segmentElement = document.querySelector(`input[type='radio'][value='${this.value}']`);
     this.selectedSegmentWidth = segmentElement && segmentElement.offsetWidth;

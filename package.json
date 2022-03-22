@@ -1,48 +1,23 @@
 {
-  "name": "sub",
-  "version": "0.1.0",
+  "name": "sub-vocab",
   "private": true,
-  "type": "module",
+  "version": "0.0.0",
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "core-js": "^3.21.0",
-    "element-ui": "^2.15.6",
-    "esrever": "^0.2.0",
+    "element-plus": "^2.1.4",
     "fs": "0.0.1-security",
     "lodash": "^4.17.21",
-    "natural": "^5.1.13",
-    "node-fetch": "^3.2.0",
-    "path": "^0.12.7",
-    "stemmer": "^2.0.0",
-    "vue": "^2.6.11"
+    "vue": "^3.2.25"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
-    "babel-eslint": "^10.1.0",
-    "vue-template-compiler": "^2.6.11"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
-    "rules": {}
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead"
-  ]
+    "@vitejs/plugin-vue": "^2.2.0",
+    "autoprefixer": "^10.4.4",
+    "postcss": "^8.4.12",
+    "tailwindcss": "^3.0.23",
+    "vite": "^2.8.0"
+  }
 }
