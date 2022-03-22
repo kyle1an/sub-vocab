@@ -19,12 +19,13 @@
 </template>
 
 <script>
+const getRandomInt = (max) => Math.floor(Math.random() * Math.floor(max));
 export default {
   name: "segmented-control",
   props: {
     value: {
       // required: true,
-      // type: [Number, String]
+      type: [Number, String]
     },
     segments: {
       required: true,
@@ -32,7 +33,8 @@ export default {
     },
     elementName: {
       type: String,
-      required: false
+      required: false,
+      default: () => '' + getRandomInt(100000)
     }
   },
   data() {
@@ -47,14 +49,14 @@ export default {
         return this.value;
       },
       set(segmentId) {
-        this.$emit("input", segmentId);
+        this.$emit('input', segmentId);
       }
     },
     selectedSegmentIndex() {
-      return this.segments.findIndex(segment => segment.id === this.value);
+      return this.segments.findIndex((segment) => segment.id === this.value);
     },
     pillTransformStyles() {
-      return "transform:translateX(" + (this.selectedSegmentWidth * this.selectedSegmentIndex) + "px)";
+      return 'transform:translateX(' + (this.selectedSegmentWidth * this.selectedSegmentIndex) + 'px)';
     }
   },
 
@@ -132,7 +134,9 @@ label {
   cursor: pointer;
 }
 
-.ios13-segmented-control .option:hover input:not(:checked) + label span, .ios13-segmented-control .option:active input:not(:checked) + label span, .ios13-segmented-control .option:focus input:not(:checked) + label span {
+.ios13-segmented-control .option:hover input:not(:checked) + label span,
+.ios13-segmented-control .option:active input:not(:checked) + label span,
+.ios13-segmented-control .option:focus input:not(:checked) + label span {
   opacity: .2;
 }
 
@@ -151,7 +155,8 @@ label {
   font-size: 14px;
 }
 
-.ios13-segmented-control .option label::before, .ios13-segmented-control .option label::after {
+.ios13-segmented-control .option label::before,
+.ios13-segmented-control .option label::after {
   content: '';
   width: 1px;
   background: rgba(142, 142, 147, .15);
@@ -180,10 +185,7 @@ label {
   box-shadow: none;
 }
 
-.ios13-segmented-control .option:first-of-type label::before {
-  opacity: 0;
-}
-
+.ios13-segmented-control .option:first-of-type label::before,
 .ios13-segmented-control .option:last-of-type label::after {
   opacity: 0;
 }
@@ -228,7 +230,8 @@ label {
   will-change: transform;
 }
 
-.ios13-segmented-control .option input:checked + label::before, .ios13-segmented-control .option input:checked + label::after {
+.ios13-segmented-control .option input:checked + label::before,
+.ios13-segmented-control .option input:checked + label::after {
   background: var(--background);
   z-index: 1;
 }
