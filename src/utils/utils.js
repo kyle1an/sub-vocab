@@ -20,12 +20,4 @@ function pruneEmpty(obj, mutate = true) {
     }(co);  // Do not modify the original object, create a clone instead
 }
 
-function obj2Array(obj, key = 'key', value = 'value') {
-    return Object.entries(obj).map(([k, v]) => ({ [key]: k, [value]: [v._, v['@']] }))
-}
-
-function deDuplicate(array) {
-    return [...new Set(array)];
-}
-
-export { pruneEmpty, obj2Array, deDuplicate, print, stringify };
+export { pruneEmpty, print, stringify };

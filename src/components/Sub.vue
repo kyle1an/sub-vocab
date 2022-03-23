@@ -1,15 +1,15 @@
 <template>
   <div style="margin: 10px auto;max-width: 1440px;">
     <el-container>
-      <el-header height="100%" style="position: relative">
+      <el-header height="100%" class="relative">
         <label for="file-input" class="word-content s-btn">Browse files</label>
         <input type="file" id="file-input" class="h-0 w-0" @change="readSingleFile" />
-        <span class="file-info">{{ fileInfo }}</span>
+        <span class="file-info">{{ fileInfo || 'No file chosen' }}</span>
       </el-header>
       <el-container>
-        <el-container style="position: relative">
+        <el-container class="relative">
           <el-main>
-            <div class="text-input" style="position: relative">
+            <div class="text-input relative">
               <div class="submit">
                 <el-button class="s-btn" @click="formWords(inputContent)" type="primary" icon="el-icon-check" circle />
               </div>
@@ -52,7 +52,7 @@ export default {
       inputContent: '',
       words: null,
       commonW: '',
-      fileInfo: 'No file chosen',
+      fileInfo: '',
       vocabs: [[], [], []],
       vocabData: [],
     }
@@ -163,6 +163,7 @@ html > body {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
+  font-family: 'SF Compact Text', -apple-system, sans-serif !important;
 }
 
 .word-content {
@@ -216,13 +217,6 @@ html > body {
   font-variant-numeric: tabular-nums !important;
 }
 
-.custom-file-upload {
-  border: 1px solid #ccc;
-  display: inline-block;
-  padding: 6px 12px;
-  cursor: pointer;
-}
-
 .el-switch__core {
   width: 32px !important;
 }
@@ -232,18 +226,10 @@ html > body {
   letter-spacing: -0.01em;
 }
 
-.file-info,
 td.vocab-col .cell {
   font-family: 'SF Compact Text', -apple-system, sans-serif !important;
-}
-
-td.vocab-col .cell {
   font-size: 16px !important;
   letter-spacing: 0.01rem;
-}
-
-#file-content {
-  text-align: left;
 }
 
 .submit {
@@ -273,15 +259,10 @@ body > .el-container {
   margin-bottom: 40px;
 }
 
-#vocab-content {
-  text-align: left;
-  margin: auto;
-  width: 300px;
-}
-
 .el-table,
 .el-table__header-wrapper,
-.el-table__body-wrapper {
+.el-table__body-wrapper,
+.el-table__empty-block {
   margin: auto;
 }
 
@@ -291,10 +272,6 @@ table thead {
 
 .el-table th.el-table__cell > .cell {
   font-size: 10px;
-}
-
-.el-table__empty-block {
-  margin: auto;
 }
 
 @media only screen and (min-width: 896px) {
