@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
     --sys-font-stack: -apple-system, 'SF Pro Text', 'Inter', 'system-ui', 'Segoe UI', system-ui, Roboto, 'Helvetica Neue', sans-serif;
     --sys-font-stack-mono: 'SF Mono', 'SFMono-Regular', 'Ubuntu Mono', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
@@ -11,32 +15,30 @@ input,
 textarea {
     letter-spacing: 0.02rem;
     font-family: var(--sys-font-stack);
-
     /*-moz-font-feature-settings: 'smcp';*/
     /* -webkit-font-feature-settings: 'tnum'  !important;*/
-
     /*  'cv01' 96, 'ss01' 1, 'ss02' 4, 'cv02', 'cv03' :J, 'cv04', 'cv05' I, 'cv06' l, 'ss07' a, 'cv07' , 'cv08' 0 zh, 'nlck', 'nalt' 0, 'ital',  'ss03' 0, 'ss04' 1, */
     font-feature-settings: 'cv01', 'ss02', 'cv02', 'cv03', 'cv04', 'cv05', 'cv06', 'cv08', 'nlck', 'ital', 'ss04' !important;
-    /*  'cv01',  'Straight-sided nine'; 6 9. [six six.tnum] by [six.1 six.1.tnum];*/
-    /*  'ss01',  sub [six nine six.tnum nine.tnum] by [six.1 nine.1 six.1.tnum nine.1.tnum];*/
-    /*  'ss02',  'Open four'; 4*/
-    /*  'cv02',*/
-    /*  'cv03',  'Vertically centered colon'; : and J*/
-    /*  'cv05',  'Seriffed Capital I';*/
-    /*  'cv06',  'Tailed lowercase l';*/
-    /*  'ss07',  'One storey a';*/
-    /*  'cv07',*/
-    /*  'cv08',  'Slashed zero'; 0 and Chinese*/
-    /*  'trad',*/
-    /*  'nlck',*/
-    /*  'nalt',*/
-    /*  'ital',*/
-    /*  'tnum',*/
-    /*  'ss03',  -- Mono 'Alternate 0 no slash';*/
-    /*  'ss04';   'Alternate 1 no serif';;*/
-
-    /*  // font-feature-settings: 'dnom' !important;*/
 }
+
+/*  'cv01',  'Straight-sided nine'; 6 9. [six six.tnum] by [six.1 six.1.tnum];*/
+/*  'ss01',  sub [six nine six.tnum nine.tnum] by [six.1 nine.1 six.1.tnum nine.1.tnum];*/
+/*  'ss02',  'Open four'; 4*/
+/*  'cv02',*/
+/*  'cv03',  'Vertically centered colon'; : and J*/
+/*  'cv05',  'Seriffed Capital I';*/
+/*  'cv06',  'Tailed lowercase l';*/
+/*  'ss07',  'One storey a';*/
+/*  'cv07',*/
+/*  'cv08',  'Slashed zero'; 0 and Chinese*/
+/*  'trad',*/
+/*  'nlck',*/
+/*  'nalt',*/
+/*  'ital',*/
+/*  'tnum',*/
+/*  'ss03',  -- Mono 'Alternate 0 no slash';*/
+/*  'ss04';   'Alternate 1 no serif';;*/
+/*  'dnom'*/
 
 table,
 .el-table,

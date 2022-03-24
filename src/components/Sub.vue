@@ -1,5 +1,5 @@
 <template>
-  <div style="margin: 10px auto;max-width: 1440px;">
+  <div class="my-2.5 mx-auto max-w-screen-xl">
     <el-container>
       <el-header height="100%" class="relative">
         <label for="file-input" class="word-content s-btn">Browse files</label>
@@ -21,9 +21,9 @@
           <el-card class="table-card">
             <ios13-segmented-control :value="value" :segments="segments" @input="switchSec" />
             <el-table fit class="r-table" height="calc(100vh - 90px)" :data="vocabData" @cell-mouse-enter="selectText" size="small">
-              <el-table-column prop="vocab" label="Vocabulary" sortable :sort-method="sortByChar" min-width="14" class-name="vocab-col" align="right" style="font-size: 14px !important;" />
-              <el-table-column prop="info.0" label="Times" sortable align="right" min-width="7" class-name="t-num" />
-              <el-table-column prop="info.1" label="Length" sortable align="center" min-width="9" style="width: 100%" />
+              <el-table-column prop="vocab" label="Vocabulary" sortable :sort-method="sortByChar" min-width="14" class-name="vocab-col" align="right" />
+              <el-table-column prop="info.0" label="Times" sortable align="right" min-width="7" class-name="tabular-nums" />
+              <el-table-column prop="info.1" label="Length" sortable align="center" min-width="9" />
             </el-table>
           </el-card>
         </el-aside>
@@ -213,10 +213,6 @@ html > body {
   padding-right: 30px;
 }
 
-.t-num {
-  font-variant-numeric: tabular-nums !important;
-}
-
 .el-switch__core {
   width: 32px !important;
 }
@@ -253,10 +249,6 @@ td.vocab-col .cell {
 .el-main {
   text-align: center;
   /*line-height: 160px;*/
-}
-
-body > .el-container {
-  margin-bottom: 40px;
 }
 
 .el-table,
