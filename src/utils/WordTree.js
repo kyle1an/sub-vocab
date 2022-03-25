@@ -27,7 +27,7 @@ class WordTree {
     #insert = ([...word], collection) => {
         let branch = collection;
         for (const c of word) branch = branch[c] ??= {};
-        (branch.$ ??= { '_': 1, '~': word.length, '@': ++this.#i })._ += 1
+        (branch.$ ??= { '_': 0, '~': word.length, '@': ++this.#i })._ += 1
         return collection;
     }
 
