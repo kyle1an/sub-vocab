@@ -1,6 +1,5 @@
 import { print, stringify, } from './utils';
 import { deAffix, resetSuffix } from './ignoreSuffix';
-import _ from 'lodash/fp.js';
 
 class WordTree {
     trunk = {};
@@ -13,26 +12,22 @@ class WordTree {
 
     add = (neW) => {
         if (Array.isArray(neW)) {
-            neW.reduce((col, word) => this.#insert(word, col, 1), this.trunk);
+            neW.reduce((col, word) => this.#insert(word, col), this.trunk);
         } else for (const m of neW.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:-?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
             if (m[1]) {
-                this.#insert(m[1].toLowerCase(), this.trunk, 1)
-                this.#insert(m[1], this.tUpper, 0)
+                this.#insert(m[1].toLowerCase(), this.trunk);
+                (this.tUpper[m[1]] ??= { '_': 0, '~': m[1].length, '@': this.#i })._ += 1
             } else {
-                this.#insert(m[0], this.trunk, 1)
+                this.#insert(m[0], this.trunk)
             }
         }
         return this;
     };
 
-    #insert = ([...word], collection, j) => {
+    #insert = ([...word], collection) => {
         let branch = collection;
-        word.forEach((c) => branch = branch[c] ??= {})
-        if (branch.$) {
-            branch.$._ += 1
-        } else {
-            branch.$ = { '_': 1, '~': word.length, '@': this.#i += j }
-        }
+        for (const c of word) branch = branch[c] ??= {};
+        (branch.$ ??= { '_': 1, '~': word.length, '@': ++this.#i })._ += 1
         return collection;
     }
 
@@ -43,45 +38,42 @@ class WordTree {
         const target = [];
         const common = [];
         const origin = this.flatten(this.trans(this.tUpper, words.trunk)).sort((a, b) => a.info[2] - b.info[2]);
-        origin.forEach((v) => {
-            if (v.info[3]) {
-                common.push(v)
-            } else if (v.info[1] > 2) {
-                target.push(v)
-            }
-        })
+        for (const v of origin) ((!v.info[3] && v.info[1] > 2) ? target : common).push(v)
         return [origin, target, common];
     }
 
     // pseudo filter
     mark = (sieve, root = this.trunk) => {
-        (Array.isArray(sieve) ? sieve : sieve.toLowerCase().match(/[a-z]+(?:['-]?[a-z]'?)+/gm) || []).forEach(([...word]) => {
+        for (const [...word] of (Array.isArray(sieve) ? sieve : sieve.toLowerCase().match(/[a-z]+(?:['-]?[a-z]'?)+/gm) || [])) {
             let branch = root
             const l = word.pop();
             if (word.every((c) => branch = branch[c])) resetSuffix(branch, l)
-        });
+        }
     }
 
     trans(upper, trunk = this.trunk) {
-        this.emigrate(upper, trunk);
-        return _.merge(trunk, upper);
-    }
-
-    emigrate(upper, branch) {
         for (const key in upper) {
-            const k = key.toLowerCase();
-            if (branch[k]) {
-                if (k !== '$') {
-                    this.emigrate(upper[key], branch[k])
-                } else if (branch.$._ !== upper.$._) {
-                    if (upper.$['@'] < branch.$['@']) branch.$['@'] = upper.$['@']
-                    upper.$ = false;
-                } else {
-                    upper.$ = branch.$;
-                    branch.$ = false;
-                }
+            let branch = trunk
+            const [...k] = key.toLowerCase();
+            for (const c of k) branch = branch[c]
+            if (branch.$._ !== upper[key]._) {
+                if (upper[key]['@'] < branch.$['@']) branch.$['@'] = upper[key]['@']
+                upper[key] = false;
+            } else {
+                upper[key] = branch.$;
+                branch.$ = false;
             }
         }
+        return this.combine(trunk, upper);
+    }
+
+    combine(trunk, upper) {
+        for (const key in upper) {
+            let branch = trunk;
+            for (const c of [...key]) branch = branch[c] ??= {}
+            branch.$ = upper[key]
+        }
+        return trunk;
     }
 
     flatten(trie = this.trunk) {

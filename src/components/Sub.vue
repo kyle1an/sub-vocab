@@ -19,7 +19,7 @@
         </el-container>
         <el-aside width="42%">
           <el-card class="table-card">
-            <ios13-segmented-control :value="value" :segments="segments" @input="switchSec" />
+            <ios13-segmented-control :segments="segments" @input="switchSec" />
             <el-table fit class="r-table" height="calc(100vh - 90px)" :data="vocabData" @cell-mouse-enter="selectText" size="small">
               <el-table-column prop="vocab" label="Vocabulary" sortable :sort-method="sortByChar" min-width="14" class-name="vocab-col" align="right" />
               <el-table-column prop="info.0" label="Times" sortable align="right" min-width="7" class-name="tabular-nums" />
@@ -43,10 +43,10 @@ export default {
   },
   data() {
     return {
-      value: 1,
+      selected: null,
       segments: [
         { id: 0, title: 'Origin', },
-        { id: 1, title: 'Filtered', },
+        { id: 11, title: 'Filtered', default: true },
         { id: 2, title: 'Common', },
       ],
       inputContent: '',
@@ -70,17 +70,19 @@ export default {
     console.time('══ prepare ══')
     this.commonW = w1k.concat(myW);
     console.timeEnd('══ prepare ══')
-    const t = new WordTree('say ok')
-    const t2 = new WordTree('Say Say dd')
-    t.add('');
-    t.trans(t2)//.flt(t2, 0)
+    const t = new WordTree('say ok Say tess')
+    t.add('').deAffix();
+    const test = t.formList(t, 'say');
+    console.log(test)
     // console.log(t)
     // console.log(Object.create(null));
     // console.log({})
+    this.selected = this.segments.findIndex((o => o.default));
   },
 
   methods: {
     switchSec(v) {
+      this.selected = v;
       this.vocabData = this.vocabs[v]
     },
     selectOnTouch() {
@@ -120,12 +122,13 @@ export default {
 
       console.time('--formList');
       this.vocabs = this.words.formList(this.words, this.commonW);
-      if (!this.vocabs[this.value].length) this.value = 0;
-      this.switchSec(this.value)
+      // if (!this.vocabs[this.value].length) this.value = 0;
+      this.vocabData = this.vocabs[this.selected]
       console.timeEnd('--formList');
       setTimeout(() => this.selectOnTouch(), 0)
       console.log(`not(${Object.keys(this.vocabs[0]).length})`, this.vocabs[0]);
       console.log(`fil(${Object.keys(this.vocabs[1]).length})`, this.vocabs[1]);
+      console.log(`com(${Object.keys(this.vocabs[2]).length})`, this.vocabs[2]);
       console.timeEnd('╘═ All ═╛')
     },
   },

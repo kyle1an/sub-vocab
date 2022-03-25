@@ -20,10 +20,6 @@
 export default {
   name: 'segmented-control',
   props: {
-    value: {
-      required: true,
-      type: [Number, String]
-    },
     segments: {
       required: true,
       type: Array
@@ -48,11 +44,11 @@ export default {
       },
       set(segmentId) {
         this.selected = segmentId;
-        this.$emit('input', segmentId);
+        this.$emit('input', this.selectedSegmentIndex);
       }
     },
     selectedSegmentIndex() {
-      return this.segments.findIndex(segment => segment.id === this.selected);
+      return this.segments.findIndex((segment) => segment.id === this.selectedSegmentId);
     },
     pillTransformStyles() {
       return 'transform:translateX(' + (this.selectedSegmentWidth * this.selectedSegmentIndex) + 'px)';
@@ -60,20 +56,21 @@ export default {
   },
 
   mounted() {
-    this.selected = this.value
+    this.selected = this.segments.find((o) => o.default).id ?? this.segments[0].id;
+    this.$emit('input', this.selectedSegmentIndex);
     window.addEventListener('resize', this.recalculateSelectedSegmentWidth);
-    const segmentElement = document.querySelector(`input[type='radio'][value='${this.value}']`);
-    this.selectedSegmentWidth = segmentElement && segmentElement.offsetWidth;
+    this.calcSegW()
   },
 
   methods: {
     recalculateSelectedSegmentWidth() {
       // Wait for UI to rerender before measuring
-      this.$nextTick(() => {
-        const segmentElement = document.querySelector(`input[type='radio'][value='${this.value}']`);
-        this.selectedSegmentWidth = segmentElement && segmentElement.offsetWidth;
-      })
+      this.$nextTick(() => this.calcSegW());
     },
+    calcSegW() {
+      const segmentElement = document.querySelector(`input[type='radio'][value='${this.selected}']`);
+      this.selectedSegmentWidth = segmentElement && segmentElement.offsetWidth;
+    }
   },
 
   beforeUnmount() {
