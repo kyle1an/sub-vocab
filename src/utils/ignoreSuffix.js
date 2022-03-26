@@ -1,12 +1,12 @@
 function resetSuffix(O, last) {
     O = (last === 'e') ? O : O?.[last];
-    [
+    for (const $ of [
         ...(last === 'e' ? [O?.e?.$,] : [O?.$, O?.s?.$,]),
         O?.e?.d?.$,
         O?.e?.s?.$,
         O?.i?.n?.g?.$,
         O?.i?.n?.g?.s?.$,
-    ].filter(Boolean).forEach(($) => $.F = true);
+    ]) if ($) $.F = true
 }
 
 function deAffix(layer) {
@@ -18,13 +18,14 @@ function deAffix(layer) {
 }
 
 function deSuffix(O) {
-    [O?.s?.$,].filter(Boolean).forEach((Os$) => {
-        [
+    if (O?.s?.$) {
+        const Os$ = O?.s?.$;
+        for (const _x$ of [
             O?.$,
             O?.e?.d?.$,
             O?.i?.n?.g?.$,
             O?.i?.n?.g?.s?.$,
-        ].filter(Boolean).forEach((_x$) => {
+        ]) if (_x$) {
             const sum = _x$._ + Os$._;
             Os$._ = _x$._ = null
             if (!O.$?._) {
@@ -32,34 +33,37 @@ function deSuffix(O) {
             } else {
                 O.$._ += sum
             }
-        })
-    });
+        }
+    }
 
-    [O?.e?.d?.$].filter(Boolean).forEach((Oed$) => {
-        [O?.$, O?.e?.$].filter(Boolean).forEach((Ox$) => {
+    if (O?.e?.d?.$) {
+        const Oed$ = O?.e?.d?.$;
+        for (const Ox$ of [O?.$, O?.e?.$]) if (Ox$) {
             Ox$._ += Oed$._;
             Oed$._ = null;
-        })
-    });
+        }
+    }
 
-    [O?.i?.n?.g?.$].filter(Boolean).forEach((Ong$) => {
-        [O?.$, O?.e?.$].filter(Boolean).forEach((Ox$) => {
+    if (O?.i?.n?.g?.$) {
+        const Ong$ = O?.i?.n?.g?.$;
+        for (const Ox$ of [O?.$, O?.e?.$]) if (Ox$) {
             Ox$._ += Ong$._
             Ong$._ = null
-        })
-    });
+        }
+    }
 
-    [O?.$].filter(Boolean).forEach((O$) => {
-        [
+    if (O?.$) {
+        const O$ = O?.$;
+        for (const _x$ of [
             O?.["'"]?.s?.$,
             O?.["'"]?.l?.l?.$,
             O?.["'"]?.v?.e?.$,
             O?.["'"]?.d?.$,
-        ].filter(Boolean).forEach((_x$) => {
+        ]) if (_x$) {
             O$._ += _x$._
             _x$._ = null
-        })
-    });
+        }
+    }
 }
 
 export { deAffix, resetSuffix };

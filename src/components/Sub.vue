@@ -1,10 +1,10 @@
 <template>
   <div class="my-2.5 mx-auto max-w-screen-xl">
     <el-container>
-      <el-header height="100%" class="relative">
-        <label for="file-input" class="word-content s-btn">Browse files</label>
-        <input type="file" id="file-input" class="h-0 w-0" @change="readSingleFile" />
-        <span class="file-info">{{ fileInfo || 'No file chosen' }}</span>
+      <el-header height="100%" class="relative flex items-center">
+        <span class="flex-1 text-right text-xs text-indigo-900">{{ vocabInfo.join(', ') || '' }}</span>
+        <label class="word-content s-btn grow-0 mx-4"><input type="file" class="hidden" @change="readSingleFile" />Browse files</label>
+        <span class="flex-1 text-left text-[10px] truncate tracking-tight text-indigo-900">{{ fileInfo || 'No file chosen' }}</span>
       </el-header>
       <el-container>
         <el-container class="relative">
@@ -53,6 +53,7 @@ export default {
       words: null,
       commonW: '',
       fileInfo: '',
+      vocabInfo: [],
       vocabs: [[], [], []],
       vocabData: [],
     }
@@ -72,7 +73,7 @@ export default {
     console.timeEnd('══ prepare ══')
     const t = new WordTree('say ok Say tess')
     t.add('').deAffix();
-    const test = t.formList(t, 'say');
+    const test = t.formList('say');
     console.log(test)
     // console.log(t)
     // console.log(Object.create(null));
@@ -87,9 +88,9 @@ export default {
     },
     selectOnTouch() {
       console.log('listen click')
-      this.$el.querySelectorAll('.vocab-col').forEach((e) => {
+      for (const e of this.$el.querySelectorAll('.vocab-col')) {
         e.addEventListener('touchstart', () => window.getSelection().selectAllChildren(e));
-      })
+      }
     },
 
     selectText: (row, column, cell,) => cell.classList.contains('vocab-col') && window.getSelection().selectAllChildren(cell),
@@ -111,9 +112,8 @@ export default {
 
     formWords(content) {
       console.time('╘═ All ═╛')
-      this.words = new WordTree();
       console.time('--formWords')
-      this.words.add(content);
+      this.words = new WordTree(content);
       console.timeEnd('--formWords')
 
       console.time('--deAffix')
@@ -121,14 +121,15 @@ export default {
       console.timeEnd('--deAffix')
 
       console.time('--formList');
-      this.vocabs = this.words.formList(this.words, this.commonW);
+      this.vocabs = this.words.formList(this.commonW);
       // if (!this.vocabs[this.value].length) this.value = 0;
       this.vocabData = this.vocabs[this.selected]
       console.timeEnd('--formList');
       setTimeout(() => this.selectOnTouch(), 0)
-      console.log(`not(${Object.keys(this.vocabs[0]).length})`, this.vocabs[0]);
-      console.log(`fil(${Object.keys(this.vocabs[1]).length})`, this.vocabs[1]);
-      console.log(`com(${Object.keys(this.vocabs[2]).length})`, this.vocabs[2]);
+      this.vocabInfo = [Object.keys(this.vocabs[0]).length, Object.keys(this.vocabs[1]).length, Object.keys(this.vocabs[2]).length];
+      console.log(`not(${this.vocabInfo[0]})`, this.vocabs[0]);
+      console.log(`fil(${this.vocabInfo[1]})`, this.vocabs[1]);
+      console.log(`com(${this.vocabInfo[2]})`, this.vocabs[2]);
       console.timeEnd('╘═ All ═╛')
     },
   },
@@ -153,36 +154,19 @@ html > body {
   border: 0 !important;
 }
 
-.file-info {
-  max-width: calc(50vw - 90px);
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  box-sizing: border-box;
-  color: #29296e;
-  display: inline-block;
-  font-size: 10px;
-  letter-spacing: -0.01rem;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-family: 'SF Compact Text', -apple-system, sans-serif !important;
-}
-
 .word-content {
   background: #1a73e8;
   border-radius: 4px;
   box-sizing: border-box;
-  color: #fff;
-  cursor: pointer;
   display: inline-block;
   font-size: 14px;
   height: 36px;
-  margin: 0 16px 0 16px;
   padding: 10px 12px;
 }
 
 .s-btn {
+  color: #fff;
+  cursor: pointer;
   box-shadow: inset 0 1px 0 0 hsl(0deg 0% 100% / 40%);
   line-height: 14px;
   border: 1px solid transparent;
