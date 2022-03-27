@@ -92,49 +92,44 @@ class WordTree {
 
     deSuffix(O) {
         if (O?.s?.$) {
-            const Os$ = O?.s?.$;
-            for (const _x$ of [
-                O?.$,
+            const s$ = O.s.$;
+            for (const x$ of [
                 O?.e?.d?.$,
                 O?.i?.n?.g?.$,
                 O?.i?.n?.g?.s?.$,
-            ]) if (_x$) {
-                const sum = _x$._ + Os$._;
-                Os$._ = _x$._ = null
-                if (!O.$?._) {
-                    O.$ = { '_': sum, '~': Os$['~'] - 1, '@': Math.min(_x$['@'], Os$['@']) }
-                } else {
-                    O.$._ += sum
-                }
+            ]) if (x$) {
+                (O.$ ??= { '_': 0, '~': s$['~'] - 1, '@': s$['@'] })._ += x$._ + s$._;
+                s$._ = x$._ = null;
             }
         }
 
-        if (O?.e?.d?.$) {
-            const Oed$ = O?.e?.d?.$;
-            for (const Ox$ of [O?.$, O?.e?.$]) if (Ox$) {
-                Ox$._ += Oed$._;
-                Oed$._ = null;
-            }
-        }
-
-        if (O?.i?.n?.g?.$) {
-            const Ong$ = O?.i?.n?.g?.$;
-            for (const Ox$ of [O?.$, O?.e?.$]) if (Ox$) {
-                Ox$._ += Ong$._
-                Ong$._ = null
+        if (O?.e?.$) {
+            const $ = O.e.$;
+            for (const x$ of [
+                O?.e?.d?.$,
+                O?.i?.n?.g?.$,
+            ]) if (x$) {
+                $._ += x$._
+                x$._ = null
+                if (x$['@'] < $['@']) $['@'] = x$['@']
             }
         }
 
         if (O?.$) {
-            const O$ = O?.$;
-            for (const _x$ of [
+            const $ = O.$;
+            for (const x$ of [
+                O?.s?.$,
+                O?.e?.d?.$,
+                O?.i?.n?.g?.$,
+                O?.i?.n?.g?.s?.$,
                 O?.["'"]?.s?.$,
                 O?.["'"]?.l?.l?.$,
                 O?.["'"]?.v?.e?.$,
                 O?.["'"]?.d?.$,
-            ]) if (_x$) {
-                O$._ += _x$._
-                _x$._ = null
+            ]) if (x$) {
+                $._ += x$._
+                x$._ = null
+                if (x$['@'] < $['@']) $['@'] = x$['@']
             }
         }
     }
