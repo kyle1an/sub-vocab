@@ -84,19 +84,24 @@ class WordTree {
 
     deAf(layer) {
         for (const k in layer) {
-            const value = layer[k]
-            this.deSuffix(value)
-            this.deAf(value);
+            if (k !== '$') {
+                const value = layer[k]
+                this.deAf(value);
+                this.deSuffix(value)
+            }
         }
     }
 
     deSuffix(O) {
+        const ing = O?.i?.n?.g;
+        const ed$ = O?.e?.d?.$;
+
         const s$ = O?.s?.$;
         if (s$) {
             for (const x$ of [
-                O?.e?.d?.$,
-                O?.i?.n?.g?.$,
-                O?.i?.n?.g?.s?.$,
+                ed$,
+                ing?.$,
+                ing?.s?.$,
             ]) if (x$) {
                 (O.$ ??= { '_': 0, '~': s$['~'] - 1, '@': s$['@'] })._ += x$._ + s$._;
                 s$._ = x$._ = null;
@@ -106,8 +111,8 @@ class WordTree {
         const e$ = O?.e?.$;
         if (e$) {
             for (const x$ of [
-                O?.e?.d?.$,
-                O?.i?.n?.g?.$,
+                ed$,
+                ing?.$,
             ]) if (x$) {
                 e$._ += x$._
                 x$._ = null
@@ -119,9 +124,9 @@ class WordTree {
         if ($) {
             for (const x$ of [
                 s$,
-                O?.e?.d?.$,
-                O?.i?.n?.g?.$,
-                O?.i?.n?.g?.s?.$,
+                ed$,
+                ing?.$,
+                ing?.s?.$,
                 O?.["'"]?.s?.$,
                 O?.["'"]?.l?.l?.$,
                 O?.["'"]?.v?.e?.$,
