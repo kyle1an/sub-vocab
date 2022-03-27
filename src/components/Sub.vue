@@ -66,7 +66,7 @@ export default {
         'Accept': 'application/json'
       }
     }
-    const w1k = await fetch('../common-words.txt', init).then((response) => response.text());
+    const w1k = await fetch('../1kCommonW.txt', init).then((response) => response.text());
     const myW = await fetch('../myWords.txt', init).then((response) => response.text());
     console.time('══ prepare ══')
     this.commonW = w1k.concat(myW);
@@ -125,12 +125,21 @@ export default {
       // if (!this.vocabs[this.value].length) this.value = 0;
       this.vocabData = this.vocabs[this.selected]
       console.timeEnd('--formList');
-      setTimeout(() => this.selectOnTouch(), 0)
-      this.vocabInfo = [Object.keys(this.vocabs[0]).length, Object.keys(this.vocabs[1]).length, Object.keys(this.vocabs[2]).length];
-      console.log(`not(${this.vocabInfo[0]})`, this.vocabs[0]);
-      console.log(`fil(${this.vocabInfo[1]})`, this.vocabs[1]);
-      console.log(`com(${this.vocabInfo[2]})`, this.vocabs[2]);
       console.timeEnd('╘═ All ═╛')
+      setTimeout(() => {
+        this.selectOnTouch();
+        this.logVocab();
+      }, 0)
+    },
+
+    logVocab() {
+      this.vocabInfo = [Object.keys(this.vocabs[0]).length, Object.keys(this.vocabs[1]).length, Object.keys(this.vocabs[2]).length];
+      const not = [...this.vocabs[0]].sort((a, b) => a['vocab'].localeCompare(b['vocab'], 'en', { sensitivity: 'base' }));
+      const fil = [...this.vocabs[1]].sort((a, b) => a['vocab'].localeCompare(b['vocab'], 'en', { sensitivity: 'base' }));
+      const com = [...this.vocabs[2]].sort((a, b) => a['vocab'].localeCompare(b['vocab'], 'en', { sensitivity: 'base' }));
+      console.log(`not(${this.vocabInfo[0]})`, not);
+      console.log(`fil(${this.vocabInfo[1]})`, fil);
+      console.log(`com(${this.vocabInfo[2]})`, com);
     },
   },
 }
@@ -318,6 +327,9 @@ table thead {
   .el-main {
     padding-right: 0 !important;
     padding-left: 0 !important;
+  }
+  .input-area textarea {
+    border-radius: 12px;
   }
 }
 </style>

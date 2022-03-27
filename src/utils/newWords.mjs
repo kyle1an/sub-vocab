@@ -1,6 +1,6 @@
 import fs from "fs";
 
-const pathCommon = '../../public/common-words.txt'
+const pathCommon = '../../public/1kCommonW.txt'
 const pathMy = '../../public/myWords.txt'
 const pathNew = '../../public/newWords.txt'
 
@@ -22,11 +22,13 @@ function reorder(path) { //   sieve.match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg
     }
     const res = [...new Set(myWords.concat(neW))]
     fs.writeFile(pathMy, res.sort().join('\n'), (err) => {
-        if (err) return console.log(err);
+        if (err)
+            return console.log(err);
         console.log("The file was saved!");
     });
     fs.writeFile(path, '', (err) => {
-        if (err) return console.log(err);
+        if (err)
+            return console.log(err);
         console.log("The file was saved!");
     });
     console.log('-------')
