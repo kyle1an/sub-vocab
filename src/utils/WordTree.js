@@ -91,8 +91,8 @@ class WordTree {
     }
 
     deSuffix(O) {
-        if (O?.s?.$) {
-            const s$ = O.s.$;
+        const s$ = O?.s?.$;
+        if (s$) {
             for (const x$ of [
                 O?.e?.d?.$,
                 O?.i?.n?.g?.$,
@@ -103,22 +103,22 @@ class WordTree {
             }
         }
 
-        if (O?.e?.$) {
-            const $ = O.e.$;
+        const e$ = O?.e?.$;
+        if (e$) {
             for (const x$ of [
                 O?.e?.d?.$,
                 O?.i?.n?.g?.$,
             ]) if (x$) {
-                $._ += x$._
+                e$._ += x$._
                 x$._ = null
-                if (x$['@'] < $['@']) $['@'] = x$['@']
+                if (x$['@'] < e$['@']) e$['@'] = x$['@']
             }
         }
 
-        if (O?.$) {
-            const $ = O.$;
+        const $ = O?.$;
+        if ($) {
             for (const x$ of [
-                O?.s?.$,
+                s$,
                 O?.e?.d?.$,
                 O?.i?.n?.g?.$,
                 O?.i?.n?.g?.s?.$,
