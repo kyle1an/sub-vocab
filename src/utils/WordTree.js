@@ -1,7 +1,7 @@
-import { print, stringify, } from './utils';
+import { stringify } from './utils';
 
 class WordTree {
-    trunk = {};
+    root = {};
     #tUpper = {};
     #i = 1;
     list = [];
@@ -12,13 +12,14 @@ class WordTree {
 
     add = (neW) => {
         if (Array.isArray(neW)) {
-            neW.reduce((col, word) => this.#insert(word, col), this.trunk);
+            neW.reduce((col, word) => this.#insert(word, col), this.root);
         } else for (const m of neW.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:-?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
             if (m[1]) {
-                this.#insert(m[1].toLowerCase(), this.trunk);
-                (this.#tUpper[m[1]] ??= { '_': 0, '~': m[1].length, '@': this.#i })._ += 1
+                this.#insert(m[1].toLowerCase(), this.root);
+                this.#tUpper[m[1]] ??= 0;
+                this.#tUpper[m[1]] += 1;
             } else {
-                this.#insert(m[0], this.trunk)
+                this.#insert(m[0], this.root)
             }
         }
         return this;
@@ -31,7 +32,7 @@ class WordTree {
 
     formList = (sieve) => {
         if (sieve) for (const [...word] of (Array.isArray(sieve) ? sieve : sieve.toLowerCase().match(/[a-z]+(?:['-]?[a-z]'?)+/gm) || [])) {
-            let branch = this.trunk
+            let branch = this.root
             const l = word.pop();
             if (word.every((c) => branch = branch[c])) this.resetSuffix(branch, l)
         }
@@ -42,32 +43,29 @@ class WordTree {
         return [this.list, target, common];
     }
 
-    #trans(upper = this.#tUpper, trunk = this.trunk) {
+    #trans(upper = this.#tUpper, root = this.root) {
         for (const key in upper) {
-            let branch = trunk;
+            let branch = root;
             for (const c of [...key.toLowerCase()]) branch = branch[c]
-            if (branch.$._ !== upper[key]._) {
-                if (upper[key]['@'] < branch.$['@']) branch.$['@'] = upper[key]['@']
-                upper[key] = false;
-            } else {
-                this.list.push({ vocab: key, info: this.#info(branch) })
+            if (branch.$._ === upper[key]) {
+                this.list.push({ vocab: key, info: this.#info(branch.$) })
                 branch.$ = false;
             }
         }
-        this.#traverseAndFlatten(this.trunk, '');
+        this.#traverseAndFlatten(this.root, '');
     }
 
-    #traverseAndFlatten(node, concatKey) {
+    #traverseAndFlatten = (node, concatKey) => {
         for (const k in node) {
             if (k !== '$') {
                 this.#traverseAndFlatten(node[k], concatKey + k);
             } else if (node.$._) {
-                this.list.push({ vocab: concatKey, info: this.#info(node) })
+                this.list.push({ vocab: concatKey, info: this.#info(node.$) })
             }
         }
     }
 
-    #info = (n) => [n.$._, n.$['~'], n.$['@'], ...(n.$.F ? [true] : [])]
+    #info = ($) => [$._, $['~'], $['@'], $.F]
 
     resetSuffix(O, last) {
         O = (last === 'e') ? O : O?.[last];
@@ -80,19 +78,15 @@ class WordTree {
         ]) if ($) $.F = true
     }
 
-    deAffix = () => this.deAf(this.trunk)
-
-    deAf(layer) {
-        for (const k in layer) {
-            if (k !== '$') {
-                const value = layer[k]
-                this.deAf(value);
-                this.deSuffix(value)
-            }
+    deAffix = (layer = this.root) => {
+        for (const k in layer) if (k !== '$') {
+            const value = layer[k]
+            this.deAffix(value);
+            this.deSuffix(value)
         }
     }
 
-    deSuffix(O) {
+    deSuffix = (O) => {
         const ing = O?.i?.n?.g;
         const ed$ = O?.e?.d?.$;
 
@@ -140,4 +134,4 @@ class WordTree {
     }
 }
 
-export { WordTree, print };
+export { WordTree };
