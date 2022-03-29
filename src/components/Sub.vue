@@ -21,9 +21,9 @@
           <el-card class="table-card">
             <ios13-segmented-control :segments="segments" @input="switchSec" />
             <el-table fit class="r-table" height="calc(100vh - 90px)" :data="vocabData" @cell-mouse-enter="selectText" size="small">
-              <el-table-column prop="vocab" label="Vocabulary" sortable :sort-method="sortByChar" min-width="14" class-name="vocab-col" align="right" />
-              <el-table-column prop="info.0" label="Times" sortable align="right" min-width="7" class-name="tabular-nums" />
-              <el-table-column prop="info.1" label="Length" sortable align="center" min-width="9" />
+              <el-table-column prop="w" label="Vocabulary" sortable :sort-method="sortByChar" min-width="14" class-name="vocab-col" align="right" />
+              <el-table-column prop="_" label="Times" sortable align="right" min-width="7" class-name="tabular-nums" />
+              <el-table-column prop="~" label="Length" sortable align="center" min-width="9" />
             </el-table>
           </el-card>
         </el-aside>
@@ -68,9 +68,9 @@ export default {
     }
     const w1k = await fetch('../1kCommonW.txt', init).then((response) => response.text());
     const myW = await fetch('../myWords.txt', init).then((response) => response.text());
-    console.time('══ prepare ══')
+    // console.time('══ prepare ══')
     this.commonW = w1k.concat(myW);
-    console.timeEnd('══ prepare ══')
+    // console.timeEnd('══ prepare ══')
     const t = new WordTree('say ok Say tess')
     t.add('').deAffix();
     const test = t.formList('say');
@@ -87,7 +87,6 @@ export default {
       this.vocabData = this.vocabs[v]
     },
     selectOnTouch() {
-      console.log('listen click')
       for (const e of this.$el.querySelectorAll('.vocab-col')) {
         e.addEventListener('touchstart', () => window.getSelection().selectAllChildren(e));
       }
@@ -112,35 +111,40 @@ export default {
 
     formWords(content) {
       console.time('╘═ All ═╛')
-      console.time('--formWords')
+      console.time('--initWords')
       this.words = new WordTree(content);
-      console.timeEnd('--formWords')
+      console.timeEnd('--initWords')
 
-      console.time('--deAffix')
+      console.time('--deAffixes')
       this.words.deAffix()
-      console.timeEnd('--deAffix')
+      console.timeEnd('--deAffixes')
 
-      console.time('--formList');
+      console.time('--formLists');
       this.vocabs = this.words.formList(this.commonW);
       // if (!this.vocabs[this.value].length) this.value = 0;
       this.vocabData = this.vocabs[this.selected]
-      console.timeEnd('--formList');
+      console.timeEnd('--formLists');
       console.timeEnd('╘═ All ═╛')
       setTimeout(() => {
         this.selectOnTouch();
-        this.logVocab();
-      }, 0)
+      }, 0);
+      this.logVocab();
     },
 
     logVocab() {
       this.vocabInfo = [Object.keys(this.vocabs[0]).length, Object.keys(this.vocabs[1]).length, Object.keys(this.vocabs[2]).length];
-      const not = [...this.vocabs[0]].sort((a, b) => a['vocab'].localeCompare(b['vocab'], 'en', { sensitivity: 'base' }));
-      const fil = [...this.vocabs[1]].sort((a, b) => a['vocab'].localeCompare(b['vocab'], 'en', { sensitivity: 'base' }));
-      const com = [...this.vocabs[2]].sort((a, b) => a['vocab'].localeCompare(b['vocab'], 'en', { sensitivity: 'base' }));
+      const not = [...this.vocabs[0]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
+      const fil = [...this.vocabs[1]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
+      const com = [...this.vocabs[2]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
       console.log(`not(${this.vocabInfo[0]})`, not);
       console.log(`fil(${this.vocabInfo[1]})`, fil);
       console.log(`com(${this.vocabInfo[2]})`, com);
     },
+
+    logStyl: (s, n) => {
+      return `══${s}${'═'.repeat(Math.round(2 * n) - s.length - 2)} ${parseFloat(n).toFixed(1)}`
+    }
+
   },
 }
 </script>

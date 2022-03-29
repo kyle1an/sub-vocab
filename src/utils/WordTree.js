@@ -25,7 +25,7 @@ class WordTree {
         return this;
     };
 
-    #insert([...word], branch) {
+    #insert = ([...word], branch) => {
         for (const c of word) branch = branch[c] ??= {};
         (branch.$ ??= { '_': 0, '~': word.length, '@': ++this.#i })._ += 1
     }
@@ -39,16 +39,16 @@ class WordTree {
         const target = [];
         const common = [];
         this.#trans();
-        for (const v of this.list.sort((a, b) => a.info[2] - b.info[2])) ((!v.info[3] && v.info[1] > 2) ? target : common).push(v)
+        for (const v of this.list.sort((a, b) => a['@'] - b['@'])) ((!v.F && v['~'] > 2) ? target : common).push(v)
         return [this.list, target, common];
     }
 
-    #trans(upper = this.#tUpper, root = this.root) {
+    #trans = (upper = this.#tUpper, root = this.root) => {
         for (const key in upper) {
             let branch = root;
             for (const c of [...key.toLowerCase()]) branch = branch[c]
             if (branch.$._ === upper[key]) {
-                this.list.push({ vocab: key, info: this.#info(branch.$) })
+                this.list.push({ w: key, ...branch.$ })
                 branch.$ = false;
             }
         }
@@ -60,12 +60,10 @@ class WordTree {
             if (k !== '$') {
                 this.#traverseAndFlatten(node[k], concatKey + k);
             } else if (node.$._) {
-                this.list.push({ vocab: concatKey, info: this.#info(node.$) })
+                this.list.push({ w: concatKey, ...node.$ })
             }
         }
     }
-
-    #info = ($) => [$._, $['~'], $['@'], $.F]
 
     resetSuffix(O, last) {
         O = (last === 'e') ? O : O?.[last];
