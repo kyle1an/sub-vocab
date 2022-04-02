@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import { WordTree } from '../utils/WordTree.js';
+import Trie from '../utils/WordTree.js';
 import iOS13SegmentedControl from './segmented-control.vue'
 
 export default {
@@ -45,12 +45,17 @@ export default {
     return {
       selected: null,
       segments: [
-        { id: 0, title: 'Origin', },
-        { id: 11, title: 'Filtered', default: true },
-        { id: 2, title: 'Common', },
+        {
+          id: 0, title: 'Origin',
+        },
+        {
+          id: 11, title: 'Filtered', default: true
+        },
+        {
+          id: 2, title: 'Common',
+        },
       ],
       inputContent: '',
-      words: null,
       commonW: '',
       fileInfo: '',
       vocabInfo: [],
@@ -66,18 +71,15 @@ export default {
         'Accept': 'application/json'
       }
     }
-    const w1k = await fetch('../1kCommonW.txt', init).then((response) => response.text());
-    const myW = await fetch('../myWords.txt', init).then((response) => response.text());
     // console.time('══ prepare ══')
-    this.commonW = w1k.concat(myW);
+    this.commonW = await fetch('../sieve.txt', init).then((response) => response.text());
     // console.timeEnd('══ prepare ══')
-    const t = new WordTree('say ok Say tess')
+    const t = new Trie('say ok Say tess')
     t.add('').deAffix();
     const test = t.formList('say');
     console.log(test)
     // console.log(t)
-    // console.log(Object.create(null));
-    // console.log({})
+    // console.log(Object.create(null),{},);
     this.selected = this.segments.findIndex((o => o.default));
   },
 
@@ -112,22 +114,20 @@ export default {
     formWords(content) {
       console.time('╘═ All ═╛')
       console.time('--initWords')
-      this.words = new WordTree(content);
+      const words = new Trie(content);
       console.timeEnd('--initWords')
 
       console.time('--deAffixes')
-      this.words.deAffix()
+      words.deAffix()
       console.timeEnd('--deAffixes')
 
       console.time('--formLists');
-      this.vocabs = this.words.formList(this.commonW);
+      this.vocabs = words.formList(this.commonW);
       // if (!this.vocabs[this.value].length) this.value = 0;
       this.vocabData = this.vocabs[this.selected]
       console.timeEnd('--formLists');
       console.timeEnd('╘═ All ═╛')
-      setTimeout(() => {
-        this.selectOnTouch();
-      }, 0);
+      setTimeout(() => this.selectOnTouch(), 0);
       this.logVocab();
     },
 
