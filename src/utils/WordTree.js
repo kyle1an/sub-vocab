@@ -1,21 +1,21 @@
 export default class WordTree {
   root = {};
-  #tUpper = {};
-  #i = 1;
-  list = [];
+  #wordsOfUppercase = {};
+  #sequence = 1;
+  wordsList = [];
 
   constructor(words) {
     if (words) this.add(words)
   }
 
-  add = (neW) => {
-    if (Array.isArray(neW)) {
-      neW.reduce((col, word) => this.#insert(word, col), this.root);
+  add = (newWords) => {
+    if (Array.isArray(newWords)) {
+      newWords.reduce((collection, word) => this.#insert(word, collection), this.root);
     } else {
-      for (const m of neW.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:-?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
+      for (const m of newWords.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:-?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
         if (m[1]) {
           this.#insert(m[1].toLowerCase(), this.root);
-          this.#tUpper[m[1]] = (this.#tUpper[m[1]] ??= 0) + 1;
+          this.#wordsOfUppercase[m[1]] = (this.#wordsOfUppercase[m[1]] ??= 0) + 1;
         } else {
           this.#insert(m[0], this.root)
         }
@@ -29,60 +29,60 @@ export default class WordTree {
     for (const c of word) {
       branch = branch[c] ??= {};
     }
-    (branch.$ ??= { _: 0, '~': word.length, '@': ++this.#i })._ += 1
+    (branch.$ ??= { freq: 0, len: word.length, seq: ++this.#sequence }).freq += 1
   }
 
-  formList = (sieve) => {
+  formLists = (sieve) => {
     if (sieve) {
       for (const [...word] of Array.isArray(sieve) ? sieve : sieve.toLowerCase().split(' ')) {
         let branch = this.root
         const l = word.pop();
         if (word.every((c) => branch = branch[c])) {
-          this.resetSuffix(branch, l)
+          this.filterCommonWords(branch, l)
         }
       }
     }
 
-    const target = [];
+    const filtered = [];
     const common = [];
-    this.#trans();
-    for (const v of this.list.sort((a, b) => a['@'] - b['@'])) {
-      (!v.F && v['~'] > 2 ? target : common).push(v)
+    this.#extractUppercaseAndFlattenLowercase();
+    for (const v of this.wordsList.sort((a, b) => a.seq - b.seq)) {
+      (!v.F && v.len > 2 ? filtered : common).push(v)
     }
-    return [this.list, target, common];
+    return [this.wordsList, filtered, common];
   }
 
-  #trans = (upper = this.#tUpper) => {
-    for (const key in upper) {
+  #extractUppercaseAndFlattenLowercase = (uppercase = this.#wordsOfUppercase) => {
+    for (const key in uppercase) {
       let branch = this.root;
 
       for (const c of [...key.toLowerCase()]) {
         branch = branch[c]
       }
 
-      if (branch.$._ === upper[key]) {
-        this.list.push({ w: key, ...branch.$ })
+      if (branch.$.freq === uppercase[key]) {
+        this.wordsList.push({ w: key, ...branch.$ })
         branch.$ = false;
       }
     }
-    this.#traverseAndFlatten(this.root, '');
+    this.#traverseAndFlattenLowercase(this.root, '');
   }
 
-  #traverseAndFlatten = (node, concatKey) => {
+  #traverseAndFlattenLowercase = (node, concatKey) => {
     for (const k in node) {
       if (k !== '$') {
-        this.#traverseAndFlatten(node[k], concatKey + k);
-      } else if (node.$._) {
-        this.list.push({ w: concatKey, ...node.$ })
+        this.#traverseAndFlattenLowercase(node[k], concatKey + k);
+      } else if (node.$.freq) {
+        this.wordsList.push({ w: concatKey, ...node.$ })
       }
     }
   }
 
-  resetSuffix(O, last) {
-    O = (last === 'e') ? O : O?.[last];
+  filterCommonWords(O, lastChar) {
+    O = (lastChar === 'e') ? O : O?.[lastChar];
 
     for (const $ of [
-      ...(last === 'e' ? [O?.e?.$] : [O?.$, O?.s?.$]),
+      ...(lastChar === 'e' ? [O?.e?.$] : [O?.$, O?.s?.$]),
       O?.e?.d?.$,
       O?.e?.s?.$,
       O?.i?.n?.g?.$,
@@ -90,15 +90,15 @@ export default class WordTree {
     ]) if ($) $.F = true
   }
 
-  deAffix = (layer = this.root) => {
+  mergeSuffixes = (layer = this.root) => {
     for (const k in layer) if (k !== '$') {
       const value = layer[k]
-      this.deAffix(value);
-      this.deSuffix(value)
+      this.mergeSuffixes(value);
+      this.mergeVocabOfDifferentSuffixes(value)
     }
   }
 
-  deSuffix = (O) => {
+  mergeVocabOfDifferentSuffixes = (O) => {
     const ing = O?.i?.n?.g;
     const ed$ = O?.e?.d?.$;
     const s$ = O?.s?.$;
@@ -109,8 +109,8 @@ export default class WordTree {
         ing?.s?.$,
       ]) {
         if (x$) {
-          (O.$ ??= { _: 0, '~': s$['~'] - 1, '@': s$['@'] })._ += x$._ + s$._;
-          s$._ = x$._ = null;
+          (O.$ ??= { freq: 0, len: s$.len - 1, seq: s$.seq }).freq += x$.freq + s$.freq;
+          s$.freq = x$.freq = null;
         }
       }
     }
@@ -121,9 +121,9 @@ export default class WordTree {
         ed$,
         ing?.$,
       ]) if (x$) {
-        e$._ += x$._
-        x$._ = null
-        if (x$['@'] < e$['@']) e$['@'] = x$['@']
+        e$.freq += x$.freq
+        x$.freq = null
+        if (x$.seq < e$.seq) e$.seq = x$.seq
       }
     }
 
@@ -139,9 +139,9 @@ export default class WordTree {
         O?.["'"]?.v?.e?.$,
         O?.["'"]?.d?.$,
       ]) if (x$) {
-        $._ += x$._
-        x$._ = null
-        if (x$['@'] < $['@']) $['@'] = x$['@']
+        $.freq += x$.freq
+        x$.freq = null
+        if (x$.seq < $.seq) $.seq = x$.seq
       }
     }
   }

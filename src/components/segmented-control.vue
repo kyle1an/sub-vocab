@@ -1,6 +1,6 @@
 <template>
   <main>
-    <div class="ios13-segmented-control leading-6">
+    <div class="ios13-segmented-control leading-6 overflow-hidden">
       <span class="selection" :style="pillTransformStyles"></span>
       <div v-for="segment of segments" :key="segment.id" class="option">
         <input type="radio"

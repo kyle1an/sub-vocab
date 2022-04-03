@@ -2,7 +2,7 @@
   <div class="my-2.5 mx-auto max-w-screen-xl">
     <el-container>
       <el-header height="100%" class="relative flex items-center">
-        <span class="flex-1 text-right text-xs text-indigo-900">{{ vocabInfo.join(', ') || '' }}</span>
+        <span class="flex-1 text-right text-xs text-indigo-900">{{ vocabAmountInfo.join(', ') || '' }}</span>
         <label class="word-content s-btn grow-0 mx-4"><input type="file" class="hidden" @change="readSingleFile" />Browse files</label>
         <span class="flex-1 text-left text-[10px] truncate tracking-tight text-indigo-900">{{ fileInfo || 'No file chosen' }}</span>
       </el-header>
@@ -11,7 +11,7 @@
           <el-main>
             <div class="text-input relative">
               <div class="submit">
-                <el-button class="s-btn" @click="formWords(inputContent)" type="primary" icon="el-icon-check" circle />
+                <el-button class="s-btn" @click="formVocabLists(inputContent)" type="primary" icon="el-icon-check" circle />
               </div>
               <el-input class="input-area" type="textarea" :rows="12" placeholder="input subtitles manually:" v-model="inputContent" />
             </div>
@@ -19,11 +19,11 @@
         </el-container>
         <el-aside width="42%">
           <el-card class="table-card">
-            <ios13-segmented-control :segments="segments" @input="switchSec" />
+            <ios13-segmented-control :segments="segments" @input="switchSegment" />
             <el-table fit class="r-table" height="calc(100vh - 90px)" :data="vocabData" @cell-mouse-enter="selectText" size="small">
               <el-table-column prop="w" label="Vocabulary" sortable :sort-method="sortByChar" min-width="14" class-name="vocab-col" align="right" />
-              <el-table-column prop="_" label="Times" sortable align="right" min-width="7" class-name="tabular-nums" />
-              <el-table-column prop="~" label="Length" sortable align="center" min-width="9" />
+              <el-table-column prop="freq" label="Times" sortable align="right" min-width="7" class-name="tabular-nums" />
+              <el-table-column prop="len" label="Length" sortable align="center" min-width="9" />
             </el-table>
           </el-card>
         </el-aside>
@@ -56,10 +56,10 @@ export default {
         },
       ],
       inputContent: '',
-      commonW: '',
+      commonWords: '',
       fileInfo: '',
-      vocabInfo: [],
-      vocabs: [[], [], []],
+      vocabAmountInfo: [],
+      vocabLists: [[], [], []],
       vocabData: [],
     }
   },
@@ -72,11 +72,11 @@ export default {
       }
     }
     // console.time('══ prepare ══')
-    this.commonW = await fetch('../sieve.txt', init).then((response) => response.text());
+    this.commonWords = await fetch('../sieve.txt', init).then((response) => response.text());
     // console.timeEnd('══ prepare ══')
     const t = new Trie('say ok Say tess')
-    t.add('').deAffix();
-    const test = t.formList('say');
+    t.add('').mergeSuffixes();
+    const test = t.formLists('say');
     console.log(test)
     // console.log(t)
     // console.log(Object.create(null),{},);
@@ -84,10 +84,11 @@ export default {
   },
 
   methods: {
-    switchSec(v) {
+    switchSegment(v) {
       this.selected = v;
-      this.vocabData = this.vocabs[v]
+      this.vocabData = this.vocabLists[v]
     },
+
     selectOnTouch() {
       for (const e of this.$el.querySelectorAll('.vocab-col')) {
         e.addEventListener('touchstart', () => window.getSelection().selectAllChildren(e));
@@ -105,46 +106,41 @@ export default {
       reader.fileName = file.name
       reader.onload = (e) => {
         this.inputContent = e.target.result
-        this.formWords(this.inputContent)
+        this.formVocabLists(this.inputContent)
         this.fileInfo = e.target.fileName;
       };
       reader.readAsText(file);
     },
 
-    formWords(content) {
+    formVocabLists(content) {
       console.time('╘═ All ═╛')
       console.time('--initWords')
       const words = new Trie(content);
       console.timeEnd('--initWords')
 
       console.time('--deAffixes')
-      words.deAffix()
+      words.mergeSuffixes()
       console.timeEnd('--deAffixes')
 
       console.time('--formLists');
-      this.vocabs = words.formList(this.commonW);
+      this.vocabLists = words.formLists(this.commonWords);
       // if (!this.vocabs[this.value].length) this.value = 0;
-      this.vocabData = this.vocabs[this.selected]
+      this.vocabData = this.vocabLists[this.selected]
       console.timeEnd('--formLists');
       console.timeEnd('╘═ All ═╛')
       setTimeout(() => this.selectOnTouch(), 0);
-      this.logVocab();
+      this.logVocabInfo();
     },
 
-    logVocab() {
-      this.vocabInfo = [Object.keys(this.vocabs[0]).length, Object.keys(this.vocabs[1]).length, Object.keys(this.vocabs[2]).length];
-      const not = [...this.vocabs[0]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
-      const fil = [...this.vocabs[1]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
-      const com = [...this.vocabs[2]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
-      console.log(`not(${this.vocabInfo[0]})`, not);
-      console.log(`fil(${this.vocabInfo[1]})`, fil);
-      console.log(`com(${this.vocabInfo[2]})`, com);
+    logVocabInfo() {
+      this.vocabAmountInfo = [Object.keys(this.vocabLists[0]).length, Object.keys(this.vocabLists[1]).length, Object.keys(this.vocabLists[2]).length];
+      const untouchedVocabList = [...this.vocabLists[0]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
+      const lessCommonWordsList = [...this.vocabLists[1]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
+      const commonWordsList = [...this.vocabLists[2]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
+      console.log(`not(${this.vocabAmountInfo[0]})`, untouchedVocabList);
+      console.log(`fil(${this.vocabAmountInfo[1]})`, lessCommonWordsList);
+      console.log(`com(${this.vocabAmountInfo[2]})`, commonWordsList);
     },
-
-    logStyl: (s, n) => {
-      return `══${s}${'═'.repeat(Math.round(2 * n) - s.length - 2)} ${parseFloat(n).toFixed(1)}`
-    }
-
   },
 }
 </script>
@@ -167,17 +163,13 @@ html > body {
   border: 0 !important;
 }
 
-.word-content {
-  background: #1a73e8;
+.s-btn {
   border-radius: 4px;
   box-sizing: border-box;
   display: inline-block;
   font-size: 14px;
   height: 36px;
   padding: 10px 12px;
-}
-
-.s-btn {
   color: #fff;
   cursor: pointer;
   box-shadow: inset 0 1px 0 0 hsl(0deg 0% 100% / 40%);

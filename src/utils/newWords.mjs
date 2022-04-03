@@ -1,30 +1,30 @@
 import fs from 'fs';
 
-const pathCommon = '../../public/1kCommonW.txt'
-const commonWords = fs.readFileSync(pathCommon, 'utf8').match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg)
+const pathOfMostCommon = '../../public/1kCommonW.txt'
+const pathOfMine = '../../public/myWords.txt'
+const pathOfNew = '../../public/newWords.txt'
+const path2Pack = '../../public/sieve.txt'
 
-const pathMy = '../../public/myWords.txt'
-const myWords = fs.readFileSync(pathMy, 'utf8').match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg)
+const arrayOfMostCommon = fs.readFileSync(pathOfMostCommon, 'utf8').match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg)
+const arrayOfMine = fs.readFileSync(pathOfMine, 'utf8').match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg)
 
-const pathNew = '../../public/newWords.txt'
-const pathPack2 = '../../public/sieve.txt'
+let array2Save;
 
-const reorder = function reorder(path) { //   sieve.match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg
-  const neWords = fs.readFileSync(path, 'utf8').match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg) || ''
-  const commonSet = new Set(commonWords)
-  const currentSet = new Set(myWords)
-  const neW = [];
-  console.log(neWords)
+const deduplicateAndReorder = function reorder(path) { //   sieve.match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg
+  const arrayOfInput = fs.readFileSync(path, 'utf8').match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg) || ''
+  const setOfMostCommon = new Set(arrayOfMostCommon)
+  const setOfMine = new Set(arrayOfMine)
+  const arrayOfNew = [];
+  console.log(arrayOfInput)
 
-  for (const w of neWords) {
-    if (!commonSet.has(w) && !currentSet.has(w)) {
-      neW.push(w)
+  for (const w of arrayOfInput) {
+    if (!setOfMostCommon.has(w) && !setOfMine.has(w)) {
+      arrayOfNew.push(w)
     }
   }
+  array2Save = [...new Set(arrayOfMine.concat(arrayOfNew))];
 
-  const res = [...new Set(myWords.concat(neW))]
-
-  fs.writeFile(pathMy, res.sort().join('\n'), (err) => {
+  fs.writeFile(pathOfMine, array2Save.sort().join('\n'), (err) => {
     if (err) return console.log(err);
     console.log('The file was saved!');
   });
@@ -37,13 +37,13 @@ const reorder = function reorder(path) { //   sieve.match(/[A-Za-z]+(?:['-]?[A-Z
   console.log('-------')
 }
 
-const packVocab = function pack(pack2) {
-  const res = [...new Set(commonWords.concat(myWords))]
+const packVocab2Path = function pack(pack2) {
+  const res = [...new Set(arrayOfMostCommon.concat(array2Save))]
   fs.writeFile(pack2, res.join(' '), (err) => {
     if (err) return console.log(err);
     console.log('The file was saved!');
   });
 }
 
-reorder(pathNew);
-packVocab(pathPack2);
+deduplicateAndReorder(pathOfNew);
+packVocab2Path(path2Pack);
