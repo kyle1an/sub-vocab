@@ -24,6 +24,15 @@
               <el-table-column prop="w" label="Vocabulary" sortable :sort-method="sortByChar" min-width="14" class-name="vocab-col" align="right" />
               <el-table-column prop="freq" label="Times" sortable align="right" min-width="7" class-name="tabular-nums" />
               <el-table-column prop="len" label="Length" sortable align="center" min-width="9" />
+              <el-table-column type="expand">
+                <template #default="props">
+                  <div class="mx-2.5">
+                    <p v-for="line in props.row.src">
+                      {{ line }}<br>
+                    </p>
+                  </div>
+                </template>
+              </el-table-column>
             </el-table>
           </el-card>
         </el-aside>

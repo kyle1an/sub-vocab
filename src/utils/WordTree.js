@@ -9,15 +9,13 @@ export default class WordTree {
   }
 
   add = (newWords) => {
-    if (Array.isArray(newWords)) {
-      newWords.reduce((collection, word) => this.#insert(word, collection), this.root);
-    } else {
-      for (const m of newWords.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:-?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
+    for (const sentence of newWords.match(/["'A-Za-z](?:[\w"',:\r \n]*(?:[-.](?=[A-Za-z.])|\.{3} *)*[A-Za-zÀ-ÿ])+[!?.,"']*/mg) || []) {
+      for (const m of sentence.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:-?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
         if (m[1]) {
-          this.#insert(m[1].toLowerCase(), this.root);
+          this.#insert(m[1].toLowerCase(), this.root, sentence);
           this.#wordsOfUppercase[m[1]] = (this.#wordsOfUppercase[m[1]] ??= 0) + 1;
         } else {
-          this.#insert(m[0], this.root)
+          this.#insert(m[0], this.root, sentence)
         }
       }
     }
@@ -25,11 +23,12 @@ export default class WordTree {
     return this;
   };
 
-  #insert = ([...word], branch) => {
-    for (const c of word) {
+  #insert = (word, branch, sentence) => {
+    for (const c of [...word]) {
       branch = branch[c] ??= {};
     }
-    (branch.$ ??= { freq: 0, len: word.length, seq: ++this.#sequence }).freq += 1
+    (branch.$ ??= { freq: 0, len: word.length, seq: ++this.#sequence, src: [] }).freq += 1
+    branch.$.src.push(sentence);
   }
 
   formLists = (sieve) => {
@@ -109,7 +108,8 @@ export default class WordTree {
         ing?.s?.$,
       ]) {
         if (x$) {
-          (O.$ ??= { freq: 0, len: s$.len - 1, seq: s$.seq }).freq += x$.freq + s$.freq;
+          (O.$ ??= { freq: 0, len: s$.len - 1, seq: s$.seq, src: [] }).freq += x$.freq + s$.freq;
+          O.$.src = [...O.$.src, ...s$.src, ...x$.src]
           s$.freq = x$.freq = null;
         }
       }
@@ -122,8 +122,9 @@ export default class WordTree {
         ing?.$,
       ]) if (x$) {
         e$.freq += x$.freq
+        e$.src = [...e$.src, ...x$.src]
         x$.freq = null
-        if (x$.seq < e$.seq) e$.seq = x$.seq
+        if (e$.seq > x$.seq) e$.seq = x$.seq
       }
     }
 
@@ -140,8 +141,9 @@ export default class WordTree {
         O?.["'"]?.d?.$,
       ]) if (x$) {
         $.freq += x$.freq
+        $.src = [...$.src, ...x$.src]
         x$.freq = null
-        if (x$.seq < $.seq) $.seq = x$.seq
+        if ($.seq > x$.seq) $.seq = x$.seq
       }
     }
   }
