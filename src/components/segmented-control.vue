@@ -51,7 +51,7 @@ export default {
       return this.segments.findIndex((segment) => segment.id === this.selectedSegmentId);
     },
     pillTransformStyles() {
-      return 'transform:translateX(' + (this.selectedSegmentWidth * this.selectedSegmentIndex) + 'px)';
+      return `transform:translateX(${this.selectedSegmentWidth * this.selectedSegmentIndex}px)`;
     },
   },
 
@@ -69,7 +69,7 @@ export default {
     },
     calcSegW() {
       const segmentElement = document.querySelector(`input[type='radio'][value='${this.selected}']`);
-      this.selectedSegmentWidth = segmentElement && segmentElement.offsetWidth;
+      setTimeout(() => this.selectedSegmentWidth = segmentElement.offsetWidth || 0, 400)
     }
   },
 
