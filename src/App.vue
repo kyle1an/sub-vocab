@@ -5,12 +5,18 @@ import Sub from './components/Sub.vue'
 </script>
 
 <template>
-  <div id="app">
-    <Sub />
-  </div>
+  <Sub />
 </template>
 
-<style>
+<style lang="scss">
+html > body {
+  background-color: rgb(243 241 246);
+
+  &::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+  }
+}
+
 #app {
   /*font-family: -apple-system, Avenir, Helvetica, Arial, sans-serif;*/
   -webkit-font-smoothing: antialiased;

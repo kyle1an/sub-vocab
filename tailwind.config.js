@@ -4,6 +4,9 @@ module.exports = {
     "./src/**/*.{vue,js,ts,jsx,tsx}",
   ],
   theme: {
+    fontFamily: {
+      'mono': ['SF Mono', 'ui-monospace', 'SFMono-Regular'],
+    },
     extend: {},
   },
   plugins: [],

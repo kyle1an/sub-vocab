@@ -1,7 +1,7 @@
 <template>
   <div class="my-2.5 mx-auto max-w-screen-xl">
     <el-container>
-      <el-header height="100%" class="relative flex items-center">
+      <el-header height="100%" class="relative flex items-center mt-2.5">
         <span class="flex-1 text-right text-xs text-indigo-900">{{ vocabAmountInfo.join(', ') || '' }}</span>
         <label class="word-content s-btn grow-0 mx-4"><input type="file" class="hidden" @change="readSingleFile" />Browse files</label>
         <span class="flex-1 text-left text-[10px] truncate tracking-tight text-indigo-900">{{ fileInfo || 'No file chosen' }}</span>
@@ -10,7 +10,7 @@
         <el-container class="relative">
           <el-main>
             <div class="text-input relative">
-              <div class="submit">
+              <div class="submit absolute top-8 -right-5 z-10">
                 <el-button class="s-btn" @click="formVocabLists(inputContent)" type="primary" icon="el-icon-check" circle />
               </div>
               <el-input class="input-area" type="textarea" :rows="12" placeholder="input subtitles manually:" v-model="inputContent" />
@@ -18,12 +18,12 @@
           </el-main>
         </el-container>
         <el-aside width="42%">
-          <el-card class="table-card">
+          <el-card class="table-card mx-5 mt-5 mb-2.5 !rounded-xl !border-0">
             <ios13-segmented-control :segments="segments" @input="switchSegment" />
             <el-table fit class="r-table" height="calc(100vh - 90px)" :data="vocabData" @cell-mouse-enter="selectText" size="small">
-              <el-table-column prop="w" label="Vocabulary" sortable :sort-method="sortByChar" min-width="14" class-name="vocab-col" align="right" />
+              <el-table-column prop="w" label="Vocabulary" sortable :sort-method="sortByChar" min-width="13" class-name="vocab-col" align="right" />
               <el-table-column prop="freq" label="Times" sortable align="right" min-width="7" class-name="tabular-nums" />
-              <el-table-column prop="len" label="Length" sortable align="center" min-width="9" />
+              <el-table-column prop="len" label="Length" sortable align="center" min-width="7" />
               <el-table-column type="expand">
                 <template #default="props">
                   <div class="mx-2.5">
@@ -100,7 +100,7 @@ export default {
 
     selectOnTouch() {
       for (const e of this.$el.querySelectorAll('.vocab-col')) {
-        e.addEventListener('touchstart', () => window.getSelection().selectAllChildren(e));
+        e.addEventListener('touchstart', () => window.getSelection().selectAllChildren(e), { passive: true });
       }
     },
 
@@ -155,21 +155,8 @@ export default {
 </script>
 
 <style lang="scss">
-html > body {
-  background-color: rgb(243 241 246);
-
-  &::-webkit-scrollbar {
-    display: none; /* Safari and Chrome */
-  }
-}
-
-.r-table *,
-.r-table .el-table__body-wrapper {
+.r-table :is(*,  .el-table__body-wrapper) {
   overscroll-behavior: contain !important;
-}
-
-.el-card {
-  border: 0 !important;
 }
 
 .s-btn {
@@ -194,15 +181,10 @@ html > body {
   }
 }
 
-.table-card {
-  margin: 20px 20px 10px 20px;
-  border-radius: 12px !important;
-
-  .el-card__body {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    padding-top: 12px;
-  }
+.table-card .el-card__body {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-top: 12px;
 }
 
 .input-area textarea {
@@ -227,29 +209,6 @@ td.vocab-col .cell {
   font-family: 'SF Compact Text', -apple-system, sans-serif !important;
   font-size: 16px !important;
   letter-spacing: 0.01rem;
-}
-
-.submit {
-  position: absolute;
-  top: 30px;
-  right: -20px;
-  z-index: 100
-}
-
-.el-header,
-.el-footer {
-  text-align: center;
-  line-height: 60px;
-}
-
-.el-aside {
-  text-align: center;
-  /*line-height: 200px;*/
-}
-
-.el-main {
-  text-align: center;
-  /*line-height: 160px;*/
 }
 
 .el-table,
@@ -303,7 +262,7 @@ table thead {
   }
 
   .submit {
-    top: unset;
+    top: unset !important;
     right: unset;
     bottom: -20px;
     width: 100%;

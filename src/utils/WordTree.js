@@ -11,12 +11,8 @@ export default class WordTree {
   add = (newWords) => {
     for (const sentence of newWords.match(/["'A-Za-z](?:[\w"',:\r \n]*(?:[-.](?=[A-Za-z.])|\.{3} *)*[A-Za-zÀ-ÿ])+[!?.,"']*/mg) || []) {
       for (const m of sentence.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:-?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
-        if (m[1]) {
-          this.#insert(m[1].toLowerCase(), this.root, sentence);
-          this.#wordsOfUppercase[m[1]] = (this.#wordsOfUppercase[m[1]] ??= 0) + 1;
-        } else {
-          this.#insert(m[0], this.root, sentence)
-        }
+        this.#insert(m[1] ? m[1].toLowerCase() : m[0], this.root, sentence)
+        if (m[1]) this.#wordsOfUppercase[m[1]] = (this.#wordsOfUppercase[m[1]] ??= 0) + 1;
       }
     }
 
@@ -24,7 +20,7 @@ export default class WordTree {
   };
 
   #insert = (word, branch, sentence) => {
-    for (const c of [...word]) {
+    for (const c of word.split('')) {
       branch = branch[c] ??= {};
     }
     (branch.$ ??= { freq: 0, len: word.length, seq: ++this.#sequence, src: [] }).freq += 1
@@ -55,7 +51,7 @@ export default class WordTree {
     for (const key in uppercase) {
       let branch = this.root;
 
-      for (const c of [...key.toLowerCase()]) {
+      for (const c of key.toLowerCase().split('')) {
         branch = branch[c]
       }
 
@@ -90,10 +86,10 @@ export default class WordTree {
   }
 
   mergeSuffixes = (layer = this.root) => {
-    for (const k in layer) if (k !== '$') {
-      const value = layer[k]
-      this.mergeSuffixes(value);
-      this.mergeVocabOfDifferentSuffixes(value)
+    for (const key in layer) if (key !== '$') {
+      const innerLayer = layer[key]
+      this.mergeSuffixes(innerLayer);
+      this.mergeVocabOfDifferentSuffixes(innerLayer)
     }
   }
 
@@ -109,7 +105,7 @@ export default class WordTree {
       ]) {
         if (x$) {
           (O.$ ??= { freq: 0, len: s$.len - 1, seq: s$.seq, src: [] }).freq += x$.freq + s$.freq;
-          O.$.src = [...O.$.src, ...s$.src, ...x$.src]
+          O.$.src = O.$.src.concat(s$.src, x$.src)
           s$.freq = x$.freq = null;
         }
       }
@@ -122,7 +118,7 @@ export default class WordTree {
         ing?.$,
       ]) if (x$) {
         e$.freq += x$.freq
-        e$.src = [...e$.src, ...x$.src]
+        e$.src = e$.src.concat(x$.src)
         x$.freq = null
         if (e$.seq > x$.seq) e$.seq = x$.seq
       }
@@ -141,7 +137,7 @@ export default class WordTree {
         O?.["'"]?.d?.$,
       ]) if (x$) {
         $.freq += x$.freq
-        $.src = [...$.src, ...x$.src]
+        $.src = $.src.concat(x$.src)
         x$.freq = null
         if ($.seq > x$.seq) $.seq = x$.seq
       }

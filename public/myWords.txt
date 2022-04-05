@@ -1074,6 +1074,7 @@ lair
 landscape
 lately
 later
+latest
 latter
 laughter
 lawyer
