@@ -1,15 +1,16 @@
 <template>
-  <main>
-    <div class="ios13-segmented-control leading-6 overflow-hidden">
-      <span class="selection" :style="pillTransformStyles"></span>
-      <div v-for="segment of segments" :key="segment.id" class="option">
+  <main class="flex justify-center h-full m-0 p-0">
+    <div class="ios13-segmented-control grid grid-flow-col bg-[#EFEFF0] leading-6 m-0 p-0.5 border-0 rounded-[9px] overflow-hidden select-none">
+      <span class="selection bg-white z-[2] rounded-[7px]" :style="pillTransformStyles"></span>
+      <div v-for="segment of segments" :key="segment.id" class="option relative cursor-pointer">
         <input type="radio"
                :id="segment.id"
                :value="segment.id"
                v-model="selectedSegmentId"
+               class="absolute inset-0 w-full h-full opacity-0 m-0 p-0 border-0"
         >
-        <label :for="segment.id" class="w-24">
-          <span class="flex justify-center">{{ segment.title }}</span>
+        <label :for="segment.id" class="block text-center relative w-24 py-0 px-[5vmin] text-[14px] bg-transparent cursor-[inherit]">
+          <span class="flex relative justify-center z-[2]">{{ segment.title }}</span>
         </label>
       </div>
     </div>
@@ -25,50 +26,56 @@ export default {
       type: Array
     },
   },
+
   data() {
     return {
       selectedSegmentWidth: 0,
-      selected: 0,
+      selectedId: 0,
     };
   },
+
   watch: {
-    selected(v, o) {
+    selectedId(v, o) {
       document.querySelector(`[for="${o}"]`).classList.remove('font-medium');
       document.querySelector(`[for="${v}"]`).classList.add('font-medium');
     },
   },
+
   computed: {
     selectedSegmentId: {
       get() {
-        return this.selected;
+        return this.selectedId;
       },
       set(segmentId) {
-        this.selected = segmentId;
+        this.selectedId = segmentId;
         this.$emit('input', this.selectedSegmentIndex);
       }
     },
+
     selectedSegmentIndex() {
       return this.segments.findIndex((segment) => segment.id === this.selectedSegmentId);
     },
+
     pillTransformStyles() {
       return `transform:translateX(${this.selectedSegmentWidth * this.selectedSegmentIndex}px)`;
     },
   },
 
   mounted() {
-    this.selected = this.segments.find((o) => o.default).id ?? this.segments[0].id;
+    this.selectedId = this.segments.find((o) => o.default).id ?? this.segments[0].id;
     this.$emit('input', this.selectedSegmentIndex);
     window.addEventListener('resize', this.recalculateSelectedSegmentWidth);
-    this.calcSegW()
+    this.calcSelectedSegmentWidth()
   },
 
   methods: {
     recalculateSelectedSegmentWidth() {
       // Wait for UI to rerender before measuring
-      this.$nextTick(() => this.calcSegW());
+      this.$nextTick(() => this.calcSelectedSegmentWidth());
     },
-    calcSegW() {
-      const segmentElement = document.querySelector(`input[type='radio'][value='${this.selected}']`);
+
+    calcSelectedSegmentWidth() {
+      const segmentElement = document.querySelector(`input[type='radio'][value='${this.selectedId}']`);
       setTimeout(() => this.selectedSegmentWidth = segmentElement.offsetWidth || 0, 400)
     }
   },
@@ -81,9 +88,6 @@ export default {
 
 <style lang="scss" scoped>
 main {
-  height: 100%;
-  margin: 0;
-  padding: 0;
   text-rendering: geometricPrecision;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -91,8 +95,6 @@ main {
   -webkit-overflow-scrolling: touch !important;
   touch-action: manipulation !important;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  display: flex;
-  justify-content: center;
   font-feature-settings: 'cv08';
 }
 
@@ -100,35 +102,19 @@ main {
   box-sizing: border-box;
 }
 
-label {
-  cursor: inherit;
-}
-
 .ios13-segmented-control {
-  --background: rgba(239, 239, 240, 1);
-  background: var(--background);
-  border-radius: 9px;
-  margin: 0;
-  padding: 2px;
-  border: none;
   outline: none;
-  display: grid;
-  grid-auto-flow: column;
   grid-auto-columns: 1fr;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-  user-select: none;
 
-  .option {
-    position: relative;
-    cursor: pointer;
-  }
-
-  .option:hover input:not(:checked) + label span,
-  .option:active input:not(:checked) + label span,
-  .option:focus input:not(:checked) + label span {
-    opacity: .2;
+  .option:hover,
+  .option:active,
+  .option:focus {
+    input:not(:checked) + label span {
+      opacity: .2;
+    }
   }
 
   .option:active input:not(:checked) + label span {
@@ -137,14 +123,13 @@ label {
 
   .option {
     label {
-      position: relative;
-      display: block;
-      text-align: center;
-      padding: 0 5vmin;
-      background: rgba(255, 255, 255, 0);
-      //font-weight: 400;
       color: rgba(0, 0, 0, 1);
-      font-size: 14px;
+
+      span {
+        -webkit-transition: all .2s ease;
+        transition: all .2s ease;
+        will-change: transform;
+      }
     }
 
     label::before,
@@ -170,6 +155,24 @@ label {
       right: 0;
       transform: translateX(.5px);
     }
+
+    input {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      outline: none;
+    }
+
+    input:checked + label {
+      cursor: default;
+    }
+
+    input:checked + label::before,
+    input:checked + label::after {
+      --background: rgba(239, 239, 240, 1);
+      background: var(--background);
+      z-index: 1;
+    }
   }
 
   .option:first-of-type {
@@ -183,56 +186,14 @@ label {
     opacity: 0;
   }
 
-  .option input {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    margin: 0;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    outline: none;
-    border: none;
-    opacity: 0;
-  }
-
   .selection {
-    background: rgba(255, 255, 255, 1);
     border: .5px solid rgba(0, 0, 0, 0.04);
     box-shadow: 0 3px 8px 0 rgba(0, 0, 0, 0.12), 0 3px 1px 0 rgba(0, 0, 0, 0.04);
-    border-radius: 7px;
     grid-column: 1;
     grid-row: 1;
-    z-index: 2;
     will-change: transform;
     -webkit-transition: transform .2s ease;
     transition: transform .2s ease;
-  }
-
-  .option {
-    label span {
-      //display: block;
-      position: relative;
-      z-index: 2;
-      -webkit-transition: all .2s ease;
-      transition: all .2s ease;
-      will-change: transform;
-    }
-
-    input:checked + label::before,
-    input:checked + label::after {
-      background: var(--background);
-      z-index: 1;
-    }
-
-    input:checked + label {
-      cursor: default;
-    }
   }
 }
 </style>
