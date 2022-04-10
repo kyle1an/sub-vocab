@@ -31,23 +31,24 @@ export default class WordTree {
     if (sieve) {
       for (const [...word] of Array.isArray(sieve) ? sieve : sieve.toLowerCase().split(' ')) {
         let branch = this.root
-        const l = word.pop();
+        const lastChar = word.pop();
         if (word.every((c) => branch = branch[c])) {
-          this.filterCommonWords(branch, l)
+          this.filterCommonWords(branch, lastChar)
         }
       }
     }
 
     const filtered = [];
     const common = [];
-    this.#extractUppercaseAndFlattenLowercase();
+    this.#extractUppercase();
+    this.#traverseAndFlattenLowercase(this.root, '');
     for (const v of this.wordsList.sort((a, b) => a.seq - b.seq)) {
       (!v.F && v.len > 2 ? filtered : common).push(v)
     }
     return [this.wordsList, filtered, common];
   }
 
-  #extractUppercaseAndFlattenLowercase = (uppercase = this.#wordsOfUppercase) => {
+  #extractUppercase = (uppercase = this.#wordsOfUppercase) => {
     for (const key in uppercase) {
       let branch = this.root;
 
@@ -60,7 +61,6 @@ export default class WordTree {
         branch.$ = false;
       }
     }
-    this.#traverseAndFlattenLowercase(this.root, '');
   }
 
   #traverseAndFlattenLowercase = (node, concatKey) => {

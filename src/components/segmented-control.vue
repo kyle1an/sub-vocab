@@ -1,16 +1,16 @@
 <template>
-  <main class="flex justify-center h-full m-0 p-0">
-    <div class="ios13-segmented-control grid grid-flow-col bg-[#EFEFF0] leading-6 m-0 p-0.5 border-0 rounded-[9px] overflow-hidden select-none">
-      <span class="selection bg-white z-[2] rounded-[7px]" :style="pillTransformStyles"></span>
+  <main class="flex justify-center h-full m-0 p-0 font-sans antialiased !touch-manipulation">
+    <div class="ios13-segmented-control grid grid-flow-col auto-cols-[1fr] bg-[#EFEFF0] leading-6 m-0 p-0.5 border-0 rounded-[9px] overflow-hidden select-none">
+      <span class="selection border-[.5px] border-black/[0.04] rounded-[7px] bg-white z-[2]" :style="pillTransformStyles"></span>
       <div v-for="segment of segments" :key="segment.id" class="option relative cursor-pointer">
         <input type="radio"
                :id="segment.id"
                :value="segment.id"
                v-model="selectedSegmentId"
-               class="absolute inset-0 w-full h-full opacity-0 m-0 p-0 border-0"
+               class="absolute inset-0 w-full h-full opacity-0 m-0 p-0 border-0 appearance-none"
         >
         <label :for="segment.id" class="block text-center relative w-24 py-0 px-[5vmin] text-[14px] bg-transparent cursor-[inherit]">
-          <span class="flex relative justify-center z-[2]">{{ segment.title }}</span>
+          <span class="flex relative justify-center z-[2] will-change-transform">{{ segment.title }}</span>
         </label>
       </div>
     </div>
@@ -89,11 +89,7 @@ export default {
 <style lang="scss" scoped>
 main {
   text-rendering: geometricPrecision;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-overflow-scrolling: touch !important;
-  touch-action: manipulation !important;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   font-feature-settings: 'cv08';
 }
@@ -104,7 +100,6 @@ main {
 
 .ios13-segmented-control {
   outline: none;
-  grid-auto-columns: 1fr;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -128,7 +123,6 @@ main {
       span {
         -webkit-transition: all .2s ease;
         transition: all .2s ease;
-        will-change: transform;
       }
     }
 
@@ -187,7 +181,6 @@ main {
   }
 
   .selection {
-    border: .5px solid rgba(0, 0, 0, 0.04);
     box-shadow: 0 3px 8px 0 rgba(0, 0, 0, 0.12), 0 3px 1px 0 rgba(0, 0, 0, 0.04);
     grid-column: 1;
     grid-row: 1;

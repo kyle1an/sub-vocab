@@ -10,7 +10,7 @@
         <el-container class="relative">
           <el-main>
             <div class="text-input relative">
-              <div class="submit absolute top-8 -right-5 z-10">
+              <div class="submit absolute top-8 z-10">
                 <el-button class="s-btn" @click="formVocabLists(inputContent)" type="primary" icon="el-icon-check" circle />
               </div>
               <el-input class="input-area" type="textarea" :rows="12" placeholder="input subtitles manually:" v-model="inputContent" />
@@ -27,9 +27,7 @@
               <el-table-column type="expand">
                 <template #default="props">
                   <div class="mx-2.5">
-                    <p v-for="line in props.row.src">
-                      {{ line }}<br>
-                    </p>
+                    <p v-for="line in props.row.src">{{ line }}<br></p>
                   </div>
                 </template>
               </el-table-column>
@@ -80,15 +78,11 @@ export default {
         'Accept': 'application/json'
       }
     }
-    // console.time('══ prepare ══')
     this.commonWords = await fetch('../sieve.txt', init).then((response) => response.text());
-    // console.timeEnd('══ prepare ══')
     const t = new Trie('say ok Say tess')
     t.add('').mergeSuffixes();
     const test = t.formLists('say');
     console.log(test)
-    // console.log(t)
-    // console.log(Object.create(null),{},);
     this.selected = this.segments.findIndex((o => o.default));
   },
 
@@ -106,7 +100,7 @@ export default {
 
     selectText: (row, column, cell,) => cell.classList.contains('vocab-col') && window.getSelection().selectAllChildren(cell),
 
-    sortByChar: (a, b) => a['vocab'].localeCompare(b['vocab'], 'en', { sensitivity: 'base' }),
+    sortByChar: (a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }),
 
     readSingleFile(e) {
       const file = e.target.files[0];
@@ -133,7 +127,6 @@ export default {
 
       console.time('--formLists');
       this.vocabLists = words.formLists(this.commonWords);
-      // if (!this.vocabs[this.value].length) this.value = 0;
       this.vocabData = this.vocabLists[this.selected]
       console.timeEnd('--formLists');
       console.timeEnd('╘═ All ═╛')
@@ -172,8 +165,7 @@ export default {
   line-height: 14px;
   border: 1px solid transparent;
   background-color: hsl(206, 100%, 52%);
-  /* .s-btn:focus,*/
-  /* .s-btn:active,*/
+
   &:hover {
     background-color: hsl(206, 100%, 40%) !important;
     /*box-shadow: 0px 1px 2px 0px rgba(60, 64, 67, .30), 0px 1px 3px 1px rgba(60, 64, 67, .15);*/
@@ -189,7 +181,6 @@ export default {
 
 .input-area textarea {
   border-radius: 8px;
-  //box-shadow: 0 2px 2px 0 rgb(0 0 0 / 4%);
   box-shadow: none;
   border: 0;
   padding-left: 30px;
@@ -211,6 +202,7 @@ td.vocab-col .cell {
   letter-spacing: 0.01rem;
 }
 
+table,
 .el-table,
 .el-table__header-wrapper,
 .el-table__body-wrapper,
@@ -225,6 +217,7 @@ table thead {
 .el-table th.el-table__cell > .cell {
   font-size: 10px;
 }
+
 
 @media only screen and (min-width: 896px) {
   .input-area > textarea,
@@ -247,8 +240,6 @@ table thead {
     -webkit-overflow-scrolling: touch;
   }
 
-  /*.r-table *,*/
-  /*.r-table .el-table__body-wrapper,*/
   body {
     height: 100%;
     overflow: auto;

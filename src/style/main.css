@@ -39,10 +39,3 @@ textarea {
 /*  'ss03',  -- Mono 'Alternate 0 no slash';*/
 /*  'ss04';   'Alternate 1 no serif';;*/
 /*  'dnom'*/
-
-table,
-.el-table,
-.el-table__header-wrapper,
-.el-table__body-wrapper {
-    margin: auto;
-}

@@ -18,9 +18,7 @@ html > body {
 }
 
 #app {
-  /*font-family: -apple-system, Avenir, Helvetica, Arial, sans-serif;*/
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  @apply antialiased;
   text-align: center;
   color: #2c3e50;
 }
