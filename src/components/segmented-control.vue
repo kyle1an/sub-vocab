@@ -63,9 +63,9 @@ export default {
 
   mounted() {
     this.selectedId = this.segments.find((o) => o.default).id ?? this.segments[0].id;
-    this.$emit('input', this.selectedSegmentIndex);
     window.addEventListener('resize', this.recalculateSelectedSegmentWidth);
-    this.calcSelectedSegmentWidth()
+    this.calcSelectedSegmentWidth();
+    this.$emit('input', this.selectedSegmentIndex);
   },
 
   methods: {

@@ -10,7 +10,7 @@
         <el-container class="relative">
           <el-main>
             <div class="text-input relative">
-              <div class="submit absolute top-8 z-10">
+              <div class="submit absolute top-8 -right-5 z-10">
                 <el-button class="s-btn" @click="formVocabLists(inputContent)" type="primary" icon="el-icon-check" circle />
               </div>
               <el-input class="input-area" type="textarea" :rows="12" placeholder="input subtitles manually:" v-model="inputContent" />
@@ -254,7 +254,7 @@ table thead {
 
   .submit {
     top: unset !important;
-    right: unset;
+    right: unset !important;
     bottom: -20px;
     width: 100%;
   }
