@@ -9,18 +9,18 @@
       <el-container>
         <el-container class="relative">
           <el-main>
-            <div class="text-input relative">
-              <div class="submit absolute top-8 -right-5 z-10">
+            <div class="relative">
+              <div class="submit absolute z-10 md:top-8 md:-right-5">
                 <el-button class="s-btn" @click="formVocabLists(inputContent)" type="primary" icon="el-icon-check" circle />
               </div>
               <el-input class="input-area" type="textarea" :rows="12" placeholder="input subtitles manually:" v-model="inputContent" />
             </div>
           </el-main>
         </el-container>
-        <el-aside width="42%">
+        <el-aside width="44%">
           <el-card class="table-card mx-5 mt-5 mb-2.5 !rounded-xl !border-0">
             <ios13-segmented-control :segments="segments" @input="switchSegment" />
-            <el-table fit class="r-table" height="calc(100vh - 90px)" :data="vocabData" @cell-mouse-enter="selectText" size="small">
+            <el-table fit class="r-table md:w-full md:max-h-[calc(100vh-180px)]" height="calc(100vh - 90px)" :data="vocabData" @cell-mouse-enter="selectText" size="small">
               <el-table-column prop="w" label="Vocabulary" sortable :sort-method="sortByChar" min-width="13" class-name="vocab-col" align="right" />
               <el-table-column prop="freq" label="Times" sortable align="right" min-width="7" class-name="tabular-nums" />
               <el-table-column prop="len" label="Length" sortable align="center" min-width="7" />
@@ -88,8 +88,7 @@ export default {
 
   methods: {
     switchSegment(v) {
-      this.selected = v;
-      this.vocabData = this.vocabLists[v]
+      this.vocabData = this.vocabLists[this.selected = v]
     },
 
     selectOnTouch() {
@@ -218,22 +217,15 @@ table thead {
   font-size: 10px;
 }
 
-
-@media only screen and (min-width: 896px) {
-  .input-area > textarea,
-  .text-input {
+@media only screen and (min-width: 768px) {
+  .input-area > textarea {
     height: 100vh;
     max-height: calc(100vh - 120px) !important;
     overflow: visible;
   }
-
-  .r-table {
-    max-height: calc(100vh - 180px);
-    width: 100%;
-  }
 }
 
-@media only screen and (max-width: 896px) {
+@media only screen and (max-width: 768px) {
   html {
     overflow: hidden;
     height: 100%;
@@ -253,14 +245,11 @@ table thead {
   }
 
   .submit {
-    top: unset !important;
-    right: unset !important;
     bottom: -20px;
     width: 100%;
   }
 
-  .input-area > textarea,
-  .text-input {
+  .input-area > textarea {
     max-height: 260px;
   }
 
@@ -278,7 +267,7 @@ table thead {
   }
 }
 
-@media only screen and (max-width: 428px) {
+@media only screen and (max-width: 640px) {
   .el-main {
     padding-right: 0 !important;
     padding-left: 0 !important;

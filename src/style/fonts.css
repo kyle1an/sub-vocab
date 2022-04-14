@@ -94,7 +94,6 @@
   font-style: italic;
   font-display: swap;
 }
-/* ──────── Fira Mono, IBM Plex Mono ui-monospace */
 @font-face {
   font-family: 'SF Mono';
   src: local('SF Mono Light') , url("https://cdn.jsdelivr.net/gh/kyle1an/SF-Fonts@master/Fonts/SF-Mono-Light.otf");
