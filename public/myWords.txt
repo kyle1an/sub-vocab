@@ -3,6 +3,7 @@ America
 American
 April
 Asia
+Asian
 August
 CEO
 CIA
@@ -42,6 +43,7 @@ September
 Sunday
 Thursday
 Tuesday
+Uh-huh
 Wednesday
 Yep
 abandon
@@ -123,6 +125,7 @@ ambitious
 amount
 amuse
 analysis
+analyze
 ancient
 angel
 angle
@@ -198,6 +201,7 @@ attractive
 audience
 aunt
 author
+auto
 automatic
 automatically
 autumn
@@ -580,6 +584,7 @@ directly
 director
 dirt
 dirty
+disable
 disagree
 disappear
 disappoint
@@ -868,8 +873,11 @@ grandfather
 grandkid
 grandma
 grandmother
+grandpa
+grandparent
 grape
 grateful
+gravity
 greatest
 greatly
 greed
@@ -931,6 +939,7 @@ highway
 himself
 hire
 historical
+hitting
 hmm
 holiday
 holy
@@ -942,6 +951,7 @@ honey
 honor
 hook
 hopefully
+hopeless
 horizon
 horror
 hospital
@@ -980,6 +990,7 @@ incident
 inclusive
 income
 increase
+incredible
 independence
 independent
 index
@@ -1250,6 +1261,7 @@ nightmare
 noble
 nobody
 none
+nope
 normal
 normally
 northern
@@ -1528,6 +1540,7 @@ reward
 rice
 ridiculous
 risk
+robot
 role
 romantic
 rotten
@@ -1566,6 +1579,7 @@ scratch
 scream
 screen
 script
+sec
 secondly
 secret
 secretly
@@ -1867,6 +1881,7 @@ unpredictable
 unstable
 unstoppable
 unusual
+update
 upon
 upper
 upset
@@ -1875,6 +1890,7 @@ upstairs
 urge
 urgent
 useful
+useless
 user
 usually
 vacation

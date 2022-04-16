@@ -82,6 +82,10 @@ export default class WordTree {
       O?.e?.s?.$,
       O?.i?.n?.g?.$,
       O?.i?.n?.g?.s?.$,
+      O?.["'"]?.s?.$,
+      O?.["'"]?.l?.l?.$,
+      O?.["'"]?.v?.e?.$,
+      O?.["'"]?.d?.$,
     ]) if ($) $.F = true
   }
 
@@ -89,15 +93,15 @@ export default class WordTree {
     for (const key in layer) if (key !== '$') {
       const innerLayer = layer[key]
       this.mergeSuffixes(innerLayer);
-      this.mergeVocabOfDifferentSuffixes(innerLayer)
+      this.mergeVocabOfDifferentSuffixes(innerLayer, key)
     }
   }
 
-  mergeVocabOfDifferentSuffixes = (O) => {
+  mergeVocabOfDifferentSuffixes = (O, k) => {
     const ing = O?.i?.n?.g;
     const ed$ = O?.e?.d?.$;
     const s$ = O?.s?.$;
-    if (s$) {
+    if (s$ && k !== 's') {
       for (const x$ of [
         ed$,
         ing?.$,
@@ -107,6 +111,7 @@ export default class WordTree {
           (O.$ ??= { freq: 0, len: s$.len - 1, seq: s$.seq, src: [] }).freq += x$.freq + s$.freq;
           O.$.src = O.$.src.concat(s$.src, x$.src)
           s$.freq = x$.freq = null;
+          s$.src = x$.src = [];
         }
       }
     }
@@ -120,6 +125,7 @@ export default class WordTree {
         e$.freq += x$.freq
         e$.src = e$.src.concat(x$.src)
         x$.freq = null
+        x$.src = [];
         if (e$.seq > x$.seq) e$.seq = x$.seq
       }
     }
@@ -138,6 +144,7 @@ export default class WordTree {
       ]) if (x$) {
         $.freq += x$.freq
         $.src = $.src.concat(x$.src)
+        x$.src = [];
         x$.freq = null
         if ($.seq > x$.seq) $.seq = x$.seq
       }
