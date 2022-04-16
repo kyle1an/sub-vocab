@@ -49,14 +49,16 @@ export default class WordTree {
         }
       }
     }
-
+    const origin = [];
     const filtered = [];
     const common = [];
-    this.vocabList = this.vocabList.filter((o) => o.freq)
     for (const v of this.vocabList.sort((a, b) => a.seq - b.seq)) {
-      (!v.F && v.len > 2 ? filtered : common).push(v)
+      if (v.freq) {
+        origin.push(v);
+        (!v.F && v.len > 2 ? filtered : common).push(v)
+      }
     }
-    return [this.vocabList, filtered, common];
+    return [origin, filtered, common];
   }
 
   filterCommonWords(O, lastChar) {
