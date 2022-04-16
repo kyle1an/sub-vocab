@@ -10,14 +10,15 @@ export default class WordTree {
   add = (newWords) => {
     for (const sentence of newWords.match(/["'A-Za-z](?:[\w"',:\r \n]*(?:[-.](?=[A-Za-z.])|\.{3} *)*[A-Za-zÀ-ÿ])+[!?.,"']*/mg) || []) {
       for (const m of sentence.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:-?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
-        this.#insert(m[0], this.root, sentence, m[1])
+        this.#insert(m[0], m[1], m.index, sentence)
       }
     }
 
     return this;
   };
 
-  #insert = (original, branch, sentence, upper) => {
+  #insert = (original, upper, index, sentence) => {
+    let branch = this.root;
     const word = upper ? original.toLowerCase() : original;
     for (const c of word.split('')) {
       branch = branch[c] ??= {};
@@ -34,7 +35,7 @@ export default class WordTree {
     }
 
     branch.$.freq += 1
-    branch.$.src.push(sentence.replace(original, `<w>${original}</w>`))
+    branch.$.src.push({ sentence, index, len: original.length })
   }
 
   formLists = (sieve) => {
@@ -62,17 +63,7 @@ export default class WordTree {
   filterCommonWords(O, lastChar) {
     O = (lastChar === 'e') ? O : O?.[lastChar];
 
-    for (const $ of [
-      ...(lastChar === 'e' ? [O?.e?.$] : [O?.$, O?.s?.$]),
-      O?.e?.d?.$,
-      O?.e?.s?.$,
-      O?.i?.n?.g?.$,
-      O?.i?.n?.g?.s?.$,
-      O?.["'"]?.s?.$,
-      O?.["'"]?.l?.l?.$,
-      O?.["'"]?.v?.e?.$,
-      O?.["'"]?.d?.$,
-    ]) if ($) $.F = true
+    for (const $ of [...(lastChar === 'e' ? [O?.e?.$] : [O?.$, O?.s?.$]), O?.e?.d?.$, O?.e?.s?.$, O?.i?.n?.g?.$, O?.i?.n?.g?.s?.$, O?.["'"]?.s?.$, O?.["'"]?.l?.l?.$, O?.["'"]?.v?.e?.$, O?.["'"]?.d?.$,]) if ($) $.F = true
   }
 
   caseOr = (a, b) => {
@@ -96,11 +87,7 @@ export default class WordTree {
     const ed$ = O?.e?.d?.$;
     const s$ = O?.s?.$;
     if (s$ && k !== 's') {
-      for (const x$ of [
-        ed$,
-        ing?.$,
-        ing?.s?.$,
-      ]) {
+      for (const x$ of [ed$, ing?.$, ing?.s?.$,]) {
         if (x$) {
           if (!O.$) this.vocabList.push(O.$ = { w: s$.w.slice(0, -1), freq: 0, len: s$.len - 1, seq: s$.seq, src: [] })
           O.$.freq += x$.freq + s$.freq;
@@ -113,10 +100,7 @@ export default class WordTree {
 
     const e$ = O?.e?.$;
     if (e$) {
-      for (const x$ of [
-        ed$,
-        ing?.$,
-      ]) if (x$) {
+      for (const x$ of [ed$, ing?.$,]) if (x$) {
         if (e$.W) {
           if (x$.W) {
             e$.w = this.caseOr(e$.w, x$.W);
@@ -135,16 +119,7 @@ export default class WordTree {
 
     const $ = O?.$;
     if ($) {
-      for (const x$ of [
-        s$,
-        ed$,
-        ing?.$,
-        ing?.s?.$,
-        O?.["'"]?.s?.$,
-        O?.["'"]?.l?.l?.$,
-        O?.["'"]?.v?.e?.$,
-        O?.["'"]?.d?.$,
-      ]) if (x$) {
+      for (const x$ of [s$, ed$, ing?.$, ing?.s?.$, O?.["'"]?.s?.$, O?.["'"]?.l?.l?.$, O?.["'"]?.v?.e?.$, O?.["'"]?.d?.$,]) if (x$) {
         if ($.W) {
           if (x$.W) {
             $.w = this.caseOr($.w, x$.W);
