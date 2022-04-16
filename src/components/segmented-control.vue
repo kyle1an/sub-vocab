@@ -64,19 +64,17 @@ export default {
   mounted() {
     this.selectedId = this.segments.find((o) => o.default).id ?? this.segments[0].id;
     window.addEventListener('resize', this.recalculateSelectedSegmentWidth);
-    setTimeout(() => this.calcSelectedSegmentWidth(), 400);
+    setTimeout(() => this.selectedSegmentWidth = this.calcSegmentWidth(this.selectedId), 400);
     this.$emit('input', this.selectedSegmentIndex);
   },
 
   methods: {
     recalculateSelectedSegmentWidth() {
       // Wait for UI to rerender before measuring
-      this.$nextTick(() => this.calcSelectedSegmentWidth());
+      this.$nextTick(() => this.selectedSegmentWidth = this.calcSegmentWidth(this.selectedId));
     },
 
-    calcSelectedSegmentWidth() {
-      this.selectedSegmentWidth = document.querySelector(`input[type='radio'][value='${this.selectedId}']`).getBoundingClientRect().width;
-    }
+    calcSegmentWidth: (id) => document.querySelector(`input[type='radio'][value='${id}']`).getBoundingClientRect().width,
   },
 
   beforeUnmount() {
