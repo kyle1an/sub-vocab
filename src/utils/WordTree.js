@@ -1,6 +1,5 @@
 export default class WordTree {
   root = {};
-  #wordsOfUppercase = {};
   #sequence = 1;
   vocabList = [];
 
@@ -12,7 +11,6 @@ export default class WordTree {
     for (const sentence of newWords.match(/["'A-Za-z](?:[\w"',:\r \n]*(?:[-.](?=[A-Za-z.])|\.{3} *)*[A-Za-zÀ-ÿ])+[!?.,"']*/mg) || []) {
       for (const m of sentence.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:-?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
         this.#insert(m[0], this.root, sentence, m[1])
-        if (m[1]) this.#wordsOfUppercase[m[1]] = (this.#wordsOfUppercase[m[1]] ??= 0) + 1;
       }
     }
 
@@ -49,16 +47,16 @@ export default class WordTree {
         }
       }
     }
-    const origin = [];
-    const filtered = [];
-    const common = [];
+
+    const lists = [[], [], []];
     for (const v of this.vocabList.sort((a, b) => a.seq - b.seq)) {
       if (v.freq) {
-        origin.push(v);
-        (!v.F && v.len > 2 ? filtered : common).push(v)
+        lists[0].push(v);
+        lists[!v.F && v.len > 2 ? 1 : 2].push(v);
       }
     }
-    return [origin, filtered, common];
+
+    return lists;
   }
 
   filterCommonWords(O, lastChar) {
