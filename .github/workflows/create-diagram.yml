@@ -1,0 +1,2 @@
+- name: Repo Visualizer
+  uses: githubocto/repo-visualizer@0.8.2

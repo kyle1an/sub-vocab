@@ -1,7 +1,7 @@
 <template>
   <main class="flex justify-center h-full m-0 p-0 font-sans antialiased !touch-manipulation">
     <div class="ios13-segmented-control grid grid-flow-col auto-cols-[1fr] bg-[#EFEFF0] leading-6 m-0 p-0.5 border-0 rounded-[9px] overflow-hidden select-none">
-      <span class="selection border-[.5px] border-black/[0.04] rounded-[7px] bg-white z-[2]" :style="pillTransformStyles"></span>
+      <span class="selection border-[.5px] border-black/[0.04] rounded-[7px] bg-white z-[2] will-change-transform col-start-1 col-end-auto row-start-1 row-end-auto" :style="pillTransformStyles"></span>
       <div v-for="segment of segments" :key="segment.id" class="option relative cursor-pointer">
         <input type="radio"
                :id="segment.id"
@@ -64,7 +64,7 @@ export default {
   mounted() {
     this.selectedId = this.segments.find((o) => o.default).id ?? this.segments[0].id;
     window.addEventListener('resize', this.recalculateSelectedSegmentWidth);
-    this.calcSelectedSegmentWidth();
+    setTimeout(() => this.calcSelectedSegmentWidth(), 400);
     this.$emit('input', this.selectedSegmentIndex);
   },
 
@@ -75,8 +75,7 @@ export default {
     },
 
     calcSelectedSegmentWidth() {
-      const segmentElement = document.querySelector(`input[type='radio'][value='${this.selectedId}']`);
-      setTimeout(() => this.selectedSegmentWidth = segmentElement.getBoundingClientRect().width || 0, 400)
+      this.selectedSegmentWidth = document.querySelector(`input[type='radio'][value='${this.selectedId}']`).getBoundingClientRect().width;
     }
   },
 
@@ -182,9 +181,6 @@ main {
 
   .selection {
     box-shadow: 0 3px 8px 0 rgba(0, 0, 0, 0.12), 0 3px 1px 0 rgba(0, 0, 0, 0.04);
-    grid-column: 1;
-    grid-row: 1;
-    will-change: transform;
     -webkit-transition: transform .2s ease;
     transition: transform .2s ease;
   }
