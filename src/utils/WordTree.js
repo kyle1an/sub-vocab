@@ -2,7 +2,7 @@ export default class WordTree {
   root = {};
   #wordsOfUppercase = {};
   #sequence = 1;
-  wordsList = [];
+  vocabList = [];
 
   constructor(words) {
     if (words) this.add(words)
@@ -24,7 +24,18 @@ export default class WordTree {
     for (const c of word.split('')) {
       branch = branch[c] ??= {};
     }
-    (branch.$ ??= { w: original, freq: 0, len: word.length, seq: ++this.#sequence, src: [] }).freq += 1
+    if (!branch.$) {
+      this.vocabList.push(branch.$ = { w: original, W: upper, freq: 0, len: word.length, seq: ++this.#sequence, src: [] });
+    } else if (branch.$.W) {
+      if (upper) {
+        branch.$.w = this.caseOr(branch.$.w, original);
+      } else {
+        branch.$.w = original;
+        branch.$.W = upper;
+      }
+    }
+
+    branch.$.freq += 1
     branch.$.src.push(sentence.replaceAll(original, `<w>${original}</w>`))
   }
 
@@ -41,37 +52,11 @@ export default class WordTree {
 
     const filtered = [];
     const common = [];
-    this.#extractUppercase();
-    this.#traverseAndFlattenLowercase(this.root, '');
-    for (const v of this.wordsList.sort((a, b) => a.seq - b.seq)) {
+    this.vocabList = this.vocabList.filter((o) => o.freq)
+    for (const v of this.vocabList.sort((a, b) => a.seq - b.seq)) {
       (!v.F && v.len > 2 ? filtered : common).push(v)
     }
-    return [this.wordsList, filtered, common];
-  }
-
-  #extractUppercase = (uppercase = this.#wordsOfUppercase) => {
-    for (const key in uppercase) {
-      let branch = this.root;
-
-      for (const c of key.toLowerCase().split('')) {
-        branch = branch[c]
-      }
-
-      if (branch.$.freq === uppercase[key]) {
-        this.wordsList.push({ w: key, ...branch.$ })
-        branch.$ = false;
-      }
-    }
-  }
-
-  #traverseAndFlattenLowercase = (node, concatKey) => {
-    for (const k in node) {
-      if (k !== '$') {
-        this.#traverseAndFlattenLowercase(node[k], concatKey + k);
-      } else if (node.$.freq) {
-        this.wordsList.push({ ...node.$, w: concatKey, })
-      }
-    }
+    return [this.vocabList, filtered, common];
   }
 
   filterCommonWords(O, lastChar) {
@@ -88,6 +73,14 @@ export default class WordTree {
       O?.["'"]?.v?.e?.$,
       O?.["'"]?.d?.$,
     ]) if ($) $.F = true
+  }
+
+  caseOr = (a, b) => {
+    const r = [];
+    for (let i = 0; i < a.length; i++) {
+      r.push(a.charCodeAt(i) | b.charCodeAt(i));
+    }
+    return String.fromCharCode(...r);
   }
 
   mergeSuffixes = (layer = this.root) => {
@@ -109,7 +102,8 @@ export default class WordTree {
         ing?.s?.$,
       ]) {
         if (x$) {
-          (O.$ ??= { w: s$.w.slice(0, -1), freq: 0, len: s$.len - 1, seq: s$.seq, src: [] }).freq += x$.freq + s$.freq;
+          if (!O.$) this.vocabList.push(O.$ = { w: s$.w.slice(0, -1), freq: 0, len: s$.len - 1, seq: s$.seq, src: [] })
+          O.$.freq += x$.freq + s$.freq;
           O.$.src = O.$.src.concat(s$.src, x$.src)
           s$.freq = x$.freq = null;
           s$.src = x$.src = [];
@@ -123,6 +117,14 @@ export default class WordTree {
         ed$,
         ing?.$,
       ]) if (x$) {
+        if (e$.W) {
+          if (x$.W) {
+            e$.w = this.caseOr(e$.w, x$.W);
+          } else {
+            e$.w = x$.w.slice(0, e$.len);
+            e$.W = undefined;
+          }
+        }
         e$.freq += x$.freq
         e$.src = e$.src.concat(x$.src)
         x$.freq = null
@@ -143,6 +145,14 @@ export default class WordTree {
         O?.["'"]?.v?.e?.$,
         O?.["'"]?.d?.$,
       ]) if (x$) {
+        if ($.W) {
+          if (x$.W) {
+            $.w = this.caseOr($.w, x$.W);
+          } else {
+            $.w = x$.w.slice(0, $.len);
+            $.W = undefined;
+          }
+        }
         $.freq += x$.freq
         $.src = $.src.concat(x$.src)
         x$.src = [];
