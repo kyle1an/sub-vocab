@@ -76,7 +76,7 @@ export default {
 
     calcSelectedSegmentWidth() {
       const segmentElement = document.querySelector(`input[type='radio'][value='${this.selectedId}']`);
-      setTimeout(() => this.selectedSegmentWidth = segmentElement.offsetWidth || 0, 400)
+      setTimeout(() => this.selectedSegmentWidth = segmentElement.getBoundingClientRect().width || 0, 400)
     }
   },
 
