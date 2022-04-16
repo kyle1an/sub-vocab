@@ -6,6 +6,7 @@ module.exports = {
   theme: {
     fontFamily: {
       'mono': ['SF Mono', 'ui-monospace', 'SFMono-Regular'],
+      'compact': ['SF Compact Text', '-apple-system', 'sans-serif'],
     },
     extend: {},
   },

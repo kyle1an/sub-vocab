@@ -20,17 +20,21 @@
         <el-aside width="44%">
           <el-card class="table-card mx-5 mt-5 mb-2.5 !rounded-xl !border-0">
             <ios13-segmented-control :segments="segments" @input="switchSegment" />
-            <el-table fit class="r-table md:w-full md:max-h-[calc(100vh-180px)]" height="calc(100vh - 90px)" :data="vocabData" @cell-mouse-enter="selectText" size="small">
-              <el-table-column prop="w" label="Vocabulary" sortable :sort-method="sortByChar" min-width="13" class-name="vocab-col" align="right" />
-              <el-table-column prop="freq" label="Times" sortable align="right" min-width="7" class-name="tabular-nums" />
-              <el-table-column prop="len" label="Length" sortable align="center" min-width="7" />
+            <el-table fit class="r-table md:w-full md:max-h-[calc(100vh-180px)]" height="calc(100vh - 90px)" :data="vocabData" size="small" ref="expandTable" @row-click="handleRowClick">
               <el-table-column type="expand">
                 <template #default="props">
-                  <div class="mx-2.5">
-                    <p v-for="line in props.row.src">{{ line }}<br></p>
-                  </div>
+                  <div class="mx-2.5"><p v-for="line in props.row.src">{{ line }}<br></p></div>
                 </template>
               </el-table-column>
+
+              <el-table-column prop="w" label="Vocabulary" sortable :sort-method="sortByChar" min-width="13" class-name="cursor-pointer" align="right">
+                <template #default="props">
+                  <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart="selectWord" @click.stop>{{ props.row.w }}</span>
+                </template>
+              </el-table-column>
+
+              <el-table-column prop="freq" label="Times" sortable align="right" min-width="7" class-name="cursor-pointer tabular-nums" />
+              <el-table-column prop="len" label="Length" sortable align="center" min-width="7" class-name="cursor-pointer" />
             </el-table>
           </el-card>
         </el-aside>
@@ -87,17 +91,15 @@ export default {
   },
 
   methods: {
+    handleRowClick(row) {
+      this.$refs.expandTable.toggleRowExpansion(row, row.expanded);
+    },
+
     switchSegment(v) {
       this.vocabData = this.vocabLists[this.selected = v]
     },
 
-    selectOnTouch() {
-      for (const e of this.$el.querySelectorAll('.vocab-col')) {
-        e.addEventListener('touchstart', () => window.getSelection().selectAllChildren(e), { passive: true });
-      }
-    },
-
-    selectText: (row, column, cell,) => cell.classList.contains('vocab-col') && window.getSelection().selectAllChildren(cell),
+    selectWord: (e) => window.getSelection().selectAllChildren(e.target),
 
     sortByChar: (a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }),
 
@@ -129,7 +131,6 @@ export default {
       this.vocabData = this.vocabLists[this.selected]
       console.timeEnd('--formLists');
       console.timeEnd('╘═ All ═╛')
-      setTimeout(() => this.selectOnTouch(), 0);
       this.logVocabInfo();
     },
 
@@ -193,12 +194,6 @@ export default {
 .el-switch__label * {
   font-size: 14px !important;
   letter-spacing: -0.01em;
-}
-
-td.vocab-col .cell {
-  font-family: 'SF Compact Text', -apple-system, sans-serif !important;
-  font-size: 16px !important;
-  letter-spacing: 0.01rem;
 }
 
 table,
