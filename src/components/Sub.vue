@@ -23,8 +23,8 @@
             <el-table fit class="r-table md:w-full md:max-h-[calc(100vh-180px)]" height="calc(100vh - 90px)" :data="vocabData" size="small" ref="expandTable" @row-click="handleRowClick">
               <el-table-column type="expand">
                 <template #default="props">
-                  <div class="mx-2.5" v-for="line in props.row.src">
-                    <span v-html="line"></span><br>
+                  <div class="mx-2.5" v-for="{sentence,index,len} in props.row.src">
+                    {{ sentence.slice(0, index) }}<span class="italic underline">{{ sentence.slice(index, index + len) }}</span>{{ sentence.slice(index + len) }}<br>
                   </div>
                 </template>
               </el-table-column>
@@ -150,11 +150,6 @@ export default {
 </script>
 
 <style lang="scss">
-w {
-  font-style: italic;
-  text-decoration: underline;
-}
-
 .r-table :is(*,  .el-table__body-wrapper) {
   overscroll-behavior: contain !important;
 }
