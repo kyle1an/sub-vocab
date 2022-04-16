@@ -255,6 +255,7 @@ beg
 begging
 beginning
 behave
+behavior
 being
 belong
 belonging
@@ -397,6 +398,7 @@ civil
 civilization
 classic
 classify
+classmate
 classroom
 clearly
 clever

@@ -11,7 +11,7 @@ export default class WordTree {
   add = (newWords) => {
     for (const sentence of newWords.match(/["'A-Za-z](?:[\w"',:\r \n]*(?:[-.](?=[A-Za-z.])|\.{3} *)*[A-Za-zÀ-ÿ])+[!?.,"']*/mg) || []) {
       for (const m of sentence.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:-?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
-        this.#insert(m[1] ? m[1].toLowerCase() : m[0], this.root, sentence)
+        this.#insert(m[0], this.root, sentence, m[1])
         if (m[1]) this.#wordsOfUppercase[m[1]] = (this.#wordsOfUppercase[m[1]] ??= 0) + 1;
       }
     }
@@ -19,12 +19,13 @@ export default class WordTree {
     return this;
   };
 
-  #insert = (word, branch, sentence) => {
+  #insert = (original, branch, sentence, upper) => {
+    const word = upper ? original.toLowerCase() : original;
     for (const c of word.split('')) {
       branch = branch[c] ??= {};
     }
-    (branch.$ ??= { freq: 0, len: word.length, seq: ++this.#sequence, src: [] }).freq += 1
-    branch.$.src.push(sentence);
+    (branch.$ ??= { w: original, freq: 0, len: word.length, seq: ++this.#sequence, src: [] }).freq += 1
+    branch.$.src.push(sentence.replaceAll(original, `<w>${original}</w>`))
   }
 
   formLists = (sieve) => {
@@ -68,7 +69,7 @@ export default class WordTree {
       if (k !== '$') {
         this.#traverseAndFlattenLowercase(node[k], concatKey + k);
       } else if (node.$.freq) {
-        this.wordsList.push({ w: concatKey, ...node.$ })
+        this.wordsList.push({ ...node.$, w: concatKey, })
       }
     }
   }
@@ -108,7 +109,7 @@ export default class WordTree {
         ing?.s?.$,
       ]) {
         if (x$) {
-          (O.$ ??= { freq: 0, len: s$.len - 1, seq: s$.seq, src: [] }).freq += x$.freq + s$.freq;
+          (O.$ ??= { w: s$.w.slice(0, -1), freq: 0, len: s$.len - 1, seq: s$.seq, src: [] }).freq += x$.freq + s$.freq;
           O.$.src = O.$.src.concat(s$.src, x$.src)
           s$.freq = x$.freq = null;
           s$.src = x$.src = [];
