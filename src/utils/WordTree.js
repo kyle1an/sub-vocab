@@ -36,7 +36,7 @@ export default class WordTree {
     }
 
     branch.$.freq += 1
-    branch.$.src.push(sentence.replaceAll(original, `<w>${original}</w>`))
+    branch.$.src.push(sentence.replace(original, `<w>${original}</w>`))
   }
 
   formLists = (sieve) => {
