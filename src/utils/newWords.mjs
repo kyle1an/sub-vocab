@@ -5,13 +5,13 @@ const pathOfMine = '../../public/myWords.txt'
 const pathOfNew = '../../public/newWords.txt'
 const path2Pack = '../../public/sieve.txt'
 
-const arrayOfMostCommon = fs.readFileSync(pathOfMostCommon, 'utf8').match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg)
-const arrayOfMine = fs.readFileSync(pathOfMine, 'utf8').match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg)
+const arrayOfMostCommon = fs.readFileSync(pathOfMostCommon, 'utf8').match(/(?:['-]?[A-Za-z]'?)+/mg)
+const arrayOfMine = fs.readFileSync(pathOfMine, 'utf8').match(/(?:['-]?[A-Za-z]'?)+/mg)
 
 let array2Save;
 
 const deduplicateAndReorder = function reorder(path) { //   sieve.match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg
-  const arrayOfInput = fs.readFileSync(path, 'utf8').match(/[A-Za-z]+(?:['-]?[A-Za-z]'?)+/mg) || ''
+  const arrayOfInput = fs.readFileSync(path, 'utf8').match(/(?:['-]?[A-Za-z]'?)+/mg) || ''
   const setOfMostCommon = new Set(arrayOfMostCommon)
   const setOfMine = new Set(arrayOfMine)
   const arrayOfNew = [];
