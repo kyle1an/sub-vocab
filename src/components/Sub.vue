@@ -16,7 +16,7 @@
               <el-input class="input-area" type="textarea" :rows="12" placeholder="input subtitles manually:" v-model="inputContent" />
             </div>
           </el-main>
-        </el-container>Ï
+        </el-container>
         <el-aside width="44%">
           <el-card class="table-card mx-5 mt-5 mb-2.5 !rounded-xl !border-0">
             <ios13-segmented-control :segments="segments" @input="switchSegment" />
