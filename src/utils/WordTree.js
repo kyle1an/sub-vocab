@@ -9,7 +9,7 @@ export default class WordTree {
 
   add = (newWords) => {
     for (const sentence of newWords.match(/["'A-Za-z](?:[\w"',:\r \n]*(?:[-.](?=[A-Za-z.])|\.{3} *)*[A-Za-zÀ-ÿ])+[!?.,"']*/mg) || []) {
-      for (const m of sentence.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:-?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
+      for (const m of sentence.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:['-]?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
         this.#insert(m[0], m[1], m.index, sentence)
       }
     }
@@ -40,9 +40,10 @@ export default class WordTree {
 
   formLists = (sieve) => {
     if (sieve) {
+      debugger
       for (const [...word] of Array.isArray(sieve) ? sieve : sieve.toLowerCase().split(' ')) {
         let branch = this.root
-        const lastChar = word.pop();
+        const lastChar = word.length === 1 ? '' : word.pop();
         if (word.every((c) => branch = branch[c])) {
           this.filterCommonWords(branch, lastChar)
         }
@@ -61,9 +62,19 @@ export default class WordTree {
   }
 
   filterCommonWords(O, lastChar) {
-    O = (lastChar === 'e') ? O : O?.[lastChar];
+    if (lastChar) O = (lastChar === 'e') ? O : O?.[lastChar];
 
-    for (const $ of [...(lastChar === 'e' ? [O?.e?.$] : [O?.$, O?.s?.$]), O?.e?.d?.$, O?.e?.s?.$, O?.i?.n?.g?.$, O?.i?.n?.g?.s?.$, O?.["'"]?.s?.$, O?.["'"]?.l?.l?.$, O?.["'"]?.v?.e?.$, O?.["'"]?.d?.$,]) if ($) $.F = true
+    for (const $ of [
+      ...(lastChar === 'e' ? [O?.e?.$] : [O?.$, O?.s?.$]),
+      O?.e?.d?.$,
+      O?.e?.s?.$,
+      O?.i?.n?.g?.$,
+      O?.i?.n?.g?.s?.$,
+      O?.["'"]?.s?.$,
+      O?.["'"]?.l?.l?.$,
+      O?.["'"]?.v?.e?.$,
+      O?.["'"]?.d?.$,
+    ]) if ($) $.F = true
   }
 
   caseOr = (a, b) => {
