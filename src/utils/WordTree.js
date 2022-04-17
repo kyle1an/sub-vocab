@@ -8,8 +8,9 @@ export default class WordTree {
   }
 
   add = (newWords) => {
-    for (const sentence of newWords.match(/["'A-Za-z](?:[\w"',:\r \n]*(?:[-.](?=[A-Za-z.])|\.{3} *)*[A-Za-zÀ-ÿ])+[!?.,"']*/mg) || []) {
-      for (const m of sentence.matchAll(/((?:[A-Za-z]['-]?)*(?:[A-Z]+[a-z]*)+(?:['-]?[A-Za-z]'?)+)|[a-z]+(?:-?[a-z]'?)+/mg)) {
+    // match include tags: /["'(<@A-Za-zÀ-ÿ[{](?:[^;.?!；。\n\r]*[\n\r]?["'(<@A-Za-zÀ-ÿ[{]*(?:[-.](?=[A-Za-zÀ-ÿ.])|\.{3} *)*[A-Za-zÀ-ÿ])+[^ \r\n]*/mg
+    for (const sentence of newWords.match(/["'@]?[A-Za-zÀ-ÿ](?:[^<>{};.?!\n\r]*(?:<[^>]*>)*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ.])|\.{3} *)*["'@A-Za-zÀ-ÿ])*[^<>{} \r\n]*/mg) || []) {
+      for (const m of sentence.matchAll(/((?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þ]+[a-zß-ÿ]*)+(?:['-]?[A-Za-zÀ-ÿ]'?)+)|[a-zß-ÿ]+(?:-?[a-zß-ÿ]'?)+/mg)) {
         this.#insert(m[0], m[1], m.index, sentence)
       }
     }
@@ -40,7 +41,6 @@ export default class WordTree {
 
   formLists = (sieve) => {
     if (sieve) {
-      debugger
       for (const [...word] of Array.isArray(sieve) ? sieve : sieve.toLowerCase().split(' ')) {
         let branch = this.root
         const lastChar = word.length === 1 ? '' : word.pop();
