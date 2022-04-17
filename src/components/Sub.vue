@@ -2,21 +2,21 @@
   <div class="my-2.5 mx-auto max-w-screen-xl">
     <el-container>
       <el-header height="100%" class="relative flex items-center mt-2.5">
-        <span class="flex-1 text-right text-xs text-indigo-900">{{ vocabAmountInfo.join(', ') || '' }}</span>
+        <span class="flex-1 text-right text-xs text-indigo-900 truncate tracking-tight">{{ fileInfo || 'No file chosen' }}</span>
         <label class="word-content s-btn grow-0 mx-4"><input type="file" class="hidden" @change="readSingleFile" />Browse files</label>
-        <span class="flex-1 text-left text-[10px] truncate tracking-tight text-indigo-900">{{ fileInfo || 'No file chosen' }}</span>
+        <span class="flex-1 text-left text-xs text-indigo-900 truncate tracking-tight">{{ vocabAmountInfo.join(', ') || '' }}</span>
       </el-header>
       <el-container>
         <el-container class="relative">
           <el-main>
             <div class="relative">
               <div class="submit absolute z-10 md:top-8 md:-right-5">
-                <el-button class="s-btn" @click="formVocabLists(inputContent)" type="primary" icon="el-icon-check" circle />
+                <el-button class="s-btn" @click="formVocabLists(inputContent)" type="primary" :icon="Check" circle />
               </div>
               <el-input class="input-area" type="textarea" :rows="12" placeholder="input subtitles manually:" v-model="inputContent" />
             </div>
           </el-main>
-        </el-container>
+        </el-container>Ï
         <el-aside width="44%">
           <el-card class="table-card mx-5 mt-5 mb-2.5 !rounded-xl !border-0">
             <ios13-segmented-control :segments="segments" @input="switchSegment" />
@@ -44,6 +44,9 @@
     </el-container>
   </div>
 </template>
+<script setup>
+import { Check } from '@element-plus/icons-vue';
+</script>
 
 <script>
 import Trie from '../utils/WordTree.js';
