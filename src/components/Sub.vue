@@ -23,8 +23,8 @@
             <el-table fit class="r-table md:w-full md:max-h-[calc(100vh-180px)]" height="calc(100vh - 90px)" :data="vocabData" size="small" ref="expandTable" @row-click="handleRowClick">
               <el-table-column type="expand">
                 <template #default="props">
-                  <div class="mx-2.5" v-for="{sentence,index,len} in props.row.src">
-                    {{ sentence.slice(0, index) }}<span class="italic underline">{{ sentence.slice(index, index + len) }}</span>{{ sentence.slice(index + len) }}<br>
+                  <div class="mx-2.5" v-for="{sentence,idx} in props.row.src">
+                    <div v-html="example(sentence, idx)" />
                   </div>
                 </template>
               </el-table-column>
@@ -44,8 +44,20 @@
     </el-container>
   </div>
 </template>
+
 <script setup>
 import { Check } from '@element-plus/icons-vue';
+
+const selectWord = (e) => window.getSelection().selectAllChildren(e.target);
+const sortByChar = (a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' });
+const example = (str, idxes) => {
+  const lines = [];
+  let position = 0;
+  for (const [idx, len] of idxes) {
+    lines.push(`${str.slice(position, idx)}<span class="italic underline">${str.slice(idx, position = idx + len)}</span>`)
+  }
+  return lines.concat(str.slice(position)).join('');
+};
 </script>
 
 <script>
@@ -103,10 +115,6 @@ export default {
     switchSegment(v) {
       this.vocabData = this.vocabLists[this.selected = v]
     },
-
-    selectWord: (e) => window.getSelection().selectAllChildren(e.target),
-
-    sortByChar: (a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }),
 
     readSingleFile(e) {
       const file = e.target.files[0];

@@ -1,6 +1,7 @@
 export default class WordTree {
   root = {};
   #sequence = 1;
+  lineNo = 0;
   vocabList = [];
 
   constructor(words) {
@@ -13,6 +14,7 @@ export default class WordTree {
       for (const m of sentence.matchAll(/((?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þ]+[a-zß-ÿ]*)+(?:['-]?[A-Za-zÀ-ÿ]'?)+)|[a-zß-ÿ]+(?:-?[a-zß-ÿ]'?)+/mg)) {
         this.#insert(m[0], m[1], m.index, sentence)
       }
+      this.lineNo += 1;
     }
 
     return this;
@@ -36,7 +38,12 @@ export default class WordTree {
     }
 
     branch.$.freq += 1
-    branch.$.src.push({ sentence, index, len: original.length })
+    const pre = branch.$.src.find((src) => src.no === this.lineNo);
+    if (pre) {
+      pre.idx.push([index, word.length])
+    } else {
+      branch.$.src.push({ sentence, no: this.lineNo, idx: [[index, word.length]] })
+    }
   }
 
   formLists = (sieve) => {
