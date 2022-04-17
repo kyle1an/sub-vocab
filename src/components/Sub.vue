@@ -45,29 +45,24 @@
   </div>
 </template>
 
-<script setup>
-import { Check } from '@element-plus/icons-vue';
-
-const selectWord = (e) => window.getSelection().selectAllChildren(e.target);
-const sortByChar = (a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' });
-const example = (str, idxes) => {
-  const lines = [];
-  let position = 0;
-  for (const [idx, len] of idxes) {
-    lines.push(`${str.slice(position, idx)}<span class="italic underline">${str.slice(idx, position = idx + len)}</span>`)
-  }
-  return lines.concat(str.slice(position)).join('');
-};
-</script>
-
 <script>
 import Trie from '../utils/WordTree.js';
 import iOS13SegmentedControl from './segmented-control.vue'
+import { ref } from 'vue'
+import { Check } from '@element-plus/icons-vue';
 
 export default {
   name: 'Sub',
   components: {
     'ios13-segmented-control': iOS13SegmentedControl
+  },
+  setup() {
+    const count = ref(0)
+
+    // expose to template and other options API hooks
+    return {
+      Check
+    }
   },
   data() {
     return {
@@ -114,6 +109,19 @@ export default {
 
     switchSegment(v) {
       this.vocabData = this.vocabLists[this.selected = v]
+    },
+
+    selectWord: (e) => window.getSelection().selectAllChildren(e.target),
+
+    sortByChar: (a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }),
+
+    example: (str, idxes) => {
+      const lines = [];
+      let position = 0;
+      for (const [idx, len] of idxes) {
+        lines.push(`${str.slice(position, idx)}<span class="italic underline">${str.slice(idx, position = idx + len)}</span>`)
+      }
+      return lines.concat(str.slice(position)).join('');
     },
 
     readSingleFile(e) {
