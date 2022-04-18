@@ -1,7 +1,7 @@
 export default class WordTree {
   root = {};
   #sequence = 1;
-  lineNo = 0;
+  sentences = [];
   vocabList = [];
 
   constructor(words) {
@@ -10,17 +10,19 @@ export default class WordTree {
 
   add = (newWords) => {
     // match include tags: /["'(<@A-Za-zÀ-ÿ[{](?:[^;.?!；。\n\r]*[\n\r]?["'(<@A-Za-zÀ-ÿ[{]*(?:[-.](?=[A-Za-zÀ-ÿ.])|\.{3} *)*[A-Za-zÀ-ÿ])+[^ \r\n]*/mg
-    for (const sentence of newWords.match(/["'@]?[A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|{[^}]*})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ.])|\.{3} *)*["'@A-Za-zÀ-ÿ])*[^<>{} \r\n]*/mg) || []) {
-      for (const m of sentence.matchAll(/((?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þ]+[a-zß-ÿ]*)+(?:['-]?[A-Za-zÀ-ÿ]'?)+)|[a-zß-ÿ]+(?:-?[a-zß-ÿ]'?)+/mg)) {
-        this.#insert(m[0], m[1], m.index, sentence)
+    let i = this.sentences.length;
+    this.sentences = this.sentences.concat(newWords.match(/["'@]?[A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|{[^}]*})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ.])|\.{3} *)*["'@A-Za-zÀ-ÿ])*[^<>{} \r\n]*/mg) || [])
+    const len = this.sentences.length;
+    for (; i < len; i++) {
+      for (const m of this.sentences[i].matchAll(/((?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þ]+[a-zß-ÿ]*)+(?:['-]?[A-Za-zÀ-ÿ]'?)+)|[a-zß-ÿ]+(?:-?[a-zß-ÿ]'?)+/mg)) {
+        this.#insert(m[0], m[1], m.index, i);
       }
-      this.lineNo += 1;
     }
 
     return this;
   };
 
-  #insert = (original, upper, index, sentence) => {
+  #insert = (original, upper, index, i) => {
     let branch = this.root;
     const word = upper ? original.toLowerCase() : original;
     for (const c of word.split('')) {
@@ -38,11 +40,11 @@ export default class WordTree {
     }
 
     branch.$.freq += 1
-    const pre = branch.$.src.find((src) => src.no === this.lineNo);
+    const pre = branch.$.src.find((src) => src.no === i);
     if (pre) {
       pre.idx.push([index, word.length])
     } else {
-      branch.$.src.push({ sentence, no: this.lineNo, idx: [[index, word.length]] })
+      branch.$.src.push({ no: i, idx: [[index, word.length]] })
     }
   }
 
