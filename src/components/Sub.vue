@@ -23,8 +23,8 @@
             <el-table fit class="r-table md:w-full md:max-h-[calc(100vh-180px)]" height="calc(100vh - 90px)" :data="vocabData" size="small" ref="expandTable" @row-click="handleRowClick">
               <el-table-column type="expand">
                 <template #default="props">
-                  <div class="mx-2.5 break-words break-all" v-for="{sentence,idx} in props.row.src">
-                    <div v-html="example(sentence, idx)" />
+                  <div class="mx-2.5 break-words break-all" v-for="{no,idx} in props.row.src">
+                    <div v-html="example(sentences[no], idx)" />
                   </div>
                 </template>
               </el-table-column>
@@ -84,6 +84,7 @@ export default {
       vocabAmountInfo: [],
       vocabLists: [[], [], []],
       vocabData: [],
+      sentences: [],
     }
   },
 
@@ -142,7 +143,7 @@ export default {
       console.time('--initWords')
       const words = new Trie(content);
       console.timeEnd('--initWords')
-
+      this.sentences = words.sentences;
       console.time('--deAffixes')
       words.mergeSuffixes()
       console.timeEnd('--deAffixes')
@@ -160,6 +161,7 @@ export default {
       const untouchedVocabList = [...this.vocabLists[0]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
       const lessCommonWordsList = [...this.vocabLists[1]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
       const commonWordsList = [...this.vocabLists[2]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
+      console.log(`sen(${this.sentences.length})`, this.sentences);
       console.log(`not(${this.vocabAmountInfo[0]})`, untouchedVocabList);
       console.log(`fil(${this.vocabAmountInfo[1]})`, lessCommonWordsList);
       console.log(`com(${this.vocabAmountInfo[2]})`, commonWordsList);
@@ -169,6 +171,10 @@ export default {
 </script>
 
 <style lang="scss">
+.el-table__expand-icon {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
 .r-table :is(*,  .el-table__body-wrapper) {
   overscroll-behavior: contain !important;
 }
