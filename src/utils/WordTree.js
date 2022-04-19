@@ -40,11 +40,11 @@ export default class WordTree {
     }
 
     branch.$.freq += 1
-    const pre = branch.$.src.find((src) => src.no === i);
+    const pre = branch.$.src.find((src) => src[0] === i);
     if (pre) {
-      pre.idx.push([index, word.length])
+      pre[1].push([index, word.length])
     } else {
-      branch.$.src.push({ no: i, idx: [[index, word.length]] })
+      branch.$.src.push([i, [[index, word.length]]])
     }
   }
 
