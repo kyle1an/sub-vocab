@@ -11,7 +11,7 @@
           <el-main>
             <div class="relative">
               <div class="submit absolute z-10 md:top-8 md:-right-5">
-                <el-button class="s-btn" @click="formVocabLists(inputContent)" type="primary" :icon="Check" circle />
+                <el-button class="s-btn" aria-label="submit input text" @click="formVocabLists(inputContent)" type="primary" :icon="Check" circle />
               </div>
               <el-input class="input-area" type="textarea" :rows="12" placeholder="input subtitles manually:" v-model="inputContent" />
             </div>
@@ -63,8 +63,6 @@ export default {
     'ios13-segmented-control': iOS13SegmentedControl
   },
   setup() {
-    const count = ref(0)
-
     // expose to template and other options API hooks
     return {
       Check
