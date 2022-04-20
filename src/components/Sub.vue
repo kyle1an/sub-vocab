@@ -4,7 +4,7 @@
       <el-header height="100%" class="relative flex items-center mt-2.5">
         <span class="flex-1 text-right text-xs text-indigo-900 truncate tracking-tight">{{ fileInfo || 'No file chosen' }}</span>
         <label class="word-content s-btn grow-0 mx-4"><input type="file" class="hidden" @change="readSingleFile" />Browse files</label>
-        <span class="flex-1 text-left text-xs text-indigo-900 truncate tracking-tight">{{ vocabAmountInfo.join(', ') || '' }}</span>
+        <span class="flex-1 text-left text-xs text-indigo-900 truncate">{{ vocabAmountInfo.join(', ') || '' }}</span>
       </el-header>
       <el-container>
         <el-container class="relative">
@@ -28,15 +28,21 @@
                   </div>
                 </template>
               </el-table-column>
-
               <el-table-column label="Vocabulary" sortable :sort-method="sortByChar" min-width="13" class-name="cursor-pointer" align="right">
                 <template #default="props">
                   <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart="selectWord" @click.stop>{{ props.row.w }}</span>
                 </template>
               </el-table-column>
-
-              <el-table-column prop="freq" label="Times" sortable align="right" min-width="7" class-name="cursor-pointer tabular-nums" />
-              <el-table-column prop="len" label="Length" sortable align="center" min-width="7" class-name="cursor-pointer" />
+              <el-table-column label="Times" prop="freq" sortable align="right" min-width="7" class-name="cursor-pointer tabular-nums">
+                <template #default="props">
+                  <div class="font-compact text-right">{{ props.row.freq }}</div>
+                </template>
+              </el-table-column>
+              <el-table-column label="Length" prop="len" sortable align="center" min-width="7" class-name="cursor-pointer tabular-nums">
+                <template #default="props">
+                  <div class="font-compact w-4 text-right m-auto">{{ props.row.len }}</div>
+                </template>
+              </el-table-column>
             </el-table>
           </el-card>
         </el-aside>
@@ -69,7 +75,7 @@ export default {
       selected: null,
       segments: [
         {
-          id: 0, title: 'Origin',
+          id: 0, title: 'Original',
         },
         {
           id: 11, title: 'Filtered', default: true

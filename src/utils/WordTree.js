@@ -94,6 +94,24 @@ export default class WordTree {
     return String.fromCharCode(...r);
   }
 
+  mergeSorted = (a, b) => {
+    const merged = [];
+    let i = 0;
+    let j = 0;
+    const lenA = a.length;
+    const lenB = b.length;
+    while (i < lenA && j < lenB) {
+      const ai0 = a[i][0];
+      const bj0 = b[j][0];
+      merged.push(
+        ai0 < bj0 ? a[i++]
+          : ai0 > bj0 ? b[j++]
+            : [ai0, this.mergeSorted(a[i++][1], b[j++][1])]
+      );
+    }
+    return merged.concat(a.slice(i)).concat(b.slice(j));
+  }
+
   mergeSuffixes = (layer = this.root) => {
     for (const key in layer) if (key !== '$') {
       const innerLayer = layer[key]
@@ -111,7 +129,7 @@ export default class WordTree {
         if (x$) {
           if (!O.$) this.vocabList.push(O.$ = { w: s$.w.slice(0, -1), freq: 0, len: s$.len - 1, seq: s$.seq, src: [] })
           O.$.freq += x$.freq + s$.freq;
-          O.$.src = O.$.src.concat(s$.src, x$.src)
+          O.$.src = this.mergeSorted(O.$.src, this.mergeSorted(s$.src, x$.src));
           s$.freq = x$.freq = null;
           s$.src = x$.src = [];
         }
@@ -130,7 +148,7 @@ export default class WordTree {
           }
         }
         e$.freq += x$.freq
-        e$.src = e$.src.concat(x$.src)
+        e$.src = this.mergeSorted(e$.src, x$.src);
         x$.freq = null
         x$.src = [];
         if (e$.seq > x$.seq) e$.seq = x$.seq
@@ -139,7 +157,16 @@ export default class WordTree {
 
     const $ = O?.$;
     if ($) {
-      for (const x$ of [s$, ed$, ing?.$, ing?.s?.$, O?.["'"]?.s?.$, O?.["'"]?.l?.l?.$, O?.["'"]?.v?.e?.$, O?.["'"]?.d?.$,]) if (x$) {
+      for (const x$ of [
+        s$,
+        ed$,
+        ing?.$,
+        ing?.s?.$,
+        O?.["'"]?.s?.$,
+        O?.["'"]?.l?.l?.$,
+        O?.["'"]?.v?.e?.$,
+        O?.["'"]?.d?.$,
+      ]) if (x$) {
         if ($.W) {
           if (x$.W) {
             $.w = this.caseOr($.w, x$.W);
@@ -149,7 +176,7 @@ export default class WordTree {
           }
         }
         $.freq += x$.freq
-        $.src = $.src.concat(x$.src)
+        $.src = this.mergeSorted($.src, x$.src);
         x$.src = [];
         x$.freq = null
         if ($.seq > x$.seq) $.seq = x$.seq
