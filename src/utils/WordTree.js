@@ -123,8 +123,8 @@ export default class WordTree {
   mergeVocabOfDifferentSuffixes = (O, k) => {
     const ing = O?.i?.n?.g;
     const ed$ = O?.e?.d?.$;
-    const s$ = O?.s?.$;
-    if (s$ && k !== 's') {
+    const s$ = k === 's' ? undefined : O?.s?.$;
+    if (s$) {
       for (const x$ of [ed$, ing?.$, ing?.s?.$,]) {
         if (x$) {
           if (!O.$) this.vocabList.push(O.$ = { w: s$.w.slice(0, -1), freq: 0, len: s$.len - 1, seq: s$.seq, src: [] })
