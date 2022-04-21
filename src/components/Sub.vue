@@ -28,7 +28,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="Vocabulary" sortable :sort-method="sortByChar" min-width="13" class-name="cursor-pointer" align="right">
+              <el-table-column label="Vocabulary" sortable :sort-method="sortByChar" align="left" min-width="13" class-name="cursor-pointer">
                 <template #default="props">
                   <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart="selectWord" @click.stop>{{ props.row.w }}</span>
                 </template>
