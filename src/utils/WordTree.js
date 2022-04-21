@@ -1,3 +1,5 @@
+import shortWords from "./shortWords";
+
 export default class WordTree {
   root = {};
   #sequence = 1;
@@ -136,7 +138,7 @@ export default class WordTree {
       }
     }
 
-    const e$ = O?.e?.$;
+    const e$ = O?.e?.$ && (O.e.$.len > 3 || shortWords[2][O.e.$.w]) ? O.e.$ : undefined;
     if (e$) {
       for (const x$ of [ed$, ing?.$,]) if (x$) {
         if (e$.W) {
@@ -157,11 +159,11 @@ export default class WordTree {
 
     const $ = O?.$;
     if ($) {
+      const len = $.len;
       for (const x$ of [
-        s$,
-        ed$,
-        ing?.$,
-        ing?.s?.$,
+        ...(len > 2 || shortWords[0][$.w] ? [s$] : []),
+        ...(len > 2 ? [ed$] : []),
+        ...(len > 2 || shortWords[3][$.w] ? [ing?.$, ing?.s?.$] : []),
         O?.["'"]?.s?.$,
         O?.["'"]?.l?.l?.$,
         O?.["'"]?.v?.e?.$,
@@ -171,7 +173,7 @@ export default class WordTree {
           if (x$.W) {
             $.w = this.caseOr($.w, x$.W);
           } else {
-            $.w = x$.w.slice(0, $.len);
+            $.w = x$.w.slice(0, len);
             $.W = undefined;
           }
         }
