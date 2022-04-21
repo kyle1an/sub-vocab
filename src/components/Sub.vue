@@ -54,7 +54,6 @@
 <script>
 import Trie from '../utils/WordTree.js';
 import iOS13SegmentedControl from './segmented-control.vue'
-import { ref } from 'vue'
 import { Check } from '@element-plus/icons-vue';
 
 export default {
