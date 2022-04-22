@@ -13,7 +13,7 @@ export default class WordTree {
   add = (newWords) => {
     // match include tags: /["'(<@A-Za-zÀ-ÿ[{](?:[^;.?!；。\n\r]*[\n\r]?["'(<@A-Za-zÀ-ÿ[{]*(?:[-.](?=[A-Za-zÀ-ÿ.])|\.{3} *)*[A-Za-zÀ-ÿ])+[^ \r\n]*/mg
     let i = this.sentences.length;
-    this.sentences = this.sentences.concat(newWords.match(/["'@]?[A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|{[^}]*})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ.])|\.{3} *)*["'@A-Za-zÀ-ÿ])*[^<>{} \r\n]*/mg) || [])
+    this.sentences = this.sentences.concat(newWords.match(/["'@]?[A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|{[^}]*})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ.])|\.{3} *)*["'@A-Za-zÀ-ÿ])+[^<>{} \r\n]*/mg) || [])
     const len = this.sentences.length;
     for (; i < len; i++) {
       for (const m of this.sentences[i].matchAll(/((?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þ]+[a-zß-ÿ]*)+(?:['-]?[A-Za-zÀ-ÿ]'?)+)|[a-zß-ÿ]+(?:-?[a-zß-ÿ]'?)+/mg)) {
@@ -42,11 +42,12 @@ export default class WordTree {
     }
 
     branch.$.freq += 1
-    const pre = branch.$.src.find((src) => src[0] === i);
-    if (pre) {
-      pre[1].push([index, word.length])
+    const sources = branch.$.src;
+    const last = sources[sources.length - 1];
+    if (last?.[0] === i) {
+      last[1].push([index, word.length])
     } else {
-      branch.$.src.push([i, [[index, word.length]]])
+      sources.push([i, [[index, word.length]]])
     }
   }
 
