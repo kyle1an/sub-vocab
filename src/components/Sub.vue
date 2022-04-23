@@ -20,11 +20,11 @@
         <el-aside width="44%">
           <el-card class="table-card mx-5 mt-5 mb-2.5 !rounded-xl !border-0">
             <ios13-segmented-control :segments="segments" @input="switchSegment" />
-            <el-table fit class="r-table md:w-full md:max-h-[calc(100vh-180px)]" height="calc(100vh - 90px)" :data="vocabData" size="small" ref="expandTable" @row-click="handleRowClick">
+            <el-table fit class="r-table md:w-full md:max-h-[calc(100vh-180px)]" height="calc(100vh - 90px)" :data="vocabData" size="small" ref="vocabTable" @row-click="handleRowClick">
               <el-table-column type="expand">
                 <template #default="props">
                   <div class="mx-2.5 break-words" style="word-break: break-word;" v-for="[no,idx] in props.row.src">
-                    <div v-html="example(sentences[no], idx)" />
+                    <span v-html="example(sentences[no], idx)" />
                   </div>
                 </template>
               </el-table-column>
@@ -35,12 +35,12 @@
               </el-table-column>
               <el-table-column label="Times" prop="freq" sortable align="right" min-width="7" class-name="cursor-pointer tabular-nums">
                 <template #default="props">
-                  <div class="font-compact text-right">{{ props.row.freq }}</div>
+                  <div class="font-compact text-right select-none">{{ props.row.freq }}</div>
                 </template>
               </el-table-column>
               <el-table-column label="Length" prop="len" sortable align="center" min-width="7" class-name="cursor-pointer tabular-nums">
                 <template #default="props">
-                  <div class="font-compact w-4 text-right m-auto">{{ props.row.len }}</div>
+                  <div class="font-compact w-4 text-right m-auto select-none">{{ props.row.len }}</div>
                 </template>
               </el-table-column>
             </el-table>
@@ -108,7 +108,7 @@ export default {
 
   methods: {
     handleRowClick(row) {
-      this.$refs.expandTable.toggleRowExpansion(row, row.expanded);
+      this.$refs.vocabTable.toggleRowExpansion(row, row.expanded);
     },
 
     switchSegment(v) {
@@ -240,6 +240,19 @@ table thead {
 
 .el-table th.el-table__cell > .cell {
   font-size: 10px;
+}
+
+.el-table__row td {
+  border-bottom: 0 !important;
+  border-top: var(--el-table-border) !important;
+}
+
+.el-table__expanded-cell {
+  border: 0 !important;
+}
+
+.el-table__row:hover > td.el-table__cell {
+  background-image: linear-gradient(to bottom, var(--el-table-row-hover-bg-color), white);
 }
 
 @media only screen and (min-width: 768px) {
