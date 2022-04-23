@@ -23,8 +23,10 @@
             <el-table fit class="r-table md:w-full md:max-h-[calc(100vh-180px)]" height="calc(100vh - 90px)" :data="vocabData" size="small" ref="vocabTable" @row-click="handleRowClick">
               <el-table-column type="expand">
                 <template #default="props">
-                  <div class="mx-2.5 break-words" style="word-break: break-word;" v-for="[no,idx] in props.row.src">
-                    <span v-html="example(sentences[no], idx)" />
+                  <div class="mb-1 ml-5 mr-3">
+                    <div class="break-words" style="word-break: break-word;" v-for="[no,idx] in props.row.src">
+                      <span v-html="example(sentences[no], idx)" />
+                    </div>
                   </div>
                 </template>
               </el-table-column>
