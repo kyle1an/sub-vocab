@@ -254,7 +254,7 @@ table thead {
 }
 
 .el-table__row:hover > td.el-table__cell {
-  background-image: linear-gradient(to bottom, var(--el-table-row-hover-bg-color), white);
+  background-image: linear-gradient(to bottom, var(--el-border-color-lighter), white);
 }
 
 @media only screen and (min-width: 768px) {
