@@ -17,72 +17,46 @@
   </main>
 </template>
 
-<script>
-import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
+<script setup>
+import { defineProps, ref, watch, nextTick, computed, onMounted, onBeforeUnmount } from 'vue'
 
-export default {
-  name: 'segmented-control',
-  props: {
-    segments: {
-      required: true,
-      type: Array
-    },
-  },
+const emit = defineEmits(['input'])
+const props = defineProps(['segments'])
+const segments = ref(props.segments)
+const selectedSegmentWidth = ref(0);
+const selectedId = ref(0);
 
-  setup(props) {
-    const selectedSegmentWidth = ref(0);
-    const selectedId = ref(0);
+watch(selectedId, (v, o) => {
+  document.querySelector(`[for="${o}"]`).classList.remove('font-medium');
+  document.querySelector(`[for="${v}"]`).classList.add('font-medium');
+})
 
-    watch(selectedId, (v, o) => {
-      document.querySelector(`[for="${o}"]`).classList.remove('font-medium');
-      document.querySelector(`[for="${v}"]`).classList.add('font-medium');
-    })
-
-    const calcSegmentWidth = (id) => document.querySelector(`input[type='radio'][value='${id}']`).getBoundingClientRect().width;
-    const recalculateSelectedSegmentWidth = () => {
-      // Wait for UI to rerender before measuring
-      nextTick(() => selectedSegmentWidth.value = calcSegmentWidth(selectedId.value));
-    }
-
-    onBeforeUnmount(() => {
-      window.removeEventListener('resize', recalculateSelectedSegmentWidth);
-    })
-
-    return {
-      selectedSegmentWidth,
-      selectedId,
-      calcSegmentWidth,
-      recalculateSelectedSegmentWidth,
-    }
-  },
-
-  computed: {
-    selectedSegmentId: {
-      get() {
-        return this.selectedId;
-      },
-      set(segmentId) {
-        this.selectedId = segmentId;
-        this.$emit('input', this.selectedSegmentIndex);
-      }
-    },
-
-    selectedSegmentIndex() {
-      return this.segments.findIndex((segment) => segment.id === this.selectedSegmentId);
-    },
-
-    pillTransformStyles() {
-      return `transform:translateX(${this.selectedSegmentWidth * this.selectedSegmentIndex}px)`;
-    },
-  },
-
-  mounted() {
-    this.selectedId = this.segments.find((o) => o.default).id ?? this.segments[0].id;
-    window.addEventListener('resize', this.recalculateSelectedSegmentWidth);
-    setTimeout(() => this.selectedSegmentWidth = this.calcSegmentWidth(this.selectedId), 400);
-    this.$emit('input', this.selectedSegmentIndex);
-  },
+const calcSegmentWidth = (id) => document.querySelector(`input[type='radio'][value='${id}']`).getBoundingClientRect().width;
+const recalculateSelectedSegmentWidth = () => {
+  // Wait for UI to rerender before measuring
+  nextTick(() => selectedSegmentWidth.value = calcSegmentWidth(selectedId.value));
 }
+
+onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSegmentWidth))
+
+const selectedSegmentId = computed({
+  get: () => selectedId.value,
+  set: (segmentId) => {
+    selectedId.value = segmentId;
+    emit('input', selectedSegmentIndex.value);
+  }
+})
+
+const selectedSegmentIndex = computed(() => segments.value.findIndex((segment) => segment.id === selectedSegmentId.value));
+
+const pillTransformStyles = computed(() => `transform:translateX(${selectedSegmentWidth.value * selectedSegmentIndex.value}px)`)
+
+onMounted(() => {
+  selectedId.value = segments.value.find((o) => o.default).id ?? segments.value[0].id;
+  window.addEventListener('resize', recalculateSelectedSegmentWidth);
+  setTimeout(() => selectedSegmentWidth.value = calcSegmentWidth(selectedId.value), 400);
+  emit('input', selectedSegmentIndex.value);
+})
 </script>
 
 <style lang="scss" scoped>
