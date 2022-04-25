@@ -1,17 +1,15 @@
-const s = {
-  use: 1,
-  ad: 1
+const s = ['ad', 'use'];
+const es = ['do', 'go'];
+const d = ['die', 'use'];
+const ing = ['do', 'go'];
+
+const wordsObj = (words) => {
+  const obj = {};
+  for (const word of words) {
+    obj[word] = true;
+  }
+  return obj;
 }
-const es = {
-  do: 1,
-  go: 1
-}
-const d = {
-  use: 1,
-  die: 1
-}
-const ing = {
-  go: 1,
-  do: 1,
-}
-export default [s, es, d, ing];
+export default {
+  s: wordsObj(s), es: wordsObj(es), d: wordsObj(d), ing: wordsObj(ing)
+};

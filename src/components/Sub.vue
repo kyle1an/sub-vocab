@@ -3,7 +3,7 @@
     <el-container>
       <el-header height="100%" class="relative flex items-center mt-2.5">
         <span class="flex-1 text-right text-xs text-indigo-900 truncate tracking-tight">{{ fileInfo || 'No file chosen' }}</span>
-        <label class="word-content s-btn grow-0 mx-4"><input type="file" class="hidden" @change="readSingleFile" />Browse files</label>
+        <label class="word-content s-btn grow-0 mx-4" @dragover.prevent @drop.prevent="dropHandler"><input type="file" class="hidden" @change="readSingleFile" />Browse files</label>
         <span class="flex-1 text-left text-xs text-indigo-900 truncate">{{ vocabAmountInfo.join(', ') || '' }}</span>
       </el-header>
       <el-container>
@@ -19,8 +19,11 @@
         </el-container>
         <el-aside width="44%">
           <el-card class="table-card mx-5 mt-5 mb-2.5 !rounded-xl !border-0">
-            <ios13-segmented-control :segments="segments" @input="switchSegment" />
-            <el-table fit class="r-table md:w-full md:max-h-[calc(100vh-180px)]" height="calc(100vh - 90px)" :data="vocabData" size="small" ref="vocabTable" @row-click="handleRowClick">
+            <iOS13SegmentedControl :segments="segments" @input="switchSegment" />
+            <el-table fit class="r-table md:w-full md:max-h-[calc(100vh-180px)]" height="calc(100vh - 90px)" size="small"
+                      :data="vocabData" ref="vocabTable" @row-click="handleRowClick" @expand-change="expandChanged"
+                      :row-class-name="({row})=> rowClassKey(row.seq)"
+            >
               <el-table-column type="expand">
                 <template #default="props">
                   <div class="mb-1 ml-5 mr-3">
@@ -53,125 +56,124 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import Trie from '../utils/WordTree.js';
 import iOS13SegmentedControl from './segmented-control.vue'
 import { Check } from '@element-plus/icons-vue';
+import { ref, onMounted } from 'vue'
 
-export default {
-  name: 'Sub',
-  components: {
-    'ios13-segmented-control': iOS13SegmentedControl
+const selected = ref(0);
+const segments = [
+  {
+    id: 0, title: 'Original',
   },
-  setup() {
-    // expose to template and other options API hooks
-    return {
-      Check
-    }
+  {
+    id: 11, title: 'Filtered', default: true
   },
-  data() {
-    return {
-      selected: null,
-      segments: [
-        {
-          id: 0, title: 'Original',
-        },
-        {
-          id: 11, title: 'Filtered', default: true
-        },
-        {
-          id: 2, title: 'Common',
-        },
-      ],
-      inputContent: '',
-      commonWords: '',
-      fileInfo: '',
-      vocabAmountInfo: [],
-      vocabLists: [[], [], []],
-      vocabData: [],
-      sentences: [],
-    }
+  {
+    id: 2, title: 'Common',
   },
+]
+const inputContent = ref('');
+const commonWords = ref('');
+const fileInfo = ref('');
+let vocabAmountInfo = [];
+const vocabLists = ref([[], [], []]);
+const vocabData = ref([]);
+const sentences = ref([]);
+const vocabTable = ref(null);
+const init = {
+  headers: {
+    'Content-Type': 'text/plain',
+    'Accept': 'application/json'
+  }
+}
+onMounted(async () => {
+  commonWords.value = await fetch('../sieve.txt', init).then((response) => response.text());
+  const t = new Trie('say ok Say tess')
+  t.add('').mergeSuffixes();
+  const test = t.formLists('say');
+  console.log(test)
+  selected.value = segments.findIndex((o) => o.default);
+})
+const handleRowClick = (row) => vocabTable.value.toggleRowExpansion(row, row.expanded);
+const switchSegment = (v) => vocabData.value = vocabLists.value[selected.value = v];
+const rowClassKey = (seq) => `v-${seq}`;
+const expandChanged = (row) => document.getElementsByClassName(rowClassKey(row.seq))[0].classList.toggle('expanded');
+const selectWord = (e) => window.getSelection().selectAllChildren(e.target);
+const sortByChar = (a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' });
+const example = (str, idxes) => {
+  const lines = [];
+  let position = 0;
+  for (const [idx, len] of idxes) {
+    lines.push(`${str.slice(position, idx)}<span class="italic underline">${str.slice(idx, position = idx + len)}</span>`)
+  }
+  return lines.concat(str.slice(position)).join('');
+};
 
-  async mounted() {
-    const init = {
-      headers: {
-        'Content-Type': 'text/plain',
-        'Accept': 'application/json'
+const readSingleFile = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.fileName = file.name
+  reader.onload = (e) => {
+    inputContent.value = e.target.result
+    formVocabLists(inputContent.value)
+    fileInfo.value = e.target.fileName;
+  };
+  reader.readAsText(file);
+}
+
+const formVocabLists = (content) => {
+  console.time('╘═ All ═╛')
+  console.time('--initWords')
+  const words = new Trie(content);
+  console.timeEnd('--initWords')
+  sentences.value = words.sentences;
+  console.time('--deAffixes')
+  words.mergeSuffixes()
+  console.timeEnd('--deAffixes')
+
+  console.time('--formLists');
+  vocabLists.value = words.formLists(commonWords.value);
+  vocabData.value = vocabLists.value[selected.value]
+  console.timeEnd('--formLists');
+  console.timeEnd('╘═ All ═╛')
+  logVocabInfo();
+}
+
+const logVocabInfo = () => {
+  const vocabLs = vocabLists.value
+  vocabAmountInfo = [Object.keys(vocabLs[0]).length, Object.keys(vocabLs[1]).length, Object.keys(vocabLs[2]).length];
+  const untouchedVocabList = [...vocabLs[0]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
+  const lessCommonWordsList = [...vocabLs[1]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
+  const commonWordsList = [...vocabLs[2]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
+  console.log(`sen(${sentences.value.length})`, sentences);
+  console.log(`not(${vocabAmountInfo[0]})`, untouchedVocabList);
+  console.log(`fil(${vocabAmountInfo[1]})`, lessCommonWordsList);
+  console.log(`com(${vocabAmountInfo[2]})`, commonWordsList);
+}
+
+const dropHandler = (ev) => {
+  // TODO: get dropped files
+  ev.preventDefault();
+
+  if (ev.dataTransfer.items) {
+    console.log('dataTransfer.items')
+    // Use DataTransferItemList interface to access the file(s)
+    for (let i = 0; i < ev.dataTransfer.items.length; i++) {
+      // If dropped items aren't files, reject them
+      if (ev.dataTransfer.items[i].kind === 'file') {
+        const file = ev.dataTransfer.items[i].getAsFile();
+        console.log(`... file[${i}].name = ` + file.name, file);
       }
     }
-    this.commonWords = await fetch('../sieve.txt', init).then((response) => response.text());
-    const t = new Trie('say ok Say tess')
-    t.add('').mergeSuffixes();
-    const test = t.formLists('say');
-    console.log(test)
-    this.selected = this.segments.findIndex((o => o.default));
-  },
-
-  methods: {
-    handleRowClick(row) {
-      this.$refs.vocabTable.toggleRowExpansion(row, row.expanded);
-    },
-
-    switchSegment(v) {
-      this.vocabData = this.vocabLists[this.selected = v]
-    },
-
-    selectWord: (e) => window.getSelection().selectAllChildren(e.target),
-
-    sortByChar: (a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }),
-
-    example: (str, idxes) => {
-      const lines = [];
-      let position = 0;
-      for (const [idx, len] of idxes) {
-        lines.push(`${str.slice(position, idx)}<span class="italic underline">${str.slice(idx, position = idx + len)}</span>`)
-      }
-      return lines.concat(str.slice(position)).join('');
-    },
-
-    readSingleFile(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.fileName = file.name
-      reader.onload = (e) => {
-        this.inputContent = e.target.result
-        this.formVocabLists(this.inputContent)
-        this.fileInfo = e.target.fileName;
-      };
-      reader.readAsText(file);
-    },
-
-    formVocabLists(content) {
-      console.time('╘═ All ═╛')
-      console.time('--initWords')
-      const words = new Trie(content);
-      console.timeEnd('--initWords')
-      this.sentences = words.sentences;
-      console.time('--deAffixes')
-      words.mergeSuffixes()
-      console.timeEnd('--deAffixes')
-
-      console.time('--formLists');
-      this.vocabLists = words.formLists(this.commonWords);
-      this.vocabData = this.vocabLists[this.selected]
-      console.timeEnd('--formLists');
-      console.timeEnd('╘═ All ═╛')
-      this.logVocabInfo();
-    },
-
-    logVocabInfo() {
-      this.vocabAmountInfo = [Object.keys(this.vocabLists[0]).length, Object.keys(this.vocabLists[1]).length, Object.keys(this.vocabLists[2]).length];
-      const untouchedVocabList = [...this.vocabLists[0]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
-      const lessCommonWordsList = [...this.vocabLists[1]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
-      const commonWordsList = [...this.vocabLists[2]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
-      console.log(`sen(${this.sentences.length})`, this.sentences);
-      console.log(`not(${this.vocabAmountInfo[0]})`, untouchedVocabList);
-      console.log(`fil(${this.vocabAmountInfo[1]})`, lessCommonWordsList);
-      console.log(`com(${this.vocabAmountInfo[2]})`, commonWordsList);
-    },
-  },
+  } else {
+    // Use DataTransfer interface to access the file(s)
+    for (let i = 0; i < ev.dataTransfer.files.length; i++) {
+      console.log(`... file[${i}].name = ` + ev.dataTransfer.files[i].name, ev.dataTransfer.files[i]);
+    }
+  }
 }
 </script>
 
@@ -253,7 +255,7 @@ table thead {
   border: 0 !important;
 }
 
-.el-table__row:hover > td.el-table__cell {
+.expanded:hover > td.el-table__cell {
   background-image: linear-gradient(to bottom, var(--el-border-color-lighter), white);
 }
 
