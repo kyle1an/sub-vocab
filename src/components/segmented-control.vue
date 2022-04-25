@@ -26,18 +26,23 @@ const segments = ref(props.segments)
 const selectedSegmentWidth = ref(0);
 const selectedId = ref(0);
 
+onMounted(() => {
+  selectedId.value = segments.value.find((o) => o.default).id ?? segments.value[0].id;
+  window.addEventListener('resize', recalculateSelectedSegmentWidth);
+  setTimeout(() => selectedSegmentWidth.value = calcSegmentWidth(selectedId.value), 400);
+  emit('input', selectedSegmentIndex.value);
+})
+
 watch(selectedId, (v, o) => {
   document.querySelector(`[for="${o}"]`).classList.remove('font-medium');
   document.querySelector(`[for="${v}"]`).classList.add('font-medium');
 })
 
-const calcSegmentWidth = (id) => document.querySelector(`input[type='radio'][value='${id}']`).getBoundingClientRect().width;
 const recalculateSelectedSegmentWidth = () => {
   // Wait for UI to rerender before measuring
   nextTick(() => selectedSegmentWidth.value = calcSegmentWidth(selectedId.value));
 }
-
-onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSegmentWidth))
+const calcSegmentWidth = (id) => document.querySelector(`input[type='radio'][value='${id}']`).getBoundingClientRect().width;
 
 const selectedSegmentId = computed({
   get: () => selectedId.value,
@@ -46,17 +51,10 @@ const selectedSegmentId = computed({
     emit('input', selectedSegmentIndex.value);
   }
 })
-
 const selectedSegmentIndex = computed(() => segments.value.findIndex((segment) => segment.id === selectedSegmentId.value));
-
 const pillTransformStyles = computed(() => `transform:translateX(${selectedSegmentWidth.value * selectedSegmentIndex.value}px)`)
 
-onMounted(() => {
-  selectedId.value = segments.value.find((o) => o.default).id ?? segments.value[0].id;
-  window.addEventListener('resize', recalculateSelectedSegmentWidth);
-  setTimeout(() => selectedSegmentWidth.value = calcSegmentWidth(selectedId.value), 400);
-  emit('input', selectedSegmentIndex.value);
-})
+onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSegmentWidth))
 </script>
 
 <style lang="scss" scoped>
