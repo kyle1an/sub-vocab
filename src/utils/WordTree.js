@@ -144,9 +144,9 @@ export default class WordTree {
       for (const x$ of [ed$, ing?.$,]) if (x$) {
         if (e$.W) {
           if (x$.W) {
-            e$.w = this.caseOr(e$.w, x$.W);
+            e$.w = this.caseOr(e$.w, x$.W.slice(0, e$.len - 1));
           } else {
-            e$.w = x$.w.slice(0, e$.len);
+            e$.w = this.caseOr(e$.w, x$.w.slice(0, e$.len - 1));
             e$.W = undefined;
           }
         }

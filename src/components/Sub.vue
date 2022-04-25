@@ -74,13 +74,10 @@ const segments = [
     id: 2, title: 'Common',
   },
 ]
-const inputContent = ref('');
 const commonWords = ref('');
 const fileInfo = ref('');
-let vocabAmountInfo = [];
 const vocabLists = ref([[], [], []]);
 const vocabData = ref([]);
-const sentences = ref([]);
 const vocabTable = ref(null);
 const init = {
   headers: {
@@ -111,6 +108,7 @@ const example = (str, idxes) => {
   return lines.concat(str.slice(position)).join('');
 };
 
+const inputContent = ref('');
 const readSingleFile = (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -124,6 +122,7 @@ const readSingleFile = (e) => {
   reader.readAsText(file);
 }
 
+const sentences = ref([]);
 const formVocabLists = (content) => {
   console.time('╘═ All ═╛')
   console.time('--initWords')
@@ -142,6 +141,7 @@ const formVocabLists = (content) => {
   logVocabInfo();
 }
 
+let vocabAmountInfo = [];
 const logVocabInfo = () => {
   const vocabLs = vocabLists.value
   vocabAmountInfo = [Object.keys(vocabLs[0]).length, Object.keys(vocabLs[1]).length, Object.keys(vocabLs[2]).length];
@@ -246,17 +246,12 @@ table thead {
   font-size: 10px;
 }
 
-.el-table__row td {
-  border-bottom: 0 !important;
-  border-top: var(--el-table-border) !important;
-}
-
-.el-table__expanded-cell {
-  border: 0 !important;
-}
-
 .expanded:hover > td.el-table__cell {
   background-image: linear-gradient(to bottom, var(--el-border-color-lighter), white);
+}
+
+.expanded td {
+  border-bottom: 0 !important;
 }
 
 @media only screen and (min-width: 768px) {

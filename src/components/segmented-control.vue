@@ -18,6 +18,8 @@
 </template>
 
 <script>
+import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
+
 export default {
   name: 'segmented-control',
   props: {
@@ -27,18 +29,31 @@ export default {
     },
   },
 
-  data() {
-    return {
-      selectedSegmentWidth: 0,
-      selectedId: 0,
-    };
-  },
+  setup(props) {
+    const selectedSegmentWidth = ref(0);
+    const selectedId = ref(0);
 
-  watch: {
-    selectedId(v, o) {
+    watch(selectedId, (v, o) => {
       document.querySelector(`[for="${o}"]`).classList.remove('font-medium');
       document.querySelector(`[for="${v}"]`).classList.add('font-medium');
-    },
+    })
+
+    const calcSegmentWidth = (id) => document.querySelector(`input[type='radio'][value='${id}']`).getBoundingClientRect().width;
+    const recalculateSelectedSegmentWidth = () => {
+      // Wait for UI to rerender before measuring
+      nextTick(() => selectedSegmentWidth.value = calcSegmentWidth(selectedId.value));
+    }
+
+    onBeforeUnmount(() => {
+      window.removeEventListener('resize', recalculateSelectedSegmentWidth);
+    })
+
+    return {
+      selectedSegmentWidth,
+      selectedId,
+      calcSegmentWidth,
+      recalculateSelectedSegmentWidth,
+    }
   },
 
   computed: {
@@ -66,19 +81,6 @@ export default {
     window.addEventListener('resize', this.recalculateSelectedSegmentWidth);
     setTimeout(() => this.selectedSegmentWidth = this.calcSegmentWidth(this.selectedId), 400);
     this.$emit('input', this.selectedSegmentIndex);
-  },
-
-  methods: {
-    recalculateSelectedSegmentWidth() {
-      // Wait for UI to rerender before measuring
-      this.$nextTick(() => this.selectedSegmentWidth = this.calcSegmentWidth(this.selectedId));
-    },
-
-    calcSegmentWidth: (id) => document.querySelector(`input[type='radio'][value='${id}']`).getBoundingClientRect().width,
-  },
-
-  beforeUnmount() {
-    window.removeEventListener('resize', this.recalculateSelectedSegmentWidth);
   },
 }
 </script>
