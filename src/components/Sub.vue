@@ -60,9 +60,9 @@
 import Trie from '../utils/WordTree.js';
 import iOS13SegmentedControl from './segmented-control.vue'
 import { Check } from '@element-plus/icons-vue';
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, shallowRef } from 'vue'
 
-const selected = ref(0);
+let selected = 0;
 const segments = [
   {
     id: 0, title: 'Original',
@@ -74,11 +74,11 @@ const segments = [
     id: 2, title: 'Common',
   },
 ]
-const commonWords = ref('');
+let commonWords = '';
 const fileInfo = ref('');
-const vocabLists = ref([[], [], []]);
-const vocabData = ref([]);
-const vocabTable = ref(null);
+let vocabLists = [[], [], []];
+const vocabData = shallowRef([]);
+const vocabTable = shallowRef(null);
 const init = {
   headers: {
     'Content-Type': 'text/plain',
@@ -86,15 +86,15 @@ const init = {
   }
 }
 onMounted(async () => {
-  commonWords.value = await fetch('../sieve.txt', init).then((response) => response.text());
+  commonWords = await fetch('../sieve.txt', init).then((response) => response.text());
   const t = new Trie('say ok Say tess')
   t.add('').mergeSuffixes();
   const test = t.formLists('say');
   console.log(test)
-  selected.value = segments.findIndex((o) => o.default);
+  selected = segments.findIndex((o) => o.default);
 })
 const handleRowClick = (row) => vocabTable.value.toggleRowExpansion(row, row.expanded);
-const switchSegment = (v) => vocabData.value = vocabLists.value[selected.value = v];
+const switchSegment = (v) => vocabData.value = vocabLists[selected = v];
 const rowClassKey = (seq) => `v-${seq}`;
 const expandChanged = (row) => document.getElementsByClassName(rowClassKey(row.seq))[0].classList.toggle('expanded');
 const selectWord = (e) => window.getSelection().selectAllChildren(e.target);
@@ -122,7 +122,7 @@ const readSingleFile = (e) => {
   reader.readAsText(file);
 }
 
-const sentences = ref([]);
+const sentences = shallowRef([]);
 const formVocabLists = (content) => {
   console.time('╘═ All ═╛')
   console.time('--initWords')
@@ -134,8 +134,8 @@ const formVocabLists = (content) => {
   console.timeEnd('--deAffixes')
 
   console.time('--formLists');
-  vocabLists.value = words.formLists(commonWords.value);
-  vocabData.value = vocabLists.value[selected.value]
+  vocabLists = words.formLists(commonWords);
+  vocabData.value = vocabLists[selected]
   console.timeEnd('--formLists');
   console.timeEnd('╘═ All ═╛')
   logVocabInfo();
@@ -143,11 +143,10 @@ const formVocabLists = (content) => {
 
 let vocabAmountInfo = [];
 const logVocabInfo = () => {
-  const vocabLs = vocabLists.value
-  vocabAmountInfo = [Object.keys(vocabLs[0]).length, Object.keys(vocabLs[1]).length, Object.keys(vocabLs[2]).length];
-  const untouchedVocabList = [...vocabLs[0]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
-  const lessCommonWordsList = [...vocabLs[1]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
-  const commonWordsList = [...vocabLs[2]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
+  vocabAmountInfo = [Object.keys(vocabLists[0]).length, Object.keys(vocabLists[1]).length, Object.keys(vocabLists[2]).length];
+  const untouchedVocabList = [...vocabLists[0]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
+  const lessCommonWordsList = [...vocabLists[1]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
+  const commonWordsList = [...vocabLists[2]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
   console.log(`sen(${sentences.value.length})`, sentences);
   console.log(`not(${vocabAmountInfo[0]})`, untouchedVocabList);
   console.log(`fil(${vocabAmountInfo[1]})`, lessCommonWordsList);

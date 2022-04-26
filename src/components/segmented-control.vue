@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { defineProps, ref, watch, nextTick, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, nextTick, computed, onMounted, onBeforeUnmount } from 'vue'
 
 const emit = defineEmits(['input'])
 const props = defineProps(['segments'])
