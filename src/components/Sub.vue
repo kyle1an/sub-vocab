@@ -1,26 +1,24 @@
 <template>
-  <div class="my-2.5 mx-auto max-w-screen-xl">
+  <div class="mx-auto max-w-screen-xl">
     <el-container>
-      <el-header height="100%" class="relative flex items-center mt-2.5">
+      <el-header height="100%" class="relative !h-16 flex items-center">
         <span class="flex-1 text-right text-xs text-indigo-900 truncate tracking-tight">{{ fileInfo || 'No file chosen' }}</span>
         <label class="word-content s-btn grow-0 mx-4" @dragover.prevent @drop.prevent="dropHandler"><input type="file" class="hidden" @change="readSingleFile" />Browse files</label>
         <span class="flex-1 text-left text-xs text-indigo-900 truncate">{{ vocabAmountInfo.join(', ') || '' }}</span>
       </el-header>
       <el-container>
         <el-container class="relative">
-          <el-main>
-            <div class="relative">
-              <div class="submit absolute z-10 md:top-8 md:-right-5">
-                <el-button class="s-btn" aria-label="submit input text" @click="formVocabLists(inputContent)" type="primary" :icon="Check" circle />
-              </div>
-              <el-input class="input-area" type="textarea" :rows="12" placeholder="input subtitles manually:" v-model="inputContent" />
-            </div>
+          <el-main class="!py-0 relative">
+            <el-input class="input-area h-full" type="textarea" :rows="12" placeholder="input subtitles manually:" v-model="inputContent" />
           </el-main>
+          <div class="submit absolute z-10 md:top-8 md:right-0.5 h-12">
+            <el-button class="s-btn" aria-label="submit input text" @click="formVocabLists(inputContent)" type="primary" :icon="Check" circle />
+          </div>
         </el-container>
-        <el-aside width="44%">
-          <el-card class="table-card mx-5 mt-5 mb-2.5 !rounded-xl !border-0">
-            <iOS13SegmentedControl :segments="segments" @input="switchSegment" />
-            <el-table fit class="r-table md:w-full md:max-h-[calc(100vh-180px)]" height="calc(100vh - 90px)" size="small"
+        <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
+          <el-card class="table-card mx-5 !rounded-xl !border-0 h-full">
+            <segmented-control :segments="segments" @input="switchSegment" />
+            <el-table fit class="r-table md:w-full" height="100%" size="small"
                       :data="vocabData" ref="vocabTable" @row-click="handleRowClick" @expand-change="expandChanged"
                       :row-class-name="({row})=> rowClassKey(row.seq)"
             >
@@ -58,7 +56,7 @@
 
 <script setup>
 import Trie from '../utils/WordTree.js';
-import iOS13SegmentedControl from './segmented-control.vue'
+import SegmentedControl from './segmented-control.vue'
 import { Check } from '@element-plus/icons-vue';
 import { ref, onMounted, shallowRef } from 'vue'
 
@@ -141,16 +139,16 @@ const formVocabLists = (content) => {
   logVocabInfo();
 }
 
-let vocabAmountInfo = [];
+let vocabAmountInfo = ref([]);
 const logVocabInfo = () => {
-  vocabAmountInfo = [Object.keys(vocabLists[0]).length, Object.keys(vocabLists[1]).length, Object.keys(vocabLists[2]).length];
+  vocabAmountInfo.value = [Object.keys(vocabLists[0]).length, Object.keys(vocabLists[1]).length, Object.keys(vocabLists[2]).length];
   const untouchedVocabList = [...vocabLists[0]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
   const lessCommonWordsList = [...vocabLists[1]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
   const commonWordsList = [...vocabLists[2]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
   console.log(`sen(${sentences.value.length})`, sentences);
-  console.log(`not(${vocabAmountInfo[0]})`, untouchedVocabList);
-  console.log(`fil(${vocabAmountInfo[1]})`, lessCommonWordsList);
-  console.log(`com(${vocabAmountInfo[2]})`, commonWordsList);
+  console.log(`not(${vocabAmountInfo.value[0]})`, untouchedVocabList);
+  console.log(`fil(${vocabAmountInfo.value[1]})`, lessCommonWordsList);
+  console.log(`com(${vocabAmountInfo.value[2]})`, commonWordsList);
 }
 
 const dropHandler = (ev) => {
@@ -181,7 +179,7 @@ const dropHandler = (ev) => {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-.r-table :is(*,  .el-table__body-wrapper) {
+.r-table :is(*, .el-table__body-wrapper) {
   overscroll-behavior: contain !important;
 }
 
@@ -207,6 +205,7 @@ const dropHandler = (ev) => {
 }
 
 .table-card .el-card__body {
+  height: 96%;
   padding-left: 0 !important;
   padding-right: 0 !important;
   padding-top: 12px;
@@ -218,6 +217,7 @@ const dropHandler = (ev) => {
   border: 0;
   padding-left: 30px;
   padding-right: 30px;
+  height: 100%;
 }
 
 .el-switch__core {
@@ -255,8 +255,6 @@ table thead {
 
 @media only screen and (min-width: 768px) {
   .input-area > textarea {
-    height: 100vh;
-    max-height: calc(100vh - 120px) !important;
     overflow: visible;
   }
 }
@@ -276,12 +274,12 @@ table thead {
   }
 
   .r-table {
-    max-height: calc(100vh - 172px);
+    max-height: calc(99vh);
     width: 100%;
   }
 
   .submit {
-    bottom: -20px;
+    bottom: -32px;
     width: 100%;
   }
 
@@ -295,7 +293,8 @@ table thead {
   }
 
   .el-aside {
-    width: 100% !important;
+    margin-top: 34px;
+    padding-bottom: 10px;
   }
 
   .el-textarea__inner {
