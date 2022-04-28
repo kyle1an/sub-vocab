@@ -140,8 +140,7 @@ const dropHandler = (ev) => {
             <segmented-control :segments="segments" @input="switchSegment" />
             <el-table fit class="r-table md:w-full" height="100%" size="small"
                       :data="vocabData" ref="vocabTable" @row-click="handleRowClick" @expand-change="expandChanged"
-                      :row-class-name="({row})=> rowClassKey(row.seq)"
-            >
+                      :row-class-name="({row})=> rowClassKey(row.seq)">
               <el-table-column type="expand">
                 <template #default="props">
                   <div class="mb-1 ml-5 mr-3">
@@ -204,11 +203,19 @@ const dropHandler = (ev) => {
   }
 }
 
-.table-card .el-card__body {
-  height: calc(100% - 7px);
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  padding-top: 12px;
+.table-card {
+  //-webkit-backface-visibility: hidden;
+  //-moz-backface-visibility: hidden;
+  //-webkit-transform: translate3d(0, 0, 0);
+  //-moz-transform: translate3d(0, 0, 0);
+  will-change: transform;
+
+  .el-card__body {
+    height: calc(100% - 7px);
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 12px;
+  }
 }
 
 .input-area textarea {
