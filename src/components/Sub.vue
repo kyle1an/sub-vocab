@@ -122,7 +122,7 @@ const dropHandler = (ev) => {
   <div class="mx-auto max-w-screen-xl">
     <el-container>
       <el-header height="100%" class="relative !h-16 flex items-center">
-        <span class="flex-1 text-right text-xs text-indigo-900 truncate tracking-tight">{{ fileInfo || 'No file chosen' }}</span>
+        <span class="flex-1 text-right text-xs text-indigo-900 truncate tracking-tight font-compact">{{ fileInfo || 'No file chosen' }}</span>
         <label class="word-content s-btn grow-0 mx-4" @dragover.prevent @drop.prevent="dropHandler"><input type="file" class="hidden" @change="readSingleFile" />Browse files</label>
         <span class="flex-1 text-left text-xs text-indigo-900 truncate">{{ vocabAmountInfo.join(', ') || '' }}</span>
       </el-header>
@@ -131,7 +131,7 @@ const dropHandler = (ev) => {
           <el-main class="!py-0 relative">
             <el-input class="input-area h-full font-compact" type="textarea" placeholder="input subtitles manually:" v-model="inputContent" />
           </el-main>
-          <div class="submit absolute z-10 md:top-8 md:right-0.5 h-12">
+          <div class="submit absolute text-center z-10 md:top-8 md:right-0.5 h-12">
             <el-button class="s-btn" aria-label="submit input text" @click="formVocabLists(inputContent)" type="primary" :icon="Check" circle />
           </div>
         </el-container>
@@ -205,7 +205,7 @@ const dropHandler = (ev) => {
 }
 
 .table-card .el-card__body {
-  height: 96%;
+  height: calc(100% - 7px);
   padding-left: 0 !important;
   padding-right: 0 !important;
   padding-top: 12px;
@@ -284,7 +284,7 @@ table thead {
   }
 
   .input-area > textarea {
-    max-height: 260px;
+    height: 30vh;
   }
 
   .el-container {
