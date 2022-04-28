@@ -1,6 +1,6 @@
 <script setup>
 import Trie from '../utils/WordTree.js';
-import SegmentedControl from './segmented-control.vue'
+import SegmentedControl from './SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
 import { ref, onMounted, shallowRef } from 'vue'
 
