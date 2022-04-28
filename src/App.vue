@@ -38,7 +38,7 @@ html > body {
 
 #app {
   @apply antialiased;
-  text-align: center;
+  //text-align: center;
   color: #2c3e50;
 }
 </style>

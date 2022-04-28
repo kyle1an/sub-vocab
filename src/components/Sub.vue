@@ -57,9 +57,9 @@ const readSingleFile = (e) => {
   const reader = new FileReader();
   reader.fileName = file.name
   reader.onload = (e) => {
-    inputContent.value = e.target.result
-    formVocabLists(inputContent.value)
     fileInfo.value = e.target.fileName;
+    inputContent.value = e.target.result
+    setTimeout(() => formVocabLists(inputContent.value), 0)
   };
   reader.readAsText(file);
 }
@@ -129,7 +129,7 @@ const dropHandler = (ev) => {
       <el-container>
         <el-container class="relative">
           <el-main class="!py-0 relative">
-            <el-input class="input-area h-full" type="textarea" placeholder="input subtitles manually:" v-model="inputContent" />
+            <el-input class="input-area h-full font-compact" type="textarea" placeholder="input subtitles manually:" v-model="inputContent" />
           </el-main>
           <div class="submit absolute z-10 md:top-8 md:right-0.5 h-12">
             <el-button class="s-btn" aria-label="submit input text" @click="formVocabLists(inputContent)" type="primary" :icon="Check" circle />
