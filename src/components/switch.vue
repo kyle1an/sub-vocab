@@ -1,12 +1,3 @@
-<template>
-  <div>
-    <label class="form-switch">
-      <span>Hide Common</span>
-      <input type="checkbox" v-model="isFilter" @change="toggleFilter" /><i></i>
-    </label>
-  </div>
-</template>
-
 <script>
 export default {
   name: "switch",
@@ -34,6 +25,15 @@ export default {
   }
 }
 </script>
+
+<template>
+  <div>
+    <label class="form-switch">
+      <span>Hide Common</span>
+      <input type="checkbox" v-model="isFilter" @change="toggleFilter" /><i></i>
+    </label>
+  </div>
+</template>
 
 <style lang="scss" scoped>
 label.form-switch {
