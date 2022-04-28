@@ -1,5 +1,5 @@
 <script setup>
-import TopBar from './components/top-bar.vue'
+import TopBar from './components/TopBar.vue'
 import Sub from './components/Sub.vue'
 import Mine from './components/Mine.vue'
 import { ref, computed } from "vue"
