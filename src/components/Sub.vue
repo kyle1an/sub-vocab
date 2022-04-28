@@ -1,59 +1,3 @@
-<template>
-  <div class="mx-auto max-w-screen-xl">
-    <el-container>
-      <el-header height="100%" class="relative !h-16 flex items-center">
-        <span class="flex-1 text-right text-xs text-indigo-900 truncate tracking-tight">{{ fileInfo || 'No file chosen' }}</span>
-        <label class="word-content s-btn grow-0 mx-4" @dragover.prevent @drop.prevent="dropHandler"><input type="file" class="hidden" @change="readSingleFile" />Browse files</label>
-        <span class="flex-1 text-left text-xs text-indigo-900 truncate">{{ vocabAmountInfo.join(', ') || '' }}</span>
-      </el-header>
-      <el-container>
-        <el-container class="relative">
-          <el-main class="!py-0 relative">
-            <el-input class="input-area h-full" type="textarea" :rows="12" placeholder="input subtitles manually:" v-model="inputContent" />
-          </el-main>
-          <div class="submit absolute z-10 md:top-8 md:right-0.5 h-12">
-            <el-button class="s-btn" aria-label="submit input text" @click="formVocabLists(inputContent)" type="primary" :icon="Check" circle />
-          </div>
-        </el-container>
-        <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
-          <el-card class="table-card mx-5 !rounded-xl !border-0 h-full">
-            <segmented-control :segments="segments" @input="switchSegment" />
-            <el-table fit class="r-table md:w-full" height="100%" size="small"
-                      :data="vocabData" ref="vocabTable" @row-click="handleRowClick" @expand-change="expandChanged"
-                      :row-class-name="({row})=> rowClassKey(row.seq)"
-            >
-              <el-table-column type="expand">
-                <template #default="props">
-                  <div class="mb-1 ml-5 mr-3">
-                    <div class="break-words" style="word-break: break-word;" v-for="[no,idx] in props.row.src">
-                      <span v-html="example(sentences[no], idx)" />
-                    </div>
-                  </div>
-                </template>
-              </el-table-column>
-              <el-table-column label="Vocabulary" sortable :sort-method="sortByChar" align="left" min-width="13" class-name="cursor-pointer">
-                <template #default="props">
-                  <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart="selectWord" @click.stop>{{ props.row.w }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column label="Times" prop="freq" sortable align="right" min-width="7" class-name="cursor-pointer tabular-nums">
-                <template #default="props">
-                  <div class="font-compact text-right select-none">{{ props.row.freq }}</div>
-                </template>
-              </el-table-column>
-              <el-table-column label="Length" prop="len" sortable align="center" min-width="7" class-name="cursor-pointer tabular-nums">
-                <template #default="props">
-                  <div class="font-compact w-4 text-right m-auto select-none">{{ props.row.len }}</div>
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-card>
-        </el-aside>
-      </el-container>
-    </el-container>
-  </div>
-</template>
-
 <script setup>
 import Trie from '../utils/WordTree.js';
 import SegmentedControl from './segmented-control.vue'
@@ -173,6 +117,62 @@ const dropHandler = (ev) => {
   }
 }
 </script>
+
+<template>
+  <div class="mx-auto max-w-screen-xl">
+    <el-container>
+      <el-header height="100%" class="relative !h-16 flex items-center">
+        <span class="flex-1 text-right text-xs text-indigo-900 truncate tracking-tight">{{ fileInfo || 'No file chosen' }}</span>
+        <label class="word-content s-btn grow-0 mx-4" @dragover.prevent @drop.prevent="dropHandler"><input type="file" class="hidden" @change="readSingleFile" />Browse files</label>
+        <span class="flex-1 text-left text-xs text-indigo-900 truncate">{{ vocabAmountInfo.join(', ') || '' }}</span>
+      </el-header>
+      <el-container>
+        <el-container class="relative">
+          <el-main class="!py-0 relative">
+            <el-input class="input-area h-full" type="textarea" placeholder="input subtitles manually:" v-model="inputContent" />
+          </el-main>
+          <div class="submit absolute z-10 md:top-8 md:right-0.5 h-12">
+            <el-button class="s-btn" aria-label="submit input text" @click="formVocabLists(inputContent)" type="primary" :icon="Check" circle />
+          </div>
+        </el-container>
+        <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
+          <el-card class="table-card mx-5 !rounded-xl !border-0 h-full">
+            <segmented-control :segments="segments" @input="switchSegment" />
+            <el-table fit class="r-table md:w-full" height="100%" size="small"
+                      :data="vocabData" ref="vocabTable" @row-click="handleRowClick" @expand-change="expandChanged"
+                      :row-class-name="({row})=> rowClassKey(row.seq)"
+            >
+              <el-table-column type="expand">
+                <template #default="props">
+                  <div class="mb-1 ml-5 mr-3">
+                    <div class="break-words" style="word-break: break-word;" v-for="[no,idx] in props.row.src">
+                      <span v-html="example(sentences[no], idx)" />
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="Vocabulary" sortable :sort-method="sortByChar" align="left" min-width="13" class-name="cursor-pointer">
+                <template #default="props">
+                  <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart="selectWord" @click.stop>{{ props.row.w }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="Times" prop="freq" sortable align="right" min-width="7" class-name="cursor-pointer tabular-nums">
+                <template #default="props">
+                  <div class="font-compact text-right select-none">{{ props.row.freq }}</div>
+                </template>
+              </el-table-column>
+              <el-table-column label="Length" prop="len" sortable align="center" min-width="7" class-name="cursor-pointer tabular-nums">
+                <template #default="props">
+                  <div class="font-compact w-4 text-right m-auto select-none">{{ props.row.len }}</div>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-card>
+        </el-aside>
+      </el-container>
+    </el-container>
+  </div>
+</template>
 
 <style lang="scss">
 .el-table__expand-icon {
