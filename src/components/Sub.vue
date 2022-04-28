@@ -291,7 +291,7 @@ table thead {
   }
 
   .input-area > textarea {
-    height: 30vh;
+    height: 260px;
   }
 
   .el-container {
