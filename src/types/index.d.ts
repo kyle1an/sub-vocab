@@ -11,12 +11,15 @@ export interface Suffix {
   s: Record<string, any>,
 }
 
-export interface Vocab {
+export interface Word {
+  len: number;
+  w: string;
+}
+
+export interface Vocab extends Word {
   F?: boolean;
   freq: number;
-  len: number;
   W?: string;
-  w: string;
   seq: number;
   src: Array<any>;
 }

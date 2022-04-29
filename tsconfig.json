@@ -1,16 +1,19 @@
 {
   "compilerOptions": {
-    // this aligns with Vue's browser support
-    "target": "es6",
-    // this enables stricter inference for data properties on `this`
-    "strict": true,
-    // if using webpack 2+ or rollup, to leverage tree shaking:
+    "target": "esnext",
+    "useDefineForClassFields": true,
+    "module": "esnext",
     "moduleResolution": "node",
-    "allowJs": true,
-    //    "module": "es2020",
-    "lib": [
-      "es2020",
-      "DOM"
-    ]
-  }
+    "strict": true,
+    "jsx": "preserve",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": ["esnext", "dom"],
+    "skipLibCheck": true,
+    "allowJs": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

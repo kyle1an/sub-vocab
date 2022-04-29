@@ -9,7 +9,7 @@ import 'element-plus/dist/index.css'
 const app = createApp(App)
 app.use(ElementPlus)
 
-app.config.productionTip = false
+// app.config.productionTip = false
 // app.config.devtools = false
 
 app.mount('#app')
