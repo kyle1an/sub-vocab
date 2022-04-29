@@ -11,5 +11,8 @@ const wordsObj = (words) => {
   return obj;
 }
 export default {
-  s: wordsObj(s), es: wordsObj(es), d: wordsObj(d), ing: wordsObj(ing)
+  d: wordsObj(d),
+  es: wordsObj(es),
+  ing: wordsObj(ing),
+  s: wordsObj(s),
 };

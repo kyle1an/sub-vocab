@@ -1,32 +1,35 @@
-import shortWords from "./shortWords";
+import shortWordsSet from "./shortWords";
+import { Suffix, Vocab } from "../types";
+
+const shortWords: Suffix = shortWordsSet;
 
 export default class WordTree {
-  root = {};
-  #sequence = 1;
-  sentences = [];
-  vocabList = [];
+  root: Record<string, Record<string, any>> = {};
+  #sequence: number = 1;
+  sentences: string[] = [];
+  vocabList: Vocab[] = [];
 
-  constructor(words) {
+  constructor(words: string) {
     if (words) this.add(words)
   }
 
-  add = (newWords) => {
+  add = (newWords: string) => {
     // match include tags: /["'(<@A-Za-zÀ-ÿ[{](?:[^;.?!；。\n\r]*[\n\r]?["'(<@A-Za-zÀ-ÿ[{]*(?:[-.](?=[A-Za-zÀ-ÿ.])|\.{3} *)*[A-Za-zÀ-ÿ])+[^ \r\n]*/mg
     let i = this.sentences.length;
     this.sentences = this.sentences.concat(newWords.match(/["'@]?[A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|{[^}]*})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ.])|\.{3} *)*["'@A-Za-zÀ-ÿ])+[^<>{} \r\n]*/mg) || [])
     const len = this.sentences.length;
     for (; i < len; i++) {
       for (const m of this.sentences[i].matchAll(/((?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þ]+[a-zß-ÿ]*)+(?:['-]?[A-Za-zÀ-ÿ]'?)+)|[a-zß-ÿ]+(?:-?[a-zß-ÿ]'?)+/mg)) {
-        this.#insert(m[0], m[1], m.index, i);
+        this.#insert(m[0], m[1], m.index!, i);
       }
     }
 
     return this;
   };
 
-  #insert = (original, upper, index, i) => {
-    let branch = this.root;
-    const word = upper ? original.toLowerCase() : original;
+  #insert = (original: string, upper: string, index: number, i: number) => {
+    let branch: any = this.root;
+    const word: string = upper ? original.toLowerCase() : original;
     for (const c of word.split('')) {
       branch = branch[c] ??= {};
     }
@@ -51,18 +54,18 @@ export default class WordTree {
     }
   }
 
-  formLists = (sieve) => {
+  formLists = (sieve: any[] | string): Array<object>[] => {
     if (sieve) {
       for (const [...word] of Array.isArray(sieve) ? sieve : sieve.toLowerCase().split(' ')) {
-        let branch = this.root
+        let branch: any = this.root;
         const lastChar = word.length === 1 ? '' : word.pop();
-        if (word.every((c) => branch = branch[c])) {
+        if (word.every((c: string) => branch = branch[c])) {
           this.filterCommonWords(branch, lastChar)
         }
       }
     }
 
-    const lists = [[], [], []];
+    const lists: Array<object>[] = [[], [], []];
     for (const v of this.vocabList.sort((a, b) => a.seq - b.seq)) {
       if (v.freq) {
         lists[0].push(v);
@@ -73,7 +76,7 @@ export default class WordTree {
     return lists;
   }
 
-  filterCommonWords(O, lastChar) {
+  filterCommonWords(O: Record<string, Record<string, any>>, lastChar: string) {
     if (lastChar) O = (lastChar === 'e') ? O : O?.[lastChar];
 
     for (const $ of [
@@ -89,7 +92,7 @@ export default class WordTree {
     ]) if ($) $.F = true
   }
 
-  caseOr = (a, b) => {
+  caseOr = (a: string, b: string): string => {
     const r = [];
     for (let i = 0; i < a.length; i++) {
       r.push(a.charCodeAt(i) | b.charCodeAt(i));
@@ -97,7 +100,7 @@ export default class WordTree {
     return String.fromCharCode(...r);
   }
 
-  mergeSorted = (a, b) => {
+  mergeSorted = (a: Array<any>, b: Array<any>): Array<any> => {
     const merged = [];
     let i = 0;
     let j = 0;
@@ -115,7 +118,7 @@ export default class WordTree {
     return merged.concat(a.slice(i)).concat(b.slice(j));
   }
 
-  mergeSuffixes = (layer = this.root) => {
+  mergeSuffixes = (layer: any = this.root) => {
     for (const key in layer) if (key !== '$') {
       const innerLayer = layer[key]
       this.mergeSuffixes(innerLayer);
@@ -123,7 +126,7 @@ export default class WordTree {
     }
   }
 
-  mergeVocabOfDifferentSuffixes = (O, k) => {
+  mergeVocabOfDifferentSuffixes = (O: any, k: string) => {
     const ing = O?.i?.n?.g;
     const ed$ = O?.e?.d?.$;
     const s$ = k === 's' ? undefined : O?.s?.$;
@@ -162,9 +165,9 @@ export default class WordTree {
     if ($) {
       const len = $.len;
       for (const x$ of [
-        ...(len > 2 || shortWords.s[$.w] ? [s$] : []),
-        ...(len > 2 ? [ed$] : []),
-        ...(len > 2 || shortWords.ing[$.w] ? [ing?.$, ing?.s?.$] : []),
+        ...(len > 2 || shortWords.s[$.w]) ? [s$] : [],
+        ...(len > 2) ? [ed$] : [],
+        ...(len > 2 || shortWords.ing[$.w]) ? [ing?.$, ing?.s?.$] : [],
         O?.["'"]?.s?.$,
         O?.["'"]?.l?.l?.$,
         O?.["'"]?.v?.e?.$,
