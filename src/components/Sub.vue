@@ -1,11 +1,12 @@
-<script setup>
-import Trie from '../utils/WordTree.js';
+<script lang="ts" setup>
+import Trie from '../utils/WordTree';
 import SegmentedControl from './SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
 import { ref, onMounted, shallowRef } from 'vue'
+import { Segment, Vocab } from '../types';
 
-let selected = 0;
-const segments = [
+let selected: number = 0;
+const segments: Array<Segment> = [
   {
     id: 0, title: 'Original',
   },
@@ -16,11 +17,11 @@ const segments = [
     id: 2, title: 'Common',
   },
 ]
-let commonWords = '';
-const fileInfo = ref('');
-let vocabLists = [[], [], []];
-const vocabData = shallowRef([]);
-const vocabTable = shallowRef(null);
+let commonWords: string = '';
+const fileInfo = ref<string>('');
+let vocabLists: Array<any>[] = [[], [], []];
+const vocabData = shallowRef<Vocab[]>([]);
+const vocabTable = shallowRef<any>(null);
 const init = {
   headers: {
     'Content-Type': 'text/plain',
@@ -33,15 +34,15 @@ onMounted(async () => {
   t.add('').mergeSuffixes();
   const test = t.formLists('say');
   console.log(test)
-  selected = segments.findIndex((o) => o.default);
+  selected = segments.findIndex((o: any) => o.default);
 })
-const handleRowClick = (row) => vocabTable.value.toggleRowExpansion(row, row.expanded);
-const switchSegment = (v) => vocabData.value = vocabLists[selected = v];
-const rowClassKey = (seq) => `v-${seq}`;
-const expandChanged = (row) => document.getElementsByClassName(rowClassKey(row.seq))[0].classList.toggle('expanded');
-const selectWord = (e) => window.getSelection().selectAllChildren(e.target);
-const sortByChar = (a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' });
-const example = (str, idxes) => {
+const handleRowClick = (row: any) => vocabTable.value.toggleRowExpansion(row, row.expanded);
+const switchSegment = (v: number) => vocabData.value = vocabLists[selected = v];
+const rowClassKey = (seq: string | number) => `v-${seq}`;
+const expandChanged = (row: any) => document.getElementsByClassName(rowClassKey(row.seq))[0].classList.toggle('expanded');
+const selectWord = (e: any) => window.getSelection()?.selectAllChildren(e.target);
+const sortByChar = (a: any, b: any): boolean => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' });
+const example = (str: string, idxes: Array<number>[]): string => {
   const lines = [];
   let position = 0;
   for (const [idx, len] of idxes) {
@@ -50,13 +51,13 @@ const example = (str, idxes) => {
   return lines.concat(str.slice(position)).join('');
 };
 
-const inputContent = ref('');
-const readSingleFile = (e) => {
+const inputContent = ref<string>('');
+const readSingleFile = (e: any) => {
   const file = e.target.files[0];
   if (!file) return;
-  const reader = new FileReader();
+  const reader: any = new FileReader();
   reader.fileName = file.name
-  reader.onload = (e) => {
+  reader.onload = (e: any) => {
     fileInfo.value = e.target.fileName;
     inputContent.value = e.target.result
     setTimeout(() => formVocabLists(inputContent.value), 0)
@@ -64,8 +65,8 @@ const readSingleFile = (e) => {
   reader.readAsText(file);
 }
 
-const sentences = shallowRef([]);
-const formVocabLists = (content) => {
+const sentences = shallowRef<any[]>([]);
+const formVocabLists = (content: string) => {
   console.time('╘═ All ═╛')
   console.time('--initWords')
   const words = new Trie(content);
@@ -83,7 +84,7 @@ const formVocabLists = (content) => {
   logVocabInfo();
 }
 
-let vocabAmountInfo = ref([]);
+let vocabAmountInfo = ref<number[]>([]);
 const logVocabInfo = () => {
   vocabAmountInfo.value = [Object.keys(vocabLists[0]).length, Object.keys(vocabLists[1]).length, Object.keys(vocabLists[2]).length];
   const untouchedVocabList = [...vocabLists[0]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
@@ -95,7 +96,7 @@ const logVocabInfo = () => {
   console.log(`com(${vocabAmountInfo.value[2]})`, commonWordsList);
 }
 
-const dropHandler = (ev) => {
+const dropHandler = (ev: any) => {
   // TODO: get dropped files
   ev.preventDefault();
 
@@ -135,6 +136,7 @@ const dropHandler = (ev) => {
             <el-button class="s-btn" aria-label="submit input text" @click="formVocabLists(inputContent)" type="primary" :icon="Check" circle />
           </div>
         </el-container>
+
         <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
           <el-card class="table-card mx-5 !rounded-xl !border-0 h-full">
             <segmented-control :segments="segments" @input="switchSegment" />

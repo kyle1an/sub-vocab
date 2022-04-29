@@ -1,6 +1,5 @@
-<script setup>
+<script lang="ts" setup>
 import { ref, watch, nextTick, computed, onMounted, onBeforeUnmount } from 'vue'
-
 const emit = defineEmits(['input'])
 const props = defineProps(['segments'])
 const segments = ref(props.segments)
@@ -8,22 +7,22 @@ const selectedSegmentWidth = ref(0);
 const selectedId = ref(0);
 
 onMounted(() => {
-  selectedId.value = segments.value.find((o) => o.default).id ?? segments.value[0].id;
+  selectedId.value = segments.value.find((o: any) => o.default).id ?? segments.value[0].id;
   window.addEventListener('resize', recalculateSelectedSegmentWidth);
   setTimeout(() => selectedSegmentWidth.value = calcSegmentWidth(selectedId.value), 400);
   emit('input', selectedSegmentIndex.value);
 })
 
 watch(selectedId, (v, o) => {
-  document.querySelector(`[for="${o}"]`).classList.remove('font-medium');
-  document.querySelector(`[for="${v}"]`).classList.add('font-medium');
+  document.querySelector(`[for="${o}"]`)!.classList.remove('font-medium');
+  document.querySelector(`[for="${v}"]`)!.classList.add('font-medium');
 })
 
 const recalculateSelectedSegmentWidth = () => {
   // Wait for UI to rerender before measuring
   nextTick(() => selectedSegmentWidth.value = calcSegmentWidth(selectedId.value));
 }
-const calcSegmentWidth = (id) => document.querySelector(`input[type='radio'][value='${id}']`).getBoundingClientRect().width;
+const calcSegmentWidth = (id: any) => document.querySelector(`input[type='radio'][value='${id}']`)!.getBoundingClientRect().width;
 
 const selectedSegmentId = computed({
   get: () => selectedId.value,
@@ -32,7 +31,7 @@ const selectedSegmentId = computed({
     emit('input', selectedSegmentIndex.value);
   }
 })
-const selectedSegmentIndex = computed(() => segments.value.findIndex((segment) => segment.id === selectedSegmentId.value));
+const selectedSegmentIndex = computed(() => segments.value.findIndex((segment: any) => segment.id === selectedSegmentId.value));
 const pillTransformStyles = computed(() => `transform:translateX(${selectedSegmentWidth.value * selectedSegmentIndex.value}px)`)
 
 onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSegmentWidth))
