@@ -3,8 +3,8 @@ const es = ['do', 'go'];
 const d = ['die', 'use'];
 const ing = ['do', 'go'];
 
-const wordsObj = (words) => {
-  const obj = {};
+const wordsObj = (words: string[]): Record<string, boolean> => {
+  const obj: Record<string, boolean> = {};
   for (const word of words) {
     obj[word] = true;
   }
