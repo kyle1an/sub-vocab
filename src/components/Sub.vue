@@ -2,10 +2,9 @@
 import Trie from '../utils/WordTree';
 import SegmentedControl from './SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
-import { ref, onMounted, shallowRef } from 'vue'
+import { ref, onMounted, shallowRef, toRefs } from 'vue'
 import { Segment, Vocab } from '../types';
 
-let selected: number = 0;
 const segments: Array<Segment> = [
   {
     id: 0, title: 'Original',
@@ -16,26 +15,23 @@ const segments: Array<Segment> = [
   {
     id: 2, title: 'Common',
   },
-]
-let commonWords: string = '';
-const fileInfo = ref<string>('');
-let vocabLists: Array<any>[] = [[], [], []];
-const vocabData = shallowRef<Vocab[]>([]);
-const vocabTable = shallowRef<any>(null);
-const init = {
-  headers: {
-    'Content-Type': 'text/plain',
-    'Accept': 'application/json'
-  }
-}
+];
+let selected: number = 0;
+const props = defineProps({
+  commonWords: String,
+});
+const { commonWords } = toRefs(props);
 onMounted(async () => {
-  commonWords = await fetch('../sieve.txt', init).then((response) => response.text());
   const t = new Trie('say ok Say tess')
   t.add('').mergeSuffixes();
   const test = t.formLists('say');
   console.log(test)
   selected = segments.findIndex((o: any) => o.default);
 })
+
+let vocabLists: Array<any>[] = [[], [], []];
+const vocabData = shallowRef<Vocab[]>([]);
+const vocabTable = shallowRef<any>(null);
 const handleRowClick = (row: any) => vocabTable.value.toggleRowExpansion(row, row.expanded);
 const switchSegment = (v: number) => vocabData.value = vocabLists[selected = v];
 const rowClassKey = (seq: string | number) => `v-${seq}`;
@@ -51,6 +47,7 @@ const example = (str: string, idxes: Array<number>[]): string => {
   return lines.concat(str.slice(position)).join('');
 };
 
+const fileInfo = ref<string>('');
 const inputContent = ref<string>('');
 const readSingleFile = (e: any) => {
   const file = e.target.files[0];
@@ -72,12 +69,11 @@ const formVocabLists = (content: string) => {
   const words = new Trie(content);
   console.timeEnd('--initWords')
   sentences.value = words.sentences;
-  console.time('--deAffixes')
+  console.time('-deSuffixes')
   words.mergeSuffixes()
-  console.timeEnd('--deAffixes')
-
+  console.timeEnd('-deSuffixes')
   console.time('--formLists');
-  vocabLists = words.formLists(commonWords);
+  vocabLists = words.formLists(commonWords!.value);
   vocabData.value = vocabLists[selected]
   console.timeEnd('--formLists');
   console.timeEnd('╘═ All ═╛')

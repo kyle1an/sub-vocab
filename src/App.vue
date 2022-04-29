@@ -1,22 +1,31 @@
-<script setup>
+<script setup lang="ts">
 import TopBar from './components/TopBar.vue'
 import Sub from './components/Sub.vue'
 import Mine from './components/Mine.vue'
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeMount } from 'vue'
 // import Editor from './components/Editor.vue'
 
-const routes = {
+const routes: any = {
   '/mine': Mine,
 }
 
 const currentPath = ref(window.location.hash)
 window.addEventListener('hashchange', () => currentPath.value = window.location.hash)
 const currentView = computed(() => routes[currentPath.value.slice(1) || '/'] || Sub)
+
+const init = {
+  headers: {
+    'Content-Type': 'text/plain',
+    'Accept': 'application/json'
+  }
+}
+const commonWords = ref<string>('')
+onBeforeMount(async () => commonWords.value = await fetch('../sieve.txt', init).then((response) => response.text()))
 </script>
 
 <template>
   <TopBar />
-  <component :is="currentView" />
+  <component :commonWords="commonWords" :is="currentView" />
 </template>
 
 <style lang="scss">
