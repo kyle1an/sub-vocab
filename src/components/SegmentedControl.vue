@@ -1,5 +1,6 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 import { ref, watch, nextTick, computed, onMounted, onBeforeUnmount } from 'vue'
+
 const emit = defineEmits(['input'])
 const props = defineProps(['segments'])
 const segments = ref(props.segments)

@@ -4,13 +4,6 @@ export interface Segment {
   default?: boolean
 }
 
-export interface Suffix {
-  d: Record<string, any>,
-  es: Record<string, any>,
-  ing: Record<string, any>,
-  s: Record<string, any>,
-}
-
 export interface Word {
   len: number;
   w: string;
