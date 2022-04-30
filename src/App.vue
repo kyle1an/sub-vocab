@@ -43,7 +43,7 @@ html {
 }
 
 body {
-  height: 100%;
+  //height: 100%;
   margin-top: 0;
   background-color: rgb(243 241 246);
 
