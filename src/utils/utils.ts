@@ -1,9 +1,10 @@
 import _ from 'lodash';
 
-const print = (m, space = 0) => console.log(JSON.stringify(m, null, space).replace(/"/mg, ""))
-const stringify = (m, space = 0) => ({ s: JSON.stringify(m, null).replace(/"/mg, "'") })
+const sortByChar = (a: any, b: any): boolean => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' });
+const print = (m: any, space = 0) => console.log(JSON.stringify(m, null, space).replace(/"/mg, ""))
+const stringify = (m: any, space = 0) => ({ s: JSON.stringify(m, null).replace(/"/mg, "'") })
 
-function pruneEmpty(obj, mutate = true) {
+function pruneEmpty(obj: any, mutate = true) {
   const co = mutate ? obj : _.cloneDeep(obj);
   return function prune(current) {
     _.forOwn(current, function (value, key) {
@@ -20,4 +21,4 @@ function pruneEmpty(obj, mutate = true) {
   }(co);  // Do not modify the original object, create a clone instead
 }
 
-export { pruneEmpty, print, stringify };
+export { pruneEmpty, print, stringify, sortByChar };

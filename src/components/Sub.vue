@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import Trie from '../utils/WordTree';
+import Trie from '../utils/CategorizedTire';
 import SegmentedControl from './SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
 import { ref, onMounted, shallowRef, toRefs } from 'vue'
 import { Segment, Vocab } from '../types';
+import { sortByChar } from '../utils/utils';
 
 const segments: Array<Segment> = [
   {
@@ -37,7 +38,6 @@ const switchSegment = (v: number) => vocabData.value = vocabLists[selected = v];
 const rowClassKey = (seq: string | number) => `v-${seq}`;
 const expandChanged = (row: any) => document.getElementsByClassName(rowClassKey(row.seq))[0].classList.toggle('expanded');
 const selectWord = (e: any) => window.getSelection()?.selectAllChildren(e.target);
-const sortByChar = (a: any, b: any): boolean => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' });
 const example = (str: string, idxes: Array<number>[]): string => {
   const lines = [];
   let position = 0;

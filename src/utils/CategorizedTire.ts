@@ -1,11 +1,11 @@
-import shortWords from "./shortWords";
-import { Vocab } from "../types";
+import shortWords from './shortWords';
+import { Trie, Label } from '../types';
 
-export default class WordTree {
+export default class CategorizedTire implements Trie {
   root: Record<string, Record<string, any>> = {};
   #sequence: number = 1;
   sentences: string[] = [];
-  vocabList: Vocab[] = [];
+  vocabList: Label[] = [];
 
   constructor(words: any) {
     if (words) {
@@ -15,7 +15,6 @@ export default class WordTree {
 
   add = (newWords: string) => {
     // match include tags: /["'(<@A-Za-zÀ-ÿ[{](?:[^;.?!；。\n\r]*[\n\r]?["'(<@A-Za-zÀ-ÿ[{]*(?:[-.](?=[A-Za-zÀ-ÿ.])|\.{3} *)*[A-Za-zÀ-ÿ])+[^ \r\n]*/mg
-
     let i = this.sentences.length;
     this.sentences = this.sentences.concat(newWords.match(/["'@]?[A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|{[^}]*})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ.])|\.{3} *)*["'@A-Za-zÀ-ÿ])+[^<>{} \r\n]*/mg) || [])
     const len = this.sentences.length;
@@ -55,7 +54,7 @@ export default class WordTree {
     }
   }
 
-  formLists = (sieve?: any): Array<object>[] => {
+  formLists = (sieve?: any): Array<any> => {
     if (sieve) {
       for (const [...word] of Array.isArray(sieve) ? sieve : sieve.toLowerCase().split(' ')) {
         let branch: any = this.root;
