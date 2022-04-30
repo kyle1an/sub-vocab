@@ -262,17 +262,21 @@ table thead {
   .input-area > textarea {
     overflow: visible;
   }
+
+  body {
+    height: 100%;
+  }
 }
 
 @media only screen and (max-width: 768px) {
   html {
-    overflow: hidden;
-    height: 100%;
+    //overflow: hidden;
+    //height: 100%;
     -webkit-overflow-scrolling: touch;
   }
 
   body {
-    height: 100%;
+    //height: 100%;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
     margin: 0 !important;
