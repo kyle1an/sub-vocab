@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import Trie from '../utils/WordTree';
+import VocabList from '../utils/VocabList';
 import Switch from './Switch.vue';
 import SegmentedControl from './SegmentedControl.vue'
 import { nextTick, ref, toRefs, watch } from 'vue'
 import { Segment } from '../types';
+import { sortByChar } from '../utils/utils';
 
 const segments: Array<Segment> = [
   {
@@ -24,10 +25,13 @@ const props = defineProps({
 });
 const loadVocab = (value: any) => {
   if (value) {
-    const words = new Trie(commonWords!.value);
+    const words = new VocabList(commonWords!.value);
     console.log(words)
-    vocabLists = words.formLists();
+    vocabLists = words.formList();
+    const common = vocabLists.slice(1000);
+    const top1k = vocabLists.slice(0, 1000);
     console.log(vocabLists)
+    vocabLists = [vocabLists, common, top1k];
     vocabData.value = vocabLists[selected];
   }
 }
@@ -40,12 +44,9 @@ nextTick(() => {
   }, 0);
 })
 
-watch(() => commonWords!.value, (value) => {
-  loadVocab(value)
-})
+watch(() => commonWords!.value, (value) => loadVocab(value))
 const switchSegment = (v: number) => vocabData.value = vocabLists[selected = v];
 const selectWord = (e: any) => window.getSelection()?.selectAllChildren(e.target);
-const sortByChar = (a: any, b: any): boolean => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' });
 </script>
 
 <template>
@@ -61,6 +62,11 @@ const sortByChar = (a: any, b: any): boolean => a.w.localeCompare(b.w, 'en', { s
           <el-card class="table-card mx-5 !rounded-xl !border-0 h-full">
             <segmented-control :segments="segments" @input="switchSegment" />
             <el-table fit class="r-table md:w-full" height="100%" size="small" :data="vocabData">
+              <el-table-column label="Rank" prop="rank" sortable align="left" min-width="7" class-name="cursor-pointer tabular-nums">
+                <template #default="props">
+                  <div class="font-compact select-none">{{ props.row.rank }}</div>
+                </template>
+              </el-table-column>
 
               <el-table-column label="Vocabulary" sortable :sort-method="sortByChar" align="left" min-width="7" class-name="cursor-pointer">
                 <template #default="props">

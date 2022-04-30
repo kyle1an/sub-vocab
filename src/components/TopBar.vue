@@ -7,7 +7,6 @@
       <div class="flex nav-main justify-around w-3/5">
         <div><a class="nav-entry" href="#/">Home</a></div>
         <div><a class="nav-entry" href="#/mine">Common Words</a></div>
-        <!--        <div><a class="nav-entry" href="#/non-existent-path">Broken Link</a></div>-->
       </div>
     </nav>
   </el-header>
