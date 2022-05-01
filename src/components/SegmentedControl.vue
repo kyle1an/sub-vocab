@@ -10,8 +10,12 @@ const selectedId = ref(0);
 onMounted(() => {
   selectedId.value = segments.value.find((o: any) => o.default).id ?? segments.value[0].id;
   window.addEventListener('resize', recalculateSelectedSegmentWidth);
-  setTimeout(() => selectedSegmentWidth.value = calcSegmentWidth(selectedId.value), 400);
+  setTimeout(() => {
+    selectedSegmentWidth.value = calcSegmentWidth(selectedId.value);
+    document.getElementsByClassName('selection')[0].classList.remove('hidden');
+  }, 400);
   emit('input', selectedSegmentIndex.value);
+
 })
 
 watch(selectedId, (v, o) => {
@@ -41,7 +45,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSe
 <template>
   <main class="flex justify-center m-0 p-0 font-sans antialiased !touch-manipulation">
     <div class="ios13-segmented-control grid grid-flow-col auto-cols-[1fr] bg-[#EFEFF0] leading-6 m-0 p-0.5 border-0 rounded-[9px] overflow-hidden select-none">
-      <span class="selection border-[.5px] border-black/[0.04] rounded-[7px] bg-white z-[2] will-change-transform col-start-1 col-end-auto row-start-1 row-end-auto" :style="pillTransformStyles"></span>
+      <span class="selection hidden border-[.5px] border-black/[0.04] rounded-[7px] bg-white z-[2] will-change-transform col-start-1 col-end-auto row-start-1 row-end-auto" :style="pillTransformStyles"></span>
       <div v-for="segment of segments" :key="segment.id" class="option relative cursor-pointer">
         <input type="radio"
                :id="segment.id"
