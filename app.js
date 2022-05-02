@@ -7,9 +7,13 @@ const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const app = express();
 const cors = require('cors');
+const config = require('./config/connection');
 const sql = require('./lib/sql');
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: [
+    'http://localhost:3000',
+    'https://subvocab.netlify.app',
+  ]
 }));
 
 // view engine setup
@@ -25,6 +29,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.post('/api/queryWords', usersRouter.api.queryWords)
+app.post('/api/addVocab', usersRouter.api.addVocab)
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
@@ -44,15 +49,10 @@ app.use(function (err, req, res, next) {
 module.exports = app;
 
 const mysql = require('mysql')
-const connection = mysql.createConnection({
-  host: '***REMOVED***',
-  user: '***REMOVED***',
-  password: '***REMOVED***',
-  database: '***REMOVED***'
-})
+const connection = mysql.createConnection(config)
 
 connection.connect()
-connection.query(sql.querySql.wordsQuery, (err, rows, fields) => {
+connection.query(sql.wordsQuery, (err, rows, fields) => {
   if (err) throw err;
 
   console.log('The solution is: ', rows)
