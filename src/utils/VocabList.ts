@@ -7,9 +7,9 @@ export default class VocabList {
     }
   }
 
-  add = (newWords: string) => {
-    for (const m of newWords.match(/((?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þ]+[a-zß-ÿ]*)+(?:['-]?[A-Za-zÀ-ÿ]'?)+)|[a-zß-ÿ]+(?:-?[a-zß-ÿ]'?)+/mg)!) {
-      this.#insert(m);
+  add = (newWords: Array<any>) => {
+    for (const m of newWords) {
+      this.#insert(m.w);
     }
 
     return this;

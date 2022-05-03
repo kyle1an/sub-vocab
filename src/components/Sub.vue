@@ -2,9 +2,10 @@
 import Trie from '../utils/CategorizedTire';
 import SegmentedControl from './SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
-import { ref, onMounted, shallowRef, toRefs } from 'vue'
+import { onMounted, ref, shallowRef, toRefs } from 'vue'
 import { Segment, Vocab } from '../types';
 import { sortByChar } from '../utils/utils';
+import { acquainted, revokeWord } from '../api/vocabSql';
 
 const segments: Array<Segment> = [
   {
@@ -19,13 +20,13 @@ const segments: Array<Segment> = [
 ];
 let selected: number = 0;
 const props = defineProps({
-  commonWords: String,
+  commonWords: Object,
 });
 const { commonWords } = toRefs(props);
 onMounted(async () => {
   const t = new Trie('say ok Say tess')
   t.add('').mergeSuffixes();
-  const test = t.formLists('say');
+  const test = t.formLists([{ id: 6, w: "say", is_valid: 1, is_user: 0 }]);
   console.log(test)
   selected = segments.findIndex((o: any) => o.default);
 })
@@ -113,6 +114,32 @@ const dropHandler = (ev: any) => {
     }
   }
 }
+
+const search = ref('s')
+const changeWordState = async (i: any, row: any) => {
+  loadingStateArray.value[row.seq] = true;
+
+  let res;
+  let word = row.w;
+  if (/'/.test(word)) word = word.replace(/'/g, `''`);
+  // if (search.value) {
+  //   res = await fetch(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=${dictionaryApiKey}`);
+  // } else {
+  //   res = await fetch(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=${dictionaryApiKey}&limit=1`);
+  // }
+  if (!row?.vocab?.is_valid) {
+    res = await acquainted({ word });
+    (row.vocab ??= {}).is_valid = res[res.length - 1].every((r: any) => r.is_valid);
+    row.vocab.is_valid = true;
+  } else {
+    res = await revokeWord({ word });
+    row.vocab.is_valid = res[res.length - 1].every((r: any) => r.is_valid);
+  }
+
+  loadingStateArray.value[row.seq] = false;
+}
+
+const loadingStateArray = ref<boolean[]>([]);
 </script>
 
 <template>
@@ -136,9 +163,13 @@ const dropHandler = (ev: any) => {
         <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
           <el-card class="table-card mx-5 !rounded-xl !border-0 h-full">
             <segmented-control :segments="segments" @input="switchSegment" />
-            <el-table fit class="r-table md:w-full" height="100%" size="small"
-                      :data="vocabData" ref="vocabTable" @row-click="handleRowClick" @expand-change="expandChanged"
-                      :row-class-name="({row})=> rowClassKey(row.seq)">
+            <el-table ref="vocabTable"
+                      class="r-table md:w-full" height="100%" size="small" fit
+                      :row-class-name="({row})=> rowClassKey(row.seq)"
+                      :data="vocabData"
+                      @row-click="handleRowClick"
+                      @expand-change="expandChanged"
+            >
               <el-table-column type="expand">
                 <template #default="props">
                   <div class="mb-1 ml-5 mr-3">
@@ -163,6 +194,24 @@ const dropHandler = (ev: any) => {
                   <div class="font-compact w-4 text-right m-auto select-none">{{ props.row.len }}</div>
                 </template>
               </el-table-column>
+
+              <el-table-column align="right" min-width="7">
+                <template #header>
+                  <el-input v-model="search" size="small" placeholder="Search" />
+                </template>
+                <template #default="scope">
+                  <el-button size="small"
+                             type="primary"
+                             :icon="Check"
+                             @click.stop="changeWordState(scope.$index, scope.row)"
+                             :plain="!scope.row?.vocab?.is_valid"
+                             :loading="loadingStateArray[scope.row.seq]"
+                             :disabled="scope.row?.vocab && !scope.row?.vocab?.is_user"
+                  >
+                  </el-button>
+                </template>
+              </el-table-column>
+
             </el-table>
           </el-card>
         </el-aside>

@@ -5,6 +5,7 @@ import SegmentedControl from './SegmentedControl.vue'
 import { nextTick, ref, toRefs, watch } from 'vue'
 import { Segment } from '../types';
 import { sortByChar } from '../utils/utils';
+import { acquainted } from '../api/vocabSql';
 
 const segments: Array<Segment> = [
   {
@@ -21,7 +22,7 @@ let selected: number = segments.findIndex((o: any) => o.default);
 let vocabLists: Array<any>[] = [[], [], []];
 const vocabData = ref<any>([]);
 const props = defineProps({
-  commonWords: String,
+  commonWords: Array,
 });
 const loadVocab = (value: any) => {
   if (value) {
@@ -47,6 +48,7 @@ nextTick(() => {
 watch(() => commonWords!.value, (value) => loadVocab(value))
 const switchSegment = (v: number) => vocabData.value = vocabLists[selected = v];
 const selectWord = (e: any) => window.getSelection()?.selectAllChildren(e.target);
+
 </script>
 
 <template>
