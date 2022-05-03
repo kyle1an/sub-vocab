@@ -22,10 +22,22 @@ module.exports.api = {//newsletterSignup
       });
     });
   },
-  addVocab: (req, res) => {
+
+  acquaint: (req, res) => {
     pool.getConnection((err, connection) => {
       const { word } = req.body;
-      connection.query(sql.addVocab(word), (err, rows, fields) => {
+      connection.query(sql.acquaint(word), (err, rows, fields) => {
+        connection.release();
+        if (err) throw err;
+        res.send(JSON.stringify(rows));
+      });
+    });
+  },
+
+  revokeWord: (req, res) => {
+    pool.getConnection((err, connection) => {
+      const { word } = req.body;
+      connection.query(sql.revokeWord(word), (err, rows, fields) => {
         connection.release();
         if (err) throw err;
         res.send(JSON.stringify(rows));

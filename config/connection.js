@@ -3,7 +3,8 @@ const config = {
   host: '***REMOVED***',
   user: '***REMOVED***',
   password: '***REMOVED***',
-  database: '***REMOVED***'
+  database: '***REMOVED***',
+  multipleStatements: true,
 };
 
 module.exports = config;

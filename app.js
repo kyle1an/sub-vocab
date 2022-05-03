@@ -29,7 +29,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.post('/api/queryWords', usersRouter.api.queryWords)
-app.post('/api/addVocab', usersRouter.api.addVocab)
+app.post('/api/acquaint', usersRouter.api.acquaint)
+app.post('/api/revokeWord', usersRouter.api.revokeWord)
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
