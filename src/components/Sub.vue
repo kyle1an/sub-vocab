@@ -130,7 +130,7 @@ const changeWordState = async (i: any, row: any) => {
   if (!row?.vocab?.is_valid) {
     res = await acquainted({ word });
     (row.vocab ??= {}).is_valid = res[res.length - 1].every((r: any) => r.is_valid);
-    row.vocab.is_valid = true;
+    row.vocab.is_user = true;
   } else {
     res = await revokeWord({ word });
     row.vocab.is_valid = res[res.length - 1].every((r: any) => r.is_valid);
