@@ -56,11 +56,12 @@ export default class CategorizedTire implements Trie {
 
   formLists = (sieve?: any): Array<any> => {
     if (sieve) {
-      for (const [...word] of Array.isArray(sieve) ? sieve : sieve.toLowerCase().split(' ')) {
+      for (const vocab of sieve) {
+        const word = vocab.w.split('');
         let branch: any = this.root;
         const lastChar = word.length === 1 ? '' : word.pop();
         if (word.every((c: string) => branch = branch[c])) {
-          this.filterCommonWords(branch, lastChar)
+          this.filterCommonWords(branch, lastChar, vocab)
         }
       }
     }
@@ -76,7 +77,7 @@ export default class CategorizedTire implements Trie {
     return lists;
   }
 
-  filterCommonWords(O: Record<string, Record<string, any>>, lastChar: string) {
+  filterCommonWords(O: Record<string, Record<string, any>>, lastChar: string, vocab: any) {
     if (lastChar) O = (lastChar === 'e') ? O : O?.[lastChar];
 
     for (const $ of [
@@ -89,7 +90,10 @@ export default class CategorizedTire implements Trie {
       O?.["'"]?.l?.l?.$,
       O?.["'"]?.v?.e?.$,
       O?.["'"]?.d?.$,
-    ]) if ($) $.F = true
+    ]) if ($) {
+      $.vocab = vocab;
+      $.F = vocab.is_valid;
+    }
   }
 
   caseOr = (a: string, b: string): string => {

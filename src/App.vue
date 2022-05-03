@@ -4,6 +4,7 @@ import Sub from './components/Sub.vue'
 import Mine from './components/Mine.vue'
 import { ref, computed, onBeforeMount } from 'vue'
 // import Editor from './components/Editor.vue'
+import { queryWords } from './api/vocabSql';
 
 const routes: any = {
   '/mine': Mine,
@@ -19,8 +20,11 @@ const init = {
     'Accept': 'application/json'
   }
 }
-const commonWords = ref<string>('')
-onBeforeMount(async () => commonWords.value = await fetch('../sieve.txt', init).then((response) => response.text()))
+const commonWords = ref<any>({})
+// onBeforeMount(async () => commonWords.value = await fetch('../sieve.txt', init).then((response) => response.text()))
+onBeforeMount(async () => {
+  commonWords.value = await queryWords();
+})
 </script>
 
 <template>
