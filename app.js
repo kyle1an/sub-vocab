@@ -13,6 +13,7 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'https://subvocab.netlify.app',
+    'https://sub-vocab.vercel.app',
   ]
 }));
 
