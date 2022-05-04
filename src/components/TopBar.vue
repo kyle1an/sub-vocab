@@ -3,10 +3,10 @@
 
 <template>
   <el-header class="top-bar flex w-full z-50 items-center justify-center relative min-w-[auto]">
-    <nav class="flex w-full box-border justify-center">
-      <div class="flex nav-main justify-around w-3/5">
+    <nav class="flex w-full box-border justify-center max-w-[600px]">
+      <div class="flex nav-main justify-between w-full">
         <div><a class="nav-entry" href="#/">Home</a></div>
-        <div><a class="nav-entry" href="#/mine">Common Words</a></div>
+        <div><a class="nav-entry" href="#/mine">Common</a></div>
         <div><a class="nav-entry" href="#/mine">Log in/Sign up</a></div>
       </div>
     </nav>

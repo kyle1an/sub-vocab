@@ -172,6 +172,7 @@ const loadingStateArray = ref<boolean[]>([]);
                       @row-click="handleRowClick"
                       @expand-change="expandChanged"
             >
+
               <el-table-column type="expand">
                 <template #default="props">
                   <div class="mb-1 ml-5 mr-3">
@@ -181,26 +182,29 @@ const loadingStateArray = ref<boolean[]>([]);
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="Vocabulary" sortable :sort-method="sortByChar" align="left" min-width="13" class-name="cursor-pointer">
+
+              <el-table-column label="Vocabulary" sortable :sort-method="sortByChar" align="left" min-width="13" class-name="cursor-pointer h-full">
+                <template #header>
+                  <el-input @click.stop class="!w-[calc(100%-26px)]" v-model="search" size="small" placeholder="Search vocabulary" />
+                </template>
                 <template #default="props">
                   <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart="selectWord" @click.stop>{{ props.row.w }}</span>
                 </template>
               </el-table-column>
+
               <el-table-column label="Times" prop="freq" sortable align="right" min-width="7" class-name="cursor-pointer tabular-nums">
                 <template #default="props">
                   <div class="font-compact text-right select-none">{{ props.row.freq }}</div>
                 </template>
               </el-table-column>
+
               <el-table-column label="Length" prop="len" sortable align="right" min-width="7" class-name="cursor-pointer tabular-nums">
                 <template #default="props">
                   <div class="font-compact select-none">{{ props.row.len }}</div>
                 </template>
               </el-table-column>
 
-              <el-table-column align="right" min-width="7">
-                <template #header>
-                  <el-input v-model="search" size="small" placeholder="Search" />
-                </template>
+              <el-table-column align="right" min-width="6">
                 <template #default="scope">
                   <el-button size="small"
                              type="primary"
@@ -280,38 +284,6 @@ thead .is-right:not(:last-child) .cell {
   height: 100%;
 }
 
-.el-switch__core {
-  width: 32px !important;
-}
-
-.el-switch__label * {
-  font-size: 14px !important;
-  letter-spacing: -0.01em;
-}
-
-table,
-.el-table,
-.el-table__header-wrapper,
-.el-table__body-wrapper,
-.el-table__empty-block {
-  margin: auto;
-}
-
-table thead {
-  font-size: 10px !important;
-}
-
-.el-table th.el-table__cell > .cell {
-  font-size: 10px;
-}
-
-.expanded:hover > td.el-table__cell {
-  background-image: linear-gradient(to bottom, var(--el-border-color-lighter), white);
-}
-
-.expanded td {
-  border-bottom: 0 !important;
-}
 
 @media only screen and (min-width: 768px) {
   .input-area > textarea {
@@ -358,21 +330,11 @@ table thead {
 
   .el-aside {
     margin-top: 34px;
-    padding-bottom: 10px;
+    padding-bottom: 20px;
   }
 
   .el-textarea__inner {
     max-height: 360px;
-  }
-}
-
-@media only screen and (max-width: 640px) {
-  .el-main {
-    padding-right: 0 !important;
-    padding-left: 0 !important;
-  }
-  .input-area textarea {
-    border-radius: 12px;
   }
 }
 </style>

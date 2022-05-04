@@ -51,4 +51,52 @@ body {
   //text-align: center;
   color: #2c3e50;
 }
+
+// element plus css
+.el-switch__core {
+  width: 32px !important;
+}
+
+.el-switch__label * {
+  font-size: 14px !important;
+  letter-spacing: -0.01em;
+}
+
+table,
+.el-table,
+.el-table__header-wrapper,
+.el-table__body-wrapper,
+.el-table__empty-block {
+  margin: auto;
+}
+
+table thead {
+  font-size: 10px !important;
+}
+
+.el-table th.el-table__cell > .cell {
+  font-size: 10px;
+}
+
+.expanded:hover > td.el-table__cell {
+  background-image: linear-gradient(to bottom, var(--el-border-color-lighter), white);
+}
+
+.expanded td {
+  border-bottom: 0 !important;
+}
+
+.el-table th.el-table__cell > .cell {
+  height: 100%;
+}
+
+@media only screen and (max-width: 640px) {
+  .el-main {
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+  }
+  .input-area textarea {
+    border-radius: 12px;
+  }
+}
 </style>
