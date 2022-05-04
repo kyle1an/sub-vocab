@@ -74,10 +74,6 @@ table thead {
   font-size: 10px !important;
 }
 
-.el-table th.el-table__cell > .cell {
-  font-size: 10px;
-}
-
 .expanded:hover > td.el-table__cell {
   background-image: linear-gradient(to bottom, var(--el-border-color-lighter), white);
 }
@@ -87,7 +83,10 @@ table thead {
 }
 
 .el-table th.el-table__cell > .cell {
-  height: 100%;
+  font-size: 10px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 @media only screen and (max-width: 640px) {
