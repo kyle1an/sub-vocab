@@ -2,10 +2,10 @@
 import Trie from '../utils/CategorizedTire';
 import SegmentedControl from './SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
-import { onMounted, ref, shallowRef, toRefs } from 'vue'
+import { computed, onMounted, ref, shallowRef, toRefs } from 'vue'
 import { Segment, Vocab } from '../types';
 import { sortByChar } from '../utils/utils';
-import { acquainted, revokeWord } from '../api/vocabSql';
+import { acquainted, revokeWord } from '../api/vocab-service';
 
 const segments: Array<Segment> = [
   {
@@ -19,10 +19,9 @@ const segments: Array<Segment> = [
   },
 ];
 let selected: number = 0;
-const props = defineProps({
+const { commonWords } = defineProps({
   commonWords: Object,
 });
-const { commonWords } = toRefs(props);
 onMounted(async () => {
   const t = new Trie('say ok Say tess')
   t.add('').mergeSuffixes();
@@ -32,10 +31,10 @@ onMounted(async () => {
 })
 
 let vocabLists: Array<any>[] = [[], [], []];
-const vocabData = shallowRef<Vocab[]>([]);
+const vocabTableData = shallowRef<Vocab[]>([]);
 const vocabTable = shallowRef<any>(null);
 const handleRowClick = (row: any) => vocabTable.value.toggleRowExpansion(row, row.expanded);
-const switchSegment = (v: number) => vocabData.value = vocabLists[selected = v];
+const switchSegment = (v: number) => vocabTableData.value = vocabLists[selected = v];
 const rowClassKey = (seq: string | number) => `v-${seq}`;
 const expandChanged = (row: any) => document.getElementsByClassName(rowClassKey(row.seq))[0].classList.toggle('expanded');
 const selectWord = (e: any) => window.getSelection()?.selectAllChildren(e.target);
@@ -64,7 +63,7 @@ const readSingleFile = (e: any) => {
 }
 
 const sentences = shallowRef<any[]>([]);
-const formVocabLists = (content: string) => {
+const formVocabLists = async (content: string) => {
   console.time('╘═ All ═╛')
   console.time('--initWords')
   const words = new Trie(content);
@@ -74,8 +73,8 @@ const formVocabLists = (content: string) => {
   words.mergeSuffixes()
   console.timeEnd('-deSuffixes')
   console.time('--formLists');
-  vocabLists = words.formLists(commonWords!.value);
-  vocabData.value = vocabLists[selected]
+  vocabLists = words.formLists(await commonWords);
+  vocabTableData.value = vocabLists[selected]
   console.timeEnd('--formLists');
   console.timeEnd('╘═ All ═╛')
   logVocabInfo();
@@ -115,18 +114,21 @@ const dropHandler = (ev: any) => {
   }
 }
 
-const search = ref('s')
+const search = ref('');
+const filterVocabTableData = computed(() =>
+    vocabTableData.value.filter(
+        (data: any) =>
+            !search.value ||
+            data.w.toLowerCase().includes(search.value.toLowerCase())
+    )
+)
 const changeWordState = async (i: any, row: any) => {
   loadingStateArray.value[row.seq] = true;
 
   let res;
   let word = row.w;
   if (/'/.test(word)) word = word.replace(/'/g, `''`);
-  // if (search.value) {
-  //   res = await fetch(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=${dictionaryApiKey}`);
-  // } else {
-  //   res = await fetch(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=${dictionaryApiKey}&limit=1`);
-  // }
+
   if (!row?.vocab?.is_valid) {
     res = await acquainted({ word });
     (row.vocab ??= {}).is_valid = res[res.length - 1].every((r: any) => r.is_valid);
@@ -138,7 +140,6 @@ const changeWordState = async (i: any, row: any) => {
 
   loadingStateArray.value[row.seq] = false;
 }
-
 const loadingStateArray = ref<boolean[]>([]);
 </script>
 
@@ -163,10 +164,11 @@ const loadingStateArray = ref<boolean[]>([]);
         <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
           <el-card class="table-card mx-5 !rounded-xl !border-0 h-full">
             <segmented-control :segments="segments" @input="switchSegment" />
+
             <el-table ref="vocabTable"
                       class="r-table md:w-full" height="100%" size="small" fit
                       :row-class-name="({row})=> rowClassKey(row.seq)"
-                      :data="vocabData"
+                      :data="filterVocabTableData"
                       @row-click="handleRowClick"
                       @expand-change="expandChanged"
             >
@@ -189,9 +191,9 @@ const loadingStateArray = ref<boolean[]>([]);
                   <div class="font-compact text-right select-none">{{ props.row.freq }}</div>
                 </template>
               </el-table-column>
-              <el-table-column label="Length" prop="len" sortable align="center" min-width="7" class-name="cursor-pointer tabular-nums">
+              <el-table-column label="Length" prop="len" sortable align="right" min-width="7" class-name="cursor-pointer tabular-nums">
                 <template #default="props">
-                  <div class="font-compact w-4 text-right m-auto select-none">{{ props.row.len }}</div>
+                  <div class="font-compact select-none">{{ props.row.len }}</div>
                 </template>
               </el-table-column>
 
@@ -221,6 +223,10 @@ const loadingStateArray = ref<boolean[]>([]);
 </template>
 
 <style lang="scss">
+thead .is-right:not(:last-child) .cell {
+  padding: 0;
+}
+
 .el-table__expand-icon {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }

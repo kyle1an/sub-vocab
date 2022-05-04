@@ -1,16 +1,16 @@
-const url = 'https://subvocab-server.herokuapp.com';
-// const url = 'http://localhost:5001';
+let url = 'https://subvocab-server.herokuapp.com';
+// url = 'http://localhost:5001';
 const headers = {
   'Content-Type': 'application/json',
 };
 
-export const queryWords = async () => {
+export async function queryWords() {
   return await fetch(`${url}/api/queryWords`, { method: 'post', headers })
     .then(response => response.json())
     .then(data => data);
 }
 
-export const acquainted = async (newWord) => {
+export async function acquainted(newWord: any) {
   console.log('newWord', newWord);
   return await fetch(`${url}/api/acquaint`, {
     body: JSON.stringify(newWord),
@@ -21,7 +21,7 @@ export const acquainted = async (newWord) => {
     .then(data => data);
 }
 
-export const revokeWord = async (vocab) => {
+export async function revokeWord(vocab: any) {
   return await fetch(`${url}/api/revokeWord`, {
     body: JSON.stringify(vocab),
     method: 'post',
@@ -30,5 +30,3 @@ export const revokeWord = async (vocab) => {
     .then(response => response.json())
     .then(data => data);
 }
-
-
