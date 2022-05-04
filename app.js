@@ -12,6 +12,7 @@ const sql = require('./lib/sql');
 app.use(cors({
   origin: [
     'http://localhost:3000',
+    'http://10.207.1.106:3000',
     'https://subvocab.netlify.app',
     'https://sub-vocab.vercel.app',
   ]
