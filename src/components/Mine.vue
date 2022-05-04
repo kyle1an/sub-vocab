@@ -2,10 +2,10 @@
 import VocabList from '../utils/VocabList';
 import Switch from './Switch.vue';
 import SegmentedControl from './SegmentedControl.vue'
-import { nextTick, ref, toRefs, watch } from 'vue'
+import { ref } from 'vue'
 import { Segment } from '../types';
 import { sortByChar } from '../utils/utils';
-import { acquainted } from '../api/vocabSql';
+// import { acquainted } from '../api/vocab-service';
 
 const segments: Array<Segment> = [
   {
@@ -20,33 +20,24 @@ const segments: Array<Segment> = [
 ]
 let selected: number = segments.findIndex((o: any) => o.default);
 let vocabLists: Array<any>[] = [[], [], []];
-const vocabData = ref<any>([]);
-const props = defineProps({
+const acquaintedVocabTableData = ref<any>([]);
+const { commonWords } = defineProps({
   commonWords: Array,
 });
-const loadVocab = (value: any) => {
-  if (value) {
-    const words = new VocabList(commonWords!.value);
-    console.log(words)
-    vocabLists = words.formList();
-    const common = vocabLists.slice(1000);
-    const top1k = vocabLists.slice(0, 1000);
-    console.log(vocabLists)
-    vocabLists = [vocabLists, common, top1k];
-    vocabData.value = vocabLists[selected];
-  }
+const loadVocab = async (vocab: any) => {
+  const words = new VocabList(await vocab);
+  console.log(words)
+  vocabLists = words.formList();
+  const common = vocabLists.slice(1000);
+  const top1k = vocabLists.slice(0, 1000);
+  console.log(vocabLists)
+  vocabLists = [vocabLists, common, top1k];
+  acquaintedVocabTableData.value = vocabLists[selected];
 }
 
-const { commonWords } = toRefs(props);
-console.log(commonWords)
-nextTick(() => {
-  setTimeout(() => {
-    loadVocab(commonWords!.value);
-  }, 0);
-})
+loadVocab(commonWords);
 
-watch(() => commonWords!.value, (value) => loadVocab(value))
-const switchSegment = (v: number) => vocabData.value = vocabLists[selected = v];
+const switchSegment = (v: number) => acquaintedVocabTableData.value = vocabLists[selected = v];
 const selectWord = (e: any) => window.getSelection()?.selectAllChildren(e.target);
 
 </script>
@@ -63,7 +54,7 @@ const selectWord = (e: any) => window.getSelection()?.selectAllChildren(e.target
         <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
           <el-card class="table-card mx-5 !rounded-xl !border-0 h-full">
             <segmented-control :segments="segments" @input="switchSegment" />
-            <el-table fit class="r-table md:w-full" height="100%" size="small" :data="vocabData">
+            <el-table fit class="r-table md:w-full" height="100%" size="small" :data="acquaintedVocabTableData">
               <el-table-column label="Rank" prop="rank" sortable align="left" min-width="7" class-name="cursor-pointer tabular-nums">
                 <template #default="props">
                   <div class="font-compact select-none">{{ props.row.rank }}</div>

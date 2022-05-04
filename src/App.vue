@@ -4,7 +4,7 @@ import Sub from './components/Sub.vue'
 import Mine from './components/Mine.vue'
 import { ref, computed, onBeforeMount } from 'vue'
 // import Editor from './components/Editor.vue'
-import { queryWords } from './api/vocabSql';
+import { queryWords } from './api/vocab-service';
 
 const routes: any = {
   '/mine': Mine,
@@ -13,18 +13,8 @@ const routes: any = {
 const currentPath = ref(window.location.hash)
 window.addEventListener('hashchange', () => currentPath.value = window.location.hash)
 const currentView = computed(() => routes[currentPath.value.slice(1) || '/'] || Sub)
-
-const init = {
-  headers: {
-    'Content-Type': 'text/plain',
-    'Accept': 'application/json'
-  }
-}
-const commonWords = ref<any>({})
-// onBeforeMount(async () => commonWords.value = await fetch('../sieve.txt', init).then((response) => response.text()))
-onBeforeMount(async () => {
-  commonWords.value = await queryWords();
-})
+const commonWords = queryWords()
+// onBeforeMount(async () => commonWords.value = await queryWords())
 </script>
 
 <template>
