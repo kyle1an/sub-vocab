@@ -183,7 +183,7 @@ const loadingStateArray = ref<boolean[]>([]);
                 </template>
               </el-table-column>
 
-              <el-table-column label="Vocabulary" sortable :sort-method="sortByChar" align="left" min-width="13" class-name="cursor-pointer h-full">
+              <el-table-column label="Vocabulary" sortable :sort-method="sortByChar" align="left" min-width="13" class-name="cursor-pointer">
                 <template #header>
                   <el-input @click.stop class="!w-[calc(100%-26px)]" v-model="search" size="small" placeholder="Search vocabulary" />
                 </template>
