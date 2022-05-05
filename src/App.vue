@@ -2,7 +2,7 @@
 import TopBar from './components/TopBar.vue'
 import Sub from './components/Sub.vue'
 import Mine from './components/Mine.vue'
-import { ref, computed, onBeforeMount } from 'vue'
+import { ref, computed } from 'vue'
 // import Editor from './components/Editor.vue'
 import { queryWords } from './api/vocab-service';
 
@@ -82,11 +82,16 @@ table thead {
   border-bottom: 0 !important;
 }
 
-.el-table th.el-table__cell > .cell {
-  font-size: 10px;
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: flex-end;
+.el-table__header {
+  th.el-table__cell > .cell {
+    font-size: 10px;
+    display: inline-flex !important;
+    align-items: center;
+  }
+
+  th.el-table__cell.is-right > .cell {
+    justify-content: flex-end;
+  }
 }
 
 @media only screen and (max-width: 640px) {

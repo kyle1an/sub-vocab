@@ -11,6 +11,7 @@ export async function queryWords() {
 }
 
 export async function acquainted(newWord: any) {
+  if (newWord.word.length > 32) return;
   console.log('newWord', newWord);
   return await fetch(`${url}/api/acquaint`, {
     body: JSON.stringify(newWord),
@@ -22,6 +23,7 @@ export async function acquainted(newWord: any) {
 }
 
 export async function revokeWord(vocab: any) {
+  if (vocab.word.length > 32) return;
   return await fetch(`${url}/api/revokeWord`, {
     body: JSON.stringify(vocab),
     method: 'post',
