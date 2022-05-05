@@ -24,7 +24,8 @@ const acquaintedVocabTableData = ref<any>([]);
 const { commonWords } = defineProps({
   commonWords: Array,
 });
-const loadVocab = async (vocab: any) => {
+
+async function loadVocab(vocab: any) {
   const words = new VocabList(await vocab);
   console.log(words)
   vocabLists = words.formList();

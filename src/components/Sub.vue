@@ -2,7 +2,7 @@
 import Trie from '../utils/CategorizedTire';
 import SegmentedControl from './SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
-import { computed, onMounted, ref, shallowRef, toRefs } from 'vue'
+import { computed, onMounted, ref, shallowRef } from 'vue'
 import { Segment, Vocab } from '../types';
 import { sortByChar } from '../utils/utils';
 import { acquainted, revokeWord } from '../api/vocab-service';
@@ -19,9 +19,6 @@ const segments: Array<Segment> = [
   },
 ];
 let selected: number = 0;
-const { commonWords } = defineProps({
-  commonWords: Object,
-});
 onMounted(async () => {
   const t = new Trie('say ok Say tess')
   t.add('').mergeSuffixes();
@@ -38,18 +35,20 @@ const switchSegment = (v: number) => vocabTableData.value = vocabLists[selected 
 const rowClassKey = (seq: string | number) => `v-${seq}`;
 const expandChanged = (row: any) => document.getElementsByClassName(rowClassKey(row.seq))[0].classList.toggle('expanded');
 const selectWord = (e: any) => window.getSelection()?.selectAllChildren(e.target);
-const example = (str: string, idxes: Array<number>[]): string => {
+
+function example(str: string, idxes: Array<number>[]): string {
   const lines = [];
   let position = 0;
   for (const [idx, len] of idxes) {
     lines.push(`${str.slice(position, idx)}<span class="italic underline">${str.slice(idx, position = idx + len)}</span>`)
   }
   return lines.concat(str.slice(position)).join('');
-};
+}
 
 const fileInfo = ref<string>('');
 const inputContent = ref<string>('');
-const readSingleFile = (e: any) => {
+
+function readSingleFile(e: any) {
   const file = e.target.files[0];
   if (!file) return;
   const reader: any = new FileReader();
@@ -63,9 +62,10 @@ const readSingleFile = (e: any) => {
 }
 
 const sentences = shallowRef<any[]>([]);
+const { commonWords } = defineProps({ commonWords: Object });
 let resolvedCommonWords: any = [];
-const formVocabLists = async (content: string) => {
 
+async function formVocabLists(content: string) {
   console.time('╘═ All ═╛')
 
   console.time('--initWords')
@@ -89,8 +89,9 @@ const formVocabLists = async (content: string) => {
   logVocabInfo();
 }
 
-let vocabAmountInfo = ref<number[]>([]);
-const logVocabInfo = () => {
+const vocabAmountInfo = ref<number[]>([]);
+
+function logVocabInfo() {
   vocabAmountInfo.value = [Object.keys(vocabLists[0]).length, Object.keys(vocabLists[1]).length, Object.keys(vocabLists[2]).length];
   const untouchedVocabList = [...vocabLists[0]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
   const lessCommonWordsList = [...vocabLists[1]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
@@ -101,7 +102,7 @@ const logVocabInfo = () => {
   console.log(`com(${vocabAmountInfo.value[2]})`, commonWordsList);
 }
 
-const dropHandler = (ev: any) => {
+function dropHandler(ev: any) {
   // TODO: get dropped files
   ev.preventDefault();
 
@@ -132,29 +133,23 @@ const filterVocabTableData = computed(() =>
     )
 )
 
-const changeWordState = async (i: any, row: any) => {
+const loadingStateArray = ref<boolean[]>([]);
+
+async function toggleWordState(row: any) {
   loadingStateArray.value[row.seq] = true;
 
-  let res;
-  let word = row.w;
-  if (/'/.test(word)) word = word.replace(/'/g, `''`);
+  const word = row.w.replace(/'/g, `''`);
 
-  if (row?.vocab?.is_valid) {
-    res = await revokeWord({ word });
-  } else {
-    res = await acquainted({ word });
-    if (!row.vocab) {
-      row.vocab = { w: row.w, is_user: true };
-      resolvedCommonWords.push(row.vocab);
-    }
+  if (!row.vocab) {
+    row.vocab = { w: row.w, is_user: true };
+    resolvedCommonWords.push(row.vocab);
   }
 
-  row.vocab.is_valid = res[res.length - 1].every((r: any) => r.is_valid);
+  const res = await (row?.vocab?.is_valid ? revokeWord : acquainted)({ word });
+  if (res) row.vocab.is_valid = res[res.length - 1].every((r: any) => r.is_valid);
 
   loadingStateArray.value[row.seq] = false;
 }
-
-const loadingStateArray = ref<boolean[]>([]);
 </script>
 
 <template>
@@ -199,7 +194,7 @@ const loadingStateArray = ref<boolean[]>([]);
 
               <el-table-column label="Vocabulary" sortable :sort-method="sortByChar" align="left" min-width="13" class-name="cursor-pointer">
                 <template #header>
-                  <el-input @click.stop class="!w-[calc(100%-26px)]" v-model="search" size="small" placeholder="Search vocabulary" />
+                  <el-input @click.stop class="!w-[calc(100%-26px)] !text-[10px]" v-model="search" size="small" placeholder="Search vocabulary" />
                 </template>
                 <template #default="props">
                   <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart="selectWord" @click.stop>{{ props.row.w }}</span>
@@ -223,7 +218,7 @@ const loadingStateArray = ref<boolean[]>([]);
                   <el-button size="small"
                              type="primary"
                              :icon="Check"
-                             @click.stop="changeWordState(scope.$index, scope.row)"
+                             @click.stop="toggleWordState(scope.row)"
                              :plain="!scope.row?.vocab?.is_valid"
                              :loading="loadingStateArray[scope.row.seq]"
                              :disabled="scope.row?.vocab && !scope.row?.vocab?.is_user"
