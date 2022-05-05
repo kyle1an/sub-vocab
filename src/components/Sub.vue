@@ -63,19 +63,28 @@ const readSingleFile = (e: any) => {
 }
 
 const sentences = shallowRef<any[]>([]);
+let resolvedCommonWords: any = [];
 const formVocabLists = async (content: string) => {
+
   console.time('╘═ All ═╛')
+
   console.time('--initWords')
   const words = new Trie(content);
   console.timeEnd('--initWords')
+
   sentences.value = words.sentences;
+
   console.time('-deSuffixes')
   words.mergeSuffixes()
   console.timeEnd('-deSuffixes')
+
   console.time('--formLists');
-  vocabLists = words.formLists(await commonWords);
+  resolvedCommonWords = await commonWords;
+  vocabLists = words.formLists(resolvedCommonWords);
+  // console.log('commonWords', commonWords);
   vocabTableData.value = vocabLists[selected]
   console.timeEnd('--formLists');
+
   console.timeEnd('╘═ All ═╛')
   logVocabInfo();
 }
@@ -122,6 +131,7 @@ const filterVocabTableData = computed(() =>
             data.w.toLowerCase().includes(search.value.toLowerCase())
     )
 )
+
 const changeWordState = async (i: any, row: any) => {
   loadingStateArray.value[row.seq] = true;
 
@@ -129,17 +139,21 @@ const changeWordState = async (i: any, row: any) => {
   let word = row.w;
   if (/'/.test(word)) word = word.replace(/'/g, `''`);
 
-  if (!row?.vocab?.is_valid) {
-    res = await acquainted({ word });
-    (row.vocab ??= {}).is_valid = res[res.length - 1].every((r: any) => r.is_valid);
-    row.vocab.is_user = true;
-  } else {
+  if (row?.vocab?.is_valid) {
     res = await revokeWord({ word });
-    row.vocab.is_valid = res[res.length - 1].every((r: any) => r.is_valid);
+  } else {
+    res = await acquainted({ word });
+    if (!row.vocab) {
+      row.vocab = { w: row.w, is_user: true };
+      resolvedCommonWords.push(row.vocab);
+    }
   }
+
+  row.vocab.is_valid = res[res.length - 1].every((r: any) => r.is_valid);
 
   loadingStateArray.value[row.seq] = false;
 }
+
 const loadingStateArray = ref<boolean[]>([]);
 </script>
 
