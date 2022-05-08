@@ -54,14 +54,14 @@ export default class CategorizedTire implements Trie {
     }
   }
 
-  formLists = (sieve?: any): Array<any> => {
-    if (sieve) {
-      for (const vocab of sieve) {
-        const word = vocab.w.split('');
+  formLists = (sieves?: any): Array<any> => {
+    if (sieves) {
+      for (const sieve of sieves) {
+        const sieveArray = sieve.w.split('');
         let branch: any = this.root;
-        const lastChar = word.length === 1 ? '' : word.pop();
-        if (word.every((c: string) => branch = branch[c])) {
-          this.filterCommonWords(branch, lastChar, vocab)
+        const lastChar = sieveArray.length === 1 ? '' : sieveArray.pop();
+        if (sieveArray.every((c: string) => branch = branch[c])) {
+          this.filterCommonWords(branch, lastChar, sieve)
         }
       }
     }

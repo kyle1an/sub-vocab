@@ -22,7 +22,7 @@ let selected: number = 0;
 onMounted(async () => {
   const t = new Trie('say ok Say tess')
   t.add('').mergeSuffixes();
-  const test = t.formLists([{ id: 6, w: "say", is_valid: 1, is_user: 0 }]);
+  const test = t.formLists([{ id: 6, w: 'say', is_valid: 1, is_user: 0 }]);
   console.log(test)
   selected = segments.findIndex((o: any) => o.default);
 })
@@ -63,7 +63,7 @@ function readSingleFile(e: any) {
 
 const sentences = shallowRef<any[]>([]);
 const { commonWords } = defineProps({ commonWords: Object });
-let resolvedCommonWords: any = [];
+let resolvedCommonWords: any;
 
 async function formVocabLists(content: string) {
   console.time('╘═ All ═╛')
@@ -79,9 +79,8 @@ async function formVocabLists(content: string) {
   console.timeEnd('-deSuffixes')
 
   console.time('--formLists');
-  resolvedCommonWords = await commonWords;
+  resolvedCommonWords ??= await commonWords;
   vocabLists = words.formLists(resolvedCommonWords);
-  // console.log('commonWords', commonWords);
   vocabTableData.value = vocabLists[selected]
   console.timeEnd('--formLists');
 
@@ -126,11 +125,11 @@ function dropHandler(ev: any) {
 
 const search = ref('');
 const filterVocabTableData = computed(() =>
-    vocabTableData.value.filter(
-        (data: any) =>
-            !search.value ||
-            data.w.toLowerCase().includes(search.value.toLowerCase())
-    )
+  vocabTableData.value.filter(
+    (data: any) =>
+      !search.value ||
+      data.w.toLowerCase().includes(search.value.toLowerCase())
+  )
 )
 
 const loadingStateArray = ref<boolean[]>([]);
@@ -141,8 +140,9 @@ async function toggleWordState(row: any) {
   const word = row.w.replace(/'/g, `''`);
 
   if (!row.vocab) {
-    row.vocab = { w: row.w, is_user: true };
-    resolvedCommonWords.push(row.vocab);
+    const vocab = { w: row.w, is_user: true };
+    row.vocab = vocab;
+    resolvedCommonWords.push(vocab);
   }
 
   const res = await (row?.vocab?.is_valid ? revokeWord : acquainted)({ word });
@@ -156,17 +156,22 @@ async function toggleWordState(row: any) {
   <div class="mx-auto max-w-screen-xl">
     <el-container>
       <el-header height="100%" class="relative !h-16 flex items-center">
-        <span class="flex-1 text-right text-xs text-indigo-900 truncate tracking-tight font-compact">{{ fileInfo || 'No file chosen' }}</span>
-        <label class="word-content s-btn grow-0 mx-4" @dragover.prevent @drop.prevent="dropHandler"><input type="file" class="hidden" @change="readSingleFile" />Browse files</label>
+        <span class="flex-1 text-right text-xs text-indigo-900 truncate tracking-tight font-compact">
+          {{ fileInfo || 'No file chosen' }}</span>
+        <label class="word-content s-btn grow-0 mx-4" @dragover.prevent @drop.prevent="dropHandler">
+          <input type="file" class="hidden" @change="readSingleFile" />Browse files
+        </label>
         <span class="flex-1 text-left text-xs text-indigo-900 truncate">{{ vocabAmountInfo.join(', ') || '' }}</span>
       </el-header>
       <el-container>
         <el-container class="relative">
           <el-main class="!py-0 relative">
-            <el-input class="input-area h-full font-compact" type="textarea" placeholder="input subtitles manually:" v-model="inputContent" />
+            <el-input class="input-area h-full font-compact"
+                      type="textarea" placeholder="input subtitles manually:" v-model="inputContent" />
           </el-main>
           <div class="submit absolute text-center z-10 md:top-8 md:right-0.5 h-12">
-            <el-button class="s-btn" aria-label="submit input text" @click="formVocabLists(inputContent)" type="primary" :icon="Check" circle />
+            <el-button class="s-btn" aria-label="submit input text"
+                       @click="formVocabLists(inputContent)" type="primary" :icon="Check" circle />
           </div>
         </el-container>
 
@@ -213,7 +218,7 @@ async function toggleWordState(row: any) {
                 </template>
               </el-table-column>
 
-              <el-table-column align="right" min-width="6">
+              <el-table-column align="right" min-width="5">
                 <template #default="scope">
                   <el-button size="small"
                              type="primary"
