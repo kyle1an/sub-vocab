@@ -10,7 +10,7 @@ const selectedId = ref(0);
 onMounted(() => {
   selectedId.value = segments.value.find((o: any) => o.default).id ?? segments.value[0].id;
   window.addEventListener('resize', recalculateSelectedSegmentWidth);
-  setTimeout(() => {
+  setTimeout(function showPill() {
     selectedSegmentWidth.value = calcSegmentWidth(selectedId.value);
     document.getElementsByClassName('selection')[0].classList.remove('hidden');
   }, 400);
@@ -18,16 +18,19 @@ onMounted(() => {
 
 })
 
-watch(selectedId, (v, o) => {
+watch(selectedId, function toggleSectionWeight(v, o) {
   document.querySelector(`[for="${o}"]`)!.classList.remove('font-medium');
   document.querySelector(`[for="${v}"]`)!.classList.add('font-medium');
 })
 
-const recalculateSelectedSegmentWidth = () => {
+function recalculateSelectedSegmentWidth() {
   // Wait for UI to rerender before measuring
   nextTick(() => selectedSegmentWidth.value = calcSegmentWidth(selectedId.value));
 }
-const calcSegmentWidth = (id: any) => document.querySelector(`input[type='radio'][value='${id}']`)!.getBoundingClientRect().width;
+
+function calcSegmentWidth(id: any) {
+  return document.querySelector(`input[type='radio'][value='${id}']`)!.getBoundingClientRect().width;
+}
 
 const selectedSegmentId = computed({
   get: () => selectedId.value,

@@ -30,11 +30,26 @@ onMounted(async () => {
 let vocabLists: Array<any>[] = [[], [], []];
 const vocabTableData = shallowRef<Vocab[]>([]);
 const vocabTable = shallowRef<any>(null);
-const handleRowClick = (row: any) => vocabTable.value.toggleRowExpansion(row, row.expanded);
-const switchSegment = (v: number) => vocabTableData.value = vocabLists[selected = v];
-const rowClassKey = (seq: string | number) => `v-${seq}`;
-const expandChanged = (row: any) => document.getElementsByClassName(rowClassKey(row.seq))[0].classList.toggle('expanded');
-const selectWord = (e: any) => window.getSelection()?.selectAllChildren(e.target);
+
+function handleRowClick(row: any) {
+  return vocabTable.value.toggleRowExpansion(row, row.expanded);
+}
+
+function switchSegment(v: number) {
+  return vocabTableData.value = vocabLists[selected = v];
+}
+
+function rowClassKey(seq: string | number) {
+  return `v-${seq}`;
+}
+
+function expandChanged(row: any) {
+  document.getElementsByClassName(rowClassKey(row.seq))[0].classList.toggle('expanded');
+}
+
+function selectWord(e: any) {
+  window.getSelection()?.selectAllChildren(e.target);
+}
 
 function example(str: string, idxes: Array<number>[]): string {
   const lines = [];
