@@ -1,6 +1,9 @@
 import _ from 'lodash';
 
-const sortByChar = (a: any, b: any): boolean => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' });
+function sortByChar(a: any, b: any): boolean {
+  return a.w.localeCompare(b.w, 'en', { sensitivity: 'base' });
+}
+
 const print = (m: any, space = 0) => console.log(JSON.stringify(m, null, space).replace(/"/mg, ""))
 const stringify = (m: any, space = 0) => ({ s: JSON.stringify(m, null).replace(/"/mg, "'") })
 
