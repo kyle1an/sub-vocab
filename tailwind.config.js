@@ -7,6 +7,7 @@ module.exports = {
     fontFamily: {
       'mono': ['SF Mono', 'ui-monospace', 'SFMono-Regular'],
       'compact': ['SF Compact Text', '-apple-system', 'sans-serif'],
+      'text-sans': 'Work Sans',
     },
     extend: {},
   },

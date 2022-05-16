@@ -1,24 +1,24 @@
-/*@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');*/
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-    --sys-font-stack: -apple-system, 'SF Pro Text', 'Inter', 'system-ui', 'Segoe UI', system-ui, Roboto, 'Helvetica Neue', sans-serif;
-    --sys-font-stack-mono: 'SF Mono', 'SFMono-Regular', 'Ubuntu Mono', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
+  --sys-font-stack: -apple-system, 'SF Pro Text', 'Inter', 'system-ui', 'Segoe UI', system-ui, Roboto, 'Helvetica Neue', sans-serif;
+  --sys-font-stack-mono: 'SF Mono', 'SFMono-Regular', 'Ubuntu Mono', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
 }
 
 html,
 body,
 input,
 textarea {
-    letter-spacing: 0.02rem;
-    font-family: var(--sys-font-stack);
-    /*-moz-font-feature-settings: 'smcp';*/
-    /* -webkit-font-feature-settings: 'tnum'  !important;*/
-    /*  'cv01' 96, 'ss01' 1, 'ss02' 4, 'cv02', 'cv03' :J, 'cv04', 'cv05' I, 'cv06' l, 'ss07' a, 'cv07' , 'cv08' 0 zh, 'nlck', 'nalt' 0, 'ital',  'ss03' 0, 'ss04' 1, */
-    font-feature-settings: 'cv01', 'ss02', 'cv02', 'cv03', 'cv04', 'cv05', 'cv06' 0, 'cv08' 0, 'nlck', 'ital', 'ss03', 'ss04' !important;
+  letter-spacing: 0.02rem;
+  font-family: var(--sys-font-stack);
+  /*-moz-font-feature-settings: 'smcp';*/
+  /* -webkit-font-feature-settings: 'tnum'  !important;*/
+  /*  'cv01' 96, 'ss01' 1, 'ss02' 4, 'cv02', 'cv03' :J, 'cv04', 'cv05' I, 'cv06' l, 'ss07' a, 'cv07' , 'cv08' 0 zh, 'nlck', 'nalt' 0, 'ital',  'ss03' 0, 'ss04' 1, */
+  font-feature-settings: 'cv01', 'ss02', 'cv02', 'cv03', 'cv04', 'cv05', 'cv06' 0, 'cv08' 0, 'nlck', 'ital', 'ss03', 'ss04' !important;
 }
 
 /*  'cv01',  'Straight-sided nine'; 6 9. [six six.tnum] by [six.1 six.1.tnum];*/
