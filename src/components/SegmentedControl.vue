@@ -15,10 +15,9 @@ onMounted(() => {
     document.getElementsByClassName('selection')[0].classList.remove('hidden');
   }, 400);
   emit('input', selectedSegmentIndex.value);
-
 })
 
-watch(selectedId, function toggleSectionWeight(v, o) {
+watch(selectedId, function toggleSectionFontWeight(v, o) {
   document.querySelector(`[for="${o}"]`)!.classList.remove('font-medium');
   document.querySelector(`[for="${v}"]`)!.classList.add('font-medium');
 })

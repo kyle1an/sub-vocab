@@ -32,6 +32,7 @@ const vocabTableData = shallowRef<Vocab[]>([]);
 const vocabTable = shallowRef<any>(null);
 
 function handleRowClick(row: any) {
+  (<Element>event!.target).closest('tr')!.classList!.toggle('expanded');
   return vocabTable.value.toggleRowExpansion(row, row.expanded);
 }
 
@@ -41,10 +42,6 @@ function switchSegment(v: number) {
 
 function rowClassKey(seq: string | number) {
   return `v-${seq}`;
-}
-
-function expandChanged(row: any) {
-  document.getElementsByClassName(rowClassKey(row.seq))[0].classList.toggle('expanded');
 }
 
 function selectWord(e: any) {
@@ -149,7 +146,7 @@ const filterVocabTableData = computed(() =>
 
 const loadingStateArray = ref<boolean[]>([]);
 
-async function toggleWordState(row: any) {
+async function toggleWordState(row: any, e: any) {
   loadingStateArray.value[row.seq] = true;
 
   const word = row.w.replace(/'/g, `''`);
@@ -181,7 +178,7 @@ async function toggleWordState(row: any) {
       <el-container>
         <el-container class="relative">
           <el-main class="!py-0 relative">
-            <el-input class="input-area h-full font-compact"
+            <el-input class="input-area h-full font-text-sans"
                       type="textarea" placeholder="input subtitles manually:" v-model="inputContent" />
           </el-main>
           <div class="submit absolute text-center z-10 md:top-8 md:right-0.5 h-12">
@@ -199,7 +196,6 @@ async function toggleWordState(row: any) {
                       :row-class-name="({row})=> rowClassKey(row.seq)"
                       :data="filterVocabTableData"
                       @row-click="handleRowClick"
-                      @expand-change="expandChanged"
             >
 
               <el-table-column type="expand">
@@ -238,7 +234,7 @@ async function toggleWordState(row: any) {
                   <el-button size="small"
                              type="primary"
                              :icon="Check"
-                             @click.stop="toggleWordState(scope.row)"
+                             @click.stop="toggleWordState(scope.row,$event)"
                              :plain="!scope.row?.vocab?.is_valid"
                              :loading="loadingStateArray[scope.row.seq]"
                              :disabled="scope.row?.vocab && !scope.row?.vocab?.is_user"
@@ -256,6 +252,10 @@ async function toggleWordState(row: any) {
 </template>
 
 <style lang="scss">
+.el-icon {
+  pointer-events: none;
+}
+
 thead .is-right:not(:last-child) .cell {
   padding: 0;
 }
