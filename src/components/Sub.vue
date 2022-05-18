@@ -18,17 +18,17 @@ const segments: Array<Segment> = [
     id: 2, title: 'Common',
   },
 ];
-let selected: number = 0;
+let selectedSeg: number = 0;
 onMounted(async () => {
   const t = new Trie('say ok Say tess')
   t.add('').mergeSuffixes();
   const test = t.formLists([{ id: 6, w: 'say', is_valid: 1, is_user: 0 }]);
   console.log(test)
-  selected = segments.findIndex((o: any) => o.default);
+  selectedSeg = segments.findIndex((o: any) => o.default);
 })
 
-let vocabLists: Array<any>[] = [[], [], []];
-const vocabTableData = shallowRef<Vocab[]>([]);
+let listsOfVocab: Array<any>[] = [[], [], []];
+const tableDataOfVocab = shallowRef<Vocab[]>([]);
 const vocabTable = shallowRef<any>(null);
 
 function handleRowClick(row: any) {
@@ -37,10 +37,10 @@ function handleRowClick(row: any) {
 }
 
 function switchSegment(v: number) {
-  return vocabTableData.value = vocabLists[selected = v];
+  return tableDataOfVocab.value = listsOfVocab[selectedSeg = v];
 }
 
-function rowClassKey(seq: string | number) {
+function classKeyOfRow(seq: string | number) {
   return `v-${seq}`;
 }
 
@@ -92,8 +92,8 @@ async function formVocabLists(content: string) {
 
   console.time('--formLists');
   resolvedCommonWords ??= await commonWords;
-  vocabLists = words.formLists(resolvedCommonWords);
-  vocabTableData.value = vocabLists[selected]
+  listsOfVocab = words.formLists(resolvedCommonWords);
+  tableDataOfVocab.value = listsOfVocab[selectedSeg]
   console.timeEnd('--formLists');
 
   console.timeEnd('╘═ All ═╛')
@@ -103,10 +103,10 @@ async function formVocabLists(content: string) {
 const vocabAmountInfo = ref<number[]>([]);
 
 function logVocabInfo() {
-  vocabAmountInfo.value = [Object.keys(vocabLists[0]).length, Object.keys(vocabLists[1]).length, Object.keys(vocabLists[2]).length];
-  const untouchedVocabList = [...vocabLists[0]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
-  const lessCommonWordsList = [...vocabLists[1]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
-  const commonWordsList = [...vocabLists[2]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
+  vocabAmountInfo.value = [Object.keys(listsOfVocab[0]).length, Object.keys(listsOfVocab[1]).length, Object.keys(listsOfVocab[2]).length];
+  const untouchedVocabList = [...listsOfVocab[0]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
+  const lessCommonWordsList = [...listsOfVocab[1]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
+  const commonWordsList = [...listsOfVocab[2]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
   console.log(`sen(${sentences.value.length})`, sentences);
   console.log(`not(${vocabAmountInfo.value[0]})`, untouchedVocabList);
   console.log(`fil(${vocabAmountInfo.value[1]})`, lessCommonWordsList);
@@ -136,8 +136,8 @@ function dropHandler(ev: any) {
 }
 
 const search = ref('');
-const filterVocabTableData = computed(() =>
-  vocabTableData.value.filter(
+const tableDataFiltered = computed(() =>
+  tableDataOfVocab.value.filter(
     (data: any) =>
       !search.value ||
       data.w.toLowerCase().includes(search.value.toLowerCase())
@@ -178,12 +178,10 @@ async function toggleWordState(row: any, e: any) {
       <el-container>
         <el-container class="relative">
           <el-main class="!py-0 relative">
-            <el-input class="input-area h-full font-text-sans"
-                      type="textarea" placeholder="input subtitles manually:" v-model="inputContent" />
+            <el-input class="input-area h-full font-text-sans" type="textarea" placeholder="input subtitles manually:" v-model.lazy="inputContent" />
           </el-main>
           <div class="submit absolute text-center z-10 md:top-8 md:right-0.5 h-12">
-            <el-button class="s-btn" aria-label="submit input text"
-                       @click="formVocabLists(inputContent)" type="primary" :icon="Check" circle />
+            <el-button class="s-btn" aria-label="submit input text" @click="formVocabLists(inputContent)" type="primary" :icon="Check" circle />
           </div>
         </el-container>
 
@@ -194,8 +192,8 @@ async function toggleWordState(row: any, e: any) {
             <el-table
               ref="vocabTable"
               class="r-table md:w-full" height="100%" size="small" fit
-              :row-class-name="({row})=> rowClassKey(row.seq)"
-              :data="filterVocabTableData"
+              :row-class-name="({row})=> classKeyOfRow(row.seq)"
+              :data="tableDataFiltered"
               @row-click="handleRowClick"
             >
 
