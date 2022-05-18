@@ -114,7 +114,7 @@ function logVocabInfo() {
 }
 
 function dropHandler(ev: any) {
-  // TODO: get dropped files
+  // TODO get dropped files
   ev.preventDefault();
 
   if (ev.dataTransfer.items) {
@@ -191,11 +191,12 @@ async function toggleWordState(row: any, e: any) {
           <el-card class="table-card mx-5 !rounded-xl !border-0 h-full">
             <segmented-control :segments="segments" @input="switchSegment" />
 
-            <el-table ref="vocabTable"
-                      class="r-table md:w-full" height="100%" size="small" fit
-                      :row-class-name="({row})=> rowClassKey(row.seq)"
-                      :data="filterVocabTableData"
-                      @row-click="handleRowClick"
+            <el-table
+              ref="vocabTable"
+              class="r-table md:w-full" height="100%" size="small" fit
+              :row-class-name="({row})=> rowClassKey(row.seq)"
+              :data="filterVocabTableData"
+              @row-click="handleRowClick"
             >
 
               <el-table-column type="expand">
@@ -230,14 +231,16 @@ async function toggleWordState(row: any, e: any) {
               </el-table-column>
 
               <el-table-column align="right" min-width="5">
-                <template #default="scope">
-                  <el-button size="small"
-                             type="primary"
-                             :icon="Check"
-                             @click.stop="toggleWordState(scope.row,$event)"
-                             :plain="!scope.row?.vocab?.is_valid"
-                             :loading="loadingStateArray[scope.row.seq]"
-                             :disabled="scope.row?.vocab && !scope.row?.vocab?.is_user"
+                <template #default="{row}">
+                  <el-button
+                    size="small"
+                    type="primary"
+                    :icon="Check"
+                    @click.stop="toggleWordState(row,$event)"
+                    :plain="!row?.vocab?.is_valid"
+                    :loading="loadingStateArray[row.seq]"
+                    :disabled="row?.vocab && !row?.vocab?.is_user"
+                    :text="!row?.vocab?.is_valid" bg
                   >
                   </el-button>
                 </template>
@@ -252,6 +255,15 @@ async function toggleWordState(row: any, e: any) {
 </template>
 
 <style lang="scss">
+.is-text {
+  border: 1px solid transparent !important;
+
+  &:hover {
+    background-color: var(--el-color-primary-light-9) !important;
+    border-color: var(--el-color-primary-light-5) !important;
+  }
+}
+
 .el-icon {
   pointer-events: none;
 }
