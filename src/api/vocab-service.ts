@@ -1,4 +1,4 @@
-let url = 'https://subvocab-server.herokuapp.com';
+let url = 'https://subvocab.herokuapp.com';
 // url = 'http://localhost:5001';
 // url = "https://sub-vocab-server.vercel.app";
 const headers = {
