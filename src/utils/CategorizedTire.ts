@@ -1,4 +1,4 @@
-import shortWords from './shortWords';
+import { SHORT_WORDS_SUFFIX_MAPPING } from './shortWordsSuffixMapping';
 import { Trie, Label } from '../types';
 
 export default class CategorizedTire implements Trie {
@@ -146,7 +146,7 @@ export default class CategorizedTire implements Trie {
       }
     }
 
-    const e$ = O?.e?.$ && (O.e.$.len > 3 || shortWords.d[O.e.$.w]) ? O.e.$ : undefined;
+    const e$ = O?.e?.$ && (O.e.$.len > 3 || SHORT_WORDS_SUFFIX_MAPPING.d[O.e.$.w]) ? O.e.$ : undefined;
     if (e$) {
       for (const x$ of [ed$, ing?.$,]) if (x$) {
         if (e$.W) {
@@ -169,9 +169,9 @@ export default class CategorizedTire implements Trie {
     if ($) {
       const len = $.len;
       for (const x$ of [
-        ...(len > 2 || shortWords.s[$.w]) ? [s$] : [],
+        ...(len > 2 || SHORT_WORDS_SUFFIX_MAPPING.s[$.w]) ? [s$] : [],
         ...(len > 2) ? [ed$] : [],
-        ...(len > 2 || shortWords.ing[$.w]) ? [ing?.$, ing?.s?.$] : [],
+        ...(len > 2 || SHORT_WORDS_SUFFIX_MAPPING.ing[$.w]) ? [ing?.$, ing?.s?.$] : [],
         O?.["'"]?.s?.$,
         O?.["'"]?.l?.l?.$,
         O?.["'"]?.v?.e?.$,
