@@ -12,7 +12,7 @@ export interface Vocab {
 export interface Label extends Vocab {
   F?: boolean;
   freq: number;
-  W?: string;
+  up?: boolean | undefined;
   seq: number;
   src: Array<any>;
 }

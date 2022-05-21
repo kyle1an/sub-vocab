@@ -33,14 +33,17 @@ export default class CategorizedTire implements Trie {
     for (const c of word.split('')) {
       branch = branch[c] ??= {};
     }
+
     if (!branch.$) {
-      this.vocabList.push(branch.$ = { w: original, W: upper, freq: 0, len: word.length, seq: ++this.#sequence, src: [] });
-    } else if (branch.$.W) {
-      if (upper) {
-        branch.$.w = this.caseOr(branch.$.w, original);
-      } else {
-        branch.$.w = original;
-        branch.$.W = upper;
+      this.vocabList.push(branch.$ = { w: original, up: upper ? true : undefined, freq: 0, len: word.length, seq: ++this.#sequence, src: [] });
+    } else {
+      if (branch.$.up) {
+        if (upper) {
+          branch.$.w = this.caseOr(branch.$.w, original);
+        } else {
+          branch.$.w = original;
+          branch.$.up = undefined;
+        }
       }
     }
 
@@ -125,75 +128,80 @@ export default class CategorizedTire implements Trie {
 
   mergeSuffixes = (layer: any = this.root) => {
     for (const key in layer) {
-      if (key == '$') continue;
+      if (key === '$') continue;
       const innerLayer = layer[key]
       this.mergeSuffixes(innerLayer);
       this.mergeVocabOfDifferentSuffixes(innerLayer, key)
     }
   }
 
-  mergeVocabOfDifferentSuffixes = (O: any, k: string) => {
-    const ing = O?.i?.n?.g;
-    const ed$ = O?.e?.d?.$;
-    const s$ = k === 's' ? undefined : O?.s?.$;
-    if (s$) {
-      for (const x$ of [ed$, ing?.$, ing?.s?.$,]) {
-        if (!x$) continue;
-        if (!O.$) this.vocabList.push(O.$ = { w: s$.w.slice(0, -1), freq: 0, len: s$.len - 1, seq: s$.seq, src: [] })
-        O.$.freq += x$.freq + s$.freq;
-        O.$.src = this.mergeSorted(O.$.src, this.mergeSorted(s$.src, x$.src));
-        s$.freq = x$.freq = null;
-        s$.src = x$.src = [];
-      }
-    }
+  mergeVocabOfDifferentSuffixes = (current: any, previousChar: string) => {
+    const next_ing = current?.i?.n?.g;
+    const next_edWord = current?.e?.d?.$;
+    const next_sWord = previousChar === 's' ? undefined : current?.s?.$;
+    const next_eWord = current?.e?.$ && (current.e.$.len > 3 || SHORT_WORDS_SUFFIX_MAPPING.d[current.e.$.w]) ? current.e.$ : undefined;
+    const currentWord = current?.$;
 
-    const e$ = O?.e?.$ && (O.e.$.len > 3 || SHORT_WORDS_SUFFIX_MAPPING.d[O.e.$.w]) ? O.e.$ : undefined;
-    if (e$) {
-      for (const x$ of [ed$, ing?.$,]) {
-        if (!x$) continue;
-        if (e$.W) {
-          if (x$.W) {
-            e$.w = this.caseOr(e$.w, x$.W.slice(0, e$.len - 1));
-          } else {
-            e$.w = this.caseOr(e$.w, x$.w.slice(0, e$.len - 1));
-            e$.W = undefined;
-          }
-        }
-        e$.freq += x$.freq
-        e$.src = this.mergeSorted(e$.src, x$.src);
-        x$.freq = null
-        x$.src = [];
-        if (e$.seq > x$.seq) e$.seq = x$.seq
-      }
-    }
-
-    const $ = O?.$;
-    if ($) {
-      const len = $.len;
-      for (const x$ of [
-        ...(len > 2 || SHORT_WORDS_SUFFIX_MAPPING.s[$.w]) ? [s$] : [],
-        ...(len > 2) ? [ed$] : [],
-        ...(len > 2 || SHORT_WORDS_SUFFIX_MAPPING.ing[$.w]) ? [ing?.$, ing?.s?.$] : [],
-        O?.["'"]?.s?.$,
-        O?.["'"]?.l?.l?.$,
-        O?.["'"]?.v?.e?.$,
-        O?.["'"]?.d?.$,
+    if (next_sWord) {
+      for (const latterWord of [
+        next_edWord,
+        next_ing?.$,
+        next_ing?.s?.$,
       ]) {
-        if (!x$) continue;
-        if ($.W) {
-          if (x$.W) {
-            $.w = this.caseOr($.w, x$.W);
-          } else {
-            $.w = x$.w.slice(0, len);
-            $.W = undefined;
-          }
-        }
-        $.freq += x$.freq
-        $.src = this.mergeSorted($.src, x$.src);
-        x$.src = [];
-        x$.freq = null
-        if ($.seq > x$.seq) $.seq = x$.seq
+        if (!latterWord) continue;
+        if (!current.$) this.vocabList.push(current.$ = { w: next_sWord.w.slice(0, -1), freq: 0, len: next_sWord.len - 1, seq: next_sWord.seq, src: [] })
+        current.$.freq += latterWord.freq + next_sWord.freq;
+        current.$.src = this.mergeSorted(current.$.src, this.mergeSorted(next_sWord.src, latterWord.src));
+        next_sWord.freq = latterWord.freq = null;
+        next_sWord.src = latterWord.src = [];
       }
     }
+
+    if (next_eWord) {
+      for (const latterWord of [next_edWord, next_ing?.$,]) {
+        if (!latterWord) continue;
+        if (next_eWord.up) {
+          if (latterWord.up) {
+            next_eWord.w = this.caseOr(next_eWord.w, latterWord.w.slice(0, next_eWord.len - 1));
+          } else {
+            next_eWord.w = latterWord.w.slice(0, next_eWord.len - 1) + 'e';
+            next_eWord.up = undefined;
+          }
+        }
+        this.mergeProps(latterWord, next_eWord);
+      }
+    }
+
+    if (currentWord) {
+      const len = currentWord.len;
+      for (const latterWord of [
+        len > 2 || SHORT_WORDS_SUFFIX_MAPPING.s[currentWord.w] ? next_sWord : null,
+        len > 2 ? next_edWord : null,
+        ...len > 2 || SHORT_WORDS_SUFFIX_MAPPING.ing[currentWord.w] ? [next_ing?.$, next_ing?.s?.$] : [],
+        current?.["'"]?.s?.$,
+        current?.["'"]?.l?.l?.$,
+        current?.["'"]?.v?.e?.$,
+        current?.["'"]?.d?.$,
+      ]) {
+        if (!latterWord) continue;
+        if (currentWord.up) {
+          if (latterWord.up) {
+            currentWord.w = this.caseOr(currentWord.w, latterWord.w);
+          } else {
+            currentWord.w = latterWord.w.slice(0, len);
+            currentWord.up = undefined;
+          }
+        }
+        this.mergeProps(latterWord, currentWord);
+      }
+    }
+  }
+
+  mergeProps(latterWord: any, targetWord: any) {
+    targetWord.freq += latterWord.freq
+    targetWord.src = this.mergeSorted(targetWord.src, latterWord.src);
+    latterWord.freq = null
+    latterWord.src = [];
+    if (targetWord.seq > latterWord.seq) targetWord.seq = latterWord.seq
   }
 }
