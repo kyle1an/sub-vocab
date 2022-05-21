@@ -90,7 +90,8 @@ export default class CategorizedTire implements Trie {
       O?.["'"]?.l?.l?.$,
       O?.["'"]?.v?.e?.$,
       O?.["'"]?.d?.$,
-    ]) if ($) {
+    ]) {
+      if (!$) continue;
       $.vocab = vocab;
       $.F = vocab.is_valid;
     }
@@ -123,7 +124,8 @@ export default class CategorizedTire implements Trie {
   }
 
   mergeSuffixes = (layer: any = this.root) => {
-    for (const key in layer) if (key !== '$') {
+    for (const key in layer) {
+      if (key == '$') continue;
       const innerLayer = layer[key]
       this.mergeSuffixes(innerLayer);
       this.mergeVocabOfDifferentSuffixes(innerLayer, key)
@@ -136,19 +138,19 @@ export default class CategorizedTire implements Trie {
     const s$ = k === 's' ? undefined : O?.s?.$;
     if (s$) {
       for (const x$ of [ed$, ing?.$, ing?.s?.$,]) {
-        if (x$) {
-          if (!O.$) this.vocabList.push(O.$ = { w: s$.w.slice(0, -1), freq: 0, len: s$.len - 1, seq: s$.seq, src: [] })
-          O.$.freq += x$.freq + s$.freq;
-          O.$.src = this.mergeSorted(O.$.src, this.mergeSorted(s$.src, x$.src));
-          s$.freq = x$.freq = null;
-          s$.src = x$.src = [];
-        }
+        if (!x$) continue;
+        if (!O.$) this.vocabList.push(O.$ = { w: s$.w.slice(0, -1), freq: 0, len: s$.len - 1, seq: s$.seq, src: [] })
+        O.$.freq += x$.freq + s$.freq;
+        O.$.src = this.mergeSorted(O.$.src, this.mergeSorted(s$.src, x$.src));
+        s$.freq = x$.freq = null;
+        s$.src = x$.src = [];
       }
     }
 
     const e$ = O?.e?.$ && (O.e.$.len > 3 || SHORT_WORDS_SUFFIX_MAPPING.d[O.e.$.w]) ? O.e.$ : undefined;
     if (e$) {
-      for (const x$ of [ed$, ing?.$,]) if (x$) {
+      for (const x$ of [ed$, ing?.$,]) {
+        if (!x$) continue;
         if (e$.W) {
           if (x$.W) {
             e$.w = this.caseOr(e$.w, x$.W.slice(0, e$.len - 1));
@@ -176,7 +178,8 @@ export default class CategorizedTire implements Trie {
         O?.["'"]?.l?.l?.$,
         O?.["'"]?.v?.e?.$,
         O?.["'"]?.d?.$,
-      ]) if (x$) {
+      ]) {
+        if (!x$) continue;
         if ($.W) {
           if (x$.W) {
             $.w = this.caseOr($.w, x$.W);
