@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
-import { queryWords } from "../api/vocab-service";
-import { ref } from "vue";
+import { queryWords } from '../api/vocab-service';
+import { ref } from 'vue';
 
 export const useVocabStore = defineStore('vocabStore', () => {
   let commonVocab = ref<any>(queryWords());
