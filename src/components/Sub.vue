@@ -32,8 +32,11 @@ const tableDataOfVocab = shallowRef<Vocab[]>([]);
 const vocabTable = shallowRef<any>(null);
 
 function handleRowClick(row: any) {
-  (<Element>event!.target).closest('tr')!.classList!.toggle('expanded');
   return vocabTable.value.toggleRowExpansion(row, row.expanded);
+}
+
+function tagExpand(row: any) {
+  document.getElementsByClassName(classKeyOfRow(row.seq))[0].classList.toggle('expanded');
 }
 
 function switchSegment(v: number) {
@@ -195,8 +198,7 @@ async function toggleWordState(row: any, e: any) {
               :row-class-name="({row})=> classKeyOfRow(row.seq)"
               :data="tableDataFiltered"
               @row-click="handleRowClick"
-            >
-
+              @expand-change="tagExpand">
               <el-table-column type="expand">
                 <template #default="props">
                   <div class="mb-1 ml-5 mr-3">
@@ -239,8 +241,7 @@ async function toggleWordState(row: any, e: any) {
                     :loading="loadingStateArray[row.seq]"
                     :disabled="row?.vocab && !row?.vocab?.is_user"
                     :text="!row?.vocab?.is_valid" bg
-                  >
-                  </el-button>
+                  />
                 </template>
               </el-table-column>
 

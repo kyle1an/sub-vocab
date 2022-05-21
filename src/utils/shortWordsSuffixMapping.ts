@@ -10,7 +10,7 @@ const wordsObj = (words: string[]): Record<string, boolean> => {
   }
   return obj;
 }
-export default {
+export const SHORT_WORDS_SUFFIX_MAPPING = {
   d: wordsObj(d),
   es: wordsObj(es),
   ing: wordsObj(ing),

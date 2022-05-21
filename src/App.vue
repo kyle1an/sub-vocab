@@ -3,7 +3,6 @@ import TopBar from './components/TopBar.vue'
 import Sub from './components/Sub.vue'
 import Mine from './components/Mine.vue'
 import { ref, computed } from 'vue'
-// import Editor from './components/Editor.vue'
 import { queryWords } from './api/vocab-service';
 
 const routes: any = {
