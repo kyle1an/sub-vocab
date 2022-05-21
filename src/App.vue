@@ -3,7 +3,6 @@ import TopBar from './components/TopBar.vue'
 import Sub from './components/Sub.vue'
 import Mine from './components/Mine.vue'
 import { ref, computed } from 'vue'
-import { queryWords } from './api/vocab-service';
 
 const routes: any = {
   '/mine': Mine,
@@ -12,13 +11,11 @@ const routes: any = {
 const currentPath = ref(window.location.hash)
 window.addEventListener('hashchange', () => currentPath.value = window.location.hash)
 const currentView = computed(() => routes[currentPath.value.slice(1) || '/'] || Sub)
-const commonWords = queryWords()
-// onBeforeMount(async () => commonWords.value = await queryWords())
 </script>
 
 <template>
   <TopBar />
-  <component :commonWords="commonWords" :is="currentView" />
+  <component :is="currentView" />
 </template>
 
 <style lang="scss">

@@ -6,6 +6,7 @@ import { computed, onMounted, ref, shallowRef } from 'vue'
 import { Segment, Vocab } from '../types';
 import { sortByChar } from '../utils/utils';
 import { acquainted, revokeWord } from '../api/vocab-service';
+import { useVocabStore } from "../store/useVocab";
 
 const segments: Array<Segment> = [
   {
@@ -40,7 +41,7 @@ function tagExpand(row: any) {
 }
 
 function switchSegment(v: number) {
-  return tableDataOfVocab.value = listsOfVocab[selectedSeg = v];
+  tableDataOfVocab.value = listsOfVocab[selectedSeg = v];
 }
 
 function classKeyOfRow(seq: string | number) {
@@ -79,6 +80,7 @@ function readSingleFile(e: any) {
 const sentences = shallowRef<any[]>([]);
 const { commonWords } = defineProps({ commonWords: Object });
 let resolvedCommonWords: any;
+const store = useVocabStore()
 
 async function formVocabLists(content: string) {
   console.time('╘═ All ═╛')
@@ -94,8 +96,7 @@ async function formVocabLists(content: string) {
   console.timeEnd('-deSuffixes')
 
   console.time('--formLists');
-  resolvedCommonWords ??= await commonWords;
-  listsOfVocab = words.formLists(resolvedCommonWords);
+  listsOfVocab = words.formLists(await store.fetchVocab());
   tableDataOfVocab.value = listsOfVocab[selectedSeg]
   console.timeEnd('--formLists');
 
@@ -157,7 +158,7 @@ async function toggleWordState(row: any, e: any) {
   if (!row.vocab) {
     const vocab = { w: row.w, is_user: true };
     row.vocab = vocab;
-    resolvedCommonWords.push(vocab);
+    store.commonVocab.push(vocab);
   }
 
   const res = await (row?.vocab?.is_valid ? revokeWord : acquainted)({ word });
