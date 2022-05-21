@@ -2,10 +2,10 @@
 import VocabList from '../utils/VocabList';
 import Switch from './Switch.vue';
 import SegmentedControl from './SegmentedControl.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { Segment } from '../types';
 import { sortByChar } from '../utils/utils';
-// import { acquainted } from '../api/vocab-service';
+import { useVocabStore } from '../store/useVocab';
 
 const segments: Array<Segment> = [
   {
@@ -21,12 +21,10 @@ const segments: Array<Segment> = [
 let selected: number = segments.findIndex((o: any) => o.default);
 let vocabLists: Array<any>[] = [[], [], []];
 const acquaintedVocabTableData = ref<any>([]);
-const { commonWords } = defineProps({
-  commonWords: Array,
-});
 
-async function loadVocab(vocab: any) {
-  const words = new VocabList(await vocab);
+async function loadVocab() {
+  const store = useVocabStore()
+  const words = new VocabList(await store.fetchVocab());
   console.log(words)
   vocabLists = words.formList();
   const common = vocabLists.slice(1000);
@@ -36,11 +34,15 @@ async function loadVocab(vocab: any) {
   acquaintedVocabTableData.value = vocabLists[selected];
 }
 
-loadVocab(commonWords);
+onMounted(loadVocab);
 
-const switchSegment = (v: number) => acquaintedVocabTableData.value = vocabLists[selected = v];
-const selectWord = (e: any) => window.getSelection()?.selectAllChildren(e.target);
+function switchSegment(v: number) {
+  acquaintedVocabTableData.value = vocabLists[selected = v]
+}
 
+function selectWord(e: any) {
+  window.getSelection()?.selectAllChildren(e.target);
+}
 </script>
 
 <template>
