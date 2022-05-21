@@ -78,8 +78,6 @@ function readSingleFile(e: any) {
 }
 
 const sentences = shallowRef<any[]>([]);
-const { commonWords } = defineProps({ commonWords: Object });
-let resolvedCommonWords: any;
 const store = useVocabStore()
 
 async function formVocabLists(content: string) {

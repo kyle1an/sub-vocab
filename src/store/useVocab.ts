@@ -3,7 +3,7 @@ import { queryWords } from "../api/vocab-service";
 import { ref } from "vue";
 
 export const useVocabStore = defineStore('vocabStore', () => {
-  let commonVocab = ref<any>([]);
+  let commonVocab = ref<any>(queryWords());
 
   async function fetchVocab() {
     if (commonVocab.value.length === 0) {
