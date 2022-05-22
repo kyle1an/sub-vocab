@@ -1,4 +1,4 @@
-import { STEMS } from './shortWordsSuffixMapping';
+import { EXTRACT, IRREGULAR } from './shortWordsSuffixMapping';
 import { Trie, Label } from '../types';
 
 export default class CategorizedTire implements Trie {
@@ -127,22 +127,43 @@ export default class CategorizedTire implements Trie {
     return merged.concat(a.slice(i)).concat(b.slice(j));
   }
 
+  irregularMerge() {
+    for (const irregularCollect of IRREGULAR) {
+      const word = irregularCollect[0];
+      let irregularWord = this.findWord(word)?.$;
+
+      if (irregularCollect.length === 1) continue;
+
+      if (!irregularWord) {
+        this.vocabList.push(irregularWord = { w: word, freq: 0, len: word.length, seq: ++this.#sequence, src: [] });
+      }
+
+      let i = irregularCollect.length;
+      while (--i) {
+        const wordBranch = this.findWord(irregularCollect[i]);
+        if (wordBranch) {
+          this.mergeProps(wordBranch.$, irregularWord);
+        }
+      }
+    }
+  }
+
   extractStems() {
-    for (const stem of STEMS) {
-      const word = stem[0];
+    for (const stemCollect of EXTRACT) {
+      const word = stemCollect[0];
       let stemWord = this.revokeAccess(word);
 
-      if (stem.length === 1) continue;
+      if (stemCollect.length === 1) continue;
 
       if (!stemWord) {
         this.vocabList.push(stemWord = { w: word, freq: 0, len: word.length, seq: ++this.#sequence, src: [] });
       }
 
-      let i = stem.length;
-      while (i--) {
-        const derivedBranch = this.findWord(stem[i]);
-        if (derivedBranch) {
-          this.mergeProps(derivedBranch.$, stemWord);
+      let i = stemCollect.length;
+      while (--i) {
+        const wordBranch = this.findWord(stemCollect[i]);
+        if (wordBranch) {
+          this.mergeProps(wordBranch.$, stemWord);
         }
       }
     }
@@ -169,6 +190,7 @@ export default class CategorizedTire implements Trie {
   }
 
   mergeSuffixes = (layer: any = this.root) => {
+    this.irregularMerge();
     this.extractStems();
     this.traverseMerge(layer);
     for (const item of this.revoked) {
