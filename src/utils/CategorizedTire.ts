@@ -35,14 +35,14 @@ export default class CategorizedTire implements Trie {
     }
 
     if (!branch.$) {
-      this.vocabList.push(branch.$ = { w: original, up: upper ? true : undefined, freq: 0, len: word.length, seq: ++this.#sequence, src: [] });
+      this.vocabList.push(branch.$ = { w: original, up: !!upper, freq: 0, len: word.length, seq: ++this.#sequence, src: [] });
     } else {
       if (branch.$.up) {
         if (upper) {
           branch.$.w = this.caseOr(branch.$.w, original);
         } else {
           branch.$.w = original;
-          branch.$.up = undefined;
+          branch.$.up = false;
         }
       }
     }
@@ -137,47 +137,21 @@ export default class CategorizedTire implements Trie {
 
   mergeVocabOfDifferentSuffixes = (current: any, previousChar: string) => {
     const next_ing = current?.i?.n?.g;
+    const next_ingWord = next_ing?.$;
+    const next_ingsWord = next_ing?.s?.$;
     const next_edWord = current?.e?.d?.$;
     const next_sWord = previousChar === 's' ? undefined : current?.s?.$;
+    const next_dWord = previousChar === 'e' ? current?.d?.$ : undefined;
     const next_eWord = current?.e?.$ && (current.e.$.len > 3 || SHORT_WORDS_SUFFIX_MAPPING.d[current.e.$.w]) ? current.e.$ : undefined;
     const currentWord = current?.$;
-
-    if (next_sWord) {
-      for (const latterWord of [
-        next_edWord,
-        next_ing?.$,
-        next_ing?.s?.$,
-      ]) {
-        if (!latterWord) continue;
-        if (!current.$) this.vocabList.push(current.$ = { w: next_sWord.w.slice(0, -1), freq: 0, len: next_sWord.len - 1, seq: next_sWord.seq, src: [] })
-        current.$.freq += latterWord.freq + next_sWord.freq;
-        current.$.src = this.mergeSorted(current.$.src, this.mergeSorted(next_sWord.src, latterWord.src));
-        next_sWord.freq = latterWord.freq = null;
-        next_sWord.src = latterWord.src = [];
-      }
-    }
-
-    if (next_eWord) {
-      for (const latterWord of [next_edWord, next_ing?.$,]) {
-        if (!latterWord) continue;
-        if (next_eWord.up) {
-          if (latterWord.up) {
-            next_eWord.w = this.caseOr(next_eWord.w, latterWord.w.slice(0, next_eWord.len - 1));
-          } else {
-            next_eWord.w = latterWord.w.slice(0, next_eWord.len - 1) + 'e';
-            next_eWord.up = undefined;
-          }
-        }
-        this.mergeProps(latterWord, next_eWord);
-      }
-    }
 
     if (currentWord) {
       const len = currentWord.len;
       for (const latterWord of [
         len > 2 || SHORT_WORDS_SUFFIX_MAPPING.s[currentWord.w] ? next_sWord : null,
         len > 2 ? next_edWord : null,
-        ...len > 2 || SHORT_WORDS_SUFFIX_MAPPING.ing[currentWord.w] ? [next_ing?.$, next_ing?.s?.$] : [],
+        ...len > 2 || SHORT_WORDS_SUFFIX_MAPPING.ing[currentWord.w] ? [next_ingWord, next_ingsWord] : [],
+        len > 3 || SHORT_WORDS_SUFFIX_MAPPING.d[currentWord.w] ? next_dWord : null,
         current?.["'"]?.s?.$,
         current?.["'"]?.l?.l?.$,
         current?.["'"]?.v?.e?.$,
@@ -189,10 +163,37 @@ export default class CategorizedTire implements Trie {
             currentWord.w = this.caseOr(currentWord.w, latterWord.w);
           } else {
             currentWord.w = latterWord.w.slice(0, len);
-            currentWord.up = undefined;
+            currentWord.up = false;
           }
         }
         this.mergeProps(latterWord, currentWord);
+      }
+    } else if (next_sWord) {
+      for (const latterWord of [
+        next_edWord,
+        next_ingWord,
+      ]) {
+        if (!latterWord) continue;
+        if (!current.$) this.vocabList.push(current.$ = { w: next_sWord.w.slice(0, -1), freq: 0, len: next_sWord.len - 1, seq: next_sWord.seq, src: [] })
+        current.$.freq += latterWord.freq + next_sWord.freq;
+        current.$.src = this.mergeSorted(current.$.src, this.mergeSorted(next_sWord.src, latterWord.src));
+        next_sWord.freq = latterWord.freq = null;
+        next_sWord.src = latterWord.src = [];
+      }
+    } else if (next_eWord && next_eWord.len > 3) {
+      for (const latterWord of [
+        next_ingWord,
+      ]) {
+        if (!latterWord) continue;
+        if (next_eWord.up) {
+          if (latterWord.up) {
+            next_eWord.w = this.caseOr(next_eWord.w, latterWord.w.slice(0, next_eWord.len - 1));
+          } else {
+            next_eWord.w = latterWord.w.slice(0, next_eWord.len - 1) + 'e';
+            next_eWord.up = undefined;
+          }
+        }
+        this.mergeProps(latterWord, next_eWord);
       }
     }
   }
