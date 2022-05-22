@@ -1,4 +1,4 @@
-import { SHORT_WORDS_SUFFIX_MAPPING } from './shortWordsSuffixMapping';
+import { STEMS } from './shortWordsSuffixMapping';
 import { Trie, Label } from '../types';
 
 export default class CategorizedTire implements Trie {
@@ -6,6 +6,7 @@ export default class CategorizedTire implements Trie {
   #sequence: number = 1;
   sentences: string[] = [];
   vocabList: Label[] = [];
+  revoked: any = [];
 
   constructor(words: any) {
     if (words) {
@@ -126,11 +127,60 @@ export default class CategorizedTire implements Trie {
     return merged.concat(a.slice(i)).concat(b.slice(j));
   }
 
+  extractStems() {
+    for (const stem of STEMS) {
+      const word = stem[0];
+      let stemWord = this.revokeAccess(word);
+
+      if (stem.length === 1) continue;
+
+      if (!stemWord) {
+        this.vocabList.push(stemWord = { w: word, freq: 0, len: word.length, seq: ++this.#sequence, src: [] });
+      }
+
+      let i = stem.length;
+      while (i--) {
+        const derivedBranch = this.findWord(stem[i]);
+        if (derivedBranch) {
+          this.mergeProps(derivedBranch.$, stemWord);
+        }
+      }
+    }
+  }
+
+  findWord(word: string) {
+    const chars = word.split('');
+    let branch: any = this.root;
+    const doesExist = chars.every((c: string) => branch = branch[c]) && branch.$
+    return doesExist ? branch : null;
+  }
+
+  revokeAccess(word: string) {
+    const branch = this.findWord(word);
+    let vocab;
+    if (branch) {
+      this.revoked.push([branch, branch.$]);
+      vocab = branch.$;
+      branch.$ = null;
+      return vocab;
+    } else {
+      return null;
+    }
+  }
+
   mergeSuffixes = (layer: any = this.root) => {
+    this.extractStems();
+    this.traverseMerge(layer);
+    for (const item of this.revoked) {
+      item[0].$ = item[1];
+    }
+  }
+
+  traverseMerge = (layer: any = this.root) => {
     for (const key in layer) {
       if (key === '$') continue;
       const innerLayer = layer[key]
-      this.mergeSuffixes(innerLayer);
+      this.traverseMerge(innerLayer);
       this.mergeVocabOfDifferentSuffixes(innerLayer, key)
     }
   }
@@ -140,61 +190,64 @@ export default class CategorizedTire implements Trie {
     const next_ingWord = next_ing?.$;
     const next_ingsWord = next_ing?.s?.$;
     const next_edWord = current?.e?.d?.$;
+    const next_esWord = current?.e?.s?.$;
     const next_sWord = previousChar === 's' ? undefined : current?.s?.$;
-    const next_dWord = previousChar === 'e' ? current?.d?.$ : undefined;
-    const next_eWord = current?.e?.$ && (current.e.$.len > 3 || SHORT_WORDS_SUFFIX_MAPPING.d[current.e.$.w]) ? current.e.$ : undefined;
+    const next_eWord = current?.e?.$;
+    const next_apos = current?.["'"];
     const currentWord = current?.$;
+    let target: any;
 
-    if (currentWord) {
-      const len = currentWord.len;
+    const suffixesPropCombined = () => {
+      let suffixesCombined: any = { freq: 0, src: [], seq: Infinity };
       for (const latterWord of [
-        len > 2 || SHORT_WORDS_SUFFIX_MAPPING.s[currentWord.w] ? next_sWord : null,
-        len > 2 ? next_edWord : null,
-        ...len > 2 || SHORT_WORDS_SUFFIX_MAPPING.ing[currentWord.w] ? [next_ingWord, next_ingsWord] : [],
-        len > 3 || SHORT_WORDS_SUFFIX_MAPPING.d[currentWord.w] ? next_dWord : null,
-        current?.["'"]?.s?.$,
-        current?.["'"]?.l?.l?.$,
-        current?.["'"]?.v?.e?.$,
-        current?.["'"]?.d?.$,
-      ]) {
-        if (!latterWord) continue;
-        if (currentWord.up) {
-          if (latterWord.up) {
-            currentWord.w = this.caseOr(currentWord.w, latterWord.w);
-          } else {
-            currentWord.w = latterWord.w.slice(0, len);
-            currentWord.up = false;
-          }
-        }
-        this.mergeProps(latterWord, currentWord);
-      }
-    } else if (next_sWord) {
-      for (const latterWord of [
+        next_esWord,
         next_edWord,
         next_ingWord,
+        next_ingsWord,
+        next_apos?.s?.$,
+        next_apos?.l?.l?.$,
+        next_apos?.v?.e?.$,
+        next_apos?.d?.$,
       ]) {
         if (!latterWord) continue;
-        if (!current.$) this.vocabList.push(current.$ = { w: next_sWord.w.slice(0, -1), freq: 0, len: next_sWord.len - 1, seq: next_sWord.seq, src: [] })
-        current.$.freq += latterWord.freq + next_sWord.freq;
-        current.$.src = this.mergeSorted(current.$.src, this.mergeSorted(next_sWord.src, latterWord.src));
-        next_sWord.freq = latterWord.freq = null;
-        next_sWord.src = latterWord.src = [];
+        suffixesCombined.w = suffixesCombined.w ? this.caseOr(suffixesCombined.w, latterWord.w) : latterWord.w;
+        this.mergeProps(latterWord, suffixesCombined);
       }
-    } else if (next_eWord && next_eWord.len > 3) {
+      return suffixesCombined;
+    }
+
+    if (currentWord) {
+      const suffixesCombined = suffixesPropCombined();
+      target = currentWord;
+      const len = target.len;
       for (const latterWord of [
-        next_ingWord,
+        next_sWord,
       ]) {
         if (!latterWord) continue;
-        if (next_eWord.up) {
+        if (target.up) {
           if (latterWord.up) {
-            next_eWord.w = this.caseOr(next_eWord.w, latterWord.w.slice(0, next_eWord.len - 1));
+            target.w = this.caseOr(target.w, latterWord.w);
           } else {
-            next_eWord.w = latterWord.w.slice(0, next_eWord.len - 1) + 'e';
-            next_eWord.up = undefined;
+            target.w = latterWord.w.slice(0, len);
+            target.up = false;
           }
         }
-        this.mergeProps(latterWord, next_eWord);
+        this.mergeProps(latterWord, target);
       }
+      if (suffixesCombined.w) target.w = this.caseOr(target.w, suffixesCombined.w.slice(0, target.len));
+      this.mergeProps(suffixesCombined, target);
+    } else if (next_sWord) {
+      const suffixesCombined = suffixesPropCombined();
+      if (suffixesCombined.freq) {
+        this.vocabList.push(target = current.$ = { w: next_sWord.w.slice(0, -1), freq: 0, len: next_sWord.len - 1, seq: next_sWord.seq, src: [] })
+        this.mergeProps(next_sWord, target);
+        this.mergeProps(suffixesCombined, target);
+      }
+    } else if (next_eWord) {
+      const suffixesCombined = suffixesPropCombined();
+      target = next_eWord;
+      if (suffixesCombined.w) target.w = this.caseOr(target.w, suffixesCombined.w.slice(0, target.len - 1));
+      this.mergeProps(suffixesCombined, target);
     }
   }
 
