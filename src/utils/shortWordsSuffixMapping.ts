@@ -1,5 +1,6 @@
 export const EXTRACT: Array<any> = [
   ["ad", "ads"],
+  ['be'],
   ["com",],
   ["is"],
   ["not"],
