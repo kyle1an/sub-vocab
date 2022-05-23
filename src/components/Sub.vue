@@ -95,8 +95,8 @@ async function formVocabLists(content: string) {
   console.timeEnd('--formLists');
 
   console.timeEnd('╘═ All ═╛')
+  console.log({ root: JSON.stringify(words.root) });
   logVocabInfo();
-  console.log(`root(${JSON.stringify(words.root)})`);
 }
 
 const vocabAmountInfo = ref<number[]>([]);
@@ -210,7 +210,7 @@ async function toggleWordState(row: any, e: any) {
                   <el-input @click.stop class="!w-[calc(100%-26px)] !text-[10px]" v-model="search" size="small" placeholder="Search vocabulary" />
                 </template>
                 <template #default="props">
-                  <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart="selectWord" @click.stop>{{ props.row.w }}</span>
+                  <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart.passive="selectWord" @click.stop>{{ props.row.w }}</span>
                 </template>
               </el-table-column>
 
