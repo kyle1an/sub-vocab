@@ -12,7 +12,7 @@ router.get('/', (req, res, next) => {
 
 module.exports = router;
 
-module.exports.api = {//newsletterSignup
+module.exports.api = {
   queryWords: (req, res) => {
     pool.getConnection((err, connection) => {
       connection.query(sql.wordsQuery, (err, rows, fields) => {
