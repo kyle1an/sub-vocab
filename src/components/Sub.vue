@@ -89,10 +89,6 @@ async function formVocabLists(content: string) {
 
   sentences.value = words.sentences;
 
-  console.time('-deSuffixes')
-  words.mergeSuffixes()
-  console.timeEnd('-deSuffixes')
-
   console.time('--formLists');
   listsOfVocab = words.formLists(await store.fetchVocab());
   tableDataOfVocab.value = listsOfVocab[selectedSeg]
@@ -100,6 +96,7 @@ async function formVocabLists(content: string) {
 
   console.timeEnd('╘═ All ═╛')
   logVocabInfo();
+  console.log(`root(${JSON.stringify(words.root)})`);
 }
 
 const vocabAmountInfo = ref<number[]>([]);

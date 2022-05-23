@@ -1,4 +1,4 @@
-import { EXTRACT, IRREGULAR } from './shortWordsSuffixMapping';
+import { EXTRACT, IRREGULAR } from './stemsMapping';
 import { Trie, Label } from '../types';
 
 export default class CategorizedTire implements Trie {
@@ -28,15 +28,15 @@ export default class CategorizedTire implements Trie {
     return this;
   };
 
-  #insert = (original: string, upper: string, index: number, i: number) => {
+  #insert = (original: string, upper: string, index: number, currentSentenceIndex: number) => {
     let branch: any = this.root;
-    const word: string = upper ? original.toLowerCase() : original;
-    for (const c of word.split('')) {
+    const isUp = !!upper;
+    for (const c of (isUp ? original.toLowerCase() : original).split('')) {
       branch = branch[c] ??= {};
     }
 
     if (!branch.$) {
-      this.vocabList.push(branch.$ = { w: original, up: !!upper, freq: 0, len: word.length, seq: ++this.#sequence, src: [] });
+      this.vocabList.push(branch.$ = { w: original, up: !!upper, freq: 0, len: original.length, seq: ++this.#sequence, src: [] });
     } else {
       if (branch.$.up) {
         if (upper) {
@@ -50,25 +50,49 @@ export default class CategorizedTire implements Trie {
 
     branch.$.freq += 1
     const sources = branch.$.src;
-    const last = sources[sources.length - 1];
-    if (last?.[0] === i) {
-      last[1].push([index, word.length])
+    const lastSentence = sources[sources.length - 1];
+    if (lastSentence?.[0] === currentSentenceIndex) {
+      lastSentence[1].push([index, original.length])
     } else {
-      sources.push([i, [[index, word.length]]])
+      sources.push([currentSentenceIndex, [[index, original.length]]])
     }
   }
 
-  formLists = (sieves?: any): Array<any> => {
-    if (sieves) {
-      for (const sieve of sieves) {
-        const sieveArray = sieve.w.split('');
-        let branch: any = this.root;
-        const lastChar = sieveArray.length === 1 ? '' : sieveArray.pop();
-        if (sieveArray.every((c: string) => branch = branch[c])) {
-          this.filterCommonWords(branch, lastChar, sieve)
+  formLists = (sievesList?: any): Array<any> => {
+    if (sievesList) {
+      for (const sieve of sievesList) {// Aha
+        if (sieve.w.toLowerCase() === 'aah') {
+          debugger
+          console.log({ sieve })
         }
+
+        const original = sieve.w;
+        const isUp = /[A-Z]/.test(original)
+        const charsOfSieve = (isUp ? original.toLowerCase() : original).split('');
+        let node: any = this.root;
+        for (const c of charsOfSieve) node = node[c] ??= {}
+
+        if (!node.$) {
+          this.vocabList.push(node.$ = { w: original, up: isUp, freq: 0, len: original.length, seq: ++this.#sequence, src: [] });
+        } else {
+          if (node.$.up) {
+            if (isUp) {
+              node.$.w = this.caseOr(node.$.w, original);
+            } else {
+              node.$.w = original;
+              node.$.up = false;
+            }
+          }
+        }
+
+        node.$.vocab = sieve;
+        node.$.F = sieve.is_valid;
       }
     }
+
+    console.time('-deSuffixes')
+    this.mergeSuffixes();
+    console.timeEnd('-deSuffixes')
 
     const lists: Array<object>[] = [[], [], []];
     for (const v of this.vocabList.sort((a, b) => a.seq - b.seq)) {
@@ -81,26 +105,6 @@ export default class CategorizedTire implements Trie {
     return lists;
   }
 
-  filterCommonWords(O: Record<string, Record<string, any>>, lastChar: string, vocab: any) {
-    if (lastChar) O = (lastChar === 'e') ? O : O?.[lastChar];
-
-    for (const $ of [
-      ...(lastChar === 'e' ? [O?.e?.$] : [O?.$, O?.s?.$]),
-      O?.e?.d?.$,
-      O?.e?.s?.$,
-      O?.i?.n?.g?.$,
-      O?.i?.n?.g?.s?.$,
-      O?.["'"]?.s?.$,
-      O?.["'"]?.l?.l?.$,
-      O?.["'"]?.v?.e?.$,
-      O?.["'"]?.d?.$,
-    ]) {
-      if (!$) continue;
-      $.vocab = vocab;
-      $.F = vocab.is_valid;
-    }
-  }
-
   caseOr = (a: string, b: string): string => {
     const r = [];
     for (let i = 0; i < a.length; i++) {
@@ -110,6 +114,11 @@ export default class CategorizedTire implements Trie {
   }
 
   mergeSorted = (a: Array<any>, b: Array<any>): Array<any> => {
+    if (!a.length) {
+      return b;
+    } else if (!b.length) {
+      return a;
+    }
     const merged = [];
     let i = 0;
     let j = 0;
@@ -278,6 +287,7 @@ export default class CategorizedTire implements Trie {
     targetWord.src = this.mergeSorted(targetWord.src, latterWord.src);
     latterWord.freq = null
     latterWord.src = [];
-    if (targetWord.seq > latterWord.seq) targetWord.seq = latterWord.seq
+    if (!(targetWord.seq < latterWord.seq)) targetWord.seq = latterWord.seq
+    if (!targetWord.vocab && latterWord.vocab) targetWord.vocab = latterWord.vocab;
   }
 }
