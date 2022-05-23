@@ -1,5 +1,6 @@
 export const EXTRACT: Array<any> = [
   ["ad", "ads"],
+  ['as'],
   ['be'],
   ["com",],
   ["is"],
@@ -21,6 +22,7 @@ export const IRREGULAR: Array<any> = [
   ["do", "done", "don't", "doesn't", "didn't"],
   ["have", "has", "had", "haven't", "hasn't", "hadn't"],
   ["is", "was", "isn't", "wasn't",],
+  ["I", "I'm",],
   ["might", "mightn't"],
   ["must", "mustn't"],
   ["need", "needn't"],
