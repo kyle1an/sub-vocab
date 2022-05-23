@@ -36,7 +36,7 @@ export default class CategorizedTire implements Trie {
     }
 
     if (!branch.$) {
-      this.vocabList.push(branch.$ = { w: original, up: !!upper, freq: 0, len: original.length, seq: ++this.#sequence, src: [] });
+      this.vocabList.push(branch.$ = { w: original, up: isUp, freq: 0, len: original.length, seq: ++this.#sequence, src: [] });
     } else {
       if (branch.$.up) {
         if (upper) {
@@ -60,12 +60,7 @@ export default class CategorizedTire implements Trie {
 
   formLists = (sievesList?: any): Array<any> => {
     if (sievesList) {
-      for (const sieve of sievesList) {// Aha
-        if (sieve.w.toLowerCase() === 'aah') {
-          debugger
-          console.log({ sieve })
-        }
-
+      for (const sieve of sievesList) {
         const original = sieve.w;
         const isUp = /[A-Z]/.test(original)
         const charsOfSieve = (isUp ? original.toLowerCase() : original).split('');
