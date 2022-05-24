@@ -5,16 +5,23 @@ export interface Segment {
 }
 
 export interface Vocab {
-  len: number;
   w: string;
 }
 
+export interface Sieve extends Vocab {
+  id?: number,
+  w: string,
+  is_valid: number | boolean,
+  is_user: number | boolean,
+}
+
 export interface Label extends Vocab {
-  F?: boolean;
   freq: number;
+  len: number;
   up?: boolean | undefined;
-  seq: number;
+  seq?: number;
   src: Array<any>;
+  F?: boolean;
   vocab?: any;
 }
 

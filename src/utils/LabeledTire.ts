@@ -1,45 +1,42 @@
 import { EXTRACT, IRREGULAR } from './stemsMapping';
 import { Trie, Label } from '../types';
+import { getNode } from './utils';
 
 export default class LabeledTire implements Trie {
-  root: Record<string, Record<string, any>> = {};
-  #sequence: number = 1;
-  sentences: Array<string> = [];
-  vocabularyOfInput: Array<Label> = [];
+  root: Record<string, Record<string, any>>;
+  #sequence: number;
+  sentences: Array<string>;
+  vocabularyOfInput: Array<Label>;
   revoked: any = [];
 
-  constructor(words: any) {
-    if (words) {
-      this.add(words)
-    }
+  constructor(trie: Record<string, Record<string, any>>, list: Array<Label>) {
+    [this.root, this.vocabularyOfInput] = [trie, list];
+    this.sentences = [];
+    this.#sequence = 1;
   }
 
-  add = (newWords: string) => {
-    // match include tags: /["'(<@A-Za-zÀ-ÿ[{](?:[^;.?!；。\n\r]*[\n\r]?["'(<@A-Za-zÀ-ÿ[{]*(?:[-.](?=[A-Za-zÀ-ÿ.])|\.{3} *)*[A-Za-zÀ-ÿ])+[^ \r\n]*/mg
+  add = (input: string) => {
     let i = this.sentences.length;
-    this.sentences = this.sentences.concat(newWords.match(/["'@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|{[^}]*})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ.])|\.{3} *)*["'@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/mg) || [])
+    this.sentences = this.sentences.concat(input.match(/["'@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|{[^}]*})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ.])|\.{3} *)*["'@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/mg) || [])
     const len = this.sentences.length;
     for (; i < len; i++) {
       for (const m of this.sentences[i].matchAll(/((?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þ]+[a-zß-ÿ]*)+(?:['-]?[A-Za-zÀ-ÿ]'?)+)|[a-zß-ÿ]+(?:-?[a-zß-ÿ]'?)+/mg)) {
-        this.#insert(m[0], m[1], m.index!, i);
+        this.#insert(m[0], !!m[1], m.index!, i);
       }
     }
 
     return this;
-  };
+  }
 
-  #insert = (original: string, upper: string, index: number, currentSentenceIndex: number) => {
-    let branch: any = this.root;
-    const isUp = !!upper;
-    for (const c of (isUp ? original.toLowerCase() : original).split('')) {
-      branch = branch[c] ??= {};
-    }
+  #insert = (original: string, isUp: boolean, index: number, currentSentenceIndex: number) => {
+    const branch = getNode(isUp ? original.toLowerCase() : original, this.root);
 
     if (!branch.$) {
       this.vocabularyOfInput.push(branch.$ = { w: original, up: isUp, freq: 0, len: original.length, seq: ++this.#sequence, src: [] });
     } else {
+      branch.$.freq ??= ++this.#sequence;
       if (branch.$.up) {
-        if (upper) {
+        if (isUp) {
           branch.$.w = this.caseOr(branch.$.w, original);
         } else {
           branch.$.w = original;
@@ -63,9 +60,7 @@ export default class LabeledTire implements Trie {
       for (const sieve of sievesList) {
         const original = sieve.w;
         const isUp = /[A-Z]/.test(original)
-        const charsOfSieve = (isUp ? original.toLowerCase() : original).split('');
-        let node: any = this.root;
-        for (const c of charsOfSieve) node = node[c] ??= {}
+        const node: any = getNode(isUp ? original.toLowerCase() : original, this.root);
 
         if (!node.$) {
           this.vocabularyOfInput.push(node.$ = { w: original, up: isUp, freq: 0, len: original.length, seq: ++this.#sequence, src: [] });
@@ -85,12 +80,12 @@ export default class LabeledTire implements Trie {
       }
     }
 
-    console.time('   ┌───── mergeSuffix')
+    console.time('   ┌─────── mergeSuffix')
     this.mergeSuffixes();
-    console.timeEnd('   ┌───── mergeSuffix')
+    console.timeEnd('   ┌─────── mergeSuffix')
 
     const lists: Array<object>[] = [[], [], []];
-    for (const v of this.vocabularyOfInput.sort((a, b) => a.seq - b.seq)) {
+    for (const v of this.vocabularyOfInput.sort((a, b) => a.seq! - b.seq!)) {
       if (v.freq) {
         lists[0].push(v);
         lists[!v.F && v.len > 2 ? 1 : 2].push(v);

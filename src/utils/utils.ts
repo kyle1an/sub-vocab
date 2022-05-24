@@ -24,4 +24,9 @@ function pruneEmpty(obj: any, mutate = true) {
   }(co);  // Do not modify the original object, create a clone instead
 }
 
-export { pruneEmpty, print, stringify, sortByChar };
+function getNode(word: string, node: Record<string, Record<string, any>>) {
+  for (const c of word.split('')) node = node[c] ??= {};
+  return node;
+}
+
+export { pruneEmpty, print, stringify, sortByChar, getNode };
