@@ -15,6 +15,7 @@ export interface Label extends Vocab {
   up?: boolean | undefined;
   seq: number;
   src: Array<any>;
+  vocab?: any;
 }
 
 export interface Trie {
