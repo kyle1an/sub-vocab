@@ -1,11 +1,11 @@
 import { EXTRACT, IRREGULAR } from './stemsMapping';
 import { Trie, Label } from '../types';
 
-export default class CategorizedTire implements Trie {
+export default class LabeledTire implements Trie {
   root: Record<string, Record<string, any>> = {};
   #sequence: number = 1;
-  sentences: string[] = [];
-  vocabList: Label[] = [];
+  sentences: Array<string> = [];
+  vocabularyOfInput: Array<Label> = [];
   revoked: any = [];
 
   constructor(words: any) {
@@ -36,7 +36,7 @@ export default class CategorizedTire implements Trie {
     }
 
     if (!branch.$) {
-      this.vocabList.push(branch.$ = { w: original, up: isUp, freq: 0, len: original.length, seq: ++this.#sequence, src: [] });
+      this.vocabularyOfInput.push(branch.$ = { w: original, up: isUp, freq: 0, len: original.length, seq: ++this.#sequence, src: [] });
     } else {
       if (branch.$.up) {
         if (upper) {
@@ -58,7 +58,7 @@ export default class CategorizedTire implements Trie {
     }
   }
 
-  formLists = (sievesList?: any): Array<any> => {
+  categorizeVocabulary = (sievesList?: any): Array<any> => {
     if (sievesList) {
       for (const sieve of sievesList) {
         const original = sieve.w;
@@ -68,7 +68,7 @@ export default class CategorizedTire implements Trie {
         for (const c of charsOfSieve) node = node[c] ??= {}
 
         if (!node.$) {
-          this.vocabList.push(node.$ = { w: original, up: isUp, freq: 0, len: original.length, seq: ++this.#sequence, src: [] });
+          this.vocabularyOfInput.push(node.$ = { w: original, up: isUp, freq: 0, len: original.length, seq: ++this.#sequence, src: [] });
         } else {
           if (node.$.up) {
             if (isUp) {
@@ -85,12 +85,12 @@ export default class CategorizedTire implements Trie {
       }
     }
 
-    console.time('-deSuffixes')
+    console.time('   ┌───── mergeSuffix')
     this.mergeSuffixes();
-    console.timeEnd('-deSuffixes')
+    console.timeEnd('   ┌───── mergeSuffix')
 
     const lists: Array<object>[] = [[], [], []];
-    for (const v of this.vocabList.sort((a, b) => a.seq - b.seq)) {
+    for (const v of this.vocabularyOfInput.sort((a, b) => a.seq - b.seq)) {
       if (v.freq) {
         lists[0].push(v);
         lists[!v.F && v.len > 2 ? 1 : 2].push(v);
@@ -139,7 +139,7 @@ export default class CategorizedTire implements Trie {
       if (irregularCollect.length === 1) continue;
 
       if (!irregularWord) {
-        this.vocabList.push(irregularWord = { w: word, freq: 0, len: word.length, seq: ++this.#sequence, src: [] });
+        this.vocabularyOfInput.push(irregularWord = { w: word, freq: 0, len: word.length, seq: ++this.#sequence, src: [] });
       }
 
       let i = irregularCollect.length;
@@ -160,7 +160,7 @@ export default class CategorizedTire implements Trie {
       if (stemCollect.length === 1) continue;
 
       if (!stemWord) {
-        this.vocabList.push(stemWord = { w: word, freq: 0, len: word.length, seq: ++this.#sequence, src: [] });
+        this.vocabularyOfInput.push(stemWord = { w: word, freq: 0, len: word.length, seq: ++this.#sequence, src: [] });
       }
 
       let i = stemCollect.length;
@@ -265,7 +265,7 @@ export default class CategorizedTire implements Trie {
     } else if (next_sWord) {
       const suffixesCombined = suffixesPropCombined();
       if (suffixesCombined.freq) {
-        this.vocabList.push(target = current.$ = { w: next_sWord.w.slice(0, -1), freq: 0, len: next_sWord.len - 1, seq: next_sWord.seq, src: [] })
+        this.vocabularyOfInput.push(target = current.$ = { w: next_sWord.w.slice(0, -1), freq: 0, len: next_sWord.len - 1, seq: next_sWord.seq, src: [] })
         this.mergeProps(next_sWord, target);
         this.mergeProps(suffixesCombined, target);
       }

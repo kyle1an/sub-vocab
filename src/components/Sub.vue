@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import Trie from '../utils/CategorizedTire';
+import Trie from '../utils/LabeledTire';
 import SegmentedControl from './SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
 import { computed, onMounted, ref, shallowRef } from 'vue'
@@ -23,7 +23,7 @@ let selectedSeg: number = 0;
 onMounted(async () => {
   const t = new Trie('say ok Say tess')
   t.add('').mergeSuffixes();
-  const test = t.formLists([{ id: 6, w: 'say', is_valid: 1, is_user: 0 }]);
+  const test = t.categorizeVocabulary([{ id: 6, w: 'say', is_valid: 1, is_user: 0 }]);
   console.log(test)
   selectedSeg = segments.findIndex((o: any) => o.default);
 })
@@ -83,20 +83,21 @@ const store = useVocabStore()
 async function formVocabLists(content: string) {
   console.time('╘═ All ═╛')
 
-  console.time('--initWords')
-  const words = new Trie(content);
-  console.timeEnd('--initWords')
+  console.time('━━━━━━━ initWordsTrie')
+  const vocab = new Trie(content);
+  console.timeEnd('━━━━━━━ initWordsTrie')
 
-  sentences.value = words.sentences;
+  sentences.value = vocab.sentences;
 
-  console.time('--formLists');
-  listsOfVocab = words.formLists(await store.fetchVocab());
+  console.time('━━━┷━ categorizeVocab');
+  listsOfVocab = vocab.categorizeVocabulary(await store.fetchVocab());
   tableDataOfVocab.value = listsOfVocab[selectedSeg]
-  console.timeEnd('--formLists');
+  console.timeEnd('━━━┷━ categorizeVocab');
 
   console.timeEnd('╘═ All ═╛')
-  console.log({ root: JSON.stringify(words.root) });
+  console.log({ root: JSON.stringify(vocab.root) });
   logVocabInfo();
+  console.log(store.getSieveTrie())
 }
 
 const vocabAmountInfo = ref<number[]>([]);
@@ -145,22 +146,26 @@ const tableDataFiltered = computed(() =>
 
 const loadingStateArray = ref<boolean[]>([]);
 
-async function toggleWordState(row: any, e: any) {
-  loadingStateArray.value[row.seq] = true;
+const toggleWordState = (function toggle() {
+  const ownVocab = store.fetchVocab();
 
-  const word = row.w.replace(/'/g, `''`);
+  return async function toggleState(row: any, e: any) {
+    loadingStateArray.value[row.seq] = true;
 
-  if (!row.vocab) {
-    const vocab = { w: row.w, is_user: true };
-    row.vocab = vocab;
-    store.commonVocab.push(vocab);
+    const word = row.w.replace(/'/g, `''`);
+
+    if (!row.vocab) {
+      const vocab = { w: row.w, is_user: true };
+      row.vocab = vocab;
+      (await ownVocab).push(vocab);
+    }
+
+    const res = await (row?.vocab?.is_valid ? revokeWord : acquainted)({ word });
+    if (res) row.vocab.is_valid = res[res.length - 1].every((r: any) => r.is_valid);
+
+    loadingStateArray.value[row.seq] = false;
   }
-
-  const res = await (row?.vocab?.is_valid ? revokeWord : acquainted)({ word });
-  if (res) row.vocab.is_valid = res[res.length - 1].every((r: any) => r.is_valid);
-
-  loadingStateArray.value[row.seq] = false;
-}
+})();
 </script>
 
 <template>
