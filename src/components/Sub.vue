@@ -6,7 +6,7 @@ import { computed, onMounted, ref, shallowRef } from 'vue'
 import { Segment, Vocab } from '../types';
 import { sortByChar } from '../utils/utils';
 import { acquainted, revokeWord } from '../api/vocab-service';
-import { useVocabStore } from "../store/useVocab";
+import { useVocabStore } from '../store/useVocab';
 
 const segments: Array<Segment> = [
   {
@@ -19,15 +19,13 @@ const segments: Array<Segment> = [
     id: 2, title: 'Common',
   },
 ];
-let selectedSeg: number = 0;
+let selectedSeg: number = segments.findIndex((o: any) => o.default);
 onMounted(async () => {
-  const t = new Trie('say ok Say tess')
-  t.add('').mergeSuffixes();
-  const test = t.categorizeVocabulary([{ id: 6, w: 'say', is_valid: 1, is_user: 0 }]);
-  console.log(test)
-  selectedSeg = segments.findIndex((o: any) => o.default);
+  // const t = new Trie('say ok Say tess')
+  // t.add('').mergeSuffixes();
+  // const test = t.categorizeVocabulary([{ id: 6, w: 'say', is_valid: 1, is_user: 0 }]);
+  // console.log(test)
 })
-
 let listsOfVocab: Array<any>[] = [[], [], []];
 const tableDataOfVocab = shallowRef<Vocab[]>([]);
 const vocabTable = shallowRef<any>(null);
@@ -81,16 +79,17 @@ const sentences = shallowRef<any[]>([]);
 const store = useVocabStore()
 
 async function formVocabLists(content: string) {
+  const fetchedVocab = await store.fetchVocab()
   console.time('╘═ All ═╛')
 
   console.time('━━━━━━━ initWordsTrie')
-  const vocab = new Trie(content);
+  const vocab = new Trie({}, []).add(content);
   console.timeEnd('━━━━━━━ initWordsTrie')
 
   sentences.value = vocab.sentences;
 
   console.time('━━━┷━ categorizeVocab');
-  listsOfVocab = vocab.categorizeVocabulary(await store.fetchVocab());
+  listsOfVocab = vocab.categorizeVocabulary(fetchedVocab);
   tableDataOfVocab.value = listsOfVocab[selectedSeg]
   console.timeEnd('━━━┷━ categorizeVocab');
 
@@ -147,7 +146,7 @@ const tableDataFiltered = computed(() =>
 const loadingStateArray = ref<boolean[]>([]);
 
 const toggleWordState = (function toggle() {
-  const ownVocab = store.fetchVocab();
+  const commonVocab = store.fetchVocab();
 
   return async function toggleState(row: any, e: any) {
     loadingStateArray.value[row.seq] = true;
@@ -155,13 +154,15 @@ const toggleWordState = (function toggle() {
     const word = row.w.replace(/'/g, `''`);
 
     if (!row.vocab) {
-      const vocab = { w: row.w, is_user: true };
+      const vocab = { w: row.w, is_user: true, is_valid: false };
       row.vocab = vocab;
-      (await ownVocab).push(vocab);
+      (await commonVocab).push(vocab);
     }
 
     const res = await (row?.vocab?.is_valid ? revokeWord : acquainted)({ word });
-    if (res) row.vocab.is_valid = res[res.length - 1].every((r: any) => r.is_valid);
+    if (res) {
+      row.vocab.is_valid = res[res.length - 1].every((r: any) => r.is_valid);
+    }
 
     loadingStateArray.value[row.seq] = false;
   }
