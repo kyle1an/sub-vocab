@@ -28,7 +28,11 @@ export interface Label extends Vocab {
 export interface Trie {
   root: TrieNode;
 
-  add(word: string): void;
+  add(word: string): this;
 
   #insert(word: string): void;
 }
+
+export type Node = Record<any, Record<any, any | Label>>;
+
+export type Src = Array<Array<any>>;
