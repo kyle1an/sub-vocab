@@ -4,49 +4,24 @@ import { Label, Sieve, TrieNode } from '../types';
 import { getNode } from '../utils/utils';
 
 export const useVocabStore = defineStore('vocabStore', () => {
-  let commonVocab: Array<Sieve> = [];
   let query: Promise<Array<Sieve>> = queryWords();
-  let trie: Record<string, Record<string, any>>;
-  let trieCopy: Record<string, Record<string, any>>;
-  let list: Array<Label>;
-  let listCopy: Array<Label>;
+  let commonVocab: Array<Sieve> = [];
+  let trieListPair: [TrieNode, Array<Label>];
 
   async function fetchVocab() {
     if (commonVocab.length === 0) {
+      console.time('fetch vocab');
       commonVocab = await query;
-      structSieve();
+      console.timeEnd('fetch vocab');
+      trieListPair = structSievePair(commonVocab);
     }
     return commonVocab;
   }
 
-  function structSieve() {
-    trie = {};
-    list = [];
-    for (const sieve of commonVocab) {
-      const original = sieve.w;
-      const isUp = /[A-Z]/.test(original)
-      const node = getNode(isUp ? original.toLowerCase() : original, trie);
-      if (!node.$) {
-        list.push(node.$ = { w: original, up: isUp, freq: 0, len: original.length, src: [], vocab: sieve, F: true });
-      }
-    }
-    console.log(JSON.stringify(trie));
-    trieCopy = JSON.parse(JSON.stringify(trie))
-    listCopy = JSON.parse(JSON.stringify(list))
-  }
-
-  async function getSieveTrie() {
-    if (commonVocab.length === 0) {
-      commonVocab = await query;
-      structSieve();
-    }
-    return trie;
-  }
-
-  async function fetchSieve(): Promise<any> {
-    const vocab = await fetchVocab();
-    const trie = {};
-    const list = [];
+  function structSievePair(vocab: Array<Sieve>): [TrieNode, Array<Label>] {
+    console.time('struct sieve')
+    const trie: TrieNode = {};
+    const list: Array<Label> = [];
     for (const sieve of vocab) {
       const original = sieve.w;
       const isUp = /[A-Z]/.test(original)
@@ -59,8 +34,32 @@ export const useVocabStore = defineStore('vocabStore', () => {
       node.$.vocab = sieve;
       node.$.F = sieve.is_valid;
     }
+    console.timeEnd('struct sieve');
     return [trie, list];
   }
 
-  return { fetchVocab, getSieveTrie, fetchSieve };
+  async function fetchSieve(): Promise<any> {
+    debugger
+    await fetchVocab();
+    setTimeout((): void => {
+      trieListPair = structSievePair(commonVocab);
+    }, 0);
+    return trieListPair;
+  }
+
+  function updateWord(row: Label) {
+    const original = row.vocab!.w;
+    const isUp = /[A-Z]/.test(original)
+    const [trie, list] = trieListPair;
+    const node: TrieNode = getNode(isUp ? original.toLowerCase() : original, trie);
+    if (!node.$) {
+      node.$ = { w: original, up: isUp, freq: 0, len: original.length, src: [] }
+      list.push(<Label>node.$);
+      commonVocab.push(<Sieve>row.vocab);
+    }
+    node.$.vocab = row.vocab;
+    node.$.F = row.vocab!.is_valid;
+  }
+
+  return { fetchVocab, updateWord, fetchSieve };
 })

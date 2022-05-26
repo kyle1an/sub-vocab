@@ -8,14 +8,15 @@ export interface Vocab {
   w: string;
 }
 
-export interface Sieve extends Vocab {
-  id?: number,
+export interface Sieve {
   w: string,
   is_valid: number | boolean,
   is_user: number | boolean,
+  id?: number,
 }
 
 export interface Label extends Vocab {
+  w: string;
   freq: number;
   len: number;
   up?: boolean;
