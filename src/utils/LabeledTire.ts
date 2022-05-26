@@ -21,14 +21,14 @@ export default class LabeledTire implements Trie {
     const totalSize = this.sentences.length;
     for (; previousSize < totalSize; previousSize++) {
       for (const m of this.sentences[previousSize].matchAll(/((?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þ]+[a-zß-ÿ]*)+(?:['-]?[A-Za-zÀ-ÿ]'?)+)|[a-zß-ÿ]+(?:-?[a-zß-ÿ]'?)+/mg)) {
-        this.#insert(m[0], !!m[1], m.index!, previousSize);
+        this.#update(m[0], !!m[1], m.index!, previousSize);
       }
     }
 
     return this;
   }
 
-  #insert = (original: string, isUp: boolean, index: number, currentSentenceIndex: number) => {
+  #update = (original: string, isUp: boolean, index: number, currentSentenceIndex: number) => {
     const branch = getNode(isUp ? original.toLowerCase() : original, this.root);
     this.setDefault(branch, original, isUp);
     branch.$.seq ??= ++this.#sequence;
@@ -43,17 +43,6 @@ export default class LabeledTire implements Trie {
   }
 
   categorizeVocabulary = (sievesList?: Array<Sieve>): Array<Array<Label>> => {
-    if (sievesList) {
-      for (const sieve of sievesList) {
-        const original = sieve.w;
-        const isUp = /[A-Z]/.test(original)
-        const node: TrieNode = getNode(isUp ? original.toLowerCase() : original, this.root);
-        this.setDefault(node, original, isUp);
-        node.$.vocab = sieve;
-        node.$.F = sieve.is_valid;
-      }
-    }
-
     console.time('   ┌─────── mergeSuffix')
     this.merge();
     console.timeEnd('   ┌─────── mergeSuffix')
@@ -151,7 +140,7 @@ export default class LabeledTire implements Trie {
 
   setDefault(branch: TrieNode, original: string, isUp: boolean) {
     if (!branch.$) {
-      this.vocabularyOfInput.push(branch.$ = { w: original, up: isUp, freq: 0, len: original.length, seq: ++this.#sequence, src: [] });
+      this.vocabularyOfInput.push(branch.$ = { w: original, up: isUp, freq: 0, len: original.length, src: [] });
     } else {
       if (branch.$.up) {
         if (isUp) {

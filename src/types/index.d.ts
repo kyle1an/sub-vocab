@@ -29,10 +29,10 @@ export interface Trie {
   root: TrieNode;
 
   add(word: string): this;
-
-  #insert(word: string): void;
 }
 
 export type TrieNode = Record<any, Record<any, any | Label>>;
 
 export type Source = Array<Array<any>>;
+
+export type TrieNodes = { [key: string]: TrieNode; [key: $]: Label; [key: vocab]: Sieve };
