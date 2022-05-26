@@ -3,8 +3,8 @@ import Trie from '../utils/LabeledTire';
 import SegmentedControl from './SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
 import { computed, onMounted, ref, shallowRef } from 'vue'
-import { Segment, Vocab } from '../types';
-import { sortByChar } from '../utils/utils';
+import { Segment, TrieNode, Vocab } from '../types';
+import { getNode, sortByChar } from '../utils/utils';
 import { acquainted, revokeWord } from '../api/vocab-service';
 import { useVocabStore } from '../store/useVocab';
 
@@ -79,17 +79,17 @@ const sentences = shallowRef<any[]>([]);
 const store = useVocabStore()
 
 async function formVocabLists(content: string) {
-  const fetchedVocab = await store.fetchVocab()
+  const [trie, list] = await store.fetchSieve()
   console.time('╘═ All ═╛')
 
   console.time('━━━━━━━ initWordsTrie')
-  const vocab = new Trie({}, []).add(content);
+  const vocab = new Trie(trie, list).add(content);
   console.timeEnd('━━━━━━━ initWordsTrie')
 
   sentences.value = vocab.sentences;
 
   console.time('━━━┷━ categorizeVocab');
-  listsOfVocab = vocab.categorizeVocabulary(fetchedVocab);
+  listsOfVocab = vocab.categorizeVocabulary();
   tableDataOfVocab.value = listsOfVocab[selectedSeg]
   console.timeEnd('━━━┷━ categorizeVocab');
 

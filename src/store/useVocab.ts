@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { queryWords } from '../api/vocab-service';
-import { Label, Sieve } from '../types';
+import { Label, Sieve, TrieNode } from '../types';
 import { getNode } from '../utils/utils';
 
 export const useVocabStore = defineStore('vocabStore', () => {
@@ -43,19 +43,24 @@ export const useVocabStore = defineStore('vocabStore', () => {
     return trie;
   }
 
-  async function getSieve() {
-    if (commonVocab.length === 0) {
-      commonVocab = await query;
-      structSieve();
+  async function fetchSieve(): Promise<any> {
+    const vocab = await fetchVocab();
+    const trie = {};
+    const list = [];
+    for (const sieve of vocab) {
+      const original = sieve.w;
+      const isUp = /[A-Z]/.test(original)
+      const node: TrieNode = getNode(isUp ? original.toLowerCase() : original, trie);
+
+      if (!node.$) {
+        list.push(node.$ = { w: original, up: isUp, freq: 0, len: original.length, src: [] });
+      }
+
+      node.$.vocab = sieve;
+      node.$.F = sieve.is_valid;
     }
-    setTimeout(function delayListClone() {
-      console.log('clone sieve start')
-      trie = JSON.parse(JSON.stringify(trieCopy))
-      list = JSON.parse(JSON.stringify(listCopy))
-      console.log('clone sieve done')
-    }, 0)
     return [trie, list];
   }
 
-  return { fetchVocab, getSieveTrie, getSieve };
+  return { fetchVocab, getSieveTrie, fetchSieve };
 })
