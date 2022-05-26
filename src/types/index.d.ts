@@ -18,11 +18,11 @@ export interface Sieve extends Vocab {
 export interface Label extends Vocab {
   freq: number;
   len: number;
-  up?: boolean | undefined;
+  up?: boolean;
   seq?: number;
-  src: Array<any>;
+  src: Source;
   F?: boolean;
-  vocab?: any;
+  vocab?: Sieve;
 }
 
 export interface Trie {
@@ -33,6 +33,6 @@ export interface Trie {
   #insert(word: string): void;
 }
 
-export type Node = Record<any, Record<any, any | Label>>;
+export type TrieNode = Record<any, Record<any, any | Label>>;
 
-export type Src = Array<Array<any>>;
+export type Source = Array<Array<any>>;

@@ -1,15 +1,15 @@
 import { EXTRACT, IRREGULAR } from './stemsMapping';
-import { Trie, Label, Sieve, Node, Src } from '../types';
+import { Trie, Label, Sieve, TrieNode, Source } from '../types';
 import { getNode } from './utils';
 
 export default class LabeledTire implements Trie {
-  root: Node;
+  root: TrieNode;
   #sequence: number;
   sentences: Array<string>;
   vocabularyOfInput: Array<Label>;
   revoked: Array<Array<any>> = [];
 
-  constructor(trie: Node, list: Array<Label>) {
+  constructor(trie: TrieNode, list: Array<Label>) {
     [this.root, this.vocabularyOfInput] = [trie, list];
     this.sentences = [];
     this.#sequence = 1;
@@ -47,7 +47,7 @@ export default class LabeledTire implements Trie {
       for (const sieve of sievesList) {
         const original = sieve.w;
         const isUp = /[A-Z]/.test(original)
-        const node: Node = getNode(isUp ? original.toLowerCase() : original, this.root);
+        const node: TrieNode = getNode(isUp ? original.toLowerCase() : original, this.root);
         this.setDefault(node, original, isUp);
         node.$.vocab = sieve;
         node.$.F = sieve.is_valid;
@@ -77,7 +77,7 @@ export default class LabeledTire implements Trie {
     return String.fromCharCode(...r);
   }
 
-  mergeSorted = (a: Src, b: Src): Src => {
+  mergeSorted = (a: Source, b: Source): Source => {
     if (!a.length) {
       return b;
     } else if (!b.length) {
@@ -142,14 +142,14 @@ export default class LabeledTire implements Trie {
     }
   }
 
-  findNode(word: string): Node | null {
+  findNode(word: string): TrieNode | undefined {
     const chars = word.split('');
-    let branch: Node = this.root;
-    const doesExist = chars.every((c: string) => branch = branch[c]) && branch.$
-    return doesExist ? branch : null;
+    let branch: TrieNode = this.root;
+    const has$ = chars.every((c: string) => branch = branch[c]) && branch.$
+    return has$ ? branch : undefined;
   }
 
-  setDefault(branch: Node, original: string, isUp: boolean) {
+  setDefault(branch: TrieNode, original: string, isUp: boolean) {
     if (!branch.$) {
       this.vocabularyOfInput.push(branch.$ = { w: original, up: isUp, freq: 0, len: original.length, seq: ++this.#sequence, src: [] });
     } else {
@@ -178,7 +178,7 @@ export default class LabeledTire implements Trie {
     }
   }
 
-  merge = (layer: Node = this.root) => {
+  merge = (layer: TrieNode = this.root) => {
     this.mergeIrregular();
     this.extractObscure();
     this.traverseMerge(layer);
@@ -187,7 +187,7 @@ export default class LabeledTire implements Trie {
     }
   }
 
-  traverseMerge = (layer: Node = this.root) => {
+  traverseMerge = (layer: TrieNode = this.root) => {
     for (const key in layer) {
       if (key === '$') continue;
       const innerLayer = layer[key]
@@ -196,7 +196,7 @@ export default class LabeledTire implements Trie {
     }
   }
 
-  mergeVocabOfDifferentSuffixes = (current: Node, previousChar: string) => {
+  mergeVocabOfDifferentSuffixes = (current: TrieNode, previousChar: string) => {
     const next_ing = current?.i?.n?.g;
     const next_ingWord = next_ing?.$;
     const next_ingsWord = next_ing?.s?.$;
