@@ -3,8 +3,8 @@ import Trie from '../utils/LabeledTire';
 import SegmentedControl from './SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
 import { computed, onMounted, ref, shallowRef } from 'vue'
-import { Segment, TrieNode, Vocab } from '../types';
-import { getNode, sortByChar } from '../utils/utils';
+import { Segment, Vocab } from '../types';
+import { sortByChar } from '../utils/utils';
 import { acquainted, revokeWord } from '../api/vocab-service';
 import { useVocabStore } from '../store/useVocab';
 
@@ -96,7 +96,6 @@ async function formVocabLists(content: string) {
   console.timeEnd('╘═ All ═╛')
   console.log({ root: JSON.stringify(vocab.root) });
   logVocabInfo();
-  console.log(store.getSieveTrie())
 }
 
 const vocabAmountInfo = ref<number[]>([]);
@@ -106,10 +105,10 @@ function logVocabInfo() {
   const untouchedVocabList = [...listsOfVocab[0]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
   const lessCommonWordsList = [...listsOfVocab[1]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
   const commonWordsList = [...listsOfVocab[2]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
-  console.log(`sen(${sentences.value.length})`, sentences);
-  console.log(`not(${vocabAmountInfo.value[0]})`, untouchedVocabList);
-  console.log(`fil(${vocabAmountInfo.value[1]})`, lessCommonWordsList);
-  console.log(`com(${vocabAmountInfo.value[2]})`, commonWordsList);
+  console.log(`sentences(${sentences.value.length})`, sentences);
+  console.log(`original(${vocabAmountInfo.value[0]})`, untouchedVocabList);
+  console.log(`filtered(${vocabAmountInfo.value[1]})`, lessCommonWordsList);
+  console.log(`common(${vocabAmountInfo.value[2]})`, commonWordsList);
 }
 
 function dropHandler(ev: any) {
@@ -145,28 +144,21 @@ const tableDataFiltered = computed(() =>
 
 const loadingStateArray = ref<boolean[]>([]);
 
-const toggleWordState = (function toggle() {
-  const commonVocab = store.fetchVocab();
+async function toggleWordState(row: any, e: any) {
+  loadingStateArray.value[row.seq] = true;
 
-  return async function toggleState(row: any, e: any) {
-    loadingStateArray.value[row.seq] = true;
+  const word = row.w.replace(/'/g, `''`);
+  row.vocab ??= { w: row.w, is_user: true, is_valid: false };
+  const res = await (row?.vocab?.is_valid ? revokeWord : acquainted)({ word });
 
-    const word = row.w.replace(/'/g, `''`);
-
-    if (!row.vocab) {
-      const vocab = { w: row.w, is_user: true, is_valid: false };
-      row.vocab = vocab;
-      (await commonVocab).push(vocab);
-    }
-
-    const res = await (row?.vocab?.is_valid ? revokeWord : acquainted)({ word });
-    if (res) {
-      row.vocab.is_valid = res[res.length - 1].every((r: any) => r.is_valid);
-    }
-
-    loadingStateArray.value[row.seq] = false;
+  if (res) {
+    row.vocab.is_valid = res[res.length - 1].every((r: any) => r.is_valid);
+    row.F = row.vocab.is_valid;
+    store.updateWord(row);
   }
-})();
+
+  loadingStateArray.value[row.seq] = false;
+}
 </script>
 
 <template>
