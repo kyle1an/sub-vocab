@@ -1,5 +1,5 @@
 import { EXTRACT, IRREGULAR } from './stemsMapping';
-import { Trie, Label, Sieve, TrieNode, Source } from '../types';
+import { Trie, Label, Sieve, TrieNode, Source, Occur } from '../types';
 import { getNode } from './utils';
 
 export default class LabeledTire implements Trie {
@@ -9,7 +9,7 @@ export default class LabeledTire implements Trie {
   vocabularyOfInput: Array<Label>;
   revoked: Array<Array<any>> = [];
 
-  constructor(trie: TrieNode, list: Array<Label>) {
+  constructor([trie, list]: [TrieNode, Array<Label>]) {
     [this.root, this.vocabularyOfInput] = [trie, list];
     this.sentences = [];
     this.#sequence = 1;
@@ -36,9 +36,9 @@ export default class LabeledTire implements Trie {
     const sources = branch.$.src;
     const lastSentence = sources[sources.length - 1];
     if (lastSentence?.[0] === currentSentenceIndex) {
-      lastSentence[1].push([index, original.length])
+      lastSentence[1].push([index, original.length,])
     } else {
-      sources.push([currentSentenceIndex, [[index, original.length]]])
+      sources.push([currentSentenceIndex, [[index, original.length,]]])
     }
   }
 
@@ -47,14 +47,24 @@ export default class LabeledTire implements Trie {
     this.merge();
     console.timeEnd('   ┌─────── mergeSuffix')
 
+    console.time('   ├───────── formLabels')
     const lists: Array<Array<Label>> = [[], [], []];
-    for (const v of this.vocabularyOfInput.sort((a, b) => a.seq! - b.seq!)) {
+
+    for (const v of this.vocabularyOfInput) {
       if (v.freq) {
         lists[0].push(v);
-        lists[!v.F && v.len > 2 ? 1 : 2].push(v);
+        // lists[0][v.seq!] = v;
       }
     }
 
+    lists[0].sort((a, b) => b.seq! - a.seq!);
+    // lists[0] = lists[0].filter(Boolean);
+
+    for (const v of lists[0]) {
+      lists[!v.F && v.len > 2 ? 1 : 2].push(v);
+    }
+
+    console.timeEnd('   ├───────── formLabels')
     return lists;
   }
 
@@ -197,7 +207,7 @@ export default class LabeledTire implements Trie {
     const currentWord = <Label | undefined>current?.$;
     let target: Label;
 
-    const suffixesPropCombined = () => {
+    const occurCombined = (): Occur => {
       let suffixesCombined: any = { freq: 0, src: [], seq: Infinity };
       for (const latterWord of [
         next_esWord,
@@ -217,7 +227,7 @@ export default class LabeledTire implements Trie {
     }
 
     if (currentWord) {
-      const suffixesCombined = suffixesPropCombined();
+      const suffixesCombined = occurCombined();
       target = currentWord;
       const len = target.len;
       for (const latterWord of [
@@ -237,14 +247,14 @@ export default class LabeledTire implements Trie {
       if (suffixesCombined.w) target.w = this.caseOr(target.w, suffixesCombined.w.slice(0, target.len));
       this.mergeProps(suffixesCombined, target);
     } else if (next_sWord) {
-      const suffixesCombined = suffixesPropCombined();
+      const suffixesCombined = occurCombined();
       if (suffixesCombined.freq) {
         this.vocabularyOfInput.push(target = current.$ = { w: next_sWord.w.slice(0, -1), freq: 0, len: next_sWord.len - 1, seq: next_sWord.seq, src: [] })
         this.mergeProps(next_sWord, target);
         this.mergeProps(suffixesCombined, target);
       }
     } else if (next_eWord) {
-      const suffixesCombined = suffixesPropCombined();
+      const suffixesCombined = occurCombined();
       target = next_eWord;
       if (suffixesCombined.w) target.w = this.caseOr(target.w, suffixesCombined.w.slice(0, target.len - 1));
       this.mergeProps(suffixesCombined, target);

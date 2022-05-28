@@ -8,6 +8,12 @@ export interface Vocab {
   w: string;
 }
 
+export interface Occur extends Label {
+  freq: number,
+  src: Source;
+  seq: number;
+}
+
 export interface Sieve {
   w: string,
   is_valid: number | boolean,
@@ -17,11 +23,11 @@ export interface Sieve {
 
 export interface Label extends Vocab {
   w: string;
-  freq: number;
-  len: number;
   up?: boolean;
-  seq?: number;
+  len: number;
+  freq: number;
   src: Source;
+  seq?: number;
   F?: boolean;
   vocab?: Sieve;
 }
