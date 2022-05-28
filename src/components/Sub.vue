@@ -2,30 +2,18 @@
 import Trie from '../utils/LabeledTire';
 import SegmentedControl from './SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
-import { computed, onMounted, ref, shallowRef } from 'vue'
+import { computed, ref, shallowRef } from 'vue'
 import { Segment, Vocab } from '../types';
 import { sortByChar } from '../utils/utils';
 import { acquainted, revokeWord } from '../api/vocab-service';
 import { useVocabStore } from '../store/useVocab';
 
 const segments: Array<Segment> = [
-  {
-    id: 0, title: 'Original',
-  },
-  {
-    id: 11, title: 'Filtered', default: true
-  },
-  {
-    id: 2, title: 'Common',
-  },
+  { id: 0, title: 'Original', },
+  { id: 11, title: 'Filtered', default: true },
+  { id: 2, title: 'Common', },
 ];
 let selectedSeg: number = segments.findIndex((o: any) => o.default);
-onMounted(async () => {
-  // const t = new Trie('say ok Say tess')
-  // t.add('').mergeSuffixes();
-  // const test = t.categorizeVocabulary([{ id: 6, w: 'say', is_valid: 1, is_user: 0 }]);
-  // console.log(test)
-})
 let listsOfVocab: Array<any>[] = [[], [], []];
 const tableDataOfVocab = shallowRef<Vocab[]>([]);
 const vocabTable = shallowRef<any>(null);
@@ -79,11 +67,11 @@ const sentences = shallowRef<any[]>([]);
 const store = useVocabStore()
 
 async function formVocabLists(content: string) {
-  const [trie, list] = await store.fetchSieve()
+  const trieListPair = await store.getSieve()
   console.time('╘═ All ═╛')
 
   console.time('━━━━━━━ initWordsTrie')
-  const vocab = new Trie(trie, list).add(content);
+  const vocab = new Trie(trieListPair).add(content);
   console.timeEnd('━━━━━━━ initWordsTrie')
 
   sentences.value = vocab.sentences;
@@ -203,7 +191,7 @@ async function toggleWordState(row: any, e: any) {
                 </template>
               </el-table-column>
 
-              <el-table-column label="Vocabulary" sortable :sort-method="sortByChar" align="left" min-width="13" class-name="cursor-pointer">
+              <el-table-column label="Vocabulary" sortable :sort-method="(a, b) => sortByChar(a.w, b.w)" align="left" min-width="13" class-name="cursor-pointer">
                 <template #header>
                   <el-input @click.stop class="!w-[calc(100%-26px)] !text-[10px]" v-model="search" size="small" placeholder="Search vocabulary" />
                 </template>

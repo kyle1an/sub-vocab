@@ -38,8 +38,7 @@ export const useVocabStore = defineStore('vocabStore', () => {
     return [trie, list];
   }
 
-  async function fetchSieve(): Promise<any> {
-    debugger
+  async function getSieve(): Promise<any> {
     await fetchVocab();
     setTimeout((): void => {
       trieListPair = structSievePair(commonVocab);
@@ -61,5 +60,5 @@ export const useVocabStore = defineStore('vocabStore', () => {
     node.$.F = row.vocab!.is_valid;
   }
 
-  return { fetchVocab, updateWord, fetchSieve };
+  return { fetchVocab, updateWord, getSieve };
 })

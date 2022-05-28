@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
-function sortByChar(a: any, b: any): boolean {
-  return a.w.localeCompare(b.w, 'en', { sensitivity: 'base' });
+function sortByChar(a: string, b: string): number {
+  return a.localeCompare(b, 'en', { sensitivity: 'base' });
 }
 
 const print = (m: any, space = 0) => console.log(JSON.stringify(m, null, space).replace(/"/mg, ""))

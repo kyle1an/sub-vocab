@@ -8,15 +8,9 @@ import { sortByChar } from '../utils/utils';
 import { useVocabStore } from '../store/useVocab';
 
 const segments: Array<Segment> = [
-  {
-    id: 0, title: 'Whole',
-  },
-  {
-    id: 11, title: 'Common', default: true
-  },
-  {
-    id: 2, title: 'Top',
-  },
+  { id: 0, title: 'Whole', },
+  { id: 11, title: 'Common', default: true },
+  { id: 2, title: 'Top', },
 ]
 let selected: number = segments.findIndex((o: any) => o.default);
 let vocabLists: Array<any>[] = [[], [], []];
@@ -64,7 +58,7 @@ function selectWord(e: any) {
                 </template>
               </el-table-column>
 
-              <el-table-column label="Vocabulary" sortable :sort-method="sortByChar" align="left" min-width="7" class-name="cursor-pointer">
+              <el-table-column label="Vocabulary" sortable :sort-method="(a, b) => sortByChar(a.w, b.w)" align="left" min-width="7" class-name="cursor-pointer">
                 <template #default="props">
                   <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart="selectWord" @click.stop>{{ props.row.w }}</span>
                 </template>
