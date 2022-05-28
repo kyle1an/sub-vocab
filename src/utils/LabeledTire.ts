@@ -31,14 +31,13 @@ export default class LabeledTire implements Trie {
   #update = (original: string, isUp: boolean, index: number, currentSentenceIndex: number) => {
     const branch = getNode(isUp ? original.toLowerCase() : original, this.root);
     this.setDefault(branch, original, isUp);
-    branch.$.seq ??= ++this.#sequence;
     branch.$.freq += 1
     const sources = branch.$.src;
     const lastSentence = sources[sources.length - 1];
     if (lastSentence?.[0] === currentSentenceIndex) {
-      lastSentence[1].push([index, original.length,])
+      lastSentence[1].push([index, original.length, this.#sequence])
     } else {
-      sources.push([currentSentenceIndex, [[index, original.length,]]])
+      sources.push([currentSentenceIndex, [[index, original.length, this.#sequence]]])
     }
   }
 
@@ -51,14 +50,16 @@ export default class LabeledTire implements Trie {
     const lists: Array<Array<Label>> = [[], [], []];
 
     for (const v of this.vocabularyOfInput) {
+      v.seq = v.src?.[0]?.[1]?.[0]?.[2];
+
       if (v.freq) {
-        lists[0].push(v);
-        // lists[0][v.seq!] = v;
+
+        lists[0][v.seq!] = v;
       }
     }
 
-    lists[0].sort((a, b) => b.seq! - a.seq!);
-    // lists[0] = lists[0].filter(Boolean);
+
+    lists[0] = lists[0].filter(Boolean);
 
     for (const v of lists[0]) {
       lists[!v.F && v.len > 2 ? 1 : 2].push(v);
@@ -107,7 +108,8 @@ export default class LabeledTire implements Trie {
       if (irregularCollect.length === 1) continue;
 
       if (!irregularWord) {
-        this.vocabularyOfInput.push(irregularWord = { w: word, freq: 0, len: word.length, seq: ++this.#sequence, src: [] });
+        this.vocabularyOfInput.push(irregularWord = { w: word, freq: 0, len: word.length, src: [] });
+        ++this.#sequence;
       }
 
       let i = irregularCollect.length;
@@ -128,7 +130,8 @@ export default class LabeledTire implements Trie {
       if (stemCollect.length === 1) continue;
 
       if (!stemWord) {
-        this.vocabularyOfInput.push(stemWord = { w: word, freq: 0, len: word.length, seq: ++this.#sequence, src: [] });
+        this.vocabularyOfInput.push(stemWord = { w: word, freq: 0, len: word.length, src: [] });
+        ++this.#sequence;
       }
 
       let i = stemCollect.length;
@@ -151,7 +154,10 @@ export default class LabeledTire implements Trie {
   setDefault(branch: TrieNode, original: string, isUp: boolean) {
     if (!branch.$) {
       this.vocabularyOfInput.push(branch.$ = { w: original, up: isUp, freq: 0, len: original.length, src: [] });
+      ++this.#sequence;
     } else {
+      if (branch.$.freq === 0) ++this.#sequence;
+
       if (branch.$.up) {
         if (isUp) {
           branch.$.w = this.caseOr(branch.$.w, original);
@@ -161,6 +167,7 @@ export default class LabeledTire implements Trie {
         }
       }
     }
+
   }
 
   revokeAccess(word: string) {
@@ -208,7 +215,7 @@ export default class LabeledTire implements Trie {
     let target: Label;
 
     const occurCombined = (): Occur => {
-      let suffixesCombined: any = { freq: 0, src: [], seq: Infinity };
+      let suffixesCombined: any = { freq: 0, src: [] };
       for (const latterWord of [
         next_esWord,
         next_edWord,
@@ -249,7 +256,7 @@ export default class LabeledTire implements Trie {
     } else if (next_sWord) {
       const suffixesCombined = occurCombined();
       if (suffixesCombined.freq) {
-        this.vocabularyOfInput.push(target = current.$ = { w: next_sWord.w.slice(0, -1), freq: 0, len: next_sWord.len - 1, seq: next_sWord.seq, src: [] })
+        this.vocabularyOfInput.push(target = current.$ = { w: next_sWord.w.slice(0, -1), freq: 0, len: next_sWord.len - 1, src: [] })
         this.mergeProps(next_sWord, target);
         this.mergeProps(suffixesCombined, target);
       }
@@ -266,7 +273,6 @@ export default class LabeledTire implements Trie {
     targetWord.src = this.mergeSorted(targetWord.src, latterWord.src);
     latterWord.freq = 0
     latterWord.src = [];
-    if (!(targetWord.seq! < latterWord.seq!)) targetWord.seq = latterWord.seq
     if (!targetWord.vocab && latterWord.vocab) targetWord.vocab = latterWord.vocab;
   }
 }
