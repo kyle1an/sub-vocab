@@ -24,7 +24,7 @@ export interface Sieve {
 export interface Label extends Vocab {
   w: string;
   up?: boolean;
-  len: number;
+  len?: number;
   freq: number;
   src: Source;
   seq?: number;
