@@ -7,6 +7,7 @@ import { Segment, Vocab } from '../types';
 import { sortByChar } from '../utils/utils';
 import { acquainted, revokeWord } from '../api/vocab-service';
 import { useVocabStore } from '../store/useVocab';
+import { useTimeStore } from '../store/usePerf';
 
 const segments: Array<Segment> = [
   { id: 0, title: 'Original', },
@@ -65,23 +66,20 @@ function readSingleFile(e: any) {
 
 const sentences = shallowRef<any[]>([]);
 const store = useVocabStore()
+const __perf = useTimeStore();
 
 async function formVocabLists(content: string) {
   const trieListPair = await store.getSieve()
-  console.time('╘═ All ═╛')
-
-  console.time('━━━━━━━ initWordsTrie')
+  __perf.time.log = {}
+  __perf.time.log.start = performance.now()
   const vocab = new Trie(trieListPair).add(content);
-  console.timeEnd('━━━━━━━ initWordsTrie')
-
+  __perf.time.log.wordInitialized = performance.now();
   sentences.value = vocab.sentences;
-
-  console.time('━━━┷━ categorizeVocab');
+  __perf.time.log.categorizeStart = performance.now();
   listsOfVocab = vocab.categorizeVocabulary();
   tableDataOfVocab.value = listsOfVocab[selectedSeg]
-  console.timeEnd('━━━┷━ categorizeVocab');
-
-  console.timeEnd('╘═ All ═╛')
+  __perf.time.log.end = performance.now()
+  __perf.logPerf()
   console.log({ root: JSON.stringify(vocab.root) });
   logVocabInfo();
 }

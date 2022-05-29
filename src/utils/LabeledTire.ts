@@ -1,6 +1,7 @@
 import { EXTRACT, IRREGULAR } from './stemsMapping';
 import { Trie, Label, Sieve, TrieNode, Source, Occur } from '../types';
 import { getNode } from './utils';
+import { useTimeStore } from "../store/usePerf";
 
 export default class LabeledTire implements Trie {
   root: TrieNode;
@@ -42,22 +43,20 @@ export default class LabeledTire implements Trie {
   }
 
   categorizeVocabulary = (sievesList?: Array<Sieve>): Array<Array<Label>> => {
-    console.time('   ┌─────── mergeSuffix')
+    const __perf = useTimeStore();
+    __perf.time.log ??= {};
+    __perf.time.log.mergeStarted = performance.now()
     this.merge();
-    console.timeEnd('   ┌─────── mergeSuffix')
-
-    console.time('   ├───────── formLabels')
+    __perf.time.log.mergeEnded = performance.now()
     const lists: Array<Array<Label>> = [[], [], []];
 
     for (const v of this.vocabularyOfInput) {
       v.seq = v.src?.[0]?.[1]?.[0]?.[2];
 
       if (v.freq) {
-
         lists[0][v.seq!] = v;
       }
     }
-
 
     lists[0] = lists[0].filter(Boolean);
 
@@ -65,7 +64,7 @@ export default class LabeledTire implements Trie {
       lists[!v.F && v.len > 2 ? 1 : 2].push(v);
     }
 
-    console.timeEnd('   ├───────── formLabels')
+    __perf.time.log.formLabelEnded = performance.now()
     return lists;
   }
 
