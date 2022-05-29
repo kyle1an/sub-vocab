@@ -20,6 +20,7 @@ export default class LabeledTire implements Trie {
     let previousSize = this.sentences.length;
     this.sentences = this.sentences.concat(input.match(/["'@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|{[^}]*})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ.])|\.{3} *)*["'@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/mg) || [])
     const totalSize = this.sentences.length;
+
     for (; previousSize < totalSize; previousSize++) {
       for (const m of this.sentences[previousSize].matchAll(/((?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þ]+[a-zß-ÿ]*)+(?:['-]?[A-Za-zÀ-ÿ]'?)+)|[a-zß-ÿ]+(?:-?[a-zß-ÿ]'?)+/mg)) {
         this.#update(m[0], !!m[1], m.index!, previousSize);
@@ -31,11 +32,29 @@ export default class LabeledTire implements Trie {
 
   #update = (original: string, isUp: boolean, index: number, currentSentenceIndex: number) => {
     const branch = getNode(isUp ? original.toLowerCase() : original, this.root);
-    this.setDefault(branch, original, isUp);
-    branch.$.freq += 1
+
+    if (!branch.$) {
+      this.vocabularyOfInput.push(branch.$ = { w: original, up: isUp, freq: 1, src: [] });
+      ++this.#sequence;
+    } else {
+      const $ = branch.$;
+      if (!$.freq) ++this.#sequence;
+      $.freq += 1
+
+      if ($.up) {
+        if (isUp) {
+          $.w = this.caseOr($.w, original);
+        } else {
+          $.w = original;
+          $.up = false;
+        }
+      }
+    }
+
     const sources = branch.$.src;
     const lastSentence = sources[sources.length - 1];
     if (lastSentence?.[0] === currentSentenceIndex) {
+      // store this word's first occurrence sequence or last random word's sequence
       lastSentence[1].push([index, original.length, this.#sequence])
     } else {
       sources.push([currentSentenceIndex, [[index, original.length, this.#sequence]]])
@@ -44,16 +63,15 @@ export default class LabeledTire implements Trie {
 
   categorizeVocabulary = (sievesList?: Array<Sieve>): Array<Array<Label>> => {
     const __perf = useTimeStore();
-    __perf.time.log ??= {};
     __perf.time.log.mergeStarted = performance.now()
     this.merge();
     __perf.time.log.mergeEnded = performance.now()
     const lists: Array<Array<Label>> = [[], [], []];
 
     for (const v of this.vocabularyOfInput) {
-      v.seq = v.src?.[0]?.[1]?.[0]?.[2];
-
       if (v.freq) {
+        v.len = v.w.length;
+        v.seq = v.src[0][1][0][2];
         lists[0][v.seq!] = v;
       }
     }
@@ -61,7 +79,7 @@ export default class LabeledTire implements Trie {
     lists[0] = lists[0].filter(Boolean);
 
     for (const v of lists[0]) {
-      lists[!v.F && v.len > 2 ? 1 : 2].push(v);
+      lists[!v.F && v.len! > 2 ? 1 : 2].push(v);
     }
 
     __perf.time.log.formLabelEnded = performance.now()
@@ -107,8 +125,7 @@ export default class LabeledTire implements Trie {
       if (irregularCollect.length === 1) continue;
 
       if (!irregularWord) {
-        this.vocabularyOfInput.push(irregularWord = { w: word, freq: 0, len: word.length, src: [] });
-        ++this.#sequence;
+        this.vocabularyOfInput.push(irregularWord = { w: word, freq: 0, src: [] });
       }
 
       let i = irregularCollect.length;
@@ -129,8 +146,7 @@ export default class LabeledTire implements Trie {
       if (stemCollect.length === 1) continue;
 
       if (!stemWord) {
-        this.vocabularyOfInput.push(stemWord = { w: word, freq: 0, len: word.length, src: [] });
-        ++this.#sequence;
+        this.vocabularyOfInput.push(stemWord = { w: word, freq: 0, src: [] });
       }
 
       let i = stemCollect.length;
@@ -148,25 +164,6 @@ export default class LabeledTire implements Trie {
     let branch: TrieNode = this.root;
     const has$ = chars.every((c: string) => branch = branch[c]) && branch.$
     return has$ ? branch : undefined;
-  }
-
-  setDefault(branch: TrieNode, original: string, isUp: boolean) {
-    if (!branch.$) {
-      this.vocabularyOfInput.push(branch.$ = { w: original, up: isUp, freq: 0, len: original.length, src: [] });
-      ++this.#sequence;
-    } else {
-      if (branch.$.freq === 0) ++this.#sequence;
-
-      if (branch.$.up) {
-        if (isUp) {
-          branch.$.w = this.caseOr(branch.$.w, original);
-        } else {
-          branch.$.w = original;
-          branch.$.up = false;
-        }
-      }
-    }
-
   }
 
   revokeAccess(word: string) {
@@ -235,7 +232,6 @@ export default class LabeledTire implements Trie {
     if (currentWord) {
       const suffixesCombined = occurCombined();
       target = currentWord;
-      const len = target.len;
       for (const latterWord of [
         next_sWord,
       ]) {
@@ -244,25 +240,25 @@ export default class LabeledTire implements Trie {
           if (latterWord.up) {
             target.w = this.caseOr(target.w, latterWord.w);
           } else {
-            target.w = latterWord.w.slice(0, len);
+            target.w = latterWord.w.slice(0, target.w.length);
             target.up = false;
           }
         }
         this.mergeProps(latterWord, target);
       }
-      if (suffixesCombined.w) target.w = this.caseOr(target.w, suffixesCombined.w.slice(0, target.len));
+      if (suffixesCombined.w) target.w = this.caseOr(target.w, suffixesCombined.w.slice(0, target.w.length));
       this.mergeProps(suffixesCombined, target);
     } else if (next_sWord) {
       const suffixesCombined = occurCombined();
       if (suffixesCombined.freq) {
-        this.vocabularyOfInput.push(target = current.$ = { w: next_sWord.w.slice(0, -1), freq: 0, len: next_sWord.len - 1, src: [] })
+        this.vocabularyOfInput.push(target = current.$ = { w: next_sWord.w.slice(0, -1), freq: 0, src: [] })
         this.mergeProps(next_sWord, target);
         this.mergeProps(suffixesCombined, target);
       }
     } else if (next_eWord) {
       const suffixesCombined = occurCombined();
       target = next_eWord;
-      if (suffixesCombined.w) target.w = this.caseOr(target.w, suffixesCombined.w.slice(0, target.len - 1));
+      if (suffixesCombined.w) target.w = this.caseOr(target.w, suffixesCombined.w.slice(0, target.w.length - 1));
       this.mergeProps(suffixesCombined, target);
     }
   }

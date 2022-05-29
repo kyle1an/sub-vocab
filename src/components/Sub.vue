@@ -79,9 +79,9 @@ async function formVocabLists(content: string) {
   listsOfVocab = vocab.categorizeVocabulary();
   tableDataOfVocab.value = listsOfVocab[selectedSeg]
   __perf.time.log.end = performance.now()
-  __perf.logPerf()
   console.log({ root: JSON.stringify(vocab.root) });
   logVocabInfo();
+  __perf.logPerf()
 }
 
 const vocabAmountInfo = ref<number[]>([]);
