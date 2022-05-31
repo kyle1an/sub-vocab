@@ -7,16 +7,16 @@ export default class LabeledTire implements Trie {
   root: TrieNode;
   #sequence: number;
   sentences: Array<string>;
-  vocabularyOfInput: Array<Label>;
+  vocabulary: Array<Label>;
   revoked: Array<Array<any>> = [];
 
   constructor([trie, list]: [TrieNode, Array<Label>]) {
-    [this.root, this.vocabularyOfInput] = [trie, list];
+    [this.root, this.vocabulary] = [trie, list];
     this.sentences = [];
     this.#sequence = 1;
   }
 
-  add = (input: string) => {
+  add(input: string) {
     let previousSize = this.sentences.length;
     this.sentences = this.sentences.concat(input.match(/["'@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|{[^}]*})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ.])|\.{3} *)*["'@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/mg) || [])
     const totalSize = this.sentences.length;
@@ -30,11 +30,11 @@ export default class LabeledTire implements Trie {
     return this;
   }
 
-  #update = (original: string, isUp: boolean, index: number, currentSentenceIndex: number) => {
+  #update(original: string, isUp: boolean, index: number, currentSentenceIndex: number) {
     const branch = getNode(isUp ? original.toLowerCase() : original, this.root);
 
     if (!branch.$) {
-      this.vocabularyOfInput.push(branch.$ = { w: original, up: isUp, freq: 1, src: [] });
+      this.vocabulary.push(branch.$ = { w: original, up: isUp, freq: 1, src: [] });
       ++this.#sequence;
     } else {
       const $ = branch.$;
@@ -53,6 +53,7 @@ export default class LabeledTire implements Trie {
 
     const sources = branch.$.src;
     const lastSentence = sources[sources.length - 1];
+
     if (lastSentence?.[0] === currentSentenceIndex) {
       // store this word's first occurrence sequence or last random word's sequence
       lastSentence[1].push([index, original.length, this.#sequence])
@@ -61,14 +62,14 @@ export default class LabeledTire implements Trie {
     }
   }
 
-  categorizeVocabulary = (sievesList?: Array<Sieve>): Array<Array<Label>> => {
+  categorizeVocabulary(): Array<Array<Label>> {
     const __perf = useTimeStore();
     __perf.time.log.mergeStarted = performance.now()
     this.merge();
     __perf.time.log.mergeEnded = performance.now()
     const lists: Array<Array<Label>> = [[], [], []];
 
-    for (const v of this.vocabularyOfInput) {
+    for (const v of this.vocabulary) {
       if (v.freq) {
         v.len = v.w.length;
         v.seq = v.src[0][1][0][2];
@@ -86,25 +87,29 @@ export default class LabeledTire implements Trie {
     return lists;
   }
 
-  caseOr = (a: string, b: string): string => {
+  caseOr(a: string, b: string): string {
     const r = [];
+
     for (let i = 0; i < a.length; i++) {
       r.push(a.charCodeAt(i) | b.charCodeAt(i));
     }
+
     return String.fromCharCode(...r);
   }
 
-  mergeSorted = (a: Source, b: Source): Source => {
+  mergeSorted(a: Source, b: Source): Source {
     if (!a.length) {
       return b;
     } else if (!b.length) {
       return a;
     }
+
     const merged = [];
     let i = 0;
     let j = 0;
     const lenA = a.length;
     const lenB = b.length;
+
     while (i < lenA && j < lenB) {
       const ai0 = a[i][0];
       const bj0 = b[j][0];
@@ -114,6 +119,7 @@ export default class LabeledTire implements Trie {
             : [ai0, this.mergeSorted(a[i++][1], b[j++][1])]
       );
     }
+
     return merged.concat(a.slice(i)).concat(b.slice(j));
   }
 
@@ -125,14 +131,14 @@ export default class LabeledTire implements Trie {
       if (irregularCollect.length === 1) continue;
 
       if (!irregularWord) {
-        this.vocabularyOfInput.push(irregularWord = { w: word, freq: 0, src: [] });
+        this.vocabulary.push(irregularWord = { w: word, freq: 0, src: [] });
       }
 
       let i = irregularCollect.length;
       while (--i) {
         const wordBranch = this.findNode(irregularCollect[i]);
         if (wordBranch) {
-          this.mergeProps(<Label>wordBranch.$, <Label>irregularWord);
+          this.mergeProps(<Label>irregularWord, <Label>wordBranch.$,);
         }
       }
     }
@@ -146,14 +152,14 @@ export default class LabeledTire implements Trie {
       if (stemCollect.length === 1) continue;
 
       if (!stemWord) {
-        this.vocabularyOfInput.push(stemWord = { w: word, freq: 0, src: [] });
+        this.vocabulary.push(stemWord = { w: word, freq: 0, src: [] });
       }
 
       let i = stemCollect.length;
       while (--i) {
         const wordBranch = this.findNode(stemCollect[i]);
         if (wordBranch) {
-          this.mergeProps(<Label>wordBranch.$, <Label>stemWord);
+          this.mergeProps(<Label>stemWord, <Label>wordBranch.$,);
         }
       }
     }
@@ -180,7 +186,7 @@ export default class LabeledTire implements Trie {
     }
   }
 
-  merge = (layer: TrieNode = this.root) => {
+  merge(layer: TrieNode = this.root) {
     this.mergeIrregular();
     this.extractObscure();
     this.traverseMerge(layer);
@@ -189,7 +195,7 @@ export default class LabeledTire implements Trie {
     }
   }
 
-  traverseMerge = (layer: TrieNode = this.root) => {
+  traverseMerge(layer: TrieNode = this.root) {
     for (const key in layer) {
       if (key === '$') continue;
       const innerLayer = layer[key]
@@ -198,76 +204,88 @@ export default class LabeledTire implements Trie {
     }
   }
 
-  mergeVocabOfDifferentSuffixes = (current: TrieNode, previousChar: string) => {
-    const next_ing = current?.i?.n?.g;
-    const next_ingWord = next_ing?.$;
-    const next_ingsWord = next_ing?.s?.$;
-    const next_edWord = current?.e?.d?.$;
-    const next_esWord = current?.e?.s?.$;
+  mergeVocabOfDifferentSuffixes(current: TrieNode, previousChar: string) {
     const next_sWord = previousChar === 's' ? undefined : current?.s?.$;
     const next_eWord = current?.e?.$;
-    const next_apos = current?.["'"];
     const currentWord = <Label | undefined>current?.$;
-    let target: Label;
+    const occurCombined = (words: boolean, next_apos?: any): Occur => {
+      const next_ing = current?.i?.n?.g;
+      const suffixesCombined: any = { freq: 0, src: [] };
+      const next_Words = words ? [
+        current?.e?.s?.$,
+        current?.e?.d?.$,
+        next_ing?.$,
+        next_ing?.s?.$,
+      ] : [];
 
-    const occurCombined = (): Occur => {
-      let suffixesCombined: any = { freq: 0, src: [] };
-      for (const latterWord of [
-        next_esWord,
-        next_edWord,
-        next_ingWord,
-        next_ingsWord,
-        next_apos?.s?.$,
-        next_apos?.l?.l?.$,
-        next_apos?.v?.e?.$,
-        next_apos?.d?.$,
-      ]) {
-        if (!latterWord) continue;
-        suffixesCombined.w = suffixesCombined.w ? this.caseOr(suffixesCombined.w, latterWord.w) : latterWord.w;
-        this.mergeProps(latterWord, suffixesCombined);
+      if (next_apos) {
+        next_Words.push(
+          next_apos?.s?.$,
+          next_apos?.l?.l?.$,
+          next_apos?.v?.e?.$,
+          next_apos?.d?.$,
+        )
       }
+
+      for (const next_Word of next_Words) {
+        if (!next_Word) continue;
+        suffixesCombined.w = suffixesCombined.w ? this.caseOr(suffixesCombined.w, next_Word.w) : next_Word.w;
+        this.mergeProps(suffixesCombined, next_Word,);
+      }
+
       return suffixesCombined;
     }
 
     if (currentWord) {
-      const suffixesCombined = occurCombined();
-      target = currentWord;
-      for (const latterWord of [
-        next_sWord,
-      ]) {
-        if (!latterWord) continue;
-        if (target.up) {
-          if (latterWord.up) {
-            target.w = this.caseOr(target.w, latterWord.w);
+      const suffixesCombined = occurCombined(true);
+
+      if (next_eWord) {
+        if (suffixesCombined.w) next_eWord.w = this.caseOr(next_eWord.w, suffixesCombined.w.slice(0, next_eWord.w.length - 1));
+        this.mergeProps(next_eWord, suffixesCombined,);
+      } else {
+        if (suffixesCombined.w) currentWord.w = this.caseOr(currentWord.w, suffixesCombined.w);
+        this.mergeProps(currentWord, suffixesCombined,);
+      }
+
+      if (next_sWord) {
+        if (currentWord.up) {
+          if (next_sWord.up) {
+            currentWord.w = this.caseOr(currentWord.w, next_sWord.w);
           } else {
-            target.w = latterWord.w.slice(0, target.w.length);
-            target.up = false;
+            currentWord.w = next_sWord.w.slice(0, currentWord.w.length);
+            currentWord.up = false;
           }
         }
-        this.mergeProps(latterWord, target);
+
+        this.mergeProps(currentWord, next_sWord,);
       }
-      if (suffixesCombined.w) target.w = this.caseOr(target.w, suffixesCombined.w.slice(0, target.w.length));
-      this.mergeProps(suffixesCombined, target);
-    } else if (next_sWord) {
-      const suffixesCombined = occurCombined();
-      if (suffixesCombined.freq) {
-        this.vocabularyOfInput.push(target = current.$ = { w: next_sWord.w.slice(0, -1), freq: 0, src: [] })
-        this.mergeProps(next_sWord, target);
-        this.mergeProps(suffixesCombined, target);
-      }
+
+      const aposCombined = occurCombined(false, current?.["'"]);
+      if (aposCombined.w) currentWord.w = this.caseOr(currentWord.w, aposCombined.w);
+      this.mergeProps(currentWord, aposCombined);
     } else if (next_eWord) {
-      const suffixesCombined = occurCombined();
-      target = next_eWord;
-      if (suffixesCombined.w) target.w = this.caseOr(target.w, suffixesCombined.w.slice(0, target.w.length - 1));
-      this.mergeProps(suffixesCombined, target);
+      const suffixesCombined = occurCombined(true);
+      if (suffixesCombined.w) next_eWord.w = this.caseOr(next_eWord.w, suffixesCombined.w.slice(0, next_eWord.w.length - 1));
+      this.mergeProps(next_eWord, suffixesCombined,);
+    } else if (next_sWord) {
+      const suffixesCombined = occurCombined(true, current?.["'"]);
+      if (suffixesCombined.freq) {
+        this.vocabulary.push(current.$ = { w: next_sWord.w.slice(0, -1), freq: 0, src: [] })
+        this.mergeProps(<Label>current.$, next_sWord);
+        this.mergeProps(<Label>current.$, suffixesCombined);
+      }
     }
   }
 
-  mergeProps(latterWord: Label, targetWord: Label) {
+  mergeProps(targetWord: Label, latterWord: Label) {
+    if (!targetWord.vocab && latterWord.vocab) {
+      targetWord.vocab = latterWord.vocab;
+    }
+
+    if (!latterWord.freq) return;
     targetWord.freq += latterWord.freq
-    targetWord.src = this.mergeSorted(targetWord.src, latterWord.src);
     latterWord.freq = 0
+    targetWord.src = this.mergeSorted(targetWord.src, latterWord.src);
     latterWord.src = [];
-    if (!targetWord.vocab && latterWord.vocab) targetWord.vocab = latterWord.vocab;
   }
 }
