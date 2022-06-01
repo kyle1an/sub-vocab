@@ -57,7 +57,6 @@ const connection = mysql.createConnection(config)
 connection.connect()
 connection.query(sql.wordsQuery, (err, rows, fields) => {
   if (err) throw err;
-
   console.log('The solution is: ', rows)
 })
 connection.end()
