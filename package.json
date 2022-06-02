@@ -14,7 +14,8 @@
     "fs": "0.0.1-security",
     "lodash": "^4.17.21",
     "pinia": "^2.0.14",
-    "vue": "^3.2.36"
+    "vue": "^3.2.36",
+    "vue-router": "^4.0.15"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.3.3",

@@ -5,9 +5,10 @@
   <el-header class="top-bar flex w-full z-50 items-center justify-center relative min-w-[auto]">
     <nav class="flex w-full box-border justify-center max-w-[600px]">
       <div class="flex nav-main justify-between w-full">
-        <div><a class="nav-entry" href="#/">Home</a></div>
-        <div><a class="nav-entry" href="#/mine">Common</a></div>
+        <router-link class="nav-entry" to="/">Home</router-link>
+        <router-link class="nav-entry" to="/mine">Common</router-link>
         <div><a class="nav-entry" href="#/mine">Log in/Sign up</a></div>
+        <router-link to="/about">About</router-link>
       </div>
     </nav>
   </el-header>

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import Trie from '../utils/LabeledTire';
-import SegmentedControl from './SegmentedControl.vue'
+import SegmentedControl from '../components/SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
 import { computed, ref, shallowRef } from 'vue'
 import { Segment, Vocab } from '../types';
@@ -264,7 +264,7 @@ thead .is-right:not(:last-child) .cell {
   box-sizing: border-box;
   display: inline-block;
   font-size: 14px;
-  height: 36px;
+  //height: 36px;
   padding: 10px 12px;
   color: #fff;
   cursor: pointer;
