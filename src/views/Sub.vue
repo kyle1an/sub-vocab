@@ -48,6 +48,29 @@ function example(str: string, idxes: Array<number>[]): string {
   return lines.concat(str.slice(position)).join('');
 }
 
+function source(src: any) {
+  const lines = [];
+  src.sort((a: any, b: any) => a[3] - b[3]);
+  const source = src.map(([sentenceId, start, len, sequence]: any) => [
+    sentenceId,
+    [[start, len, sequence]],
+  ]);
+
+  for (let i = 0; i < source.length; i++) {
+    if (source[i][0] === source?.[i + 1]?.[0]) {
+      lines.push([
+        source[i][0],
+        source[i][1].concat(source[i + 1][1])
+      ])
+      i++;
+    } else {
+      lines.push(source[i]);
+    }
+  }
+
+  return lines;
+}
+
 const fileInfo = ref<string>('');
 const inputContent = ref<string>('');
 
@@ -182,7 +205,7 @@ async function toggleWordState(row: any, e: any) {
               <el-table-column type="expand">
                 <template #default="props">
                   <div class="mb-1 ml-5 mr-3">
-                    <div class="break-words" style="word-break: break-word;" v-for="[no,idx] in props.row.src">
+                    <div class="break-words" style="word-break: break-word;" v-for="[no,idx] in source(props.row.src)">
                       <span v-html="example(sentences[no], idx)" />
                     </div>
                   </div>

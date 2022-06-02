@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { Source } from "../types";
 
 function sortByChar(a: string, b: string): number {
   return a.localeCompare(b, 'en', { sensitivity: 'base' });
@@ -29,4 +30,30 @@ function getNode(word: string, node: Record<string, Record<string, any>>) {
   return node;
 }
 
-export { pruneEmpty, print, stringify, sortByChar, getNode };
+function mergeSorted(a: Source, b: Source): Source {
+  if (!a.length) {
+    return b;
+  } else if (!b.length) {
+    return a;
+  }
+
+  const merged = [];
+  let i = 0;
+  let j = 0;
+  const lenA = a.length;
+  const lenB = b.length;
+
+  while (i < lenA && j < lenB) {
+    const ai0 = a[i][0];
+    const bj0 = b[j][0];
+    merged.push(
+      ai0 < bj0 ? a[i++]
+        : ai0 > bj0 ? b[j++]
+          : [ai0, mergeSorted(a[i++][1], b[j++][1])]
+    );
+  }
+
+  return merged.concat(a.slice(i)).concat(b.slice(j));
+}
+
+export { pruneEmpty, print, stringify, sortByChar, getNode, mergeSorted };

@@ -1,6 +1,6 @@
 let url = 'https://subvocab.herokuapp.com';
-// url = 'http://localhost:5001';
 // url = "https://sub-vocab-server.vercel.app";
+// url = 'http://localhost:5001';
 const headers = {
   'Content-Type': 'application/json',
 };

@@ -9,7 +9,7 @@ export interface Vocab {
 }
 
 export interface Occur extends Label {
-  freq: number,
+  freq?: number,
   src: Source;
   seq: number;
 }
@@ -25,7 +25,7 @@ export interface Label extends Vocab {
   w: string;
   up?: boolean;
   len?: number;
-  freq: number;
+  freq?: number;
   src: Source;
   seq?: number;
   F?: boolean;

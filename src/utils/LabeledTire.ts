@@ -34,12 +34,11 @@ export default class LabeledTire implements Trie {
     const branch = getNode(isUp ? original.toLowerCase() : original, this.root);
 
     if (!branch.$) {
-      this.vocabulary.push(branch.$ = { w: original, up: isUp, freq: 1, src: [] });
+      this.vocabulary.push(branch.$ = { w: original, up: isUp, src: [] });
       ++this.#sequence;
     } else {
       const $ = branch.$;
-      if (!$.freq) ++this.#sequence;
-      $.freq += 1
+      if (!$.src.length) ++this.#sequence;
 
       if ($.up) {
         if (isUp) {
@@ -51,15 +50,7 @@ export default class LabeledTire implements Trie {
       }
     }
 
-    const sources = branch.$.src;
-    const lastSentence = sources[sources.length - 1];
-
-    if (lastSentence?.[0] === currentSentenceIndex) {
-      // store this word's first occurrence sequence or last random word's sequence
-      lastSentence[1].push([index, original.length, this.#sequence])
-    } else {
-      sources.push([currentSentenceIndex, [[index, original.length, this.#sequence]]])
-    }
+    branch.$.src.push([currentSentenceIndex, index, original.length, this.#sequence])
   }
 
   categorizeVocabulary(): Array<Array<Label>> {
@@ -70,9 +61,10 @@ export default class LabeledTire implements Trie {
     const lists: Array<Array<Label>> = [[], [], []];
 
     for (const v of this.vocabulary) {
-      if (v.freq) {
+      if (v.src.length) {
+        v.freq = v.src.length;
         v.len = v.w.length;
-        v.seq = v.src[0][1][0][2];
+        v.seq = v.src[0][3];
         lists[0][v.seq!] = v;
       }
     }
@@ -97,32 +89,6 @@ export default class LabeledTire implements Trie {
     return String.fromCharCode(...r);
   }
 
-  mergeSorted(a: Source, b: Source): Source {
-    if (!a.length) {
-      return b;
-    } else if (!b.length) {
-      return a;
-    }
-
-    const merged = [];
-    let i = 0;
-    let j = 0;
-    const lenA = a.length;
-    const lenB = b.length;
-
-    while (i < lenA && j < lenB) {
-      const ai0 = a[i][0];
-      const bj0 = b[j][0];
-      merged.push(
-        ai0 < bj0 ? a[i++]
-          : ai0 > bj0 ? b[j++]
-            : [ai0, this.mergeSorted(a[i++][1], b[j++][1])]
-      );
-    }
-
-    return merged.concat(a.slice(i)).concat(b.slice(j));
-  }
-
   mergeIrregular() {
     for (const irregularCollect of IRREGULAR) {
       const word = irregularCollect[0];
@@ -131,14 +97,14 @@ export default class LabeledTire implements Trie {
       if (irregularCollect.length === 1) continue;
 
       if (!irregularWord) {
-        this.vocabulary.push(irregularWord = { w: word, freq: 0, src: [] });
+        this.vocabulary.push(irregularWord = { w: word, src: [] });
       }
 
       let i = irregularCollect.length;
       while (--i) {
         const wordBranch = this.findNode(irregularCollect[i]);
         if (wordBranch) {
-          this.mergeProps(<Label>irregularWord, <Label>wordBranch.$,);
+          this.mergeSourceFirst(<Label>irregularWord, <Label>wordBranch.$,);
         }
       }
     }
@@ -152,14 +118,14 @@ export default class LabeledTire implements Trie {
       if (stemCollect.length === 1) continue;
 
       if (!stemWord) {
-        this.vocabulary.push(stemWord = { w: word, freq: 0, src: [] });
+        this.vocabulary.push(stemWord = { w: word, src: [] });
       }
 
       let i = stemCollect.length;
       while (--i) {
         const wordBranch = this.findNode(stemCollect[i]);
         if (wordBranch) {
-          this.mergeProps(<Label>stemWord, <Label>wordBranch.$,);
+          this.mergeSourceFirst(<Label>stemWord, <Label>wordBranch.$,);
         }
       }
     }
@@ -210,7 +176,7 @@ export default class LabeledTire implements Trie {
     const currentWord = <Label | undefined>current?.$;
     const occurCombined = (words: boolean, next_apos?: any): Occur => {
       const next_ing = current?.i?.n?.g;
-      const suffixesCombined: any = { freq: 0, src: [] };
+      const suffixesCombined: any = { src: [] };
       const next_Words = words ? [
         current?.e?.s?.$,
         current?.e?.d?.$,
@@ -269,8 +235,8 @@ export default class LabeledTire implements Trie {
       this.mergeProps(next_eWord, suffixesCombined,);
     } else if (next_sWord) {
       const suffixesCombined = occurCombined(true, current?.["'"]);
-      if (suffixesCombined.freq) {
-        this.vocabulary.push(current.$ = { w: next_sWord.w.slice(0, -1), freq: 0, src: [] })
+      if (suffixesCombined.src.length) {
+        this.vocabulary.push(current.$ = { w: next_sWord.w.slice(0, -1), src: [] })
         this.mergeProps(<Label>current.$, next_sWord);
         this.mergeProps(<Label>current.$, suffixesCombined);
       }
@@ -282,10 +248,20 @@ export default class LabeledTire implements Trie {
       targetWord.vocab = latterWord.vocab;
     }
 
-    if (!latterWord.freq) return;
-    targetWord.freq += latterWord.freq
-    latterWord.freq = 0
-    targetWord.src = this.mergeSorted(targetWord.src, latterWord.src);
+    this.mergeSourceFirst(targetWord, latterWord);
+  }
+
+  mergeSourceFirst(targetWord: Label, latterWord: Label) {
+    if (!latterWord.src.length) return;
+
+    if (!targetWord.src.length) {
+      targetWord.src = latterWord.src;
+    } else if (targetWord.src[0][0] < latterWord.src[0][0]) {
+      targetWord.src = targetWord.src.concat(latterWord.src);
+    } else {
+      targetWord.src = latterWord.src.concat(targetWord.src);
+    }
+
     latterWord.src = [];
   }
 }

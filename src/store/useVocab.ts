@@ -28,7 +28,7 @@ export const useVocabStore = defineStore('vocabStore', () => {
       const node: TrieNode = getNode(isUp ? original.toLowerCase() : original, trie);
 
       if (!node.$) {
-        list.push(node.$ = { w: original, up: isUp, freq: 0, len: original.length, src: [] });
+        list.push(node.$ = { w: original, up: isUp, len: original.length, src: [] });
       }
 
       node.$.vocab = sieve;
@@ -52,7 +52,7 @@ export const useVocabStore = defineStore('vocabStore', () => {
     const [trie, list] = trieListPair;
     const node: TrieNode = getNode(isUp ? original.toLowerCase() : original, trie);
     if (!node.$) {
-      node.$ = { w: original, up: isUp, freq: 0, len: original.length, src: [] }
+      node.$ = { w: original, up: isUp, len: original.length, src: [] }
       list.push(<Label>node.$);
       commonVocab.push(<Sieve>row.vocab);
     }
