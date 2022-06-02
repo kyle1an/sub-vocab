@@ -6,6 +6,7 @@ const routes = [
   { path: '/', component: Sub },
   { path: '/about', component: About },
   { path: '/mine', component: () => import('../views/Mine.vue') },
+  { path: '/login', component: () => import('../views/Login.vue') },
 ]
 
 const router = createRouter({

@@ -7,7 +7,7 @@
       <div class="flex nav-main justify-between w-full">
         <router-link class="nav-entry" to="/">Home</router-link>
         <router-link class="nav-entry" to="/mine">Common</router-link>
-        <div><a class="nav-entry" href="#/mine">Log in/Sign up</a></div>
+        <router-link class="nav-entry" to="/login">Log in</router-link>
         <router-link to="/about">About</router-link>
       </div>
     </nav>
