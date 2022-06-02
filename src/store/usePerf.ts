@@ -18,7 +18,7 @@ export const useTimeStore = defineStore('timeStore', () => {
       append = '';
     }
 
-    let desHolder = desStr.replace(/%c/g, '');
+    const desHolder = desStr.replace(/%c/g, '');
     let gap = indent - desHolder.length - (~~time + '').length
     if (gap < 0) gap = 1;
     const space = ' '.repeat(gap);
@@ -29,8 +29,8 @@ export const useTimeStore = defineStore('timeStore', () => {
     console.log(alignWord('· init words', time.log.wordInitialized - time.log.start,));
     console.log(alignWord('%c ╭╴ merge vocabulary', time.log.mergeEnded - time.log.mergeStarted,), 'color: gray; font-style: italic; padding: 1px');
     console.log(alignWord('%c ╭╴ formLabel vocabulary', time.log.formLabelEnded - time.log.mergeEnded,), 'color: gray; font-style: italic; padding: 0.5px');
-    console.log(alignWord('· categorize vocabulary', time.log.end - time.log.categorizeStart,));
-    console.log(alignWord(['All took', '+  '], time.log.end - time.log.start,));
+    console.log(alignWord(['· categorize vocabulary', ' +  '], time.log.end - time.log.categorizeStart,));
+    console.log(alignWord(['All took', '    '], time.log.end - time.log.start,));
   }
 
   return { time, logPerf };
