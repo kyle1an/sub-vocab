@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import VocabList from '../utils/VocabList';
-import Switch from './Switch.vue';
-import SegmentedControl from './SegmentedControl.vue'
+import Switch from '../components/Switch.vue';
+import SegmentedControl from '../components/SegmentedControl.vue'
 import { onMounted, ref } from 'vue'
 import { Segment } from '../types';
 import { sortByChar } from '../utils/utils';

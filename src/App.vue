@@ -1,21 +1,10 @@
 <script setup lang="ts">
 import TopBar from './components/TopBar.vue'
-import Sub from './components/Sub.vue'
-import Mine from './components/Mine.vue'
-import { ref, computed } from 'vue'
-
-const routes: any = {
-  '/mine': Mine,
-}
-
-const currentPath = ref(window.location.hash)
-window.addEventListener('hashchange', () => currentPath.value = window.location.hash)
-const currentView = computed(() => routes[currentPath.value.slice(1) || '/'] || Sub)
 </script>
 
 <template>
   <TopBar />
-  <component :is="currentView" />
+  <router-view />
 </template>
 
 <style lang="scss">
