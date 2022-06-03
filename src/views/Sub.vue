@@ -50,7 +50,7 @@ function example(str: string, idxes: Array<number>[]): string {
 
 function source(src: any) {
   const lines = [];
-  src.sort((a: any, b: any) => a[3] - b[3]);
+  src.sort((a: any, b: any) => a[0] - b[0] || a[1] - b[1]);
   const source = src.map(([sentenceId, start, len, sequence]: any) => [
     sentenceId,
     [[start, len, sequence]],

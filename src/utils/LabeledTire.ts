@@ -35,10 +35,10 @@ export default class LabeledTire implements Trie {
 
     if (!branch.$) {
       this.vocabulary.push(branch.$ = { w: original, up: isUp, src: [] });
-      ++this.#sequence;
+      branch.$.src.push([currentSentenceIndex, index, original.length, ++this.#sequence])
     } else {
       const $ = branch.$;
-      if (!$.src.length) ++this.#sequence;
+      branch.$.src.push([currentSentenceIndex, index, original.length, $.src.length ? this.#sequence : ++this.#sequence]);
 
       if ($.up) {
         if (isUp) {
@@ -49,8 +49,6 @@ export default class LabeledTire implements Trie {
         }
       }
     }
-
-    branch.$.src.push([currentSentenceIndex, index, original.length, this.#sequence])
   }
 
   categorizeVocabulary(): Array<Array<Label>> {
@@ -87,27 +85,6 @@ export default class LabeledTire implements Trie {
     }
 
     return String.fromCharCode(...r);
-  }
-
-  mergeIrregular() {
-    for (const irregularCollect of IRREGULAR) {
-      const word = irregularCollect[0];
-      let irregularWord = this.findNode(word)?.$;
-
-      if (irregularCollect.length === 1) continue;
-
-      if (!irregularWord) {
-        this.vocabulary.push(irregularWord = { w: word, src: [] });
-      }
-
-      let i = irregularCollect.length;
-      while (--i) {
-        const wordBranch = this.findNode(irregularCollect[i]);
-        if (wordBranch) {
-          this.mergeSourceFirst(<Label>irregularWord, <Label>wordBranch.$,);
-        }
-      }
-    }
   }
 
   extractObscure() {
@@ -153,7 +130,6 @@ export default class LabeledTire implements Trie {
   }
 
   merge(layer: TrieNode = this.root) {
-    this.mergeIrregular();
     this.extractObscure();
     this.traverseMerge(layer);
     for (const item of this.revoked) {
@@ -175,11 +151,13 @@ export default class LabeledTire implements Trie {
     const next_eWord = current?.e?.$;
     const currentWord = <Label | undefined>current?.$;
     const occurCombined = (words: boolean, next_apos?: any): Occur => {
-      const next_ing = current?.i?.n?.g;
+      const next_in = current?.i?.n;
+      const next_ing = next_in?.g;
       const suffixesCombined: any = { src: [] };
       const next_Words = words ? [
         current?.e?.s?.$,
         current?.e?.d?.$,
+        next_in?.["'"]?.$,
         next_ing?.$,
         next_ing?.s?.$,
       ] : [];
@@ -227,7 +205,7 @@ export default class LabeledTire implements Trie {
       }
 
       const aposCombined = occurCombined(false, current?.["'"]);
-      if (aposCombined.w) currentWord.w = this.caseOr(currentWord.w, aposCombined.w);
+      if (!currentWord.vocab && aposCombined.w) currentWord.w = this.caseOr(currentWord.w, aposCombined.w);
       this.mergeProps(currentWord, aposCombined);
     } else if (next_eWord) {
       const suffixesCombined = occurCombined(true);
