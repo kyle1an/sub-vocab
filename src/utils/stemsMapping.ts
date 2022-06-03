@@ -1,7 +1,8 @@
 export const EXTRACT: Array<any> = [
   ["ad", "ads"],
-  ['as'],
-  ['be'],
+  ["as"],
+  ["be"],
+  ["ha"],
   ["is"],
   ["shed"],
   ["th"],
@@ -29,5 +30,7 @@ export const IRREGULAR: Array<any> = [
   ["shall", "shan't"],
   ["should", "shouldn't"],
   ["we", "we'll", "we've",],
-  ["will", "won't", "would", "wouldn't"]
+  ["wear", "worn"],
+  ["will", "won't",],
+  ["would", "wouldn't"],
 ]

@@ -2,9 +2,10 @@ import { defineStore } from 'pinia';
 import { queryWords } from '../api/vocab-service';
 import { Label, Sieve, TrieNode } from '../types';
 import { getNode } from '../utils/utils';
+import { IRREGULAR } from "../utils/stemsMapping";
 
 export const useVocabStore = defineStore('vocabStore', () => {
-  let query: Promise<Array<Sieve>> = queryWords();
+  const query: Promise<Array<Sieve>> = queryWords();
   let commonVocab: Array<Sieve> = [];
   let trieListPair: [TrieNode, Array<Label>];
 
@@ -34,6 +35,23 @@ export const useVocabStore = defineStore('vocabStore', () => {
       node.$.vocab = sieve;
       node.$.F = sieve.is_valid;
     }
+
+    for (const irregularCollect of IRREGULAR) {
+      const original = irregularCollect[0];
+      const isUp = /[A-Z]/.test(original)
+      const irregularWord = getNode(isUp ? original.toLowerCase() : original, trie);
+
+      if (!irregularWord.$) {
+        list.push(irregularWord.$ = { w: original, src: [] });
+      }
+
+      let i = irregularCollect.length;
+      while (--i) {
+        const wordBranch = getNode(irregularCollect[i], trie);
+        wordBranch.$ = irregularWord.$;
+      }
+    }
+
     console.timeEnd('struct sieve');
     return [trie, list];
   }
