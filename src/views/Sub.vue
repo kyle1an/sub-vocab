@@ -184,7 +184,7 @@ async function toggleWordState(row: any, e: any) {
       <el-container>
         <el-container class="relative">
           <el-main class="!py-0 relative">
-            <el-input class="input-area h-full font-text-sans" type="textarea" placeholder="input subtitles manually:" v-model.lazy="inputContent" />
+            <el-input class="input-area h-full !text-base md:!text-sm font-text-sans" type="textarea" placeholder="input subtitles manually:" v-model.lazy="inputContent" />
           </el-main>
           <div class="submit absolute text-center z-10 md:top-8 md:right-0.5 h-12">
             <el-button class="s-btn" aria-label="submit input text" @click="formVocabLists(inputContent)" type="primary" :icon="Check" circle />
@@ -214,7 +214,7 @@ async function toggleWordState(row: any, e: any) {
 
               <el-table-column label="Vocabulary" sortable :sort-method="(a, b) => sortByChar(a.w, b.w)" align="left" min-width="13" class-name="cursor-pointer">
                 <template #header>
-                  <el-input @click.stop class="!w-[calc(100%-26px)] !text-[10px]" v-model="search" size="small" placeholder="Search vocabulary" />
+                  <el-input @click.stop class="!w-[calc(100%-26px)] !text-base md:!text-xs" v-model="search" size="small" placeholder="Search" />
                 </template>
                 <template #default="props">
                   <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart.passive="selectWord" @click.stop>{{ props.row.w }}</span>

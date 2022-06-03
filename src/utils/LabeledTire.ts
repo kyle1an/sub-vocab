@@ -1,5 +1,5 @@
 import { Trie, Label, Sieve, TrieNode, Source, Occur } from '../types';
-import { getNode } from './utils';
+import { caseOr, getNode } from './utils';
 import { useTimeStore } from "../store/usePerf";
 
 export default class LabeledTire implements Trie {
@@ -7,7 +7,6 @@ export default class LabeledTire implements Trie {
   #sequence: number;
   sentences: Array<string>;
   vocabulary: Array<Label>;
-  revoked: Array<Array<any>> = [];
 
   constructor([trie, list]: [TrieNode, Array<Label>]) {
     [this.root, this.vocabulary] = [trie, list];
@@ -39,9 +38,9 @@ export default class LabeledTire implements Trie {
       const $ = branch.$;
       branch.$.src.push([currentSentenceIndex, index, original.length, $.src.length ? this.#sequence : ++this.#sequence]);
 
-      if ($.up) {
+      if ($.up && !$.vocab) {
         if (isUp) {
-          $.w = this.caseOr($.w, original);
+          $.w = caseOr($.w, original);
         } else {
           $.w = original;
           $.up = false;
@@ -74,37 +73,6 @@ export default class LabeledTire implements Trie {
 
     __perf.time.log.formLabelEnded = performance.now()
     return lists;
-  }
-
-  caseOr(a: string, b: string): string {
-    const r = [];
-
-    for (let i = 0; i < a.length; i++) {
-      r.push(a.charCodeAt(i) | b.charCodeAt(i));
-    }
-
-    return String.fromCharCode(...r);
-  }
-
-  findNode(word: string): TrieNode | undefined {
-    const chars = word.split('');
-    let branch: TrieNode = this.root;
-    const has$ = chars.every((c: string) => branch = branch[c]) && branch.$
-    return has$ ? branch : undefined;
-  }
-
-  revokeAccess(word: string) {
-    const branch = this.findNode(word);
-    let vocab;
-    if (branch) {
-      this.revoked.push([branch, branch.$]);
-      vocab = branch.$;
-      // @ts-ignore
-      branch.$ = null;
-      return vocab;
-    } else {
-      return null;
-    }
   }
 
   traverseMerge(layer: TrieNode = this.root) {
@@ -144,8 +112,8 @@ export default class LabeledTire implements Trie {
       for (const next_Word of next_Words) {
         if (!next_Word) continue;
         if (next_Word.vocab) continue;
-        suffixesCombined.w = suffixesCombined.w ? this.caseOr(suffixesCombined.w, next_Word.w) : next_Word.w;
-        this.mergeProps(suffixesCombined, next_Word,);
+        suffixesCombined.w = suffixesCombined.w ? caseOr(suffixesCombined.w, next_Word.w) : next_Word.w;
+        this.mergeSourceFirst(suffixesCombined, next_Word,);
       }
 
       return suffixesCombined;
@@ -155,49 +123,55 @@ export default class LabeledTire implements Trie {
       const suffixesCombined = occurCombined(true);
 
       if (next_eWord) {
-        if (suffixesCombined.w) next_eWord.w = this.caseOr(next_eWord.w, suffixesCombined.w.slice(0, next_eWord.w.length - 1));
-        this.mergeProps(next_eWord, suffixesCombined,);
+        if (suffixesCombined.w && next_eWord.up && !next_eWord.vocab) {
+          next_eWord.w = caseOr(next_eWord.w, suffixesCombined.w.slice(0, next_eWord.w.length - 1));
+        }
+
+        this.mergeSourceFirst(next_eWord, suffixesCombined,);
       } else {
-        if (suffixesCombined.w) currentWord.w = this.caseOr(currentWord.w, suffixesCombined.w);
-        this.mergeProps(currentWord, suffixesCombined,);
+        if (suffixesCombined.w && currentWord.up && !currentWord.vocab) {
+          currentWord.w = caseOr(currentWord.w, suffixesCombined.w);
+        }
+
+        this.mergeSourceFirst(currentWord, suffixesCombined,);
       }
 
       if (next_sWord && !next_sWord.vocab) {
         if (currentWord.up) {
           if (next_sWord.up) {
-            currentWord.w = this.caseOr(currentWord.w, next_sWord.w);
+            currentWord.w = caseOr(currentWord.w, next_sWord.w);
           } else {
             currentWord.w = next_sWord.w.slice(0, currentWord.w.length);
             currentWord.up = false;
           }
         }
 
-        this.mergeProps(currentWord, next_sWord,);
+        this.mergeSourceFirst(currentWord, next_sWord,);
       }
 
       const aposCombined = occurCombined(false, current?.["'"]);
-      if (!currentWord.vocab && aposCombined.w) currentWord.w = this.caseOr(currentWord.w, aposCombined.w);
-      this.mergeProps(currentWord, aposCombined);
+
+      if (aposCombined.w && currentWord.up && !currentWord.vocab) {
+        currentWord.w = caseOr(currentWord.w, aposCombined.w);
+      }
+
+      this.mergeSourceFirst(currentWord, aposCombined);
     } else if (next_eWord) {
       const suffixesCombined = occurCombined(true);
-      if (suffixesCombined.w) next_eWord.w = this.caseOr(next_eWord.w, suffixesCombined.w.slice(0, next_eWord.w.length - 1));
-      this.mergeProps(next_eWord, suffixesCombined,);
+
+      if (suffixesCombined.w && next_eWord.up && !next_eWord.vocab) {
+        next_eWord.w = caseOr(next_eWord.w, suffixesCombined.w.slice(0, next_eWord.w.length - 1));
+      }
+
+      this.mergeSourceFirst(next_eWord, suffixesCombined,);
     } else if (next_sWord) {
       const suffixesCombined = occurCombined(true, current?.["'"]);
       if (suffixesCombined.src.length) {
         this.vocabulary.push(current.$ = { w: next_sWord.w.slice(0, -1), src: [] })
-        this.mergeProps(<Label>current.$, next_sWord);
-        this.mergeProps(<Label>current.$, suffixesCombined);
+        this.mergeSourceFirst(<Label>current.$, next_sWord);
+        this.mergeSourceFirst(<Label>current.$, suffixesCombined);
       }
     }
-  }
-
-  mergeProps(targetWord: Label, latterWord: Label) {
-    if (!targetWord.vocab && latterWord.vocab) {
-      targetWord.vocab = latterWord.vocab;
-    }
-
-    this.mergeSourceFirst(targetWord, latterWord);
   }
 
   mergeSourceFirst(targetWord: Label, latterWord: Label) {
