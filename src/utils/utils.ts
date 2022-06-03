@@ -56,4 +56,14 @@ function mergeSorted(a: Source, b: Source): Source {
   return merged.concat(a.slice(i)).concat(b.slice(j));
 }
 
-export { pruneEmpty, print, stringify, sortByChar, getNode, mergeSorted };
+function caseOr(a: string, b: string): string {
+  const r = [];
+
+  for (let i = 0; i < a.length; i++) {
+    r.push(a.charCodeAt(i) | b.charCodeAt(i));
+  }
+
+  return String.fromCharCode(...r);
+}
+
+export { pruneEmpty, print, stringify, sortByChar, getNode, mergeSorted, caseOr };

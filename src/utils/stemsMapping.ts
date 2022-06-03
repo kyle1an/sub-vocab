@@ -6,6 +6,7 @@ export const IRREGULAR: Array<any> = [
   ["could", "couldn't"],
   ["come", "came",],
   ["dare", "daren't"],
+  ["draw", "drawn"],
   ["do", "done", "don't", "doesn't", "didn't"],
   ["have", "has", "had", "haven't", "hasn't", "hadn't"],
   ["is", "was", "isn't", "wasn't",],
