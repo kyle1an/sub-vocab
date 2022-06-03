@@ -1,16 +1,3 @@
-export const EXTRACT: Array<any> = [
-  ["ad", "ads"],
-  ["as"],
-  ["be"],
-  ["ha"],
-  ["is"],
-  ["shed"],
-  ["th"],
-  ["the"],
-  ["us"],
-  ["we"],
-]
-
 export const IRREGULAR: Array<any> = [
   ["are", "aren't", "ain't", "were", "weren't"],
   ["be", "been"],

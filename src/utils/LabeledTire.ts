@@ -1,4 +1,3 @@
-import { EXTRACT, IRREGULAR } from './stemsMapping';
 import { Trie, Label, Sieve, TrieNode, Source, Occur } from '../types';
 import { getNode } from './utils';
 import { useTimeStore } from "../store/usePerf";
@@ -54,7 +53,7 @@ export default class LabeledTire implements Trie {
   categorizeVocabulary(): Array<Array<Label>> {
     const __perf = useTimeStore();
     __perf.time.log.mergeStarted = performance.now()
-    this.merge();
+    this.traverseMerge();
     __perf.time.log.mergeEnded = performance.now()
     const lists: Array<Array<Label>> = [[], [], []];
 
@@ -87,27 +86,6 @@ export default class LabeledTire implements Trie {
     return String.fromCharCode(...r);
   }
 
-  extractObscure() {
-    for (const stemCollect of EXTRACT) {
-      const word = stemCollect[0];
-      let stemWord = this.revokeAccess(word);
-
-      if (stemCollect.length === 1) continue;
-
-      if (!stemWord) {
-        this.vocabulary.push(stemWord = { w: word, src: [] });
-      }
-
-      let i = stemCollect.length;
-      while (--i) {
-        const wordBranch = this.findNode(stemCollect[i]);
-        if (wordBranch) {
-          this.mergeSourceFirst(<Label>stemWord, <Label>wordBranch.$,);
-        }
-      }
-    }
-  }
-
   findNode(word: string): TrieNode | undefined {
     const chars = word.split('');
     let branch: TrieNode = this.root;
@@ -126,14 +104,6 @@ export default class LabeledTire implements Trie {
       return vocab;
     } else {
       return null;
-    }
-  }
-
-  merge(layer: TrieNode = this.root) {
-    this.extractObscure();
-    this.traverseMerge(layer);
-    for (const item of this.revoked) {
-      item[0].$ = item[1];
     }
   }
 
@@ -173,6 +143,7 @@ export default class LabeledTire implements Trie {
 
       for (const next_Word of next_Words) {
         if (!next_Word) continue;
+        if (next_Word.vocab) continue;
         suffixesCombined.w = suffixesCombined.w ? this.caseOr(suffixesCombined.w, next_Word.w) : next_Word.w;
         this.mergeProps(suffixesCombined, next_Word,);
       }
@@ -191,7 +162,7 @@ export default class LabeledTire implements Trie {
         this.mergeProps(currentWord, suffixesCombined,);
       }
 
-      if (next_sWord) {
+      if (next_sWord && !next_sWord.vocab) {
         if (currentWord.up) {
           if (next_sWord.up) {
             currentWord.w = this.caseOr(currentWord.w, next_sWord.w);
