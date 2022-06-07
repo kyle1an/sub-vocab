@@ -1,4 +1,4 @@
-import { Trie, Label, Sieve, TrieNode, Source, Occur } from '../types';
+import { Trie, Label, TrieNode, Occur } from '../types';
 import { caseOr, getNode } from './utils';
 import { useTimeStore } from "../store/usePerf";
 
@@ -179,10 +179,14 @@ export default class LabeledTire implements Trie {
 
     if (!targetWord.src.length) {
       targetWord.src = latterWord.src;
-    } else if (targetWord.src[0][0] < latterWord.src[0][0]) {
-      targetWord.src = targetWord.src.concat(latterWord.src);
     } else {
-      targetWord.src = latterWord.src.concat(targetWord.src);
+      if (targetWord.src === latterWord.src) return;
+
+      if (targetWord.src[0][0] <= latterWord.src[0][0]) {
+        targetWord.src = targetWord.src.concat(latterWord.src);
+      } else {
+        targetWord.src = latterWord.src.concat(targetWord.src);
+      }
     }
 
     latterWord.src = [];
