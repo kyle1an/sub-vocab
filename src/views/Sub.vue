@@ -90,6 +90,7 @@ function readSingleFile(e: any) {
 const sentences = shallowRef<any[]>([]);
 const store = useVocabStore()
 const __perf = useTimeStore();
+const vocabAmountInfo = ref<number[]>([]);
 
 async function formVocabLists(content: string) {
   const trieListPair = await store.getSieve()
@@ -100,17 +101,17 @@ async function formVocabLists(content: string) {
   sentences.value = vocab.sentences;
   __perf.time.log.categorizeStart = performance.now();
   listsOfVocab = vocab.categorizeVocabulary();
-  tableDataOfVocab.value = listsOfVocab[selectedSeg]
+  vocabAmountInfo.value = [listsOfVocab[0].length, listsOfVocab[1].length, listsOfVocab[2].length]
+  setTimeout(() => {
+    tableDataOfVocab.value = listsOfVocab[selectedSeg]
+  }, 0)
   __perf.time.log.end = performance.now()
   console.log({ root: JSON.stringify(vocab.root) });
   logVocabInfo();
   __perf.logPerf()
 }
 
-const vocabAmountInfo = ref<number[]>([]);
-
 function logVocabInfo() {
-  vocabAmountInfo.value = [Object.keys(listsOfVocab[0]).length, Object.keys(listsOfVocab[1]).length, Object.keys(listsOfVocab[2]).length];
   const untouchedVocabList = [...listsOfVocab[0]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
   const lessCommonWordsList = [...listsOfVocab[1]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
   const commonWordsList = [...listsOfVocab[2]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));

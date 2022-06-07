@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 
 export const useTimeStore = defineStore('timeStore', () => {
-  let time: any = {};
+  const time: any = {};
 
   function alignWord(des: string | Array<string>, time: number, indent: number = 30) {
     let title;
