@@ -2,7 +2,7 @@
 import Trie from '../utils/LabeledTire';
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
-import { computed, ref, shallowRef } from 'vue'
+import { computed, nextTick, ref, shallowRef } from 'vue'
 import { Segment, Vocab } from '../types';
 import { sortByChar } from '../utils/utils';
 import { acquainted, revokeWord } from '../api/vocab-service';
@@ -79,9 +79,10 @@ function readSingleFile(e: any) {
   if (!file) return;
   const reader: any = new FileReader();
   reader.fileName = file.name
-  reader.onload = (e: any) => {
+  reader.onload = async (e: any) => {
     fileInfo.value = e.target.fileName;
     inputContent.value = e.target.result
+    await nextTick()
     setTimeout(() => formVocabLists(inputContent.value), 0)
   };
   reader.readAsText(file);
@@ -103,7 +104,9 @@ async function formVocabLists(content: string) {
   listsOfVocab = vocab.categorizeVocabulary();
   vocabAmountInfo.value = [listsOfVocab[0].length, listsOfVocab[1].length, listsOfVocab[2].length]
   setTimeout(() => {
-    tableDataOfVocab.value = listsOfVocab[selectedSeg]
+    setTimeout(() => {
+      tableDataOfVocab.value = listsOfVocab[selectedSeg]
+    }, 0)
   }, 0)
   __perf.time.log.end = performance.now()
   console.log({ root: JSON.stringify(vocab.root) });
@@ -154,7 +157,7 @@ const tableDataFiltered = computed(() =>
 
 const loadingStateArray = ref<boolean[]>([]);
 
-async function toggleWordState(row: any, e: any) {
+async function toggleWordState(row: any) {
   loadingStateArray.value[row.seq] = true;
 
   const word = row.w.replace(/'/g, `''`);
@@ -177,8 +180,8 @@ async function toggleWordState(row: any, e: any) {
       <el-header height="100%" class="relative !h-16 flex items-center">
         <span class="flex-1 text-right text-xs text-indigo-900 truncate tracking-tight font-compact">
           {{ fileInfo || 'No file chosen' }}</span>
-        <label class="word-content s-btn grow-0 mx-4" @dragover.prevent @drop.prevent="dropHandler">
-          <input type="file" class="hidden" @change="readSingleFile" />Browse files
+        <label class="s-btn text-sm px-3 py-2.5 rounded-full grow-0 mx-4" @dragover.prevent @drop.prevent="dropHandler">
+          <input type="file" hidden @change="readSingleFile" />Browse files
         </label>
         <span class="flex-1 text-left text-xs text-indigo-900 truncate">{{ vocabAmountInfo.join(', ') || '' }}</span>
       </el-header>
@@ -240,7 +243,7 @@ async function toggleWordState(row: any, e: any) {
                     size="small"
                     type="primary"
                     :icon="Check"
-                    @click.stop="toggleWordState(row,$event)"
+                    @click.stop="toggleWordState(row)"
                     :plain="!row?.vocab?.is_valid"
                     :loading="loadingStateArray[row.seq]"
                     :disabled="row?.vocab && !row?.vocab?.is_user"
@@ -278,18 +281,16 @@ thead .is-right:not(:last-child) .cell {
 .el-table__expand-icon {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
+</style>
 
-.r-table :is(*, .el-table__body-wrapper) {
+<style lang="scss" scoped>
+.r-table :deep(:is(*, .el-table__body-wrapper)) {
   overscroll-behavior: contain !important;
 }
 
 .s-btn {
-  border-radius: 4px;
   box-sizing: border-box;
   display: inline-block;
-  font-size: 14px;
-  //height: 36px;
-  padding: 10px 12px;
   color: #fff;
   cursor: pointer;
   box-shadow: inset 0 1px 0 0 hsl(0deg 0% 100% / 40%);
@@ -311,7 +312,7 @@ thead .is-right:not(:last-child) .cell {
   //-moz-transform: translate3d(0, 0, 0);
   will-change: transform;
 
-  .el-card__body {
+  :deep(.el-card__body) {
     height: calc(100% - 7px);
     padding-left: 0 !important;
     padding-right: 0 !important;
@@ -319,6 +320,24 @@ thead .is-right:not(:last-child) .cell {
   }
 }
 
+@media only screen and (max-width: 768px) {
+  .r-table {
+    max-height: calc(99vh);
+    width: 100%;
+  }
+
+  .submit {
+    bottom: -32px;
+    width: 100%;
+  }
+
+  .input-area :deep(textarea) {
+    height: 260px;
+  }
+}
+</style>
+
+<style lang="scss">
 .input-area textarea {
   border-radius: 8px;
   box-shadow: none;
@@ -327,7 +346,6 @@ thead .is-right:not(:last-child) .cell {
   padding-right: 30px;
   height: 100%;
 }
-
 
 @media only screen and (min-width: 768px) {
   .input-area > textarea {
@@ -351,20 +369,6 @@ thead .is-right:not(:last-child) .cell {
     overflow: auto;
     -webkit-overflow-scrolling: touch;
     margin: 0 !important;
-  }
-
-  .r-table {
-    max-height: calc(99vh);
-    width: 100%;
-  }
-
-  .submit {
-    bottom: -32px;
-    width: 100%;
-  }
-
-  .input-area > textarea {
-    height: 260px;
   }
 
   .el-container {
