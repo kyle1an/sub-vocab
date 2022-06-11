@@ -80,11 +80,11 @@ export default class LabeledTire implements Trie {
       if (key === '$') continue;
       const innerLayer = layer[key]
       this.traverseMerge(innerLayer);
-      this.mergeVocabOfDifferentSuffixes(innerLayer, key)
+      this.mergeVocabOfDifferentSuffixes(innerLayer, key, layer)
     }
   }
 
-  mergeVocabOfDifferentSuffixes(current: TrieNode, previousChar: string) {
+  mergeVocabOfDifferentSuffixes(current: TrieNode, previousChar: string, parentLayer: TrieNode) {
     const next_sWord = previousChar === 's' ? undefined : current?.s?.$;
     const next_eWord = current?.e?.$;
     const currentWord = <Label | undefined>current?.$;
@@ -99,6 +99,25 @@ export default class LabeledTire implements Trie {
         next_ing?.$,
         next_ing?.s?.$,
       ] : [];
+
+      if (currentWord) {
+        const vowel2nd2Last = ['a', 'e', 'i', 'o', 'u'].includes(currentWord.w.slice(-2, -1))
+        const vowelLast = ['a', 'e', 'i', 'o', 'u'].includes(previousChar)
+        if (!vowelLast) {
+          if (vowel2nd2Last) {
+            next_Words.push(
+              current?.[previousChar]?.i?.n?.g?.$,
+            )
+          } else {
+            if (previousChar === 'y') {
+              next_Words.push(
+                parentLayer?.i?.e?.s?.$,
+                parentLayer?.i?.e?.d?.$,
+              )
+            }
+          }
+        }
+      }
 
       if (next_apos) {
         next_Words.push(
