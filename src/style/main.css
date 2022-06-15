@@ -18,7 +18,7 @@ textarea {
   /*-moz-font-feature-settings: 'smcp';*/
   /* -webkit-font-feature-settings: 'tnum'  !important;*/
   /*  'cv01' 96, 'ss01' 1, 'ss02' 4, 'cv02', 'cv03' :J, 'cv04', 'cv05' I, 'cv06' l, 'ss07' a, 'cv07' , 'cv08' 0 zh, 'nlck', 'nalt' 0, 'ital',  'ss03' 0, 'ss04' 1, */
-  font-feature-settings: 'cv01', 'ss02', 'cv02', 'cv03', 'cv04', 'cv05', 'cv06' 0, 'cv08' 0, 'nlck', 'ital', 'ss03', 'ss04' !important;
+  font-feature-settings: 'cv01', 'ss02', 'cv02', 'cv03', 'cv04', 'cv05', 'cv06' 0, 'cv08' 0, 'nlck', 'ital', 'ss03', 'ss04';
 }
 
 /*  'cv01',  'Straight-sided nine'; 6 9. [six six.tnum] by [six.1 six.1.tnum];*/

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Source } from "../types";
+import { Char, TrieNode } from "../types";
 
 function sortByChar(a: string, b: string): number {
   return a.localeCompare(b, 'en', { sensitivity: 'base' });
@@ -25,12 +25,12 @@ function pruneEmpty(obj: any, mutate = true) {
   }(co);  // Do not modify the original object, create a clone instead
 }
 
-function getNode(word: string, node: Record<string, Record<string, any>>) {
-  for (const c of word.split('')) node = node[c] ??= {};
+function getNode(word: string, node: TrieNode) {
+  for (const c of word.split('')) node = node[(c as Char)] ??= {};
   return node;
 }
 
-function mergeSorted(a: Source, b: Source): Source {
+function mergeSorted(a: any, b: any): any {
   if (!a.length) {
     return b;
   } else if (!b.length) {

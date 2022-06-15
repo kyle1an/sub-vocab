@@ -26,7 +26,7 @@ export const useVocabStore = defineStore('vocabStore', () => {
     for (const sieve of vocab) {
       const original = sieve.w;
       const isUp = /[A-Z]/.test(original)
-      const node: TrieNode = getNode(isUp ? original.toLowerCase() : original, trie);
+      const node = getNode(isUp ? original.toLowerCase() : original, trie);
 
       if (!node.$) {
         list.push(node.$ = { w: original, up: isUp, len: original.length, src: [] });
@@ -56,7 +56,7 @@ export const useVocabStore = defineStore('vocabStore', () => {
     return [trie, list];
   }
 
-  async function getSieve(): Promise<any> {
+  async function getSieve() {
     await fetchVocab();
     setTimeout(() => {
       setTimeout(() => {

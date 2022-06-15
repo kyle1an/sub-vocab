@@ -1,4 +1,4 @@
-import { Trie, Label, TrieNode, Occur } from '../types';
+import { Trie, Label, TrieNode, Occur, Char } from '../types';
 import { caseOr, getNode } from './utils';
 import { useTimeStore } from "../store/usePerf";
 
@@ -49,7 +49,7 @@ export default class LabeledTire implements Trie {
     }
   }
 
-  categorizeVocabulary(): Array<Array<Label>> {
+  categorizeVocabulary() {
     const __perf = useTimeStore();
     __perf.time.log.mergeStarted = performance.now()
     this.traverseMerge();
@@ -78,21 +78,21 @@ export default class LabeledTire implements Trie {
   traverseMerge(layer: TrieNode = this.root) {
     for (const key in layer) {
       if (key === '$') continue;
-      const innerLayer = layer[key]
+      const innerLayer = <TrieNode>layer[(key as Char)]
       this.traverseMerge(innerLayer);
-      this.mergeVocabOfDifferentSuffixes(innerLayer, key, layer)
+      this.mergeVocabOfDifferentSuffixes(innerLayer, (key as Char), layer)
     }
   }
 
-  mergeVocabOfDifferentSuffixes(current: TrieNode, previousChar: string, parentLayer: TrieNode) {
+  mergeVocabOfDifferentSuffixes(current: TrieNode, previousChar: Char, parentLayer: TrieNode) {
     const next_sWord = previousChar === 's' ? undefined : current?.s?.$;
     const next_eWord = current?.e?.$;
     const currentWord = <Label | undefined>current?.$;
-    const occurCombined = (words: boolean, next_apos?: any): Occur => {
+
+    const words_Occur = (baseWords: boolean, next_apos?: TrieNode) => {
       const next_in = current?.i?.n;
       const next_ing = next_in?.g;
-      const suffixesCombined: any = { src: [] };
-      const next_Words = words ? [
+      const next_Words = baseWords ? [
         current?.e?.s?.$,
         current?.e?.d?.$,
         next_in?.["'"]?.$,
@@ -128,6 +128,12 @@ export default class LabeledTire implements Trie {
         )
       }
 
+      return next_Words;
+    }
+
+    const occurCombined = (next_Words: Array<Label | undefined>): Occur => {
+      const suffixesCombined: any = { src: [] };
+
       for (const next_Word of next_Words) {
         if (!next_Word) continue;
         if (next_Word.vocab) continue;
@@ -139,7 +145,7 @@ export default class LabeledTire implements Trie {
     }
 
     if (currentWord) {
-      const suffixesCombined = occurCombined(true);
+      const suffixesCombined = occurCombined(words_Occur(true))
 
       if (next_eWord) {
         if (suffixesCombined.w && next_eWord.up && !next_eWord.vocab) {
@@ -168,7 +174,7 @@ export default class LabeledTire implements Trie {
         this.mergeSourceFirst(currentWord, next_sWord,);
       }
 
-      const aposCombined = occurCombined(false, current?.["'"]);
+      const aposCombined = occurCombined(words_Occur(false, current?.["'"]))
 
       if (aposCombined.w && currentWord.up && !currentWord.vocab) {
         currentWord.w = caseOr(currentWord.w, aposCombined.w);
@@ -176,7 +182,7 @@ export default class LabeledTire implements Trie {
 
       this.mergeSourceFirst(currentWord, aposCombined);
     } else if (next_eWord) {
-      const suffixesCombined = occurCombined(true);
+      const suffixesCombined = occurCombined(words_Occur(true))
 
       if (suffixesCombined.w && next_eWord.up && !next_eWord.vocab) {
         next_eWord.w = caseOr(next_eWord.w, suffixesCombined.w.slice(0, next_eWord.w.length - 1));
@@ -184,11 +190,11 @@ export default class LabeledTire implements Trie {
 
       this.mergeSourceFirst(next_eWord, suffixesCombined,);
     } else if (next_sWord) {
-      const suffixesCombined = occurCombined(true, current?.["'"]);
+      const suffixesCombined = occurCombined(words_Occur(true, current?.["'"]))
       if (suffixesCombined.src.length) {
         this.vocabulary.push(current.$ = { w: next_sWord.w.slice(0, -1), src: [] })
-        this.mergeSourceFirst(<Label>current.$, next_sWord);
-        this.mergeSourceFirst(<Label>current.$, suffixesCombined);
+        this.mergeSourceFirst(current.$, next_sWord);
+        this.mergeSourceFirst(current.$, suffixesCombined);
       }
     }
   }
