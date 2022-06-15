@@ -28,7 +28,7 @@ export interface Label extends Vocab {
   freq?: number;
   src: Source;
   seq?: number;
-  F?: boolean;
+  F?: boolean | number;
   vocab?: Sieve;
 }
 
@@ -38,8 +38,38 @@ export interface Trie {
   add(word: string): this;
 }
 
-export type TrieNode = Record<any, Record<any, any | Label>>;
+export type Source = Array<[number, number, number, number]>;
 
-export type Source = Array<Array<any>>;
+type Char = "'" | "-" | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z';
 
-export type TrieNodes = { [key: string]: TrieNode; [key: $]: Label; [key: vocab]: Sieve };
+export interface TrieNode {
+  $?: Label;
+  "'"?: TrieNode;
+  "-"?: TrieNode;
+  a?: TrieNode;
+  b?: TrieNode;
+  c?: TrieNode;
+  d?: TrieNode;
+  e?: TrieNode;
+  f?: TrieNode;
+  g?: TrieNode;
+  h?: TrieNode;
+  i?: TrieNode;
+  j?: TrieNode;
+  k?: TrieNode;
+  l?: TrieNode;
+  m?: TrieNode;
+  n?: TrieNode;
+  o?: TrieNode;
+  p?: TrieNode;
+  q?: TrieNode;
+  r?: TrieNode;
+  s?: TrieNode;
+  t?: TrieNode;
+  u?: TrieNode;
+  v?: TrieNode;
+  w?: TrieNode;
+  x?: TrieNode;
+  y?: TrieNode;
+  z?: TrieNode;
+}

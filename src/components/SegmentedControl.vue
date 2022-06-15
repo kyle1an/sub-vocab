@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, computed, onMounted, onBeforeUnmount } from 'vue'
+import { Segment } from '../types';
 
 const emit = defineEmits(['input'])
 const props = defineProps(['segments'])
-const segments = ref(props.segments)
+const segments = ref<Segment[]>(props.segments)
 const selectedSegmentWidth = ref(0);
 const selectedId = ref(0);
 
 onMounted(() => {
-  selectedId.value = segments.value.find((o: any) => o.default).id ?? segments.value[0].id;
+  selectedId.value = segments.value.find((o) => o.default)!.id ?? segments.value[0].id;
   window.addEventListener('resize', recalculateSelectedSegmentWidth);
   setTimeout(function showPill() {
     selectedSegmentWidth.value = calcSegmentWidth(selectedId.value);
@@ -27,7 +28,7 @@ function recalculateSelectedSegmentWidth() {
   nextTick(() => selectedSegmentWidth.value = calcSegmentWidth(selectedId.value));
 }
 
-function calcSegmentWidth(id: any) {
+function calcSegmentWidth(id: number) {
   return document.querySelector(`input[type='radio'][value='${id}']`)!.getBoundingClientRect().width;
 }
 
@@ -38,7 +39,7 @@ const selectedSegmentId = computed({
     emit('input', selectedSegmentIndex.value);
   }
 })
-const selectedSegmentIndex = computed(() => segments.value.findIndex((segment: any) => segment.id === selectedSegmentId.value));
+const selectedSegmentIndex = computed(() => segments.value.findIndex((segment) => segment.id === selectedSegmentId.value));
 const pillTransformStyles = computed(() => `transform:translateX(${selectedSegmentWidth.value * selectedSegmentIndex.value}px)`)
 
 onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSegmentWidth))

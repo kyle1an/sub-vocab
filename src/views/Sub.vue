@@ -3,7 +3,7 @@ import Trie from '../utils/LabeledTire';
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
 import { computed, nextTick, ref, shallowRef } from 'vue'
-import { Segment, Vocab } from '../types';
+import { Segment, Source, Vocab } from '../types';
 import { sortByChar } from '../utils/utils';
 import { acquainted, revokeWord } from '../api/vocab-service';
 import { useVocabStore } from '../store/useVocab';
@@ -14,7 +14,7 @@ const segments: Array<Segment> = [
   { id: 11, title: 'Filtered', default: true },
   { id: 2, title: 'Common', },
 ];
-let selectedSeg: number = segments.findIndex((o: any) => o.default);
+let selectedSeg = segments.findIndex((o) => o.default);
 let listsOfVocab: Array<any>[] = [[], [], []];
 const tableDataOfVocab = shallowRef<Vocab[]>([]);
 const vocabTable = shallowRef<any>(null);
@@ -48,10 +48,10 @@ function example(str: string, idxes: Array<number>[]): string {
   return lines.concat(str.slice(position)).join('');
 }
 
-function source(src: any) {
+function source(src: Source) {
   const lines = [];
-  src.sort((a: any, b: any) => a[0] - b[0] || a[1] - b[1]);
-  const source = src.map(([sentenceId, start, len, sequence]: any) => [
+  src.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const source: any = src.map(([sentenceId, start, len, sequence]) => [
     sentenceId,
     [[start, len, sequence]],
   ]);
