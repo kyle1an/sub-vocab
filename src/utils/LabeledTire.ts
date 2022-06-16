@@ -1,15 +1,15 @@
-import { Trie, Label, TrieNode, Occur, Char } from '../types';
-import { caseOr, getNode } from './utils';
+import { Trie, Label, Occur, Char, TrieNodeMap } from '../types';
+import { caseOr, getNodeByPath } from './utils';
 import { useTimeStore } from "../store/usePerf";
 
 export default class LabeledTire implements Trie {
-  root: TrieNode;
+  root: TrieNodeMap;
   #sequence: number;
   sentences: Array<string>;
   vocabulary: Array<Label>;
 
-  constructor([trie, list]: [TrieNode, Array<Label>]) {
-    [this.root, this.vocabulary] = [trie, list];
+  constructor(trieListPair: [TrieNodeMap, Array<Label>]) {
+    [this.root, this.vocabulary] = trieListPair
     this.sentences = [];
     this.#sequence = 1;
   }
@@ -29,14 +29,16 @@ export default class LabeledTire implements Trie {
   }
 
   #update(original: string, isUp: boolean, index: number, currentSentenceIndex: number) {
-    const branch = getNode(isUp ? original.toLowerCase() : original, this.root);
+    const branch = getNodeByPath(this.root, isUp ? original.toLowerCase() : original);
 
-    if (!branch.$) {
-      this.vocabulary.push(branch.$ = { w: original, up: isUp, src: [] });
-      branch.$.src.push([currentSentenceIndex, index, original.length, ++this.#sequence])
+    if (!branch.has('$')) {
+      const $: Label = { w: original, up: isUp, src: [] };
+      this.vocabulary.push($);
+      $.src.push([currentSentenceIndex, index, original.length, ++this.#sequence])
+      branch.set('$', $);
     } else {
-      const $ = branch.$;
-      branch.$.src.push([currentSentenceIndex, index, original.length, $.src.length ? this.#sequence : ++this.#sequence]);
+      const $ = branch.get('$')!;
+      $.src.push([currentSentenceIndex, index, original.length, $.src.length ? this.#sequence : ++this.#sequence]);
 
       if ($.up && !$.vocab) {
         if (isUp) {
@@ -75,29 +77,29 @@ export default class LabeledTire implements Trie {
     return lists;
   }
 
-  traverseMerge(layer: TrieNode = this.root) {
-    for (const key in layer) {
-      if (key === '$') continue;
-      const innerLayer = <TrieNode>layer[(key as Char)]
+  traverseMerge(layer: TrieNodeMap = this.root) {
+    for (const key of layer.keys()) {
+      if (<Char | '$'>key === '$') continue;
+      const innerLayer = <TrieNodeMap>layer.get(key as Char)
       this.traverseMerge(innerLayer);
       this.mergeVocabOfDifferentSuffixes(innerLayer, (key as Char), layer)
     }
   }
 
-  mergeVocabOfDifferentSuffixes(current: TrieNode, previousChar: Char, parentLayer: TrieNode) {
-    const next_sWord = previousChar === 's' ? undefined : current?.s?.$;
-    const next_eWord = current?.e?.$;
-    const currentWord = <Label | undefined>current?.$;
+  mergeVocabOfDifferentSuffixes(current: TrieNodeMap, previousChar: Char, parentLayer: TrieNodeMap) {
+    const next_sWord = previousChar === 's' ? undefined : current?.get('s')?.get('$')
+    const next_eWord = current?.get('e')?.get('$')
+    const currentWord = <Label | undefined>current?.get('$')
 
-    const words_Occur = (baseWords: boolean, next_apos?: TrieNode) => {
-      const next_in = current?.i?.n;
-      const next_ing = next_in?.g;
+    const words_Occur = (baseWords: boolean, next_apos?: TrieNodeMap) => {
+      const next_in = current?.get('i')?.get('n')
+      const next_ing = next_in?.get('g');
       const next_Words = baseWords ? [
-        current?.e?.s?.$,
-        current?.e?.d?.$,
-        next_in?.["'"]?.$,
-        next_ing?.$,
-        next_ing?.s?.$,
+        current?.get('e')?.get('s')?.get('$'),
+        current?.get('e')?.get('d')?.get('$'),
+        next_in?.get("'")?.get('$'),
+        next_ing?.get('$'),
+        next_ing?.get('s')?.get('$'),
       ] : [];
 
       if (currentWord) {
@@ -106,13 +108,13 @@ export default class LabeledTire implements Trie {
         if (!vowelLast) {
           if (vowel2nd2Last) {
             next_Words.push(
-              current?.[previousChar]?.i?.n?.g?.$,
+              current?.get(previousChar)?.get('i')?.get('n')?.get('g')?.get('$'),
             )
           } else {
             if (previousChar === 'y') {
               next_Words.push(
-                parentLayer?.i?.e?.s?.$,
-                parentLayer?.i?.e?.d?.$,
+                parentLayer?.get('i')?.get('e')?.get('s')?.get('$'),
+                parentLayer?.get('i')?.get('e')?.get('d')?.get('$'),
               )
             }
           }
@@ -121,10 +123,10 @@ export default class LabeledTire implements Trie {
 
       if (next_apos) {
         next_Words.push(
-          next_apos?.s?.$,
-          next_apos?.l?.l?.$,
-          next_apos?.v?.e?.$,
-          next_apos?.d?.$,
+          next_apos?.get('s')?.get('$'),
+          next_apos?.get('l')?.get('l')?.get('$'),
+          next_apos?.get('v')?.get('e')?.get('$'),
+          next_apos?.get('d')?.get('$'),
         )
       }
 
@@ -174,7 +176,7 @@ export default class LabeledTire implements Trie {
         this.mergeSourceFirst(currentWord, next_sWord,);
       }
 
-      const aposCombined = occurCombined(words_Occur(false, current?.["'"]))
+      const aposCombined = occurCombined(words_Occur(false, current?.get("'")))
 
       if (aposCombined.w && currentWord.up && !currentWord.vocab) {
         currentWord.w = caseOr(currentWord.w, aposCombined.w);
@@ -190,11 +192,13 @@ export default class LabeledTire implements Trie {
 
       this.mergeSourceFirst(next_eWord, suffixesCombined,);
     } else if (next_sWord) {
-      const suffixesCombined = occurCombined(words_Occur(true, current?.["'"]))
+      const suffixesCombined = occurCombined(words_Occur(true, current?.get("'")))
       if (suffixesCombined.src.length) {
-        this.vocabulary.push(current.$ = { w: next_sWord.w.slice(0, -1), src: [] })
-        this.mergeSourceFirst(current.$, next_sWord);
-        this.mergeSourceFirst(current.$, suffixesCombined);
+        const $ = { w: next_sWord.w.slice(0, -1), src: [] }
+        current.set('$', $)
+        this.vocabulary.push($)
+        this.mergeSourceFirst($, next_sWord);
+        this.mergeSourceFirst($, suffixesCombined);
       }
     }
   }

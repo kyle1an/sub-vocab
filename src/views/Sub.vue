@@ -109,7 +109,7 @@ async function formVocabLists(content: string) {
     }, 0)
   }, 0)
   __perf.time.log.end = performance.now()
-  console.log({ root: JSON.stringify(vocab.root) });
+  console.log({ root: vocab.root });
   logVocabInfo();
   __perf.logPerf()
 }
