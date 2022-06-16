@@ -1,54 +1,59 @@
 import { defineStore } from 'pinia';
 import { queryWords } from '../api/vocab-service';
-import { Label, Sieve, TrieNode } from '../types';
-import { getNode } from '../utils/utils';
+import { Label, Sieve, TrieNodeMap } from '../types';
+import { getNodeByPath } from '../utils/utils';
 import { IRREGULAR } from "../utils/stemsMapping";
 
 export const useVocabStore = defineStore('vocabStore', () => {
   const query: Promise<Array<Sieve>> = queryWords();
   let commonVocab: Array<Sieve> = [];
-  let trieListPair: [TrieNode, Array<Label>];
+  let trieListPair: [TrieNodeMap, Array<Label>];
 
   async function fetchVocab() {
     if (commonVocab.length === 0) {
       console.time('fetch vocab');
       commonVocab = await query;
       console.timeEnd('fetch vocab');
-      trieListPair = structSievePair(commonVocab);
+      trieListPair = structSieveMapPair(commonVocab);
     }
     return commonVocab;
   }
 
-  function structSievePair(vocab: Array<Sieve>): [TrieNode, Array<Label>] {
+  function structSieveMapPair(vocab: Array<Sieve>): [TrieNodeMap, Array<Label>] {
     console.time('struct sieve')
-    const trie: TrieNode = {};
+    const trie: TrieNodeMap = new Map();
     const list: Array<Label> = [];
     for (const sieve of vocab) {
       const original = sieve.w;
       const isUp = /[A-Z]/.test(original)
-      const node = getNode(isUp ? original.toLowerCase() : original, trie);
+      const node = getNodeByPath(trie, isUp ? original.toLowerCase() : original);
 
-      if (!node.$) {
-        list.push(node.$ = { w: original, up: isUp, len: original.length, src: [] });
+      if (!node.has('$')) {
+        const $ = { w: original, up: isUp, len: original.length, src: [] };
+        node.set('$', $);
+        list.push($)
       }
 
-      node.$.vocab = sieve;
-      node.$.F = sieve.is_valid;
+      const $ = node.get('$')!;
+      $.vocab = sieve;
+      $.F = sieve.is_valid;
     }
 
     for (const irregularCollect of IRREGULAR) {
       const original = irregularCollect[0];
       const isUp = /[A-Z]/.test(original)
-      const irregularWord = getNode(isUp ? original.toLowerCase() : original, trie);
+      const irregularWord = getNodeByPath(trie, isUp ? original.toLowerCase() : original);
 
-      if (!irregularWord.$) {
-        list.push(irregularWord.$ = { w: original, src: [] });
+      if (!irregularWord.has('$')) {
+        const $ = { w: original, src: [] };
+        irregularWord.set('$', $);
+        list.push($)
       }
 
       let i = irregularCollect.length;
       while (--i) {
-        const wordBranch = getNode(irregularCollect[i], trie);
-        wordBranch.$ = irregularWord.$;
+        const wordBranch = getNodeByPath(trie, irregularCollect[i]);
+        wordBranch.set('$', irregularWord.get('$')!)
       }
     }
 
@@ -60,7 +65,7 @@ export const useVocabStore = defineStore('vocabStore', () => {
     await fetchVocab();
     setTimeout(() => {
       setTimeout(() => {
-        trieListPair = structSievePair(commonVocab);
+        trieListPair = structSieveMapPair(commonVocab);
       }, 0);
     }, 0);
     return trieListPair;
@@ -70,14 +75,16 @@ export const useVocabStore = defineStore('vocabStore', () => {
     const original = row.vocab!.w;
     const isUp = /[A-Z]/.test(original)
     const [trie, list] = trieListPair;
-    const node: TrieNode = getNode(isUp ? original.toLowerCase() : original, trie);
-    if (!node.$) {
-      node.$ = { w: original, up: isUp, len: original.length, src: [] }
-      list.push(<Label>node.$);
+    const node = getNodeByPath(trie, isUp ? original.toLowerCase() : original);
+    if (!node.has('$')) {
+      const $ = { w: original, up: isUp, len: original.length, src: [] }
+      node.set('$', $)
+      list.push($);
       commonVocab.push(<Sieve>row.vocab);
     }
-    node.$.vocab = row.vocab;
-    node.$.F = row.vocab!.is_valid;
+    const $ = node.get('$')!
+    $.vocab = row.vocab;
+    $.F = row.vocab!.is_valid;
   }
 
   return { fetchVocab, updateWord, getSieve };

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Char, TrieNode } from "../types";
+import { Char, TrieNodeMap } from "../types";
 
 function sortByChar(a: string, b: string): number {
   return a.localeCompare(b, 'en', { sensitivity: 'base' });
@@ -25,9 +25,17 @@ function pruneEmpty(obj: any, mutate = true) {
   }(co);  // Do not modify the original object, create a clone instead
 }
 
-function getNode(word: string, node: TrieNode) {
-  for (const c of word.split('')) node = node[(c as Char)] ??= {};
-  return node;
+function getNodeByPath(node: TrieNodeMap, word: string) {
+  for (const c of word.split('')) {
+    let child = node.get(c as Char)
+    if (!child) {
+      node.set(c as Char, child = new Map())
+    }
+
+    node = child;
+  }
+
+  return node
 }
 
 function mergeSorted(a: any, b: any): any {
@@ -66,4 +74,4 @@ function caseOr(a: string, b: string): string {
   return String.fromCharCode(...r);
 }
 
-export { pruneEmpty, print, stringify, sortByChar, getNode, mergeSorted, caseOr };
+export { pruneEmpty, print, stringify, sortByChar, getNodeByPath, mergeSorted, caseOr };
