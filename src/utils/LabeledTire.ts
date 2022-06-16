@@ -1,14 +1,14 @@
-import { Trie, Label, Occur, Char, TrieNodeMap } from '../types';
-import { caseOr, getNodeByPath } from './utils';
+import { Trie, Label, TrieNode, Occur, Char } from '../types';
+import { caseOr, getNode } from './utils';
 import { useTimeStore } from "../store/usePerf";
 
 export default class LabeledTire implements Trie {
-  root: TrieNodeMap;
+  root: TrieNode;
   #sequence: number;
   sentences: Array<string>;
   vocabulary: Array<Label>;
 
-  constructor(trieListPair: [TrieNodeMap, Array<Label>]) {
+  constructor(trieListPair: [TrieNode, Array<Label>]) {
     [this.root, this.vocabulary] = trieListPair
     this.sentences = [];
     this.#sequence = 1;
@@ -29,15 +29,13 @@ export default class LabeledTire implements Trie {
   }
 
   #update(original: string, isUp: boolean, index: number, currentSentenceIndex: number) {
-    const branch = getNodeByPath(this.root, isUp ? original.toLowerCase() : original);
+    const branch = getNode(this.root, isUp ? original.toLowerCase() : original);
 
-    if (!branch.has('$')) {
-      const $: Label = { w: original, up: isUp, src: [] };
-      this.vocabulary.push($);
-      $.src.push([currentSentenceIndex, index, original.length, ++this.#sequence])
-      branch.set('$', $);
+    if (!branch.$) {
+      this.vocabulary.push(branch.$ = { w: original, up: isUp, src: [] });
+      branch.$.src.push([currentSentenceIndex, index, original.length, ++this.#sequence])
     } else {
-      const $ = branch.get('$')!;
+      const $ = branch.$;
       $.src.push([currentSentenceIndex, index, original.length, $.src.length ? this.#sequence : ++this.#sequence]);
 
       if ($.up && !$.vocab) {
@@ -77,29 +75,29 @@ export default class LabeledTire implements Trie {
     return lists;
   }
 
-  traverseMerge(layer: TrieNodeMap = this.root) {
-    for (const key of layer.keys()) {
-      if (<Char | '$'>key === '$') continue;
-      const innerLayer = <TrieNodeMap>layer.get(key as Char)
+  traverseMerge(layer: TrieNode = this.root) {
+    for (const key in layer) {
+      if (key === '$') continue;
+      const innerLayer = layer[key as Char]!
       this.traverseMerge(innerLayer);
       this.mergeVocabOfDifferentSuffixes(innerLayer, (key as Char), layer)
     }
   }
 
-  mergeVocabOfDifferentSuffixes(current: TrieNodeMap, previousChar: Char, parentLayer: TrieNodeMap) {
-    const next_sWord = previousChar === 's' ? undefined : current?.get('s')?.get('$')
-    const next_eWord = current?.get('e')?.get('$')
-    const currentWord = <Label | undefined>current?.get('$')
+  mergeVocabOfDifferentSuffixes(current: TrieNode, previousChar: Char, parentLayer: TrieNode) {
+    const next_sWord = previousChar === 's' ? undefined : current?.s?.$;
+    const next_eWord = current?.e?.$;
+    const currentWord = current?.$;
 
-    const words_Occur = (baseWords: boolean, next_apos?: TrieNodeMap) => {
-      const next_in = current?.get('i')?.get('n')
-      const next_ing = next_in?.get('g');
+    const words_Occur = (baseWords: boolean, next_apos?: TrieNode) => {
+      const next_in = current?.i?.n;
+      const next_ing = next_in?.g;
       const next_Words = baseWords ? [
-        current?.get('e')?.get('s')?.get('$'),
-        current?.get('e')?.get('d')?.get('$'),
-        next_in?.get("'")?.get('$'),
-        next_ing?.get('$'),
-        next_ing?.get('s')?.get('$'),
+        current?.e?.s?.$,
+        current?.e?.d?.$,
+        next_in?.["'"]?.$,
+        next_ing?.$,
+        next_ing?.s?.$,
       ] : [];
 
       if (currentWord) {
@@ -108,13 +106,13 @@ export default class LabeledTire implements Trie {
         if (!vowelLast) {
           if (vowel2nd2Last) {
             next_Words.push(
-              current?.get(previousChar)?.get('i')?.get('n')?.get('g')?.get('$'),
+              current?.[previousChar]?.i?.n?.g?.$,
             )
           } else {
             if (previousChar === 'y') {
               next_Words.push(
-                parentLayer?.get('i')?.get('e')?.get('s')?.get('$'),
-                parentLayer?.get('i')?.get('e')?.get('d')?.get('$'),
+                parentLayer?.i?.e?.s?.$,
+                parentLayer?.i?.e?.d?.$,
               )
             }
           }
@@ -123,10 +121,10 @@ export default class LabeledTire implements Trie {
 
       if (next_apos) {
         next_Words.push(
-          next_apos?.get('s')?.get('$'),
-          next_apos?.get('l')?.get('l')?.get('$'),
-          next_apos?.get('v')?.get('e')?.get('$'),
-          next_apos?.get('d')?.get('$'),
+          next_apos?.s?.$,
+          next_apos?.l?.l?.$,
+          next_apos?.v?.e?.$,
+          next_apos?.d?.$,
         )
       }
 
@@ -176,7 +174,7 @@ export default class LabeledTire implements Trie {
         this.mergeSourceFirst(currentWord, next_sWord,);
       }
 
-      const aposCombined = occurCombined(words_Occur(false, current?.get("'")))
+      const aposCombined = occurCombined(words_Occur(false, current?.["'"]))
 
       if (aposCombined.w && currentWord.up && !currentWord.vocab) {
         currentWord.w = caseOr(currentWord.w, aposCombined.w);
@@ -192,13 +190,12 @@ export default class LabeledTire implements Trie {
 
       this.mergeSourceFirst(next_eWord, suffixesCombined,);
     } else if (next_sWord) {
-      const suffixesCombined = occurCombined(words_Occur(true, current?.get("'")))
+      const suffixesCombined = occurCombined(words_Occur(true, current?.["'"]))
       if (suffixesCombined.src.length) {
-        const $ = { w: next_sWord.w.slice(0, -1), src: [] }
-        current.set('$', $)
-        this.vocabulary.push($)
-        this.mergeSourceFirst($, next_sWord);
-        this.mergeSourceFirst($, suffixesCombined);
+        const currentWord = current.$ = { w: next_sWord.w.slice(0, -1), src: [] }
+        this.vocabulary.push(currentWord)
+        this.mergeSourceFirst(currentWord, next_sWord);
+        this.mergeSourceFirst(currentWord, suffixesCombined);
       }
     }
   }

@@ -33,13 +33,45 @@ export interface Label extends Vocab {
 }
 
 export interface Trie {
-  root: TrieNodeMap;
+  root: TrieNode;
 
   add(word: string): this;
 }
 
 export type Source = Array<[number, number, number, number]>;
 
-type Char = "'" | '-' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z';
+export type Char = "'" | '-' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z';
 
 export type TrieNodeMap = Map<Char, TrieNodeMap> & Map<'$', Label>;
+
+export interface TrieNode {
+  $?: Label;
+  "'"?: TrieNode;
+  "-"?: TrieNode;
+  a?: TrieNode;
+  b?: TrieNode;
+  c?: TrieNode;
+  d?: TrieNode;
+  e?: TrieNode;
+  f?: TrieNode;
+  g?: TrieNode;
+  h?: TrieNode;
+  i?: TrieNode;
+  j?: TrieNode;
+  k?: TrieNode;
+  l?: TrieNode;
+  m?: TrieNode;
+  n?: TrieNode;
+  o?: TrieNode;
+  p?: TrieNode;
+  q?: TrieNode;
+  r?: TrieNode;
+  s?: TrieNode;
+  t?: TrieNode;
+  u?: TrieNode;
+  v?: TrieNode;
+  w?: TrieNode;
+  x?: TrieNode;
+  y?: TrieNode;
+  z?: TrieNode;
+}
