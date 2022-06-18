@@ -61,7 +61,7 @@ function source(src: Source) {
       lines.push([
         source[i][0],
         source[i][1].concat(source[i + 1][1])
-      ])
+      ]);
       i++;
     } else {
       lines.push(source[i]);
@@ -281,6 +281,22 @@ thead .is-right:not(:last-child) .cell {
 .el-table__expand-icon {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
+
+@media only screen and (max-width: 768px) {
+  .el-container {
+    display: flex;
+    flex-direction: column !important;
+  }
+
+  .el-aside {
+    margin-top: 34px;
+    padding-bottom: 20px;
+  }
+
+  .el-textarea__inner {
+    max-height: 360px;
+  }
+}
 </style>
 
 <style lang="scss" scoped>
@@ -320,6 +336,21 @@ thead .is-right:not(:last-child) .cell {
   }
 }
 
+.input-area :deep(textarea) {
+  border-radius: 8px;
+  box-shadow: none;
+  border: 0;
+  padding-left: 30px;
+  padding-right: 30px;
+  height: 100%;
+}
+
+@media only screen and (min-width: 768px) {
+  .input-area > :deep(textarea) {
+    overflow: visible;
+  }
+}
+
 @media only screen and (max-width: 768px) {
   .r-table {
     max-height: calc(99vh);
@@ -337,52 +368,3 @@ thead .is-right:not(:last-child) .cell {
 }
 </style>
 
-<style lang="scss">
-.input-area textarea {
-  border-radius: 8px;
-  box-shadow: none;
-  border: 0;
-  padding-left: 30px;
-  padding-right: 30px;
-  height: 100%;
-}
-
-@media only screen and (min-width: 768px) {
-  .input-area > textarea {
-    overflow: visible;
-  }
-
-  body {
-    height: 100%;
-  }
-}
-
-@media only screen and (max-width: 768px) {
-  html {
-    //overflow: hidden;
-    //height: 100%;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  body {
-    //height: 100%;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-    margin: 0 !important;
-  }
-
-  .el-container {
-    display: flex;
-    flex-direction: column !important;
-  }
-
-  .el-aside {
-    margin-top: 34px;
-    padding-bottom: 20px;
-  }
-
-  .el-textarea__inner {
-    max-height: 360px;
-  }
-}
-</style>

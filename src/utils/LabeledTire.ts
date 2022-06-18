@@ -54,7 +54,7 @@ export default class LabeledTire implements Trie {
     __perf.time.log.mergeStarted = performance.now()
     this.traverseMerge();
     __perf.time.log.mergeEnded = performance.now()
-    const lists: Array<Array<Label>> = [[], [], []];
+    const lists: [Label[], Label[], Label[]] = [[], [], []];
 
     for (const v of this.vocabulary) {
       if (v.src.length) {
