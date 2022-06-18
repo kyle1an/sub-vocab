@@ -79,6 +79,27 @@ table thead {
   }
 }
 
+@media only screen and (min-width: 768px) {
+  body {
+    height: 100%;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  html {
+    //overflow: hidden;
+    //height: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  body {
+    //height: 100%;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 !important;
+  }
+}
+
 @media only screen and (max-width: 640px) {
   .el-main {
     padding-right: 0 !important;
