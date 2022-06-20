@@ -1,6 +1,6 @@
 import { Trie, Label, TrieNode, Occur, Char } from '../types';
 import { caseOr, getNode } from './utils';
-import { useTimeStore } from "../store/usePerf";
+import { useTimeStore } from '../store/usePerf';
 
 export default class LabeledTire implements Trie {
   root: TrieNode;
