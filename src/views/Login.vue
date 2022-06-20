@@ -1,16 +1,27 @@
 <script lang="ts" setup>
 import { reactive } from 'vue';
+import { login } from '../api/user';
+import router from '../router';
 
 const formData = reactive({
-  name: '',
+  username: '',
   password: '',
 })
 
 function submitForm() {
-  if (formData.name === 'admin' && formData.password === 'admin') {
+  if (formData.username === 'admin' && formData.password === 'admin') {
   } else {
     alert('Invalid username or password')
   }
+}
+
+function authenticate() {
+  login({
+    username: formData.username,
+    password: formData.password,
+  }).then(() => {
+    router.push('/')
+  })
 }
 </script>
 
@@ -25,7 +36,7 @@ function submitForm() {
             :model="formData"
             style="max-width: 460px">
             <el-form-item class="font-bold" label="Name">
-              <el-input v-model="formData.name" />
+              <el-input v-model="formData.username" />
             </el-form-item>
             <el-form-item class="font-bold" label="Password">
               <el-input v-model="formData.password" type="password" />
