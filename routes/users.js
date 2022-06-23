@@ -37,6 +37,7 @@ module.exports.api = {
   revokeWord: (req, res) => {
     pool.getConnection((err, connection) => {
       const { word } = req.body;
+
       connection.query(sql.revokeWord(word), (err, rows, fields) => {
         connection.release();
         if (err) throw err;

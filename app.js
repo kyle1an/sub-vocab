@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
+const authRouter = require('./routes/auth');
 const app = express();
 const cors = require('cors');
 const config = require('./config/connection');
@@ -33,6 +34,8 @@ app.use('/users', usersRouter);
 app.post('/api/queryWords', usersRouter.api.queryWords)
 app.post('/api/acquaint', usersRouter.api.acquaint)
 app.post('/api/revokeWord', usersRouter.api.revokeWord)
+app.post('/login', authRouter.login)
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
@@ -55,7 +58,7 @@ const mysql = require('mysql')
 const connection = mysql.createConnection(config)
 
 connection.connect()
-connection.query(sql.wordsQuery, (err, rows, fields) => {
+connection.query(sql.login({ username: 'kyle', password: 'kgo' }), (err, rows, fields) => {
   if (err) throw err;
   console.log('The solution is: ', rows)
 })
