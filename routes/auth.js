@@ -8,7 +8,9 @@ const pool = mysql.createPool(config);
 module.exports = {
   login: (req, res) => {
     pool.getConnection((err, connection) => {
-      connection.query(sql.login(req.body), (err, rows, fields) => {
+      const { username, password } = req.body;
+
+      connection.query(sql.login({ username, password }), (err, rows, fields) => {
         connection.release();
         if (err) throw err;
         res.send(JSON.stringify(rows));

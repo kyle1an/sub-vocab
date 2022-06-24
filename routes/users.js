@@ -25,8 +25,8 @@ module.exports.api = {
 
   acquaint: (req, res) => {
     pool.getConnection((err, connection) => {
-      const { word } = req.body;
-      connection.query(sql.acquaint(word), (err, rows, fields) => {
+      const { word, user } = req.body;
+      connection.query(sql.acquaintWordByUser(word, user), (err, rows, fields) => {
         connection.release();
         if (err) throw err;
         res.send(JSON.stringify(rows));
@@ -36,9 +36,8 @@ module.exports.api = {
 
   revokeWord: (req, res) => {
     pool.getConnection((err, connection) => {
-      const { word } = req.body;
-
-      connection.query(sql.revokeWord(word), (err, rows, fields) => {
+      const { word, user } = req.body;
+      connection.query(sql.revokeWordByUser(word, user), (err, rows, fields) => {
         connection.release();
         if (err) throw err;
         res.send(JSON.stringify(rows));
