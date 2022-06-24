@@ -47,7 +47,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSe
 
 <template>
   <main class="flex justify-center m-0 p-0 font-sans antialiased !touch-manipulation">
-    <div class="ios13-segmented-control grid grid-flow-col auto-cols-[1fr] bg-[#EFEFF0] leading-6 m-0 p-0.5 border-0 rounded-[9px] overflow-hidden select-none">
+    <div class="grid grid-flow-col auto-cols-[1fr] bg-[#EFEFF0] leading-6 m-0 p-0.5 border-0 rounded-[9px] overflow-hidden select-none outline-none">
       <span :style="pillTransformStyles" class="selection hidden border-[.5px] border-black/[0.04] rounded-[7px] bg-white z-[2] will-change-transform col-start-1 col-end-auto row-start-1 row-end-auto" />
       <div v-for="segment of segments" :key="segment.id" class="option relative cursor-pointer">
         <input
@@ -77,92 +77,87 @@ main {
   box-sizing: border-box;
 }
 
-.ios13-segmented-control {
-  outline: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
+.option:hover,
+.option:active,
+.option:focus {
+  input:not(:checked) + label span {
+    opacity: .2;
+  }
+}
 
-  .option:hover,
-  .option:active,
-  .option:focus {
-    input:not(:checked) + label span {
-      opacity: .2;
+.option:active input:not(:checked) + label span {
+  transform: scale(.95);
+}
+
+.option {
+  label {
+    color: rgba(0, 0, 0, 1);
+
+    span {
+      -webkit-transition: all .2s ease;
+      transition: all .2s ease;
     }
   }
 
-  .option:active input:not(:checked) + label span {
-    transform: scale(.95);
+  label::before,
+  label::after {
+    content: '';
+    width: 1px;
+    background: rgba(142, 142, 147, .15);
+    position: absolute;
+    top: 14%;
+    bottom: 14%;
+    border-radius: 10px;
+    will-change: background;
+    -webkit-transition: background .2s ease;
+    transition: background .2s ease;
   }
 
-  .option {
-    label {
-      color: rgba(0, 0, 0, 1);
+  label::before {
+    left: 0;
+    transform: translateX(-.5px);
+  }
 
-      span {
-        -webkit-transition: all .2s ease;
-        transition: all .2s ease;
-      }
-    }
+  label::after {
+    right: 0;
+    transform: translateX(.5px);
+  }
 
-    label::before,
-    label::after {
-      content: '';
-      width: 1px;
-      background: rgba(142, 142, 147, .15);
-      position: absolute;
-      top: 14%;
-      bottom: 14%;
-      border-radius: 10px;
-      will-change: background;
-      -webkit-transition: background .2s ease;
-      transition: background .2s ease;
-    }
+  input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    outline: none;
+  }
 
-    label::before {
-      left: 0;
-      transform: translateX(-.5px);
-    }
-
-    label::after {
-      right: 0;
-      transform: translateX(.5px);
-    }
-
-    input {
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-      outline: none;
-    }
-
-    input:checked + label {
+  input:checked {
+    + label {
       cursor: default;
     }
 
-    input:checked + label::before,
-    input:checked + label::after {
+    + label::before,
+    + label::after {
       --background: rgba(239, 239, 240, 1);
       background: var(--background);
       z-index: 1;
     }
   }
+}
 
-  .option:first-of-type {
-    grid-column: 1;
-    grid-row: 1;
-    box-shadow: none;
-  }
+.option:first-of-type {
+  grid-column: 1;
+  grid-row: 1;
+  box-shadow: none;
+}
 
-  .option:first-of-type label::before,
-  .option:last-of-type label::after {
-    opacity: 0;
-  }
+.option:first-of-type label::before,
+.option:last-of-type label::after {
+  opacity: 0;
+}
 
-  .selection {
-    box-shadow: 0 3px 8px 0 rgba(0, 0, 0, 0.12), 0 3px 1px 0 rgba(0, 0, 0, 0.04);
-    -webkit-transition: transform .2s ease;
-    transition: transform .2s ease;
-  }
+.selection {
+  box-shadow: 0 3px 8px 0 rgba(0, 0, 0, 0.12), 0 3px 1px 0 rgba(0, 0, 0, 0.04);
+  -webkit-transition: transform .2s ease;
+  transition: transform .2s ease;
 }
 </style>

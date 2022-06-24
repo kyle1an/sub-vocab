@@ -16,7 +16,12 @@ export const useVocabStore = defineStore('vocabStore', () => {
       console.timeEnd('fetch vocab');
       trieListPair = structSievePair(commonVocab);
     }
+    console.log('commonVocab', commonVocab)
     return commonVocab;
+  }
+
+  async function copyJson(obj?: any) {
+    return JSON.parse(JSON.stringify(await fetchVocab()));
   }
 
   function structSievePair(vocab: Array<Sieve>): [TrieNode, Array<Label>] {
@@ -80,5 +85,5 @@ export const useVocabStore = defineStore('vocabStore', () => {
     node.$.F = row.vocab!.is_valid;
   }
 
-  return { fetchVocab, updateWord, getSieve };
+  return { fetchVocab, copyJson, updateWord, getSieve };
 })

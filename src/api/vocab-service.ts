@@ -4,17 +4,23 @@ export async function queryWords() {
   return fetchPost(`${import.meta.env.VITE_SUB_PROD}/api/queryWords`,)
 }
 
-export async function acquainted(newWord: { word: string }) {
-  if (newWord.word.length > 32) return;
-  console.log('newWord', newWord);
+export async function queryWordsByUser(user: string, token?: any) {
   return fetchPost(`${import.meta.env.VITE_SUB_PROD}/api/acquaint`, {
-    body: JSON.stringify(newWord),
+    body: JSON.stringify({ user, token }),
   })
 }
 
-export async function revokeWord(vocab: { word: string }) {
-  if (vocab.word.length > 32) return;
+export async function acquainted(newWordInfo: any) {
+  if (newWordInfo.word.length > 32) return;
+  console.log('newWordInfo', newWordInfo);
+  return fetchPost(`${import.meta.env.VITE_SUB_PROD}/api/acquaint`, {
+    body: JSON.stringify(newWordInfo),
+  })
+}
+
+export async function revokeWord(vocabInfo: any) {
+  if (vocabInfo.word.length > 32) return;
   return fetchPost(`${import.meta.env.VITE_SUB_PROD}/api/revokeWord`, {
-    body: JSON.stringify(vocab),
+    body: JSON.stringify(vocabInfo),
   })
 }
