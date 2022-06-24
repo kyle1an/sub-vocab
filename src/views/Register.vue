@@ -3,54 +3,65 @@ import { reactive, ref } from 'vue'
 import { login } from '../api/user';
 import router from '../router';
 import type { FormInstance } from 'element-plus'
-import { userInfo } from '../types/user';
-import { useUserStore } from '../store/useState';
-import { setCookie } from '../utils/cookie';
 
-const store = useUserStore()
 const ruleFormRef = ref<FormInstance>()
 
-function checkUsername(rule: any, value: any, callback: any) {
+const checkAge = (rule: any, value: any, callback: any) => {
   const username = String(value)
   if (!username.length) {
     return callback(new Error('Please input name'))
   }
 
   if (username.length > 20) {
-    return callback(new Error('Please use a shorter name'))
+    return callback(new Error('Please use shorter name'))
   }
 
-  if (username.length < 2) {
-    return callback(new Error('Name must be longer than 1'))
+  if (username.length < 3) {
+    return callback(new Error('Name must be longer than 2'))
   }
 
   callback()
 }
 
-function validatePass(rule: any, value: any, callback: any) {
+const validatePass = (rule: any, value: any, callback: any) => {
   if (value === '') {
     callback(new Error('Please input the password'))
+  } else {
+    if (ruleForm.checkPass !== '') {
+      if (!ruleFormRef.value) return
+      ruleFormRef.value.validateField('checkPass', () => null)
+    }
+    callback()
+  }
+}
+
+const validatePass2 = (rule: any, value: any, callback: any) => {
+  if (value === '') {
+    callback(new Error('Please input the password again'))
+  } else if (value !== ruleForm.pass) {
+    callback(new Error("Two inputs don't match!"))
   } else {
     callback()
   }
 }
 
 const ruleForm = reactive({
+  pass: '',
+  checkPass: '',
   username: '',
-  password: '',
 })
 
 const rules = reactive({
-  username: [{ validator: checkUsername, trigger: 'blur' }],
-  password: [{ validator: validatePass, trigger: 'blur' }],
+  pass: [{ validator: validatePass, trigger: 'blur' }],
+  checkPass: [{ validator: validatePass2, trigger: 'blur' }],
+  username: [{ validator: checkAge, trigger: 'blur' }],
 })
 
-function submitForm(formEl: FormInstance | undefined) {
+const submitForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.validate((valid) => {
     if (valid) {
-      console.log('submit!', formEl)
-      authenticate(ruleForm)
+      console.log('submit!')
     } else {
       console.log('error submit!')
       return false
@@ -58,26 +69,18 @@ function submitForm(formEl: FormInstance | undefined) {
   })
 }
 
-const errorMsg = ref('')
-
-async function authenticate(userInfo: userInfo) {
-  const resAuth = await login(userInfo)
-  console.log('resAuth', resAuth)
-  if (resAuth.length) {
-    store.user.login = true
-    store.user.name = userInfo.username
-    setCookie('user', userInfo.username, 7)
-    await router.push('/')
-  } else {
-    errorMsg.value = 'The username or password is incorrect.'
-  }
-
-  console.log(store.user)
-}
-
-function resetForm(formEl: FormInstance | undefined) {
+const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.resetFields()
+}
+
+function authenticate() {
+  login({
+    username: ruleForm.username,
+    password: ruleForm.pass,
+  }).then(() => {
+    router.push('/')
+  })
 }
 </script>
 
@@ -96,11 +99,14 @@ function resetForm(formEl: FormInstance | undefined) {
             style="max-width: 460px"
             status-icon
           >
-            <el-form-item label="Name" prop="username" :error="errorMsg">
+            <el-form-item label="Name" prop="username">
               <el-input v-model.number="ruleForm.username" />
             </el-form-item>
-            <el-form-item label="Password" prop="password">
-              <el-input v-model="ruleForm.password" type="password" autocomplete="off" />
+            <el-form-item label="Password" prop="pass">
+              <el-input v-model="ruleForm.pass" type="password" autocomplete="off" />
+            </el-form-item>
+            <el-form-item label="Confirm" prop="checkPass">
+              <el-input v-model="ruleForm.checkPass" type="password" autocomplete="off" />
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="submitForm(ruleFormRef)">Submit</el-button>
@@ -114,7 +120,7 @@ function resetForm(formEl: FormInstance | undefined) {
 </template>
 
 <style scoped>
-:deep(.el-form-item label) {
+ :deep(.el-form-item label) {
   font-weight: bold;
 }
 </style>

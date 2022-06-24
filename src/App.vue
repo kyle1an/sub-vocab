@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import TopBar from './components/TopBar.vue'
+import { useUserStore } from './store/useState';
+import { getCookie } from './utils/cookie';
+
+const store = useUserStore()
+if (getCookie('user')) {
+  store.user.name = getCookie('user')
+}
 </script>
 
 <template>
@@ -22,7 +29,7 @@ html {
 }
 
 body {
-  //height: 100%;
+  min-height: 100%;
   margin-top: 0;
   background-color: rgb(243 241 246);
 
@@ -55,29 +62,17 @@ table,
   margin: auto;
 }
 
-table thead {
-  font-size: 10px !important;
-}
-
-.expanded:hover > td.el-table__cell {
-  background-image: linear-gradient(to bottom, var(--el-border-color-lighter), white);
-}
-
-.expanded td {
-  border-bottom: 0 !important;
-}
-
-.el-table__header {
-  th.el-table__cell > .cell {
-    font-size: 10px;
-    display: inline-flex !important;
-    align-items: center;
-  }
-
-  th.el-table__cell.is-right > .cell {
-    justify-content: flex-end;
-  }
-}
+//.el-table__header {
+//  th.el-table__cell > .cell {
+//    font-size: 10px;
+//    display: inline-flex !important;
+//    align-items: center;
+//  }
+//
+//  th.el-table__cell.is-right > .cell {
+//    justify-content: flex-end;
+//  }
+//}
 
 @media only screen and (min-width: 768px) {
   body {
@@ -104,9 +99,6 @@ table thead {
   .el-main {
     padding-right: 0 !important;
     padding-left: 0 !important;
-  }
-  .input-area textarea {
-    border-radius: 12px;
   }
 }
 </style>

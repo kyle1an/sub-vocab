@@ -1,4 +1,12 @@
 <script setup>
+import { useUserStore } from '../store/useState';
+import { computed } from 'vue';
+
+const userStore = useUserStore()
+
+const username = computed(() => {
+  return userStore.user.name
+})
 </script>
 
 <template>
@@ -7,7 +15,9 @@
       <div class="flex nav-main justify-between w-full">
         <router-link class="nav-entry" to="/">Home</router-link>
         <router-link class="nav-entry" to="/mine">Common</router-link>
-        <router-link class="nav-entry" to="/login">Log in</router-link>
+        <router-link v-show="username" class="nav-entry" to="/user">{{ username }}</router-link>
+        <router-link v-show="!username" class="nav-entry" to="/login">Log in</router-link>
+        <router-link v-show="!username" class="nav-entry" to="/register">Sign up</router-link>
         <router-link to="/about">About</router-link>
       </div>
     </nav>

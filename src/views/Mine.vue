@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import VocabList from '../utils/VocabList';
 import Switch from '../components/Switch.vue';
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { onMounted, ref } from 'vue'
@@ -17,18 +16,24 @@ let vocabLists: Array<any>[] = [[], [], []];
 const acquaintedVocabTableData = ref<any>([]);
 
 async function loadVocab() {
-  const store = useVocabStore()
-  const words = new VocabList(await store.fetchVocab());
-  console.log(words)
-  vocabLists = words.formList();
-  const common = vocabLists.slice(1000);
-  const top1k = vocabLists.slice(0, 1000);
-  console.log(vocabLists)
-  vocabLists = [vocabLists, common, top1k];
+  const vocabStore = useVocabStore()
+  const words = await vocabStore.copyJson()
+  let rank = 1
+  for (const word of words) {
+    word.len = word.w.length
+    word.rank = rank++
+  }
+  const common = words.slice(1000);
+  const top1k = words.slice(0, 1000);
+  vocabLists = [words, common, top1k];
   acquaintedVocabTableData.value = vocabLists[selected];
 }
 
-onMounted(loadVocab);
+onMounted(() => {
+  setTimeout(() => {
+    loadVocab()
+  }, 0)
+})
 
 function switchSegment(v: number) {
   acquaintedVocabTableData.value = vocabLists[selected = v]
@@ -49,10 +54,10 @@ function selectWord(e: any) {
 
       <el-container class="justify-center">
         <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
-          <el-card class="table-card mx-5 !rounded-xl !border-0 h-full">
+          <el-card class="table-card mx-5 !rounded-xl !border-0 h-full will-change-transform">
             <segmented-control :segments="segments" @input="switchSegment" />
             <el-table fit class="r-table md:w-full" height="100%" size="small" :data="acquaintedVocabTableData">
-              <el-table-column label="Rank" prop="rank" sortable align="left" min-width="7" class-name="cursor-pointer tabular-nums">
+              <el-table-column label="Rank" prop="rank" sortable header-align="center" align="center" min-width="7" class-name="cursor-pointer tabular-nums">
                 <template #default="props">
                   <div class="font-compact select-none">{{ props.row.rank }}</div>
                 </template>
@@ -78,50 +83,32 @@ function selectWord(e: any) {
   </div>
 </template>
 
-<style lang="scss">
-.el-table__expand-icon {
+<style lang="scss" scoped>
+:deep(.el-table__expand-icon) {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-.r-table :is(*, .el-table__body-wrapper) {
+.r-table :deep(:is(*, .el-table__body-wrapper)) {
   overscroll-behavior: contain !important;
 }
 
-.table-card {
-  //-webkit-backface-visibility: hidden;
-  //-moz-backface-visibility: hidden;
-  //-webkit-transform: translate3d(0, 0, 0);
-  //-moz-transform: translate3d(0, 0, 0);
-  will-change: transform;
-
-  .el-card__body {
-    height: calc(100% - 7px);
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    padding-top: 12px;
-  }
+.table-card :deep(.el-card__body) {
+  height: calc(100% - 7px);
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-top: 12px;
 }
 
 @media only screen and (max-width: 768px) {
-  html {
-    //overflow: hidden;
-    height: 100%;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  body {
-    //height: 100%;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-    margin: 0 !important;
-  }
-
   .r-table {
     max-height: calc(99vh);
     width: 100%;
   }
-
-  .el-container {
+  :deep(.el-aside) {
+    margin-top: 34px;
+    padding-bottom: 20px;
+  }
+  :deep(.el-container) {
     display: flex;
     flex-direction: column !important;
   }

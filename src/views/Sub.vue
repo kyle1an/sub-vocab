@@ -2,13 +2,16 @@
 import Trie from '../utils/LabeledTire';
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
-import { computed, nextTick, ref, shallowRef } from 'vue'
+import { computed, h, nextTick, ref, shallowRef } from 'vue'
 import { Segment, Source, Vocab } from '../types';
 import { sortByChar } from '../utils/utils';
 import { acquainted, revokeWord } from '../api/vocab-service';
 import { useVocabStore } from '../store/useVocab';
 import { useTimeStore } from '../store/usePerf';
+import { useUserStore } from '../store/useState';
+import { ElNotification } from 'element-plus';
 
+const userStore = useUserStore()
 const segments: Array<Segment> = [
   { id: 0, title: 'Original', },
   { id: 11, title: 'Filtered', default: true },
@@ -160,14 +163,25 @@ const loadingStateArray = ref<boolean[]>([]);
 async function toggleWordState(row: any) {
   loadingStateArray.value[row.seq] = true;
 
-  const word = row.w.replace(/'/g, `''`);
-  row.vocab ??= { w: row.w, is_user: true, is_valid: false };
-  const res = await (row?.vocab?.is_valid ? revokeWord : acquainted)({ word });
+  if (userStore.user.name) {
+    const word = row.w.replace(/'/g, `''`);
+    row.vocab ??= { w: row.w, is_user: true, is_valid: false };
+    const res = await (row?.vocab?.is_valid ? revokeWord : acquainted)({
+      word,
+      user: userStore.user.name,
+      token: userStore.user.token
+    });
 
-  if (res) {
-    row.vocab.is_valid = res[res.length - 1].every((r: any) => r.is_valid);
-    row.F = row.vocab.is_valid;
-    store.updateWord(row);
+    if (res) {
+      row.vocab.is_valid = res[res.length - 1].every((r: any) => r.is_valid);
+      row.F = row.vocab.is_valid;
+      store.updateWord(row);
+    }
+  } else {
+    ElNotification({
+      // title: 'Mark',
+      message: h('i', { style: 'color: teal' }, 'Please login to mark changes'),
+    })
   }
 
   loadingStateArray.value[row.seq] = false;
@@ -196,7 +210,7 @@ async function toggleWordState(row: any) {
         </el-container>
 
         <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
-          <el-card class="table-card mx-5 !rounded-xl !border-0 h-full">
+          <el-card class="table-card mx-5 !rounded-xl !border-0 h-full will-change-transform">
             <segmented-control :segments="segments" @input="switchSegment" />
 
             <el-table
@@ -260,8 +274,8 @@ async function toggleWordState(row: any) {
   </div>
 </template>
 
-<style lang="scss">
-.is-text {
+<style lang="scss" scoped>
+:deep(.is-text) {
   border: 1px solid transparent !important;
 
   &:hover {
@@ -270,36 +284,30 @@ async function toggleWordState(row: any) {
   }
 }
 
-.el-icon {
+:deep(.el-icon) {
   pointer-events: none;
 }
 
-thead .is-right:not(:last-child) .cell {
+:deep(thead .is-right:not(:last-child) .cell) {
   padding: 0;
 }
 
-.el-table__expand-icon {
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-}
-
 @media only screen and (max-width: 768px) {
-  .el-container {
+  :deep(.el-container) {
     display: flex;
     flex-direction: column !important;
   }
 
-  .el-aside {
+  :deep(.el-aside) {
     margin-top: 34px;
     padding-bottom: 20px;
   }
 
-  .el-textarea__inner {
+  :deep(.el-textarea__inner) {
     max-height: 360px;
   }
 }
-</style>
 
-<style lang="scss" scoped>
 .r-table :deep(:is(*, .el-table__body-wrapper)) {
   overscroll-behavior: contain !important;
 }
@@ -322,17 +330,15 @@ thead .is-right:not(:last-child) .cell {
 }
 
 .table-card {
-  //-webkit-backface-visibility: hidden;
-  //-moz-backface-visibility: hidden;
-  //-webkit-transform: translate3d(0, 0, 0);
-  //-moz-transform: translate3d(0, 0, 0);
-  will-change: transform;
-
   :deep(.el-card__body) {
     height: calc(100% - 7px);
     padding-left: 0 !important;
     padding-right: 0 !important;
     padding-top: 12px;
+  }
+
+  :deep(.el-table__expand-icon) {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   }
 }
 
@@ -343,6 +349,14 @@ thead .is-right:not(:last-child) .cell {
   padding-left: 30px;
   padding-right: 30px;
   height: 100%;
+}
+
+:deep(.expanded:hover > td.el-table__cell) {
+  background-image: linear-gradient(to bottom, var(--el-border-color-lighter), white);
+}
+
+:deep(.expanded td) {
+  border-bottom: 0 !important;
 }
 
 @media only screen and (min-width: 768px) {
@@ -366,5 +380,10 @@ thead .is-right:not(:last-child) .cell {
     height: 260px;
   }
 }
-</style>
 
+@media only screen and (max-width: 640px) {
+  .input-area :deep(textarea) {
+    border-radius: 12px;
+  }
+}
+</style>
