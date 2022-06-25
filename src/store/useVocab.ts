@@ -39,7 +39,7 @@ export const useVocabStore = defineStore('vocabStore', () => {
       }
 
       node.$.vocab = sieve;
-      node.$.F = sieve.is_valid;
+      node.$.F = sieve.acquainted;
     }
 
     for (const irregularCollect of IRREGULAR) {
@@ -83,7 +83,7 @@ export const useVocabStore = defineStore('vocabStore', () => {
       commonVocab.push(<Sieve>row.vocab);
     }
     node.$.vocab = row.vocab;
-    node.$.F = row.vocab!.is_valid;
+    node.$.F = row.vocab!.acquainted;
   }
 
   return { fetchVocab, copyJson, updateWord, getSieve };

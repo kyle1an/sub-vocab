@@ -19,13 +19,20 @@ async function loadVocab() {
   const vocabStore = useVocabStore()
   const words = await vocabStore.copyJson()
   let rank = 1
+  const mineWords = []
   for (const word of words) {
-    word.len = word.w.length
-    word.rank = rank++
+    if (word.acquainted) {
+      mineWords.push({
+        w: word.w,
+        is_user: word.is_user,
+        len: word.w.length,
+        rank: rank++
+      })
+    }
   }
-  const common = words.slice(1000);
-  const top1k = words.slice(0, 1000);
-  vocabLists = [words, common, top1k];
+  const common = mineWords.slice(1000);
+  const top1k = mineWords.slice(0, 1000);
+  vocabLists = [mineWords, common, top1k];
   acquaintedVocabTableData.value = vocabLists[selected];
 }
 

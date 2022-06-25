@@ -166,16 +166,16 @@ async function toggleWordState(row: any) {
 
   if (userStore.user.name) {
     const word = row.w.replace(/'/g, `''`);
-    row.vocab ??= { w: row.w, is_user: true, is_valid: false };
-    const res = await (row?.vocab?.is_valid ? revokeWord : acquainted)({
+    row.vocab ??= { w: row.w, is_user: true, acquainted: false };
+    const res = await (row?.vocab?.acquainted ? revokeWord : acquainted)({
       word,
       user: userStore.user.name,
       token: userStore.user.token
     });
 
     if (res) {
-      row.vocab.is_valid = res[res.length - 1].every((r: any) => r.is_valid);
-      row.F = row.vocab.is_valid;
+      row.vocab.acquainted = res[res.length - 1].every((r: any) => r.acquainted);
+      row.F = row.vocab.acquainted;
       store.updateWord(row);
     }
   } else {
@@ -267,10 +267,10 @@ async function toggleWordState(row: any) {
                     type="primary"
                     :icon="Check"
                     @click.stop="toggleWordState(row)"
-                    :plain="!row?.vocab?.is_valid"
+                    :plain="!row?.vocab?.acquainted"
                     :loading="loadingStateArray[row.seq]"
                     :disabled="row?.vocab && !row?.vocab?.is_user"
-                    :text="!row?.vocab?.is_valid" bg
+                    :text="!row?.vocab?.acquainted" bg
                   />
                 </template>
               </el-table-column>
