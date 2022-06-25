@@ -1,29 +1,30 @@
 <script lang="ts" setup>
 import { reactive, ref } from 'vue'
-import { login } from '../api/user';
+import { register } from '../api/user';
 import router from '../router';
 import type { FormInstance } from 'element-plus'
+import { userInfo } from '../types/user';
 
 const ruleFormRef = ref<FormInstance>()
 
-const checkAge = (rule: any, value: any, callback: any) => {
+function checkUsername(rule: any, value: any, callback: any) {
   const username = String(value)
   if (!username.length) {
     return callback(new Error('Please input name'))
   }
 
   if (username.length > 20) {
-    return callback(new Error('Please use shorter name'))
+    return callback(new Error('Please use a shorter name'))
   }
 
-  if (username.length < 3) {
-    return callback(new Error('Name must be longer than 2'))
+  if (username.length < 2) {
+    return callback(new Error('Name must be longer than 1'))
   }
 
   callback()
 }
 
-const validatePass = (rule: any, value: any, callback: any) => {
+function validatePass(rule: any, value: any, callback: any) {
   if (value === '') {
     callback(new Error('Please input the password'))
   } else {
@@ -38,7 +39,7 @@ const validatePass = (rule: any, value: any, callback: any) => {
 const validatePass2 = (rule: any, value: any, callback: any) => {
   if (value === '') {
     callback(new Error('Please input the password again'))
-  } else if (value !== ruleForm.pass) {
+  } else if (value !== ruleForm.password) {
     callback(new Error("Two inputs don't match!"))
   } else {
     callback()
@@ -46,22 +47,23 @@ const validatePass2 = (rule: any, value: any, callback: any) => {
 }
 
 const ruleForm = reactive({
-  pass: '',
-  checkPass: '',
   username: '',
+  password: '',
+  checkPass: '',
 })
 
 const rules = reactive({
-  pass: [{ validator: validatePass, trigger: 'blur' }],
+  username: [{ validator: checkUsername, trigger: 'blur' }],
+  password: [{ validator: validatePass, trigger: 'blur' }],
   checkPass: [{ validator: validatePass2, trigger: 'blur' }],
-  username: [{ validator: checkAge, trigger: 'blur' }],
 })
 
-const submitForm = (formEl: FormInstance | undefined) => {
+function submitForm(formEl: FormInstance | undefined) {
   if (!formEl) return
   formEl.validate((valid) => {
     if (valid) {
-      console.log('submit!')
+      console.log('submit!', formEl)
+      checkValidity(ruleForm)
     } else {
       console.log('error submit!')
       return false
@@ -69,18 +71,21 @@ const submitForm = (formEl: FormInstance | undefined) => {
   })
 }
 
-const resetForm = (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  formEl.resetFields()
+const errorMsg = ref('')
+
+async function checkValidity(form: userInfo) {
+  const signUpRes = await register(form)
+  console.log('signUpRes', signUpRes)
+  if (signUpRes[0].result === 1) {
+    await router.push('/login')
+  } else {
+    errorMsg.value = 'Register failed: username already exists'
+  }
 }
 
-function authenticate() {
-  login({
-    username: ruleForm.username,
-    password: ruleForm.pass,
-  }).then(() => {
-    router.push('/')
-  })
+function resetForm(formEl: FormInstance | undefined) {
+  if (!formEl) return
+  formEl.resetFields()
 }
 </script>
 
@@ -99,17 +104,17 @@ function authenticate() {
             style="max-width: 460px"
             status-icon
           >
-            <el-form-item label="Name" prop="username">
+            <el-form-item label="Name" prop="username" :error="errorMsg">
               <el-input v-model.number="ruleForm.username" class="!text-base md:!text-xs" />
             </el-form-item>
-            <el-form-item label="Password" prop="pass">
-              <el-input v-model="ruleForm.pass" type="password" autocomplete="off" class="!text-base md:!text-xs" />
+            <el-form-item label="Password" prop="password">
+              <el-input v-model="ruleForm.password" type="password" autocomplete="off" class="!text-base md:!text-xs" />
             </el-form-item>
             <el-form-item label="Confirm" prop="checkPass">
               <el-input v-model="ruleForm.checkPass" type="password" autocomplete="off" class="!text-base md:!text-xs" />
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="submitForm(ruleFormRef)">Submit</el-button>
+              <el-button type="primary" @click="submitForm(ruleFormRef)">Create Account</el-button>
               <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
             </el-form-item>
           </el-form>
