@@ -17,4 +17,16 @@ module.exports = {
       })
     })
   },
+
+  register: (req, res) => {
+    pool.getConnection((err, connection) => {
+      const { username, password } = req.body;
+
+      connection.query(sql.register({ username, password }), (err, rows, fields) => {
+        connection.release();
+        if (err) throw err;
+        res.send(JSON.stringify(rows));
+      })
+    })
+  },
 }
