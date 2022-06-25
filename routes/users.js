@@ -15,7 +15,8 @@ module.exports = router;
 module.exports.api = {
   queryWords: (req, res) => {
     pool.getConnection((err, connection) => {
-      connection.query(sql.wordsQuery, (err, rows, fields) => {
+      const { user } = req.body;
+      connection.query(sql.userWordsQuery(user), (err, rows, fields) => {
         connection.release();
         if (err) throw err;
         res.send(JSON.stringify(rows));
