@@ -16,7 +16,7 @@ export interface Occur extends Label {
 
 export interface Sieve {
   w: string,
-  is_valid: number | boolean,
+  acquainted: number | boolean,
   is_user: number | boolean,
   id?: number,
 }
