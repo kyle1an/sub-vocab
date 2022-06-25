@@ -1,11 +1,7 @@
 import { fetchPost } from './request';
 
-export async function queryWords() {
-  return fetchPost(`${import.meta.env.VITE_SUB_PROD}/api/queryWords`,)
-}
-
 export async function queryWordsByUser(user: string, token?: any) {
-  return fetchPost(`${import.meta.env.VITE_SUB_PROD}/api/acquaint`, {
+  return fetchPost(`${import.meta.env.VITE_SUB_PROD}/api/queryWords`, {
     body: JSON.stringify({ user, token }),
   })
 }

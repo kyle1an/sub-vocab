@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia';
-import { queryWords } from '../api/vocab-service';
+import { queryWordsByUser } from '../api/vocab-service';
 import { Label, Sieve, TrieNode } from '../types';
 import { getNode } from '../utils/utils';
 import { IRREGULAR } from "../utils/stemsMapping";
+import { getCookie } from '../utils/cookie';
 
 export const useVocabStore = defineStore('vocabStore', () => {
-  const query: Promise<Array<Sieve>> = queryWords();
+  const query: Promise<Array<Sieve>> = queryWordsByUser(getCookie('user') ?? '');
   let commonVocab: Array<Sieve> = [];
   let trieListPair: [TrieNode, Array<Label>];
 
