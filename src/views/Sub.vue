@@ -10,6 +10,7 @@ import { useVocabStore } from '../store/useVocab';
 import { useTimeStore } from '../store/usePerf';
 import { useUserStore } from '../store/useState';
 import { ElNotification } from 'element-plus';
+import router from '../router';
 
 const userStore = useUserStore()
 const segments: Array<Segment> = [
@@ -180,7 +181,15 @@ async function toggleWordState(row: any) {
   } else {
     ElNotification({
       // title: 'Mark',
-      message: h('i', { style: 'color: teal' }, 'Please login to mark changes'),
+      message: h(
+        'span',
+        { style: 'color: teal' },
+        [
+          'Please ',
+          h('i', { onClick: () => router.push('/login') }, 'Log in'),
+          ' to mark words.'
+        ]
+      )
     })
   }
 
@@ -230,7 +239,7 @@ async function toggleWordState(row: any) {
                 </template>
               </el-table-column>
 
-              <el-table-column label="Vocabulary" sortable :sort-method="(a, b) => sortByChar(a.w, b.w)" align="left" min-width="13" class-name="cursor-pointer">
+              <el-table-column label="Vocabulary" align="left" min-width="16" sortable :sort-method="(a, b) => sortByChar(a.w, b.w)" class-name="cursor-pointer">
                 <template #header>
                   <el-input @click.stop class="!w-[calc(100%-26px)] !text-base md:!text-xs" v-model="search" size="small" placeholder="Search" />
                 </template>
@@ -239,13 +248,13 @@ async function toggleWordState(row: any) {
                 </template>
               </el-table-column>
 
-              <el-table-column label="Times" prop="freq" sortable align="right" min-width="7" class-name="cursor-pointer tabular-nums">
+              <el-table-column label="Times" prop="freq" align="right" min-width="9" sortable class-name="cursor-pointer tabular-nums">
                 <template #default="props">
                   <div class="font-compact text-right select-none">{{ props.row.freq }}</div>
                 </template>
               </el-table-column>
 
-              <el-table-column label="Length" prop="len" sortable align="right" min-width="7" class-name="cursor-pointer tabular-nums">
+              <el-table-column label="Length" prop="len" align="right" min-width="10" sortable class-name="cursor-pointer tabular-nums">
                 <template #default="props">
                   <div class="font-compact select-none">{{ props.row.len }}</div>
                 </template>
@@ -292,22 +301,6 @@ async function toggleWordState(row: any) {
   padding: 0;
 }
 
-@media only screen and (max-width: 768px) {
-  :deep(.el-container) {
-    display: flex;
-    flex-direction: column !important;
-  }
-
-  :deep(.el-aside) {
-    margin-top: 34px;
-    padding-bottom: 20px;
-  }
-
-  :deep(.el-textarea__inner) {
-    max-height: 360px;
-  }
-}
-
 .r-table :deep(:is(*, .el-table__body-wrapper)) {
   overscroll-behavior: contain !important;
 }
@@ -351,12 +344,12 @@ async function toggleWordState(row: any) {
   height: 100%;
 }
 
-:deep(.expanded:hover > td.el-table__cell) {
-  background-image: linear-gradient(to bottom, var(--el-border-color-lighter), white);
-}
-
 :deep(.expanded td) {
   border-bottom: 0 !important;
+}
+
+:deep(.expanded:hover > td.el-table__cell) {
+  background-image: linear-gradient(to bottom, var(--el-border-color-lighter), white);
 }
 
 @media only screen and (min-width: 768px) {
@@ -378,6 +371,20 @@ async function toggleWordState(row: any) {
 
   .input-area :deep(textarea) {
     height: 260px;
+  }
+
+  :deep(.el-container) {
+    display: flex;
+    flex-direction: column !important;
+  }
+
+  :deep(.el-aside) {
+    margin-top: 34px;
+    padding-bottom: 20px;
+  }
+
+  :deep(.el-textarea__inner) {
+    max-height: 360px;
   }
 }
 

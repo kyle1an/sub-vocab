@@ -97,10 +97,10 @@ function resetForm(formEl: FormInstance | undefined) {
             status-icon
           >
             <el-form-item label="Name" prop="username" :error="errorMsg">
-              <el-input v-model.number="ruleForm.username" />
+              <el-input v-model.number="ruleForm.username" class="!text-base md:!text-xs" />
             </el-form-item>
             <el-form-item label="Password" prop="password">
-              <el-input v-model="ruleForm.password" type="password" autocomplete="off" />
+              <el-input v-model="ruleForm.password" type="password" autocomplete="off" class="!text-base md:!text-xs" />
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="submitForm(ruleFormRef)">Submit</el-button>

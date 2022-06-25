@@ -100,13 +100,13 @@ function authenticate() {
             status-icon
           >
             <el-form-item label="Name" prop="username">
-              <el-input v-model.number="ruleForm.username" />
+              <el-input v-model.number="ruleForm.username" class="!text-base md:!text-xs" />
             </el-form-item>
             <el-form-item label="Password" prop="pass">
-              <el-input v-model="ruleForm.pass" type="password" autocomplete="off" />
+              <el-input v-model="ruleForm.pass" type="password" autocomplete="off" class="!text-base md:!text-xs" />
             </el-form-item>
             <el-form-item label="Confirm" prop="checkPass">
-              <el-input v-model="ruleForm.checkPass" type="password" autocomplete="off" />
+              <el-input v-model="ruleForm.checkPass" type="password" autocomplete="off" class="!text-base md:!text-xs" />
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="submitForm(ruleFormRef)">Submit</el-button>
@@ -120,7 +120,7 @@ function authenticate() {
 </template>
 
 <style scoped>
- :deep(.el-form-item label) {
+:deep(.el-form-item label) {
   font-weight: bold;
 }
 </style>
