@@ -67,7 +67,9 @@ async function authenticate(userInfo: userInfo) {
     store.user.login = true
     store.user.name = userInfo.username
     setCookie('user', userInfo.username, 7)
-    await router.push('/')
+    setTimeout(() => {
+      router.push('/')
+    }, 0)
   } else {
     errorMsg.value = 'The username or password is incorrect.'
   }
