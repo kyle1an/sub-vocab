@@ -301,7 +301,7 @@ const handleCurrentChange = (val: number) => {
               :small="true"
               :disabled="false"
               :background="true"
-              :pager-count="11"
+              :pager-count="5"
               layout="prev, pager, next, ->, total, sizes"
               :total="total"
               @size-change="handleSizeChange"
