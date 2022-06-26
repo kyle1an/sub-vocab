@@ -200,7 +200,7 @@ async function toggleWordState(row: any) {
 }
 
 const currentPage = ref(1)
-const pageSizes = [100, 200, 500, 1000]
+const pageSizes = [100, 200, 500, 1000, Infinity]
 const pageSize = ref(pageSizes[0])
 const total = computed(() => tableDataFiltered.value.length)
 const handleSizeChange = (val: number) => {
@@ -234,7 +234,7 @@ const handleCurrentChange = (val: number) => {
 
         <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
           <el-card class="table-card flex items-center flex-col mx-5 !rounded-xl !border-0 h-full will-change-transform">
-            <segmented-control :segments="segments" @input="switchSegment" class="flex-grow-0" />
+            <segmented-control :segments="segments" @input="switchSegment" class="flex-grow-0 pt-3 pb-2" />
             <div class="h-full w-full"><!-- 100% height of its container minus height of siblings -->
               <div class="h-[calc(100%-1px)]">
                 <el-table
@@ -301,12 +301,12 @@ const handleCurrentChange = (val: number) => {
               :small="true"
               :disabled="false"
               :background="true"
-              :pager-count="5"
+              :pager-count="11"
               layout="prev, pager, next, ->, total, sizes"
               :total="total"
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
-              class="!pl-2 !pt-1 !pb-1.5 flex-wrap pager-section flex-shrink-0"
+              class="!px-2 !pt-1 !pb-1.5 flex-wrap gap-y-1.5 pager-section flex-shrink-0"
             />
 
           </el-card>
@@ -317,6 +317,10 @@ const handleCurrentChange = (val: number) => {
 </template>
 
 <style lang="scss" scoped>
+:deep(.el-pagination__rightwrapper > *) {
+  margin: 0;
+}
+
 :deep(.el-pagination .el-input__inner) {
   //font-size: 16px;
 }
@@ -329,7 +333,6 @@ const handleCurrentChange = (val: number) => {
     border-color: var(--el-color-primary-light-5) !important;
   }
 }
-
 
 :deep(thead .is-right:not(:last-child) .cell) {
   padding: 0;
@@ -372,7 +375,7 @@ const handleCurrentChange = (val: number) => {
     flex-direction: column;
     height: 100%;
     width: 100%;
-    padding: 12px 0 0;
+    padding: 0;
   }
 
   :deep(.el-table__expand-icon) {
