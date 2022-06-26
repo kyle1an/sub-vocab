@@ -1,11 +1,11 @@
-<script lang="ts" setup>
+<script lang="ts" setup xmlns="http://www.w3.org/1999/html">
 import Trie from '../utils/LabeledTire';
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
 import { computed, h, nextTick, ref, shallowRef } from 'vue'
 import { Segment, Source, Vocab } from '../types';
 import { sortByChar } from '../utils/utils';
-import { acquainted, revokeWord } from '../api/vocab-service';
+import { acquaint, revokeWord } from '../api/vocab-service';
 import { useVocabStore } from '../store/useVocab';
 import { useTimeStore } from '../store/usePerf';
 import { useUserStore } from '../store/useState';
@@ -158,7 +158,9 @@ const tableDataFiltered = computed(() =>
       data.w.toLowerCase().includes(search.value.toLowerCase())
   )
 )
-
+const tableDataDisplay = computed(() =>
+  tableDataFiltered.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value)
+)
 const loadingStateArray = ref<boolean[]>([]);
 
 async function toggleWordState(row: any) {
@@ -167,15 +169,16 @@ async function toggleWordState(row: any) {
   if (userStore.user.name) {
     const word = row.w.replace(/'/g, `''`);
     row.vocab ??= { w: row.w, is_user: true, acquainted: false };
-    const res = await (row?.vocab?.acquainted ? revokeWord : acquainted)({
+    const vocabInfo = {
       word,
       user: userStore.user.name,
       token: userStore.user.token
-    });
+    }
+    const acquainted = row?.vocab?.acquainted
+    const res = await (acquainted ? revokeWord : acquaint)(vocabInfo);
 
-    if (res) {
-      row.vocab.acquainted = res[res.length - 1].every((r: any) => r.acquainted);
-      row.F = row.vocab.acquainted;
+    if (res?.affectedRows) {
+      row.F = row.vocab.acquainted = !acquainted;
       store.updateWord(row);
     }
   } else {
@@ -194,6 +197,17 @@ async function toggleWordState(row: any) {
   }
 
   loadingStateArray.value[row.seq] = false;
+}
+
+const currentPage = ref(1)
+const pageSizes = [100, 200, 500, 1000]
+const pageSize = ref(pageSizes[0])
+const total = computed(() => tableDataFiltered.value.length)
+const handleSizeChange = (val: number) => {
+  console.log(`${val} items per page`)
+}
+const handleCurrentChange = (val: number) => {
+  console.log(`current page: ${val}`)
 }
 </script>
 
@@ -221,61 +235,75 @@ async function toggleWordState(row: any) {
         <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
           <el-card class="table-card mx-5 !rounded-xl !border-0 h-full will-change-transform">
             <segmented-control :segments="segments" @input="switchSegment" />
-
-            <el-table
-              ref="vocabTable"
-              class="r-table md:w-full" height="100%" size="small" fit
-              :row-class-name="({row})=> classKeyOfRow(row.seq)"
-              :data="tableDataFiltered"
-              @row-click="handleRowClick"
-              @expand-change="tagExpand">
-              <el-table-column type="expand">
-                <template #default="props">
-                  <div class="mb-1 ml-5 mr-3">
-                    <div class="break-words" style="word-break: break-word;" v-for="[no,idx] in source(props.row.src)">
-                      <span v-html="example(sentences[no], idx)" />
+            <div class="h-[calc(100%-37px)]">
+              <el-table
+                ref="vocabTable"
+                class="r-table md:w-full" height="100%" size="small" fit
+                :row-class-name="({row})=> classKeyOfRow(row.seq)"
+                :data="tableDataDisplay"
+                @row-click="handleRowClick"
+                @expand-change="tagExpand">
+                <el-table-column type="expand">
+                  <template #default="props">
+                    <div class="mb-1 ml-5 mr-3">
+                      <div class="break-words" style="word-break: break-word;" v-for="[no,idx] in source(props.row.src)">
+                        <span v-html="example(sentences[no], idx)" />
+                      </div>
                     </div>
-                  </div>
-                </template>
-              </el-table-column>
+                  </template>
+                </el-table-column>
 
-              <el-table-column label="Vocabulary" align="left" min-width="16" sortable :sort-method="(a, b) => sortByChar(a.w, b.w)" class-name="cursor-pointer">
-                <template #header>
-                  <el-input @click.stop class="!w-[calc(100%-26px)] !text-base md:!text-xs" v-model="search" size="small" placeholder="Search" />
-                </template>
-                <template #default="props">
-                  <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart.passive="selectWord" @click.stop>{{ props.row.w }}</span>
-                </template>
-              </el-table-column>
+                <el-table-column label="Vocabulary" align="left" min-width="16" sortable :sort-method="(a, b) => sortByChar(a.w, b.w)" class-name="cursor-pointer">
+                  <template #header>
+                    <el-input @click.stop class="!w-[calc(100%-26px)] !text-base md:!text-xs" v-model="search" size="small" placeholder="Search" />
+                  </template>
+                  <template #default="props">
+                    <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart.passive="selectWord" @click.stop>{{ props.row.w }}</span>
+                  </template>
+                </el-table-column>
 
-              <el-table-column label="Times" prop="freq" align="right" min-width="9" sortable class-name="cursor-pointer tabular-nums">
-                <template #default="props">
-                  <div class="font-compact text-right select-none">{{ props.row.freq }}</div>
-                </template>
-              </el-table-column>
+                <el-table-column label="Times" prop="freq" align="right" min-width="9" sortable class-name="cursor-pointer tabular-nums">
+                  <template #default="props">
+                    <div class="font-compact text-right select-none">{{ props.row.freq }}</div>
+                  </template>
+                </el-table-column>
 
-              <el-table-column label="Length" prop="len" align="right" min-width="10" sortable class-name="cursor-pointer tabular-nums">
-                <template #default="props">
-                  <div class="font-compact select-none">{{ props.row.len }}</div>
-                </template>
-              </el-table-column>
+                <el-table-column label="Length" prop="len" align="right" min-width="10" sortable class-name="cursor-pointer tabular-nums">
+                  <template #default="props">
+                    <div class="font-compact select-none">{{ props.row.len }}</div>
+                  </template>
+                </el-table-column>
 
-              <el-table-column align="right" min-width="5">
-                <template #default="{row}">
-                  <el-button
-                    size="small"
-                    type="primary"
-                    :icon="Check"
-                    @click.stop="toggleWordState(row)"
-                    :plain="!row?.vocab?.acquainted"
-                    :loading="loadingStateArray[row.seq]"
-                    :disabled="row?.vocab && !row?.vocab?.is_user"
-                    :text="!row?.vocab?.acquainted" bg
-                  />
-                </template>
-              </el-table-column>
-
-            </el-table>
+                <el-table-column align="right" min-width="5">
+                  <template #default="{row}">
+                    <el-button
+                      size="small"
+                      type="primary"
+                      :icon="Check"
+                      @click.stop="toggleWordState(row)"
+                      :plain="!row?.vocab?.acquainted"
+                      :loading="loadingStateArray[row.seq]"
+                      :disabled="row?.vocab && !row?.vocab?.is_user"
+                      :text="!row?.vocab?.acquainted" bg
+                    />
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+            <el-pagination
+              v-model:currentPage="currentPage"
+              v-model:page-size="pageSize"
+              :page-sizes="pageSizes"
+              :small="true"
+              :disabled="false"
+              :background="true"
+              :pager-count="5"
+              layout="prev, pager, next, ->, sizes, total"
+              :total="total"
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              class="!pl-2 !py-1.5"
+            />
           </el-card>
         </el-aside>
       </el-container>
@@ -284,6 +312,19 @@ async function toggleWordState(row: any) {
 </template>
 
 <style lang="scss" scoped>
+:deep(.el-pagination .el-input__inner) {
+  //font-size: 16px;
+}
+
+:deep(.el-pagination__sizes) {
+  margin-right: 8px !important;
+}
+
+:deep(.el-pagination__total) {
+  margin-right: 6px !important;
+}
+
+
 :deep(.is-text) {
   border: 1px solid transparent !important;
 
@@ -293,16 +334,19 @@ async function toggleWordState(row: any) {
   }
 }
 
-:deep(.el-icon) {
-  pointer-events: none;
-}
 
 :deep(thead .is-right:not(:last-child) .cell) {
   padding: 0;
 }
 
-.r-table :deep(:is(*, .el-table__body-wrapper)) {
-  overscroll-behavior: contain !important;
+.r-table {
+  :deep(.el-icon) {
+    pointer-events: none;
+  }
+
+  :deep(:is(*, .el-table__body-wrapper)) {
+    overscroll-behavior: contain !important;
+  }
 }
 
 .s-btn {
