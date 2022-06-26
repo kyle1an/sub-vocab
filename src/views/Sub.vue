@@ -233,63 +233,67 @@ const handleCurrentChange = (val: number) => {
         </el-container>
 
         <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
-          <el-card class="table-card mx-5 !rounded-xl !border-0 h-full will-change-transform">
-            <segmented-control :segments="segments" @input="switchSegment" />
-            <div class="h-[calc(100%-37px)]">
-              <el-table
-                ref="vocabTable"
-                class="r-table md:w-full" height="100%" size="small" fit
-                :row-class-name="({row})=> classKeyOfRow(row.seq)"
-                :data="tableDataDisplay"
-                @row-click="handleRowClick"
-                @expand-change="tagExpand">
-                <el-table-column type="expand">
-                  <template #default="props">
-                    <div class="mb-1 ml-5 mr-3">
-                      <div class="break-words" style="word-break: break-word;" v-for="[no,idx] in source(props.row.src)">
-                        <span v-html="example(sentences[no], idx)" />
+          <el-card class="table-card flex items-center flex-col mx-5 !rounded-xl !border-0 h-full will-change-transform">
+            <segmented-control :segments="segments" @input="switchSegment" class="flex-grow-0" />
+            <div class="h-full w-full"><!-- 100% height of its container minus height of siblings -->
+              <div class="h-[calc(100%-1px)]">
+                <el-table
+                  ref="vocabTable"
+                  class="r-table !h-full !w-full md:w-full" height="200" size="small" fit
+                  :row-class-name="({row})=> classKeyOfRow(row.seq)"
+                  :data="tableDataDisplay"
+                  @row-click="handleRowClick"
+                  @expand-change="tagExpand"
+                >
+                  <el-table-column type="expand">
+                    <template #default="props">
+                      <div class="mb-1 ml-5 mr-3">
+                        <div class="break-words" style="word-break: break-word;" v-for="[no,idx] in source(props.row.src)">
+                          <span v-html="example(sentences[no], idx)" />
+                        </div>
                       </div>
-                    </div>
-                  </template>
-                </el-table-column>
+                    </template>
+                  </el-table-column>
 
-                <el-table-column label="Vocabulary" align="left" min-width="16" sortable :sort-method="(a, b) => sortByChar(a.w, b.w)" class-name="cursor-pointer">
-                  <template #header>
-                    <el-input @click.stop class="!w-[calc(100%-26px)] !text-base md:!text-xs" v-model="search" size="small" placeholder="Search" />
-                  </template>
-                  <template #default="props">
-                    <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart.passive="selectWord" @click.stop>{{ props.row.w }}</span>
-                  </template>
-                </el-table-column>
+                  <el-table-column label="Vocabulary" align="left" min-width="16" sortable :sort-method="(a, b) => sortByChar(a.w, b.w)" class-name="cursor-pointer">
+                    <template #header>
+                      <el-input @click.stop class="!w-[calc(100%-26px)] !text-base md:!text-xs" v-model="search" size="small" placeholder="Search" />
+                    </template>
+                    <template #default="props">
+                      <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart.passive="selectWord" @click.stop>{{ props.row.w }}</span>
+                    </template>
+                  </el-table-column>
 
-                <el-table-column label="Times" prop="freq" align="right" min-width="9" sortable class-name="cursor-pointer tabular-nums">
-                  <template #default="props">
-                    <div class="font-compact text-right select-none">{{ props.row.freq }}</div>
-                  </template>
-                </el-table-column>
+                  <el-table-column label="Times" prop="freq" align="right" min-width="9" sortable class-name="cursor-pointer tabular-nums">
+                    <template #default="props">
+                      <div class="font-compact text-right select-none">{{ props.row.freq }}</div>
+                    </template>
+                  </el-table-column>
 
-                <el-table-column label="Length" prop="len" align="right" min-width="10" sortable class-name="cursor-pointer tabular-nums">
-                  <template #default="props">
-                    <div class="font-compact select-none">{{ props.row.len }}</div>
-                  </template>
-                </el-table-column>
+                  <el-table-column label="Length" prop="len" align="right" min-width="10" sortable class-name="cursor-pointer tabular-nums">
+                    <template #default="props">
+                      <div class="font-compact select-none">{{ props.row.len }}</div>
+                    </template>
+                  </el-table-column>
 
-                <el-table-column align="right" min-width="5">
-                  <template #default="{row}">
-                    <el-button
-                      size="small"
-                      type="primary"
-                      :icon="Check"
-                      @click.stop="toggleWordState(row)"
-                      :plain="!row?.vocab?.acquainted"
-                      :loading="loadingStateArray[row.seq]"
-                      :disabled="row?.vocab && !row?.vocab?.is_user"
-                      :text="!row?.vocab?.acquainted" bg
-                    />
-                  </template>
-                </el-table-column>
-              </el-table>
+                  <el-table-column align="right" min-width="5">
+                    <template #default="{row}">
+                      <el-button
+                        size="small"
+                        type="primary"
+                        :icon="Check"
+                        @click.stop="toggleWordState(row)"
+                        :plain="!row?.vocab?.acquainted"
+                        :loading="loadingStateArray[row.seq]"
+                        :disabled="row?.vocab && !row?.vocab?.is_user"
+                        :text="!row?.vocab?.acquainted" bg
+                      />
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </div>
             </div>
+
             <el-pagination
               v-model:currentPage="currentPage"
               v-model:page-size="pageSize"
@@ -298,12 +302,13 @@ const handleCurrentChange = (val: number) => {
               :disabled="false"
               :background="true"
               :pager-count="5"
-              layout="prev, pager, next, ->, sizes, total"
+              layout="prev, pager, next, ->, total, sizes"
               :total="total"
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
-              class="!pl-2 !py-1.5"
+              class="!pl-2 !pt-1 !pb-1.5 flex-wrap pager-section flex-shrink-0"
             />
+
           </el-card>
         </el-aside>
       </el-container>
@@ -315,15 +320,6 @@ const handleCurrentChange = (val: number) => {
 :deep(.el-pagination .el-input__inner) {
   //font-size: 16px;
 }
-
-:deep(.el-pagination__sizes) {
-  margin-right: 8px !important;
-}
-
-:deep(.el-pagination__total) {
-  margin-right: 6px !important;
-}
-
 
 :deep(.is-text) {
   border: 1px solid transparent !important;
@@ -347,6 +343,10 @@ const handleCurrentChange = (val: number) => {
   :deep(:is(*, .el-table__body-wrapper)) {
     overscroll-behavior: contain !important;
   }
+
+  :deep(.el-table__inner-wrapper) {
+    height: 100%;
+  }
 }
 
 .s-btn {
@@ -368,10 +368,11 @@ const handleCurrentChange = (val: number) => {
 
 .table-card {
   :deep(.el-card__body) {
-    height: calc(100% - 7px);
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    padding: 12px 0 0;
   }
 
   :deep(.el-table__expand-icon) {
