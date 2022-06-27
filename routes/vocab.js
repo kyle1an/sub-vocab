@@ -19,7 +19,7 @@ module.exports.api = {
       connection.query(sql.userWordsQuery(user), (err, rows, fields) => {
         connection.release();
         if (err) throw err;
-        res.send(JSON.stringify(rows));
+        res.send(JSON.stringify(rows[0]));
       });
     });
   },
