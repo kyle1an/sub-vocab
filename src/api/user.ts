@@ -11,3 +11,15 @@ export async function register(info: { username: string, password: string }) {
     body: JSON.stringify(info),
   })
 }
+
+export async function changeUsername(info: { username: string, newUsername: string }) {
+  return fetchPost(`${import.meta.env.VITE_SUB_PROD}/changeUsername`, {
+    body: JSON.stringify(info),
+  })
+}
+
+export async function changePassword(info: { username: string, oldPassword: string, newPassword: string }) {
+  return fetchPost(`${import.meta.env.VITE_SUB_PROD}/changePassword`, {
+    body: JSON.stringify(info),
+  })
+}

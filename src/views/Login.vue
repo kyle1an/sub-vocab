@@ -73,8 +73,6 @@ async function authenticate(userInfo: userInfo) {
   } else {
     errorMsg.value = 'The username or password is incorrect.'
   }
-
-  console.log(store.user)
 }
 
 function resetForm(formEl: FormInstance | undefined) {
