@@ -8,7 +8,6 @@ const vocabRouter = require('./routes/vocab');
 const authRouter = require('./routes/auth');
 const app = express();
 const cors = require('cors');
-const config = require('./config/connection');
 const sql = require('./lib/sql');
 app.use(cors({
   origin: [
@@ -16,7 +15,9 @@ app.use(cors({
     'http://10.207.1.106:3000',
     'https://subvocab.netlify.app',
     'https://sub-vocab.vercel.app',
-  ]
+  ],
+  credentials: true,
+  exposedHeaders: ['set-cookie'],
 }));
 
 // view engine setup
@@ -26,16 +27,21 @@ app.set('view engine', 'hbs');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+// need cookieParser middleware before we can do anything with cookies
 app.use(cookieParser());
+// let static middleware do its job
+// app.use(express.static(__dirname + '/public'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', vocabRouter);
-app.post('/api/queryWords', vocabRouter.api.queryWords)
-app.post('/api/acquaint', vocabRouter.api.acquaint)
-app.post('/api/revokeWord', vocabRouter.api.revokeWord)
+app.post('/api/queryWords', vocabRouter.queryWords)
+app.post('/api/acquaint', vocabRouter.acquaint)
+app.post('/api/revokeWord', vocabRouter.revokeWord)
 app.post('/login', authRouter.login)
 app.post('/register', authRouter.register)
+app.post('/changeUsername', authRouter.changeUsername)
+app.post('/changePassword', authRouter.changePassword)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -55,12 +61,14 @@ app.use(function (err, req, res, next) {
 
 module.exports = app;
 
-const mysql = require('mysql')
+const mysql = require('mysql2')
+const config = require('./config/connection');
 const connection = mysql.createConnection(config)
 
 connection.connect()
-connection.query(sql.login({ username: 'kyle', password: 'kgo' }), (err, rows, fields) => {
+const sqlString = sql.login({ username: 'kyle', password: 'kgo' })
+connection.query(sqlString, (err, rows, fields) => {
   if (err) throw err;
-  console.log('The solution is: ', rows)
+  console.log('The solution is: ', rows[0])
 })
 connection.end()
