@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import { useUserStore } from '../store/useState';
-import { eraseCookie } from '../utils/cookie';
 import router from '../router';
 
 import { reactive, ref } from 'vue'
 import type { FormInstance } from 'element-plus'
-import { changePassword, changeUsername, login } from '../api/user';
+import { changePassword, changeUsername, logoutToken } from '../api/user';
 
 const store = useUserStore()
 const ruleFormRef = ref<FormInstance>()
@@ -89,7 +88,7 @@ async function alterInfo(form: any) {
     })
 
     if (res.success) {
-      logOut()
+      await logOut()
     } else {
       errorMsg.value = res.message || 'something went wrong'
     }
@@ -118,8 +117,8 @@ function resetForm(formEl: FormInstance | undefined) {
 
 const userStore = useUserStore()
 
-function logOut() {
-  eraseCookie('user')
+async function logOut() {
+  await logoutToken({ username: store.user.name })
   userStore.user.name = ''
   setTimeout(() => {
     router.push('/login')

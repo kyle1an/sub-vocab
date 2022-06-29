@@ -8,6 +8,15 @@ export function setCookie(name: string, value: any, days: any) {
   document.cookie = name + '=' + (value || "") + expires + '; path=/';
 }
 
+function cookie(name: string, value: any, options: any = {}) {
+  let cookieData = `${name}=${value};`;
+  for (const key in options) {
+    const str = `${key}=${options[key]};`;
+    cookieData += str;
+  }
+  document.cookie = cookieData;
+}
+
 export function getCookie(name: string) {
   const nameEQ = name + '=';
   const ca = document.cookie.split(';');
