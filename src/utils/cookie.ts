@@ -1,3 +1,5 @@
+export const acct = getCookie('acct');
+
 export function setCookie(name: string, value: any, days: any) {
   let expires = "";
   if (days) {

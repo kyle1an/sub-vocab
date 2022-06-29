@@ -5,6 +5,7 @@ import router from '../router';
 import { reactive, ref } from 'vue'
 import type { FormInstance } from 'element-plus'
 import { changePassword, changeUsername, logoutToken } from '../api/user';
+import { eraseCookie } from '../utils/cookie';
 
 const store = useUserStore()
 const ruleFormRef = ref<FormInstance>()
@@ -119,6 +120,7 @@ const userStore = useUserStore()
 
 async function logOut() {
   await logoutToken({ username: store.user.name })
+  eraseCookie(['_user', 'acct'])
   userStore.user.name = ''
   setTimeout(() => {
     router.push('/login')
