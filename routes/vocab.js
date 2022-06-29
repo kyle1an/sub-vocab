@@ -1,10 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const sql = require('../lib/sql');
-const config = require('../config/connection');
-const mysql = require('mysql2');
-const pool = mysql.createPool(config);
-
+const { pool } = require('../config/connection');
+const { isTokenInvalid } = require('../lib/timeUtil');
 /* GET users listing. */
 router.get('/', (req, res, next) => {
   res.send('respond with a resource');
@@ -13,8 +10,9 @@ router.get('/', (req, res, next) => {
 module.exports = router;
 
 module.exports.queryWords = async (req, res) => {
+  let { user } = req.body;
+  if (user && await isTokenInvalid(req, res)) user = ''
   pool.getConnection((err, connection) => {
-    const { user } = req.body;
     connection.query(`
     CALL words_of_user(get_user_id_by_name('${user}'));
     `, (err, rows, fields) => {
@@ -25,7 +23,8 @@ module.exports.queryWords = async (req, res) => {
   });
 }
 
-module.exports.acquaint = (req, res) => {
+module.exports.acquaint = async (req, res) => {
+  if (await isTokenInvalid(req, res)) return res.send(JSON.stringify({ affectedRows: 0, message: 'Invalid' }));
   pool.getConnection((err, connection) => {
     const { word, user } = req.body;
     connection.query(`
@@ -38,7 +37,8 @@ module.exports.acquaint = (req, res) => {
   });
 }
 
-module.exports.revokeWord = (req, res) => {
+module.exports.revokeWord = async (req, res) => {
+  if (await isTokenInvalid(req, res)) return res.send(JSON.stringify({ affectedRows: 0, message: 'Invalid' }));
   pool.getConnection((err, connection) => {
     const { word, user } = req.body;
     connection.query(`

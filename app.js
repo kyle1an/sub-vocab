@@ -8,7 +8,6 @@ const vocabRouter = require('./routes/vocab');
 const authRouter = require('./routes/auth');
 const app = express();
 const cors = require('cors');
-const sql = require('./lib/sql');
 app.use(cors({
   origin: [
     'http://localhost:3000',
@@ -42,6 +41,7 @@ app.post('/login', authRouter.login)
 app.post('/register', authRouter.register)
 app.post('/changeUsername', authRouter.changeUsername)
 app.post('/changePassword', authRouter.changePassword)
+app.post('/logoutToken', authRouter.logout)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -60,15 +60,3 @@ app.use(function (err, req, res, next) {
 });
 
 module.exports = app;
-
-const mysql = require('mysql2')
-const config = require('./config/connection');
-const connection = mysql.createConnection(config)
-
-connection.connect()
-const sqlString = sql.login({ username: 'kyle', password: 'kgo' })
-connection.query(sqlString, (err, rows, fields) => {
-  if (err) throw err;
-  console.log('The solution is: ', rows[0])
-})
-connection.end()

@@ -1,7 +1,4 @@
-const sql = require('../lib/sql');
-const config = require('../config/connection');
-const mysql = require('mysql2');
-const pool = mysql.createPool(config);
+const { pool } = require('../config/connection');
 const { daysIn } = require('../lib/timeUtil.js')
 const crypto = require('crypto');
 
@@ -9,7 +6,6 @@ module.exports.login = (req, res) => {
   const token = crypto.randomBytes(32).toString('hex');
   pool.getConnection((err, connection) => {
     const { username, password } = req.body;
-
     connection.query(`
     SELECT login_token('${username}', '${password}', '${token}') AS output;
     `, (err, rows, fields) => {
@@ -17,8 +13,8 @@ module.exports.login = (req, res) => {
       if (err) throw err;
       const response = []
       if (rows[0].output) {
-        res.cookie('acct', token, { expires: daysIn(30), httpOnly: true, path: '/' });
-        console.log('cookie created successfully');
+        res.cookie('acct', token, { expires: daysIn(30), httpOnly: true, path: '/', SameSite: 'Strict', });
+        res.cookie('_user', username, { expires: daysIn(30), httpOnly: false, path: '/', SameSite: 'Strict', });
         response[0] = true
       }
       res.send(JSON.stringify(response));
@@ -48,7 +44,6 @@ module.exports.changeUsername = (req, res) => {
     `, (err, rows, fields) => {
       connection.release();
       if (err) throw err;
-      console.log('change_username', rows);
       const result = {}
       if (rows[0].result) {
         result.success = true;
@@ -78,18 +73,23 @@ module.exports.changePassword = (req, res) => {
 module.exports.logout = (req, res) => {
   pool.getConnection((err, connection) => {
     const { username } = req.body;
+    const response = {}
+    if (!req.cookies.acct) {
+      response.success = false;
+      return res.send(JSON.stringify(response));
+    }
     connection.query(`
-    SELECT logout(get_user_id_by_name('${username}'));
+    CALL logout_token(get_user_id_by_name('${username}'), '${req.cookies.acct}');
     `, (err, rows, fields) => {
       connection.release();
       if (err) throw err;
-      if (rows[0].length) {
-        if (req.cookies.acct === undefined) {
-          res.cookie('acct', '', { expires: 'Thu, 01 Jan 1970 00:00:01 GMT', httpOnly: true, });
-          console.log('cookie created successfully');
-        }
+      const rowCount = rows.affectedRows;
+      if (rowCount) {
+        res.clearCookie('acct', { path: '/' })
+        res.clearCookie('_user', { path: '/' })
       }
-      res.send(JSON.stringify(rows[0]));
+      response.success = !!rowCount;
+      res.send(JSON.stringify(response));
     })
   })
 }

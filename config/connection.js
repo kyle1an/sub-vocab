@@ -6,5 +6,7 @@ const config = {
   database: '***REMOVED***',
   multipleStatements: true,
 };
+const mysql = require('mysql2');
+const pool = mysql.createPool(config);
 
-module.exports = config;
+module.exports.pool = pool;
