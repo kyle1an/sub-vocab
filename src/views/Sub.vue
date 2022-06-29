@@ -172,7 +172,6 @@ async function toggleWordState(row: any) {
     const vocabInfo = {
       word,
       user: userStore.user.name,
-      token: userStore.user.token
     }
     const acquainted = row?.vocab?.acquainted
     const res = await (acquainted ? revokeWord : acquaint)(vocabInfo);
