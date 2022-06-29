@@ -13,8 +13,7 @@ module.exports.login = (req, res) => {
       if (err) throw err;
       const response = []
       if (rows[0].output) {
-        res.cookie('acct', token, { expires: daysIn(30), httpOnly: true, path: '/', SameSite: 'Strict', });
-        res.cookie('_user', username, { expires: daysIn(30), httpOnly: false, path: '/', SameSite: 'Strict', });
+        response[1] = token
         response[0] = true
       }
       res.send(JSON.stringify(response));
@@ -38,7 +37,7 @@ module.exports.register = (req, res) => {
 
 module.exports.changeUsername = (req, res) => {
   pool.getConnection((err, connection) => {
-    const { username, newUsername } = req.body;
+    const { username, newUsername, acct, } = req.body;
     connection.query(`
     SELECT change_username(get_user_id_by_name('${username}'), '${newUsername}') as result;
     `, (err, rows, fields) => {
@@ -55,7 +54,7 @@ module.exports.changeUsername = (req, res) => {
 
 module.exports.changePassword = (req, res) => {
   pool.getConnection((err, connection) => {
-    const { username, newPassword, oldPassword } = req.body;
+    const { username, newPassword, oldPassword, acct, } = req.body;
     connection.query(`
     CALL change_password(get_user_id_by_name('${username}'), '${newPassword}', '${oldPassword}');
     `, (err, rows, fields) => {
@@ -72,7 +71,7 @@ module.exports.changePassword = (req, res) => {
 
 module.exports.logout = (req, res) => {
   pool.getConnection((err, connection) => {
-    const { username } = req.body;
+    const { username, acct, } = req.body;
     const response = {}
     if (!req.cookies.acct) {
       response.success = false;

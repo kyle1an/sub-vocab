@@ -10,8 +10,8 @@ router.get('/', (req, res, next) => {
 module.exports = router;
 
 module.exports.queryWords = async (req, res) => {
-  let { user } = req.body;
-  if (user && await isTokenInvalid(req, res)) user = ''
+  let { user, acct } = req.body;
+  if (user && await isTokenInvalid(req, res, acct)) user = ''
   pool.getConnection((err, connection) => {
     connection.query(`
     CALL words_of_user(get_user_id_by_name('${user}'));
@@ -24,9 +24,9 @@ module.exports.queryWords = async (req, res) => {
 }
 
 module.exports.acquaint = async (req, res) => {
-  if (await isTokenInvalid(req, res)) return res.send(JSON.stringify({ affectedRows: 0, message: 'Invalid' }));
+  const { word, user, acct } = req.body;
+  if (await isTokenInvalid(req, res, acct)) return res.send(JSON.stringify({ affectedRows: 0, message: 'Invalid' }));
   pool.getConnection((err, connection) => {
-    const { word, user } = req.body;
     connection.query(`
     CALL acquaint_word_record(get_vocab_id('${word}'), get_user_id_by_name('${user}'));
     `, (err, rows, fields) => {
@@ -38,9 +38,9 @@ module.exports.acquaint = async (req, res) => {
 }
 
 module.exports.revokeWord = async (req, res) => {
-  if (await isTokenInvalid(req, res)) return res.send(JSON.stringify({ affectedRows: 0, message: 'Invalid' }));
+  const { word, user, acct } = req.body;
+  if (await isTokenInvalid(req, res, acct)) return res.send(JSON.stringify({ affectedRows: 0, message: 'Invalid' }));
   pool.getConnection((err, connection) => {
-    const { word, user } = req.body;
     connection.query(`
     CALL revoke_word_record(get_vocab_id('${word}'), get_user_id_by_name('${user}'));
     `, (err, rows, fields) => {
