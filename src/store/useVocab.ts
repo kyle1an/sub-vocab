@@ -6,7 +6,7 @@ import { IRREGULAR } from "../utils/stemsMapping";
 import { getCookie } from '../utils/cookie';
 
 export const useVocabStore = defineStore('vocabStore', () => {
-  const query: Promise<Array<Sieve>> = queryWordsByUser(getCookie('user') ?? '');
+  const query: Promise<Array<Sieve>> = queryWordsByUser(getCookie('_user') ?? '');
   let commonVocab: Array<Sieve> = [];
   let trieListPair: [TrieNode, Array<Label>];
 
