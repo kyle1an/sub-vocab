@@ -23,3 +23,9 @@ export async function changePassword(info: { username: string, oldPassword: stri
     body: JSON.stringify(info),
   })
 }
+
+export async function logoutToken(info: { username: string }) {
+  return fetchPost(`${import.meta.env.VITE_SUB_PROD}/logoutToken`, {
+    body: JSON.stringify(info),
+  })
+}

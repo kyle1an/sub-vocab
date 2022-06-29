@@ -5,7 +5,6 @@ import router from '../router';
 import type { FormInstance } from 'element-plus'
 import { userInfo } from '../types/user';
 import { useUserStore } from '../store/useState';
-import { setCookie } from '../utils/cookie';
 
 const store = useUserStore()
 const ruleFormRef = ref<FormInstance>()
@@ -62,11 +61,8 @@ const errorMsg = ref('')
 
 async function authenticate(userInfo: userInfo) {
   const resAuth = await login(userInfo)
-  console.log('resAuth', resAuth)
   if (resAuth.length) {
-    store.user.login = true
     store.user.name = userInfo.username
-    setCookie('user', userInfo.username, 7)
     setTimeout(() => {
       router.push('/')
     }, 0)

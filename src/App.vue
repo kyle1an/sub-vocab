@@ -4,8 +4,9 @@ import { useUserStore } from './store/useState';
 import { getCookie } from './utils/cookie';
 
 const store = useUserStore()
-if (getCookie('user')) {
-  store.user.name = getCookie('user')
+const userName = getCookie('_user')
+if (userName) {
+  store.user.name = userName
 }
 </script>
 
