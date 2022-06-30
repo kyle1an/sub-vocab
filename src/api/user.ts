@@ -30,3 +30,9 @@ export async function logoutToken(info: { username: string }) {
     body: JSON.stringify({ acct, ...info }),
   })
 }
+
+export async function existsUsername(info: { username: string }) {
+  return fetchPost(`${import.meta.env.VITE_SUB_PROD}/existsUsername`, {
+    body: JSON.stringify(info),
+  })
+}

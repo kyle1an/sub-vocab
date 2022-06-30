@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { reactive, ref } from 'vue'
+import { h, reactive, ref } from 'vue'
 import { login } from '../api/user';
 import router from '../router';
 import type { FormInstance } from 'element-plus'
-import { userInfo } from '../types/user';
 import { useUserStore } from '../store/useState';
 import { setCookie } from '../utils/cookie';
+import { ElNotification } from 'element-plus/es';
 
 const store = useUserStore()
 const ruleFormRef = ref<FormInstance>()
@@ -29,10 +29,10 @@ function checkUsername(rule: any, value: any, callback: any) {
 
 function validatePass(rule: any, value: any, callback: any) {
   if (value === '') {
-    callback(new Error('Please input the password'))
-  } else {
-    callback()
+    return callback(new Error('Please input the password'))
   }
+
+  callback()
 }
 
 const ruleForm = reactive({
@@ -47,32 +47,30 @@ const rules = reactive({
 
 function submitForm(formEl: FormInstance | undefined) {
   if (!formEl) return
-  formEl.validate((valid) => {
-    if (valid) {
-      console.log('submit!', formEl)
-      authenticate(ruleForm)
-    } else {
-      console.log('error submit!')
-      return false
+  formEl.validate(async (valid) => {
+    if (!valid) {
+      return
     }
-  })
-}
 
-const errorMsg = ref('')
+    const resAuth = await login(ruleForm)
+    if (!resAuth.length) {
+      ElNotification({
+        message: h(
+          'span',
+          { style: 'color: teal' },
+          'The username/password is incorrect.'
+        )
+      })
+      return
+    }
 
-async function authenticate(userInfo: userInfo) {
-  const resAuth = await login(userInfo)
-  if (resAuth.length) {
-    store.user.name = userInfo.username
-    setCookie('_user', userInfo.username, 30)
+    store.user.name = ruleForm.username
+    setCookie('_user', ruleForm.username, 30)
     setCookie('acct', resAuth[1], 30)
-    console.log(resAuth)
     setTimeout(() => {
       router.push('/')
     }, 0)
-  } else {
-    errorMsg.value = 'The username or password is incorrect.'
-  }
+  })
 }
 
 function resetForm(formEl: FormInstance | undefined) {
@@ -96,7 +94,7 @@ function resetForm(formEl: FormInstance | undefined) {
             style="max-width: 460px"
             status-icon
           >
-            <el-form-item label="Name" prop="username" :error="errorMsg">
+            <el-form-item label="Name" prop="username">
               <el-input v-model.number="ruleForm.username" class="!text-base md:!text-xs" />
             </el-form-item>
             <el-form-item label="Password" prop="password">

@@ -1,13 +1,14 @@
 <script lang="ts" setup>
-import { reactive, ref } from 'vue'
-import { register } from '../api/user';
+import { h, reactive, ref } from 'vue'
+import { existsUsername, register } from '../api/user';
 import router from '../router';
 import type { FormInstance } from 'element-plus'
 import { userInfo } from '../types/user';
+import { ElNotification } from 'element-plus/es';
 
 const ruleFormRef = ref<FormInstance>()
 
-function checkUsername(rule: any, value: any, callback: any) {
+async function checkUsername(rule: any, value: any, callback: any) {
   const username = String(value)
   if (!username.length) {
     return callback(new Error('Please input name'))
@@ -21,29 +22,36 @@ function checkUsername(rule: any, value: any, callback: any) {
     return callback(new Error('Name must be longer than 1'))
   }
 
+  if ((await existsUsername({ username })).has) {
+    return callback(new Error(`${username} is already taken`))
+  }
+
   callback()
 }
 
 function validatePass(rule: any, value: any, callback: any) {
   if (value === '') {
-    callback(new Error('Please input the password'))
-  } else {
-    if (ruleForm.checkPass !== '') {
-      if (!ruleFormRef.value) return
-      ruleFormRef.value.validateField('checkPass', () => null)
-    }
-    callback()
+    return callback(new Error('Please input the password'))
   }
+
+  if (ruleForm.checkPass !== '') {
+    if (!ruleFormRef.value) return
+    ruleFormRef.value.validateField('checkPass', () => null)
+  }
+
+  callback()
 }
 
 const validatePass2 = (rule: any, value: any, callback: any) => {
   if (value === '') {
-    callback(new Error('Please input the password again'))
-  } else if (value !== ruleForm.password) {
-    callback(new Error("Two inputs don't match!"))
-  } else {
-    callback()
+    return callback(new Error('Please input the password again'))
   }
+
+  if (value !== ruleForm.password) {
+    return callback(new Error("Two inputs don't match!"))
+  }
+
+  callback()
 }
 
 const ruleForm = reactive({
@@ -60,27 +68,28 @@ const rules = reactive({
 
 function submitForm(formEl: FormInstance | undefined) {
   if (!formEl) return
-  formEl.validate((valid) => {
-    if (valid) {
-      console.log('submit!', formEl)
-      checkValidity(ruleForm)
-    } else {
-      console.log('error submit!')
+  formEl.validate(async (valid) => {
+    if (!valid) {
       return false
     }
+
+    if (!await registerStatus(ruleForm)) {
+      ElNotification({
+        message: h(
+          'span',
+          { style: 'color: teal' },
+          'The username/password is incorrect.'
+        )
+      })
+    }
+
+    await router.push('/login')
   })
 }
 
-const errorMsg = ref('')
-
-async function checkValidity(form: userInfo) {
+async function registerStatus(form: userInfo) {
   const signUpRes = await register(form)
-  console.log('signUpRes', signUpRes)
-  if (signUpRes[0].result === 1) {
-    await router.push('/login')
-  } else {
-    errorMsg.value = 'Register failed: username already exists'
-  }
+  return signUpRes[0].result === 1;
 }
 
 function resetForm(formEl: FormInstance | undefined) {
@@ -104,7 +113,7 @@ function resetForm(formEl: FormInstance | undefined) {
             style="max-width: 460px"
             status-icon
           >
-            <el-form-item label="Name" prop="username" :error="errorMsg">
+            <el-form-item label="Name" prop="username">
               <el-input v-model.number="ruleForm.username" class="!text-base md:!text-xs" />
             </el-form-item>
             <el-form-item label="Password" prop="password">
