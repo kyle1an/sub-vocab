@@ -7,9 +7,12 @@ export async function queryWordsByUser(user: string, token?: any) {
   })
 }
 
+export async function stemsMapping() {
+  return fetchPost(`${import.meta.env.VITE_SUB_PROD}/api/stemsMapping`)
+}
+
 export async function acquaint(newWordInfo: any) {
   if (newWordInfo.word.length > 32) return;
-  console.log('newWordInfo', newWordInfo);
   return fetchPost(`${import.meta.env.VITE_SUB_PROD}/api/acquaint`, {
     body: JSON.stringify({ acct, ...newWordInfo }),
   })

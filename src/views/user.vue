@@ -4,13 +4,13 @@ import router from '../router';
 
 import { reactive, ref } from 'vue'
 import type { FormInstance } from 'element-plus'
-import { changePassword, changeUsername, logoutToken } from '../api/user';
+import { changePassword, changeUsername, existsUsername, logoutToken } from '../api/user';
 import { eraseCookie } from '../utils/cookie';
 
 const store = useUserStore()
 const ruleFormRef = ref<FormInstance>()
 
-function checkUsername(rule: any, value: any, callback: any) {
+async function checkUsername(rule: any, value: any, callback: any) {
   const username = String(value)
   if (!username.length) {
     return callback(new Error('Please input name'))
@@ -22,6 +22,10 @@ function checkUsername(rule: any, value: any, callback: any) {
 
   if (username.length < 2) {
     return callback(new Error('Name must be longer than 1'))
+  }
+
+  if (username !== store.user.name && (await existsUsername({ username })).has) {
+    return callback(new Error(`${username} is already taken`))
   }
 
   callback()
@@ -36,6 +40,7 @@ function validatePass(rule: any, value: any, callback: any) {
     if (!ruleFormRef.value) return
     ruleFormRef.value.validateField('checkPass', () => null)
   }
+
   callback()
 }
 
@@ -45,10 +50,10 @@ const validatePass2 = (rule: any, value: any, callback: any) => {
   }
 
   if (value !== ruleForm.value.password) {
-    callback(new Error("Two inputs don't match!"))
-  } else {
-    callback()
+    return callback(new Error("Two inputs don't match!"))
   }
+
+  callback()
 }
 
 const ruleForm = ref({
@@ -67,13 +72,12 @@ const rules = reactive({
 function submitForm(formEl: FormInstance | undefined) {
   if (!formEl) return
   formEl.validate((valid) => {
-    if (valid) {
-      console.log('submit!', formEl)
-      alterInfo(ruleForm.value)
-    } else {
+    if (!valid) {
       console.log('error submit!')
       return false
     }
+
+    alterInfo(ruleForm.value)
   })
 }
 
@@ -93,7 +97,6 @@ async function alterInfo(form: any) {
     } else {
       errorMsg.value = res.message || 'something went wrong'
     }
-    console.log(res)
   }
 
   if (form.username !== '' && form.username !== store.user.name) {
