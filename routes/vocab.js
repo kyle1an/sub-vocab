@@ -14,7 +14,19 @@ module.exports.queryWords = async (req, res) => {
   if (user && await isTokenInvalid(req, res, acct)) user = ''
   pool.getConnection((err, connection) => {
     connection.query(`
-    CALL words_of_user(get_user_id_by_name('${user}'));
+    CALL words_from_user(get_user_id_by_name('${user}'));
+    `, (err, rows, fields) => {
+      connection.release();
+      if (err) throw err;
+      res.send(JSON.stringify(rows[0]));
+    });
+  });
+}
+
+module.exports.stemsMapping = async (req, res) => {
+  pool.getConnection((err, connection) => {
+    connection.query(`
+    CALL stem_derivation_map();
     `, (err, rows, fields) => {
       connection.release();
       if (err) throw err;
@@ -28,7 +40,7 @@ module.exports.acquaint = async (req, res) => {
   if (await isTokenInvalid(req, res, acct)) return res.send(JSON.stringify({ affectedRows: 0, message: 'Invalid' }));
   pool.getConnection((err, connection) => {
     connection.query(`
-    CALL acquaint_word_record(get_vocab_id('${word}'), get_user_id_by_name('${user}'));
+    CALL acquaint_vocab_record(get_valid_vocab('${word}'), get_user_id_by_name('${user}'));
     `, (err, rows, fields) => {
       connection.release();
       if (err) throw err;
@@ -42,7 +54,7 @@ module.exports.revokeWord = async (req, res) => {
   if (await isTokenInvalid(req, res, acct)) return res.send(JSON.stringify({ affectedRows: 0, message: 'Invalid' }));
   pool.getConnection((err, connection) => {
     connection.query(`
-    CALL revoke_word_record(get_vocab_id('${word}'), get_user_id_by_name('${user}'));
+    CALL revoke_vocab_record('${word}', get_user_id_by_name('${user}'));
     `, (err, rows, fields) => {
       connection.release();
       if (err) throw err;
@@ -50,3 +62,5 @@ module.exports.revokeWord = async (req, res) => {
     });
   });
 }
+
+

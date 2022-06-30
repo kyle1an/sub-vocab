@@ -92,3 +92,17 @@ module.exports.logout = (req, res) => {
     })
   })
 }
+
+module.exports.existsUsername = (req, res) => {
+  pool.getConnection((err, connection) => {
+    const { username } = req.body;
+    connection.query(`
+    CALL username_exists('${username}');
+    `, (err, rows, fields) => {
+      connection.release();
+      if (err) throw err;
+      const result = { has: rows[0][0].does_exist }
+      res.send(JSON.stringify(result));
+    })
+  })
+}
