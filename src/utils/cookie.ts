@@ -1,4 +1,6 @@
-export const acct = getCookie('acct');
+export function wrapCookie(param: object) {
+  return { ...param, acct: getCookie('acct') }
+}
 
 export function setCookie(name: string, value: any, days: any) {
   let expires = "";

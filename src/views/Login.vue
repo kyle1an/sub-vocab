@@ -6,6 +6,7 @@ import type { FormInstance } from 'element-plus'
 import { useUserStore } from '../store/useState';
 import { setCookie } from '../utils/cookie';
 import { ElNotification } from 'element-plus/es';
+import { useVocabStore } from '../store/useVocab';
 
 const store = useUserStore()
 const ruleFormRef = ref<FormInstance>()
@@ -44,24 +45,22 @@ const rules = reactive({
   username: [{ validator: checkUsername, trigger: 'blur' }],
   password: [{ validator: validatePass, trigger: 'blur' }],
 })
+const vocabStore = useVocabStore()
 
 function submitForm(formEl: FormInstance | undefined) {
   if (!formEl) return
   formEl.validate(async (valid) => {
-    if (!valid) {
-      return
-    }
+    if (!valid) return
 
     const resAuth = await login(ruleForm)
     if (!resAuth.length) {
-      ElNotification({
+      return ElNotification({
         message: h(
           'span',
           { style: 'color: teal' },
           'The username/password is incorrect.'
         )
       })
-      return
     }
 
     store.user.name = ruleForm.username
@@ -69,6 +68,7 @@ function submitForm(formEl: FormInstance | undefined) {
     setCookie('acct', resAuth[1], 30)
     setTimeout(() => {
       router.push('/')
+      vocabStore.fetchVocab(ruleForm.username)
     }, 0)
   })
 }

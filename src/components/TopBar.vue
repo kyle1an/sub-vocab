@@ -3,22 +3,32 @@ import { useUserStore } from '../store/useState';
 import { computed } from 'vue';
 
 const userStore = useUserStore()
-
-const username = computed(() => {
-  return userStore.user.name
-})
+const username = computed(() => userStore.user.name)
+const acquaintedSection = computed(() => userStore.user.name ? 'Mine' : 'Common')
 </script>
 
 <template>
   <el-header class="top-bar flex w-full z-50 items-center justify-center relative min-w-[auto]">
     <nav class="flex w-full box-border justify-center max-w-[600px]">
-      <div class="flex nav-main justify-between w-full">
-        <router-link class="nav-entry" to="/">Home</router-link>
-        <router-link class="nav-entry" to="/mine">Common</router-link>
-        <router-link v-show="username" class="nav-entry" to="/user">{{ username }}</router-link>
-        <router-link v-show="!username" class="nav-entry" to="/login">Log in</router-link>
-        <router-link v-show="!username" class="nav-entry" to="/register">Sign up</router-link>
-        <router-link to="/about">About</router-link>
+      <div class="flex items-center nav-main justify-between w-full ">
+        <el-button type="" text>
+          <router-link to="/">Home</router-link>
+        </el-button>
+        <el-button type="" text class="!rounded-full">
+          <router-link to="/about">About</router-link>
+        </el-button>
+        <el-button type="primary" text>
+          <router-link to="/mine">{{ acquaintedSection }}</router-link>
+        </el-button>
+        <el-button v-show="username" type="" text>
+          <router-link to="/user">{{ username }}</router-link>
+        </el-button>
+        <el-button v-show="!username" type="primary" plain>
+          <router-link to="/login">Log in</router-link>
+        </el-button>
+        <el-button v-show="!username" type="primary">
+          <router-link to="/register">Sign up</router-link>
+        </el-button>
       </div>
     </nav>
   </el-header>
@@ -29,14 +39,5 @@ const username = computed(() => {
   box-shadow: var(--bs-sm);
   background-color: var(--theme-topbar-background-color);
   height: var(--theme-topbar-height) !important;
-}
-
-.nav-entry {
-  @apply rounded mx-2;
-  &:hover {
-    background-color: rgba(147, 135, 0, 0.19);
-    color: rgb(175, 161, 0);
-    text-decoration: none;
-  }
 }
 </style>

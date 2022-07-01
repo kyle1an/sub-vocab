@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import Switch from '../components/Switch.vue';
 import SegmentedControl from '../components/SegmentedControl.vue'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { Segment } from '../types';
 import { sortByChar } from '../utils/utils';
 import { useVocabStore } from '../store/useVocab';
+import { useUserStore } from '../store/useState';
 
+const userStore = useUserStore()
+const userSegment = computed(() => userStore.user.name ? 'Mine' : 'Common')
 const segments: Array<Segment> = [
   { id: 0, title: 'Whole', },
-  { id: 11, title: 'Common', default: true },
+  { id: 11, title: userSegment.value, default: true },
   { id: 2, title: 'Top', },
 ]
 let selected: number = segments.findIndex((o: any) => o.default);
