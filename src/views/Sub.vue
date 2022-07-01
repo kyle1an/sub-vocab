@@ -320,10 +320,6 @@ const handleCurrentChange = (val: number) => {
   margin: 0;
 }
 
-:deep(.el-pagination .el-input__inner) {
-  //font-size: 16px;
-}
-
 :deep(.is-text) {
   border: 1px solid transparent !important;
 

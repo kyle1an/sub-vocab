@@ -1,24 +1,37 @@
 import { defineStore } from 'pinia';
-import { queryWordsByUser } from '../api/vocab-service';
+import { queryWordsByUser, stemsMapping } from '../api/vocab-service';
 import { Label, Sieve, TrieNode } from '../types';
 import { getNode } from '../utils/utils';
-import { IRREGULAR } from "../utils/stemsMapping";
 import { getCookie } from '../utils/cookie';
 
 export const useVocabStore = defineStore('vocabStore', () => {
   const query: Promise<Array<Sieve>> = queryWordsByUser(getCookie('_user') ?? '');
   let commonVocab: Array<Sieve> = [];
+  const stemsDerivationMapping: Promise<Array<any>> = stemsMapping();
+  const irregulars: Array<any> = [];
   let trieListPair: [TrieNode, Array<Label>];
 
-  async function fetchVocab() {
-    if (commonVocab.length === 0) {
+  async function fetchVocab(username?: string) {
+    if (!irregulars.length) await fetchIrregulars();
+    if (username !== undefined) {
+      commonVocab = await queryWordsByUser(username);
+      trieListPair = structSievePair(commonVocab);
+    } else if (commonVocab.length === 0) {
       console.time('fetch vocab');
       commonVocab = await query;
       console.timeEnd('fetch vocab');
       trieListPair = structSievePair(commonVocab);
     }
-    console.log('commonVocab', commonVocab)
+
     return commonVocab;
+  }
+
+  async function fetchIrregulars() {
+    for (const row of await stemsDerivationMapping) {
+      irregulars.push([row.stem_word, ...row.derivations.split(',')])
+    }
+
+    return stemsDerivationMapping;
   }
 
   async function copyJson(obj?: any) {
@@ -42,7 +55,7 @@ export const useVocabStore = defineStore('vocabStore', () => {
       node.$.F = sieve.acquainted;
     }
 
-    for (const irregularCollect of IRREGULAR) {
+    for (const irregularCollect of irregulars) {
       const original = irregularCollect[0];
       const isUp = /[A-Z]/.test(original)
       const irregularWord = getNode(trie, isUp ? original.toLowerCase() : original);

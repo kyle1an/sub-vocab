@@ -6,6 +6,7 @@ import { reactive, ref } from 'vue'
 import type { FormInstance } from 'element-plus'
 import { changePassword, changeUsername, existsUsername, logoutToken } from '../api/user';
 import { eraseCookie } from '../utils/cookie';
+import { useVocabStore } from '../store/useVocab';
 
 const store = useUserStore()
 const ruleFormRef = ref<FormInstance>()
@@ -120,6 +121,7 @@ function resetForm(formEl: FormInstance | undefined) {
 }
 
 const userStore = useUserStore()
+const vocabStore = useVocabStore()
 
 async function logOut() {
   await logoutToken({ username: store.user.name })
@@ -127,6 +129,7 @@ async function logOut() {
   userStore.user.name = ''
   setTimeout(() => {
     router.push('/login')
+    vocabStore.fetchVocab('')
   }, 0)
 }
 </script>
