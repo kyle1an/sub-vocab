@@ -5,6 +5,7 @@ import { computed } from 'vue';
 const userStore = useUserStore()
 const username = computed(() => userStore.user.name)
 const acquaintedSection = computed(() => userStore.user.name ? 'Mine' : 'Common')
+const isWide = window.innerWidth >= 460
 </script>
 
 <template>
@@ -17,7 +18,7 @@ const acquaintedSection = computed(() => userStore.user.name ? 'Mine' : 'Common'
         <el-button type="" text class="!rounded-full">
           <router-link to="/about">About</router-link>
         </el-button>
-        <el-button type="primary" text>
+        <el-button v-show="username||isWide" type="primary" text>
           <router-link to="/mine">{{ acquaintedSection }}</router-link>
         </el-button>
         <el-button v-show="username" type="" text>
