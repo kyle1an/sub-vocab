@@ -15,7 +15,7 @@ app.use(cors({
     'http://10.207.1.106:3000',
     'https://subvocab.netlify.app',
     'https://sub-vocab.vercel.app',
-    'http://localhost:4173'
+    'http://localhost:4173',
   ],
   credentials: true,
   exposedHeaders: ['set-cookie'],
@@ -35,17 +35,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', vocabRouter);
-app.post('/api/queryWords', vocabRouter.queryWords)
-app.post('/api/stemsMapping', vocabRouter.stemsMapping)
-app.post('/api/acquaint', vocabRouter.acquaint)
-app.post('/api/revokeWord', vocabRouter.revokeWord)
-app.post('/login', authRouter.login)
-app.post('/register', authRouter.register)
-app.post('/changeUsername', authRouter.changeUsername)
-app.post('/changePassword', authRouter.changePassword)
-app.post('/logoutToken', authRouter.logout)
-app.post('/existsUsername', authRouter.existsUsername)
+app.use('/api', vocabRouter);
+app.use('/', authRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -1,13 +1,12 @@
+const router = require('express').Router();
 const { pool } = require('../config/connection');
-const { daysIn } = require('../lib/timeUtil.js')
 const crypto = require('crypto');
 
-module.exports.login = (req, res) => {
+router.post('/login', (req, res) => {
   const token = crypto.randomBytes(32).toString('hex');
   pool.getConnection((err, connection) => {
     const { username, password } = req.body;
-    connection.query(`
-    SELECT login_token('${username}', '${password}', '${token}') AS output;
+    connection.query(`SELECT login_token('${username}', '${password}', '${token}') AS output;
     `, (err, rows, fields) => {
       connection.release();
       if (err) throw err;
@@ -19,27 +18,24 @@ module.exports.login = (req, res) => {
       res.send(JSON.stringify(response));
     })
   })
-}
+})
 
-module.exports.register = (req, res) => {
+router.post('/register', (req, res) => {
   pool.getConnection((err, connection) => {
     const { username, password } = req.body;
-
-    connection.query(`
-    SELECT user_register('${username}', '${password}') as result;
+    connection.query(`SELECT user_register('${username}', '${password}') as result;
     `, (err, rows, fields) => {
       connection.release();
       if (err) throw err;
       res.send(JSON.stringify(rows));
     })
   })
-}
+})
 
-module.exports.changeUsername = (req, res) => {
+router.post('/changeUsername', (req, res) => {
   pool.getConnection((err, connection) => {
     const { username, newUsername, acct, } = req.body;
-    connection.query(`
-    SELECT change_username(get_user_id_by_name('${username}'), '${newUsername}') as result;
+    connection.query(`SELECT change_username(get_user_id_by_name('${username}'), '${newUsername}') as result;
     `, (err, rows, fields) => {
       connection.release();
       if (err) throw err;
@@ -50,13 +46,12 @@ module.exports.changeUsername = (req, res) => {
       res.send(JSON.stringify(result));
     })
   })
-}
+})
 
-module.exports.changePassword = (req, res) => {
+router.post('/changePassword', (req, res) => {
   pool.getConnection((err, connection) => {
     const { username, newPassword, oldPassword, acct, } = req.body;
-    connection.query(`
-    CALL change_password(get_user_id_by_name('${username}'), '${newPassword}', '${oldPassword}');
+    connection.query(`CALL change_password(get_user_id_by_name('${username}'), '${newPassword}', '${oldPassword}');
     `, (err, rows, fields) => {
       connection.release();
       if (err) throw err;
@@ -67,9 +62,9 @@ module.exports.changePassword = (req, res) => {
       res.send(JSON.stringify(result));
     })
   })
-}
+})
 
-module.exports.logout = (req, res) => {
+router.post('/logoutToken', (req, res) => {
   pool.getConnection((err, connection) => {
     const { username, acct, } = req.body;
     const response = {}
@@ -77,8 +72,7 @@ module.exports.logout = (req, res) => {
       response.success = false;
       return res.send(JSON.stringify(response));
     }
-    connection.query(`
-    CALL logout_token(get_user_id_by_name('${username}'), '${req.cookies.acct}');
+    connection.query(`CALL logout_token(get_user_id_by_name('${username}'), '${req.cookies.acct}');
     `, (err, rows, fields) => {
       connection.release();
       if (err) throw err;
@@ -91,13 +85,12 @@ module.exports.logout = (req, res) => {
       res.send(JSON.stringify(response));
     })
   })
-}
+})
 
-module.exports.existsUsername = (req, res) => {
+router.post('/existsUsername', (req, res) => {
   pool.getConnection((err, connection) => {
     const { username } = req.body;
-    connection.query(`
-    CALL username_exists('${username}');
+    connection.query(`CALL username_exists('${username}');
     `, (err, rows, fields) => {
       connection.release();
       if (err) throw err;
@@ -105,4 +98,6 @@ module.exports.existsUsername = (req, res) => {
       res.send(JSON.stringify(result));
     })
   })
-}
+})
+
+module.exports = router;
