@@ -58,6 +58,25 @@ function selectWord(e: any) {
   window.getSelection()?.selectAllChildren(e.target);
 }
 
+function sortChange({ prop, order }: any) {
+  console.log(prop, order)
+  acquaintedVocabTableData.value = [...vocabLists[selected]].sort(compare(prop, order));
+}
+
+function compare(propertyName: string, order: string) {
+  return function (obj1: any, obj2: any): number {
+    const value1 = obj1[propertyName];
+    const value2 = obj2[propertyName];
+    let res;
+    if (typeof value1 === 'string' && typeof value2 === 'string') {
+      res = sortByChar(value1, value2)
+    } else {
+      res = sortByNum(value1, value2)
+    }
+    return order === 'ascending' ? res : -res
+  }
+}
+
 const tableDataDisplay = computed(() =>
   acquaintedVocabTableData.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value)
 )
@@ -81,21 +100,21 @@ const total = computed(() => acquaintedVocabTableData.value.length)
             <segmented-control :segments="segments" @input="switchSegment" class="flex-grow-0 pt-3 pb-2" />
             <div class="h-full w-full"><!-- 100% height of its container minus height of siblings -->
               <div class="h-[calc(100%-1px)]">
-                <el-table fit class="w-table !h-full !w-full md:w-full" height="200" size="small" :data="tableDataDisplay">
+                <el-table @sort-change="sortChange" fit class="w-table !h-full !w-full md:w-full" height="200" size="small" :data="tableDataDisplay">
 
-                  <el-table-column label="Rank" prop="rank" sortable :sort-method="(a, b) => sortByNum(a.rank, b.rank) " header-align="center" align="center" min-width="7" class-name="cursor-pointer tabular-nums">
+                  <el-table-column label="Rank" prop="rank" sortable="custom" header-align="center" align="center" min-width="7" class-name="cursor-pointer tabular-nums">
                     <template #default="props">
                       <div class="font-compact select-none">{{ props.row.rank }}</div>
                     </template>
                   </el-table-column>
 
-                  <el-table-column label="Vocabulary" sortable :sort-method="(a, b) => sortByChar(a.w, b.w)" align="left" min-width="7" class-name="cursor-pointer">
+                  <el-table-column label="Vocabulary" prop="w" sortable="custom" align="left" min-width="7" class-name="cursor-pointer">
                     <template #default="props">
                       <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart="selectWord" @click.stop>{{ props.row.w }}</span>
                     </template>
                   </el-table-column>
 
-                  <el-table-column label="Length" prop="len" sortable align="left" min-width="7" class-name="cursor-pointer tabular-nums">
+                  <el-table-column label="Length" prop="len" sortable="custom" align="left" min-width="7" class-name="cursor-pointer tabular-nums">
                     <template #default="props">
                       <div class="font-compact select-none">{{ props.row.len }}</div>
                     </template>
