@@ -10,12 +10,11 @@ const app = express();
 const cors = require('cors');
 app.use(cors({
   origin: [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
+    /.*localhost.*$/,
+    /.*127.0.0.1.*$/,
     'http://10.207.1.106:3000',
-    'https://subvocab.netlify.app',
-    'https://sub-vocab.vercel.app',
-    'http://localhost:4173',
+    /.*subvocab.netlify.app/,
+    /.*sub-vocab.*.vercel.app/,
   ],
   credentials: true,
   exposedHeaders: ['set-cookie'],
@@ -55,3 +54,13 @@ app.use(function (err, req, res, next) {
 });
 
 module.exports = app;
+
+const { pool } = require('./config/connection');
+pool.getConnection((err, connection) => {
+  connection.query(`CALL stem_derivation_map();
+    `, (err, rows, fields) => {
+    connection.release();
+    if (err) throw err;
+    console.log(rows);
+  })
+})
