@@ -3,15 +3,15 @@ import Switch from '../components/Switch.vue';
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { computed, onMounted, ref } from 'vue'
 import { Segment } from '../types';
-import { sortByChar } from '../utils/utils';
+import { sortByChar, sortByNum } from '../utils/utils';
 import { useVocabStore } from '../store/useVocab';
 import { useUserStore } from '../store/useState';
 
 const userStore = useUserStore()
 const userSegment = computed(() => userStore.user.name ? 'Mine' : 'Common')
 const segments: Array<Segment> = [
-  { id: 0, title: 'Whole', },
-  { id: 11, title: userSegment.value, default: true },
+  { id: 0, title: 'Whole', default: true },
+  { id: 11, title: userSegment.value, },
   { id: 2, title: 'Top', },
 ]
 let selected: number = segments.findIndex((o: any) => o.default);
@@ -21,21 +21,26 @@ const acquaintedVocabTableData = ref<any>([]);
 async function loadVocab() {
   const vocabStore = useVocabStore()
   const words = await vocabStore.copyJson()
-  let rank = 1
-  const mineWords = []
+  const all = []
+  const mine = []
+  const topWords = []
   for (const word of words) {
     if (word.acquainted) {
-      mineWords.push({
+      const row = {
         w: word.w,
         is_user: word.is_user,
         len: word.w.length,
-        rank: rank++
-      })
+        rank: word.rank,
+      }
+      if (word.is_user) {
+        mine.push(row)
+      } else {
+        topWords.push(row)
+      }
+      all.push(row)
     }
   }
-  const common = mineWords.slice(1000);
-  const top1k = mineWords.slice(0, 1000);
-  vocabLists = [mineWords, common, top1k];
+  vocabLists = [all, mine, topWords];
   acquaintedVocabTableData.value = vocabLists[selected];
 }
 
@@ -52,6 +57,14 @@ function switchSegment(v: number) {
 function selectWord(e: any) {
   window.getSelection()?.selectAllChildren(e.target);
 }
+
+const tableDataDisplay = computed(() =>
+  acquaintedVocabTableData.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value)
+)
+const currentPage = ref(1)
+const pageSizes = [100, 200, 500, 1000, Infinity]
+const pageSize = ref(pageSizes[0])
+const total = computed(() => acquaintedVocabTableData.value.length)
 </script>
 
 <template>
@@ -64,28 +77,44 @@ function selectWord(e: any) {
 
       <el-container class="justify-center">
         <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
-          <el-card class="table-card mx-5 !rounded-xl !border-0 h-full will-change-transform">
-            <segmented-control :segments="segments" @input="switchSegment" />
-            <el-table fit class="r-table md:w-full" height="100%" size="small" :data="acquaintedVocabTableData">
-              <el-table-column label="Rank" prop="rank" sortable header-align="center" align="center" min-width="7" class-name="cursor-pointer tabular-nums">
-                <template #default="props">
-                  <div class="font-compact select-none">{{ props.row.rank }}</div>
-                </template>
-              </el-table-column>
+          <el-card class="table-card flex items-center flex-col mx-5 !rounded-xl !border-0 h-full will-change-transform">
+            <segmented-control :segments="segments" @input="switchSegment" class="flex-grow-0 pt-3 pb-2" />
+            <div class="h-full w-full"><!-- 100% height of its container minus height of siblings -->
+              <div class="h-[calc(100%-1px)]">
+                <el-table fit class="w-table !h-full !w-full md:w-full" height="200" size="small" :data="tableDataDisplay">
 
-              <el-table-column label="Vocabulary" sortable :sort-method="(a, b) => sortByChar(a.w, b.w)" align="left" min-width="7" class-name="cursor-pointer">
-                <template #default="props">
-                  <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart="selectWord" @click.stop>{{ props.row.w }}</span>
-                </template>
-              </el-table-column>
+                  <el-table-column label="Rank" prop="rank" sortable :sort-method="(a, b) => sortByNum(a.rank, b.rank) " header-align="center" align="center" min-width="7" class-name="cursor-pointer tabular-nums">
+                    <template #default="props">
+                      <div class="font-compact select-none">{{ props.row.rank }}</div>
+                    </template>
+                  </el-table-column>
 
-              <el-table-column label="Length" prop="len" sortable align="left" min-width="7" class-name="cursor-pointer tabular-nums">
-                <template #default="props">
-                  <div class="font-compact select-none">{{ props.row.len }}</div>
-                </template>
-              </el-table-column>
+                  <el-table-column label="Vocabulary" sortable :sort-method="(a, b) => sortByChar(a.w, b.w)" align="left" min-width="7" class-name="cursor-pointer">
+                    <template #default="props">
+                      <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart="selectWord" @click.stop>{{ props.row.w }}</span>
+                    </template>
+                  </el-table-column>
 
-            </el-table>
+                  <el-table-column label="Length" prop="len" sortable align="left" min-width="7" class-name="cursor-pointer tabular-nums">
+                    <template #default="props">
+                      <div class="font-compact select-none">{{ props.row.len }}</div>
+                    </template>
+                  </el-table-column>
+                </el-table>
+
+              </div>
+            </div>
+            <el-pagination
+              v-model:currentPage="currentPage"
+              v-model:page-size="pageSize"
+              :page-sizes="pageSizes"
+              :small="true"
+              :background="true"
+              :pager-count="5"
+              layout="prev, pager, next, ->, total, sizes"
+              :total="total"
+              class="!px-2 !pt-1 !pb-1.5 flex-wrap gap-y-1.5 pager-section flex-shrink-0"
+            />
           </el-card>
         </el-aside>
       </el-container>
@@ -98,22 +127,23 @@ function selectWord(e: any) {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-.r-table :deep(:is(*, .el-table__body-wrapper)) {
+.w-table :deep(:is(*, .el-table__body-wrapper)) {
   overscroll-behavior: contain !important;
 }
 
 .table-card :deep(.el-card__body) {
-  height: calc(100% - 7px);
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+
+:deep(.el-pagination__rightwrapper > *) {
+  margin: 0;
 }
 
 @media only screen and (max-width: 768px) {
-  .r-table {
-    max-height: calc(99vh);
-    width: 100%;
-  }
   :deep(.el-aside) {
     margin-top: 34px;
     padding-bottom: 20px;
