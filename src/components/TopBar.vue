@@ -24,10 +24,10 @@ const isWide = window.innerWidth >= 460
         <router-link to="/user" v-show="username" class="h-full">
           <el-button type="" text class="!h-full !rounded-none">{{ username }}</el-button>
         </router-link>
-        <router-link to="/login" class="h-full">
+        <router-link to="/login">
           <el-button v-show="!username" type="primary" plain class="!px-[13px]">Log in</el-button>
         </router-link>
-        <router-link to="/register" class="h-full">
+        <router-link to="/register">
           <el-button v-show="!username" type="primary" class="!px-[13px]">Sign up</el-button>
         </router-link>
       </div>
