@@ -3,10 +3,10 @@ import TopBar from './components/TopBar.vue'
 import { useUserStore } from './store/useState';
 import { getCookie } from './utils/cookie';
 
-const store = useUserStore()
+const useStore = useUserStore()
 const userName = getCookie('_user')
 if (userName) {
-  store.user.name = userName
+  useStore.user.name = userName
 }
 </script>
 
