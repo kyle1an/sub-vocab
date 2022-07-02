@@ -93,12 +93,12 @@ function readSingleFile(e: any) {
 }
 
 const sentences = shallowRef<any[]>([]);
-const store = useVocabStore()
+const vocabStore = useVocabStore()
 const __perf = useTimeStore();
 const vocabAmountInfo = ref<number[]>([]);
 
 async function formVocabLists(content: string) {
-  const trieListPair = await store.getSieve()
+  const trieListPair = await vocabStore.getSieve()
   __perf.time.log = {}
   __perf.time.log.start = performance.now()
   const vocab = new Trie(trieListPair).add(content);
@@ -178,7 +178,7 @@ async function toggleWordState(row: any) {
 
     if (res?.affectedRows) {
       row.F = row.vocab.acquainted = !acquainted;
-      store.updateWord(row);
+      vocabStore.updateWord(row);
     }
   } else {
     ElNotification({
@@ -202,12 +202,6 @@ const currentPage = ref(1)
 const pageSizes = [100, 200, 500, 1000, Infinity]
 const pageSize = ref(pageSizes[0])
 const total = computed(() => tableDataFiltered.value.length)
-const handleSizeChange = (val: number) => {
-  console.log(`${val} items per page`)
-}
-const handleCurrentChange = (val: number) => {
-  console.log(`current page: ${val}`)
-}
 </script>
 
 <template>
@@ -238,7 +232,7 @@ const handleCurrentChange = (val: number) => {
               <div class="h-[calc(100%-1px)]">
                 <el-table
                   ref="vocabTable"
-                  class="r-table !h-full !w-full md:w-full" height="200" size="small" fit
+                  class="w-table !h-full !w-full md:w-full" height="200" size="small" fit
                   :row-class-name="({row})=> classKeyOfRow(row.seq)"
                   :data="tableDataDisplay"
                   @row-click="handleRowClick"
@@ -298,13 +292,10 @@ const handleCurrentChange = (val: number) => {
               v-model:page-size="pageSize"
               :page-sizes="pageSizes"
               :small="true"
-              :disabled="false"
               :background="true"
               :pager-count="5"
               layout="prev, pager, next, ->, total, sizes"
               :total="total"
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
               class="!px-2 !pt-1 !pb-1.5 flex-wrap gap-y-1.5 pager-section flex-shrink-0"
             />
 
@@ -333,7 +324,7 @@ const handleCurrentChange = (val: number) => {
   padding: 0;
 }
 
-.r-table {
+.w-table {
   :deep(.el-icon) {
     pointer-events: none;
   }
@@ -402,11 +393,6 @@ const handleCurrentChange = (val: number) => {
 }
 
 @media only screen and (max-width: 768px) {
-  .r-table {
-    max-height: calc(99vh);
-    width: 100%;
-  }
-
   .submit {
     bottom: -32px;
     width: 100%;
