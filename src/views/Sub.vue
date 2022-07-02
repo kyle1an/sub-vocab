@@ -198,6 +198,24 @@ async function toggleWordState(row: any) {
   loadingStateArray.value[row.seq] = false;
 }
 
+function sortChange({ prop, order }: any) {
+  tableDataOfVocab.value = [...listsOfVocab[selectedSeg]].sort(compare(prop, order));
+}
+
+function compare(propertyName: string, order: string) {
+  return function (obj1: any, obj2: any): number {
+    const value1 = obj1[propertyName];
+    const value2 = obj2[propertyName];
+    let res;
+    if (typeof value1 === 'string' && typeof value2 === 'string') {
+      res = sortByChar(value1, value2)
+    } else {
+      res = value1 - value2;
+    }
+    return order === 'ascending' ? res : -res
+  }
+}
+
 const currentPage = ref(1)
 const pageSizes = [100, 200, 500, 1000, Infinity]
 const pageSize = ref(pageSizes[0])
@@ -237,6 +255,7 @@ const total = computed(() => tableDataFiltered.value.length)
                   :data="tableDataDisplay"
                   @row-click="handleRowClick"
                   @expand-change="tagExpand"
+                  @sort-change="sortChange"
                 >
                   <el-table-column type="expand">
                     <template #default="props">
@@ -248,7 +267,7 @@ const total = computed(() => tableDataFiltered.value.length)
                     </template>
                   </el-table-column>
 
-                  <el-table-column label="Vocabulary" align="left" min-width="16" sortable :sort-method="(a, b) => sortByChar(a.w, b.w)" class-name="cursor-pointer">
+                  <el-table-column label="Vocabulary" prop="w" align="left" min-width="16" sortable="custom" class-name="cursor-pointer">
                     <template #header>
                       <el-input @click.stop class="!w-[calc(100%-26px)] !text-base md:!text-xs" v-model="search" size="small" placeholder="Search" />
                     </template>
@@ -257,13 +276,13 @@ const total = computed(() => tableDataFiltered.value.length)
                     </template>
                   </el-table-column>
 
-                  <el-table-column label="Times" prop="freq" align="right" min-width="9" sortable class-name="cursor-pointer tabular-nums">
+                  <el-table-column label="Times" prop="freq" align="right" min-width="9" sortable="custom" class-name="cursor-pointer tabular-nums">
                     <template #default="props">
                       <div class="font-compact text-right select-none">{{ props.row.freq }}</div>
                     </template>
                   </el-table-column>
 
-                  <el-table-column label="Length" prop="len" align="right" min-width="10" sortable class-name="cursor-pointer tabular-nums">
+                  <el-table-column label="Length" prop="len" align="right" min-width="10" sortable="custom" class-name="cursor-pointer tabular-nums">
                     <template #default="props">
                       <div class="font-compact select-none">{{ props.row.len }}</div>
                     </template>

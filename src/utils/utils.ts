@@ -6,8 +6,8 @@ function sortByChar(a: string, b: string): number {
 }
 
 function sortByNum(a: any, b: any): number {
-  if (!a && a !== 0) return 1
-  if (!b && b !== 0) return -1
+  if (a === null) return 1
+  if (b === null) return -1
   return a - b;
 }
 
