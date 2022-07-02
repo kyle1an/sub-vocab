@@ -77,13 +77,22 @@ function compare(propertyName: string, order: string) {
   }
 }
 
+const search = ref('');
+const tableDataFiltered = computed(() =>
+  acquaintedVocabTableData.value.filter(
+    (data: any) =>
+      !search.value ||
+      data.w.toLowerCase().includes(search.value.toLowerCase())
+  )
+)
+
 const tableDataDisplay = computed(() =>
-  acquaintedVocabTableData.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value)
+  tableDataFiltered.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value)
 )
 const currentPage = ref(1)
 const pageSizes = [100, 200, 500, 1000, Infinity]
 const pageSize = ref(pageSizes[0])
-const total = computed(() => acquaintedVocabTableData.value.length)
+const total = computed(() => tableDataFiltered.value.length)
 </script>
 
 <template>
@@ -109,6 +118,9 @@ const total = computed(() => acquaintedVocabTableData.value.length)
                   </el-table-column>
 
                   <el-table-column label="Vocabulary" prop="w" sortable="custom" align="left" min-width="7" class-name="cursor-pointer">
+                    <template #header>
+                      <el-input @click.stop class="!w-[calc(100%-26px)] !text-base md:!text-xs" v-model="search" size="small" placeholder="Search" />
+                    </template>
                     <template #default="props">
                       <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart="selectWord" @click.stop>{{ props.row.w }}</span>
                     </template>
