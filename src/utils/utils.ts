@@ -5,6 +5,12 @@ function sortByChar(a: string, b: string): number {
   return a.localeCompare(b, 'en', { sensitivity: 'base' });
 }
 
+function sortByNum(a: any, b: any): number {
+  if (!a && a !== 0) return 1
+  if (!b && b !== 0) return -1
+  return a - b;
+}
+
 const print = (m: any, space = 0) => console.log(JSON.stringify(m, null, space).replace(/"/mg, ""))
 const stringify = (m: any, space = 0) => ({ s: JSON.stringify(m, null).replace(/"/mg, "'") })
 
@@ -69,4 +75,4 @@ function caseOr(a: string, b: string): string {
   return String.fromCharCode(...r);
 }
 
-export { pruneEmpty, print, stringify, sortByChar, getNode, mergeSorted, caseOr };
+export { pruneEmpty, print, stringify, sortByChar, sortByNum, getNode, mergeSorted, caseOr };
