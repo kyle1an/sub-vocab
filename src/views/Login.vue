@@ -7,22 +7,24 @@ import { useUserStore } from '../store/useState';
 import { setCookie } from '../utils/cookie';
 import { ElNotification } from 'element-plus/es';
 import { useVocabStore } from '../store/useVocab';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n()
 const store = useUserStore()
 const ruleFormRef = ref<FormInstance>()
 
 function checkUsername(rule: any, value: any, callback: any) {
   const username = String(value)
   if (!username.length) {
-    return callback(new Error('Please input name'))
+    return callback(new Error(t('Please input name')))
   }
 
   if (username.length > 20) {
-    return callback(new Error('Please use a shorter name'))
+    return callback(new Error(t('Please use a shorter name')))
   }
 
   if (username.length < 2) {
-    return callback(new Error('Name must be longer than 1'))
+    return callback(new Error(t('NameLimitMsg')))
   }
 
   callback()
@@ -30,7 +32,7 @@ function checkUsername(rule: any, value: any, callback: any) {
 
 function validatePass(rule: any, value: any, callback: any) {
   if (value === '') {
-    return callback(new Error('Please input the password'))
+    return callback(new Error(t('Please input the password')))
   }
 
   callback()
@@ -58,7 +60,7 @@ function submitForm(formEl: FormInstance | undefined) {
         message: h(
           'span',
           { style: 'color: teal' },
-          'The username/password is incorrect.'
+          t('incorrectUserPassword')
         )
       })
     }
@@ -94,15 +96,15 @@ function resetForm(formEl: FormInstance | undefined) {
             style="max-width: 460px"
             status-icon
           >
-            <el-form-item label="Name" prop="username">
+            <el-form-item :label="t('Name')" prop="username">
               <el-input v-model.number="ruleForm.username" class="!text-base md:!text-xs" />
             </el-form-item>
-            <el-form-item label="Password" prop="password">
+            <el-form-item :label="t('Password')" prop="password">
               <el-input v-model="ruleForm.password" type="password" autocomplete="off" class="!text-base md:!text-xs" />
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="submitForm(ruleFormRef)">Submit</el-button>
-              <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
+              <el-button type="primary" @click="submitForm(ruleFormRef)">{{ t('Submit') }}</el-button>
+              <el-button @click="resetForm(ruleFormRef)">{{ t('Reset') }}</el-button>
             </el-form-item>
           </el-form>
         </el-card>

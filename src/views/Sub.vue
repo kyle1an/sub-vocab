@@ -12,22 +12,15 @@ import { useUserStore } from '../store/useState';
 import { ElNotification } from 'element-plus';
 import router from '../router';
 import { useI18n } from 'vue-i18n';
+import type { Ref } from 'vue'
 
-const { t, locale } = useI18n() // call `useI18n`, and spread `t` from  `useI18n` returning
+const { t } = useI18n()
 const userStore = useUserStore()
-const segments = ref<Segment[]>([
+const segments: Ref<Segment[]> = computed(() => [
   { id: 0, title: t('all'), },
   { id: 11, title: t('new'), default: true },
   { id: 2, title: t('acquainted'), },
 ])
-watch(locale, (val) => {
-  console.log('locale changed', val)
-  segments.value = [
-    { id: 0, title: t('all'), },
-    { id: 11, title: t('new'), default: true },
-    { id: 2, title: t('acquainted'), },
-  ]
-})
 let selectedSeg = segments.value.findIndex((o) => o.default);
 let listsOfVocab: Array<any>[] = [[], [], []];
 const tableDataOfVocab = shallowRef<Vocab[]>([]);
@@ -228,7 +221,6 @@ const pageSize = ref(pageSizes[0])
 const total = computed(() => tableDataFiltered.value.length)
 
 
-
 </script>
 
 <template>
@@ -265,6 +257,7 @@ const total = computed(() => tableDataFiltered.value.length)
                   @row-click="handleRowClick"
                   @expand-change="tagExpand"
                   @sort-change="sortChange"
+                  :empty-text="t('No data')"
                 >
                   <el-table-column type="expand">
                     <template #default="props">

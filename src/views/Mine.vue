@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import Switch from '../components/Switch.vue';
 import SegmentedControl from '../components/SegmentedControl.vue'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, Ref, ref } from 'vue'
 import { Segment } from '../types';
 import { selectWord, sortByChar, sortByNum } from '../utils/utils';
 import { useVocabStore } from '../store/useVocab';
 import { useI18n } from "vue-i18n";
 
-const { t } = useI18n() // call `useI18n`, and spread `t` from  `useI18n` returning
-const segments = ref<Segment[]>([
+const { t } = useI18n()
+const segments: Ref<Segment[]> = computed(() => [
   { id: 0, title: t('all'), default: true },
   { id: 11, title: t('mine'), },
   { id: 2, title: t('top'), },
@@ -104,7 +104,7 @@ const total = computed(() => tableDataFiltered.value.length)
             <segmented-control :segments="segments" @input="switchSegment" class="flex-grow-0 pt-3 pb-2" />
             <div class="h-full w-full"><!-- 100% height of its container minus height of siblings -->
               <div class="h-[calc(100%-1px)]">
-                <el-table @sort-change="sortChange" fit class="w-table !h-full !w-full md:w-full" height="200" size="small" :data="tableDataDisplay">
+                <el-table @sort-change="sortChange" fit class="w-table !h-full !w-full md:w-full" height="200" size="small" :data="tableDataDisplay" :empty-text="t('No data')">
 
                   <el-table-column :label="t('rank')" prop="rank" sortable="custom" header-align="center" align="center" min-width="7" class-name="cursor-pointer tabular-nums">
                     <template #default="props">
