@@ -121,7 +121,7 @@ const total = computed(() => tableDataFiltered.value.length)
                     </template>
                   </el-table-column>
 
-                  <el-table-column :label="t('length')" prop="len" sortable="custom" align="left" min-width="7" class-name="cursor-pointer tabular-nums">
+                  <el-table-column :label="t('length')" prop="len" sortable="custom" align="left" min-width="5" class-name="cursor-pointer tabular-nums">
                     <template #default="props">
                       <div class="font-compact select-none">{{ props.row.len }}</div>
                     </template>
