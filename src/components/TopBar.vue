@@ -40,13 +40,13 @@ const handleCommand = (command: string) => {
           <el-button type="primary" class="!px-[13px]">{{ t('signup') }}</el-button>
         </router-link>
         <el-dropdown @command="handleCommand">
-          <div class="el-dropdown-link flex">文/Aa
+          <div class="el-dropdown-link flex outline-none">文/Aa
             <el-icon class="el-icon--right">
               <CaretBottom class="text-slate-300" />
             </el-icon>
           </div>
           <template #dropdown>
-            <el-dropdown-menu>
+            <el-dropdown-menu class="outline-none">
               <el-dropdown-item command="zh">中文</el-dropdown-item>
               <el-dropdown-item command="en">English</el-dropdown-item>
             </el-dropdown-menu>

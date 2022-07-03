@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, watch, nextTick, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, nextTick, computed, onMounted, onBeforeUnmount, Ref } from 'vue'
 import { Segment } from '../types';
 
 const emit = defineEmits(['input'])
 const props = defineProps(['segments'])
-const segments = ref<Segment[]>(props.segments)
+const segments: Ref<Segment[]> = computed(() => props.segments)
 const selectedSegmentWidth = ref(0);
 const selectedId = ref(0);
 onMounted(() => {
@@ -20,10 +20,6 @@ onMounted(() => {
 watch(selectedId, function toggleSectionFontWeight(v, o) {
   document.querySelector(`[for="${o}"]`)!.classList.remove('font-medium');
   document.querySelector(`[for="${v}"]`)!.classList.add('font-medium');
-})
-
-watch(() => props.segments, function segments(v) {
-  console.log('watch segments', v)
 })
 
 function recalculateSelectedSegmentWidth() {

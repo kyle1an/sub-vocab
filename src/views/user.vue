@@ -7,26 +7,28 @@ import type { FormInstance } from 'element-plus'
 import { changePassword, changeUsername, existsUsername, logoutToken } from '../api/user';
 import { eraseCookie } from '../utils/cookie';
 import { useVocabStore } from '../store/useVocab';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n()
 const store = useUserStore()
 const ruleFormRef = ref<FormInstance>()
 
 async function checkUsername(rule: any, value: any, callback: any) {
   const username = String(value)
   if (!username.length) {
-    return callback(new Error('Please input name'))
+    return callback(new Error(t('Please input name')))
   }
 
   if (username.length > 20) {
-    return callback(new Error('Please use a shorter name'))
+    return callback(new Error(t('Please use a shorter name')))
   }
 
   if (username.length < 2) {
-    return callback(new Error('Name must be longer than 1'))
+    return callback(new Error(t('NameLimitMsg')))
   }
 
   if (username !== store.user.name && (await existsUsername({ username })).has) {
-    return callback(new Error(`${username} is already taken`))
+    return callback(new Error(`${username}${t('alreadyTaken')}`))
   }
 
   callback()
@@ -51,7 +53,7 @@ const validatePass2 = (rule: any, value: any, callback: any) => {
   }
 
   if (value !== ruleForm.value.password) {
-    return callback(new Error("Two inputs don't match!"))
+    return callback(new Error(t('inputsNotMatch')))
   }
 
   callback()
@@ -149,26 +151,26 @@ async function logOut() {
             style="max-width: 460px"
             status-icon
           >
-            <el-form-item label="Name" prop="username" :error="errorMsg">
+            <el-form-item :label="t('Name')" prop="username" :error="errorMsg">
               <el-input v-model.number="ruleForm.username" class="!text-base md:!text-xs" />
             </el-form-item>
-            <el-form-item label="Old Password" prop="oldPassword">
+            <el-form-item :label="t('Old Password')" prop="oldPassword">
               <el-input v-model="ruleForm.oldPassword" type="password" autocomplete="off" class="!text-base md:!text-xs" />
             </el-form-item>
-            <el-form-item label="New Password" prop="password">
+            <el-form-item :label="t('New Password')" prop="password">
               <el-input v-model="ruleForm.password" type="password" autocomplete="off" class="!text-base md:!text-xs" />
             </el-form-item>
-            <el-form-item label="New Password Confirm" prop="checkPass">
+            <el-form-item :label="t('New Password Confirm')" prop="checkPass">
               <el-input v-model="ruleForm.checkPass" type="password" autocomplete="off" class="!text-base md:!text-xs" />
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="submitForm(ruleFormRef)">Confirm Changes</el-button>
-              <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
+              <el-button type="primary" @click="submitForm(ruleFormRef)">{{ t('Confirm Changes') }}</el-button>
+              <el-button @click="resetForm(ruleFormRef)">{{ t('Reset') }}</el-button>
             </el-form-item>
           </el-form>
         </el-card>
         <div class="flex justify-center pt-8">
-          <el-button @click="logOut">log out</el-button>
+          <el-button @click="logOut">{{ t('log out') }}</el-button>
         </div>
       </el-main>
     </el-container>
