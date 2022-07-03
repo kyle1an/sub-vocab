@@ -78,3 +78,11 @@ export function caseOr(a: string, b: string): string {
 export function selectWord(e: any) {
   window.getSelection()?.selectAllChildren(e.target)
 }
+
+export function removeClass(className: string) {
+  const el = document.getElementsByClassName(className)
+  while (el.length) {
+    el[0].classList.remove(className)
+    console.log(1)
+  }
+}

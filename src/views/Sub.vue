@@ -4,7 +4,7 @@ import SegmentedControl from '../components/SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
 import { computed, h, nextTick, ref, shallowRef, watch } from 'vue'
 import { Segment, Source, Vocab } from '../types';
-import { selectWord, sortByChar } from '../utils/utils';
+import { removeClass, selectWord, sortByChar } from '../utils/utils';
 import { acquaint, revokeWord } from '../api/vocab-service';
 import { useVocabStore } from '../store/useVocab';
 import { useTimeStore } from '../store/usePerf';
@@ -97,6 +97,7 @@ const __perf = useTimeStore();
 const vocabAmountInfo = ref<number[]>([]);
 
 async function formVocabLists(content: string) {
+  removeClass('expanded')
   const trieListPair = await vocabStore.getSieve()
   __perf.time.log = {}
   __perf.time.log.start = performance.now()
@@ -219,8 +220,6 @@ const currentPage = ref(1)
 const pageSizes = [100, 200, 500, 1000, Infinity]
 const pageSize = ref(pageSizes[0])
 const total = computed(() => tableDataFiltered.value.length)
-
-
 </script>
 
 <template>
