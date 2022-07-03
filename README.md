@@ -9,7 +9,7 @@ After you log in, you may mark the words you already know by clicking on the che
  
 ### Stack
 
-Vue 3 + TypeScript + Vite + TailWind CSS
+Vue 3 + TypeScript + Vite + Tailwind CSS
 
 
 ![Visualization of this repo](./diagram.svg)

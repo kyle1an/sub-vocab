@@ -1,11 +1,11 @@
 import _ from 'lodash';
 import { Char, TrieNode } from "../types";
 
-function sortByChar(a: string, b: string): number {
+export function sortByChar(a: string, b: string): number {
   return a.localeCompare(b, 'en', { sensitivity: 'base' });
 }
 
-function sortByNum(a: any, b: any): number {
+export function sortByNum(a: any, b: any): number {
   if (a === null) return 1
   if (b === null) return -1
   return a - b;
@@ -31,7 +31,7 @@ function pruneEmpty(obj: any, mutate = true) {
   }(co);  // Do not modify the original object, create a clone instead
 }
 
-function getNode(node: TrieNode, word: string) {
+export function getNode(node: TrieNode, word: string) {
   for (const c of word.split('')) {
     node = node[(c as Char)] ??= {};
   }
@@ -65,7 +65,7 @@ function mergeSorted(a: any, b: any): any {
   return merged.concat(a.slice(i)).concat(b.slice(j));
 }
 
-function caseOr(a: string, b: string): string {
+export function caseOr(a: string, b: string): string {
   const r = [];
 
   for (let i = 0; i < a.length; i++) {
@@ -75,4 +75,6 @@ function caseOr(a: string, b: string): string {
   return String.fromCharCode(...r);
 }
 
-export { pruneEmpty, print, stringify, sortByChar, sortByNum, getNode, mergeSorted, caseOr };
+export function selectWord(e: any) {
+  window.getSelection()?.selectAllChildren(e.target)
+}

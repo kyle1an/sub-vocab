@@ -3,7 +3,7 @@ import Switch from '../components/Switch.vue';
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { computed, onMounted, ref } from 'vue'
 import { Segment } from '../types';
-import { sortByChar, sortByNum } from '../utils/utils';
+import { selectWord, sortByChar, sortByNum } from '../utils/utils';
 import { useVocabStore } from '../store/useVocab';
 import { useUserStore } from '../store/useState';
 
@@ -52,10 +52,6 @@ onMounted(() => {
 
 function switchSegment(v: number) {
   acquaintedVocabTableData.value = vocabLists[selected = v]
-}
-
-function selectWord(e: any) {
-  window.getSelection()?.selectAllChildren(e.target);
 }
 
 function sortChange({ prop, order }: any) {

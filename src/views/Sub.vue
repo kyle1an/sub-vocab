@@ -4,7 +4,7 @@ import SegmentedControl from '../components/SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
 import { computed, h, nextTick, ref, shallowRef } from 'vue'
 import { Segment, Source, Vocab } from '../types';
-import { sortByChar } from '../utils/utils';
+import { selectWord, sortByChar } from '../utils/utils';
 import { acquaint, revokeWord } from '../api/vocab-service';
 import { useVocabStore } from '../store/useVocab';
 import { useTimeStore } from '../store/usePerf';
@@ -37,10 +37,6 @@ function switchSegment(v: number) {
 
 function classKeyOfRow(seq: string | number) {
   return `v-${seq}`;
-}
-
-function selectWord(e: any) {
-  window.getSelection()?.selectAllChildren(e.target);
 }
 
 function example(str: string, idxes: Array<number>[]): string {
@@ -220,6 +216,9 @@ const currentPage = ref(1)
 const pageSizes = [100, 200, 500, 1000, Infinity]
 const pageSize = ref(pageSizes[0])
 const total = computed(() => tableDataFiltered.value.length)
+
+
+
 </script>
 
 <template>
