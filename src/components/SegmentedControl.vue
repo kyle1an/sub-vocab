@@ -7,7 +7,6 @@ const props = defineProps(['segments'])
 const segments = ref<Segment[]>(props.segments)
 const selectedSegmentWidth = ref(0);
 const selectedId = ref(0);
-
 onMounted(() => {
   selectedId.value = segments.value.find((o) => o.default)!.id ?? segments.value[0].id;
   window.addEventListener('resize', recalculateSelectedSegmentWidth);
@@ -21,6 +20,10 @@ onMounted(() => {
 watch(selectedId, function toggleSectionFontWeight(v, o) {
   document.querySelector(`[for="${o}"]`)!.classList.remove('font-medium');
   document.querySelector(`[for="${v}"]`)!.classList.add('font-medium');
+})
+
+watch(() => props.segments, function segments(v) {
+  console.log('watch segments', v)
 })
 
 function recalculateSelectedSegmentWidth() {
@@ -57,7 +60,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSe
           v-model="selectedSegmentId"
           class="absolute inset-0 w-full h-full opacity-0 m-0 p-0 border-0 appearance-none"
         >
-        <label :for="segment.id" class="block text-center relative w-24 py-0 px-[5vmin] text-[14px] bg-transparent cursor-[inherit]">
+        <label :for="segment.id" class="block text-center relative w-24 !p-0 px-[5vmin] text-[14px] bg-transparent cursor-[inherit]">
           <span class="flex relative justify-center z-[2] will-change-transform">{{ segment.title }}</span>
         </label>
       </div>

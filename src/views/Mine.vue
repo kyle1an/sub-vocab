@@ -5,16 +5,15 @@ import { computed, onMounted, ref } from 'vue'
 import { Segment } from '../types';
 import { selectWord, sortByChar, sortByNum } from '../utils/utils';
 import { useVocabStore } from '../store/useVocab';
-import { useUserStore } from '../store/useState';
+import { useI18n } from "vue-i18n";
 
-const userStore = useUserStore()
-const userSegment = computed(() => userStore.user.name ? 'Mine' : 'Common')
-const segments: Array<Segment> = [
-  { id: 0, title: 'Whole', default: true },
-  { id: 11, title: userSegment.value, },
-  { id: 2, title: 'Top', },
-]
-let selected: number = segments.findIndex((o: any) => o.default);
+const { t } = useI18n() // call `useI18n`, and spread `t` from  `useI18n` returning
+const segments = ref<Segment[]>([
+  { id: 0, title: t('all'), default: true },
+  { id: 11, title: t('mine'), },
+  { id: 2, title: t('top'), },
+])
+let selected: number = segments.value.findIndex((o: any) => o.default);
 let vocabLists: Array<any>[] = [[], [], []];
 const acquaintedVocabTableData = ref<any>([]);
 
@@ -107,7 +106,7 @@ const total = computed(() => tableDataFiltered.value.length)
               <div class="h-[calc(100%-1px)]">
                 <el-table @sort-change="sortChange" fit class="w-table !h-full !w-full md:w-full" height="200" size="small" :data="tableDataDisplay">
 
-                  <el-table-column label="Rank" prop="rank" sortable="custom" header-align="center" align="center" min-width="7" class-name="cursor-pointer tabular-nums">
+                  <el-table-column :label="t('rank')" prop="rank" sortable="custom" header-align="center" align="center" min-width="7" class-name="cursor-pointer tabular-nums">
                     <template #default="props">
                       <div class="font-compact select-none">{{ props.row.rank }}</div>
                     </template>
@@ -115,14 +114,14 @@ const total = computed(() => tableDataFiltered.value.length)
 
                   <el-table-column label="Vocabulary" prop="w" sortable="custom" align="left" min-width="7" class-name="cursor-pointer">
                     <template #header>
-                      <el-input @click.stop class="!w-[calc(100%-26px)] !text-base md:!text-xs" v-model="search" size="small" placeholder="Search" />
+                      <el-input @click.stop class="!w-[calc(100%-26px)] !text-base md:!text-xs" v-model="search" size="small" :placeholder="t('search')" />
                     </template>
                     <template #default="props">
                       <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart="selectWord" @click.stop>{{ props.row.w }}</span>
                     </template>
                   </el-table-column>
 
-                  <el-table-column label="Length" prop="len" sortable="custom" align="left" min-width="7" class-name="cursor-pointer tabular-nums">
+                  <el-table-column :label="t('length')" prop="len" sortable="custom" align="left" min-width="7" class-name="cursor-pointer tabular-nums">
                     <template #default="props">
                       <div class="font-compact select-none">{{ props.row.len }}</div>
                     </template>

@@ -1,8 +1,8 @@
-<script lang="ts" setup xmlns="http://www.w3.org/1999/html">
+<script lang="ts" setup>
 import Trie from '../utils/LabeledTire';
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
-import { computed, h, nextTick, ref, shallowRef } from 'vue'
+import { computed, h, nextTick, ref, shallowRef, watch } from 'vue'
 import { Segment, Source, Vocab } from '../types';
 import { selectWord, sortByChar } from '../utils/utils';
 import { acquaint, revokeWord } from '../api/vocab-service';
@@ -11,14 +11,24 @@ import { useTimeStore } from '../store/usePerf';
 import { useUserStore } from '../store/useState';
 import { ElNotification } from 'element-plus';
 import router from '../router';
+import { useI18n } from 'vue-i18n';
 
+const { t, locale } = useI18n() // call `useI18n`, and spread `t` from  `useI18n` returning
 const userStore = useUserStore()
-const segments: Array<Segment> = [
-  { id: 0, title: 'Original', },
-  { id: 11, title: 'Filtered', default: true },
-  { id: 2, title: 'Common', },
-];
-let selectedSeg = segments.findIndex((o) => o.default);
+const segments = ref<Segment[]>([
+  { id: 0, title: t('all'), },
+  { id: 11, title: t('new'), default: true },
+  { id: 2, title: t('acquainted'), },
+])
+watch(locale, (val) => {
+  console.log('locale changed', val)
+  segments.value = [
+    { id: 0, title: t('all'), },
+    { id: 11, title: t('new'), default: true },
+    { id: 2, title: t('acquainted'), },
+  ]
+})
+let selectedSeg = segments.value.findIndex((o) => o.default);
 let listsOfVocab: Array<any>[] = [[], [], []];
 const tableDataOfVocab = shallowRef<Vocab[]>([]);
 const vocabTable = shallowRef<any>(null);
@@ -226,16 +236,16 @@ const total = computed(() => tableDataFiltered.value.length)
     <el-container>
       <el-header height="100%" class="relative !h-16 flex items-center">
         <span class="flex-1 text-right text-xs text-indigo-900 truncate tracking-tight font-compact">
-          {{ fileInfo || 'No file chosen' }}</span>
+          {{ fileInfo || t('noFileChosen') }}</span>
         <label class="s-btn text-sm px-3 py-2.5 rounded-full grow-0 mx-4" @dragover.prevent @drop.prevent="dropHandler">
-          <input type="file" hidden @change="readSingleFile" />Browse files
+          <input type="file" hidden @change="readSingleFile" />{{ t('browseFiles') }}
         </label>
         <span class="flex-1 text-left text-xs text-indigo-900 truncate">{{ vocabAmountInfo.join(', ') || '' }}</span>
       </el-header>
       <el-container>
         <el-container class="relative">
           <el-main class="!py-0 relative">
-            <el-input class="input-area h-full !text-base md:!text-sm font-text-sans" type="textarea" placeholder="input subtitles manually:" v-model.lazy="inputContent" />
+            <el-input class="input-area h-full !text-base md:!text-sm font-text-sans" type="textarea" :placeholder="t('inputArea')" v-model.lazy="inputContent" />
           </el-main>
           <div class="submit absolute text-center z-10 md:top-8 md:right-0.5 h-12">
             <el-button class="s-btn" aria-label="submit input text" @click="formVocabLists(inputContent)" type="primary" :icon="Check" circle />
@@ -268,20 +278,20 @@ const total = computed(() => tableDataFiltered.value.length)
 
                   <el-table-column label="Vocabulary" prop="w" align="left" min-width="16" sortable="custom" class-name="cursor-pointer">
                     <template #header>
-                      <el-input @click.stop class="!w-[calc(100%-26px)] !text-base md:!text-xs" v-model="search" size="small" placeholder="Search" />
+                      <el-input @click.stop class="!w-[calc(100%-26px)] !text-base md:!text-xs" v-model="search" size="small" :placeholder="t('search')" />
                     </template>
                     <template #default="props">
                       <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart.passive="selectWord" @click.stop>{{ props.row.w }}</span>
                     </template>
                   </el-table-column>
 
-                  <el-table-column label="Times" prop="freq" align="right" min-width="9" sortable="custom" class-name="cursor-pointer tabular-nums">
+                  <el-table-column :label="t('frequency')" prop="freq" align="right" min-width="9" sortable="custom" class-name="cursor-pointer tabular-nums">
                     <template #default="props">
                       <div class="font-compact text-right select-none">{{ props.row.freq }}</div>
                     </template>
                   </el-table-column>
 
-                  <el-table-column label="Length" prop="len" align="right" min-width="10" sortable="custom" class-name="cursor-pointer tabular-nums">
+                  <el-table-column :label="t('length')" prop="len" align="right" min-width="10" sortable="custom" class-name="cursor-pointer tabular-nums">
                     <template #default="props">
                       <div class="font-compact select-none">{{ props.row.len }}</div>
                     </template>
