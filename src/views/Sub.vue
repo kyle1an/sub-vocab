@@ -33,9 +33,12 @@ function tagExpand(row: any) {
   document.getElementsByClassName(classKeyOfRow(row.seq))[0].classList.toggle('expanded');
 }
 
+const sortBy = ref<any>({})
+
 function onSegmentSwitched(v: number) {
   selectedSeg = v
   tableDataOfVocab.value = listsOfVocab[selectedSeg]
+  sortChange(sortBy.value)
 }
 
 function classKeyOfRow(seq: string | number) {
@@ -198,6 +201,7 @@ async function toggleWordState(row: any) {
 }
 
 function sortChange({ prop, order }: any) {
+  sortBy.value = { prop, order }
   tableDataOfVocab.value = [...listsOfVocab[selectedSeg]].sort(compare(prop, order));
 }
 
