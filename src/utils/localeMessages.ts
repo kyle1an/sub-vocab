@@ -1,5 +1,7 @@
 export const messages = {
   en: {
+    please: 'Please',
+    'to mark words': 'to mark words',
     home: 'Home',
     about: 'About',
     mine: 'Mine',
@@ -28,7 +30,6 @@ export const messages = {
     'New Password': 'New Password',
     'New Password Confirm': 'New Password Confirm',
     'Confirm Changes': 'Confirm Changes',
-    'No data': 'No data',
     'Please input name': 'Please input name',
     'Please use a shorter name': 'Please use a shorter name',
     NameLimitMsg: 'Name must be longer than 1',
@@ -40,6 +41,8 @@ export const messages = {
   },
 
   zh: {
+    please: '请',
+    'to mark words': '后进行标记',
     home: '首页',
     about: '关于',
     mine: '我的',
@@ -68,7 +71,6 @@ export const messages = {
     'New Password': '新密码',
     'New Password Confirm': '新密码确认',
     'Confirm Changes': '确认修改',
-    'No data': '无数据',
     'Please input name': '请输入用户名',
     'Please use a shorter name': '请使用稍短的用户名',
     NameLimitMsg: '用户名长度必须大于1',

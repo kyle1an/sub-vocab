@@ -104,7 +104,7 @@ const total = computed(() => tableDataFiltered.value.length)
             <segmented-control :segments="segments" @input="switchSegment" class="flex-grow-0 pt-3 pb-2" />
             <div class="h-full w-full"><!-- 100% height of its container minus height of siblings -->
               <div class="h-[calc(100%-1px)]">
-                <el-table @sort-change="sortChange" fit class="w-table !h-full !w-full md:w-full" height="200" size="small" :data="tableDataDisplay" :empty-text="t('No data')">
+                <el-table @sort-change="sortChange" fit class="w-table !h-full !w-full md:w-full" height="200" size="small" :data="tableDataDisplay">
 
                   <el-table-column :label="t('rank')" prop="rank" sortable="custom" header-align="center" align="center" min-width="7" class-name="cursor-pointer tabular-nums">
                     <template #default="props">
