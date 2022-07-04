@@ -1,5 +1,4 @@
 export interface Segment {
-  id: number,
   title: string,
   default?: boolean
 }

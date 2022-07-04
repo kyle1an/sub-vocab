@@ -6,14 +6,14 @@ const emit = defineEmits(['input'])
 const props = defineProps(['segments'])
 const segments: Ref<Segment[]> = computed(() => props.segments)
 const selectedSegmentWidth = ref(0);
-const selectedId = ref(0);
+const defaultIndex = segments.value.findIndex((o) => o.default)
+const selectedId = ref(defaultIndex === -1 ? 0 : defaultIndex)
 onMounted(() => {
-  selectedId.value = segments.value.find((o) => o.default)!.id ?? segments.value[0].id;
   window.addEventListener('resize', recalculateSelectedSegmentWidth);
   setTimeout(function showPill() {
     selectedSegmentWidth.value = calcSegmentWidth(selectedId.value);
     document.getElementsByClassName('selection')[0].classList.remove('hidden');
-  }, 400);
+  }, 0)
   emit('input', selectedSegmentIndex.value);
 })
 
@@ -31,33 +31,33 @@ function calcSegmentWidth(id: number) {
   return document.querySelector(`input[type='radio'][value='${id}']`)!.getBoundingClientRect().width;
 }
 
-const selectedSegmentId = computed({
+const selectedSegmentIndex = computed({
   get: () => selectedId.value,
   set: (segmentId) => {
     selectedId.value = segmentId;
     emit('input', selectedSegmentIndex.value);
   }
 })
-const selectedSegmentIndex = computed(() => segments.value.findIndex((segment) => segment.id === selectedSegmentId.value));
+
 const pillTransformStyles = computed(() => `transform:translateX(${selectedSegmentWidth.value * selectedSegmentIndex.value}px)`)
 
 onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSegmentWidth))
 </script>
 
 <template>
-  <main class="flex justify-center m-0 p-0 font-sans antialiased !touch-manipulation">
-    <div class="grid grid-flow-col auto-cols-[1fr] bg-[#EFEFF0] leading-6 m-0 p-0.5 border-0 rounded-[9px] overflow-hidden select-none outline-none">
-      <span :style="pillTransformStyles" class="selection hidden border-[.5px] border-black/[0.04] rounded-[7px] bg-white z-[2] will-change-transform col-start-1 col-end-auto row-start-1 row-end-auto" />
-      <div v-for="segment of segments" :key="segment.id" class="option relative cursor-pointer">
+  <main class="flex justify-center m-0 px-5 pt-3 pb-2 font-sans antialiased !touch-manipulation">
+    <div class="w-full grid grid-flow-col auto-cols-[1fr] bg-[#EFEFF0] leading-6 m-0 p-0.5 border-0 rounded-[9px] overflow-hidden select-none outline-none">
+      <span :style="pillTransformStyles" class="selection border-[.5px] border-black/[0.04] rounded-[7px] bg-white z-[2] will-change-transform col-start-1 col-end-auto row-start-1 row-end-auto" />
+      <div v-for="({title},index) of segments" :key="index" class="option relative cursor-pointer">
         <input
           type="radio"
-          :id="segment.id"
-          :value="segment.id"
-          v-model="selectedSegmentId"
+          :id="index"
+          :value="index"
+          v-model="selectedSegmentIndex"
           class="absolute inset-0 w-full h-full opacity-0 m-0 p-0 border-0 appearance-none"
         >
-        <label :for="segment.id" class="block text-center relative w-24 !p-0 px-[5vmin] text-[14px] bg-transparent cursor-[inherit]">
-          <span class="flex relative justify-center z-[2] will-change-transform">{{ segment.title }}</span>
+        <label :for="index" class="block text-center relative !p-0 px-[5vmin] text-[14px] bg-transparent cursor-[inherit]">
+          <span class="flex relative justify-center z-[2] will-change-transform">{{ title }}</span>
         </label>
       </div>
     </div>

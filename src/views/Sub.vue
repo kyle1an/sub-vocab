@@ -16,11 +16,11 @@ import { useI18n } from 'vue-i18n';
 const { t } = useI18n()
 const userStore = useUserStore()
 const segments: Ref<Segment[]> = computed(() => [
-  { id: 0, title: t('all') },
-  { id: 11, title: t('new'), default: true },
-  { id: 2, title: t('acquainted') },
+  { title: t('all') },
+  { title: t('new') },
+  { title: t('acquainted') },
 ])
-let selectedSeg = segments.value.findIndex((o) => o.default);
+let selectedSeg = segments.value.findIndex((o) => o.default) || 0;
 let listsOfVocab: Array<any>[] = [[], [], []];
 const tableDataOfVocab = shallowRef<Vocab[]>([]);
 const vocabTable = shallowRef<any>(null);
@@ -228,7 +228,7 @@ const total = computed(() => tableDataFiltered.value.length)
         <span class="flex-1 text-right text-xs text-indigo-900 truncate tracking-tight font-compact">
           {{ fileInfo || t('noFileChosen') }}</span>
         <label class="s-btn text-sm px-3 py-2.5 rounded-full grow-0 mx-4" @dragover.prevent @drop.prevent="dropHandler">
-          <input type="file" hidden @change="onFileChange" multiple />{{ t('browseFiles') }}
+          {{ t('browseFiles') }}<input type="file" hidden @change="onFileChange" multiple />
         </label>
         <span class="flex-1 text-left text-xs text-indigo-900 truncate">{{ vocabAmountInfo.join(', ') || '' }}</span>
       </el-header>
@@ -244,7 +244,7 @@ const total = computed(() => tableDataFiltered.value.length)
 
         <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
           <el-card class="table-card flex items-center flex-col mx-5 !rounded-xl !border-0 h-full will-change-transform">
-            <segmented-control :segments="segments" @input="onSegmentSwitched" class="flex-grow-0 pt-3 pb-2" />
+            <segmented-control :segments="segments" @input="onSegmentSwitched" class="flex-grow-0" />
             <div class="h-full w-full"><!-- 100% height of its container minus height of siblings -->
               <div class="h-[calc(100%-1px)]">
                 <el-table
@@ -325,8 +325,15 @@ const total = computed(() => tableDataFiltered.value.length)
 </template>
 
 <style lang="scss" scoped>
-:deep(.el-pagination__rightwrapper > *) {
-  margin: 0;
+:deep(.el-pagination__rightwrapper) {
+  .el-pagination__sizes.is-last {
+    margin: 0 !important;
+  }
+
+  .el-pagination__total {
+    margin-left: 10px !important;
+    margin-right: 10px !important;
+  }
 }
 
 :deep(.is-text) {
@@ -398,11 +405,11 @@ const total = computed(() => tableDataFiltered.value.length)
   height: 100%;
 }
 
-:deep(.expanded td) {
+:deep(.expanded) td {
   border-bottom: 0 !important;
 }
 
-:deep(.expanded:hover > td.el-table__cell) {
+:deep(.expanded:hover) > td.el-table__cell {
   background-image: linear-gradient(to bottom, var(--el-border-color-lighter), white);
 }
 
