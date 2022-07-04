@@ -107,3 +107,5 @@ export async function readFiles(files: any): Promise<any[]> {
 
   return fileList
 }
+
+export const jsonClone = (obj: any) => JSON.parse(JSON.stringify(obj))

@@ -34,10 +34,6 @@ export const useVocabStore = defineStore('vocabStore', () => {
     return stemsDerivationMapping;
   }
 
-  async function copyJson(obj?: any) {
-    return JSON.parse(JSON.stringify(await fetchVocab()));
-  }
-
   function structSievePair(vocab: Array<Sieve>): [TrieNode, Array<Label>] {
     console.time('struct sieve')
     const trie: TrieNode = {};
@@ -99,5 +95,5 @@ export const useVocabStore = defineStore('vocabStore', () => {
     node.$.F = row.vocab!.acquainted;
   }
 
-  return { fetchVocab, copyJson, updateWord, getSieve };
+  return { fetchVocab, updateWord, getSieve };
 })

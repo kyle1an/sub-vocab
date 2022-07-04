@@ -3,15 +3,15 @@ import Switch from '../components/Switch.vue';
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { computed, onMounted, Ref, ref } from 'vue'
 import { Segment } from '../types';
-import { selectWord, sortByChar, sortByNum } from '../utils/utils';
+import { jsonClone, selectWord, sortByChar, sortByNum } from '../utils/utils';
 import { useVocabStore } from '../store/useVocab';
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n()
 const segments: Ref<Segment[]> = computed(() => [
-  { id: 0, title: t('all'), default: true },
-  { id: 11, title: t('mine'), },
-  { id: 2, title: t('top'), },
+  { title: t('all'), },
+  { title: t('mine'), },
+  { title: t('top'), },
 ])
 let selected: number = segments.value.findIndex((o: any) => o.default);
 let vocabLists: Array<any>[] = [[], [], []];
@@ -19,7 +19,7 @@ const acquaintedVocabTableData = ref<any>([]);
 
 async function loadVocab() {
   const vocabStore = useVocabStore()
-  const words = await vocabStore.copyJson()
+  const words = jsonClone(await vocabStore.fetchVocab())
   const all = []
   const mine = []
   const topWords = []
