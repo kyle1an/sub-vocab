@@ -4,8 +4,15 @@ import { computed } from 'vue';
 import { setCookie } from '../utils/cookie';
 import { useI18n } from 'vue-i18n';
 import { CaretBottom } from '@element-plus/icons-vue'
+import en from 'element-plus/es/locale/lang/en'
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
 
 const { t, locale } = useI18n({ useScope: 'global' }) // call `useI18n`, and spread `t` from  `useI18n` returning
+const localeMap: Record<string, any> = {
+  'en': en,
+  'zh': zhCn,
+}
+const elLocale = computed(() => localeMap[locale.value])
 const userStore = useUserStore()
 const username = computed(() => userStore.user.name)
 const acquaintedSection = computed(() => userStore.user.name ? t('mine') : t('common'))
@@ -52,6 +59,7 @@ const handleCommand = (command: string) => {
             </el-dropdown-menu>
           </template>
         </el-dropdown>
+        <el-config-provider :locale="elLocale" />
       </div>
     </nav>
   </el-header>

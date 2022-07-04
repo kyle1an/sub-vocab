@@ -2,9 +2,9 @@
 import Trie from '../utils/LabeledTire';
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
-import { computed, h, nextTick, ref, shallowRef, watch } from 'vue'
+import { computed, h, nextTick, Ref, ref, shallowRef } from 'vue'
 import { Segment, Source, Vocab } from '../types';
-import { removeClass, selectWord, sortByChar } from '../utils/utils';
+import { readFiles, removeClass, selectWord, sortByChar } from '../utils/utils'
 import { acquaint, revokeWord } from '../api/vocab-service';
 import { useVocabStore } from '../store/useVocab';
 import { useTimeStore } from '../store/usePerf';
@@ -12,14 +12,13 @@ import { useUserStore } from '../store/useState';
 import { ElNotification } from 'element-plus';
 import router from '../router';
 import { useI18n } from 'vue-i18n';
-import type { Ref } from 'vue'
 
 const { t } = useI18n()
 const userStore = useUserStore()
 const segments: Ref<Segment[]> = computed(() => [
-  { id: 0, title: t('all'), },
+  { id: 0, title: t('all') },
   { id: 11, title: t('new'), default: true },
-  { id: 2, title: t('acquainted'), },
+  { id: 2, title: t('acquainted') },
 ])
 let selectedSeg = segments.value.findIndex((o) => o.default);
 let listsOfVocab: Array<any>[] = [[], [], []];
@@ -34,8 +33,9 @@ function tagExpand(row: any) {
   document.getElementsByClassName(classKeyOfRow(row.seq))[0].classList.toggle('expanded');
 }
 
-function switchSegment(v: number) {
-  tableDataOfVocab.value = listsOfVocab[selectedSeg = v];
+function onSegmentSwitched(v: number) {
+  selectedSeg = v
+  tableDataOfVocab.value = listsOfVocab[selectedSeg]
 }
 
 function classKeyOfRow(seq: string | number) {
@@ -77,18 +77,20 @@ function source(src: Source) {
 const fileInfo = ref<string>('');
 const inputContent = ref<string>('');
 
-function readSingleFile(e: any) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader: any = new FileReader();
-  reader.fileName = file.name
-  reader.onload = async (e: any) => {
-    fileInfo.value = e.target.fileName;
-    inputContent.value = e.target.result
-    await nextTick()
-    setTimeout(() => formVocabLists(inputContent.value), 0)
-  };
-  reader.readAsText(file);
+async function onFileChange(ev: any) {
+  const files = ev.target.files
+  const numberOfFiles = files?.length
+  if (!numberOfFiles) return
+  const fileList = await readFiles(files)
+  if (numberOfFiles > 1) {
+    fileInfo.value = `${fileList.length} files selected`
+  } else {
+    fileInfo.value = fileList[0].file.name
+  }
+
+  fileList.forEach(({ result }) => inputContent.value += result)
+  await nextTick()
+  setTimeout(() => formVocabLists(inputContent.value), 0)
 }
 
 const sentences = shallowRef<any[]>([]);
@@ -106,7 +108,7 @@ async function formVocabLists(content: string) {
   sentences.value = vocab.sentences;
   __perf.time.log.categorizeStart = performance.now();
   listsOfVocab = vocab.categorizeVocabulary();
-  vocabAmountInfo.value = [listsOfVocab[0].length, listsOfVocab[1].length, listsOfVocab[2].length]
+  vocabAmountInfo.value = listsOfVocab.map((l) => l.length)
   setTimeout(() => {
     setTimeout(() => {
       tableDataOfVocab.value = listsOfVocab[selectedSeg]
@@ -119,9 +121,9 @@ async function formVocabLists(content: string) {
 }
 
 function logVocabInfo() {
-  const untouchedVocabList = [...listsOfVocab[0]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
-  const lessCommonWordsList = [...listsOfVocab[1]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
-  const commonWordsList = [...listsOfVocab[2]].sort((a, b) => a.w.localeCompare(b.w, 'en', { sensitivity: 'base' }));
+  const untouchedVocabList = [...listsOfVocab[0]].sort((a, b) => sortByChar(a.w, b.w))
+  const lessCommonWordsList = [...listsOfVocab[1]].sort((a, b) => sortByChar(a.w, b.w))
+  const commonWordsList = [...listsOfVocab[2]].sort((a, b) => sortByChar(a.w, b.w))
   console.log(`sentences(${sentences.value.length})`, sentences);
   console.log(`original(${vocabAmountInfo.value[0]})`, untouchedVocabList);
   console.log(`filtered(${vocabAmountInfo.value[1]})`, lessCommonWordsList);
@@ -152,10 +154,8 @@ function dropHandler(ev: any) {
 
 const search = ref('');
 const tableDataFiltered = computed(() =>
-  tableDataOfVocab.value.filter(
-    (data: any) =>
-      !search.value ||
-      data.w.toLowerCase().includes(search.value.toLowerCase())
+  tableDataOfVocab.value.filter((row: any) =>
+    !search.value || row.w.toLowerCase().includes(search.value.toLowerCase())
   )
 )
 const tableDataDisplay = computed(() =>
@@ -182,14 +182,13 @@ async function toggleWordState(row: any) {
     }
   } else {
     ElNotification({
-      // title: 'Mark',
       message: h(
         'span',
         { style: 'color: teal' },
         [
-          'Please ',
-          h('i', { onClick: () => router.push('/login') }, 'Log in'),
-          ' to mark words.'
+          `${t('please')} `,
+          h('i', { onClick: () => router.push('/login') }, t('login')),
+          ` ${t('to mark words')}`
         ]
       )
     })
@@ -229,7 +228,7 @@ const total = computed(() => tableDataFiltered.value.length)
         <span class="flex-1 text-right text-xs text-indigo-900 truncate tracking-tight font-compact">
           {{ fileInfo || t('noFileChosen') }}</span>
         <label class="s-btn text-sm px-3 py-2.5 rounded-full grow-0 mx-4" @dragover.prevent @drop.prevent="dropHandler">
-          <input type="file" hidden @change="readSingleFile" />{{ t('browseFiles') }}
+          <input type="file" hidden @change="onFileChange" multiple />{{ t('browseFiles') }}
         </label>
         <span class="flex-1 text-left text-xs text-indigo-900 truncate">{{ vocabAmountInfo.join(', ') || '' }}</span>
       </el-header>
@@ -245,7 +244,7 @@ const total = computed(() => tableDataFiltered.value.length)
 
         <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
           <el-card class="table-card flex items-center flex-col mx-5 !rounded-xl !border-0 h-full will-change-transform">
-            <segmented-control :segments="segments" @input="switchSegment" class="flex-grow-0 pt-3 pb-2" />
+            <segmented-control :segments="segments" @input="onSegmentSwitched" class="flex-grow-0 pt-3 pb-2" />
             <div class="h-full w-full"><!-- 100% height of its container minus height of siblings -->
               <div class="h-[calc(100%-1px)]">
                 <el-table
@@ -256,7 +255,6 @@ const total = computed(() => tableDataFiltered.value.length)
                   @row-click="handleRowClick"
                   @expand-change="tagExpand"
                   @sort-change="sortChange"
-                  :empty-text="t('No data')"
                 >
                   <el-table-column type="expand">
                     <template #default="props">
@@ -345,6 +343,10 @@ const total = computed(() => tableDataFiltered.value.length)
 }
 
 .w-table {
+  :deep(tr :last-child) {
+    overflow: visible !important;
+  }
+
   :deep(.el-icon) {
     pointer-events: none;
   }
@@ -355,6 +357,10 @@ const total = computed(() => tableDataFiltered.value.length)
 
   :deep(.el-table__inner-wrapper) {
     height: 100%;
+  }
+
+  :deep(.el-table__expand-icon) {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   }
 }
 
@@ -375,18 +381,12 @@ const total = computed(() => tableDataFiltered.value.length)
   }
 }
 
-.table-card {
-  :deep(.el-card__body) {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-    padding: 0;
-  }
-
-  :deep(.el-table__expand-icon) {
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  }
+.table-card :deep(.el-card__body) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 0;
 }
 
 .input-area :deep(textarea) {

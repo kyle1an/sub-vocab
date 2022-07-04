@@ -82,7 +82,28 @@ export function selectWord(e: any) {
 export function removeClass(className: string) {
   const el = document.getElementsByClassName(className)
   while (el.length) {
-    el[0].classList.remove(className)
+    el[el.length - 1].classList.remove(className)
     console.log(1)
   }
+}
+
+export function readSingleFile(file: any): any {
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader()
+    fr.onload = () => {
+      const { result } = fr
+      resolve({ file, result })
+    }
+    fr.onerror = reject;
+    fr.readAsText(file)
+  })
+}
+
+export async function readFiles(files: any): Promise<any[]> {
+  const fileList = []
+  for (let i = 0; i < files.length; i++) {
+    fileList.push(await readSingleFile(files[i]))
+  }
+
+  return fileList
 }
