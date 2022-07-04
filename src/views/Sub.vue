@@ -91,6 +91,7 @@ async function onFileChange(ev: any) {
     fileInfo.value = fileList[0].file.name
   }
 
+  inputContent.value = ''
   fileList.forEach(({ result }) => inputContent.value += result)
   await nextTick()
   setTimeout(() => formVocabLists(inputContent.value), 0)
