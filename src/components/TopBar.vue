@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import { useUserStore } from '../store/useState';
-import { computed } from 'vue';
 import { setCookie } from '../utils/cookie';
-import { useI18n } from 'vue-i18n';
 import { CaretBottom } from '@element-plus/icons-vue'
 import en from 'element-plus/es/locale/lang/en'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'

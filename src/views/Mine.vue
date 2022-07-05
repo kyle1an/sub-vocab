@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import Switch from '../components/Switch.vue';
 import SegmentedControl from '../components/SegmentedControl.vue'
-import { computed, onMounted, Ref, ref } from 'vue'
-import { Segment } from '../types';
+import { Ref } from 'vue'
 import { jsonClone, selectWord, sortByChar, sortByNum } from '../utils/utils';
 import { useVocabStore } from '../store/useVocab';
-import { useI18n } from "vue-i18n";
 
 const { t } = useI18n()
-const segments: Ref<Segment[]> = computed(() => [
-  { title: t('all'), },
-  { title: t('mine'), },
-  { title: t('top'), },
+const segments: Ref<string[]> = computed(() => [
+  t('all'),
+  t('mine'),
+  t('top'),
 ])
 let selected: number = segments.value.findIndex((o: any) => o.default);
 let vocabLists: Array<any>[] = [[], [], []];

@@ -2,8 +2,8 @@
 import Trie from '../utils/LabeledTire';
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
-import { computed, h, nextTick, Ref, ref, shallowRef } from 'vue'
-import { Segment, Source, Vocab } from '../types';
+import { Ref } from 'vue'
+import { Source, Vocab } from '../types'
 import { readFiles, removeClass, selectWord, sortByChar } from '../utils/utils'
 import { acquaint, revokeWord } from '../api/vocab-service';
 import { useVocabStore } from '../store/useVocab';
@@ -11,16 +11,15 @@ import { useTimeStore } from '../store/usePerf';
 import { useUserStore } from '../store/useState';
 import { ElNotification } from 'element-plus';
 import router from '../router';
-import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n()
 const userStore = useUserStore()
-const segments: Ref<Segment[]> = computed(() => [
-  { title: t('all') },
-  { title: t('new') },
-  { title: t('acquainted') },
+const segments: Ref<string[]> = computed(() => [
+  t('all'),
+  t('new'),
+  t('acquainted'),
 ])
-let selectedSeg = segments.value.findIndex((o) => o.default) || 0;
+let selectedSeg = 0
 let listsOfVocab: Array<any>[] = [[], [], []];
 const tableDataOfVocab = shallowRef<Vocab[]>([]);
 const vocabTable = shallowRef<any>(null);
