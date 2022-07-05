@@ -1,8 +1,3 @@
-export interface Segment {
-  title: string,
-  default?: boolean
-}
-
 export interface Vocab {
   w: string;
 }

@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { ref, watch, nextTick, computed, onMounted, onBeforeUnmount, Ref } from 'vue'
-import { Segment } from '../types';
+import { Ref } from 'vue'
 
 const emit = defineEmits(['input'])
 const props = defineProps(['segments'])
-const segments: Ref<Segment[]> = computed(() => props.segments)
+const segments: Ref<string[]> = computed(() => props.segments)
 const selectedSegmentWidth = ref(0);
-const defaultIndex = segments.value.findIndex((o) => o.default)
-const selectedId = ref(defaultIndex === -1 ? 0 : defaultIndex)
+const defaultIndex = 0
+const selectedId = ref(defaultIndex)
 onMounted(() => {
   window.addEventListener('resize', recalculateSelectedSegmentWidth);
   setTimeout(function showPill() {
@@ -23,7 +22,6 @@ watch(selectedId, function toggleSectionFontWeight(v, o) {
 })
 
 function recalculateSelectedSegmentWidth() {
-  // Wait for UI to rerender before measuring
   nextTick(() => selectedSegmentWidth.value = calcSegmentWidth(selectedId.value));
 }
 
@@ -38,9 +36,7 @@ const selectedSegmentIndex = computed({
     emit('input', selectedSegmentIndex.value);
   }
 })
-
 const pillTransformStyles = computed(() => `transform:translateX(${selectedSegmentWidth.value * selectedSegmentIndex.value}px)`)
-
 onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSegmentWidth))
 </script>
 
@@ -48,7 +44,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSe
   <main class="flex justify-center m-0 px-5 pt-3 pb-2 font-sans antialiased !touch-manipulation">
     <div class="w-full grid grid-flow-col auto-cols-[1fr] bg-[#EFEFF0] leading-6 m-0 p-0.5 border-0 rounded-[9px] overflow-hidden select-none outline-none">
       <span :style="pillTransformStyles" class="selection border-[.5px] border-black/[0.04] rounded-[7px] bg-white z-[2] will-change-transform col-start-1 col-end-auto row-start-1 row-end-auto" />
-      <div v-for="({title},index) of segments" :key="index" class="option relative cursor-pointer">
+      <div v-for="(title,index) of segments" :key="index" class="option relative cursor-pointer">
         <input
           type="radio"
           :id="index"

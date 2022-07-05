@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { h, reactive, ref } from 'vue'
 import { login } from '../api/user';
 import router from '../router';
 import type { FormInstance } from 'element-plus'
@@ -7,7 +6,6 @@ import { useUserStore } from '../store/useState';
 import { setCookie } from '../utils/cookie';
 import { ElNotification } from 'element-plus/es';
 import { useVocabStore } from '../store/useVocab';
-import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n()
 const store = useUserStore()
@@ -42,7 +40,6 @@ const ruleForm = reactive({
   username: '',
   password: '',
 })
-
 const rules = reactive({
   username: [{ validator: checkUsername, trigger: 'blur' }],
   password: [{ validator: validatePass, trigger: 'blur' }],
