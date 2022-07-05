@@ -4,7 +4,7 @@ import SegmentedControl from '../components/SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
 import { Ref } from 'vue'
 import { Label, Source, Vocab } from '../types'
-import { readFiles, removeClass, selectWord, sortByChar } from '../utils/utils'
+import { classKeyOfRow, compare, readFiles, removeClass, selectWord, sortByChar } from '../utils/utils'
 import { acquaint, revokeWord } from '../api/vocab-service';
 import { useVocabStore } from '../store/useVocab';
 import { useTimeStore } from '../store/usePerf';
@@ -38,10 +38,6 @@ function onSegmentSwitched(v: number) {
   selectedSeg = v
   tableDataOfVocab.value = listsOfVocab[selectedSeg]
   sortChange(sortBy.value)
-}
-
-function classKeyOfRow(seq: string | number) {
-  return `v-${seq}`;
 }
 
 function example(str: string, idxes: Array<number>[]): string {
@@ -79,7 +75,6 @@ function source(src: Source) {
 const fileInfo = ref<string>('');
 const inputContent = ref<string>('');
 
-
 async function onFileChange(ev: any) {
   const files = ev.target.files
   const numberOfFiles = files?.length
@@ -93,7 +88,6 @@ async function onFileChange(ev: any) {
 
   inputContent.value = fileList.reduce((pre, { result }) => pre + result, '')
 }
-
 
 const sentences = shallowRef<any[]>([]);
 const vocabStore = useVocabStore()
@@ -115,7 +109,8 @@ async function formVocabLists(content: string): Promise<any> {
   }
 }
 
-watchDebounced(inputContent, async (v) => {
+watchDebounced(inputContent,
+  async (v) => {
     await nextTick()
     setTimeout(async () => {
       const { root, lists, sentences: sent } = await formVocabLists(v)
@@ -222,20 +217,6 @@ async function toggleWordState(row: any) {
 function sortChange({ prop, order }: any) {
   sortBy.value = { prop, order }
   tableDataOfVocab.value = [...listsOfVocab[selectedSeg]].sort(compare(prop, order));
-}
-
-function compare(propertyName: string, order: string) {
-  return function (obj1: any, obj2: any): number {
-    const value1 = obj1[propertyName];
-    const value2 = obj2[propertyName];
-    let res;
-    if (typeof value1 === 'string' && typeof value2 === 'string') {
-      res = sortByChar(value1, value2)
-    } else {
-      res = value1 - value2;
-    }
-    return order === 'ascending' ? res : -res
-  }
 }
 
 const currentPage = ref(1)
