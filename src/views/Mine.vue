@@ -2,7 +2,7 @@
 import Switch from '../components/Switch.vue';
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { Ref } from 'vue'
-import { jsonClone, selectWord, sortByChar, sortByNum } from '../utils/utils';
+import { compare, jsonClone, selectWord } from '../utils/utils';
 import { useVocabStore } from '../store/useVocab';
 
 const { t } = useI18n()
@@ -37,45 +37,38 @@ async function loadVocab() {
       all.push(row)
     }
   }
-  vocabLists = [all, mine, topWords];
-  acquaintedVocabTableData.value = vocabLists[selected];
+  return [all, mine, topWords]
+}
+
+const sortBy = ref<any>({})
+
+function refreshVocab() {
+  acquaintedVocabTableData.value = vocabLists[selected]
+  sortChange(sortBy.value)
 }
 
 onMounted(() => {
-  setTimeout(() => {
-    loadVocab()
+  setTimeout(async () => {
+    vocabLists = await loadVocab()
+    refreshVocab()
   }, 0)
 })
 
-function switchSegment(v: number) {
-  acquaintedVocabTableData.value = vocabLists[selected = v]
+function onSegmentSwitched(v: number) {
+  selected = v
+  acquaintedVocabTableData.value = vocabLists[selected]
+  sortChange(sortBy.value)
 }
 
 function sortChange({ prop, order }: any) {
-  console.log(prop, order)
+  sortBy.value = { prop, order }
   acquaintedVocabTableData.value = [...vocabLists[selected]].sort(compare(prop, order));
-}
-
-function compare(propertyName: string, order: string) {
-  return function (obj1: any, obj2: any): number {
-    const value1 = obj1[propertyName];
-    const value2 = obj2[propertyName];
-    let res;
-    if (typeof value1 === 'string' && typeof value2 === 'string') {
-      res = sortByChar(value1, value2)
-    } else {
-      res = sortByNum(value1, value2)
-    }
-    return order === 'ascending' ? res : -res
-  }
 }
 
 const search = ref('');
 const tableDataFiltered = computed(() =>
-  acquaintedVocabTableData.value.filter(
-    (data: any) =>
-      !search.value ||
-      data.w.toLowerCase().includes(search.value.toLowerCase())
+  acquaintedVocabTableData.value.filter((data: any) =>
+    !search.value || data.w.toLowerCase().includes(search.value.toLowerCase())
   )
 )
 
@@ -92,14 +85,13 @@ const total = computed(() => tableDataFiltered.value.length)
   <div class="mx-auto max-w-screen-xl">
     <el-container>
       <el-header height="100%" class="relative !h-16 flex items-center">
-        <span class="flex-1  text-xs text-indigo-900 truncate tracking-tight font-compact">Common words list DEMO</span>
         <Switch :state="false" :text="['off','on']" />
       </el-header>
 
       <el-container class="justify-center">
         <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
           <el-card class="table-card flex items-center flex-col mx-5 !rounded-xl !border-0 h-full will-change-transform">
-            <segmented-control :segments="segments" @input="switchSegment" class="flex-grow-0 pt-3 pb-2" />
+            <segmented-control :segments="segments" @input="onSegmentSwitched" class="flex-grow-0 pt-3 pb-2" />
             <div class="h-full w-full"><!-- 100% height of its container minus height of siblings -->
               <div class="h-[calc(100%-1px)]">
                 <el-table @sort-change="sortChange" fit class="w-table !h-full !w-full md:w-full" height="200" size="small" :data="tableDataDisplay">

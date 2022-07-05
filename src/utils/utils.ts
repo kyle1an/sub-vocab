@@ -91,3 +91,19 @@ export async function readFiles(files: any): Promise<any[]> {
 }
 
 export const jsonClone = (obj: any) => JSON.parse(JSON.stringify(obj))
+
+export const classKeyOfRow = (seq: string | number) => `v-${seq}`
+
+export function compare(propertyName: string, order: string) {
+  return function (obj1: any, obj2: any): number {
+    const value1 = obj1[propertyName];
+    const value2 = obj2[propertyName];
+    let res;
+    if (typeof value1 === 'string' && typeof value2 === 'string') {
+      res = sortByChar(value1, value2)
+    } else {
+      res = sortByNum(value1, value2)
+    }
+    return order === 'ascending' ? res : -res
+  }
+}
