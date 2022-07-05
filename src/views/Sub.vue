@@ -3,7 +3,7 @@ import Trie from '../utils/LabeledTire';
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
 import { Ref } from 'vue'
-import { Source, Vocab } from '../types'
+import { Label, Source, Vocab } from '../types'
 import { readFiles, removeClass, selectWord, sortByChar } from '../utils/utils'
 import { acquaint, revokeWord } from '../api/vocab-service';
 import { useVocabStore } from '../store/useVocab';
@@ -79,6 +79,7 @@ function source(src: Source) {
 const fileInfo = ref<string>('');
 const inputContent = ref<string>('');
 
+
 async function onFileChange(ev: any) {
   const files = ev.target.files
   const numberOfFiles = files?.length
@@ -90,37 +91,55 @@ async function onFileChange(ev: any) {
     fileInfo.value = fileList[0].file.name
   }
 
-  inputContent.value = ''
-  fileList.forEach(({ result }) => inputContent.value += result)
-  await nextTick()
-  setTimeout(() => formVocabLists(inputContent.value), 0)
+  inputContent.value = fileList.reduce((pre, { result }) => pre + result, '')
 }
+
 
 const sentences = shallowRef<any[]>([]);
 const vocabStore = useVocabStore()
 const __perf = useTimeStore();
 const vocabAmountInfo = ref<number[]>([]);
 
-async function formVocabLists(content: string) {
-  removeClass('expanded')
+async function formVocabLists(content: string): Promise<any> {
   const trieListPair = await vocabStore.getSieve()
   __perf.time.log = {}
   __perf.time.log.start = performance.now()
   const vocab = new Trie(trieListPair).add(content);
   __perf.time.log.wordInitialized = performance.now();
-  sentences.value = vocab.sentences;
+  const { root, sentences, } = vocab
   __perf.time.log.categorizeStart = performance.now();
-  listsOfVocab = vocab.categorizeVocabulary();
-  vocabAmountInfo.value = listsOfVocab.map((l) => l.length)
-  setTimeout(() => {
-    setTimeout(() => {
-      tableDataOfVocab.value = listsOfVocab[selectedSeg]
+  return {
+    root,
+    sentences,
+    lists: vocab.categorizeVocabulary(),
+  }
+}
+
+watchDebounced(inputContent, async (v) => {
+    await nextTick()
+    setTimeout(async () => {
+      const { root, lists, sentences: sent } = await formVocabLists(v)
+      sentences.value = sent;
+      listsOfVocab = lists
+      vocabAmountInfo.value = lists.map((l: any[]) => l.length)
+      setTimeout(() => {
+        refreshTable(lists)
+      }, 0)
+      __perf.time.log.end = performance.now()
+      console.log({ root: JSON.stringify(root) });
+      logVocabInfo();
+      __perf.logPerf()
     }, 0)
+  },
+  { debounce: 400 },
+)
+
+function refreshTable(lists: [Label[], Label[], Label[]],) {
+  removeClass('expanded')
+  setTimeout(() => {
+    tableDataOfVocab.value = lists[selectedSeg]
+    sortChange(sortBy.value)
   }, 0)
-  __perf.time.log.end = performance.now()
-  console.log({ root: JSON.stringify(vocab.root) });
-  logVocabInfo();
-  __perf.logPerf()
 }
 
 function logVocabInfo() {
@@ -241,12 +260,9 @@ const total = computed(() => tableDataFiltered.value.length)
           <el-main class="!py-0 relative">
             <el-input class="input-area h-full !text-base md:!text-sm font-text-sans" type="textarea" :placeholder="t('inputArea')" v-model.lazy="inputContent" />
           </el-main>
-          <div class="submit absolute text-center z-10 md:top-8 md:right-0.5 h-12">
-            <el-button class="s-btn" aria-label="submit input text" @click="formVocabLists(inputContent)" type="primary" :icon="Check" circle />
-          </div>
         </el-container>
 
-        <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
+        <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)] mt-5 md:mt-0 pb-5 md:pb-0">
           <el-card class="table-card flex items-center flex-col mx-5 !rounded-xl !border-0 h-full will-change-transform">
             <segmented-control :segments="segments" @input="onSegmentSwitched" class="flex-grow-0" />
             <div class="h-full w-full"><!-- 100% height of its container minus height of siblings -->
@@ -424,11 +440,6 @@ const total = computed(() => tableDataFiltered.value.length)
 }
 
 @media only screen and (max-width: 768px) {
-  .submit {
-    bottom: -32px;
-    width: 100%;
-  }
-
   .input-area :deep(textarea) {
     height: 260px;
   }
@@ -436,11 +447,6 @@ const total = computed(() => tableDataFiltered.value.length)
   :deep(.el-container) {
     display: flex;
     flex-direction: column !important;
-  }
-
-  :deep(.el-aside) {
-    margin-top: 34px;
-    padding-bottom: 20px;
   }
 
   :deep(.el-textarea__inner) {
