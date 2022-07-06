@@ -1,42 +1,27 @@
 <script setup lang="ts">
-import { Ref } from 'vue'
-
 const emit = defineEmits(['input'])
-const props = defineProps(['segments'])
-const segments: Ref<string[]> = computed(() => props.segments)
+const props = defineProps(['default', 'segments'])
+const segments = computed((): string[] => props.segments)
 const selectedSegmentWidth = ref(0);
-const defaultIndex = 0
-const selectedId = ref(defaultIndex)
-onMounted(() => {
-  window.addEventListener('resize', recalculateSelectedSegmentWidth);
-  setTimeout(function showPill() {
-    selectedSegmentWidth.value = calcSegmentWidth(selectedId.value);
-    document.getElementsByClassName('selection')[0].classList.remove('hidden');
-  }, 0)
-  emit('input', selectedSegmentIndex.value);
+const selectedId = ref(props.default)
+onMounted(() => nextTick(() => recalculateSelectedSegmentWidth()))
+window.addEventListener('resize', recalculateSelectedSegmentWidth)
+watch(() => props.default, (v) => {
+  selectedId.value = v
 })
-
 watch(selectedId, function toggleSectionFontWeight(v, o) {
+  emit('input', v)
   document.querySelector(`[for="${o}"]`)!.classList.remove('font-medium');
   document.querySelector(`[for="${v}"]`)!.classList.add('font-medium');
 })
 
 function recalculateSelectedSegmentWidth() {
-  nextTick(() => selectedSegmentWidth.value = calcSegmentWidth(selectedId.value));
+  nextTick(() => {
+    selectedSegmentWidth.value = document.querySelector(`input[type='radio'][value='${selectedId.value}']`)!.getBoundingClientRect().width
+  })
 }
 
-function calcSegmentWidth(id: number) {
-  return document.querySelector(`input[type='radio'][value='${id}']`)!.getBoundingClientRect().width;
-}
-
-const selectedSegmentIndex = computed({
-  get: () => selectedId.value,
-  set: (segmentId) => {
-    selectedId.value = segmentId;
-    emit('input', selectedSegmentIndex.value);
-  }
-})
-const pillTransformStyles = computed(() => `transform:translateX(${selectedSegmentWidth.value * selectedSegmentIndex.value}px)`)
+const pillTransformStyles = computed(() => `transform:translateX(${selectedSegmentWidth.value * selectedId.value}px)`)
 onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSegmentWidth))
 </script>
 
@@ -49,7 +34,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSe
           type="radio"
           :id="index"
           :value="index"
-          v-model="selectedSegmentIndex"
+          v-model="selectedId"
           class="absolute inset-0 w-full h-full opacity-0 m-0 p-0 border-0 appearance-none"
         >
         <label :for="index" class="block text-center relative !p-0 px-[5vmin] text-[14px] bg-transparent cursor-[inherit]">

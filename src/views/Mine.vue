@@ -11,8 +11,8 @@ const segments: Ref<string[]> = computed(() => [
   t('mine'),
   t('top'),
 ])
-let selected: number = segments.value.findIndex((o: any) => o.default);
-let vocabLists: Array<any>[] = [[], [], []];
+const selected = ref(0)
+let vocabLists: Array<any>[] = [[], [], []]
 const acquaintedVocabTableData = ref<any>([]);
 
 async function loadVocab() {
@@ -43,26 +43,29 @@ async function loadVocab() {
 const sortBy = ref<any>({})
 
 function refreshVocab() {
-  acquaintedVocabTableData.value = vocabLists[selected]
+  acquaintedVocabTableData.value = vocabLists[selected.value]
   sortChange(sortBy.value)
 }
 
 onMounted(() => {
   setTimeout(async () => {
     vocabLists = await loadVocab()
+    if (vocabLists[1].length) {
+      selected.value = 1
+    }
     refreshVocab()
   }, 0)
 })
 
 function onSegmentSwitched(v: number) {
-  selected = v
-  acquaintedVocabTableData.value = vocabLists[selected]
+  selected.value = v
+  acquaintedVocabTableData.value = vocabLists[selected.value]
   sortChange(sortBy.value)
 }
 
 function sortChange({ prop, order }: any) {
   sortBy.value = { prop, order }
-  acquaintedVocabTableData.value = [...vocabLists[selected]].sort(compare(prop, order));
+  acquaintedVocabTableData.value = [...vocabLists[selected.value]].sort(compare(prop, order))
 }
 
 const search = ref('');
@@ -91,7 +94,7 @@ const total = computed(() => tableDataFiltered.value.length)
       <el-container class="justify-center">
         <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
           <el-card class="table-card flex items-center flex-col mx-5 !rounded-xl !border-0 h-full will-change-transform">
-            <segmented-control :segments="segments" @input="onSegmentSwitched" class="flex-grow-0 pt-3 pb-2" />
+            <segmented-control :segments="segments" :default="selected" @input="onSegmentSwitched" class="flex-grow-0 pt-3 pb-2" />
             <div class="h-full w-full"><!-- 100% height of its container minus height of siblings -->
               <div class="h-[calc(100%-1px)]">
                 <el-table @sort-change="sortChange" fit class="w-table !h-full !w-full md:w-full" height="200" size="small" :data="tableDataDisplay">
@@ -107,7 +110,7 @@ const total = computed(() => tableDataFiltered.value.length)
                       <el-input @click.stop class="!w-[calc(100%-26px)] !text-base md:!text-xs" v-model="search" size="small" :placeholder="t('search')" />
                     </template>
                     <template #default="props">
-                      <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart="selectWord" @click.stop>{{ props.row.w }}</span>
+                      <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart.passive="selectWord" @click.stop>{{ props.row.w }}</span>
                     </template>
                   </el-table-column>
 
