@@ -11,6 +11,7 @@ import { useTimeStore } from '../store/usePerf';
 import { useUserStore } from '../store/useState';
 import { ElNotification } from 'element-plus';
 import router from '../router';
+import { TransitionPresets } from '@vueuse/core'
 
 const { t } = useI18n()
 const userStore = useUserStore()
@@ -19,7 +20,7 @@ const segments: Ref<string[]> = computed(() => [
   t('new'),
   t('acquainted'),
 ])
-let selectedSeg = 0
+const selectedSeg = ref(0)
 let listsOfVocab: Array<any>[] = [[], [], []];
 const tableDataOfVocab = shallowRef<Vocab[]>([]);
 const vocabTable = shallowRef<any>(null);
@@ -35,9 +36,11 @@ function tagExpand(row: any) {
 const sortBy = ref<any>({})
 
 function onSegmentSwitched(v: number) {
-  selectedSeg = v
-  tableDataOfVocab.value = listsOfVocab[selectedSeg]
+  disabledTotal.value = true
+  selectedSeg.value = v
+  tableDataOfVocab.value = listsOfVocab[selectedSeg.value]
   sortChange(sortBy.value)
+  nextTick(() => disabledTotal.value = false)
 }
 
 function example(str: string, idxes: Array<number>[]): string {
@@ -92,7 +95,15 @@ async function onFileChange(ev: any) {
 const sentences = shallowRef<any[]>([]);
 const vocabStore = useVocabStore()
 const __perf = useTimeStore();
-const vocabAmountInfo = ref<number[]>([]);
+const lengthsOfLists = ref<number[]>([0, 0, 0])
+const lengthsOfListsOutput = useTransition(lengthsOfLists, {
+  transition: TransitionPresets.easeInOutCirc,
+})
+
+const vocabCountBySegment = computed(() => {
+  const [r, g, b] = lengthsOfListsOutput.value
+  return `${~~r} - ${~~g} - ${~~b}`
+})
 
 async function formVocabLists(content: string): Promise<any> {
   const trieListPair = await vocabStore.getSieve()
@@ -116,7 +127,7 @@ watchDebounced(inputContent,
       const { root, lists, sentences: sent } = await formVocabLists(v)
       sentences.value = sent;
       listsOfVocab = lists
-      vocabAmountInfo.value = lists.map((l: any[]) => l.length)
+      lengthsOfLists.value = lists.map((l: any[]) => l.length)
       setTimeout(() => {
         refreshTable(lists)
       }, 0)
@@ -132,7 +143,7 @@ watchDebounced(inputContent,
 function refreshTable(lists: [Label[], Label[], Label[]],) {
   removeClass('expanded')
   setTimeout(() => {
-    tableDataOfVocab.value = lists[selectedSeg]
+    tableDataOfVocab.value = lists[selectedSeg.value]
     sortChange(sortBy.value)
   }, 0)
 }
@@ -142,9 +153,9 @@ function logVocabInfo() {
   const lessCommonWordsList = [...listsOfVocab[1]].sort((a, b) => sortByChar(a.w, b.w))
   const commonWordsList = [...listsOfVocab[2]].sort((a, b) => sortByChar(a.w, b.w))
   console.log(`sentences(${sentences.value.length})`, sentences);
-  console.log(`original(${vocabAmountInfo.value[0]})`, untouchedVocabList);
-  console.log(`filtered(${vocabAmountInfo.value[1]})`, lessCommonWordsList);
-  console.log(`common(${vocabAmountInfo.value[2]})`, commonWordsList);
+  console.log(`original(${lengthsOfLists.value[0]})`, untouchedVocabList)
+  console.log(`filtered(${lengthsOfLists.value[1]})`, lessCommonWordsList)
+  console.log(`common(${lengthsOfLists.value[2]})`, commonWordsList)
 }
 
 function dropHandler(ev: any) {
@@ -216,13 +227,18 @@ async function toggleWordState(row: any) {
 
 function sortChange({ prop, order }: any) {
   sortBy.value = { prop, order }
-  tableDataOfVocab.value = [...listsOfVocab[selectedSeg]].sort(compare(prop, order));
+  tableDataOfVocab.value = [...listsOfVocab[selectedSeg.value]].sort(compare(prop, order))
 }
 
 const currentPage = ref(1)
 const pageSizes = [100, 200, 500, 1000, Infinity]
 const pageSize = ref(pageSizes[0])
 const total = computed(() => tableDataFiltered.value.length)
+const disabledTotal = ref(false)
+const totalTransit = useTransition(total, {
+  disabled: disabledTotal,
+  transition: TransitionPresets.easeOutCirc,
+})
 </script>
 
 <template>
@@ -234,7 +250,7 @@ const total = computed(() => tableDataFiltered.value.length)
         <label class="s-btn text-sm px-3 py-2.5 rounded-full grow-0 mx-4" @dragover.prevent @drop.prevent="dropHandler">
           {{ t('browseFiles') }}<input type="file" hidden @change="onFileChange" multiple />
         </label>
-        <span class="flex-1 text-left text-xs text-indigo-900 truncate">{{ vocabAmountInfo.join(', ') || '' }}</span>
+        <span class="flex-1 text-left text-xs text-indigo-900 truncate tabular-nums">{{ vocabCountBySegment }}</span>
       </el-header>
       <el-container>
         <el-container class="relative">
@@ -245,7 +261,7 @@ const total = computed(() => tableDataFiltered.value.length)
 
         <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)] mt-5 md:mt-0 pb-5 md:pb-0">
           <el-card class="table-card flex items-center flex-col mx-5 !rounded-xl !border-0 h-full will-change-transform">
-            <segmented-control :segments="segments" @input="onSegmentSwitched" class="flex-grow-0" />
+            <segmented-control :segments="segments" :default="selectedSeg" @input="onSegmentSwitched" class="flex-grow-0" />
             <div class="h-full w-full"><!-- 100% height of its container minus height of siblings -->
               <div class="h-[calc(100%-1px)]">
                 <el-table
@@ -314,8 +330,8 @@ const total = computed(() => tableDataFiltered.value.length)
               :background="true"
               :pager-count="5"
               layout="prev, pager, next, ->, total, sizes"
-              :total="total"
-              class="!px-2 !pt-1 !pb-1.5 flex-wrap gap-y-1.5 pager-section flex-shrink-0"
+              :total="~~totalTransit"
+              class="!px-2 !pt-1 !pb-1.5 flex-wrap gap-y-1.5 pager-section flex-shrink-0 tabular-nums"
             />
 
           </el-card>
