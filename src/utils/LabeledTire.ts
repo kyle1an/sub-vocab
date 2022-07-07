@@ -20,8 +20,9 @@ export default class LabeledTire implements Trie {
     const totalSize = this.sentences.length;
 
     for (; previousSize < totalSize; previousSize++) {
-      for (const m of this.sentences[previousSize].matchAll(/((?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þ]+[a-zß-ÿ]*)+(?:['-]?[A-Za-zÀ-ÿ]'?)+)|[a-zß-ÿ]+(?:-?[a-zß-ÿ]'?)+/mg)) {
-        this.#update(m[0], !!m[1], m.index!, previousSize);
+      for (const m of this.sentences[previousSize].matchAll(/(?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þa-zß-ÿ]+[a-zß-ÿ]*)+(?:['-]?[A-Za-zÀ-ÿ]'?)+/mg)) {
+        const matchedWord = m[0]
+        this.#update(matchedWord, /[A-ZÀ-Þ]/.test(matchedWord), m.index!, previousSize)
       }
     }
 
@@ -49,33 +50,42 @@ export default class LabeledTire implements Trie {
     }
   }
 
-  categorizeVocabulary() {
-    const __perf = useTimeStore();
-    __perf.time.log.mergeStarted = performance.now()
-    this.traverseMerge();
-    __perf.time.log.mergeEnded = performance.now()
-    const lists: [Label[], Label[], Label[]] = [[], [], []];
+  mergedVocabulary() {
+    const { time } = useTimeStore()
+    time.log.mergeStarted = performance.now()
+    this.traverseMerge(this.root)
+    time.log.mergeEnded = performance.now()
+    return this.vocabulary
+  }
 
-    for (const v of this.vocabulary) {
+  static categorize(vocabulary: Array<Label>) {
+    const { time } = useTimeStore()
+    const sortedVocabulary: (Label | undefined)[] = []
+    const all: Label[] = []
+    const newWord: Label[] = []
+    const acquainted: Label[] = []
+
+    for (const v of vocabulary) {
       if (v.src.length) {
         v.freq = v.src.length;
         v.len = v.w.length;
         v.seq = v.src[0][3];
-        lists[0][v.seq!] = v;
+        sortedVocabulary[v.seq] = v
       }
     }
 
-    lists[0] = lists[0].filter(Boolean);
-
-    for (const v of lists[0]) {
-      lists[!v.F && v.len! > 2 ? 1 : 2].push(v);
+    for (const v of sortedVocabulary) {
+      if (v) {
+        all.push(v)
+        ;(!v.F && v.len! > 2 ? newWord : acquainted).push(v)
+      }
     }
 
-    __perf.time.log.formLabelEnded = performance.now()
-    return lists;
+    time.log.formLabelEnded = performance.now()
+    return [all, newWord, acquainted]
   }
 
-  traverseMerge(layer: TrieNode = this.root) {
+  traverseMerge(layer: TrieNode) {
     for (const key in layer) {
       if (key === '$') continue;
       const innerLayer = layer[key as Char]!

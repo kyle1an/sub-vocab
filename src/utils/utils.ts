@@ -107,3 +107,5 @@ export function compare(propertyName: string, order: string) {
     return order === 'ascending' ? res : -res
   }
 }
+
+export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))

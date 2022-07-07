@@ -4,7 +4,7 @@ import SegmentedControl from '../components/SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue';
 import { Ref } from 'vue'
 import { Label, Source, Vocab } from '../types'
-import { classKeyOfRow, compare, readFiles, removeClass, selectWord, sortByChar } from '../utils/utils'
+import { classKeyOfRow, compare, readFiles, removeClass, selectWord, sleep, sortByChar } from '../utils/utils'
 import { acquaint, revokeWord } from '../api/vocab-service';
 import { useVocabStore } from '../store/useVocab';
 import { useTimeStore } from '../store/usePerf';
@@ -21,13 +21,9 @@ const segments: Ref<string[]> = computed(() => [
   t('acquainted'),
 ])
 const selectedSeg = ref(0)
-let listsOfVocab: Array<any>[] = [[], [], []];
+let listsOfVocab: Label[][] = [[], [], []]
 const tableDataOfVocab = shallowRef<Vocab[]>([]);
 const vocabTable = shallowRef<any>(null);
-
-function handleRowClick(row: any) {
-  return vocabTable.value.toggleRowExpansion(row, row.expanded);
-}
 
 function tagExpand(row: any) {
   document.getElementsByClassName(classKeyOfRow(row.seq))[0].classList.toggle('expanded');
@@ -76,7 +72,7 @@ function source(src: Source) {
 }
 
 const fileInfo = ref<string>('');
-const inputContent = ref<string>('');
+const inputText = ref<string>('')
 
 async function onFileChange(ev: any) {
   const files = ev.target.files
@@ -89,58 +85,64 @@ async function onFileChange(ev: any) {
     fileInfo.value = fileList[0].file.name
   }
 
-  inputContent.value = fileList.reduce((pre, { result }) => pre + result, '')
+  inputText.value = fileList.reduce((pre, { result }) => pre + result, '')
 }
 
 const sentences = shallowRef<any[]>([]);
 const vocabStore = useVocabStore()
-const __perf = useTimeStore();
+const { time, logPerf } = useTimeStore()
 const lengthsOfLists = ref<number[]>([0, 0, 0])
 const lengthsOfListsOutput = useTransition(lengthsOfLists, {
   transition: TransitionPresets.easeInOutCirc,
 })
-
 const vocabCountBySegment = computed(() => {
   const [r, g, b] = lengthsOfListsOutput.value
   return `${~~r} - ${~~g} - ${~~b}`
 })
 
-async function formVocabLists(content: string): Promise<any> {
+async function structVocab(content: string): Promise<any> {
   const trieListPair = await vocabStore.getSieve()
-  __perf.time.log = {}
-  __perf.time.log.start = performance.now()
+  time.log = {}
+  time.log.start = performance.now()
   const vocab = new Trie(trieListPair).add(content);
-  __perf.time.log.wordInitialized = performance.now();
-  const { root, sentences, } = vocab
-  __perf.time.log.categorizeStart = performance.now();
-  return {
-    root,
-    sentences,
-    lists: vocab.categorizeVocabulary(),
-  }
+  time.log.wordInitialized = performance.now()
+  return vocab
 }
 
-watchDebounced(inputContent,
-  async (v) => {
-    await nextTick()
-    setTimeout(async () => {
-      const { root, lists, sentences: sent } = await formVocabLists(v)
-      sentences.value = sent;
-      listsOfVocab = lists
-      lengthsOfLists.value = lists.map((l: any[]) => l.length)
-      setTimeout(() => {
-        refreshTable(lists)
-      }, 0)
-      __perf.time.log.end = performance.now()
-      console.log({ root: JSON.stringify(root) });
-      logVocabInfo();
-      __perf.logPerf()
+let inputChanged = false
+watch(inputText, () => inputChanged = true)
+const { pause, resume } = watchPausable(inputText,
+  async function formVocabLists(v) {
+    inputChanged = false
+    pause()
+    await nextTick(() => sleep(50))
+    const trie = await structVocab(v)
+    time.log.categorizeStart = performance.now()
+    if (inputChanged) {
+      await nextTick()
+      await formVocabLists(inputText.value)
+      return
+    }
+    sentences.value = trie.sentences
+    const vocabs = trie.mergedVocabulary()
+    listsOfVocab = Trie.categorize(vocabs)
+    lengthsOfLists.value = listsOfVocab.map((l: any[]) => l.length)
+    setTimeout(() => {
+      refreshTable(listsOfVocab)
     }, 0)
+    time.log.end = performance.now()
+    logVocabInfo(listsOfVocab)
+    logPerf()
+    if (inputChanged) {
+      await nextTick()
+      await formVocabLists(inputText.value)
+      return
+    }
+    resume()
   },
-  { debounce: 400 },
 )
 
-function refreshTable(lists: [Label[], Label[], Label[]],) {
+function refreshTable(lists: Label[][]) {
   removeClass('expanded')
   setTimeout(() => {
     tableDataOfVocab.value = lists[selectedSeg.value]
@@ -148,36 +150,13 @@ function refreshTable(lists: [Label[], Label[], Label[]],) {
   }, 0)
 }
 
-function logVocabInfo() {
+function logVocabInfo(listsOfVocab: any[]) {
   const untouchedVocabList = [...listsOfVocab[0]].sort((a, b) => sortByChar(a.w, b.w))
   const lessCommonWordsList = [...listsOfVocab[1]].sort((a, b) => sortByChar(a.w, b.w))
   const commonWordsList = [...listsOfVocab[2]].sort((a, b) => sortByChar(a.w, b.w))
-  console.log(`sentences(${sentences.value.length})`, sentences);
-  console.log(`original(${lengthsOfLists.value[0]})`, untouchedVocabList)
-  console.log(`filtered(${lengthsOfLists.value[1]})`, lessCommonWordsList)
-  console.log(`common(${lengthsOfLists.value[2]})`, commonWordsList)
-}
-
-function dropHandler(ev: any) {
-  // TODO get dropped files
-  ev.preventDefault();
-
-  if (ev.dataTransfer.items) {
-    console.log('dataTransfer.items')
-    // Use DataTransferItemList interface to access the file(s)
-    for (let i = 0; i < ev.dataTransfer.items.length; i++) {
-      // If dropped items aren't files, reject them
-      if (ev.dataTransfer.items[i].kind === 'file') {
-        const file = ev.dataTransfer.items[i].getAsFile();
-        console.log(`... file[${i}].name = ` + file.name, file);
-      }
-    }
-  } else {
-    // Use DataTransfer interface to access the file(s)
-    for (let i = 0; i < ev.dataTransfer.files.length; i++) {
-      console.log(`... file[${i}].name = ` + ev.dataTransfer.files[i].name, ev.dataTransfer.files[i]);
-    }
-  }
+  console.log(`(${untouchedVocabList.length}) words`, { _: untouchedVocabList })
+  console.log(`(${lessCommonWordsList.length}) new`, { _: lessCommonWordsList })
+  console.log(`(${commonWordsList.length}) acquainted`, { _: commonWordsList })
 }
 
 const search = ref('');
@@ -244,10 +223,10 @@ const totalTransit = useTransition(total, {
 <template>
   <div class="mx-auto max-w-screen-xl">
     <el-container>
-      <el-header height="100%" class="relative !h-16 flex items-center">
+      <el-header height="100%" class="relative !h-16 flex items-center !pl-2 !pr-0">
         <span class="flex-1 text-right text-xs text-indigo-900 truncate tracking-tight font-compact">
           {{ fileInfo || t('noFileChosen') }}</span>
-        <label class="s-btn text-sm px-3 py-2.5 rounded-full grow-0 mx-4" @dragover.prevent @drop.prevent="dropHandler">
+        <label class="s-btn text-sm px-3 py-2.5 rounded-full grow-0 mx-2.5">
           {{ t('browseFiles') }}<input type="file" hidden @change="onFileChange" multiple />
         </label>
         <span class="flex-1 text-left text-xs text-indigo-900 truncate tabular-nums">{{ vocabCountBySegment }}</span>
@@ -255,7 +234,7 @@ const totalTransit = useTransition(total, {
       <el-container>
         <el-container class="relative">
           <el-main class="!py-0 relative">
-            <el-input class="input-area h-full !text-base md:!text-sm font-text-sans" type="textarea" :placeholder="t('inputArea')" v-model.lazy="inputContent" />
+            <el-input class="input-area h-full !text-base md:!text-sm font-text-sans" type="textarea" :placeholder="t('inputArea')" v-model.lazy="inputText" />
           </el-main>
         </el-container>
 
@@ -269,7 +248,7 @@ const totalTransit = useTransition(total, {
                   class="w-table !h-full !w-full md:w-full" height="200" size="small" fit
                   :row-class-name="({row})=> classKeyOfRow(row.seq)"
                   :data="tableDataDisplay"
-                  @row-click="handleRowClick"
+                  @row-click="(r) => vocabTable.toggleRowExpansion(r)"
                   @expand-change="tagExpand"
                   @sort-change="sortChange"
                 >
