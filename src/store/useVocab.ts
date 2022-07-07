@@ -15,12 +15,8 @@ export const useVocabStore = defineStore('vocabStore', () => {
     if (!irregulars.length) await fetchIrregulars();
     if (username !== undefined) {
       commonVocab = await queryWordsByUser(username);
-      trieListPair = structSievePair(commonVocab);
     } else if (commonVocab.length === 0) {
-      console.time('fetch vocab');
       commonVocab = await query;
-      console.timeEnd('fetch vocab');
-      trieListPair = structSievePair(commonVocab);
     }
 
     return commonVocab;
@@ -73,12 +69,8 @@ export const useVocabStore = defineStore('vocabStore', () => {
 
   async function getSieve() {
     await fetchVocab();
-    setTimeout(() => {
-      setTimeout(() => {
-        trieListPair = structSievePair(commonVocab);
-      }, 0);
-    }, 0);
-    return trieListPair;
+    trieListPair = structSievePair(commonVocab)
+    return trieListPair
   }
 
   function updateWord(row: Label) {
