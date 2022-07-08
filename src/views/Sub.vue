@@ -1,16 +1,16 @@
 <script lang="ts" setup>
-import Trie from '../utils/LabeledTire';
+import Trie from '../utils/LabeledTire'
 import SegmentedControl from '../components/SegmentedControl.vue'
-import { Check } from '@element-plus/icons-vue';
+import { Check } from '@element-plus/icons-vue'
 import { Ref } from 'vue'
 import { Label, Source, Vocab } from '../types'
 import { classKeyOfRow, compare, readFiles, removeClass, selectWord, sleep, sortByChar } from '../utils/utils'
-import { acquaint, revokeWord } from '../api/vocab-service';
-import { useVocabStore } from '../store/useVocab';
-import { useTimeStore } from '../store/usePerf';
-import { useUserStore } from '../store/useState';
-import { ElNotification } from 'element-plus';
-import router from '../router';
+import { acquaint, revokeWord } from '../api/vocab-service'
+import { useVocabStore } from '../store/useVocab'
+import { useTimeStore } from '../store/usePerf'
+import { useUserStore } from '../store/useState'
+import { ElNotification } from 'element-plus'
+import router from '../router'
 import { TransitionPresets } from '@vueuse/core'
 
 const { t } = useI18n()
@@ -22,11 +22,11 @@ const segments: Ref<string[]> = computed(() => [
 ])
 const selectedSeg = ref(0)
 let listsOfVocab: Label[][] = [[], [], []]
-const tableDataOfVocab = shallowRef<Vocab[]>([]);
-const vocabTable = shallowRef<any>(null);
+const tableDataOfVocab = shallowRef<Vocab[]>([])
+const vocabTable = shallowRef<any>(null)
 
 function tagExpand(row: any) {
-  document.getElementsByClassName(classKeyOfRow(row.seq))[0].classList.toggle('expanded');
+  document.getElementsByClassName(classKeyOfRow(row.seq))[0].classList.toggle('expanded')
 }
 
 const sortBy = ref<any>({})
@@ -40,38 +40,38 @@ function onSegmentSwitched(v: number) {
 }
 
 function example(str: string, idxes: Array<number>[]): string {
-  const lines = [];
-  let position = 0;
+  const lines = []
+  let position = 0
   for (const [idx, len] of idxes) {
     lines.push(`${str.slice(position, idx)}<span class="italic underline">${str.slice(idx, position = idx + len)}</span>`)
   }
-  return lines.concat(str.slice(position)).join('');
+  return lines.concat(str.slice(position)).join('')
 }
 
 function source(src: Source) {
-  const lines = [];
-  src.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const lines = []
+  src.sort((a, b) => a[0] - b[0] || a[1] - b[1])
   const source: any = src.map(([sentenceId, start, len, sequence]) => [
     sentenceId,
     [[start, len, sequence]],
-  ]);
+  ])
 
   for (let i = 0; i < source.length; i++) {
     if (source[i][0] === source?.[i + 1]?.[0]) {
       lines.push([
         source[i][0],
         source[i][1].concat(source[i + 1][1])
-      ]);
-      i++;
+      ])
+      i++
     } else {
-      lines.push(source[i]);
+      lines.push(source[i])
     }
   }
 
-  return lines;
+  return lines
 }
 
-const fileInfo = ref<string>('');
+const fileInfo = ref<string>('')
 const inputText = ref<string>('')
 
 async function onFileChange(ev: any) {
@@ -88,7 +88,7 @@ async function onFileChange(ev: any) {
   inputText.value = fileList.reduce((pre, { result }) => pre + result, '')
 }
 
-const sentences = shallowRef<any[]>([]);
+const sentences = shallowRef<any[]>([])
 const vocabStore = useVocabStore()
 const { time, logPerf } = useTimeStore()
 const lengthsOfLists = ref<number[]>([0, 0, 0])
@@ -104,7 +104,7 @@ async function structVocab(content: string): Promise<any> {
   const trieListPair = await vocabStore.getSieve()
   time.log = {}
   time.log.start = performance.now()
-  const vocab = new Trie(trieListPair).add(content);
+  const vocab = new Trie(trieListPair).add(content)
   time.log.wordInitialized = performance.now()
   return vocab
 }
@@ -159,7 +159,7 @@ function logVocabInfo(listsOfVocab: any[]) {
   console.log(`(${commonWordsList.length}) acquainted`, { _: commonWordsList })
 }
 
-const search = ref('');
+const search = ref('')
 const tableDataFiltered = computed(() =>
   tableDataOfVocab.value.filter((row: any) =>
     !search.value || row.w.toLowerCase().includes(search.value.toLowerCase())
@@ -168,24 +168,24 @@ const tableDataFiltered = computed(() =>
 const tableDataDisplay = computed(() =>
   tableDataFiltered.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value)
 )
-const loadingStateArray = ref<boolean[]>([]);
+const loadingStateArray = ref<boolean[]>([])
 
 async function toggleWordState(row: any) {
-  loadingStateArray.value[row.seq] = true;
+  loadingStateArray.value[row.seq] = true
 
   if (userStore.user.name) {
-    const word = row.w.replace(/'/g, `''`);
-    row.vocab ??= { w: row.w, is_user: true, acquainted: false };
+    const word = row.w.replace(/'/g, '\'\'')
+    row.vocab ??= { w: row.w, is_user: true, acquainted: false }
     const vocabInfo = {
       word,
       user: userStore.user.name,
     }
     const acquainted = row?.vocab?.acquainted
-    const res = await (acquainted ? revokeWord : acquaint)(vocabInfo);
+    const res = await (acquainted ? revokeWord : acquaint)(vocabInfo)
 
     if (res?.affectedRows) {
-      row.F = row.vocab.acquainted = !acquainted;
-      vocabStore.updateWord(row);
+      row.F = row.vocab.acquainted = !acquainted
+      vocabStore.updateWord(row)
     }
   } else {
     ElNotification({
@@ -201,7 +201,7 @@ async function toggleWordState(row: any) {
     })
   }
 
-  loadingStateArray.value[row.seq] = false;
+  loadingStateArray.value[row.seq] = false
 }
 
 function sortChange({ prop, order }: any) {
@@ -223,29 +223,52 @@ const totalTransit = useTransition(total, {
 <template>
   <div class="mx-auto max-w-screen-xl">
     <el-container>
-      <el-header height="100%" class="relative !h-16 flex items-center !pl-2 !pr-0">
+      <el-header
+        height="100%"
+        class="relative !h-16 flex items-center !pl-2 !pr-0"
+      >
         <span class="flex-1 text-right text-xs text-indigo-900 truncate tracking-tight font-compact">
           {{ fileInfo || t('noFileChosen') }}</span>
         <label class="s-btn text-sm px-3 py-2.5 rounded-full grow-0 mx-2.5">
-          {{ t('browseFiles') }}<input type="file" hidden @change="onFileChange" multiple />
+          {{ t('browseFiles') }}
+          <input
+            type="file"
+            hidden
+            multiple
+            @change="onFileChange"
+          >
         </label>
         <span class="flex-1 text-left text-xs text-indigo-900 truncate tabular-nums">{{ vocabCountBySegment }}</span>
       </el-header>
       <el-container>
         <el-container class="relative">
           <el-main class="!py-0 relative">
-            <el-input class="input-area h-full !text-base md:!text-sm font-text-sans" type="textarea" :placeholder="t('inputArea')" v-model.lazy="inputText" />
+            <el-input
+              v-model.lazy="inputText"
+              class="input-area h-full !text-base md:!text-sm font-text-sans"
+              type="textarea"
+              :placeholder="t('inputArea')"
+            />
           </el-main>
         </el-container>
 
         <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)] mt-5 md:mt-0 pb-5 md:pb-0">
           <el-card class="table-card flex items-center flex-col mx-5 !rounded-xl !border-0 h-full will-change-transform">
-            <segmented-control :segments="segments" :default="selectedSeg" @input="onSegmentSwitched" class="flex-grow-0" />
-            <div class="h-full w-full"><!-- 100% height of its container minus height of siblings -->
+            <segmented-control
+              :segments="segments"
+              :default="selectedSeg"
+              class="flex-grow-0"
+              @input="onSegmentSwitched"
+            />
+            <div class="h-full w-full">
+              <!-- 100% height of its container minus height of siblings -->
               <div class="h-[calc(100%-1px)]">
                 <el-table
                   ref="vocabTable"
-                  class="w-table !h-full !w-full md:w-full" height="200" size="small" fit
+                  class="w-table !h-full !w-full md:w-full"
+                  height="200"
+                  size="small"
+                  fit
                   :row-class-name="({row})=> classKeyOfRow(row.seq)"
                   :data="tableDataDisplay"
                   @row-click="(r) => vocabTable.toggleRowExpansion(r)"
@@ -255,45 +278,90 @@ const totalTransit = useTransition(total, {
                   <el-table-column type="expand">
                     <template #default="props">
                       <div class="mb-1 ml-5 mr-3">
-                        <div class="break-words" style="word-break: break-word;" v-for="[no,idx] in source(props.row.src)">
+                        <div
+                          v-for="[no,idx] in source(props.row.src)"
+                          :key="idx[3]"
+                          class="break-words"
+                          style="word-break: break-word;"
+                        >
                           <span v-html="example(sentences[no], idx)" />
                         </div>
                       </div>
                     </template>
                   </el-table-column>
 
-                  <el-table-column label="Vocabulary" prop="w" align="left" min-width="16" sortable="custom" class-name="cursor-pointer">
+                  <el-table-column
+                    label="Vocabulary"
+                    prop="w"
+                    align="left"
+                    min-width="16"
+                    sortable="custom"
+                    class-name="cursor-pointer"
+                  >
                     <template #header>
-                      <el-input @click.stop class="!w-[calc(100%-26px)] !text-base md:!text-xs" v-model="search" size="small" :placeholder="t('search')" />
+                      <el-input
+                        v-model="search"
+                        class="!w-[calc(100%-26px)] !text-base md:!text-xs"
+                        size="small"
+                        :placeholder="t('search')"
+                        @click.stop
+                      />
                     </template>
                     <template #default="props">
-                      <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart.passive="selectWord" @click.stop>{{ props.row.w }}</span>
+                      <span
+                        class="cursor-text font-compact text-[16px] tracking-wide"
+                        @mouseover="selectWord"
+                        @touchstart.passive="selectWord"
+                        @click.stop
+                      >{{ props.row.w }}</span>
                     </template>
                   </el-table-column>
 
-                  <el-table-column :label="t('frequency')" prop="freq" align="right" min-width="9" sortable="custom" class-name="cursor-pointer tabular-nums">
+                  <el-table-column
+                    :label="t('frequency')"
+                    prop="freq"
+                    align="right"
+                    min-width="9"
+                    sortable="custom"
+                    class-name="cursor-pointer tabular-nums"
+                  >
                     <template #default="props">
-                      <div class="font-compact text-right select-none">{{ props.row.freq }}</div>
+                      <div class="font-compact text-right select-none">
+                        {{ props.row.freq }}
+                      </div>
                     </template>
                   </el-table-column>
 
-                  <el-table-column :label="t('length')" prop="len" align="right" min-width="10" sortable="custom" class-name="cursor-pointer tabular-nums">
+                  <el-table-column
+                    :label="t('length')"
+                    prop="len"
+                    align="right"
+                    min-width="10"
+                    sortable="custom"
+                    class-name="cursor-pointer tabular-nums"
+                  >
                     <template #default="props">
-                      <div class="font-compact select-none">{{ props.row.len }}</div>
+                      <div class="font-compact select-none">
+                        {{ props.row.len }}
+                      </div>
                     </template>
                   </el-table-column>
 
-                  <el-table-column align="right" min-width="5">
+                  <el-table-column
+                    align="right"
+                    min-width="5"
+                  >
                     <template #default="{row}">
                       <el-button
                         size="small"
                         type="primary"
                         :icon="Check"
-                        @click.stop="toggleWordState(row)"
                         :plain="!row?.vocab?.acquainted"
                         :loading="loadingStateArray[row.seq]"
                         :disabled="row?.vocab && !row?.vocab?.is_user"
-                        :text="!row?.vocab?.acquainted" bg
+                        :text="!row?.vocab?.acquainted"
+                        bg
+                        @click.stop="toggleWordState(row)"
                       />
                     </template>
                   </el-table-column>
@@ -312,7 +380,6 @@ const totalTransit = useTransition(total, {
               :total="~~totalTransit"
               class="!px-2 !pt-1 !pb-1.5 flex-wrap gap-y-1.5 pager-section flex-shrink-0 tabular-nums"
             />
-
           </el-card>
         </el-aside>
       </el-container>

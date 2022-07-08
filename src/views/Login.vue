@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { login } from '../api/user';
-import router from '../router';
+import { login } from '../api/user'
+import router from '../router'
 import type { FormInstance } from 'element-plus'
-import { useUserStore } from '../store/useState';
-import { setCookie } from '../utils/cookie';
-import { ElNotification } from 'element-plus/es';
-import { useVocabStore } from '../store/useVocab';
+import { useUserStore } from '../store/useState'
+import { setCookie } from '../utils/cookie'
+import { ElNotification } from 'element-plus/es'
+import { useVocabStore } from '../store/useVocab'
 
 const { t } = useI18n()
 const store = useUserStore()
@@ -82,7 +82,10 @@ function resetForm(formEl: FormInstance | undefined) {
   <div>
     <el-container>
       <el-main class="mx-auto">
-        <el-card shadow="always" class="w-80 flex justify-center mx-auto">
+        <el-card
+          shadow="always"
+          class="w-80 flex justify-center mx-auto"
+        >
           <el-form
             ref="ruleFormRef"
             :model="ruleForm"
@@ -93,15 +96,36 @@ function resetForm(formEl: FormInstance | undefined) {
             style="max-width: 460px"
             status-icon
           >
-            <el-form-item :label="t('Name')" prop="username">
-              <el-input v-model.number="ruleForm.username" class="!text-base md:!text-xs" />
+            <el-form-item
+              :label="t('Name')"
+              prop="username"
+            >
+              <el-input
+                v-model.number="ruleForm.username"
+                class="!text-base md:!text-xs"
+              />
             </el-form-item>
-            <el-form-item :label="t('Password')" prop="password">
-              <el-input v-model="ruleForm.password" type="password" autocomplete="off" class="!text-base md:!text-xs" />
+            <el-form-item
+              :label="t('Password')"
+              prop="password"
+            >
+              <el-input
+                v-model="ruleForm.password"
+                type="password"
+                autocomplete="off"
+                class="!text-base md:!text-xs"
+              />
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="submitForm(ruleFormRef)">{{ t('Submit') }}</el-button>
-              <el-button @click="resetForm(ruleFormRef)">{{ t('Reset') }}</el-button>
+              <el-button
+                type="primary"
+                @click="submitForm(ruleFormRef)"
+              >
+                {{ t('Submit') }}
+              </el-button>
+              <el-button @click="resetForm(ruleFormRef)">
+                {{ t('Reset') }}
+              </el-button>
             </el-form-item>
           </el-form>
         </el-card>

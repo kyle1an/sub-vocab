@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import Switch from '../components/Switch.vue';
+import Switch from '../components/Switch.vue'
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { Ref } from 'vue'
-import { compare, jsonClone, selectWord } from '../utils/utils';
-import { useVocabStore } from '../store/useVocab';
+import { compare, jsonClone, selectWord } from '../utils/utils'
+import { useVocabStore } from '../store/useVocab'
 
 const { t } = useI18n()
 const segments: Ref<string[]> = computed(() => [
@@ -11,9 +11,9 @@ const segments: Ref<string[]> = computed(() => [
   t('mine'),
   t('top'),
 ])
-const selected = ref(0)
+const selected: Ref<number> = ref(0)
 let vocabLists: Array<any>[] = [[], [], []]
-const acquaintedVocabTableData = ref<any>([]);
+const acquaintedVocabTableData = ref<any>([])
 
 async function loadVocab() {
   const vocabStore = useVocabStore()
@@ -68,7 +68,7 @@ function sortChange({ prop, order }: any) {
   acquaintedVocabTableData.value = [...vocabLists[selected.value]].sort(compare(prop, order))
 }
 
-const search = ref('');
+const search = ref('')
 const tableDataFiltered = computed(() =>
   acquaintedVocabTableData.value.filter((data: any) =>
     !search.value || data.w.toLowerCase().includes(search.value.toLowerCase())
@@ -87,40 +87,94 @@ const total = computed(() => tableDataFiltered.value.length)
 <template>
   <div class="mx-auto max-w-screen-xl">
     <el-container>
-      <el-header height="100%" class="relative !h-16 flex items-center">
-        <Switch :state="false" :text="['off','on']" />
+      <el-header
+        height="100%"
+        class="relative !h-16 flex items-center"
+      >
+        <Switch
+          :state="false"
+          :text="['off','on']"
+        />
       </el-header>
 
       <el-container class="justify-center">
         <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
           <el-card class="table-card flex items-center flex-col mx-5 !rounded-xl !border-0 h-full will-change-transform">
-            <segmented-control :segments="segments" :default="selected" @input="onSegmentSwitched" class="flex-grow-0 pt-3 pb-2" />
-            <div class="h-full w-full"><!-- 100% height of its container minus height of siblings -->
+            <segmented-control
+              :segments="segments"
+              :default="selected"
+              class="flex-grow-0 pt-3 pb-2"
+              @input="onSegmentSwitched"
+            />
+            <div class="h-full w-full">
+              <!-- 100% height of its container minus height of siblings -->
               <div class="h-[calc(100%-1px)]">
-                <el-table @sort-change="sortChange" fit class="w-table !h-full !w-full md:w-full" height="200" size="small" :data="tableDataDisplay">
-
-                  <el-table-column :label="t('rank')" prop="rank" sortable="custom" header-align="center" align="center" min-width="7" class-name="cursor-pointer tabular-nums">
+                <el-table
+                  fit
+                  class="w-table !h-full !w-full md:w-full"
+                  height="200"
+                  size="small"
+                  :data="tableDataDisplay"
+                  @sort-change="sortChange"
+                >
+                  <el-table-column
+                    :label="t('rank')"
+                    prop="rank"
+                    sortable="custom"
+                    header-align="center"
+                    align="center"
+                    min-width="7"
+                    class-name="cursor-pointer tabular-nums"
+                  >
                     <template #default="props">
-                      <div class="font-compact select-none">{{ props.row.rank }}</div>
+                      <div class="font-compact select-none">
+                        {{ props.row.rank }}
+                      </div>
                     </template>
                   </el-table-column>
 
-                  <el-table-column label="Vocabulary" prop="w" sortable="custom" align="left" min-width="7" class-name="cursor-pointer">
+                  <el-table-column
+                    label="Vocabulary"
+                    prop="w"
+                    sortable="custom"
+                    align="left"
+                    min-width="7"
+                    class-name="cursor-pointer"
+                  >
                     <template #header>
-                      <el-input @click.stop class="!w-[calc(100%-26px)] !text-base md:!text-xs" v-model="search" size="small" :placeholder="t('search')" />
+                      <el-input
+                        v-model="search"
+                        class="!w-[calc(100%-26px)] !text-base md:!text-xs"
+                        size="small"
+                        :placeholder="t('search')"
+                        @click.stop
+                      />
                     </template>
                     <template #default="props">
-                      <span class="cursor-text font-compact text-[16px] tracking-wide" @mouseover="selectWord" @touchstart.passive="selectWord" @click.stop>{{ props.row.w }}</span>
+                      <span
+                        class="cursor-text font-compact text-[16px] tracking-wide"
+                        @mouseover="selectWord"
+                        @touchstart.passive="selectWord"
+                        @click.stop
+                      >{{ props.row.w }}</span>
                     </template>
                   </el-table-column>
 
-                  <el-table-column :label="t('length')" prop="len" sortable="custom" align="left" min-width="5" class-name="cursor-pointer tabular-nums">
+                  <el-table-column
+                    :label="t('length')"
+                    prop="len"
+                    sortable="custom"
+                    align="left"
+                    min-width="5"
+                    class-name="cursor-pointer tabular-nums"
+                  >
                     <template #default="props">
-                      <div class="font-compact select-none">{{ props.row.len }}</div>
+                      <div class="font-compact select-none">
+                        {{ props.row.len }}
+                      </div>
                     </template>
                   </el-table-column>
                 </el-table>
-
               </div>
             </div>
             <el-pagination

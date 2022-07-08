@@ -1,5 +1,5 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import Sub from '../views/Sub.vue';
+import { createRouter, createWebHistory } from 'vue-router'
+import Sub from '../views/Sub.vue'
 
 const About = { template: '<div>About</div>' }
 const routes = [
@@ -17,4 +17,4 @@ const router = createRouter({
   routes,
 })
 
-export default router;
+export default router

@@ -1,14 +1,14 @@
 import App from './App.vue'
-import './style/main.css';
-import './style/fonts.css';
+import './style/main.css'
+import './style/fonts.css'
 
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
-import { createPinia } from 'pinia';
+import { createPinia } from 'pinia'
 import router from './router'
-import { getCookie } from './utils/cookie';
+import { getCookie } from './utils/cookie'
 import { createI18n } from 'vue-i18n'
-import { messages } from './utils/localeMessages';
+import { messages } from './utils/localeMessages'
 
 const app = createApp(App)
 app.use(ElementPlus)

@@ -1,11 +1,11 @@
 <script>
 export default {
-  name: "Editor"
+  name: 'Editor'
 }
 </script>
 
 <template>
-
+  <div />
 </template>
 
 <style scoped>
