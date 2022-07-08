@@ -8,5 +8,5 @@ export function fetchPost(url: string, options: RequestInit = {}) {
     ...options
   })
     .then(response => response.json())
-    .then(data => data);
+    .then(data => data)
 }

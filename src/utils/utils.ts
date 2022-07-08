@@ -1,60 +1,60 @@
-import { Char, TrieNode } from "../types";
+import { Char, TrieNode } from '../types'
 
 export function sortByChar(a: string, b: string): number {
-  return a.localeCompare(b, 'en', { sensitivity: 'base' });
+  return a.localeCompare(b, 'en', { sensitivity: 'base' })
 }
 
 export function sortByNum(a: any, b: any): number {
   if (a === null) return 1
   if (b === null) return -1
-  return a - b;
+  return a - b
 }
 
-const print = (m: any, space = 0) => console.log(JSON.stringify(m, null, space).replace(/"/mg, ""))
-const stringify = (m: any, space = 0) => ({ s: JSON.stringify(m, null).replace(/"/mg, "'") })
+const print = (m: any, space = 0) => console.log(JSON.stringify(m, null, space).replace(/"/mg, ''))
+const stringify = (m: any, space = 0) => ({ s: JSON.stringify(m, null).replace(/"/mg, '\'') })
 
 export function getNode(node: TrieNode, word: string) {
   for (const c of word.split('')) {
-    node = node[(c as Char)] ??= {};
+    node = node[(c as Char)] ??= {}
   }
 
-  return node;
+  return node
 }
 
 function mergeSorted(a: any, b: any): any {
   if (!a.length) {
-    return b;
+    return b
   } else if (!b.length) {
-    return a;
+    return a
   }
 
-  const merged = [];
-  let i = 0;
-  let j = 0;
-  const lenA = a.length;
-  const lenB = b.length;
+  const merged = []
+  let i = 0
+  let j = 0
+  const lenA = a.length
+  const lenB = b.length
 
   while (i < lenA && j < lenB) {
-    const ai0 = a[i][0];
-    const bj0 = b[j][0];
+    const ai0 = a[i][0]
+    const bj0 = b[j][0]
     merged.push(
       ai0 < bj0 ? a[i++]
         : ai0 > bj0 ? b[j++]
           : [ai0, mergeSorted(a[i++][1], b[j++][1])]
-    );
+    )
   }
 
-  return merged.concat(a.slice(i)).concat(b.slice(j));
+  return merged.concat(a.slice(i)).concat(b.slice(j))
 }
 
 export function caseOr(a: string, b: string): string {
-  const r = [];
+  const r = []
 
   for (let i = 0; i < a.length; i++) {
-    r.push(a.charCodeAt(i) | b.charCodeAt(i));
+    r.push(a.charCodeAt(i) | b.charCodeAt(i))
   }
 
-  return String.fromCharCode(...r);
+  return String.fromCharCode(...r)
 }
 
 export function selectWord(e: any) {
@@ -76,7 +76,7 @@ export function readSingleFile(file: any): any {
       const { result } = fr
       resolve({ file, result })
     }
-    fr.onerror = reject;
+    fr.onerror = reject
     fr.readAsText(file)
   })
 }
@@ -96,9 +96,9 @@ export const classKeyOfRow = (seq: string | number) => `v-${seq}`
 
 export function compare(propertyName: string, order: string) {
   return function (obj1: any, obj2: any): number {
-    const value1 = obj1[propertyName];
-    const value2 = obj2[propertyName];
-    let res;
+    const value1 = obj1[propertyName]
+    const value2 = obj2[propertyName]
+    let res
     if (typeof value1 === 'string' && typeof value2 === 'string') {
       res = sortByChar(value1, value2)
     } else {
@@ -108,4 +108,4 @@ export function compare(propertyName: string, order: string) {
   }
 }
 
-export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))
+export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))

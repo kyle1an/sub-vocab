@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { existsUsername, register } from '../api/user';
-import router from '../router';
+import { existsUsername, register } from '../api/user'
+import router from '../router'
 import type { FormInstance } from 'element-plus'
-import { userInfo } from '../types/user';
-import { ElNotification } from 'element-plus/es';
+import { userInfo } from '../types/user'
+import { ElNotification } from 'element-plus/es'
 
 const { t } = useI18n()
 const ruleFormRef = ref<FormInstance>()
@@ -89,7 +89,7 @@ function submitForm(formEl: FormInstance | undefined) {
 
 async function registerStatus(form: userInfo) {
   const signUpRes = await register(form)
-  return signUpRes[0].result === 1;
+  return signUpRes[0].result === 1
 }
 
 function resetForm(formEl: FormInstance | undefined) {
@@ -102,7 +102,10 @@ function resetForm(formEl: FormInstance | undefined) {
   <div>
     <el-container>
       <el-main class="mx-auto">
-        <el-card shadow="always" class="w-80 flex justify-center mx-auto">
+        <el-card
+          shadow="always"
+          class="w-80 flex justify-center mx-auto"
+        >
           <el-form
             ref="ruleFormRef"
             :model="ruleForm"
@@ -113,18 +116,47 @@ function resetForm(formEl: FormInstance | undefined) {
             style="max-width: 460px"
             status-icon
           >
-            <el-form-item :label="t('Name')" prop="username">
-              <el-input v-model.number="ruleForm.username" class="!text-base md:!text-xs" />
+            <el-form-item
+              :label="t('Name')"
+              prop="username"
+            >
+              <el-input
+                v-model.number="ruleForm.username"
+                class="!text-base md:!text-xs"
+              />
             </el-form-item>
-            <el-form-item :label="t('Password')" prop="password">
-              <el-input v-model="ruleForm.password" type="password" autocomplete="off" class="!text-base md:!text-xs" />
+            <el-form-item
+              :label="t('Password')"
+              prop="password"
+            >
+              <el-input
+                v-model="ruleForm.password"
+                type="password"
+                autocomplete="off"
+                class="!text-base md:!text-xs"
+              />
             </el-form-item>
-            <el-form-item :label="t('Confirm')" prop="checkPass">
-              <el-input v-model="ruleForm.checkPass" type="password" autocomplete="off" class="!text-base md:!text-xs" />
+            <el-form-item
+              :label="t('Confirm')"
+              prop="checkPass"
+            >
+              <el-input
+                v-model="ruleForm.checkPass"
+                type="password"
+                autocomplete="off"
+                class="!text-base md:!text-xs"
+              />
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="submitForm(ruleFormRef)">{{ t('Create Account') }}</el-button>
-              <el-button @click="resetForm(ruleFormRef)">{{ t('Reset') }}</el-button>
+              <el-button
+                type="primary"
+                @click="submitForm(ruleFormRef)"
+              >
+                {{ t('Create Account') }}
+              </el-button>
+              <el-button @click="resetForm(ruleFormRef)">
+                {{ t('Reset') }}
+              </el-button>
             </el-form-item>
           </el-form>
         </el-card>

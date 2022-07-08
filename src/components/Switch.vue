@@ -2,17 +2,22 @@
 const emit = defineEmits(['toggle'])
 const props = defineProps({
   state: Boolean,
-  text: Array,
-});
+  text: { type: Array, default: () => ['off', 'on'] },
+})
 const toggleState = ref<boolean>(props.state)
-const toggleFilter = () => emit('toggle', toggleState.value);
+const toggleFilter = () => emit('toggle', toggleState.value)
 </script>
 
 <template>
   <div>
     <label class="form-switch flex justify-center cursor-pointer">
       <span class="flex justify-center text-base flex-col-reverse mx-2.5">{{ text[0] }}</span>
-      <input type="checkbox" class="hidden" v-model="toggleState" @change="toggleFilter" />
+      <input
+        v-model="toggleState"
+        type="checkbox"
+        class="hidden"
+        @change="toggleFilter"
+      >
       <i class="relative inline-block select-none align-text-bottom rounded-[23px] mr-2 w-[46px] h-[26px] bg-[#e6e6e6]" />
       <span class="flex justify-center text-base flex-col-reverse mx-2.5">{{ text[1] }}</span>
     </label>

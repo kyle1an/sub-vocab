@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import TopBar from './components/TopBar.vue'
-import { useUserStore } from './store/useState';
-import { getCookie } from './utils/cookie';
+import { useUserStore } from './store/useState'
+import { getCookie } from './utils/cookie'
 
 const useStore = useUserStore()
 const userName = getCookie('_user')
@@ -9,7 +9,7 @@ if (userName) {
   useStore.user.name = userName
 }
 </script>
-
+ 
 <template>
   <TopBar />
   <router-view />
