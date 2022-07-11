@@ -84,7 +84,7 @@ function resetForm(formEl: FormInstance | undefined) {
       <el-main class="mx-auto">
         <el-card
           shadow="always"
-          class="w-80 flex justify-center mx-auto"
+          class="mx-auto flex w-80 justify-center"
         >
           <el-form
             ref="ruleFormRef"

@@ -6,7 +6,8 @@ module.exports = {
   },
   'extends': [
     'plugin:vue/vue3-recommended',
-    // "plugin:vue/essential"
+    // "plugin:vue/essential",
+    'plugin:tailwindcss/recommended',
   ],
   'parserOptions': {
     parser: require.resolve('@typescript-eslint/parser'),
@@ -19,10 +20,11 @@ module.exports = {
     '@typescript-eslint',
   ],
   parser: 'vue-eslint-parser',
-  'ignorePatterns': ['**/*.json'],
+  'ignorePatterns': ['**/*.json', '.eslintrc.js', '*.config.js'],
   'rules': {
     'semi': [1, 'never'],
     'quotes': [1, 'single'],
     'vue/multi-word-component-names': 'off',
+    'tailwindcss/no-custom-classname': 'off',
   }
 }

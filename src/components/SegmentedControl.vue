@@ -18,7 +18,7 @@ watch(selectedId, function toggleSectionFontWeight(v, o) {
 })
 
 function recalculateSelectedSegmentWidth() {
-  nextTick(() => {
+  nextTick().then(() => {
     selectedSegmentWidth.value = document.querySelector(`input[type='radio'][value='${selectedId.value}']`)!.getBoundingClientRect().width
   })
 }
@@ -28,11 +28,11 @@ onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSe
 </script>
 
 <template>
-  <main class="flex justify-center m-0 px-5 pt-3 pb-2 font-sans antialiased !touch-manipulation">
-    <div class="w-full grid grid-flow-col auto-cols-[1fr] bg-[#EFEFF0] leading-6 m-0 p-0.5 border-0 rounded-[9px] overflow-hidden select-none outline-none">
+  <main class="font-sans m-0 flex !touch-manipulation justify-center px-5 pt-3 pb-2 antialiased">
+    <div class="m-0 grid w-full select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-[9px] border-0 bg-[#EFEFF0] p-0.5 leading-6 outline-none">
       <span
         :style="pillTransformStyles"
-        class="selection border-[.5px] border-black/[0.04] rounded-[7px] bg-white z-[2] will-change-transform col-start-1 col-end-auto row-start-1 row-end-auto"
+        class="selection z-[2] col-start-1 col-end-auto row-start-1 row-end-auto rounded-[7px] border-[.5px] border-black/[0.04] bg-white will-change-transform"
       />
       <div
         v-for="(title,index) of segments"
@@ -44,13 +44,13 @@ onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSe
           v-model="selectedId"
           type="radio"
           :value="index"
-          class="absolute inset-0 w-full h-full opacity-0 m-0 p-0 border-0 appearance-none"
+          class="absolute inset-0 m-0 h-full w-full appearance-none border-0 p-0 opacity-0"
         >
         <label
           :for="index"
-          class="block text-center relative !p-0 px-[5vmin] text-[14px] bg-transparent cursor-[inherit]"
+          class="relative block cursor-[inherit] bg-transparent !p-0 px-[5vmin] text-center text-[14px]"
         >
-          <span class="flex relative justify-center z-[2] will-change-transform">{{ title }}</span>
+          <span class="relative z-[2] flex justify-center will-change-transform">{{ title }}</span>
         </label>
       </div>
     </div>
