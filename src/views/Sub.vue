@@ -36,7 +36,7 @@ function onSegmentSwitched(v: number) {
   selectedSeg.value = v
   tableDataOfVocab.value = listsOfVocab[selectedSeg.value]
   sortChange(sortBy.value)
-  nextTick(() => disabledTotal.value = false)
+  nextTick().then(() => disabledTotal.value = false)
 }
 
 function example(str: string, idxes: Array<number>[]): string {
@@ -115,7 +115,7 @@ const { pause, resume } = watchPausable(inputText,
   async function formVocabLists(v) {
     inputChanged = false
     pause()
-    await nextTick(() => sleep(50))
+    await nextTick().then(() => sleep(50))
     const trie = await structVocab(v)
     time.log.categorizeStart = performance.now()
     if (inputChanged) {
@@ -225,11 +225,11 @@ const totalTransit = useTransition(total, {
     <el-container>
       <el-header
         height="100%"
-        class="relative !h-16 flex items-center !pl-2 !pr-0"
+        class="relative flex !h-16 items-center !pl-2 !pr-0"
       >
-        <span class="flex-1 text-right text-xs text-indigo-900 truncate tracking-tight font-compact">
+        <span class="flex-1 truncate text-right font-compact text-xs tracking-tight text-indigo-900">
           {{ fileInfo || t('noFileChosen') }}</span>
-        <label class="s-btn text-sm px-3 py-2.5 rounded-full grow-0 mx-2.5">
+        <label class="s-btn mx-2.5 grow-0 rounded-full px-3 py-2.5 text-sm">
           {{ t('browseFiles') }}
           <input
             type="file"
@@ -238,26 +238,26 @@ const totalTransit = useTransition(total, {
             @change="onFileChange"
           >
         </label>
-        <span class="flex-1 text-left text-xs text-indigo-900 truncate tabular-nums">{{ vocabCountBySegment }}</span>
+        <span class="flex-1 truncate text-left text-xs tabular-nums text-indigo-900">{{ vocabCountBySegment }}</span>
       </el-header>
       <el-container>
         <el-container class="relative">
-          <el-main class="!py-0 relative">
+          <el-main class="relative !py-0">
             <el-input
               v-model.lazy="inputText"
-              class="input-area h-full !text-base md:!text-sm font-text-sans"
+              class="input-area h-full font-text-sans !text-base md:!text-sm"
               type="textarea"
               :placeholder="t('inputArea')"
             />
           </el-main>
         </el-container>
 
-        <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)] mt-5 md:mt-0 pb-5 md:pb-0">
-          <el-card class="table-card flex items-center flex-col mx-5 !rounded-xl !border-0 h-full will-change-transform">
+        <el-aside class="mt-5 h-[calc(90vh-20px)] !w-full !overflow-visible pb-5 md:mt-0 md:h-[calc(100vh-160px)] md:!w-[44%] md:pb-0">
+          <el-card class="table-card mx-5 flex h-full flex-col items-center !rounded-xl !border-0 will-change-transform">
             <segmented-control
               :segments="segments"
               :default="selectedSeg"
-              class="flex-grow-0"
+              class="grow-0"
               @input="onSegmentSwitched"
             />
             <div class="h-full w-full">
@@ -326,7 +326,7 @@ const totalTransit = useTransition(total, {
                     class-name="cursor-pointer tabular-nums"
                   >
                     <template #default="props">
-                      <div class="font-compact text-right select-none">
+                      <div class="select-none text-right font-compact">
                         {{ props.row.freq }}
                       </div>
                     </template>
@@ -341,7 +341,7 @@ const totalTransit = useTransition(total, {
                     class-name="cursor-pointer tabular-nums"
                   >
                     <template #default="props">
-                      <div class="font-compact select-none">
+                      <div class="select-none font-compact">
                         {{ props.row.len }}
                       </div>
                     </template>
@@ -378,7 +378,7 @@ const totalTransit = useTransition(total, {
               :pager-count="5"
               layout="prev, pager, next, ->, total, sizes"
               :total="~~totalTransit"
-              class="!px-2 !pt-1 !pb-1.5 flex-wrap gap-y-1.5 pager-section flex-shrink-0 tabular-nums"
+              class="pager-section shrink-0 flex-wrap gap-y-1.5 !px-2 !pt-1 !pb-1.5 tabular-nums"
             />
           </el-card>
         </el-aside>

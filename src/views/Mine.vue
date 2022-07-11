@@ -89,7 +89,7 @@ const total = computed(() => tableDataFiltered.value.length)
     <el-container>
       <el-header
         height="100%"
-        class="relative !h-16 flex items-center"
+        class="relative flex !h-16 items-center"
       >
         <Switch
           :state="false"
@@ -98,12 +98,12 @@ const total = computed(() => tableDataFiltered.value.length)
       </el-header>
 
       <el-container class="justify-center">
-        <el-aside class="!overflow-visible !w-full md:!w-[44%] h-[calc(90vh-20px)] md:h-[calc(100vh-160px)]">
-          <el-card class="table-card flex items-center flex-col mx-5 !rounded-xl !border-0 h-full will-change-transform">
+        <el-aside class="h-[calc(90vh-20px)] !w-full !overflow-visible md:h-[calc(100vh-160px)] md:!w-[44%]">
+          <el-card class="table-card mx-5 flex h-full flex-col items-center !rounded-xl !border-0 will-change-transform">
             <segmented-control
               :segments="segments"
               :default="selected"
-              class="flex-grow-0 pt-3 pb-2"
+              class="grow-0 pt-3 pb-2"
               @input="onSegmentSwitched"
             />
             <div class="h-full w-full">
@@ -127,7 +127,7 @@ const total = computed(() => tableDataFiltered.value.length)
                     class-name="cursor-pointer tabular-nums"
                   >
                     <template #default="props">
-                      <div class="font-compact select-none">
+                      <div class="select-none font-compact">
                         {{ props.row.rank }}
                       </div>
                     </template>
@@ -169,7 +169,7 @@ const total = computed(() => tableDataFiltered.value.length)
                     class-name="cursor-pointer tabular-nums"
                   >
                     <template #default="props">
-                      <div class="font-compact select-none">
+                      <div class="select-none font-compact">
                         {{ props.row.len }}
                       </div>
                     </template>
@@ -186,7 +186,7 @@ const total = computed(() => tableDataFiltered.value.length)
               :pager-count="5"
               layout="prev, pager, next, ->, total, sizes"
               :total="total"
-              class="!px-2 !pt-1 !pb-1.5 flex-wrap gap-y-1.5 pager-section flex-shrink-0"
+              class="pager-section shrink-0 flex-wrap gap-y-1.5 !px-2 !pt-1 !pb-1.5"
             />
           </el-card>
         </el-aside>
