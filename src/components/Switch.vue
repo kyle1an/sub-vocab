@@ -10,16 +10,16 @@ const toggleFilter = () => emit('toggle', toggleState.value)
 
 <template>
   <div>
-    <label class="form-switch flex justify-center cursor-pointer">
-      <span class="flex justify-center text-base flex-col-reverse mx-2.5">{{ text[0] }}</span>
+    <label class="form-switch flex cursor-pointer justify-center">
+      <span class="mx-2.5 flex flex-col-reverse justify-center text-base">{{ text[0] }}</span>
       <input
         v-model="toggleState"
         type="checkbox"
         class="hidden"
         @change="toggleFilter"
       >
-      <i class="relative inline-block select-none align-text-bottom rounded-[23px] mr-2 w-[46px] h-[26px] bg-[#e6e6e6]" />
-      <span class="flex justify-center text-base flex-col-reverse mx-2.5">{{ text[1] }}</span>
+      <i class="relative mr-2 inline-block h-[26px] w-[46px] select-none rounded-[23px] bg-[#e6e6e6] align-text-bottom" />
+      <span class="mx-2.5 flex flex-col-reverse justify-center text-base">{{ text[1] }}</span>
     </label>
   </div>
 </template>

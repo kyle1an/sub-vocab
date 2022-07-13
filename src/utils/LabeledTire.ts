@@ -1,12 +1,11 @@
 import { Trie, Label, TrieNode, Occur, Char } from '../types'
 import { caseOr, getNode } from './utils'
-import { useTimeStore } from '../store/usePerf'
 
 export default class LabeledTire implements Trie {
   root: TrieNode
   #sequence: number
-  sentences: Array<string>
-  vocabulary: Array<Label>
+  sentences: string[]
+  vocabulary: Label[]
 
   constructor(trieListPair: [TrieNode, Array<Label>]) {
     [this.root, this.vocabulary] = trieListPair
@@ -51,15 +50,11 @@ export default class LabeledTire implements Trie {
   }
 
   mergedVocabulary() {
-    const { time } = useTimeStore()
-    time.log.mergeStarted = performance.now()
     this.traverseMerge(this.root)
-    time.log.mergeEnded = performance.now()
     return this.vocabulary
   }
 
-  static categorize(vocabulary: Array<Label>) {
-    const { time } = useTimeStore()
+  static categorize(vocabulary: Label[]) {
     const sortedVocabulary: (Label | undefined)[] = []
     const all: Label[] = []
     const newWord: Label[] = []
@@ -81,7 +76,6 @@ export default class LabeledTire implements Trie {
       }
     }
 
-    time.log.formLabelEnded = performance.now()
     return [all, newWord, acquainted]
   }
 

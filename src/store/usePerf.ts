@@ -1,9 +1,30 @@
 import { defineStore } from 'pinia'
 
 export const useTimeStore = defineStore('timeStore', () => {
-  const time: any = {}
+  const perfTime: Record<string, any> = {}
+  const logsRes: Record<string, any> = {}
 
-  function alignWord(des: string | Array<string>, time: number, indent: number = 30) {
+  function log(label: string | string[], style: string = '') {
+    const name = typeof label === 'string' ? label : label.join('')
+    perfTime[name] = {
+      label: label,
+      times: [performance.now()],
+      style: style
+    }
+  }
+
+  function logEnd(label: string | string[]) {
+    const name = typeof label === 'string' ? label : label.join('')
+    if (!perfTime[name]) {
+      console.warn(`${name} not logged`)
+      return
+    }
+
+    perfTime[name].times.push(performance.now())
+    logsRes[name] = perfTime[name]
+  }
+
+  function alignWord(des: string | string[], time: number, indent: number = 30) {
     let title
     let desStr
     let append
@@ -26,12 +47,13 @@ export const useTimeStore = defineStore('timeStore', () => {
   }
 
   function logPerf() {
-    console.log(alignWord('· init words', time.log.wordInitialized - time.log.start,))
-    console.log(alignWord(['· categorize vocabulary', ' +  '], time.log.end - time.log.categorizeStart,))
-    console.log(alignWord('%c  merge vocabulary', time.log.mergeEnded - time.log.mergeStarted,), 'color: gray; font-style: italic; padding: 1px')
-    console.log(alignWord('%c  formLabel vocabulary', time.log.formLabelEnded - time.log.mergeEnded,), 'color: gray; font-style: italic; padding: 0.5px')
-    console.log(alignWord(['-- All took', '    '], time.log.end - time.log.start,))
+    const logs = Object.entries(logsRes).sort((a, b) => a[1].times[1] - b[1].times[1])
+    console.log(logs)
+    for (const [key, { label, times, style }] of logs) {
+      const [start, end] = times
+      console.log(alignWord(label, end - start), style)
+    }
   }
 
-  return { time, logPerf }
+  return { log, logEnd, logPerf }
 })
