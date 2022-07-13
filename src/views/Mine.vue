@@ -6,14 +6,10 @@ import { compare, jsonClone, selectWord } from '../utils/utils'
 import { useVocabStore } from '../store/useVocab'
 
 const { t } = useI18n()
-const segments: Ref<string[]> = computed(() => [
-  t('all'),
-  t('mine'),
-  t('top'),
-])
+const segments = computed(() => [t('all'), t('mine'), t('top')])
 const selected: Ref<number> = ref(0)
 let vocabLists: Array<any>[] = [[], [], []]
-const acquaintedVocabTableData = ref<any>([])
+const acquaintedVocabTableData = ref<any[]>([])
 
 async function loadVocab() {
   const vocabStore = useVocabStore()
@@ -40,7 +36,7 @@ async function loadVocab() {
   return [all, mine, topWords]
 }
 
-const sortBy = ref<any>({})
+const sortBy = ref({})
 
 function refreshVocab() {
   acquaintedVocabTableData.value = vocabLists[selected.value]

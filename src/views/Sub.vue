@@ -15,12 +15,8 @@ import { TransitionPresets } from '@vueuse/core'
 
 const { t } = useI18n()
 const userStore = useUserStore()
-const segments: Ref<string[]> = computed(() => [
-  t('all'),
-  t('new'),
-  t('acquainted'),
-])
-const selectedSeg = ref(0)
+const segments = computed(() => [t('all'), t('new'), t('acquainted')])
+const selectedSeg: Ref<number> = ref(0)
 let listsOfVocab: Label[][] = [[], [], []]
 const tableDataOfVocab = shallowRef<Vocab[]>([])
 const vocabTable = shallowRef<any>(null)
@@ -29,7 +25,7 @@ function tagExpand(row: any) {
   document.getElementsByClassName(classKeyOfRow(row.seq))[0].classList.toggle('expanded')
 }
 
-const sortBy = ref<any>({})
+const sortBy = ref({})
 
 function onSegmentSwitched(v: number) {
   disabledTotal.value = true
@@ -71,8 +67,8 @@ function source(src: Source) {
   return lines
 }
 
-const fileInfo = ref<string>('')
-const inputText = ref<string>('')
+const fileInfo = ref('')
+const inputText = ref('')
 
 async function onFileChange(ev: any) {
   const files = ev.target.files
@@ -90,8 +86,8 @@ async function onFileChange(ev: any) {
 
 const sentences = shallowRef<any[]>([])
 const vocabStore = useVocabStore()
-const { time, logPerf } = useTimeStore()
-const lengthsOfLists = ref<number[]>([0, 0, 0])
+const { log, logEnd, logPerf } = useTimeStore()
+const lengthsOfLists = ref([0, 0, 0])
 const lengthsOfListsOutput = useTransition(lengthsOfLists, {
   transition: TransitionPresets.easeInOutCirc,
 })
@@ -102,10 +98,10 @@ const vocabCountBySegment = computed(() => {
 
 async function structVocab(content: string): Promise<any> {
   const trieListPair = await vocabStore.getSieve()
-  time.log = {}
-  time.log.start = performance.now()
+  log(['-- All took', '    '])
+  log('· init words')
   const vocab = new Trie(trieListPair).add(content)
-  time.log.wordInitialized = performance.now()
+  logEnd('· init words')
   return vocab
 }
 
@@ -117,20 +113,25 @@ const { pause, resume } = watchPausable(inputText,
     pause()
     await nextTick().then(() => sleep(50))
     const trie = await structVocab(v)
-    time.log.categorizeStart = performance.now()
     if (inputChanged) {
       await nextTick()
       await formVocabLists(inputText.value)
       return
     }
     sentences.value = trie.sentences
+    log(['· categorize vocabulary', ' +  '])
+    log('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
     const vocabs = trie.mergedVocabulary()
+    logEnd('%c  merge vocabulary')
+    log('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
     listsOfVocab = Trie.categorize(vocabs)
+    logEnd('%c  formLabel vocabulary')
+    logEnd(['· categorize vocabulary', ' +  '])
+    logEnd(['-- All took', '    '])
     lengthsOfLists.value = listsOfVocab.map((l: any[]) => l.length)
     setTimeout(() => {
       refreshTable(listsOfVocab)
     }, 0)
-    time.log.end = performance.now()
     logVocabInfo(listsOfVocab)
     logPerf()
     if (inputChanged) {

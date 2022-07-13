@@ -5,6 +5,7 @@ import type { FormInstance } from 'element-plus'
 import { changePassword, changeUsername, existsUsername, logoutToken } from '../api/user'
 import { eraseCookie } from '../utils/cookie'
 import { useVocabStore } from '../store/useVocab'
+import { ref } from 'vue'
 
 const { t } = useI18n()
 const store = useUserStore()

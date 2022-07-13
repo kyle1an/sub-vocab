@@ -5,9 +5,9 @@ import { getNode } from '../utils/utils'
 import { getCookie } from '../utils/cookie'
 
 export const useVocabStore = defineStore('vocabStore', () => {
-  const query: Promise<Array<Sieve>> = queryWordsByUser(getCookie('_user') ?? '')
+  const query: Promise<Sieve[]> = queryWordsByUser(getCookie('_user') ?? '')
   let commonVocab: Array<Sieve> = []
-  const stemsDerivationMapping: Promise<Array<any>> = stemsMapping()
+  const stemsDerivationMapping: Promise<any[]> = stemsMapping()
   const irregulars: Array<any> = []
   let trieListPair: [TrieNode, Array<Label>]
 
@@ -30,10 +30,10 @@ export const useVocabStore = defineStore('vocabStore', () => {
     return stemsDerivationMapping
   }
 
-  function structSievePair(vocab: Array<Sieve>): [TrieNode, Array<Label>] {
+  function structSievePair(vocab: Sieve[]): [TrieNode, Array<Label>] {
     console.time('struct sieve')
     const trie: TrieNode = {}
-    const list: Array<Label> = []
+    const list: Label[] = []
     for (const sieve of vocab) {
       const original = sieve.w
       const isUp = /[A-Z]/.test(original)

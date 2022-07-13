@@ -2,28 +2,26 @@ export interface Vocab {
   w: string;
 }
 
-export interface Occur extends Label {
-  freq?: number,
-  src: Source;
-  seq: number;
-}
-
-export interface Sieve {
-  w: string,
+export interface Sieve extends Vocab {
   acquainted: number | boolean,
   is_user: number | boolean,
   id?: number,
 }
 
 export interface Label extends Vocab {
-  w: string;
+  src: Source;
   up?: boolean;
   len?: number;
   freq?: number;
-  src: Source;
   seq?: number;
   F?: boolean | number;
   vocab?: Sieve;
+}
+
+export interface Occur extends Label {
+  src: Source;
+  seq: number;
+  freq?: number,
 }
 
 export interface Trie {

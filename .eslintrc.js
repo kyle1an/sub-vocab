@@ -8,12 +8,13 @@ module.exports = {
     'plugin:vue/vue3-recommended',
     // "plugin:vue/essential",
     'plugin:tailwindcss/recommended',
+    // 'plugin:@typescript-eslint/recommended',
   ],
   'parserOptions': {
-    parser: require.resolve('@typescript-eslint/parser'),
+    parser: '@typescript-eslint/parser',
     extraFileExtensions: ['.vue'],
     'ecmaVersion': 'latest',
-    'sourceType': 'module'
+    'sourceType': 'module',
   },
   'plugins': [
     'vue',
@@ -26,5 +27,5 @@ module.exports = {
     'quotes': [1, 'single'],
     'vue/multi-word-component-names': 'off',
     'tailwindcss/no-custom-classname': 'off',
-  }
+  },
 }

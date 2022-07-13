@@ -16,16 +16,16 @@ const username = computed(() => userStore.user.name)
 const acquaintedSection = computed(() => userStore.user.name ? t('mine') : t('common'))
 const isWide = window.innerWidth >= 460
 
-const handleCommand = (command: string) => {
+function handleCommand(command: string) {
   setCookie('lang', command, 365)
   locale.value = command
 }
 </script>
 
 <template>
-  <el-header class="top-bar flex w-full z-50 items-center justify-center relative min-w-[auto]">
-    <nav class="flex w-full h-full box-border justify-center max-w-[600px]">
-      <div class="flex items-center nav-main justify-between w-full ">
+  <el-header class="top-bar relative z-50 flex w-full min-w-[auto] items-center justify-center">
+    <nav class="box-border flex h-full w-full max-w-[600px] justify-center">
+      <div class="flex w-full items-center justify-between">
         <router-link
           to="/"
           class="h-full"
