@@ -45,22 +45,14 @@ function example(str: string, idxes: Array<number>[]): string {
 }
 
 function source(src: Source) {
-  const lines = []
+  const lines: [number, Array<[number, number, number]>][] = []
   src.sort((a, b) => a[0] - b[0] || a[1] - b[1])
-  const source: any = src.map(([sentenceId, start, len, sequence]) => [
-    sentenceId,
-    [[start, len, sequence]],
-  ])
 
-  for (let i = 0; i < source.length; i++) {
-    if (source[i][0] === source?.[i + 1]?.[0]) {
-      lines.push([
-        source[i][0],
-        source[i][1].concat(source[i + 1][1])
-      ])
-      i++
+  for (const [sid, ...rest] of src) {
+    if (lines[lines.length - 1]?.[0] === sid) {
+      lines[lines.length - 1][1].push(rest)
     } else {
-      lines.push(source[i])
+      lines.push([sid, [rest]])
     }
   }
 
