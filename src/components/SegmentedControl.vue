@@ -6,21 +6,26 @@ const props = defineProps({
 })
 const selectedSegmentWidth = ref(0)
 const selectedId = ref(props.default)
-onMounted(() => nextTick(() => recalculateSelectedSegmentWidth()))
+onMounted(() => {
+  emboldenSelectedTitle(selectedId.value)
+  setTimeout(() => {
+    recalculateSelectedSegmentWidth()
+  }, 1000)
+})
 window.addEventListener('resize', recalculateSelectedSegmentWidth)
 watch(() => props.default, (v) => {
   selectedId.value = v
 })
-watch(selectedId, function toggleSectionFontWeight(v, o) {
+watch(selectedId, (v, o) => emboldenSelectedTitle(v, o))
+
+function emboldenSelectedTitle(v: any, o?: any) {
   emit('input', v)
-  document.querySelector(`[for="${o}"]`)!.classList.remove('font-medium')
-  document.querySelector(`[for="${v}"]`)!.classList.add('font-medium')
-})
+  document.querySelector(`[for="${o}"]`)?.classList?.remove('font-medium')
+  document.querySelector(`[for="${v}"]`)?.classList?.add('font-medium')
+}
 
 function recalculateSelectedSegmentWidth() {
-  nextTick().then(() => {
-    selectedSegmentWidth.value = document.querySelector(`input[type='radio'][value='${selectedId.value}']`)!.getBoundingClientRect().width
-  })
+  selectedSegmentWidth.value = document.querySelector(`input[type='radio'][value='${selectedId.value}']`)!.getBoundingClientRect().width
 }
 
 const pillTransformStyles = computed(() => `transform:translateX(${selectedSegmentWidth.value * selectedId.value}px)`)
@@ -44,13 +49,13 @@ onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSe
           v-model="selectedId"
           type="radio"
           :value="index"
-          class="absolute inset-0 m-0 h-full w-full appearance-none border-0 p-0 opacity-0"
+          class="absolute inset-0 m-0 h-full w-full appearance-none border-0 p-0 opacity-0 outline-none"
         >
         <label
           :for="index"
           class="relative block cursor-[inherit] bg-transparent !p-0 px-[5vmin] text-center text-[14px]"
         >
-          <span class="relative z-[2] flex justify-center will-change-transform">{{ title }}</span>
+          <span class="relative z-[2]	flex justify-center text-black will-change-transform">{{ title }}</span>
         </label>
       </div>
     </div>
@@ -83,8 +88,6 @@ main {
 
 .option {
   label {
-    color: rgba(0, 0, 0, 1);
-
     span {
       -webkit-transition: all .2s ease;
       transition: all .2s ease;
@@ -113,13 +116,6 @@ main {
   label::after {
     right: 0;
     transform: translateX(.5px);
-  }
-
-  input {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    outline: none;
   }
 
   input:checked {
