@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script lang="tsx" setup>
 import { existsUsername, register } from '../api/user'
 import router from '../router'
 import type { FormInstance } from 'element-plus'
@@ -76,11 +76,8 @@ function submitForm(formEl: FormInstance | undefined) {
 
     if (!await registerStatus(ruleForm)) {
       ElNotification({
-        message: h(
-          'span',
-          { style: 'color: teal' },
-          'Something went wrong.'
-        )
+        message:
+          <span style={{ color: 'teal' }}>Something went wrong.</span>
       })
     }
 
@@ -113,8 +110,7 @@ function resetForm(formEl: FormInstance | undefined) {
             :rules="rules"
             label-position="top"
             label-width="100px"
-            class="demo-ruleForm"
-            style="max-width: 460px"
+            class="max-w-[460px]"
             status-icon
           >
             <el-form-item
