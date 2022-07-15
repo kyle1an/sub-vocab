@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script lang="tsx" setup>
 import { login } from '../api/user'
 import router from '../router'
 import type { FormInstance } from 'element-plus'
@@ -55,11 +55,8 @@ function submitForm(formEl: FormInstance | undefined) {
     const resAuth = await login(ruleForm)
     if (!resAuth.length) {
       return ElNotification({
-        message: h(
-          'span',
-          { style: 'color: teal' },
-          t('incorrectUserPassword')
-        )
+        message:
+          <span style={{ color: 'teal' }}>{t('incorrectUserPassword')}</span>
       })
     }
 

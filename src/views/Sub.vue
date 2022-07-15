@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script lang="tsx" setup>
 import Trie from '../utils/LabeledTire'
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue'
@@ -12,6 +12,7 @@ import { useUserStore } from '../store/useState'
 import { ElNotification } from 'element-plus'
 import router from '../router'
 import { TransitionPresets } from '@vueuse/core'
+import Examples from '../components/Examples'
 
 const { t } = useI18n()
 const userStore = useUserStore()
@@ -35,24 +36,15 @@ function onSegmentSwitched(v: number) {
   nextTick().then(() => disabledTotal.value = false)
 }
 
-function example(str: string, idxes: Array<number>[]): string {
-  const lines = []
-  let position = 0
-  for (const [idx, len] of idxes) {
-    lines.push(`${str.slice(position, idx)}<span class="italic underline">${str.slice(idx, position = idx + len)}</span>`)
-  }
-  return lines.concat(str.slice(position)).join('')
-}
-
 function source(src: Source) {
-  const lines: [number, Array<[number, number, number]>][] = []
+  const lines: [number, [number, number][]][] = []
   src.sort((a, b) => a[0] - b[0] || a[1] - b[1])
 
-  for (const [sid, ...rest] of src) {
+  for (const [sid, start, count] of src) {
     if (lines[lines.length - 1]?.[0] === sid) {
-      lines[lines.length - 1][1].push(rest)
+      lines[lines.length - 1][1].push([start, count])
     } else {
-      lines.push([sid, [rest]])
+      lines.push([sid, [[start, count]]])
     }
   }
 
@@ -182,15 +174,10 @@ async function toggleWordState(row: any) {
     }
   } else {
     ElNotification({
-      message: h(
-        'span',
-        { style: 'color: teal' },
-        [
-          `${t('please')} `,
-          h('i', { onClick: () => router.push('/login') }, t('login')),
-          ` ${t('to mark words')}`
-        ]
-      )
+      message:
+        <span style={{ color: 'teal' }}>
+          {t('please')} <i onClick={() => router.push('/login')}>{t('login')}</i> {t('to mark words')}
+        </span>
     })
   }
 
@@ -221,7 +208,8 @@ const totalTransit = useTransition(total, {
         class="relative flex !h-16 items-center !pl-2 !pr-0"
       >
         <span class="flex-1 truncate text-right font-compact text-xs tracking-tight text-indigo-900">
-          {{ fileInfo || t('noFileChosen') }}</span>
+          {{ fileInfo || t('noFileChosen') }}
+        </span>
         <label class="s-btn mx-2.5 grow-0 rounded-full px-3 py-2.5 text-sm">
           {{ t('browseFiles') }}
           <input
@@ -272,12 +260,15 @@ const totalTransit = useTransition(total, {
                     <template #default="props">
                       <div class="mb-1 ml-5 mr-3">
                         <div
-                          v-for="[no,idx] in source(props.row.src)"
-                          :key="idx[3]"
+                          v-for="([no,idx], index) in source(props.row.src)"
+                          :key="index"
                           class="break-words"
                           style="word-break: break-word;"
                         >
-                          <span v-html="example(sentences[no], idx)" />
+                          <Examples
+                            :sentence="sentences[no]"
+                            :idxes="idx"
+                          />
                         </div>
                       </div>
                     </template>
