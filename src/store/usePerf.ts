@@ -48,7 +48,7 @@ export const useTimeStore = defineStore('timeStore', () => {
 
   function logPerf() {
     const logs = Object.entries(logsRes).sort((a, b) => a[1].times[1] - b[1].times[1])
-    for (const [key, { label, times, style }] of logs) {
+    for (const [, { label, times, style }] of logs) {
       const [start, end] = times
       console.log(alignWord(label, end - start), style)
     }

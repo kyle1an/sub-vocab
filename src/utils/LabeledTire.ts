@@ -1,4 +1,4 @@
-import { Trie, Label, TrieNode, Occur, Char } from '../types'
+import { Trie, Label, TrieNode, Char } from '../types'
 import { caseOr, getNode } from './utils'
 
 export default class LabeledTire implements Trie {
@@ -135,7 +135,7 @@ export default class LabeledTire implements Trie {
       return next_Words
     }
 
-    const occurCombined = (next_Words: Array<Label | undefined>): Occur => {
+    const occurCombined = (next_Words: Array<Label | undefined>): Label => {
       const suffixesCombined: any = { src: [] }
 
       for (const next_Word of next_Words) {
