@@ -3,7 +3,7 @@ import Trie from '../utils/LabeledTire'
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue'
 import { Ref } from 'vue'
-import { Label, Source, Vocab } from '../types'
+import { Label, Source } from '../types'
 import { classKeyOfRow, compare, readFiles, removeClass, selectWord, sleep, sortByChar } from '../utils/utils'
 import { acquaint, revokeWord } from '../api/vocab-service'
 import { useVocabStore } from '../store/useVocab'
@@ -19,7 +19,7 @@ const userStore = useUserStore()
 const segments = computed(() => [t('all'), t('new'), t('acquainted')])
 const selectedSeg: Ref<number> = ref(0)
 let listsOfVocab: Label[][] = [[], [], []]
-const tableDataOfVocab = shallowRef<Vocab[]>([])
+const tableDataOfVocab = shallowRef<Label[]>([])
 const vocabTable = shallowRef<any>(null)
 
 function tagExpand(row: any) {
@@ -146,7 +146,7 @@ function logVocabInfo(listsOfVocab: any[]) {
 
 const search = ref('')
 const tableDataFiltered = computed(() =>
-  tableDataOfVocab.value.filter((row: any) =>
+  tableDataOfVocab.value.filter((row: Label) =>
     !search.value || row.w.toLowerCase().includes(search.value.toLowerCase())
   )
 )
@@ -174,10 +174,13 @@ async function toggleWordState(row: any) {
     }
   } else {
     ElNotification({
-      message:
+      message: (
         <span style={{ color: 'teal' }}>
-          {t('please')} <i onClick={() => router.push('/login')}>{t('login')}</i> {t('to mark words')}
+          {t('please')}
+          {' '}<i onClick={() => router.push('/login')}>{t('login')}</i>{' '}
+          {t('to mark words')}
         </span>
+      )
     })
   }
 
