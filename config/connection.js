@@ -1,9 +1,11 @@
+require('dotenv').config()
+
 const config = {
   connectionLimit: 10,
-  host: '***REMOVED***',
-  user: '***REMOVED***',
-  password: '***REMOVED***',
-  database: '***REMOVED***',
+  host: process.env.HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DATABASE,
   multipleStatements: true,
 };
 const mysql = require('mysql2');
