@@ -1,11 +1,13 @@
 const createError = require('http-errors');
-const express = require('express');
+import express from 'express'
+
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const indexRouter = require('./routes/index');
-const vocabRouter = require('./routes/vocab');
-const authRouter = require('./routes/auth');
+import vocabRouter from './routes/vocab'
+import authRouter from './routes/auth'
+
 const app = express();
 const cors = require('cors');
 app.use(cors({
