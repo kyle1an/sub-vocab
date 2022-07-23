@@ -1,5 +1,7 @@
-require('dotenv').config()
+import dotenv from 'dotenv'
+import mysql from 'mysql2'
 
+dotenv.config()
 const config = {
   connectionLimit: 10,
   host: process.env.HOST,
@@ -7,8 +9,6 @@ const config = {
   password: process.env.DB_PASSWORD,
   database: process.env.DATABASE,
   multipleStatements: true,
-};
-const mysql = require('mysql2');
-const pool = mysql.createPool(config);
-
+}
+const pool = mysql.createPool(config)
 export { pool }
