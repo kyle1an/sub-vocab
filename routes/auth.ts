@@ -1,4 +1,6 @@
-const router = require('express').Router();
+import express from 'express'
+
+const router = express.Router();
 const { pool } = require('../config/connection');
 const crypto = require('crypto');
 
@@ -39,7 +41,7 @@ router.post('/changeUsername', (req, res) => {
     `, (err, rows, fields) => {
       connection.release();
       if (err) throw err;
-      const result = {}
+      const result: any = {}
       if (rows[0].result) {
         result.success = true;
       }
@@ -55,7 +57,7 @@ router.post('/changePassword', (req, res) => {
     `, (err, rows, fields) => {
       connection.release();
       if (err) throw err;
-      const result = {}
+      const result: any = {}
       if (rows.affectedRows) {
         result.success = true;
       }
@@ -67,7 +69,7 @@ router.post('/changePassword', (req, res) => {
 router.post('/logoutToken', (req, res) => {
   pool.getConnection((err, connection) => {
     const { username, acct, } = req.body;
-    const response = {}
+    const response: any = {}
     if (!req.cookies.acct) {
       response.success = false;
       return res.send(JSON.stringify(response));
@@ -100,4 +102,4 @@ router.post('/existsUsername', (req, res) => {
   })
 })
 
-module.exports = router;
+export default router;

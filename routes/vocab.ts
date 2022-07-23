@@ -1,4 +1,6 @@
-const router = require('express').Router();
+import express from 'express'
+
+const router = express.Router();
 const { pool } = require('../config/connection');
 const { isTokenInvalid } = require('../lib/timeUtil');
 /* GET users listing. */
@@ -57,4 +59,4 @@ router.post('/revokeWord', async (req, res) => {
   });
 })
 
-module.exports = router;
+export default router;
