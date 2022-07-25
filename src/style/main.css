@@ -6,7 +6,7 @@
 @tailwind utilities;
 
 :root {
-  --sys-font-stack: -apple-system, 'SF Pro Text', 'Inter', 'system-ui', 'Segoe UI', system-ui, Roboto, 'Helvetica Neue', sans-serif;
+  --sys-font-stack: -apple-system, 'SF Pro Text', 'Inter', 'system-ui', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   --sys-font-stack-mono: 'SF Mono', 'SFMono-Regular', 'Ubuntu Mono', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
 }
 
