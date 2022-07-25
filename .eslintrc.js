@@ -1,31 +1,32 @@
 module.exports = {
-  'env': {
-    'browser': true,
+  "env": {
+    "browser": true,
     // "es2021": true,
-    'node': true,
+    "node": true,
   },
-  'extends': [
-    'plugin:vue/vue3-recommended',
+  "extends": [
+    "plugin:vue/vue3-recommended",
     // "plugin:vue/essential",
-    'plugin:tailwindcss/recommended',
-    // 'plugin:@typescript-eslint/recommended',
+    "plugin:tailwindcss/recommended",
+    // "plugin:@typescript-eslint/recommended",
   ],
-  'parserOptions': {
-    parser: '@typescript-eslint/parser',
-    extraFileExtensions: ['.vue'],
-    'ecmaVersion': 'latest',
-    'sourceType': 'module',
+  "parserOptions": {
+    "parser": "@typescript-eslint/parser",
+    "extraFileExtensions": [".vue"],
+    "ecmaVersion": "latest",
+    "sourceType": "module",
   },
-  'plugins': [
-    'vue',
-    '@typescript-eslint',
+  "plugins": [
+    "vue",
+    "@typescript-eslint",
   ],
-  parser: 'vue-eslint-parser',
-  'ignorePatterns': ['**/*.json', '.eslintrc.js', '*.config.js'],
-  'rules': {
-    'semi': [1, 'never'],
-    'quotes': [1, 'single'],
-    'vue/multi-word-component-names': 'off',
-    'tailwindcss/no-custom-classname': 'off',
+  "parser": "vue-eslint-parser",
+  "ignorePatterns": ["**/*.json", ".eslintrc.js", "*.config.js"],
+  "rules": {
+    "semi": [1, "never"],
+    "quotes": [1, "single", { "avoidEscape": true, "allowTemplateLiterals": true }],
+    "vue/attribute-hyphenation": "off",
+    "vue/multi-word-component-names": "off",
+    "tailwindcss/no-custom-classname": "off",
   },
 }
