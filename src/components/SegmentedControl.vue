@@ -33,7 +33,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSe
 </script>
 
 <template>
-  <main class="font-sans m-0 flex !touch-manipulation justify-center px-5 pt-3 pb-2 antialiased">
+  <main class="font-sans	m-0 flex !touch-manipulation justify-center px-5 pt-3 pb-2 antialiased">
     <div class="m-0 grid w-full select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-[9px] border-0 bg-[#EFEFF0] p-0.5 leading-6 outline-none">
       <span
         :style="pillTransformStyles"
@@ -55,7 +55,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSe
           :for="index"
           class="relative block cursor-[inherit] bg-transparent !p-0 px-[5vmin] text-center text-[14px]"
         >
-          <span class="relative z-[2]	flex justify-center text-black will-change-transform">{{ title }}</span>
+          <span class="relative z-[2] flex	justify-center text-black will-change-transform">{{ title }}</span>
         </label>
       </div>
     </div>
@@ -89,7 +89,6 @@ main {
 .option {
   label {
     span {
-      -webkit-transition: all .2s ease;
       transition: all .2s ease;
     }
   }
@@ -104,7 +103,6 @@ main {
     bottom: 14%;
     border-radius: 10px;
     will-change: background;
-    -webkit-transition: background .2s ease;
     transition: background .2s ease;
   }
 
@@ -125,8 +123,7 @@ main {
 
     + label::before,
     + label::after {
-      --background: rgba(239, 239, 240, 1);
-      background: var(--background);
+      background: rgba(239, 239, 240, 1);
       z-index: 1;
     }
   }
@@ -145,7 +142,6 @@ main {
 
 .selection {
   box-shadow: 0 3px 8px 0 rgba(0, 0, 0, 0.12), 0 3px 1px 0 rgba(0, 0, 0, 0.04);
-  -webkit-transition: transform .2s ease;
   transition: transform .2s ease;
 }
 </style>
