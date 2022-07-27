@@ -13,7 +13,8 @@ app.use(cors({
   origin: [
     /.*localhost.*$/,
     /.*127.0.0.1.*$/,
-    'http://10.207.1.106:3000',
+    /.*10.207.1.106.*$/,
+    /.*198.18.0.1.*$/,
     /.*subvocab.netlify.app/,
     /.*sub-vocab.*.vercel.app/,
   ],
