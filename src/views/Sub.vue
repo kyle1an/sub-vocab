@@ -205,140 +205,132 @@ const totalTransit = useTransition(total, {
 
 <template>
   <div class="mx-auto max-w-screen-xl">
-    <el-container>
-      <el-header
-        height="100%"
-        class="relative flex !h-16 items-center !pl-2 !pr-0"
-      >
-        <span class="flex-1 truncate text-right font-compact text-xs tracking-tight text-indigo-900">
-          {{ fileInfo || t('noFileChosen') }}
-        </span>
-        <label class="s-btn mx-2.5 grow-0 rounded-full px-3 py-2.5 text-sm">
-          {{ t('browseFiles') }}
-          <input
-            type="file"
-            hidden
-            multiple
-            @change="onFileChange"
-          >
-        </label>
-        <span class="flex-1 truncate text-left text-xs tabular-nums text-indigo-900">{{ vocabCountBySegment }}</span>
-      </el-header>
-      <el-container>
-        <el-container class="relative">
-          <el-main class="relative !py-0">
-            <el-input
-              v-model.lazy="inputText"
-              class="input-area h-full font-text-sans !text-base md:!text-sm"
-              type="textarea"
-              :placeholder="t('inputArea')"
-            />
-          </el-main>
-        </el-container>
-
-        <el-aside class="mt-5 h-[calc(90vh-20px)] !w-full !overflow-visible pb-5 md:mt-0 md:h-[calc(100vh-160px)] md:!w-[44%] md:pb-0">
-          <el-card class="table-card mx-5 flex h-full flex-col items-center !rounded-xl !border-0 will-change-transform">
-            <segmented-control
-              :segments="segments"
-              :default="selectedSeg"
-              class="grow-0"
-              @input="onSegmentSwitched"
-            />
-            <div class="h-full w-full">
-              <!-- 100% height of its container minus height of siblings -->
-              <div class="h-[calc(100%-1px)]">
-                <el-table
-                  ref="vocabTable"
-                  class="w-table !h-full !w-full md:w-full"
-                  height="200"
-                  size="small"
-                  fit
-                  :row-class-name="({row})=> classKeyOfRow(row.seq)"
-                  :data="tableDataDisplay"
-                  @row-click="(r) => vocabTable.toggleRowExpansion(r)"
-                  @expand-change="tagExpand"
-                  @sort-change="sortChange"
+    <div class="relative mx-3 flex h-16 items-center xl:mx-0">
+      <label class="s-btn grow-0 rounded-lg px-3 py-2.5 text-sm">
+        {{ t('browseFiles') }}
+        <input
+          type="file"
+          hidden
+          multiple
+          @change="onFileChange"
+        >
+      </label>
+      <span class="flex-1 truncate pl-3 font-compact text-xs tracking-tight text-indigo-900">
+        {{ fileInfo || t('noFileChosen') }}
+      </span>
+      <span class="flex-1 truncate text-right text-xs tabular-nums text-indigo-900">{{ vocabCountBySegment }}</span>
+    </div>
+    <div class="flex flex-col gap-6 md:flex-row">
+      <el-container class="relative ">
+        <el-main class="relative !p-0">
+          <el-input
+            v-model.lazy="inputText"
+            class="input-area h-full font-text-sans !text-base md:!text-sm"
+            type="textarea"
+            :placeholder="t('inputArea')"
+          />
+        </el-main>
+      </el-container>
+      <el-aside class="h-[calc(90vh-20px)] !w-full !overflow-visible pb-5 md:mt-0 md:h-[calc(100vh-160px)] md:!w-[44%] md:pb-0">
+        <el-card class="table-card mx-5 flex h-full flex-col items-center !rounded-xl !border-0 will-change-transform md:mx-0">
+          <segmented-control
+            :segments="segments"
+            :default="selectedSeg"
+            class="grow-0"
+            @input="onSegmentSwitched"
+          />
+          <div class="h-full w-full">
+            <!-- 100% height of its container minus height of siblings -->
+            <div class="h-[calc(100%-1px)]">
+              <el-table
+                ref="vocabTable"
+                class="w-table !h-full !w-full md:w-full"
+                height="200"
+                size="small"
+                fit
+                :row-class-name="({row})=> classKeyOfRow(row.seq)"
+                :data="tableDataDisplay"
+                @row-click="(r) => vocabTable.toggleRowExpansion(r)"
+                @expand-change="tagExpand"
+                @sort-change="sortChange"
+              >
+                <el-table-column type="expand">
+                  <template #default="props">
+                    <div class="mb-1 ml-5 mr-3">
+                      <div
+                        v-for="([no,idx], index) in source(props.row.src)"
+                        :key="index"
+                        class="break-words"
+                        style="word-break: break-word;"
+                      >
+                        <Examples
+                          :sentence="sentences[no]"
+                          :idxes="idx"
+                        />
+                      </div>
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  label="Vocabulary"
+                  prop="w"
+                  align="left"
+                  min-width="16"
+                  sortable="custom"
+                  class-name="cursor-pointer"
                 >
-                  <el-table-column type="expand">
-                    <template #default="props">
-                      <div class="mb-1 ml-5 mr-3">
-                        <div
-                          v-for="([no,idx], index) in source(props.row.src)"
-                          :key="index"
-                          class="break-words"
-                          style="word-break: break-word;"
-                        >
-                          <Examples
-                            :sentence="sentences[no]"
-                            :idxes="idx"
-                          />
-                        </div>
-                      </div>
-                    </template>
-                  </el-table-column>
-
-                  <el-table-column
-                    label="Vocabulary"
-                    prop="w"
-                    align="left"
-                    min-width="16"
-                    sortable="custom"
-                    class-name="cursor-pointer"
-                  >
-                    <template #header>
-                      <el-input
-                        v-model="search"
-                        class="!w-[calc(100%-26px)] !text-base md:!text-xs"
-                        size="small"
-                        :placeholder="t('search')"
-                        @click.stop
-                      />
-                    </template>
-                    <template #default="props">
-                      <span
-                        class="cursor-text font-compact text-[16px] tracking-wide"
-                        @mouseover="selectWord"
-                        @touchstart.passive="selectWord"
-                        @click.stop
-                      >{{ props.row.w }}</span>
-                    </template>
-                  </el-table-column>
-
-                  <el-table-column
-                    :label="t('frequency')"
-                    prop="freq"
-                    align="right"
-                    min-width="9"
-                    sortable="custom"
-                    class-name="cursor-pointer tabular-nums"
-                  >
-                    <template #default="props">
-                      <div class="select-none text-right font-compact">
-                        {{ props.row.freq }}
-                      </div>
-                    </template>
-                  </el-table-column>
-
-                  <el-table-column
-                    :label="t('length')"
-                    prop="len"
-                    align="right"
-                    min-width="10"
-                    sortable="custom"
-                    class-name="cursor-pointer tabular-nums"
-                  >
-                    <template #default="props">
-                      <div class="select-none font-compact">
-                        {{ props.row.len }}
-                      </div>
-                    </template>
-                  </el-table-column>
-
-                  <el-table-column
-                    align="right"
-                    min-width="5"
-                  >
-                    <template #default="{row}">
+                  <template #header>
+                    <el-input
+                      v-model="search"
+                      class="!w-[calc(100%-26px)] !text-base md:!text-xs"
+                      size="small"
+                      :placeholder="t('search')"
+                      @click.stop
+                    />
+                  </template>
+                  <template #default="props">
+                    <span
+                      class="cursor-text font-compact text-[16px] tracking-wide"
+                      @mouseover="selectWord"
+                      @touchstart.passive="selectWord"
+                      @click.stop
+                    >{{ props.row.w }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  :label="t('frequency')"
+                  prop="freq"
+                  align="right"
+                  min-width="9"
+                  sortable="custom"
+                  class-name="cursor-pointer tabular-nums"
+                >
+                  <template #default="props">
+                    <div class="select-none text-right font-compact">
+                      {{ props.row.freq }}
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  :label="t('length')"
+                  prop="len"
+                  align="right"
+                  min-width="10"
+                  sortable="custom"
+                  class-name="cursor-pointer tabular-nums"
+                >
+                  <template #default="props">
+                    <div class="select-none font-compact">
+                      {{ props.row.len }}
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  align="right"
+                  min-width="5"
+                >
+                  <template #default="{row}">
+                    <div class="text-center">
                       <el-button
                         size="small"
                         type="primary"
@@ -347,30 +339,28 @@ const totalTransit = useTransition(total, {
                         :loading="loadingStateArray[row.seq]"
                         :disabled="row?.vocab && !row?.vocab?.is_user"
                         :text="!row?.vocab?.acquainted"
-                        bg
                         @click.stop="toggleWordState(row)"
                       />
-                    </template>
-                  </el-table-column>
-                </el-table>
-              </div>
+                    </div>
+                  </template>
+                </el-table-column>
+              </el-table>
             </div>
-
-            <el-pagination
-              v-model:currentPage="currentPage"
-              v-model:page-size="pageSize"
-              :page-sizes="pageSizes"
-              :small="true"
-              :background="true"
-              :pager-count="5"
-              layout="prev, pager, next, ->, total, sizes"
-              :total="~~totalTransit"
-              class="pager-section shrink-0 flex-wrap gap-y-1.5 !px-2 !pt-1 !pb-1.5 tabular-nums"
-            />
-          </el-card>
-        </el-aside>
-      </el-container>
-    </el-container>
+          </div>
+          <el-pagination
+            v-model:currentPage="currentPage"
+            v-model:page-size="pageSize"
+            :page-sizes="pageSizes"
+            :small="true"
+            :background="true"
+            :pager-count="5"
+            layout="prev, pager, next, ->, total, sizes"
+            :total="~~totalTransit"
+            class="pager-section shrink-0 flex-wrap gap-y-1.5 !px-2 !pt-1 !pb-1.5 tabular-nums"
+          />
+        </el-card>
+      </el-aside>
+    </div>
   </div>
 </template>
 
@@ -472,11 +462,6 @@ const totalTransit = useTransition(total, {
 @media only screen and (max-width: 768px) {
   .input-area :deep(textarea) {
     height: 260px;
-  }
-
-  :deep(.el-container) {
-    display: flex;
-    flex-direction: column !important;
   }
 
   :deep(.el-textarea__inner) {
