@@ -1,28 +1,58 @@
-import { defineComponent, Ref } from 'vue'
+import { defineComponent, PropType } from 'vue'
+import { Source } from '../types'
+
+function source(src: Source) {
+  const lines: [number, [number, number][]][] = []
+  src.sort((a, b) => a[0] - b[0] || a[1] - b[1])
+
+  for (const [sid, start, count] of src) {
+    if (lines[lines.length - 1]?.[0] === sid) {
+      lines[lines.length - 1][1].push([start, count])
+    } else {
+      lines.push([sid, [[start, count]]])
+    }
+  }
+
+  return lines
+}
 
 export default defineComponent({
   props: {
-    sentence: { type: String, default: '' },
-    idxes: { type: Array, default: () => [0, 0] },
+    sentences: { type: Array as PropType<string[]>, default: () => [''] },
+    src: { type: Array as PropType<Source>, default: () => [[0, 0]] },
   },
-  setup(props: any) {
-    const { idxes } = toRefs<{ idxes: Ref<[number, number][]> }>(props)
-    const lines: JSX.Element[] = []
-    let progress = 0
-    for (const [start, count] of idxes.value) {
-      lines.push(
+  setup(props: { sentences: string[]; src: Source }) {
+    function line(sentence: string, idxes: [number, number][]) {
+      let progress = 0
+      return (
         <>
-          <span>
-            {props.sentence.slice(progress, start)}
-          </span>
-          <span class="italic underline">
-            {props.sentence.slice(start, start + count)}
-          </span>
+          {idxes.map(([start, count]) => (
+            <>
+              <span>{sentence.slice(progress, start)}</span>
+              <span class="italic underline">{sentence.slice(start, progress = start + count)}</span>
+            </>
+          ))}
+          <span>{sentence.slice(progress)}</span>
         </>
       )
-      progress = start + count
     }
-    lines.push(<span>{props.sentence.slice(progress)}</span>)
-    return () => lines
+
+    function examples(sentences: string[], src: Source) {
+      return (
+        <div class="mb-1 ml-5 mr-3">
+          {source(src).map(([no, idx], index) => (
+            <div
+              key={index}
+              class="break-words"
+              style="word-break: break-word;"
+            >
+              {line(sentences[no], idx)}
+            </div>
+          ))}
+        </div>
+      )
+    }
+
+    return () => examples(props.sentences, props.src)
   },
 })
