@@ -15,7 +15,6 @@ export default defineComponent({
           <span>
             {props.sentence.slice(progress, start)}
           </span>
-          {/*// @ts-ignore*/}
           <span class="italic underline">
             {props.sentence.slice(start, start + count)}
           </span>
@@ -23,7 +22,7 @@ export default defineComponent({
       )
       progress = start + count
     }
-
+    lines.push(<span>{props.sentence.slice(progress)}</span>)
     return () => lines
   },
 })
