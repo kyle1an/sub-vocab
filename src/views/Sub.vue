@@ -3,7 +3,7 @@ import Trie from '../utils/LabeledTire'
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue'
 import { Ref } from 'vue'
-import { Label, Source } from '../types'
+import { Label } from '../types'
 import { classKeyOfRow, compare, readFiles, removeClass, selectWord, sleep, sortByChar } from '../utils/utils'
 import { acquaint, revokeWord } from '../api/vocab-service'
 import { useVocabStore } from '../store/useVocab'
@@ -34,21 +34,6 @@ function onSegmentSwitched(v: number) {
   tableDataOfVocab.value = listsOfVocab[selectedSeg.value]
   sortChange(sortBy.value)
   nextTick().then(() => disabledTotal.value = false)
-}
-
-function source(src: Source) {
-  const lines: [number, [number, number][]][] = []
-  src.sort((a, b) => a[0] - b[0] || a[1] - b[1])
-
-  for (const [sid, start, count] of src) {
-    if (lines[lines.length - 1]?.[0] === sid) {
-      lines[lines.length - 1][1].push([start, count])
-    } else {
-      lines.push([sid, [[start, count]]])
-    }
-  }
-
-  return lines
 }
 
 const fileInfo = ref('')
@@ -113,9 +98,7 @@ const { pause, resume } = watchPausable(inputText,
     logEnd(['· categorize vocabulary', ' +  '])
     logEnd(['-- All took', '    '])
     lengthsOfLists.value = listsOfVocab.map((l: any[]) => l.length)
-    setTimeout(() => {
-      refreshTable(listsOfVocab)
-    }, 0)
+    refreshTable(listsOfVocab)
     logVocabInfo(listsOfVocab)
     logPerf()
     if (inputChanged) {
@@ -255,20 +238,11 @@ const totalTransit = useTransition(total, {
                 @sort-change="sortChange"
               >
                 <el-table-column type="expand">
-                  <template #default="props">
-                    <div class="mb-1 ml-5 mr-3">
-                      <div
-                        v-for="([no,idx], index) in source(props.row.src)"
-                        :key="index"
-                        class="break-words"
-                        style="word-break: break-word;"
-                      >
-                        <Examples
-                          :sentence="sentences[no]"
-                          :idxes="idx"
-                        />
-                      </div>
-                    </div>
+                  <template #default="{row}">
+                    <Examples
+                      :sentences="sentences"
+                      :src="row.src"
+                    />
                   </template>
                 </el-table-column>
                 <el-table-column
