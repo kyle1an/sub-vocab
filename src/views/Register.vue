@@ -4,7 +4,8 @@ import router from '../router'
 import type { FormInstance } from 'element-plus'
 import { userInfo } from '../types/user'
 import { ElNotification } from 'element-plus/es'
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const ruleFormRef = ref<FormInstance>()

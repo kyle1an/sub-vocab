@@ -6,7 +6,8 @@ import { useUserStore } from '../store/useState'
 import { setCookie } from '../utils/cookie'
 import { ElNotification } from 'element-plus/es'
 import { useVocabStore } from '../store/useVocab'
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const store = useUserStore()

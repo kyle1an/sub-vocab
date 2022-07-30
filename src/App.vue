@@ -12,7 +12,6 @@ if (userName) {
 
 <template>
   <TopBar />
-
   <router-view />
 </template>
 <style lang="scss" scoped>

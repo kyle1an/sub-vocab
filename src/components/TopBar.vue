@@ -4,6 +4,8 @@ import { setCookie } from '../utils/cookie'
 import { CaretBottom } from '@element-plus/icons-vue'
 import en from 'element-plus/es/locale/lang/en'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
+import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
 
 const { t, locale } = useI18n({ useScope: 'global' }) // call `useI18n`, and spread `t` from  `useI18n` returning
 const localeMap: Record<string, any> = {

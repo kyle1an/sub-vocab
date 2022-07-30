@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import Switch from '../components/Switch.vue'
 import SegmentedControl from '../components/SegmentedControl.vue'
-import { Ref } from 'vue'
+import { computed, onMounted, ref, Ref } from 'vue'
 import { compare, jsonClone, selectWord } from '../utils/utils'
 import { useVocabStore } from '../store/useVocab'
+import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const segments = computed(() => [t('all'), t('mine'), t('top')])

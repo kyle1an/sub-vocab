@@ -2,17 +2,18 @@
 import Trie from '../utils/LabeledTire'
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue'
-import { Ref } from 'vue'
+import { computed, nextTick, ref, Ref, shallowRef, watch } from 'vue'
 import { Label } from '../types'
-import { classKeyOfRow, compare, readFiles, removeClass, selectWord, sleep, sortByChar } from '../utils/utils'
+import { classKeyOfRow, compare, readFiles, removeClass, selectWord, sortByChar } from '../utils/utils'
 import { acquaint, revokeWord } from '../api/vocab-service'
 import { useVocabStore } from '../store/useVocab'
 import { useTimeStore } from '../store/usePerf'
 import { useUserStore } from '../store/useState'
 import { ElNotification } from 'element-plus'
 import router from '../router'
-import { TransitionPresets } from '@vueuse/core'
+import { TransitionPresets, useTransition } from '@vueuse/core'
 import Examples from '../components/Examples'
+import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const userStore = useUserStore()
@@ -22,17 +23,13 @@ let listsOfVocab: Label[][] = [[], [], []]
 const tableDataOfVocab = shallowRef<Label[]>([])
 const vocabTable = shallowRef<any>(null)
 
-function tagExpand(row: any) {
-  document.getElementsByClassName(classKeyOfRow(row.seq))[0].classList.toggle('expanded')
-}
-
-const sortBy = ref({})
+let sortBy = {}
 
 function onSegmentSwitched(v: number) {
   disabledTotal.value = true
   selectedSeg.value = v
   tableDataOfVocab.value = listsOfVocab[selectedSeg.value]
-  sortChange(sortBy.value)
+  sortChange(sortBy)
   nextTick().then(() => disabledTotal.value = false)
 }
 
@@ -74,47 +71,37 @@ async function structVocab(content: string): Promise<any> {
   return vocab
 }
 
-let inputChanged = false
-watch(inputText, () => inputChanged = true)
-const { pause, resume } = watchPausable(inputText,
-  async function formVocabLists(v) {
-    inputChanged = false
-    pause()
-    await nextTick().then(() => sleep(50))
-    const trie = await structVocab(v)
-    if (inputChanged) {
-      await nextTick()
-      await formVocabLists(inputText.value)
-      return
-    }
-    sentences.value = trie.sentences
-    log(['· categorize vocabulary', ' +  '])
-    log('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
-    const vocabs = trie.mergedVocabulary()
-    logEnd('%c  merge vocabulary')
-    log('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
-    listsOfVocab = Trie.categorize(vocabs)
-    logEnd('%c  formLabel vocabulary')
-    logEnd(['· categorize vocabulary', ' +  '])
-    logEnd(['-- All took', '    '])
-    lengthsOfLists.value = listsOfVocab.map((l: any[]) => l.length)
-    refreshTable(listsOfVocab)
-    logVocabInfo(listsOfVocab)
-    logPerf()
-    if (inputChanged) {
-      await nextTick()
-      await formVocabLists(inputText.value)
-      return
-    }
-    resume()
-  },
-)
+let timeoutID: number
+watch(inputText, () => {
+  clearTimeout(timeoutID)
+  timeoutID = setTimeout(() => {
+    formVocabLists(inputText.value)
+  }, 50)
+})
+
+async function formVocabLists(v: string) {
+  const trie = await structVocab(v)
+  sentences.value = trie.sentences
+  log(['· categorize vocabulary', ' +  '])
+  log('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
+  const vocabs = trie.mergedVocabulary()
+  logEnd('%c  merge vocabulary')
+  log('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
+  listsOfVocab = Trie.categorize(vocabs)
+  logEnd('%c  formLabel vocabulary')
+  logEnd(['· categorize vocabulary', ' +  '])
+  logEnd(['-- All took', '    '])
+  lengthsOfLists.value = listsOfVocab.map((l: any[]) => l.length)
+  refreshTable(listsOfVocab)
+  logVocabInfo(listsOfVocab)
+  logPerf()
+}
 
 function refreshTable(lists: Label[][]) {
   removeClass('expanded')
   setTimeout(() => {
     tableDataOfVocab.value = lists[selectedSeg.value]
-    sortChange(sortBy.value)
+    sortChange(sortBy)
   }, 0)
 }
 
@@ -171,7 +158,7 @@ async function toggleWordState(row: any) {
 }
 
 function sortChange({ prop, order }: any) {
-  sortBy.value = { prop, order }
+  sortBy = { prop, order }
   tableDataOfVocab.value = [...listsOfVocab[selectedSeg.value]].sort(compare(prop, order))
 }
 
@@ -184,6 +171,14 @@ const totalTransit = useTransition(total, {
   disabled: disabledTotal,
   transition: TransitionPresets.easeOutCirc,
 })
+
+function handleRowClick(row: any) {
+  vocabTable.value.toggleRowExpansion(row)
+}
+
+function onExpandChange(row: any) {
+  document.getElementsByClassName(classKeyOfRow(row.seq))[0].classList.toggle('expanded')
+}
 </script>
 
 <template>
@@ -233,8 +228,8 @@ const totalTransit = useTransition(total, {
                 fit
                 :row-class-name="({row})=> classKeyOfRow(row.seq)"
                 :data="tableDataDisplay"
-                @row-click="(r) => vocabTable.toggleRowExpansion(r)"
-                @expand-change="tagExpand"
+                @row-click="handleRowClick"
+                @expand-change="onExpandChange"
                 @sort-change="sortChange"
               >
                 <el-table-column type="expand">
@@ -262,13 +257,13 @@ const totalTransit = useTransition(total, {
                       @click.stop
                     />
                   </template>
-                  <template #default="props">
+                  <template #default="{row}">
                     <span
                       class="cursor-text font-compact text-[16px] tracking-wide"
                       @mouseover="selectWord"
                       @touchstart.passive="selectWord"
                       @click.stop
-                    >{{ props.row.w }}</span>
+                    >{{ row.w }}</span>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -279,9 +274,9 @@ const totalTransit = useTransition(total, {
                   sortable="custom"
                   class-name="cursor-pointer tabular-nums"
                 >
-                  <template #default="props">
+                  <template #default="{row}">
                     <div class="select-none text-right font-compact">
-                      {{ props.row.freq }}
+                      {{ row.freq }}
                     </div>
                   </template>
                 </el-table-column>
@@ -293,9 +288,9 @@ const totalTransit = useTransition(total, {
                   sortable="custom"
                   class-name="cursor-pointer tabular-nums"
                 >
-                  <template #default="props">
+                  <template #default="{row}">
                     <div class="select-none font-compact">
-                      {{ props.row.len }}
+                      {{ row.len }}
                     </div>
                   </template>
                 </el-table-column>
@@ -420,7 +415,7 @@ const totalTransit = useTransition(total, {
 }
 
 :deep(.expanded) td {
-  border-bottom: 0 !important;
+  border-color: white !important;
 }
 
 :deep(.expanded:hover) > td.el-table__cell {
