@@ -8,6 +8,7 @@ import router from './router'
 import { getCookie } from './utils/cookie'
 import { createI18n } from 'vue-i18n'
 import { messages } from './utils/localeMessages'
+import { createApp } from 'vue'
 
 const app = createApp(App)
 app.use(ElementPlus)
