@@ -9,7 +9,11 @@ module.exports = {
       'compact': ['SF Compact Text', '-apple-system', 'sans-serif'],
       'text-sans': 'Work Sans',
     },
-    extend: {},
+    extend: {
+      colors: {
+        'blue-primary': 'hsl(206,100%,52%)',
+      },
+    },
   },
   plugins: [],
 }

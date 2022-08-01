@@ -183,8 +183,8 @@ function onExpandChange(row: any) {
 
 <template>
   <div class="mx-auto max-w-screen-xl">
-    <div class="relative mx-3 flex h-16 items-center xl:mx-0">
-      <label class="s-btn grow-0 rounded-lg px-3 py-2.5 text-sm">
+    <div class="relative mx-3 flex h-14 items-center xl:mx-0">
+      <label class="el-button grow-0 !rounded-md px-3 py-2.5 text-sm leading-3">
         {{ t('browseFiles') }}
         <input
           type="file"
@@ -193,13 +193,15 @@ function onExpandChange(row: any) {
           @change="onFileChange"
         >
       </label>
-      <span class="flex-1 truncate pl-3 font-compact text-xs tracking-tight text-indigo-900">
-        {{ fileInfo || t('noFileChosen') }}
-      </span>
-      <span class="flex-1 truncate text-right text-xs tabular-nums text-indigo-900">{{ vocabCountBySegment }}</span>
+      <div class="flex grow gap-1 overflow-y-auto">
+        <span class="grow truncate pl-3 font-compact text-xs tracking-tight text-indigo-900">
+          {{ fileInfo || t('noFileChosen') }}
+        </span>
+        <span class="shrink-0 text-right text-xs tabular-nums text-indigo-900">{{ vocabCountBySegment }}</span>
+      </div>
     </div>
-    <div class="flex flex-col gap-6 md:flex-row">
-      <el-container class="relative ">
+    <div class="flex flex-col gap-6 md:h-[calc(100vh-140px)] md:flex-row">
+      <el-container class="relative h-full">
         <el-main class="relative !p-0">
           <el-input
             v-model.lazy="inputText"
@@ -209,7 +211,7 @@ function onExpandChange(row: any) {
           />
         </el-main>
       </el-container>
-      <el-aside class="h-[calc(90vh-20px)] !w-full !overflow-visible pb-5 md:mt-0 md:h-[calc(100vh-160px)] md:!w-[44%] md:pb-0">
+      <div class="h-[86vh] !overflow-visible pb-5 md:mt-0 md:h-full md:!w-[44%] md:pb-0">
         <el-card class="table-card mx-5 flex h-full flex-col items-center !rounded-xl !border-0 will-change-transform md:mx-0">
           <segmented-control
             :segments="segments"
@@ -328,7 +330,7 @@ function onExpandChange(row: any) {
             class="pager-section shrink-0 flex-wrap gap-y-1.5 !px-2 !pt-1 !pb-1.5 tabular-nums"
           />
         </el-card>
-      </el-aside>
+      </div>
     </div>
   </div>
 </template>
@@ -376,24 +378,7 @@ function onExpandChange(row: any) {
   }
 
   :deep(.el-table__expand-icon) {
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  }
-}
-
-.s-btn {
-  box-sizing: border-box;
-  display: inline-block;
-  color: #fff;
-  cursor: pointer;
-  box-shadow: inset 0 1px 0 0 hsl(0deg 0% 100% / 40%);
-  line-height: 14px;
-  border: 1px solid transparent;
-  background-color: hsl(206, 100%, 52%);
-
-  &:hover {
-    background-color: hsl(206, 100%, 40%) !important;
-    /*box-shadow: 0px 1px 2px 0px rgba(60, 64, 67, .30), 0px 1px 3px 1px rgba(60, 64, 67, .15);*/
-    border: 1px solid transparent !important;
+    -webkit-tap-highlight-color: transparent;
   }
 }
 

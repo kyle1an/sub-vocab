@@ -14,7 +14,7 @@ html,
 body,
 input,
 textarea {
-  letter-spacing: 0.02rem;
+  letter-spacing: 0.01rem;
   font-family: var(--sys-font-stack);
   /*-moz-font-feature-settings: 'smcp';*/
   /* -webkit-font-feature-settings: 'tnum'  !important;*/
