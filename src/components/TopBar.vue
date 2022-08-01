@@ -25,81 +25,52 @@ function handleCommand(command: string) {
 </script>
 
 <template>
-  <el-header class="top-bar relative z-50 flex w-full min-w-[auto] items-center justify-center">
-    <nav class="box-border flex h-full w-full max-w-[600px] justify-center">
-      <div class="flex w-full items-center justify-between">
+  <header class="top-bar relative z-50 box-border flex h-12 w-full min-w-[auto] items-center justify-center bg-white shadow-sm">
+    <nav class="box-border flex h-full w-full max-w-screen-xl justify-center">
+      <div class="flex w-full items-center text-[14px]">
         <router-link
           to="/"
-          class="h-full"
+          class="flex h-full items-center px-4 hover:bg-gray-100"
         >
-          <el-button
-            type=""
-            text
-            class="!h-full !rounded-none"
-          >
-            {{ t('home') }}
-          </el-button>
+          {{ t('home') }}
         </router-link>
-        <router-link to="/about">
-          <el-button
-            type=""
-            text
-            class="!rounded-full"
-          >
-            {{ t('about') }}
-          </el-button>
+        <router-link
+          to="/about"
+          class="flex items-center rounded-full py-1 px-4 hover:bg-gray-100"
+        >
+          {{ t('about') }}
         </router-link>
+        <div class="grow" />
         <router-link
           v-show="username||isWide"
           to="/mine"
-          class="h-full"
+          class="flex h-full items-center px-4 hover:bg-gray-100"
         >
-          <el-button
-            type="primary"
-            text
-            class="!h-full !rounded-none"
-          >
-            {{ acquaintedSection }}
-          </el-button>
+          {{ acquaintedSection }}
         </router-link>
         <router-link
           v-show="username"
           to="/user"
-          class="h-full"
+          class="flex h-full items-center px-4 hover:bg-gray-100"
         >
-          <el-button
-            type=""
-            text
-            class="!h-full !rounded-none"
-          >
-            {{ username }}
-          </el-button>
+          {{ username }}
         </router-link>
         <router-link
           v-show="!username"
           to="/login"
+          class="flex items-center rounded-md py-1 px-4 hover:bg-gray-100"
         >
-          <el-button
-            type="primary"
-            plain
-            class="!px-[13px]"
-          >
-            {{ t('login') }}
-          </el-button>
+          {{ t('login') }}
         </router-link>
         <router-link
           v-show="!username"
           to="/register"
+          class="s-btn ml-2 flex rounded py-2 px-3 text-white"
         >
-          <el-button
-            type="primary"
-            class="!px-[13px]"
-          >
-            {{ t('signup') }}
-          </el-button>
+          {{ t('signup') }}
         </router-link>
         <el-dropdown @command="handleCommand">
-          <div class="el-dropdown-link flex outline-none">
+          <div class="el-dropdown-link flex px-4 outline-none">
             文/Aa
             <el-icon class="el-icon--right">
               <CaretBottom class="text-slate-300" />
@@ -119,17 +90,11 @@ function handleCommand(command: string) {
         <el-config-provider :locale="elLocale" />
       </div>
     </nav>
-  </el-header>
+  </header>
 </template>
 
 <style lang="scss" scoped>
-.top-bar {
-  box-shadow: var(--bs-sm);
-  background-color: var(--theme-topbar-background-color);
-  height: var(--theme-topbar-height) !important;
-
-  :deep([href]) {
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  }
+.top-bar :deep([href]) {
+  -webkit-tap-highlight-color: transparent;
 }
 </style>

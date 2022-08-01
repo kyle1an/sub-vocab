@@ -194,7 +194,7 @@ const total = computed(() => tableDataFiltered.value.length)
 
 <style lang="scss" scoped>
 :deep(.el-table__expand-icon) {
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .w-table :deep(:is(*, .el-table__body-wrapper)) {

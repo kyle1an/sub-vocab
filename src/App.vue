@@ -32,18 +32,6 @@ if (userName) {
   margin: auto;
 }
 
-//.el-table__header {
-//  th.el-table__cell > .cell {
-//    font-size: 10px;
-//    display: inline-flex !important;
-//    align-items: center;
-//  }
-//
-//  th.el-table__cell.is-right > .cell {
-//    justify-content: flex-end;
-//  }
-//}
-
 @media only screen and (max-width: 640px) {
   :deep(.el-main) {
     padding-right: 0 !important;
@@ -52,13 +40,7 @@ if (userName) {
 }
 </style>
 <style lang="scss">
-:root {
-  --theme-topbar-accent-border: 3px solid var(--theme-primary-color);
-  --theme-topbar-height: 50px;
-  --black-025: hsl(210, 8%, 97.5%);
-  --bs-sm: 0 1px 2px hsla(0, 0%, 0%, 0.05), 0 1px 4px hsla(0, 0%, 0%, 0.05), 0 2px 8px hsla(0, 0%, 0%, 0.05);
-  --theme-topbar-background-color: white;
-}
+@import './style/utils.scss';
 
 html {
   height: 100%;
@@ -88,16 +70,13 @@ body {
 }
 
 @media only screen and (max-width: 768px) {
-  html {
-    //overflow: hidden;
-    //height: 100%;
+  html,
+  body {
     -webkit-overflow-scrolling: touch;
   }
 
   body {
-    //height: 100%;
     overflow: auto;
-    -webkit-overflow-scrolling: touch;
     margin: 0 !important;
   }
 }

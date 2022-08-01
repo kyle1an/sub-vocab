@@ -35,11 +35,11 @@ onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSe
 </script>
 
 <template>
-  <main class="font-sans	m-0 flex !touch-manipulation justify-center px-5 pt-3 pb-2 antialiased">
+  <main class="font-sans m-0 flex !touch-manipulation justify-center px-5 pt-3 pb-2 antialiased">
     <div class="m-0 grid w-full select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-[9px] border-0 bg-[#EFEFF0] p-0.5 leading-6 outline-none">
       <span
         :style="pillTransformStyles"
-        class="selection z-[2] col-start-1 col-end-auto row-start-1 row-end-auto rounded-[7px] border-[.5px] border-black/[0.04] bg-white will-change-transform"
+        class="z-[2] col-start-1 col-end-auto row-start-1 row-end-auto rounded-[7px] border-[.5px] border-black/[0.04] bg-white shadow-md transition-transform	 duration-200 ease-[ease] will-change-transform"
       />
       <div
         v-for="(title,index) of segments"
@@ -57,7 +57,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSe
           :for="index"
           class="relative block cursor-[inherit] bg-transparent !p-0 px-[5vmin] text-center text-[14px]"
         >
-          <span class="relative z-[2] flex	justify-center text-black will-change-transform">{{ title }}</span>
+          <span class="relative z-[2] flex justify-center text-black transition-all duration-200 ease-[ease] will-change-transform">{{ title }}</span>
         </label>
       </div>
     </div>
@@ -68,7 +68,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSe
 main {
   text-rendering: geometricPrecision;
   -webkit-overflow-scrolling: touch !important;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
   font-feature-settings: 'cv08';
 }
 
@@ -89,12 +89,6 @@ main {
 }
 
 .option {
-  label {
-    span {
-      transition: all .2s ease;
-    }
-  }
-
   label::before,
   label::after {
     content: '';
@@ -140,10 +134,5 @@ main {
 .option:first-of-type label::before,
 .option:last-of-type label::after {
   opacity: 0;
-}
-
-.selection {
-  box-shadow: 0 3px 8px 0 rgba(0, 0, 0, 0.12), 0 3px 1px 0 rgba(0, 0, 0, 0.04);
-  transition: transform .2s ease;
 }
 </style>
