@@ -3,7 +3,7 @@ import Trie from '../utils/LabeledTire'
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue'
 import { computed, nextTick, ref, Ref, shallowRef, watch } from 'vue'
-import { Label } from '../types'
+import { LabelRow } from '../types'
 import { classKeyOfRow, compare, readFiles, removeClass, selectWord, sortByChar } from '../utils/utils'
 import { acquaint, revokeWord } from '../api/vocab-service'
 import { useVocabStore } from '../store/useVocab'
@@ -19,8 +19,8 @@ const { t } = useI18n()
 const userStore = useUserStore()
 const segments = computed(() => [t('all'), t('new'), t('acquainted')])
 const selectedSeg: Ref<number> = ref(0)
-let listsOfVocab: Label[][] = [[], [], []]
-const tableDataOfVocab = shallowRef<Label[]>([])
+let listsOfVocab: LabelRow[][] = [[], [], []]
+const tableDataOfVocab = shallowRef<LabelRow[]>([])
 const vocabTable = shallowRef<any>(null)
 
 let sortBy = {}
@@ -79,8 +79,8 @@ watch(inputText, () => {
   }, 50)
 })
 
-async function formVocabLists(v: string) {
-  const trie = await structVocab(v)
+async function formVocabLists(text: string) {
+  const trie = await structVocab(text)
   sentences.value = trie.sentences
   log(['· categorize vocabulary', ' +  '])
   log('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
@@ -97,7 +97,7 @@ async function formVocabLists(v: string) {
   logPerf()
 }
 
-function refreshTable(lists: Label[][]) {
+function refreshTable(lists: LabelRow[][]) {
   removeClass('expanded')
   setTimeout(() => {
     tableDataOfVocab.value = lists[selectedSeg.value]
@@ -116,7 +116,7 @@ function logVocabInfo(listsOfVocab: any[]) {
 
 const search = ref('')
 const tableDataFiltered = computed(() =>
-  tableDataOfVocab.value.filter((row: Label) =>
+  tableDataOfVocab.value.filter((row: LabelRow) =>
     !search.value || row.w.toLowerCase().includes(search.value.toLowerCase())
   )
 )
