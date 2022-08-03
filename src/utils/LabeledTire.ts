@@ -1,4 +1,4 @@
-import { Trie, Label, TrieNode, Char } from '../types'
+import { Trie, Label, TrieNode, Char, LabelRow } from '../types'
 import { caseOr, getNode } from './utils'
 
 export default class LabeledTire implements Trie {
@@ -54,11 +54,11 @@ export default class LabeledTire implements Trie {
     return this.vocabulary
   }
 
-  static categorize(vocabulary: Label[]) {
-    const sortedVocabulary: (Label | undefined)[] = []
-    const all: Label[] = []
-    const newWord: Label[] = []
-    const acquainted: Label[] = []
+  static categorize(vocabulary: LabelRow[]) {
+    const sortedVocabulary: (LabelRow | undefined)[] = []
+    const all: LabelRow[] = []
+    const newWord: LabelRow[] = []
+    const acquainted: LabelRow[] = []
 
     for (const v of vocabulary) {
       if (v.src.length) {
@@ -72,7 +72,7 @@ export default class LabeledTire implements Trie {
     for (const v of sortedVocabulary) {
       if (v) {
         all.push(v)
-        ;(!v.F && v.len! > 2 ? newWord : acquainted).push(v)
+        ;(!v.F && v.len > 2 ? newWord : acquainted).push(v)
       }
     }
 

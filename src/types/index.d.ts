@@ -18,6 +18,12 @@ export interface Label extends Vocab {
   vocab?: Sieve;
 }
 
+export interface LabelRow extends Label {
+  len: number;
+  freq: number;
+  seq: number;
+}
+
 export interface Trie {
   root: TrieNode;
 

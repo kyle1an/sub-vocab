@@ -1,45 +1,30 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, PropType, ref, watch } from 'vue'
+import { useElementBounding } from '@vueuse/core'
 
+const pill = ref(null)
+const { width } = useElementBounding(pill)
 const emit = defineEmits(['input'])
 const props = defineProps({
   'default': { type: Number, default: 0 },
-  'segments': { type: Array, default: () => [''] },
+  'segments': { type: Array as PropType<string[]>, default: () => [''] },
 })
-const selectedSegmentWidth = ref(0)
 const selectedId = ref(props.default)
-onMounted(() => {
-  emboldenSelectedTitle(selectedId.value)
-  setTimeout(() => {
-    recalculateSelectedSegmentWidth()
-  }, 1000)
+watch(() => props.default, (id) => {
+  selectedId.value = id
 })
-window.addEventListener('resize', recalculateSelectedSegmentWidth)
-watch(() => props.default, (v) => {
-  selectedId.value = v
-})
-watch(selectedId, (v, o) => emboldenSelectedTitle(v, o))
+watch(selectedId, (id) => emit('input', id))
 
-function emboldenSelectedTitle(v: any, o?: any) {
-  emit('input', v)
-  document.querySelector(`[for="${o}"]`)?.classList?.remove('font-medium')
-  document.querySelector(`[for="${v}"]`)?.classList?.add('font-medium')
-}
-
-function recalculateSelectedSegmentWidth() {
-  selectedSegmentWidth.value = document.querySelector(`input[type='radio'][value='${selectedId.value}']`)!.getBoundingClientRect().width
-}
-
-const pillTransformStyles = computed(() => `transform:translateX(${selectedSegmentWidth.value * selectedId.value}px)`)
-onBeforeUnmount(() => window.removeEventListener('resize', recalculateSelectedSegmentWidth))
+const pillTransformStyles = computed(() => `transform:translateX(${width.value * selectedId.value}px)`)
 </script>
 
 <template>
   <main class="font-sans m-0 flex !touch-manipulation justify-center px-5 pt-3 pb-2 antialiased">
     <div class="m-0 grid w-full select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-[9px] border-0 bg-[#EFEFF0] p-0.5 leading-6 outline-none">
       <span
+        ref="pill"
         :style="pillTransformStyles"
-        class="z-[2] col-start-1 col-end-auto row-start-1 row-end-auto rounded-[7px] border-[.5px] border-black/[0.04] bg-white shadow-md transition-transform	 duration-200 ease-[ease] will-change-transform"
+        class="z-[2] col-start-1 col-end-auto row-start-1 row-end-auto rounded-[7px] border-[.5px] border-black/[0.04] bg-white shadow-md transition-transform duration-300 ease-[ease] will-change-transform"
       />
       <div
         v-for="(title,index) of segments"
@@ -76,21 +61,25 @@ main {
   box-sizing: border-box;
 }
 
-.option:hover,
-.option:active,
-.option:focus {
-  input:not(:checked) + label span {
-    opacity: .2;
+.option {
+  &:hover,
+  &:active,
+  &:focus {
+    input:not(:checked) + label span {
+      opacity: .2;
+    }
+  }
+
+  &:active {
+    input:not(:checked) + label span {
+      transform: scale(.95);
+    }
   }
 }
 
-.option:active input:not(:checked) + label span {
-  transform: scale(.95);
-}
-
-.option {
-  label::before,
-  label::after {
+label {
+  &::before,
+  &::after {
     content: '';
     width: 1px;
     background: rgba(142, 142, 147, .15);
@@ -102,37 +91,43 @@ main {
     transition: background .2s ease;
   }
 
-  label::before {
+  &::before {
     left: 0;
     transform: translateX(-.5px);
   }
 
-  label::after {
+  &::after {
     right: 0;
     transform: translateX(.5px);
   }
+}
 
-  input:checked {
-    + label {
-      cursor: default;
-    }
+input:checked {
+  + label {
+    cursor: default;
 
-    + label::before,
-    + label::after {
+    &::before,
+    &::after {
       background: rgba(239, 239, 240, 1);
       z-index: 1;
+    }
+
+    span {
+      font-weight: 500;
     }
   }
 }
 
-.option:first-of-type {
-  grid-column: 1;
-  grid-row: 1;
-  box-shadow: none;
-}
+.option {
+  &:first-of-type {
+    grid-column: 1;
+    grid-row: 1;
+    box-shadow: none;
+  }
 
-.option:first-of-type label::before,
-.option:last-of-type label::after {
-  opacity: 0;
+  &:first-of-type label::before,
+  &:last-of-type label::after {
+    opacity: 0;
+  }
 }
 </style>
