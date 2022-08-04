@@ -1,7 +1,7 @@
-import { Trie, Label, TrieNode, Char, LabelRow } from '../types'
+import { Label, TrieNode, Char, LabelRow } from '../types'
 import { caseOr, getNode } from './utils'
 
-export default class LabeledTire implements Trie {
+export default class LabeledTire {
   root: TrieNode
   #sequence: number
   sentences: string[]
@@ -21,7 +21,8 @@ export default class LabeledTire implements Trie {
     for (; previousSize < totalSize; previousSize++) {
       for (const m of this.sentences[previousSize].matchAll(/(?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þa-zß-ÿ]+[a-zß-ÿ]*)+(?:['-]?[A-Za-zÀ-ÿ]'?)+/mg)) {
         const matchedWord = m[0]
-        this.#update(matchedWord, /[A-ZÀ-Þ]/.test(matchedWord), m.index!, previousSize)
+        if (m.index === undefined) continue
+        this.#update(matchedWord, /[A-ZÀ-Þ]/.test(matchedWord), m.index, previousSize)
       }
     }
 
@@ -51,7 +52,7 @@ export default class LabeledTire implements Trie {
 
   mergedVocabulary() {
     this.traverseMerge(this.root)
-    return this.vocabulary
+    return this.vocabulary as LabelRow[]
   }
 
   static categorize(vocabulary: LabelRow[]) {
@@ -82,7 +83,7 @@ export default class LabeledTire implements Trie {
   traverseMerge(layer: TrieNode) {
     for (const key in layer) {
       if (key === '$') continue
-      const innerLayer = layer[key as Char]!
+      const innerLayer = layer[key as Char] ?? {}
       this.traverseMerge(innerLayer)
       this.mergeVocabOfDifferentSuffixes(innerLayer, (key as Char), layer)
     }
@@ -136,7 +137,7 @@ export default class LabeledTire implements Trie {
     }
 
     const occurCombined = (next_Words: Array<Label | undefined>): Label => {
-      const suffixesCombined: any = { src: [] }
+      const suffixesCombined: Label = { w: '', src: [] }
 
       for (const next_Word of next_Words) {
         if (!next_Word) continue

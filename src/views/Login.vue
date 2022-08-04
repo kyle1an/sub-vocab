@@ -3,7 +3,7 @@ import { login } from '../api/user'
 import router from '../router'
 import type { FormInstance } from 'element-plus'
 import { useUserStore } from '../store/useState'
-import { setCookie } from '../utils/cookie'
+import Cookies from 'js-cookie'
 import { ElNotification } from 'element-plus/es'
 import { useVocabStore } from '../store/useVocab'
 import { reactive, ref } from 'vue'
@@ -62,8 +62,8 @@ function submitForm(formEl: FormInstance | undefined) {
     }
 
     store.user.name = ruleForm.username
-    setCookie('_user', ruleForm.username, 30)
-    setCookie('acct', resAuth[1], 30)
+    Cookies.set('_user', ruleForm.username, { expires: 30, })
+    Cookies.set('acct', resAuth[1], { expires: 30, })
     setTimeout(() => {
       router.push('/')
       vocabStore.fetchVocab(ruleForm.username)
