@@ -5,17 +5,18 @@ import { computed, onMounted, ref, Ref } from 'vue'
 import { compare, jsonClone, selectWord } from '../utils/utils'
 import { useVocabStore } from '../store/useVocab'
 import { useI18n } from 'vue-i18n'
+import { Sorting, WordPrime } from '../types'
 
 const { t } = useI18n()
 const segments = computed(() => [t('all'), t('mine'), t('top')])
 const selected: Ref<number> = ref(0)
-let vocabLists: Array<any>[] = [[], [], []]
-const acquaintedVocabTableData = ref<any[]>([])
+let vocabLists: WordPrime[][] = [[], [], []]
+const acquaintedVocabTableData = ref<WordPrime[]>([])
 
 async function loadVocab() {
   const vocabStore = useVocabStore()
   const words = jsonClone(await vocabStore.fetchVocab())
-  const all = []
+  const all: WordPrime[] = []
   const mine = []
   const topWords = []
   for (const word of words) {
@@ -37,11 +38,11 @@ async function loadVocab() {
   return [all, mine, topWords]
 }
 
-const sortBy = ref({})
+let sortBy: Sorting<WordPrime> = { order: null, prop: null, }
 
 function refreshVocab() {
   acquaintedVocabTableData.value = vocabLists[selected.value]
-  sortChange(sortBy.value)
+  sortChange(sortBy)
 }
 
 onMounted(() => {
@@ -57,17 +58,21 @@ onMounted(() => {
 function onSegmentSwitched(v: number) {
   selected.value = v
   acquaintedVocabTableData.value = vocabLists[selected.value]
-  sortChange(sortBy.value)
+  sortChange(sortBy)
 }
 
-function sortChange({ prop, order }: any) {
-  sortBy.value = { prop, order }
-  acquaintedVocabTableData.value = [...vocabLists[selected.value]].sort(compare(prop, order))
+function sortChange({ prop, order }: Sorting<WordPrime>) {
+  sortBy = { prop, order }
+  if (prop && order) {
+    acquaintedVocabTableData.value = [...vocabLists[selected.value]].sort(compare(prop, order))
+  } else {
+    acquaintedVocabTableData.value = [...vocabLists[selected.value]]
+  }
 }
 
 const search = ref('')
 const tableDataFiltered = computed(() =>
-  acquaintedVocabTableData.value.filter((data: any) =>
+  acquaintedVocabTableData.value.filter((data: WordPrime) =>
     !search.value || data.w.toLowerCase().includes(search.value.toLowerCase())
   )
 )

@@ -8,6 +8,11 @@ export interface Sieve extends Vocab {
   id?: number,
 }
 
+export interface Stems {
+  derivations: string,
+  stem_word: string,
+}
+
 export interface Label extends Vocab {
   src: Source;
   up?: boolean;
@@ -24,15 +29,25 @@ export interface LabelRow extends Label {
   seq: number;
 }
 
-export interface Trie {
-  root: TrieNode;
-
-  add(word: string): this;
+export interface WordPrime extends Vocab {
+  is_user: boolean;
+  len: number;
+  rank: number;
 }
 
 export type Source = Array<[number, number, number, number]>;
 
-export type Char = "'" | '-' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z';
+export interface Sorting<T> {
+  order: 'ascending' | 'descending' | null;
+  prop: keyof T | null;
+}
+
+export interface userVocab {
+  user: string;
+  word: string;
+}
+
+export type Char = `'` | '-' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z';
 
 export interface TrieNode {
   $?: Label;

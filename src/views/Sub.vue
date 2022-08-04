@@ -3,7 +3,7 @@ import Trie from '../utils/LabeledTire'
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { Check } from '@element-plus/icons-vue'
 import { computed, nextTick, ref, Ref, shallowRef, watch } from 'vue'
-import { LabelRow } from '../types'
+import { LabelRow, Sorting } from '../types'
 import { classKeyOfRow, compare, readFiles, removeClass, selectWord, sortByChar } from '../utils/utils'
 import { acquaint, revokeWord } from '../api/vocab-service'
 import { useVocabStore } from '../store/useVocab'
@@ -14,6 +14,7 @@ import router from '../router'
 import { TransitionPresets, useTransition } from '@vueuse/core'
 import Examples from '../components/Examples'
 import { useI18n } from 'vue-i18n'
+import LabeledTire from '../utils/LabeledTire'
 
 const { t } = useI18n()
 const userStore = useUserStore()
@@ -21,9 +22,8 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
 const selectedSeg: Ref<number> = ref(0)
 let listsOfVocab: LabelRow[][] = [[], [], []]
 const tableDataOfVocab = shallowRef<LabelRow[]>([])
-const vocabTable = shallowRef<any>(null)
-
-let sortBy = {}
+const vocabTable = shallowRef<any>()
+let sortBy: Sorting<LabelRow> = { order: null, prop: null, }
 
 function onSegmentSwitched(v: number) {
   disabledTotal.value = true
@@ -36,13 +36,13 @@ function onSegmentSwitched(v: number) {
 const fileInfo = ref('')
 const inputText = ref('')
 
-async function onFileChange(ev: any) {
-  const files = ev.target.files
+async function onFileChange(ev: Event) {
+  const files = (ev.target as HTMLInputElement).files
   const numberOfFiles = files?.length
   if (!numberOfFiles) return
   const fileList = await readFiles(files)
   if (numberOfFiles > 1) {
-    fileInfo.value = `${fileList.length} files selected`
+    fileInfo.value = `${numberOfFiles} files selected`
   } else {
     fileInfo.value = fileList[0].file.name
   }
@@ -50,7 +50,7 @@ async function onFileChange(ev: any) {
   inputText.value = fileList.reduce((pre, { result }) => pre + result, '')
 }
 
-const sentences = shallowRef<any[]>([])
+const sentences = shallowRef<string[]>([])
 const vocabStore = useVocabStore()
 const { log, logEnd, logPerf } = useTimeStore()
 const lengthsOfLists = ref([0, 0, 0])
@@ -62,7 +62,7 @@ const vocabCountBySegment = computed(() => {
   return `${~~r} - ${~~g} - ${~~b}`
 })
 
-async function structVocab(content: string): Promise<any> {
+async function structVocab(content: string): Promise<LabeledTire> {
   const trieListPair = await vocabStore.getSieve()
   log(['-- All took', '    '])
   log('· init words')
@@ -125,7 +125,7 @@ const tableDataDisplay = computed(() =>
 )
 const loadingStateArray = ref<boolean[]>([])
 
-async function toggleWordState(row: any) {
+async function toggleWordState(row: LabelRow) {
   loadingStateArray.value[row.seq] = true
 
   if (userStore.user.name) {
@@ -157,9 +157,13 @@ async function toggleWordState(row: any) {
   loadingStateArray.value[row.seq] = false
 }
 
-function sortChange({ prop, order }: any) {
+function sortChange({ prop, order }: Sorting<LabelRow>) {
   sortBy = { prop, order }
-  tableDataOfVocab.value = [...listsOfVocab[selectedSeg.value]].sort(compare(prop, order))
+  if (prop && order) {
+    tableDataOfVocab.value = [...listsOfVocab[selectedSeg.value]].sort(compare(prop, order))
+  } else {
+    tableDataOfVocab.value = [...listsOfVocab[selectedSeg.value]]
+  }
 }
 
 const currentPage = ref(1)
@@ -172,11 +176,11 @@ const totalTransit = useTransition(total, {
   transition: TransitionPresets.easeOutCirc,
 })
 
-function handleRowClick(row: any) {
-  vocabTable.value.toggleRowExpansion(row)
+function handleRowClick(row: LabelRow) {
+  vocabTable.value?.toggleRowExpansion(row)
 }
 
-function onExpandChange(row: any) {
+function onExpandChange(row: LabelRow) {
   document.getElementsByClassName(classKeyOfRow(row.seq))[0].classList.toggle('expanded')
 }
 </script>

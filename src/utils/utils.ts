@@ -4,7 +4,7 @@ export function sortByChar(a: string, b: string): number {
   return a.localeCompare(b, 'en', { sensitivity: 'base' })
 }
 
-export function sortByNum(a: any, b: any): number {
+export function sortByNum(a: number, b: number): number {
   if (a === null) return 1
   if (b === null) return -1
   return a - b
@@ -28,8 +28,8 @@ export function caseOr(a: string, b: string): string {
   return String.fromCharCode(...r)
 }
 
-export function selectWord(e: any) {
-  window.getSelection()?.selectAllChildren(e.target)
+export function selectWord(e: Event) {
+  window.getSelection()?.selectAllChildren(<Node>e.target)
 }
 
 export function removeClass(className: string) {
@@ -39,7 +39,7 @@ export function removeClass(className: string) {
   }
 }
 
-export function readSingleFile(file: any): any {
+export function readSingleFile(file: File): Promise<any> {
   return new Promise((resolve, reject) => {
     const fr = new FileReader()
     fr.onload = () => {
@@ -51,7 +51,7 @@ export function readSingleFile(file: any): any {
   })
 }
 
-export async function readFiles(files: any): Promise<any[]> {
+export async function readFiles(files: FileList): Promise<any[]> {
   const fileList = []
   for (let i = 0; i < files.length; i++) {
     fileList.push(await readSingleFile(files[i]))
@@ -60,7 +60,7 @@ export async function readFiles(files: any): Promise<any[]> {
   return fileList
 }
 
-export const jsonClone = (obj: any) => JSON.parse(JSON.stringify(obj))
+export const jsonClone = (obj: object) => JSON.parse(JSON.stringify(obj))
 
 export const classKeyOfRow = (seq: string | number) => `v-${seq}`
 

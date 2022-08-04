@@ -12,7 +12,7 @@ const { t } = useI18n()
 const store = useUserStore()
 const ruleFormRef = ref<FormInstance>()
 
-async function checkUsername(rule: any, value: any, callback: any) {
+async function checkUsername(rule: any, value: any, callback: (arg0?: Error) => void) {
   const username = String(value)
   if (!username.length) {
     return callback(new Error(t('Please input name')))
@@ -33,12 +33,12 @@ async function checkUsername(rule: any, value: any, callback: any) {
   callback()
 }
 
-function validatePass(rule: any, value: any, callback: any) {
+function validatePass(rule: any, value: string, callback: () => void) {
   if (value === '') {
     return callback()
   }
 
-  if (ruleForm.value.checkPass !== '') {
+  if (ruleForm.checkPass !== '') {
     if (!ruleFormRef.value) return
     ruleFormRef.value.validateField('checkPass', () => null)
   }
@@ -46,19 +46,19 @@ function validatePass(rule: any, value: any, callback: any) {
   callback()
 }
 
-const validatePass2 = (rule: any, value: any, callback: any) => {
-  if (value === '' && ruleForm.value.password === '') {
+const validatePass2 = (rule: any, value: string, callback: (arg0?: Error) => void) => {
+  if (value === '' && ruleForm.password === '') {
     return callback()
   }
 
-  if (value !== ruleForm.value.password) {
+  if (value !== ruleForm.password) {
     return callback(new Error(t('inputsNotMatch')))
   }
 
   callback()
 }
 
-const ruleForm = ref({
+const ruleForm = reactive({
   username: '',
   oldPassword: '',
   password: '',
@@ -79,13 +79,13 @@ function submitForm(formEl: FormInstance | undefined) {
       return false
     }
 
-    alterInfo(ruleForm.value)
+    alterInfo(ruleForm)
   })
 }
 
 const errorMsg = ref('')
 
-async function alterInfo(form: any) {
+async function alterInfo(form: typeof ruleForm) {
   if (form.password !== '') {
     form.password = form.password.trim()
     const res = await changePassword({

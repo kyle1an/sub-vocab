@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useUserStore } from '../store/useState'
-import { setCookie } from '../utils/cookie'
+import Cookies from 'js-cookie'
 import { CaretBottom } from '@element-plus/icons-vue'
 import en from 'element-plus/es/locale/lang/en'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
@@ -19,7 +19,7 @@ const acquaintedSection = computed(() => userStore.user.name ? t('mine') : t('co
 const isWide = window.innerWidth >= 460
 
 function handleCommand(command: string) {
-  setCookie('lang', command, 365)
+  Cookies.set('lang', command, { expires: 365, })
   locale.value = command
 }
 </script>

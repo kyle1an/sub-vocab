@@ -4,7 +4,7 @@ export const useTimeStore = defineStore('timeStore', () => {
   const perfTime: Record<string, any> = {}
   const logsRes: Record<string, any> = {}
 
-  function log(label: string | string[], style: string = '') {
+  function log(label: string | string[], style = '') {
     const name = typeof label === 'string' ? label : label.join('')
     perfTime[name] = {
       label: label,
@@ -24,7 +24,7 @@ export const useTimeStore = defineStore('timeStore', () => {
     logsRes[name] = perfTime[name]
   }
 
-  function alignWord(des: string | string[], time: number, indent: number = 30) {
+  function alignWord(des: string | string[], time: number, indent = 30) {
     let title
     let desStr
     let append

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import TopBar from './components/TopBar.vue'
 import { useUserStore } from './store/useState'
-import { getCookie } from './utils/cookie'
+import Cookies from 'js-cookie'
 
 const useStore = useUserStore()
-const userName = getCookie('_user')
+const userName = Cookies.get('_user')
 if (userName) {
   useStore.user.name = userName
 }
@@ -61,12 +61,6 @@ body {
   @apply antialiased;
   //text-align: center;
   color: #2c3e50;
-}
-
-@media only screen and (min-width: 768px) {
-  body {
-    height: 100%;
-  }
 }
 
 @media only screen and (max-width: 768px) {

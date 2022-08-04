@@ -7,7 +7,7 @@ module.exports = {
     "plugin:vue/vue3-recommended",
     // "plugin:vue/essential",
     "plugin:tailwindcss/recommended",
-    // "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended",
   ],
   "parserOptions": {
     "parser": "@typescript-eslint/parser",

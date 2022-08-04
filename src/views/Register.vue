@@ -10,7 +10,7 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 const ruleFormRef = ref<FormInstance>()
 
-async function checkUsername(rule: any, value: any, callback: any) {
+async function checkUsername(rule: any, value: any, callback: (arg0?: Error) => void) {
   const username = String(value)
   if (!username.length) {
     return callback(new Error(t('Please input name')))
@@ -31,7 +31,7 @@ async function checkUsername(rule: any, value: any, callback: any) {
   callback()
 }
 
-function validatePass(rule: any, value: any, callback: any) {
+function validatePass(rule: any, value: any, callback: (arg0?: Error) => void) {
   if (value === '') {
     return callback(new Error(t('Please input the password')))
   }
@@ -44,7 +44,7 @@ function validatePass(rule: any, value: any, callback: any) {
   callback()
 }
 
-const validatePass2 = (rule: any, value: any, callback: any) => {
+const validatePass2 = (rule: any, value: any, callback: (arg0?: Error) => void) => {
   if (value === '') {
     return callback(new Error(t('Please input the password again')))
   }
