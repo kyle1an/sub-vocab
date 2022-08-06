@@ -22,20 +22,19 @@ const props = defineProps({
 })
 
 const tableDataOfVocab = shallowRef<LabelRow[]>(props.data)
-watch(() => props.data, (v) => {
+watch(() => props.data, () => {
   removeClass('expanded')
-  setTimeout(() => {
-    tableDataOfVocab.value = v
-  }, 0)
+  onSegmentSwitched(selectedSeg.value)
 })
 const vocabTable = shallowRef<typeof ElTable>()
 let sortBy: Sorting<LabelRow> = { order: null, prop: null, }
 const vocabStore = useVocabStore()
-const selectedSeg = ref(0)
+const selectedSeg = ref(Number(sessionStorage.getItem('prev-segment-select')) || 0)
 
 function onSegmentSwitched(v: number) {
   disabledTotal.value = true
   selectedSeg.value = v
+  sessionStorage.setItem('prev-segment-select', String(v))
   if (v === 0) {
     tableDataOfVocab.value = [...props.data]
   } else if (v === 1) {
@@ -124,6 +123,7 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
 
 <template>
   <segmented-control
+    name="vocab-seg"
     :segments="segments"
     :default="selectedSeg"
     class="grow-0"
