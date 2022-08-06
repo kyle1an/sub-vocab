@@ -7,6 +7,7 @@ const { width } = useElementBounding(pill)
 const emit = defineEmits(['input'])
 const props = defineProps({
   'default': { type: Number, default: 0 },
+  'name': { type: String, default: '' },
   'segments': { type: Array as PropType<string[]>, default: () => [''] },
 })
 const selectedId = ref(props.default)
@@ -15,7 +16,14 @@ watch(() => props.default, (id) => {
 })
 watch(selectedId, (id) => emit('input', id))
 
-const pillTransformStyles = computed(() => `transform:translateX(${width.value * selectedId.value}px)`)
+const pillName = `${props.name}-prev-pill-width`
+const initWidth = props.name ? Number(sessionStorage.getItem(pillName)) || 0 : 0
+const pillWidth = ref(initWidth)
+const pillTransformStyles = computed(() => `transform:translateX(${pillWidth.value * selectedId.value}px)`)
+watch(width, (w) => {
+  pillWidth.value = w
+  sessionStorage.setItem(pillName, String(w))
+})
 </script>
 
 <template>
