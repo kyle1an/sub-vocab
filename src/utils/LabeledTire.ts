@@ -58,8 +58,6 @@ export default class LabeledTire {
   static categorize(vocabulary: LabelRow[]) {
     const sortedVocabulary: (LabelRow | undefined)[] = []
     const all: LabelRow[] = []
-    const newWord: LabelRow[] = []
-    const acquainted: LabelRow[] = []
 
     for (const v of vocabulary) {
       if (v.src.length) {
@@ -73,11 +71,10 @@ export default class LabeledTire {
     for (const v of sortedVocabulary) {
       if (v) {
         all.push(v)
-        ;(!v.F && v.len > 2 ? newWord : acquainted).push(v)
       }
     }
 
-    return [all, newWord, acquainted]
+    return all
   }
 
   traverseMerge(layer: TrieNode) {
