@@ -1,4 +1,4 @@
-export interface Vocab {
+export interface Vocab extends Record<string, unknown> {
   w: string;
 }
 
@@ -19,7 +19,6 @@ export interface Label extends Vocab {
   len?: number;
   freq?: number;
   seq?: number;
-  F?: boolean | number;
   vocab?: Sieve;
 }
 

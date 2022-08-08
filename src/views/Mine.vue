@@ -1,97 +1,104 @@
-<script setup lang="ts">
+<script lang="ts" setup>
+import { useI18n } from 'vue-i18n'
+import { computed, nextTick, onBeforeMount, reactive, ref, shallowRef } from 'vue'
+import { TransitionPresets, useTransition } from '@vueuse/core'
 import Switch from '../components/Switch.vue'
 import SegmentedControl from '../components/SegmentedControl.vue'
-import { computed, onMounted, ref, Ref } from 'vue'
 import { compare, jsonClone, selectWord } from '../utils/utils'
 import { useVocabStore } from '../store/useVocab'
-import { useI18n } from 'vue-i18n'
 import { Sorting, WordPrime } from '../types'
 
 const { t } = useI18n()
-const segments = computed(() => [t('all'), t('mine'), t('top')])
-const selected: Ref<number> = ref(0)
-let vocabLists: WordPrime[][] = [[], [], []]
-const acquaintedVocabTableData = ref<WordPrime[]>([])
 
 async function loadVocab() {
   const vocabStore = useVocabStore()
   const words = jsonClone(await vocabStore.fetchVocab())
   const all: WordPrime[] = []
-  const mine = []
-  const topWords = []
   for (const word of words) {
     if (word.acquainted) {
-      const row = {
+      all.push({
         w: word.w,
         is_user: word.is_user,
         len: word.w.length,
         rank: word.rank,
-      }
-      if (word.is_user) {
-        mine.push(row)
-      } else {
-        topWords.push(row)
-      }
-      all.push(row)
+      })
     }
   }
-  return [all, mine, topWords]
+
+  return all
 }
 
-let sortBy: Sorting<WordPrime> = { order: null, prop: null, }
-
-function refreshVocab() {
-  acquaintedVocabTableData.value = vocabLists[selected.value]
-  sortChange(sortBy)
-}
-
-onMounted(() => {
-  setTimeout(async () => {
-    vocabLists = await loadVocab()
-    if (vocabLists[1].length) {
-      selected.value = 1
-    }
-    refreshVocab()
-  }, 0)
+const rowsAcquainted = shallowRef<WordPrime[]>([])
+onBeforeMount(async () => {
+  rowsAcquainted.value = await loadVocab()
 })
 
-function onSegmentSwitched(v: number) {
-  selected.value = v
-  acquaintedVocabTableData.value = vocabLists[selected.value]
-  sortChange(sortBy)
+function onSegmentSwitched(seg: number) {
+  disabledTotal.value = true
+  selectedSeg.value = seg
+  sessionStorage.setItem('prev-segment-mine', String(seg))
+  nextTick().then(() => disabledTotal.value = false)
 }
 
-function sortChange({ prop, order }: Sorting<WordPrime>) {
-  sortBy = { prop, order }
-  if (prop && order) {
-    acquaintedVocabTableData.value = [...vocabLists[selected.value]].sort(compare(prop, order))
-  } else {
-    acquaintedVocabTableData.value = [...vocabLists[selected.value]]
+const selectedSeg = ref(Number(sessionStorage.getItem('prev-segment-mine')) || 0)
+const rowsSegmented = computed(() => {
+  if (selectedSeg.value === 1) {
+    return rowsAcquainted.value.filter((row) => row.is_user)
   }
-}
+
+  if (selectedSeg.value === 2) {
+    return rowsAcquainted.value.filter((row) => !row.is_user)
+  }
+
+  return [...rowsAcquainted.value]
+})
 
 const search = ref('')
-const tableDataFiltered = computed(() =>
-  acquaintedVocabTableData.value.filter((data: WordPrime) =>
-    !search.value || data.w.toLowerCase().includes(search.value.toLowerCase())
-  )
-)
+const rowsSearched = computed(() => {
+  if (!search.value) {
+    return rowsSegmented.value
+  }
 
-const tableDataDisplay = computed(() =>
-  tableDataFiltered.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value)
-)
-const currentPage = ref(1)
-const pageSizes = [100, 200, 500, 1000, Infinity]
-const pageSize = ref(pageSizes[0])
-const total = computed(() => tableDataFiltered.value.length)
+  return rowsSegmented.value.filter((row: WordPrime) => row.w.toLowerCase().includes(search.value.toLowerCase()))
+})
+
+function sortChange({ prop, order }: Sorting<WordPrime>) {
+  sortBy.value = { prop, order }
+}
+
+const sortBy = shallowRef<Sorting<WordPrime>>({ order: null, prop: null, })
+const rowsSorted = computed(() => {
+  const { prop, order } = sortBy.value
+  if (prop && order) {
+    return [...rowsSearched.value].sort(compare(prop, order))
+  }
+
+  return rowsSearched.value
+})
+
+const page = reactive({
+  curr: 1,
+  sizes: [100, 200, 500, 1000, Infinity],
+  size: 100,
+})
+const rowsPaged = computed(() => rowsSorted.value.slice((page.curr - 1) * page.size, page.curr * page.size))
+
+const total = computed(() => rowsSearched.value.length)
+const disabledTotal = ref(false)
+const totalTransit = useTransition(total, {
+  disabled: disabledTotal,
+  transition: TransitionPresets.easeOutCirc,
+})
+
+const segments = computed(() => [t('all'), t('mine'), t('top')])
 </script>
 
 <template>
   <div class="mx-auto max-w-screen-xl">
     <el-container>
       <el-header
-        height="100%"
         class="relative flex !h-16 items-center"
+        height="100%"
       >
         <Switch
           :state="false"
@@ -103,30 +110,31 @@ const total = computed(() => tableDataFiltered.value.length)
         <el-aside class="h-[calc(90vh-20px)] !w-full !overflow-visible md:h-[calc(100vh-160px)] md:!w-[44%]">
           <el-card class="table-card mx-5 flex h-full flex-col items-center !rounded-xl !border-0 will-change-transform">
             <segmented-control
+              :default="selectedSeg"
               :segments="segments"
-              :default="selected"
               class="grow-0 pt-3 pb-2"
+              name="segment-mine"
               @input="onSegmentSwitched"
             />
             <div class="h-full w-full">
               <!-- 100% height of its container minus height of siblings -->
               <div class="h-[calc(100%-1px)]">
                 <el-table
-                  fit
+                  :data="rowsPaged"
                   class="w-table !h-full !w-full md:w-full"
+                  fit
                   height="200"
                   size="small"
-                  :data="tableDataDisplay"
                   @sort-change="sortChange"
                 >
                   <el-table-column
                     :label="t('rank')"
+                    align="center"
+                    class-name="cursor-pointer tabular-nums"
+                    header-align="center"
+                    min-width="7"
                     prop="rank"
                     sortable="custom"
-                    header-align="center"
-                    align="center"
-                    min-width="7"
-                    class-name="cursor-pointer tabular-nums"
                   >
                     <template #default="props">
                       <div class="select-none font-compact">
@@ -136,19 +144,19 @@ const total = computed(() => tableDataFiltered.value.length)
                   </el-table-column>
 
                   <el-table-column
+                    align="left"
+                    class-name="cursor-pointer"
                     label="Vocabulary"
+                    min-width="7"
                     prop="w"
                     sortable="custom"
-                    align="left"
-                    min-width="7"
-                    class-name="cursor-pointer"
                   >
                     <template #header>
                       <el-input
                         v-model="search"
+                        :placeholder="t('search')"
                         class="!w-[calc(100%-26px)] !text-base md:!text-xs"
                         size="small"
-                        :placeholder="t('search')"
                         @click.stop
                       />
                     </template>
@@ -164,11 +172,11 @@ const total = computed(() => tableDataFiltered.value.length)
 
                   <el-table-column
                     :label="t('length')"
+                    align="left"
+                    class-name="cursor-pointer tabular-nums"
+                    min-width="5"
                     prop="len"
                     sortable="custom"
-                    align="left"
-                    min-width="5"
-                    class-name="cursor-pointer tabular-nums"
                   >
                     <template #default="props">
                       <div class="select-none font-compact">
@@ -180,15 +188,15 @@ const total = computed(() => tableDataFiltered.value.length)
               </div>
             </div>
             <el-pagination
-              v-model:currentPage="currentPage"
-              v-model:page-size="pageSize"
-              :page-sizes="pageSizes"
-              :small="true"
+              v-model:currentPage="page.curr"
+              v-model:page-size="page.size"
               :background="true"
+              :page-sizes="page.sizes"
               :pager-count="5"
+              :small="true"
+              :total="~~totalTransit"
+              class="pager-section shrink-0 flex-wrap gap-y-1.5 !px-2 !pt-1 !pb-1.5 tabular-nums"
               layout="prev, pager, next, ->, total, sizes"
-              :total="total"
-              class="pager-section shrink-0 flex-wrap gap-y-1.5 !px-2 !pt-1 !pb-1.5"
             />
           </el-card>
         </el-aside>

@@ -1,13 +1,12 @@
 <script lang="tsx" setup>
-import Trie from '../utils/LabeledTire'
+import { useI18n } from 'vue-i18n'
 import { ref, shallowRef, watch } from 'vue'
+import Trie from '../utils/LabeledTire'
+import VocabTable from '../components/VocabTable.vue'
 import { LabelRow } from '../types'
 import { readFiles, sortByChar } from '../utils/utils'
 import { useVocabStore } from '../store/useVocab'
 import { useTimeStore } from '../store/usePerf'
-import { useI18n } from 'vue-i18n'
-import LabeledTire from '../utils/LabeledTire'
-import VocabTable from '../components/VocabTable.vue'
 
 const { t } = useI18n()
 let listOfVocab: LabelRow[] = []
@@ -34,7 +33,7 @@ const sentences = ref<string[]>([])
 const vocabStore = useVocabStore()
 const { log, logEnd, logPerf } = useTimeStore()
 
-async function structVocab(content: string): Promise<LabeledTire> {
+async function structVocab(content: string): Promise<Trie> {
   const trieListPair = await vocabStore.getSieve()
   log(['-- All took', '    '])
   log('· init words')

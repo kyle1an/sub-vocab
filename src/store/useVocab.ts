@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
-import { queryWordsByUser, stemsMapping } from '../api/vocab-service'
-import { Label, Sieve, Stems, TrieNode } from '../types'
-import { getNode } from '../utils/utils'
 import Cookies from 'js-cookie'
+import { queryWordsByUser, stemsMapping } from '../api/vocab-service'
+import { Label, LabelRow, Sieve, Stems, TrieNode } from '../types'
+import { getNode } from '../utils/utils'
 
 export const useVocabStore = defineStore('vocabStore', () => {
   const query: Promise<Sieve[]> = queryWordsByUser(Cookies.get('_user') ?? '')
@@ -13,6 +13,7 @@ export const useVocabStore = defineStore('vocabStore', () => {
 
   async function fetchVocab(username?: string) {
     if (!irregulars.length) await fetchIrregulars()
+
     if (username !== undefined) {
       commonVocab = await queryWordsByUser(username)
     } else if (commonVocab.length === 0) {
@@ -44,7 +45,6 @@ export const useVocabStore = defineStore('vocabStore', () => {
       }
 
       node.$.vocab = sieve
-      node.$.F = sieve.acquainted
     }
 
     for (const irregularCollect of irregulars) {
@@ -73,18 +73,17 @@ export const useVocabStore = defineStore('vocabStore', () => {
     return trieListPair
   }
 
-  function updateWord(row: Label) {
-    const original = row.vocab?.w || ''
+  function updateWord(row: LabelRow) {
+    const original = row.vocab?.w ?? ''
     const isUp = /[A-Z]/.test(original)
-    const [trie, list] = trieListPair
-    const node: TrieNode = getNode(trie, isUp ? original.toLowerCase() : original)
+    const [preBuiltTrie, mappedList] = trieListPair
+    const node: TrieNode = getNode(preBuiltTrie, isUp ? original.toLowerCase() : original)
     if (!node.$) {
       node.$ = { w: original, up: isUp, len: original.length, src: [] }
-      list.push(node.$)
+      mappedList.push(node.$)
       commonVocab.push(<Sieve>row.vocab)
     }
     node.$.vocab = row.vocab
-    node.$.F = row.vocab?.acquainted
   }
 
   return { fetchVocab, updateWord, getSieve }

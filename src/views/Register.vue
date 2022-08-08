@@ -1,11 +1,11 @@
 <script lang="tsx" setup>
-import { existsUsername, register } from '../api/user'
-import router from '../router'
 import type { FormInstance } from 'element-plus'
-import { userInfo } from '../types/user'
 import { ElNotification } from 'element-plus/es'
 import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { userInfo } from '../types/user'
+import router from '../router'
+import { existsUsername, register } from '../api/user'
 
 const { t } = useI18n()
 const ruleFormRef = ref<FormInstance>()

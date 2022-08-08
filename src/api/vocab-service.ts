@@ -1,6 +1,6 @@
-import { fetchPost } from './request'
 import { wrapCookie } from '../utils/cookie'
 import { userVocab } from '../types'
+import { fetchPost } from './request'
 
 export async function queryWordsByUser(user: string) {
   return fetchPost(`${import.meta.env.VITE_SUB_PROD}/api/queryWords`, {
