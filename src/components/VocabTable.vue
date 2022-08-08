@@ -1,114 +1,82 @@
 <script lang="tsx" setup>
-import { Check } from '@element-plus/icons-vue'
-import { computed, nextTick, PropType, ref, shallowRef, watch } from 'vue'
-import { LabelRow, Sorting } from '../types'
-import { classKeyOfRow, compare, removeClass, selectWord } from '../utils/utils'
-import { acquaint, revokeWord } from '../api/vocab-service'
-import { useVocabStore } from '../store/useVocab'
-import { useUserStore } from '../store/useState'
-import { ElNotification } from 'element-plus'
-import router from '../router'
+import { PropType, computed, nextTick, reactive, ref, shallowRef, watch } from 'vue'
 import { TransitionPresets, useTransition } from '@vueuse/core'
-import Examples from '../components/Examples'
 import { useI18n } from 'vue-i18n'
-import SegmentedControl from '../components/SegmentedControl.vue'
 import { ElTable } from 'element-plus'
+import { LabelRow, Sorting } from '../types'
+import { classKeyOfRow, compare, isMobile, removeClass, selectWord } from '../utils/utils'
+import Examples from '../components/Examples'
+import SegmentedControl from '../components/SegmentedControl.vue'
+import ToggleButton from './ToggleButton.vue'
 
 const { t } = useI18n()
-const userStore = useUserStore()
 const props = defineProps({
   'data': { type: Array as PropType<LabelRow[]>, default: () => [''] },
   'sentences': { type: Array as PropType<string[]>, default: () => [''] },
 })
 
-const tableDataOfVocab = shallowRef<LabelRow[]>(props.data)
 watch(() => props.data, () => {
   removeClass('expanded')
-  onSegmentSwitched(selectedSeg.value)
 })
-const vocabTable = shallowRef<typeof ElTable>()
-let sortBy: Sorting<LabelRow> = { order: null, prop: null, }
-const vocabStore = useVocabStore()
-const selectedSeg = ref(Number(sessionStorage.getItem('prev-segment-select')) || 0)
 
-function onSegmentSwitched(v: number) {
+function onSegmentSwitched(seg: number) {
   disabledTotal.value = true
-  selectedSeg.value = v
-  sessionStorage.setItem('prev-segment-select', String(v))
-  if (v === 0) {
-    tableDataOfVocab.value = [...props.data]
-  } else if (v === 1) {
-    tableDataOfVocab.value = [...props.data].filter((r) => !r.F && r.len > 2)
-  } else if (v === 2) {
-    tableDataOfVocab.value = [...props.data].filter((r) => r.F || r.len <= 2)
-  }
-
-  sortChange(sortBy)
+  selectedSeg.value = seg
+  sessionStorage.setItem('prev-segment-select', String(seg))
   nextTick().then(() => disabledTotal.value = false)
 }
 
+const selectedSeg = ref(Number(sessionStorage.getItem('prev-segment-select')) || 0)
+const rowsSegmented = computed(() => {
+  if (selectedSeg.value === 1) {
+    return props.data.filter((r) => !r?.vocab?.acquainted && r.len > 2)
+  }
+
+  if (selectedSeg.value === 2) {
+    return props.data.filter((r) => r?.vocab?.acquainted || r.len <= 2)
+  }
+
+  return [...props.data]
+})
+
 const search = ref('')
-const tableDataFiltered = computed(() => {
-    if (search.value) {
-      return tableDataOfVocab.value.filter((row: LabelRow) => row.w.toLowerCase().includes(search.value.toLowerCase()))
-    } else {
-      return tableDataOfVocab.value
-    }
-  }
-)
-const currentPage = ref(1)
-const pageSizes = [100, 200, 500, 1000, Infinity]
-const pageSize = ref(pageSizes[0])
-const tableDataDisplay = computed(() =>
-  tableDataFiltered.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value)
-)
-const loadingStateArray = ref<boolean[]>([])
-
-async function toggleWordState(row: LabelRow) {
-  loadingStateArray.value[row.seq] = true
-
-  if (userStore.user.name) {
-    const word = row.w.replace(/'/g, '\'\'')
-    row.vocab ??= { w: row.w, is_user: true, acquainted: false }
-    const vocabInfo = {
-      word,
-      user: userStore.user.name,
-    }
-    const acquainted = row?.vocab?.acquainted
-    const res = await (acquainted ? revokeWord : acquaint)(vocabInfo)
-
-    if (res?.affectedRows) {
-      row.F = row.vocab.acquainted = !acquainted
-      vocabStore.updateWord(row)
-    }
-  } else {
-    ElNotification({
-      message: (
-        <span style={{ color: 'teal' }}>
-          {t('please')}
-          {' '}<i onClick={() => router.push('/login')}>{t('login')}</i>{' '}
-          {t('to mark words')}
-        </span>
-      )
-    })
+const rowsSearched = computed(() => {
+  if (!search.value) {
+    return rowsSegmented.value
   }
 
-  loadingStateArray.value[row.seq] = false
-}
+  return rowsSegmented.value.filter((row: LabelRow) => row.w.toLowerCase().includes(search.value.toLowerCase()))
+})
 
 function sortChange({ prop, order }: Sorting<LabelRow>) {
-  sortBy = { prop, order }
-  if (prop && order) {
-    tableDataOfVocab.value = [...tableDataOfVocab.value].sort(compare(prop, order))
-  }
+  sortBy.value = { prop, order }
 }
 
-const total = computed(() => tableDataFiltered.value.length)
+const sortBy = shallowRef<Sorting<LabelRow>>({ order: null, prop: null, })
+const rowsSorted = computed(() => {
+  const { prop, order } = sortBy.value
+  if (prop && order) {
+    return [...rowsSearched.value].sort(compare(prop, order))
+  }
+
+  return rowsSearched.value
+})
+
+const page = reactive({
+  curr: 1,
+  sizes: [100, 200, 500, 1000, Infinity],
+  size: 100,
+})
+const rowsPaged = computed(() => rowsSorted.value.slice((page.curr - 1) * page.size, page.curr * page.size))
+
+const total = computed(() => rowsSearched.value.length)
 const disabledTotal = ref(false)
 const totalTransit = useTransition(total, {
   disabled: disabledTotal,
   transition: TransitionPresets.easeOutCirc,
 })
+
+const vocabTable = shallowRef<typeof ElTable>()
 
 function handleRowClick(row: LabelRow) {
   vocabTable.value?.toggleRowExpansion(row)
@@ -139,7 +107,7 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
         size="small"
         fit
         :row-class-name="({row})=> classKeyOfRow(row.seq)"
-        :data="tableDataDisplay"
+        :data="rowsPaged"
         @row-click="handleRowClick"
         @expand-change="onExpandChange"
         @sort-change="sortChange"
@@ -172,8 +140,7 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
           <template #default="{row}">
             <span
               class="cursor-text font-compact text-[16px] tracking-wide"
-              @mouseover="selectWord"
-              @touchstart.passive="selectWord"
+              v-on="isMobile ? {} : { mouseover: selectWord }"
               @click.stop
             >{{ row.w }}</span>
           </template>
@@ -207,31 +174,20 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
           </template>
         </el-table-column>
         <el-table-column
-          align="right"
+          align="center"
           min-width="5"
         >
           <template #default="{row}">
-            <div class="text-center">
-              <el-button
-                size="small"
-                type="primary"
-                :icon="Check"
-                :plain="!row?.vocab?.acquainted"
-                :loading="loadingStateArray[row.seq]"
-                :disabled="row?.vocab && !row?.vocab?.is_user"
-                :text="!row?.vocab?.acquainted"
-                @click.stop="toggleWordState(row)"
-              />
-            </div>
+            <toggle-button :row="row" />
           </template>
         </el-table-column>
       </el-table>
     </div>
   </div>
   <el-pagination
-    v-model:currentPage="currentPage"
-    v-model:page-size="pageSize"
-    :page-sizes="pageSizes"
+    v-model:currentPage="page.curr"
+    v-model:page-size="page.size"
+    :page-sizes="page.sizes"
     :small="true"
     :background="true"
     :pager-count="5"

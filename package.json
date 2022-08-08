@@ -28,6 +28,8 @@
     "@vitejs/plugin-vue": "^3.0.1",
     "autoprefixer": "^10.4.8",
     "eslint": "^8.21.0",
+    "eslint-import-resolver-typescript": "^3.4.0",
+    "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-tailwindcss": "^3.6.0",
     "eslint-plugin-vue": "^9.3.0",
     "postcss": "^8.4.14",

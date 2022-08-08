@@ -1,13 +1,13 @@
 <script lang="tsx" setup>
-import { login } from '../api/user'
-import router from '../router'
 import type { FormInstance } from 'element-plus'
-import { useUserStore } from '../store/useState'
 import Cookies from 'js-cookie'
 import { ElNotification } from 'element-plus/es'
-import { useVocabStore } from '../store/useVocab'
 import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useVocabStore } from '../store/useVocab'
+import { useUserStore } from '../store/useState'
+import router from '../router'
+import { login } from '../api/user'
 
 const { t } = useI18n()
 const store = useUserStore()

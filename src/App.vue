@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import Cookies from 'js-cookie'
 import TopBar from './components/TopBar.vue'
 import { useUserStore } from './store/useState'
-import Cookies from 'js-cookie'
 
 const useStore = useUserStore()
 const userName = Cookies.get('_user')
