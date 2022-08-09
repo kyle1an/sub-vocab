@@ -1,14 +1,14 @@
 import { wrapCookie } from '../utils/cookie'
-import { userVocab } from '../types'
+import { Sieve, Stems, userVocab } from '../types'
 import { fetchPost } from './request'
 
-export async function queryWordsByUser(user: string) {
+export async function queryWordsByUser(user: string): Promise<Sieve[]> {
   return fetchPost(`${import.meta.env.VITE_SUB_PROD}/api/queryWords`, {
     body: JSON.stringify(wrapCookie({ user })),
   })
 }
 
-export async function stemsMapping() {
+export async function stemsMapping(): Promise<Stems[]> {
   return fetchPost(`${import.meta.env.VITE_SUB_PROD}/api/stemsMapping`)
 }
 

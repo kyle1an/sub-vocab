@@ -26,7 +26,7 @@ function onSegmentSwitched(seg: number) {
   nextTick().then(() => disabledTotal.value = false)
 }
 
-const selectedSeg = ref(Number(sessionStorage.getItem('prev-segment-select')) || 0)
+const selectedSeg = ref(+(sessionStorage.getItem('prev-segment-select') || 0))
 const rowsSegmented = computed(() => {
   if (selectedSeg.value === 1) {
     return props.data.filter((r) => !r?.vocab?.acquainted && r.len > 2)
@@ -45,7 +45,7 @@ const rowsSearched = computed(() => {
     return rowsSegmented.value
   }
 
-  return rowsSegmented.value.filter((row: LabelRow) => row.w.toLowerCase().includes(search.value.toLowerCase()))
+  return rowsSegmented.value.filter((r: LabelRow) => r.w.toLowerCase().includes(search.value.toLowerCase()))
 })
 
 function sortChange({ prop, order }: Sorting<LabelRow>) {
@@ -64,7 +64,7 @@ const rowsSorted = computed(() => {
 
 const page = reactive({
   curr: 1,
-  sizes: [100, 200, 500, 1000, Infinity],
+  sizes: [25, 100, 200, 500, 1000, Infinity],
   size: 100,
 })
 const rowsPaged = computed(() => rowsSorted.value.slice((page.curr - 1) * page.size, page.curr * page.size))
@@ -82,24 +82,23 @@ function handleRowClick(row: LabelRow) {
   vocabTable.value?.toggleRowExpansion(row)
 }
 
-function onExpandChange(row: LabelRow) {
-  document.getElementsByClassName(classKeyOfRow(row.seq))[0].classList.toggle('expanded')
+function onExpandChange(r: LabelRow) {
+  document.getElementsByClassName(classKeyOfRow(r.seq))[0].classList.toggle('expanded')
 }
 
 const segments = computed(() => [t('all'), t('new'), t('acquainted')])
 </script>
 
 <template>
-  <segmented-control
-    name="vocab-seg"
-    :segments="segments"
-    :default="selectedSeg"
-    class="grow-0"
-    @input="onSegmentSwitched"
-  />
-  <div class="h-full w-full">
-    <!-- 100% height of its container minus height of siblings -->
-    <div class="h-[calc(100%-1px)]">
+  <el-card class="table-card mx-5 flex h-full flex-col items-center !rounded-xl !border-0 will-change-transform md:mx-0">
+    <segmented-control
+      name="vocab-seg"
+      :segments="segments"
+      :default="selectedSeg"
+      class="grow-0"
+      @input="onSegmentSwitched"
+    />
+    <div class="h-px grow">
       <el-table
         ref="vocabTable"
         class="w-table !h-full !w-full md:w-full"
@@ -183,21 +182,29 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
         </el-table-column>
       </el-table>
     </div>
-  </div>
-  <el-pagination
-    v-model:currentPage="page.curr"
-    v-model:page-size="page.size"
-    :page-sizes="page.sizes"
-    :small="true"
-    :background="true"
-    :pager-count="5"
-    layout="prev, pager, next, ->, total, sizes"
-    :total="~~totalTransit"
-    class="pager-section shrink-0 flex-wrap gap-y-1.5 !px-2 !pt-1 !pb-1.5 tabular-nums"
-  />
+    <el-pagination
+      v-model:currentPage="page.curr"
+      v-model:page-size="page.size"
+      :page-sizes="page.sizes"
+      :small="true"
+      :background="true"
+      :pager-count="5"
+      layout="prev, pager, next, ->, total, sizes"
+      :total="~~totalTransit"
+      class="shrink-0 flex-wrap gap-y-1.5 !px-2 !pt-1 !pb-1.5 tabular-nums"
+    />
+  </el-card>
 </template>
 
 <style lang="scss" scoped>
+.table-card :deep(.el-card__body) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 0;
+}
+
 :deep(.el-pagination__rightwrapper) {
   .el-pagination__sizes.is-last {
     margin: 0 !important;
@@ -236,7 +243,7 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
   }
 
   :deep(.el-table__inner-wrapper) {
-    height: 100%;
+    height: 100% !important;
   }
 
   :deep(.el-table__expand-icon) {

@@ -1,4 +1,4 @@
-import { Label, TrieNode, Char, LabelRow } from '../types'
+import { Char, Label, LabelRow, TrieNode } from '../types'
 import { caseOr, getNode } from './utils'
 
 export default class LabeledTire {
@@ -7,7 +7,7 @@ export default class LabeledTire {
   sentences: string[]
   vocabulary: Label[]
 
-  constructor(trieListPair: [TrieNode, Array<Label>]) {
+  constructor(trieListPair: [TrieNode, Label[]]) {
     [this.root, this.vocabulary] = trieListPair
     this.sentences = []
     this.#sequence = 1
@@ -97,7 +97,7 @@ export default class LabeledTire {
       const next_Words = baseWords ? [
         current?.e?.s?.$,
         current?.e?.d?.$,
-        next_in?.['\'']?.$,
+        next_in?.[`'`]?.$,
         next_ing?.$,
         next_ing?.s?.$,
       ] : []
@@ -134,7 +134,7 @@ export default class LabeledTire {
     }
 
     const occurCombined = (next_Words: Array<Label | undefined>): Label => {
-      const suffixesCombined: Label = { w: '', src: [] }
+      const suffixesCombined: Label = { w: '', up: false, src: [] }
 
       for (const next_Word of next_Words) {
         if (!next_Word) continue
@@ -176,7 +176,7 @@ export default class LabeledTire {
         this.mergeSourceFirst(currentWord, next_sWord,)
       }
 
-      const aposCombined = occurCombined(words_Occur(false, current?.['\'']))
+      const aposCombined = occurCombined(words_Occur(false, current?.[`'`]))
 
       if (aposCombined.w && currentWord.up && !currentWord.vocab) {
         currentWord.w = caseOr(currentWord.w, aposCombined.w)
@@ -192,7 +192,7 @@ export default class LabeledTire {
 
       this.mergeSourceFirst(next_eWord, suffixesCombined,)
     } else if (next_sWord) {
-      const suffixesCombined = occurCombined(words_Occur(true, current?.['\'']))
+      const suffixesCombined = occurCombined(words_Occur(true, current?.[`'`]))
       if (suffixesCombined.src.length) {
         const currentWord = current.$ = { w: next_sWord.w.slice(0, -1), src: [] }
         this.vocabulary.push(currentWord)

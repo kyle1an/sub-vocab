@@ -1,24 +1,23 @@
 <script setup lang="ts">
-import { computed, PropType, ref, watch } from 'vue'
+import { PropType, computed, ref, watch } from 'vue'
 import { useElementBounding } from '@vueuse/core'
 
-const pill = ref(null)
-const { width } = useElementBounding(pill)
 const emit = defineEmits(['input'])
 const props = defineProps({
   'default': { type: Number, default: 0 },
   'name': { type: String, default: '' },
   'segments': { type: Array as PropType<string[]>, default: () => [''] },
 })
-const selectedId = ref(props.default)
 watch(() => props.default, (id) => {
   selectedId.value = id
 })
+const selectedId = ref(props.default)
 watch(selectedId, (id) => emit('input', id))
 
+const pill = ref()
+const { width } = useElementBounding(pill)
 const pillName = `${props.name}-prev-pill-width`
-const initWidth = props.name ? Number(sessionStorage.getItem(pillName)) || 0 : 0
-const pillWidth = ref(initWidth)
+const pillWidth = ref(props.name ? +(sessionStorage.getItem(pillName) || 0) : 0)
 const pillTransformStyles = computed(() => `transform:translateX(${pillWidth.value * selectedId.value}px)`)
 watch(width, (w) => {
   pillWidth.value = w
@@ -83,6 +82,17 @@ main {
       transform: scale(.95);
     }
   }
+
+  &:first-of-type {
+    grid-column: 1;
+    grid-row: 1;
+    box-shadow: none;
+  }
+
+  &:first-of-type label::before,
+  &:last-of-type label::after {
+    opacity: 0;
+  }
 }
 
 label {
@@ -123,19 +133,6 @@ input:checked {
     span {
       font-weight: 500;
     }
-  }
-}
-
-.option {
-  &:first-of-type {
-    grid-column: 1;
-    grid-row: 1;
-    box-shadow: none;
-  }
-
-  &:first-of-type label::before,
-  &:last-of-type label::after {
-    opacity: 0;
   }
 }
 </style>

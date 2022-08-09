@@ -103,26 +103,16 @@ function logVocabInfo(listOfVocab: LabelRow[]) {
         </el-main>
       </el-container>
       <div class="h-[86vh] !overflow-visible pb-5 md:mt-0 md:h-full md:!w-[44%] md:pb-0">
-        <el-card class="table-card mx-5 flex h-full flex-col items-center !rounded-xl !border-0 will-change-transform md:mx-0">
-          <vocab-table
-            :data="tableDataOfVocab"
-            :sentences="sentences"
-          />
-        </el-card>
+        <vocab-table
+          :data="tableDataOfVocab"
+          :sentences="sentences"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.table-card :deep(.el-card__body) {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-  padding: 0;
-}
-
 .input-area :deep(textarea) {
   border-radius: 8px;
   box-shadow: none;

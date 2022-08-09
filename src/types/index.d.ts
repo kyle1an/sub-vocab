@@ -5,7 +5,7 @@ export interface Vocab extends Record<string, unknown> {
 export interface Sieve extends Vocab {
   acquainted: number | boolean,
   is_user: number | boolean,
-  id?: number,
+  rank?: number | null,
 }
 
 export interface Stems {
@@ -28,13 +28,7 @@ export interface LabelRow extends Label {
   seq: number;
 }
 
-export interface WordPrime extends Vocab {
-  is_user: boolean;
-  len: number;
-  rank: number;
-}
-
-export type Source = Array<[number, number, number, number]>;
+export type Source = [number, number, number, number][];
 
 export interface Sorting<T> {
   order: 'ascending' | 'descending' | null;
