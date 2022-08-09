@@ -72,7 +72,7 @@ export async function readFiles(files: FileList): Promise<any[]> {
   return fileList
 }
 
-export const jsonClone = (obj: object) => JSON.parse(JSON.stringify(obj))
+export const jsonClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj))
 
 export const classKeyOfRow = (seq: string | number) => `v-${seq}`
 

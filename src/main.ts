@@ -15,6 +15,7 @@ app.use(createPinia())
 // Make sure to _use_ the router instance to make the whole app router-aware.
 app.use(router)
 app.use(createI18n({
+  legacy: false,
   locale: Cookies.get('lang') || 'zh',
   fallbackLocale: 'en',
   messages

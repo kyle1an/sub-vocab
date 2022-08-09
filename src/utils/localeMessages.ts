@@ -36,7 +36,7 @@ export const messages = {
     'Please input the password': 'Please input the password',
     incorrectUserPassword: 'The username/password is incorrect.',
     alreadyTaken: 'is already taken',
-    inputsNotMatch: 'Two inputs don\'t match!',
+    inputsNotMatch: `Two inputs don't match!`,
     'Please input the password again': 'Please input the password again',
   },
 

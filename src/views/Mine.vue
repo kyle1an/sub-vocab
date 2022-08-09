@@ -6,29 +6,25 @@ import Switch from '../components/Switch.vue'
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { compare, jsonClone, selectWord } from '../utils/utils'
 import { useVocabStore } from '../store/useVocab'
-import { Sorting, WordPrime } from '../types'
+import { Sieve, Sorting } from '../types'
 
 const { t } = useI18n()
 
 async function loadVocab() {
   const vocabStore = useVocabStore()
   const words = jsonClone(await vocabStore.fetchVocab())
-  const all: WordPrime[] = []
+  const all = []
   for (const word of words) {
     if (word.acquainted) {
-      all.push({
-        w: word.w,
-        is_user: word.is_user,
-        len: word.w.length,
-        rank: word.rank,
-      })
+      word.len = word.w.length
+      all.push(word)
     }
   }
 
   return all
 }
 
-const rowsAcquainted = shallowRef<WordPrime[]>([])
+const rowsAcquainted = shallowRef<Sieve[]>([])
 onBeforeMount(async () => {
   rowsAcquainted.value = await loadVocab()
 })
@@ -40,7 +36,7 @@ function onSegmentSwitched(seg: number) {
   nextTick().then(() => disabledTotal.value = false)
 }
 
-const selectedSeg = ref(Number(sessionStorage.getItem('prev-segment-mine')) || 0)
+const selectedSeg = ref(+(sessionStorage.getItem('prev-segment-mine') || 0))
 const rowsSegmented = computed(() => {
   if (selectedSeg.value === 1) {
     return rowsAcquainted.value.filter((row) => row.is_user)
@@ -59,14 +55,14 @@ const rowsSearched = computed(() => {
     return rowsSegmented.value
   }
 
-  return rowsSegmented.value.filter((row: WordPrime) => row.w.toLowerCase().includes(search.value.toLowerCase()))
+  return rowsSegmented.value.filter((r: Sieve) => r.w.toLowerCase().includes(search.value.toLowerCase()))
 })
 
-function sortChange({ prop, order }: Sorting<WordPrime>) {
+function sortChange({ prop, order }: Sorting<Sieve>) {
   sortBy.value = { prop, order }
 }
 
-const sortBy = shallowRef<Sorting<WordPrime>>({ order: null, prop: null, })
+const sortBy = shallowRef<Sorting<Sieve>>({ order: null, prop: null, })
 const rowsSorted = computed(() => {
   const { prop, order } = sortBy.value
   if (prop && order) {
@@ -105,7 +101,6 @@ const segments = computed(() => [t('all'), t('mine'), t('top')])
           :text="['off','on']"
         />
       </el-header>
-
       <el-container class="justify-center">
         <el-aside class="h-[calc(90vh-20px)] !w-full !overflow-visible md:h-[calc(100vh-160px)] md:!w-[44%]">
           <el-card class="table-card mx-5 flex h-full flex-col items-center !rounded-xl !border-0 will-change-transform">
@@ -116,76 +111,71 @@ const segments = computed(() => [t('all'), t('mine'), t('top')])
               name="segment-mine"
               @input="onSegmentSwitched"
             />
-            <div class="h-full w-full">
-              <!-- 100% height of its container minus height of siblings -->
-              <div class="h-[calc(100%-1px)]">
-                <el-table
-                  :data="rowsPaged"
-                  class="w-table !h-full !w-full md:w-full"
-                  fit
-                  height="200"
-                  size="small"
-                  @sort-change="sortChange"
+            <div class="h-px grow">
+              <el-table
+                :data="rowsPaged"
+                class="w-table !h-full !w-full md:w-full"
+                fit
+                height="200"
+                size="small"
+                @sort-change="sortChange"
+              >
+                <el-table-column
+                  :label="t('rank')"
+                  align="center"
+                  class-name="cursor-pointer tabular-nums"
+                  header-align="center"
+                  min-width="7"
+                  prop="rank"
+                  sortable="custom"
                 >
-                  <el-table-column
-                    :label="t('rank')"
-                    align="center"
-                    class-name="cursor-pointer tabular-nums"
-                    header-align="center"
-                    min-width="7"
-                    prop="rank"
-                    sortable="custom"
-                  >
-                    <template #default="props">
-                      <div class="select-none font-compact">
-                        {{ props.row.rank }}
-                      </div>
-                    </template>
-                  </el-table-column>
-
-                  <el-table-column
-                    align="left"
-                    class-name="cursor-pointer"
-                    label="Vocabulary"
-                    min-width="7"
-                    prop="w"
-                    sortable="custom"
-                  >
-                    <template #header>
-                      <el-input
-                        v-model="search"
-                        :placeholder="t('search')"
-                        class="!w-[calc(100%-26px)] !text-base md:!text-xs"
-                        size="small"
-                        @click.stop
-                      />
-                    </template>
-                    <template #default="props">
-                      <span
-                        class="cursor-text font-compact text-[16px] tracking-wide"
-                        @mouseover="selectWord"
-                        @touchstart.passive="selectWord"
-                        @click.stop
-                      >{{ props.row.w }}</span>
-                    </template>
-                  </el-table-column>
-
-                  <el-table-column
-                    :label="t('length')"
-                    align="left"
-                    class-name="cursor-pointer tabular-nums"
-                    min-width="5"
-                    prop="len"
-                    sortable="custom"
-                  >
-                    <template #default="props">
-                      <div class="select-none font-compact">
-                        {{ props.row.len }}
-                      </div>
-                    </template>
-                  </el-table-column>
-                </el-table>
-              </div>
+                  <template #default="props">
+                    <div class="select-none font-compact">
+                      {{ props.row.rank }}
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  align="left"
+                  class-name="cursor-pointer"
+                  label="Vocabulary"
+                  min-width="7"
+                  prop="w"
+                  sortable="custom"
+                >
+                  <template #header>
+                    <el-input
+                      v-model="search"
+                      :placeholder="t('search')"
+                      class="!w-[calc(100%-26px)] !text-base md:!text-xs"
+                      size="small"
+                      @click.stop
+                    />
+                  </template>
+                  <template #default="props">
+                    <span
+                      class="cursor-text font-compact text-[16px] tracking-wide"
+                      @mouseover="selectWord"
+                      @touchstart.passive="selectWord"
+                      @click.stop
+                    >{{ props.row.w }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  :label="t('length')"
+                  align="left"
+                  class-name="cursor-pointer tabular-nums"
+                  min-width="5"
+                  prop="len"
+                  sortable="custom"
+                >
+                  <template #default="props">
+                    <div class="select-none font-compact">
+                      {{ props.row.len }}
+                    </div>
+                  </template>
+                </el-table-column>
+              </el-table>
             </div>
             <el-pagination
               v-model:currentPage="page.curr"
@@ -195,7 +185,7 @@ const segments = computed(() => [t('all'), t('mine'), t('top')])
               :pager-count="5"
               :small="true"
               :total="~~totalTransit"
-              class="pager-section shrink-0 flex-wrap gap-y-1.5 !px-2 !pt-1 !pb-1.5 tabular-nums"
+              class="shrink-0 flex-wrap gap-y-1.5 !px-2 !pt-1 !pb-1.5 tabular-nums"
               layout="prev, pager, next, ->, total, sizes"
             />
           </el-card>
@@ -210,8 +200,14 @@ const segments = computed(() => [t('all'), t('mine'), t('top')])
   -webkit-tap-highlight-color: transparent;
 }
 
-.w-table :deep(:is(*, .el-table__body-wrapper)) {
-  overscroll-behavior: contain !important;
+.w-table {
+  :deep(:is(*, .el-table__body-wrapper)) {
+    overscroll-behavior: contain !important;
+  }
+
+  :deep(.el-table__inner-wrapper) {
+    height: 100% !important;
+  }
 }
 
 .table-card :deep(.el-card__body) {
