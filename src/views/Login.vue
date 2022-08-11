@@ -46,7 +46,6 @@ const rules = reactive({
   username: [{ validator: checkUsername, trigger: 'blur' }],
   password: [{ validator: validatePass, trigger: 'blur' }],
 })
-const vocabStore = useVocabStore()
 
 function submitForm(formEl: FormInstance | undefined) {
   if (!formEl) return
@@ -64,9 +63,9 @@ function submitForm(formEl: FormInstance | undefined) {
     store.user.name = ruleForm.username
     Cookies.set('_user', ruleForm.username, { expires: 30, })
     Cookies.set('acct', resAuth[1], { expires: 30, })
+    useVocabStore().resetUserVocab()
     setTimeout(() => {
       router.push('/')
-      vocabStore.fetchVocab(ruleForm.username)
     }, 0)
   })
 }
@@ -91,8 +90,7 @@ function resetForm(formEl: FormInstance | undefined) {
             :rules="rules"
             label-position="top"
             label-width="100px"
-            class="demo-ruleForm"
-            style="max-width: 460px"
+            class="max-w-[460px] [&>.el-form-item_label]:font-bold"
             status-icon
           >
             <el-form-item
@@ -132,9 +130,3 @@ function resetForm(formEl: FormInstance | undefined) {
     </el-container>
   </div>
 </template>
-
-<style scoped>
-:deep(.el-form-item label) {
-  font-weight: bold;
-}
-</style>

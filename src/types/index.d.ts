@@ -20,6 +20,8 @@ export interface Label extends Vocab {
   freq?: number;
   seq?: number;
   vocab?: Sieve;
+  derive?: Label[];
+  variant?: boolean;
 }
 
 export interface LabelRow extends Label {
@@ -28,7 +30,7 @@ export interface LabelRow extends Label {
   seq: number;
 }
 
-export type Source = [number, number, number, number][];
+export type Source = number[][];
 
 export interface Sorting<T> {
   order: 'ascending' | 'descending' | null;

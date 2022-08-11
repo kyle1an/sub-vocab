@@ -1,84 +1,104 @@
 import { defineStore } from 'pinia'
 import Cookies from 'js-cookie'
 import { queryWordsByUser, stemsMapping } from '../api/vocab-service'
-import { Label, LabelRow, Sieve, TrieNode } from '../types'
-import { getNode } from '../utils/utils'
+import { Sieve, TrieNode } from '../types'
+import { getNode, hasUppercase, promiseClone, timer, timerEnd } from '../utils/utils'
 
 export const useVocabStore = defineStore('vocabStore', () => {
-  const query = queryWordsByUser(Cookies.get('_user') ?? '')
-  let commonVocab: Sieve[] = []
-  const stemsDerivation = stemsMapping()
-  let irregulars: string[][] = []
-  let trieListPair: [TrieNode, Label[]]
+  let user: string = Cookies.get('_user') ?? ''
 
-  async function fetchVocab(username?: string) {
-    if (!irregulars.length) {
-      irregulars = (await stemsDerivation).map((m) => [m.stem_word, ...m.derivations.split(',')])
-    }
+  let baseVocabPromise = queryWordsByUser(user)
+  let baseVocab: Sieve[] = []
 
-    if (username !== undefined) {
-      commonVocab = await queryWordsByUser(username)
-    } else if (commonVocab.length === 0) {
-      commonVocab = await query
-    }
+  const irregularMapsPromise = stemsMapping()
+  let irregularMaps: string[][] = []
 
-    return commonVocab
+  const preBuiltTriePromise: Promise<TrieNode> = initTrie()
+  let preBuiltTrie: TrieNode
+  let copyTriePromise: Promise<TrieNode>
+  let copiedTrie: TrieNode
+
+  function resetUserVocab() {
+    const currUser = Cookies.get('_user') ?? ''
+    baseVocabPromise = queryWordsByUser(currUser)
+    user = currUser
+    baseVocab = []
   }
 
-  function structSievePair(vocab: Sieve[]): [TrieNode, Label[]] {
+  async function getBaseVocab() {
+    console.log('fetching')
+
+    if (!baseVocab.length) {
+      timer('vocab fetching')
+      baseVocab = await baseVocabPromise
+      timerEnd('vocab fetching')
+    }
+
+    console.log('done')
+    return baseVocab
+  }
+
+  async function initTrie() {
+    const trie = await buildStemTrie(await getBaseVocab())
+    copyTriePromise = promiseClone(trie)
+    return trie
+  }
+
+  async function buildStemTrie(vocab: Sieve[]) {
     console.time('struct sieve')
-    const trie: TrieNode = {}
-    const list: Label[] = []
+    const trie = {}
     for (const sieve of vocab) {
       const original = sieve.w
-      const isUp = /[A-Z]/.test(original)
-      const node = getNode(trie, isUp ? original.toLowerCase() : original)
-
-      if (!node.$) {
-        list.push(node.$ = { w: original, up: isUp, len: original.length, src: [] })
-      }
-
+      const hasUp = hasUppercase(original)
+      const node = getNode(trie, hasUp ? original.toLowerCase() : original)
+      node.$ ??= { w: original, up: hasUp, len: original.length, src: [] }
       node.$.vocab = sieve
     }
 
-    for (const irregularCollect of irregulars) {
-      const original = irregularCollect[0]
-      const isUp = /[A-Z]/.test(original)
-      const irregularWord = getNode(trie, isUp ? original.toLowerCase() : original)
+    if (!irregularMaps.length) {
+      irregularMaps = (await irregularMapsPromise).map((m) => [m.stem_word, ...m.derivations.split(',')])
+    }
 
-      if (!irregularWord.$) {
-        list.push(irregularWord.$ = { w: original, src: [] })
-      }
+    for (const irregulars of irregularMaps) {
+      const base = irregulars[0]
+      const baseNode = getNode(trie, hasUppercase(base) ? base.toLowerCase() : base)
+      baseNode.$ ??= { w: base, src: [] }
 
-      let i = irregularCollect.length
+      let i = irregulars.length
       while (--i) {
-        const wordBranch = getNode(trie, irregularCollect[i])
-        wordBranch.$ = irregularWord.$
+        getNode(trie, irregulars[i]).$ = baseNode.$
       }
     }
 
     console.timeEnd('struct sieve')
-    return [trie, list]
+    return trie
   }
 
-  async function getSieve() {
-    await fetchVocab()
-    trieListPair = structSievePair(commonVocab)
-    return trieListPair
+  async function getPreBuiltTrie() {
+    preBuiltTrie = await preBuiltTriePromise
+    copiedTrie = await copyTriePromise
+    copyTriePromise = promiseClone(preBuiltTrie)
+    return copiedTrie
   }
 
-  function updateWord(row: LabelRow) {
-    const original = row.vocab?.w ?? ''
-    const isUp = /[A-Z]/.test(original)
-    const [preBuiltTrie, mappedList] = trieListPair
-    const node: TrieNode = getNode(preBuiltTrie, isUp ? original.toLowerCase() : original)
+  function updateWord(word: string, got: boolean) {
+    const original = word
+    const hasUp = hasUppercase(original)
+    const node = getNode(preBuiltTrie, hasUp ? original.toLowerCase() : original)
+
     if (!node.$) {
-      node.$ = { w: original, up: isUp, len: original.length, src: [] }
-      mappedList.push(node.$)
-      commonVocab.push(<Sieve>row.vocab)
+      node.$ = { w: original, up: hasUp, len: original.length, src: [] }
     }
-    node.$.vocab = row.vocab
+
+    if (!node.$.vocab) {
+      node.$.vocab = { w: original, is_user: true, acquainted: false }
+      baseVocab.push(node.$.vocab)
+    }
+
+    node.$.vocab.acquainted = got
+    copyTriePromise = promiseClone(preBuiltTrie)
+    return node.$.vocab
   }
 
-  return { fetchVocab, updateWord, getSieve }
+  return { getBaseVocab, getPreBuiltTrie, resetUserVocab, updateWord }
 })

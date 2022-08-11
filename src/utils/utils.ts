@@ -38,6 +38,8 @@ export function caseOr(a: string, b: string): string {
   return String.fromCharCode(...r)
 }
 
+export const hasUppercase = (chars: string) => /[A-ZÀ-Þ]/.test(chars)
+
 export const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 
 export function selectWord(e: Event) {
@@ -91,3 +93,25 @@ export function compare(propName: string | number, order: string) {
 }
 
 export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+const timers: Record<string, boolean> = {}
+
+export function timer(label: string) {
+  if (timers[label]) return
+
+  console.time(label)
+  timers[label] = true
+}
+
+export function timerEnd(label: string) {
+  if (!timers[label]) return
+
+  console.timeEnd(label)
+  timers[label] = false
+}
+
+export function promiseClone<T>(trie: T): Promise<T> {
+  return new Promise((resolve) => {
+    resolve(structuredClone(trie))
+  })
+}
