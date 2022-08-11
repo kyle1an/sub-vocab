@@ -122,15 +122,14 @@ function resetForm(formEl: FormInstance | undefined) {
 }
 
 const userStore = useUserStore()
-const vocabStore = useVocabStore()
 
 async function logOut() {
   await logoutToken({ username: store.user.name })
   eraseCookie(['_user', 'acct'])
   userStore.user.name = ''
+  useVocabStore().resetUserVocab()
   setTimeout(() => {
     router.push('/login')
-    vocabStore.fetchVocab('')
   }, 0)
 }
 </script>
@@ -149,8 +148,7 @@ async function logOut() {
             :rules="rules"
             label-position="top"
             label-width="100px"
-            class="demo-ruleForm"
-            style="max-width: 460px"
+            class="max-w-[460px] [&>.el-form-item_label]:font-bold"
             status-icon
           >
             <el-form-item
@@ -218,9 +216,3 @@ async function logOut() {
     </el-container>
   </div>
 </template>
-
-<style scoped>
-:deep(.el-form-item label) {
-  font-weight: bold;
-}
-</style>

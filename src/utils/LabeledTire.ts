@@ -1,14 +1,14 @@
 import { Char, Label, LabelRow, TrieNode } from '../types'
-import { caseOr, getNode } from './utils'
+import { caseOr, getNode, hasUppercase } from './utils'
 
 export default class LabeledTire {
   root: TrieNode
   #sequence: number
   sentences: string[]
-  vocabulary: Label[]
+  vocabulary: Array<Label | null> = []
 
-  constructor(trieListPair: [TrieNode, Label[]]) {
-    [this.root, this.vocabulary] = trieListPair
+  constructor(baseTrie: TrieNode) {
+    this.root = baseTrie
     this.sentences = []
     this.#sequence = 1
   }
@@ -22,26 +22,43 @@ export default class LabeledTire {
       for (const m of this.sentences[previousSize].matchAll(/(?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þa-zß-ÿ]+[a-zß-ÿ]*)+(?:['-]?[A-Za-zÀ-ÿ]'?)+/mg)) {
         const matchedWord = m[0]
         if (m.index === undefined) continue
-        this.#update(matchedWord, /[A-ZÀ-Þ]/.test(matchedWord), m.index, previousSize)
+        this.#update(matchedWord, hasUppercase(matchedWord), m.index, previousSize)
       }
     }
 
     return this
   }
 
-  #update(original: string, isUp: boolean, index: number, currentSentenceIndex: number) {
-    const branch = getNode(this.root, isUp ? original.toLowerCase() : original)
+  #update(original: string, hasUp: boolean, index: number, currentSentenceIndex: number) {
+    const branch = getNode(this.root, hasUp ? original.toLowerCase() : original)
 
     if (!branch.$) {
-      this.vocabulary.push(branch.$ = { w: original, up: isUp, src: [] })
-      branch.$.src.push([currentSentenceIndex, index, original.length, ++this.#sequence])
+      branch.$ = { w: original, up: hasUp, src: [] }
+      const $ = branch.$
+      $.src.push([
+        currentSentenceIndex,
+        index,
+        original.length,
+        ++this.#sequence,
+      ])
+      this.vocabulary[$.src[0][3]] = $
     } else {
       const $ = branch.$
-      $.src.push([currentSentenceIndex, index, original.length, $.src.length ? this.#sequence : ++this.#sequence])
+      $.src.push([
+        currentSentenceIndex,
+        index,
+        original.length,
+        $.src.length ? this.#sequence : ++this.#sequence,
+      ])
+
+      if (branch.$.src.length === 1) {
+        this.vocabulary[$.src[0][3]] = $
+      }
 
       if ($.up && !$.vocab) {
-        if (isUp) {
+        if (hasUp) {
           $.w = caseOr($.w, original)
+          $.up = hasUppercase($.w)
         } else {
           $.w = original
           $.up = false
@@ -55,168 +72,169 @@ export default class LabeledTire {
     return this.vocabulary as LabelRow[]
   }
 
-  static categorize(vocabulary: LabelRow[]) {
-    const sortedVocabulary: (LabelRow | undefined)[] = []
+  static formVocabList(vocabulary: LabelRow[]) {
     const all: LabelRow[] = []
 
     for (const v of vocabulary) {
-      if (v.src.length) {
-        v.freq = v.src.length
-        v.len = v.w.length
-        v.seq = v.src[0][3]
-        sortedVocabulary[v.seq] = v
-      }
-    }
+      if (!v || v.variant) continue
 
-    for (const v of sortedVocabulary) {
-      if (v) {
-        all.push(v)
+      const $: Label = {
+        w: v.w,
+        up: v.up,
+        len: v.w.length,
+        src: [],
       }
+
+      if (v.vocab) {
+        $.vocab = v.vocab
+      }
+
+      this.collectNestedSource(v)
+      $.src = v.src
+      $.freq = $.src.length
+      $.seq = $.src[0][3]
+      all.push($ as LabelRow)
     }
 
     return all
+  }
+
+  static collectNestedSource($: Label) {
+    if ($?.derive?.length) {
+      for (const d of $.derive) {
+        this.collectNestedSource(d)
+
+        if (!$.src.length) {
+          $.src = d.src
+          continue
+        }
+
+        if (d.src[0][3] < $.src[0][3]) {
+          $.src = d.src.concat($.src)
+        } else {
+          $.src = $.src.concat(d.src)
+        }
+      }
+    }
   }
 
   traverseMerge(layer: TrieNode) {
     for (const key in layer) {
       if (key === '$') continue
       const innerLayer = layer[key as Char] ?? {}
+      // deep first traverse eg: beings(being) vs bee
       this.traverseMerge(innerLayer)
       this.mergeVocabOfDifferentSuffixes(innerLayer, (key as Char), layer)
     }
   }
 
   mergeVocabOfDifferentSuffixes(current: TrieNode, previousChar: Char, parentLayer: TrieNode) {
-    const next_sWord = previousChar === 's' ? undefined : current?.s?.$
-    const next_eWord = current?.e?.$
-    const currentWord = current?.$
+    const curr_s$ = previousChar === 's' ? undefined : current?.s?.$
+    const curr_e$ = current?.e?.$
+    const curr_$ = current?.$
 
-    const words_Occur = (baseWords: boolean, next_apos?: TrieNode) => {
-      const next_in = current?.i?.n
-      const next_ing = next_in?.g
-      const next_Words = baseWords ? [
-        current?.e?.s?.$,
-        current?.e?.d?.$,
-        next_in?.[`'`]?.$,
-        next_ing?.$,
-        next_ing?.s?.$,
-      ] : []
-
-      if (currentWord) {
-        const vowel2nd2Last = ['a', 'e', 'i', 'o', 'u'].includes(currentWord.w.slice(-2, -1))
-        const vowelLast = ['a', 'e', 'i', 'o', 'u'].includes(previousChar)
-        if (!vowelLast) {
-          if (vowel2nd2Last) {
-            next_Words.push(
-              current?.[previousChar]?.i?.n?.g?.$,
-            )
-          } else {
-            if (previousChar === 'y') {
-              next_Words.push(
-                parentLayer?.i?.e?.s?.$,
-                parentLayer?.i?.e?.d?.$,
-              )
-            }
-          }
-        }
-      }
-
-      if (next_apos) {
-        next_Words.push(
-          next_apos?.s?.$,
-          next_apos?.l?.l?.$,
-          next_apos?.v?.e?.$,
-          next_apos?.d?.$,
-        )
-      }
-
-      return next_Words
+    const followingWords = (curr: TrieNode) => {
+      const curr_in = curr?.i?.n
+      const curr_ing = curr_in?.g
+      return [
+        curr?.e?.s?.$,
+        curr?.e?.d?.$,
+        curr_in?.[`'`]?.$,
+        curr_ing?.$,
+        curr_ing?.s?.$,
+      ]
     }
 
-    const occurCombined = (next_Words: Array<Label | undefined>): Label => {
-      const suffixesCombined: Label = { w: '', up: false, src: [] }
+    const irregularEndingDerivatives = ($: Label) => {
+      const isTheLastCharVowel = ['a', 'e', 'i', 'o', 'u'].includes(previousChar)
 
-      for (const next_Word of next_Words) {
-        if (!next_Word) continue
-        if (next_Word.vocab) continue
-        suffixesCombined.w = suffixesCombined.w ? caseOr(suffixesCombined.w, next_Word.w) : next_Word.w
-        this.mergeSourceFirst(suffixesCombined, next_Word,)
+      if (isTheLastCharVowel) {
+        return []
       }
 
-      return suffixesCombined
+      const isThe2ndToLastCharVowel = ['a', 'e', 'i', 'o', 'u'].includes($.w.slice(-2, -1))
+
+      if (isThe2ndToLastCharVowel) {
+        return [
+          current?.[previousChar]?.i?.n?.g?.$
+        ]
+      }
+
+      if (previousChar === 'y') {
+        return [
+          parentLayer?.i?.e?.s?.$,
+          parentLayer?.i?.e?.d?.$,
+        ]
+      }
+
+      return []
     }
 
-    if (currentWord) {
-      const suffixesCombined = occurCombined(words_Occur(true))
+    const nextAposWords = (curr_apos: TrieNode) => [
+      curr_apos?.s?.$,
+      curr_apos?.l?.l?.$,
+      curr_apos?.v?.e?.$,
+      curr_apos?.d?.$,
+    ]
 
-      if (next_eWord) {
-        if (suffixesCombined.w && next_eWord.up && !next_eWord.vocab) {
-          next_eWord.w = caseOr(next_eWord.w, suffixesCombined.w.slice(0, next_eWord.w.length - 1))
-        }
+    if (curr_$) {
+      this.batchMergeTo(curr_e$ || curr_$, [
+        ...followingWords(current),
+        ...irregularEndingDerivatives(curr_$)
+      ])
 
-        this.mergeSourceFirst(next_eWord, suffixesCombined,)
-      } else {
-        if (suffixesCombined.w && currentWord.up && !currentWord.vocab) {
-          currentWord.w = caseOr(currentWord.w, suffixesCombined.w)
-        }
-
-        this.mergeSourceFirst(currentWord, suffixesCombined,)
+      if (curr_s$) {
+        this.mergeNodes(curr_$, curr_s$)
       }
 
-      if (next_sWord && !next_sWord.vocab) {
-        if (currentWord.up) {
-          if (next_sWord.up) {
-            currentWord.w = caseOr(currentWord.w, next_sWord.w)
-          } else {
-            currentWord.w = next_sWord.w.slice(0, currentWord.w.length)
-            currentWord.up = false
-          }
-        }
-
-        this.mergeSourceFirst(currentWord, next_sWord,)
+      if (current?.[`'`]) {
+        this.batchMergeTo(curr_$, nextAposWords(current?.[`'`]))
       }
+    } else if (curr_e$) {
+      this.batchMergeTo(curr_e$, followingWords(current))
+    } else if (curr_s$) {
+      const $ = { w: curr_s$.w.slice(0, -1), src: [], derive: [] }
+      this.batchMergeTo($, [
+        ...followingWords(current),
+        ...(current?.[`'`] ? nextAposWords(current?.[`'`]) : []),
+      ])
 
-      const aposCombined = occurCombined(words_Occur(false, current?.[`'`]))
-
-      if (aposCombined.w && currentWord.up && !currentWord.vocab) {
-        currentWord.w = caseOr(currentWord.w, aposCombined.w)
-      }
-
-      this.mergeSourceFirst(currentWord, aposCombined)
-    } else if (next_eWord) {
-      const suffixesCombined = occurCombined(words_Occur(true))
-
-      if (suffixesCombined.w && next_eWord.up && !next_eWord.vocab) {
-        next_eWord.w = caseOr(next_eWord.w, suffixesCombined.w.slice(0, next_eWord.w.length - 1))
-      }
-
-      this.mergeSourceFirst(next_eWord, suffixesCombined,)
-    } else if (next_sWord) {
-      const suffixesCombined = occurCombined(words_Occur(true, current?.[`'`]))
-      if (suffixesCombined.src.length) {
-        const currentWord = current.$ = { w: next_sWord.w.slice(0, -1), src: [] }
-        this.vocabulary.push(currentWord)
-        this.mergeSourceFirst(currentWord, next_sWord)
-        this.mergeSourceFirst(currentWord, suffixesCombined)
+      if ($.derive.length) {
+        this.mergeNodes($, curr_s$)
+        current.$ = $
+        this.vocabulary.push($)
       }
     }
   }
 
-  mergeSourceFirst(targetWord: Label, latterWord: Label) {
-    if (!latterWord.src.length) return
+  batchMergeTo($: Label, next_$$: Array<Label | undefined>) {
+    for (const next_$ of next_$$) {
+      if (next_$) {
+        this.mergeNodes($, next_$)
+      }
+    }
+  }
 
-    if (!targetWord.src.length) {
-      targetWord.src = latterWord.src
-    } else {
-      if (targetWord.src === latterWord.src) return
+  mergeNodes(targetWord: Label, latterWord: Label) {
+    if (!latterWord.src.length
+      || latterWord.vocab
+      || latterWord.variant
+    ) return
 
-      if (targetWord.src[0][0] <= latterWord.src[0][0]) {
-        targetWord.src = targetWord.src.concat(latterWord.src)
-      } else {
-        targetWord.src = latterWord.src.concat(targetWord.src)
+    if (targetWord.up && !targetWord.vocab) {
+      targetWord.w = caseOr(targetWord.w, latterWord.w)
+      targetWord.up = latterWord.up ? hasUppercase(targetWord.w) : false
+    }
+
+    if (!targetWord.derive) {
+      targetWord.derive = []
+
+      if (!targetWord.src.length) {
+        this.vocabulary[latterWord.src[0][3]] = targetWord
       }
     }
 
-    latterWord.src = []
+    targetWord.derive.push(latterWord)
+    latterWord.variant = true
   }
 }

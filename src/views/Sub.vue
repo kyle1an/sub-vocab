@@ -34,10 +34,10 @@ const vocabStore = useVocabStore()
 const { log, logEnd, logPerf } = useTimeStore()
 
 async function structVocab(content: string): Promise<Trie> {
-  const trieListPair = await vocabStore.getSieve()
+  const baseVocabTrie = await vocabStore.getPreBuiltTrie()
   log(['-- All took', '    '])
   log('· init words')
-  const vocab = new Trie(trieListPair).add(content)
+  const vocab = new Trie(baseVocabTrie).add(content)
   logEnd('· init words')
   return vocab
 }
@@ -58,7 +58,7 @@ async function formVocabLists(text: string) {
   const vocabs = trie.mergedVocabulary()
   logEnd('%c  merge vocabulary')
   log('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
-  listOfVocab = Trie.categorize(vocabs)
+  listOfVocab = Trie.formVocabList(vocabs)
   logEnd('%c  formLabel vocabulary')
   logEnd(['· categorize vocabulary', ' +  '])
   logEnd(['-- All took', '    '])

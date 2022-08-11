@@ -4,29 +4,18 @@ import { computed, nextTick, onBeforeMount, reactive, ref, shallowRef } from 'vu
 import { TransitionPresets, useTransition } from '@vueuse/core'
 import Switch from '../components/Switch.vue'
 import SegmentedControl from '../components/SegmentedControl.vue'
-import { compare, jsonClone, selectWord } from '../utils/utils'
+import { compare, selectWord } from '../utils/utils'
 import { useVocabStore } from '../store/useVocab'
 import { Sieve, Sorting } from '../types'
 
 const { t } = useI18n()
-
-async function loadVocab() {
-  const vocabStore = useVocabStore()
-  const words = jsonClone(await vocabStore.fetchVocab())
-  const all = []
-  for (const word of words) {
-    if (word.acquainted) {
-      word.len = word.w.length
-      all.push(word)
-    }
-  }
-
-  return all
-}
-
-const rowsAcquainted = shallowRef<Sieve[]>([])
+const rows = shallowRef<Sieve[]>([])
+const rowsAcquainted = computed(() => rows.value.filter((r) => r.acquainted))
 onBeforeMount(async () => {
-  rowsAcquainted.value = await loadVocab()
+  rows.value = (await useVocabStore().getBaseVocab()).map((word) => {
+    word.len = word.w.length
+    return word
+  }).reverse()
 })
 
 function onSegmentSwitched(seg: number) {
@@ -38,24 +27,27 @@ function onSegmentSwitched(seg: number) {
 
 const selectedSeg = ref(+(sessionStorage.getItem('prev-segment-mine') || 0))
 const rowsSegmented = computed(() => {
-  if (selectedSeg.value === 1) {
-    return rowsAcquainted.value.filter((row) => row.is_user)
-  }
+  const source = rowsAcquainted.value
 
-  if (selectedSeg.value === 2) {
-    return rowsAcquainted.value.filter((row) => !row.is_user)
+  switch (selectedSeg.value) {
+    case 1:
+      return source.filter((row) => row.is_user)
+    case 2:
+      return source.filter((row) => !row.is_user)
+    default:
+      return [...source]
   }
-
-  return [...rowsAcquainted.value]
 })
 
 const search = ref('')
 const rowsSearched = computed(() => {
+  const source = rowsSegmented.value
+
   if (!search.value) {
-    return rowsSegmented.value
+    return source
   }
 
-  return rowsSegmented.value.filter((r: Sieve) => r.w.toLowerCase().includes(search.value.toLowerCase()))
+  return source.filter((r: Sieve) => r.w.toLowerCase().includes(search.value.toLowerCase()))
 })
 
 function sortChange({ prop, order }: Sorting<Sieve>) {
@@ -64,12 +56,14 @@ function sortChange({ prop, order }: Sorting<Sieve>) {
 
 const sortBy = shallowRef<Sorting<Sieve>>({ order: null, prop: null, })
 const rowsSorted = computed(() => {
+  const source = rowsSearched.value
   const { prop, order } = sortBy.value
+
   if (prop && order) {
-    return [...rowsSearched.value].sort(compare(prop, order))
+    return [...source].sort(compare(prop, order))
   }
 
-  return rowsSearched.value
+  return source
 })
 
 const page = reactive({

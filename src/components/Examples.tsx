@@ -1,4 +1,4 @@
-import { defineComponent, PropType } from 'vue'
+import { PropType, defineComponent } from 'vue'
 import { Source } from '../types'
 
 function source(src: Source) {
@@ -29,7 +29,7 @@ export default defineComponent({
           {idxes.map(([start, count]) => (
             <>
               <span>{sentence.slice(progress, start)}</span>
-              <span class="italic underline">{sentence.slice(start, progress = start + count)}</span>
+              <span class="font-bold italic">{sentence.slice(start, progress = start + count)}</span>
             </>
           ))}
           <span>{sentence.slice(progress)}</span>

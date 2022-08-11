@@ -19,18 +19,16 @@ const vocabStore = useVocabStore()
 const loading = ref(false)
 
 async function toggleWordState(row: LabelRow, name: string) {
-  const word = row.w.replace(/'/g, `''`)
-  row.vocab ??= { w: row.w, is_user: true, acquainted: false }
+  const word = row.w
   const vocabInfo = {
-    word,
+    word: word.replace(/'/g, `''`),
     user: name,
   }
   const acquainted = row?.vocab?.acquainted
   const res = await (acquainted ? revokeWord : acquaint)(vocabInfo)
 
   if (res?.affectedRows) {
-    row.vocab.acquainted = !acquainted
-    vocabStore.updateWord(row)
+    row.vocab = vocabStore.updateWord(word, !acquainted)
   }
 }
 
@@ -53,7 +51,6 @@ async function handleClick(row: LabelRow) {
 
   loading.value = false
 }
-
 </script>
 
 <template>
@@ -65,10 +62,14 @@ async function handleClick(row: LabelRow) {
     :loading="loading"
     :disabled="props.row?.vocab && !props.row?.vocab?.is_user"
     :text="!props.row?.vocab?.acquainted"
-    class="max-w-full"
+    class="max-w-full !border-[1px]"
     @click.stop="handleClick(props.row)"
   />
 </template>
 
 <style lang="scss" scoped>
+.is-text:hover {
+  background-color: var(--el-color-primary-light-9) !important;
+  border-color: var(--el-color-primary-light-5) !important;
+}
 </style>

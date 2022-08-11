@@ -28,24 +28,27 @@ function onSegmentSwitched(seg: number) {
 
 const selectedSeg = ref(+(sessionStorage.getItem('prev-segment-select') || 0))
 const rowsSegmented = computed(() => {
-  if (selectedSeg.value === 1) {
-    return props.data.filter((r) => !r?.vocab?.acquainted && r.len > 2)
-  }
+  const source = props.data
 
-  if (selectedSeg.value === 2) {
-    return props.data.filter((r) => r?.vocab?.acquainted || r.len <= 2)
+  switch (selectedSeg.value) {
+    case 1:
+      return source.filter((r) => !r?.vocab?.acquainted && r.len > 2)
+    case 2:
+      return source.filter((r) => r?.vocab?.acquainted || r.len <= 2)
+    default:
+      return [...source]
   }
-
-  return [...props.data]
 })
 
 const search = ref('')
 const rowsSearched = computed(() => {
+  const source = rowsSegmented.value
+
   if (!search.value) {
-    return rowsSegmented.value
+    return source
   }
 
-  return rowsSegmented.value.filter((r: LabelRow) => r.w.toLowerCase().includes(search.value.toLowerCase()))
+  return source.filter((r: LabelRow) => r.w.toLowerCase().includes(search.value.toLowerCase()))
 })
 
 function sortChange({ prop, order }: Sorting<LabelRow>) {
@@ -54,12 +57,14 @@ function sortChange({ prop, order }: Sorting<LabelRow>) {
 
 const sortBy = shallowRef<Sorting<LabelRow>>({ order: null, prop: null, })
 const rowsSorted = computed(() => {
+  const source = rowsSearched.value
   const { prop, order } = sortBy.value
+
   if (prop && order) {
-    return [...rowsSearched.value].sort(compare(prop, order))
+    return [...source].sort(compare(prop, order))
   }
 
-  return rowsSearched.value
+  return source
 })
 
 const page = reactive({
@@ -101,7 +106,7 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
     <div class="h-px grow">
       <el-table
         ref="vocabTable"
-        class="w-table !h-full !w-full md:w-full"
+        class="w-table !h-full !w-full md:w-full [&_.el-icon]:pointer-events-none"
         height="200"
         size="small"
         fit
@@ -150,7 +155,7 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
           align="right"
           min-width="9"
           sortable="custom"
-          class-name="cursor-pointer tabular-nums"
+          class-name="cursor-pointer tabular-nums [&>.cell]:!p-0"
         >
           <template #default="{row}">
             <div class="select-none text-right font-compact">
@@ -164,7 +169,7 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
           align="right"
           min-width="10"
           sortable="custom"
-          class-name="cursor-pointer tabular-nums"
+          class-name="cursor-pointer tabular-nums [&>.cell]:!p-0"
         >
           <template #default="{row}">
             <div class="select-none font-compact">
@@ -175,6 +180,7 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
         <el-table-column
           align="center"
           min-width="5"
+          class-name="overflow-visible"
         >
           <template #default="{row}">
             <toggle-button :row="row" />
@@ -216,28 +222,7 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
   }
 }
 
-:deep(.is-text) {
-  border: 1px solid transparent !important;
-
-  &:hover {
-    background-color: var(--el-color-primary-light-9) !important;
-    border-color: var(--el-color-primary-light-5) !important;
-  }
-}
-
-:deep(thead .is-right:not(:last-child) .cell) {
-  padding: 0;
-}
-
 .w-table {
-  :deep(tr :last-child) {
-    overflow: visible !important;
-  }
-
-  :deep(.el-icon) {
-    pointer-events: none;
-  }
-
   :deep(:is(*, .el-table__body-wrapper)) {
     overscroll-behavior: contain !important;
   }
