@@ -3,6 +3,19 @@
 
 @tailwind base;
 @tailwind components;
+
+.overflow-scrolling-touch {
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.ffs-cv08 {
+  font-feature-settings: 'cv08';
+}
+
+.text-precision {
+  text-rendering: geometricPrecision;
+}
+
 @tailwind utilities;
 
 :root {

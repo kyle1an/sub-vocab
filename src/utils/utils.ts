@@ -76,8 +76,6 @@ export async function readFiles(files: FileList): Promise<any[]> {
 
 export const jsonClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj))
 
-export const classKeyOfRow = (seq: string | number) => `v-${seq}`
-
 export function compare(propName: string | number, order: string) {
   return (obj1: Record<string, unknown>, obj2: Record<string, unknown>): number => {
     return (order === 'ascending' ? 1 : -1) * sort(obj1[propName], obj2[propName])

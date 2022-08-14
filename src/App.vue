@@ -14,31 +14,7 @@ if (userName) {
   <TopBar />
   <router-view />
 </template>
-<style lang="scss" scoped>
-:deep(.el-switch__core) {
-  width: 32px !important;
-}
 
-:deep(.el-switch__label *) {
-  font-size: 14px !important;
-  letter-spacing: -0.01em;
-}
-
-:deep(table),
-:deep(.el-table),
-:deep(.el-table__header-wrapper),
-:deep(.el-table__body-wrapper),
-:deep(.el-table__empty-block) {
-  margin: auto;
-}
-
-@media only screen and (max-width: 640px) {
-  :deep(.el-main) {
-    padding-right: 0 !important;
-    padding-left: 0 !important;
-  }
-}
-</style>
 <style lang="scss">
 @import './style/utils.scss';
 
@@ -49,7 +25,7 @@ html {
 
 body {
   min-height: 100%;
-  margin-top: 0;
+  margin: 0;
   background-color: rgb(243 241 246);
 
   &::-webkit-scrollbar {
@@ -59,8 +35,6 @@ body {
 
 #app {
   @apply antialiased;
-  //text-align: center;
-  color: #2c3e50;
 }
 
 @media only screen and (max-width: 768px) {

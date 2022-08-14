@@ -8,6 +8,7 @@ import { useVocabStore } from '../store/useVocab'
 import { useUserStore } from '../store/useState'
 import router from '../router'
 import { login } from '../api/user'
+import { resetForm } from '../utils/elements'
 
 const { t } = useI18n()
 const store = useUserStore()
@@ -68,11 +69,6 @@ function submitForm(formEl: FormInstance | undefined) {
       router.push('/')
     }, 0)
   })
-}
-
-function resetForm(formEl: FormInstance | undefined) {
-  if (!formEl) return
-  formEl.resetFields()
 }
 </script>
 

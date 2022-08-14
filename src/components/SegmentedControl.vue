@@ -26,7 +26,7 @@ watch(width, (w) => {
 </script>
 
 <template>
-  <main class="font-sans m-0 box-border flex !touch-manipulation justify-center px-5 pt-3 pb-2 antialiased [&_*]:box-border">
+  <div class="ffs-cv08 text-precision overflow-scrolling-touch m-0 box-border flex !touch-manipulation justify-center px-5 pt-3 pb-2 antialiased tap-transparent [&_*]:box-border">
     <div class="m-0 grid w-full select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-[9px] border-0 bg-[#EFEFF0] p-0.5 leading-6 outline-none">
       <span
         ref="pill"
@@ -53,17 +53,10 @@ watch(width, (w) => {
         </label>
       </div>
     </div>
-  </main>
+  </div>
 </template>
 
 <style lang="scss" scoped>
-main {
-  text-rendering: geometricPrecision;
-  -webkit-overflow-scrolling: touch !important;
-  -webkit-tap-highlight-color: transparent;
-  font-feature-settings: 'cv08';
-}
-
 .option {
   &:hover,
   &:active,

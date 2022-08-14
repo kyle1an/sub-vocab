@@ -26,7 +26,7 @@ function handleCommand(command: string) {
 </script>
 
 <template>
-  <header class="top-bar relative z-50 box-border flex h-12 w-full min-w-[auto] items-center justify-center bg-white shadow-sm">
+  <header class="relative z-50 box-border flex h-12 w-full min-w-[auto] items-center justify-center bg-white shadow-sm [&_[href]]:tap-transparent">
     <nav class="box-border flex h-full w-full max-w-screen-xl justify-center">
       <div class="flex w-full items-center text-[14px]">
         <router-link
@@ -93,9 +93,3 @@ function handleCommand(command: string) {
     </nav>
   </header>
 </template>
-
-<style lang="scss" scoped>
-.top-bar :deep([href]) {
-  -webkit-tap-highlight-color: transparent;
-}
-</style>
