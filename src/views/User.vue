@@ -7,6 +7,7 @@ import router from '../router'
 import { changePassword, changeUsername, existsUsername, logoutToken } from '../api/user'
 import { eraseCookie } from '../utils/cookie'
 import { useVocabStore } from '../store/useVocab'
+import { resetForm } from '../utils/elements'
 
 const { t } = useI18n()
 const store = useUserStore()
@@ -46,7 +47,7 @@ function validatePass(rule: any, value: string, callback: () => void) {
   callback()
 }
 
-const validatePass2 = (rule: any, value: string, callback: (arg0?: Error) => void) => {
+function validatePass2(rule: any, value: string, callback: (arg0?: Error) => void) {
   if (value === '' && ruleForm.password === '') {
     return callback()
   }
@@ -114,11 +115,6 @@ async function alterInfo(form: typeof ruleForm) {
       errorMsg.value = res.message || 'something went wrong'
     }
   }
-}
-
-function resetForm(formEl: FormInstance | undefined) {
-  if (!formEl) return
-  formEl.resetFields()
 }
 
 const userStore = useUserStore()

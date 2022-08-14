@@ -1,3 +1,5 @@
+const plugin = require('tailwindcss/plugin')
+
 module.exports = {
   content: [
     './index.html',
@@ -15,5 +17,11 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    plugin(function ({ addBase, addComponents, addUtilities, theme }) {
+      addUtilities({
+        '.tap-transparent': { '-webkit-tap-highlight-color': 'transparent' }
+      })
+    })
+  ],
 }

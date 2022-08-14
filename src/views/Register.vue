@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { userInfo } from '../types/user'
 import router from '../router'
 import { existsUsername, register } from '../api/user'
+import { resetForm } from '../utils/elements'
 
 const { t } = useI18n()
 const ruleFormRef = ref<FormInstance>()
@@ -44,7 +45,7 @@ function validatePass(rule: any, value: any, callback: (arg0?: Error) => void) {
   callback()
 }
 
-const validatePass2 = (rule: any, value: any, callback: (arg0?: Error) => void) => {
+function validatePass2(rule: any, value: any, callback: (arg0?: Error) => void) {
   if (value === '') {
     return callback(new Error(t('Please input the password again')))
   }
@@ -90,11 +91,6 @@ async function registerStatus(form: userInfo) {
   const signUpRes = await register(form)
   return signUpRes[0].result === 1
 }
-
-function resetForm(formEl: FormInstance | undefined) {
-  if (!formEl) return
-  formEl.resetFields()
-}
 </script>
 
 <template>
@@ -111,7 +107,7 @@ function resetForm(formEl: FormInstance | undefined) {
             :rules="rules"
             label-position="top"
             label-width="100px"
-            class="max-w-[460px]"
+            class="max-w-[460px] [&>.el-form-item_label]:font-bold"
             status-icon
           >
             <el-form-item
@@ -162,9 +158,3 @@ function resetForm(formEl: FormInstance | undefined) {
     </el-container>
   </div>
 </template>
-
-<style scoped>
-:deep(.el-form-item label) {
-  font-weight: bold;
-}
-</style>

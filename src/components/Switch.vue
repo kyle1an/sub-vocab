@@ -12,7 +12,7 @@ const toggleFilter = () => emit('toggle', toggleState.value)
 
 <template>
   <div>
-    <label class="form-switch flex cursor-pointer justify-center">
+    <label class="form-switch flex cursor-pointer justify-center tap-transparent">
       <span class="mx-2.5 flex flex-col-reverse justify-center text-base">{{ text[0] }}</span>
       <input
         v-model="toggleState"
@@ -20,7 +20,7 @@ const toggleFilter = () => emit('toggle', toggleState.value)
         class="hidden"
         @change="toggleFilter"
       >
-      <i class="relative mr-2 inline-block h-[26px] w-[46px] select-none rounded-[23px] bg-[#e6e6e6] align-text-bottom" />
+      <i class="relative mr-2 inline-block h-[26px] w-[46px] select-none rounded-[23px] bg-[#e6e6e6] align-text-bottom transition-all duration-300 ease-linear" />
       <span class="mx-2.5 flex flex-col-reverse justify-center text-base">{{ text[1] }}</span>
     </label>
   </div>
@@ -31,60 +31,51 @@ const toggleFilter = () => emit('toggle', toggleState.value)
   --switch-bg-color: #e6e6e6;
 }
 
-.form-switch {
-  -webkit-tap-highlight-color: transparent;
-
-  i {
-    transition: all 0.3s linear;
+.form-switch:active {
+  i::after {
+    width: 28px;
+    transform: translate3d(2px, 2px, 0);
   }
 
-  i::before {
+  input:checked + i::after {
+    transform: translate3d(16px, 2px, 0);
+  }
+}
+
+i {
+  &::before,
+  &::after {
     content: '';
     position: absolute;
     left: 0;
-    width: 42px;
     height: 22px;
-    background-color: var(--switch-bg-color);
     border-radius: 11px;
+  }
+
+  &::before {
+    width: 42px;
+    background-color: var(--switch-bg-color);
     transform: translate3d(2px, 2px, 0) scale3d(1, 1, 1);
     transition: all 0.25s linear;
   }
 
-  i::after {
-    content: '';
-    position: absolute;
-    left: 0;
+  &::after {
     width: 22px;
-    height: 22px;
     background-color: #fff;
-    border-radius: 11px;
     box-shadow: 0 2px 2px rgba(0, 0, 0, 0.24);
     transform: translate3d(2px, 2px, 0);
-    transition: all 0.2s ease-in-out;
+    transition: all 0.35s cubic-bezier(.34, .35, .11, 1.19)
   }
+}
 
-  &:active {
-    i::after {
-      width: 28px;
-      transform: translate3d(2px, 2px, 0);
-    }
+input:checked + i {
+  background-color: rgb(52, 199, 89);
 
-    input:checked + i::after {
-      transform: translate3d(16px, 2px, 0);
-    }
-  }
-
-  --switch-color: rgb(52, 199, 89);
-
-  input:checked + i {
-    background-color: var(--switch-color);
-  }
-
-  input:checked + i::before {
+  &::before {
     transform: translate3d(18px, 2px, 0) scale3d(0, 0, 0);
   }
 
-  input:checked + i::after {
+  &::after {
     transform: translate3d(22px, 2px, 0);
   }
 }

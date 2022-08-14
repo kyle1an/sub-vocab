@@ -102,7 +102,7 @@ function logVocabInfo(listOfVocab: LabelRow[]) {
           />
         </el-main>
       </el-container>
-      <div class="h-[86vh] !overflow-visible pb-5 md:mt-0 md:h-full md:!w-[44%] md:pb-0">
+      <div class="h-[86vh] overflow-visible pb-5 md:mt-0 md:h-full md:w-[44%] md:pb-0">
         <vocab-table
           :data="tableDataOfVocab"
           :sentences="sentences"
