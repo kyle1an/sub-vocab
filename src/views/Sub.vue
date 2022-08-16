@@ -9,9 +9,6 @@ import { useVocabStore } from '../store/useVocab'
 import { useTimeStore } from '../store/usePerf'
 
 const { t } = useI18n()
-let listOfVocab: LabelRow[] = []
-const tableDataOfVocab = shallowRef<LabelRow[]>([])
-
 const fileInfo = ref('')
 const inputText = ref('')
 
@@ -49,6 +46,9 @@ watch(inputText, () => {
     formVocabLists(inputText.value)
   }, 50)
 })
+
+let listOfVocab: LabelRow[] = []
+const tableDataOfVocab = shallowRef<LabelRow[]>([])
 
 async function formVocabLists(text: string) {
   const trie = await structVocab(text)
@@ -92,16 +92,15 @@ function logVocabInfo(listOfVocab: LabelRow[]) {
       </div>
     </div>
     <div class="flex flex-col gap-6 md:h-[calc(100vh-140px)] md:flex-row">
-      <el-container class="relative h-full">
-        <el-main class="relative !p-0">
-          <el-input
-            v-model.lazy="inputText"
-            class="input-area h-full font-text-sans !text-base md:!text-sm"
-            type="textarea"
+      <div class="relative box-border flex-1 basis-auto overflow-visible border-y shadow md:rounded-[12px] md:border-transparent md:shadow">
+        <div class="input-area h-full w-full font-text-sans text-base text-neutral-600 md:text-sm">
+          <textarea
+            v-model="inputText"
+            class="h-[260px] max-h-[360px] w-full resize-none py-3 px-[30px] align-top outline-none md:h-full md:max-h-full md:rounded-[12px]"
             :placeholder="t('inputArea')"
           />
-        </el-main>
-      </el-container>
+        </div>
+      </div>
       <div class="h-[86vh] overflow-visible pb-5 md:mt-0 md:h-full md:w-[44%] md:pb-0">
         <vocab-table
           :data="tableDataOfVocab"
@@ -111,36 +110,3 @@ function logVocabInfo(listOfVocab: LabelRow[]) {
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.input-area :deep(textarea) {
-  border-radius: 8px;
-  box-shadow: none;
-  border: 0;
-  padding-left: 30px;
-  padding-right: 30px;
-  height: 100%;
-}
-
-@media only screen and (min-width: 768px) {
-  .input-area > :deep(textarea) {
-    overflow: visible;
-  }
-}
-
-@media only screen and (max-width: 768px) {
-  .input-area :deep(textarea) {
-    height: 260px;
-  }
-
-  :deep(.el-textarea__inner) {
-    max-height: 360px;
-  }
-}
-
-@media only screen and (max-width: 640px) {
-  .input-area :deep(textarea) {
-    border-radius: 12px;
-  }
-}
-</style>

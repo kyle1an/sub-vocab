@@ -131,84 +131,79 @@ async function logOut() {
 </script>
 
 <template>
-  <div class="common-layout">
-    <el-container>
-      <el-main class="mx-auto">
-        <el-card
-          shadow="always"
-          class="mx-auto flex w-80 justify-center"
+  <div class="flex flex-row">
+    <div class="mx-auto py-6">
+      <div class="flex w-80 justify-center rounded-md border-0 bg-white py-5 shadow-lg ">
+        <el-form
+          ref="ruleFormRef"
+          :model="ruleForm"
+          :rules="rules"
+          label-position="top"
+          label-width="100px"
+          class="max-w-[460px] [&>.el-form-item_label]:font-bold"
+          status-icon
         >
-          <el-form
-            ref="ruleFormRef"
-            :model="ruleForm"
-            :rules="rules"
-            label-position="top"
-            label-width="100px"
-            class="max-w-[460px] [&>.el-form-item_label]:font-bold"
-            status-icon
+          <el-form-item
+            :label="t('Name')"
+            prop="username"
+            :error="errorMsg"
           >
-            <el-form-item
-              :label="t('Name')"
-              prop="username"
-              :error="errorMsg"
+            <el-input
+              v-model.number="ruleForm.username"
+              class="!text-base md:!text-xs"
+            />
+          </el-form-item>
+          <el-form-item
+            :label="t('Old Password')"
+            prop="oldPassword"
+          >
+            <el-input
+              v-model="ruleForm.oldPassword"
+              type="password"
+              autocomplete="off"
+              class="!text-base md:!text-xs"
+            />
+          </el-form-item>
+          <el-form-item
+            :label="t('New Password')"
+            prop="password"
+          >
+            <el-input
+              v-model="ruleForm.password"
+              type="password"
+              autocomplete="off"
+              class="!text-base md:!text-xs"
+            />
+          </el-form-item>
+          <el-form-item
+            :label="t('New Password Confirm')"
+            prop="checkPass"
+          >
+            <el-input
+              v-model="ruleForm.checkPass"
+              type="password"
+              autocomplete="off"
+              class="!text-base md:!text-xs"
+            />
+          </el-form-item>
+          <el-form-item>
+            <el-button
+              type="primary"
+              @click="submitForm(ruleFormRef)"
             >
-              <el-input
-                v-model.number="ruleForm.username"
-                class="!text-base md:!text-xs"
-              />
-            </el-form-item>
-            <el-form-item
-              :label="t('Old Password')"
-              prop="oldPassword"
-            >
-              <el-input
-                v-model="ruleForm.oldPassword"
-                type="password"
-                autocomplete="off"
-                class="!text-base md:!text-xs"
-              />
-            </el-form-item>
-            <el-form-item
-              :label="t('New Password')"
-              prop="password"
-            >
-              <el-input
-                v-model="ruleForm.password"
-                type="password"
-                autocomplete="off"
-                class="!text-base md:!text-xs"
-              />
-            </el-form-item>
-            <el-form-item
-              :label="t('New Password Confirm')"
-              prop="checkPass"
-            >
-              <el-input
-                v-model="ruleForm.checkPass"
-                type="password"
-                autocomplete="off"
-                class="!text-base md:!text-xs"
-              />
-            </el-form-item>
-            <el-form-item>
-              <el-button
-                type="primary"
-                @click="submitForm(ruleFormRef)"
-              >
-                {{ t('Confirm Changes') }}
-              </el-button>
-              <el-button @click="resetForm(ruleFormRef)">
-                {{ t('Reset') }}
-              </el-button>
-            </el-form-item>
-          </el-form>
-        </el-card>
-        <div class="flex justify-center pt-8">
-          <el-button @click="logOut">
-            {{ t('log out') }}
-          </el-button>
-        </div>
-      </el-main>
-    </el-container>
+              {{ t('Confirm Changes') }}
+            </el-button>
+            <el-button @click="resetForm(ruleFormRef)">
+              {{ t('Reset') }}
+            </el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+      <div class="flex justify-center pt-8">
+        <el-button @click="logOut">
+          {{ t('log out') }}
+        </el-button>
+      </div>
+    </div>
   </div>
 </template>

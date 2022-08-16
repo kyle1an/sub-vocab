@@ -16,7 +16,7 @@ app.use(createPinia())
 app.use(router)
 app.use(createI18n({
   legacy: false,
-  locale: Cookies.get('lang') || 'zh',
+  locale: Cookies.get('_locale') || (navigator.languages[0].startsWith('zh') ? 'zh' : 'en'),
   fallbackLocale: 'en',
   messages
 }))

@@ -4,6 +4,10 @@ export function sortByChar(a: string, b: string): number {
   return a.localeCompare(b, 'en', { sensitivity: 'base' })
 }
 
+export function sortByDateISO(a: string, b: string): number {
+  return (a < b) ? -1 : ((a > b) ? 1 : 0)
+}
+
 export function sortNum1st(a: unknown, b: unknown): number {
   if (typeof a === 'number') {
     if (typeof b === 'number') {
@@ -22,6 +26,7 @@ export function sortNum1st(a: unknown, b: unknown): number {
 
 export function getNode(node: TrieNode, word: string) {
   for (const c of word.split('')) {
+
     node = node[(c as Char)] ??= {}
   }
 

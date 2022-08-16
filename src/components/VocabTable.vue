@@ -47,28 +47,25 @@ const rowsSearched = computed(() => {
   return source.filter((r: LabelRow) => r.w.toLowerCase().includes(search.value.toLowerCase()))
 })
 
-function sortChange({ prop, order }: Sorting<LabelRow>) {
-  sortBy.value = { prop, order }
-}
-
+const sortChange = (p: Sorting<LabelRow>) => sortBy.value = p
 const sortBy = shallowRef<Sorting<LabelRow>>({ order: null, prop: null, })
-const rowsSorted = computed(() => {
-  const source = rowsSearched.value
-  const { prop, order } = sortBy.value
-
-  if (prop && order) {
-    return [...source].sort(compare(prop, order))
-  }
-
-  return source
-})
-
 const page = reactive({
   curr: 1,
   sizes: [25, 100, 200, 500, 1000, Infinity],
   size: 100,
 })
-const rowsPaged = computed(() => rowsSorted.value.slice((page.curr - 1) * page.size, page.curr * page.size))
+const rowsPaged = computed(() => {
+  const { prop, order } = sortBy.value
+  let rowsSorted
+
+  if (prop && order) {
+    rowsSorted = [...rowsSearched.value].sort(compare(prop, order))
+  } else {
+    rowsSorted = rowsSearched.value
+  }
+
+  return rowsSorted.slice((page.curr - 1) * page.size, page.curr * page.size)
+})
 
 const total = computed(() => rowsSearched.value.length)
 const disabledTotal = ref(false)
@@ -87,7 +84,7 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
 </script>
 
 <template>
-  <div class="mx-5 flex h-full flex-col items-center rounded-xl border-0 bg-white shadow-md will-change-transform md:mx-0">
+  <div class="mx-5 flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-md will-change-transform md:mx-0">
     <segmented-control
       name="vocab-seg"
       :segments="segments"
@@ -98,7 +95,7 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
     <div class="h-px w-full grow">
       <el-table
         ref="vocabTable"
-        class="!h-full [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-icon]:pointer-events-none"
+        class="!h-full [&_th_.cell]:font-compact [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-icon]:pointer-events-none"
         height="200"
         size="small"
         fit
@@ -108,12 +105,30 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
         @expand-change="(r)=>{r.expanded ^= 1}"
         @sort-change="sortChange"
       >
-        <el-table-column type="expand">
+        <el-table-column
+          type="expand"
+          class-name="[&_.el-table\_\_expand-icon_i]:text-slate-500"
+        >
           <template #default="{row}">
             <Examples
               :sentences="props.sentences"
               :src="row.src"
+              class="tracking-wide"
             />
+          </template>
+        </el-table-column>
+        <el-table-column
+          :label="t('frequency')"
+          prop="freq"
+          align="right"
+          width="62"
+          sortable="custom"
+          class-name="cursor-pointer [th&>.cell]:!p-0"
+        >
+          <template #default="{row}">
+            <div class="select-none text-right font-compact tabular-nums text-slate-400">
+              {{ row.freq }}
+            </div>
           </template>
         </el-table-column>
         <el-table-column
@@ -122,7 +137,7 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
           align="left"
           min-width="16"
           sortable="custom"
-          class-name="cursor-pointer"
+          class-name="cursor-pointer [td&>.cell]:!pr-0"
         >
           <template #header>
             <el-input
@@ -135,44 +150,30 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
           </template>
           <template #default="{row}">
             <span
-              class="cursor-text font-compact text-[16px] tracking-wide"
+              class="cursor-text font-compact text-[16px] tracking-wide text-neutral-900"
               v-on="isMobile ? {} : { mouseover: selectWord }"
               @click.stop
             >{{ row.w }}</span>
           </template>
         </el-table-column>
         <el-table-column
-          :label="t('frequency')"
-          prop="freq"
-          align="right"
-          min-width="9"
-          sortable="custom"
-          class-name="cursor-pointer tabular-nums [&>.cell]:!p-0"
-        >
-          <template #default="{row}">
-            <div class="select-none text-right font-compact">
-              {{ row.freq }}
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column
           :label="t('length')"
           prop="len"
           align="right"
-          min-width="10"
+          width="68"
           sortable="custom"
-          class-name="cursor-pointer tabular-nums [&>.cell]:!p-0"
+          class-name="cursor-pointer [th&>.cell]:!p-0"
         >
           <template #default="{row}">
-            <div class="select-none font-compact">
+            <div class="select-none font-compact tabular-nums">
               {{ row.len }}
             </div>
           </template>
         </el-table-column>
         <el-table-column
           align="center"
-          min-width="5"
-          class-name="overflow-visible"
+          width="40"
+          class-name="overflow-visible [td&>.cell]:!pl-0"
         >
           <template #default="{row}">
             <toggle-button :row="row" />

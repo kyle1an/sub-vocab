@@ -20,13 +20,13 @@ const acquaintedSection = computed(() => userStore.user.name ? t('mine') : t('co
 const isWide = window.innerWidth >= 460
 
 function handleCommand(command: string) {
-  Cookies.set('lang', command, { expires: 365, })
+  Cookies.set('_locale', command, { expires: 365, })
   locale.value = command
 }
 </script>
 
 <template>
-  <header class="relative z-50 box-border flex h-12 w-full min-w-[auto] items-center justify-center bg-white shadow-sm [&_[href]]:tap-transparent">
+  <header class="relative z-50 box-border flex h-12 w-full min-w-[auto] items-center justify-center bg-white tracking-wide shadow [&_[href]]:tap-transparent">
     <nav class="box-border flex h-full w-full max-w-screen-xl justify-center">
       <div class="flex w-full items-center text-[14px]">
         <router-link

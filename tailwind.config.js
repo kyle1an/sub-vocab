@@ -20,7 +20,8 @@ module.exports = {
   plugins: [
     plugin(function ({ addBase, addComponents, addUtilities, theme }) {
       addUtilities({
-        '.tap-transparent': { '-webkit-tap-highlight-color': 'transparent' }
+        '.tap-transparent': { '-webkit-tap-highlight-color': 'transparent' },
+        '.ffs-normal': { fontFeatureSettings: 'normal' },
       })
     })
   ],

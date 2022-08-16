@@ -96,6 +96,7 @@ export const useVocabStore = defineStore('vocabStore', () => {
     }
 
     node.$.vocab.acquainted = got
+    node.$.vocab.time_modified = new Date().toISOString()
     copyTriePromise = promiseClone(preBuiltTrie)
     return node.$.vocab
   }
