@@ -4,19 +4,29 @@ import { computed, nextTick, onBeforeMount, reactive, ref, shallowRef } from 'vu
 import { TransitionPresets, useTransition } from '@vueuse/core'
 import Switch from '../components/Switch.vue'
 import SegmentedControl from '../components/SegmentedControl.vue'
-import { compare, selectWord } from '../utils/utils'
+import { compare, selectWord, sortByDateISO } from '../utils/utils'
 import { useVocabStore } from '../store/useVocab'
 import { Sieve, Sorting } from '../types'
+import DateTime from '../components/DateTime'
+import ToggleButton from '../components/ToggleButton.vue'
 
 const { t } = useI18n()
+const vocabStore = useVocabStore()
 const rows = shallowRef<Sieve[]>([])
-const rowsAcquainted = computed(() => rows.value.filter((r) => r.acquainted))
 onBeforeMount(async () => {
-  rows.value = (await useVocabStore().getBaseVocab()).map((word) => {
+  rows.value = (await vocabStore.getBaseVocab()).map((word) => {
     word.len = word.w.length
     return word
-  }).reverse()
+  }).sort(sortByTimeModified)
+
+  await vocabStore.getPreBuiltTrie()
 })
+
+function sortByTimeModified(a: Sieve, b: Sieve) {
+  const aDate = a.time_modified || ''
+  const bDate = b.time_modified || ''
+  return sortByDateISO(bDate, aDate)
+}
 
 function onSegmentSwitched(seg: number) {
   disabledTotal.value = true
@@ -27,21 +37,23 @@ function onSegmentSwitched(seg: number) {
 
 const selectedSeg = ref(+(sessionStorage.getItem('prev-segment-mine') || 0))
 const rowsSegmented = computed(() => {
-  const source = rowsAcquainted.value
+  const source = rows.value
 
   switch (selectedSeg.value) {
     case 1:
-      return source.filter((row) => row.is_user)
+      return source.filter((row) => row.acquainted && row.is_user)
     case 2:
-      return source.filter((row) => !row.is_user)
+      return source.filter((row) => row.acquainted && !row.is_user)
+    case 3:
+      return source.filter((row) => !row.acquainted)
     default:
-      return [...source]
+      return source.filter((row) => row.acquainted)
   }
 })
 
 const search = ref('')
 const rowsSearched = computed(() => {
-  const source = rowsSegmented.value
+  const source = [...rowsSegmented.value].sort(sortByTimeModified)
 
   if (!search.value) {
     return source
@@ -50,10 +62,7 @@ const rowsSearched = computed(() => {
   return source.filter((r: Sieve) => r.w.toLowerCase().includes(search.value.toLowerCase()))
 })
 
-function sortChange({ prop, order }: Sorting<Sieve>) {
-  sortBy.value = { prop, order }
-}
-
+const sortChange = (p: Sorting<Sieve>) => sortBy.value = p
 const sortBy = shallowRef<Sorting<Sieve>>({ order: null, prop: null, })
 const rowsSorted = computed(() => {
   const source = rowsSearched.value
@@ -80,7 +89,7 @@ const totalTransit = useTransition(total, {
   transition: TransitionPresets.easeOutCirc,
 })
 
-const segments = computed(() => [t('all'), t('mine'), t('top')])
+const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
 </script>
 
 <template>
@@ -95,7 +104,7 @@ const segments = computed(() => [t('all'), t('mine'), t('top')])
       />
     </div>
     <div class="m-auto h-[calc(100vh-160px)] max-w-2xl overflow-visible">
-      <div class="mx-5 flex h-full flex-col rounded-xl border-0 bg-white shadow-lg will-change-transform md:mx-0">
+      <div class="mx-5 flex h-full flex-col rounded-xl border border-inherit bg-white shadow-lg will-change-transform md:mx-0">
         <segmented-control
           :default="selectedSeg"
           :segments="segments"
@@ -106,7 +115,7 @@ const segments = computed(() => [t('all'), t('mine'), t('top')])
         <div class="h-px w-full grow">
           <el-table
             :data="rowsPaged"
-            class="!h-full !w-full md:w-full [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full"
+            class="!h-full !w-full md:w-full [&_th_.cell]:font-compact [&_th_.cell]:tracking-normal [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full"
             fit
             height="200"
             size="small"
@@ -115,23 +124,23 @@ const segments = computed(() => [t('all'), t('mine'), t('top')])
             <el-table-column
               :label="t('rank')"
               align="center"
-              class-name="cursor-pointer tabular-nums"
+              class-name="cursor-pointer [th&>.cell]:!pr-0"
               header-align="center"
-              min-width="7"
+              width="64"
               prop="rank"
               sortable="custom"
             >
-              <template #default="props">
-                <div class="select-none font-compact">
-                  {{ props.row.rank }}
+              <template #default="{row}">
+                <div class="select-none tabular-nums text-neutral-500">
+                  {{ row.rank }}
                 </div>
               </template>
             </el-table-column>
             <el-table-column
               align="left"
-              class-name="cursor-pointer"
+              class-name="cursor-pointer [td&>.cell]:!pr-0"
               label="Vocabulary"
-              min-width="7"
+              min-width="70"
               prop="w"
               sortable="custom"
             >
@@ -144,26 +153,49 @@ const segments = computed(() => [t('all'), t('mine'), t('top')])
                   @click.stop
                 />
               </template>
-              <template #default="props">
+              <template #default="{row}">
                 <span
-                  class="cursor-text font-compact text-[16px] tracking-wide"
+                  class="cursor-text text-[16px] tracking-wide text-neutral-800"
                   @mouseover="selectWord"
                   @touchstart.passive="selectWord"
                   @click.stop
-                >{{ props.row.w }}</span>
+                >{{ row.w }}</span>
               </template>
             </el-table-column>
             <el-table-column
               :label="t('length')"
-              align="left"
-              class-name="cursor-pointer tabular-nums"
-              min-width="5"
+              align="right"
+              class-name="cursor-pointer [th&>.cell]:!p-0"
+              width="67"
               prop="len"
               sortable="custom"
             >
-              <template #default="props">
-                <div class="select-none font-compact">
-                  {{ props.row.len }}
+              <template #default="{row}">
+                <div class="select-none tabular-nums">
+                  {{ row.len }}
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column
+              align="center"
+              width="32"
+              class-name="overflow-visible [&_.cell]:!px-0"
+            >
+              <template #default="{row}">
+                <toggle-button :row="{w:row.w, vocab:row}" />
+              </template>
+            </el-table-column>
+            <el-table-column
+              :label="t('distance')"
+              align="left"
+              class-name="cursor-pointer [td&_.cell]:!pr-0"
+              width="80"
+              prop="time_modified"
+              sortable="custom"
+            >
+              <template #default="{row}">
+                <div class="select-none font-compact tabular-nums tracking-normal ffs-normal">
+                  <date-time :time="row?.time_modified" />
                 </div>
               </template>
             </el-table-column>

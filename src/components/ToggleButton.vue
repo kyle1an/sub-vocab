@@ -3,22 +3,23 @@ import { Check } from '@element-plus/icons-vue'
 import { PropType, ref } from 'vue'
 import { ElNotification } from 'element-plus'
 import { useI18n } from 'vue-i18n'
-import { LabelRow } from '../types'
+import { LabelRow, Sieve } from '../types'
 import { acquaint, revokeWord } from '../api/vocab-service'
 import { useVocabStore } from '../store/useVocab'
 import { useUserStore } from '../store/useState'
 import router from '../router'
 
+type VocabRow = LabelRow | { w: string, vocab: Sieve }
 const { t } = useI18n()
 const userStore = useUserStore()
 const props = defineProps({
-  'row': { type: Object as PropType<LabelRow>, default: () => ({}) },
+  'row': { type: Object as PropType<VocabRow>, default: () => ({}) },
 })
 
 const vocabStore = useVocabStore()
 const loading = ref(false)
 
-async function toggleWordState(row: LabelRow, name: string) {
+async function toggleWordState(row: VocabRow, name: string) {
   const word = row.w
   const vocabInfo = {
     word: word.replace(/'/g, `''`),
@@ -32,7 +33,7 @@ async function toggleWordState(row: LabelRow, name: string) {
   }
 }
 
-async function handleClick(row: LabelRow) {
+async function handleClick(row: VocabRow) {
   loading.value = true
 
   if (userStore.user.name) {
@@ -60,9 +61,9 @@ async function handleClick(row: LabelRow) {
     :icon="Check"
     :plain="!props.row?.vocab?.acquainted"
     :loading="loading"
-    :disabled="props.row?.vocab && !props.row?.vocab?.is_user"
+    :disabled="false"
     :text="!props.row?.vocab?.acquainted"
-    class="max-w-full !border-[1px]"
+    class="max-w-[24px] !border-[1px]"
     @click.stop="handleClick(props.row)"
   />
 </template>

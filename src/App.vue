@@ -26,7 +26,6 @@ html {
 body {
   min-height: 100%;
   margin: 0;
-  background-color: rgb(243 241 246);
 
   &::-webkit-scrollbar {
     display: none; /* Safari and Chrome */

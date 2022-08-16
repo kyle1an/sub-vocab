@@ -19,15 +19,13 @@
 @tailwind utilities;
 
 :root {
-  --sys-font-stack: -apple-system, 'SF Pro Text', 'Inter', 'system-ui', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --sys-font-stack: 'SF Pro Text', -apple-system, 'Inter', 'system-ui', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   --sys-font-stack-mono: 'SF Mono', 'SFMono-Regular', 'Ubuntu Mono', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
 }
 
 html,
 body,
-input,
-textarea {
-  letter-spacing: 0.01rem;
+input {
   font-family: var(--sys-font-stack);
   /*-moz-font-feature-settings: 'smcp';*/
   /* -webkit-font-feature-settings: 'tnum'  !important;*/

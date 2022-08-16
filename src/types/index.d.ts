@@ -6,6 +6,7 @@ export interface Sieve extends Vocab {
   acquainted: number | boolean,
   is_user: number | boolean,
   rank?: number | null,
+  time_modified?: string | null,
 }
 
 export interface Stems {
