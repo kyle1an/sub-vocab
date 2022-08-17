@@ -56,6 +56,7 @@ async function handleClick(row: VocabRow) {
 
 <template>
   <el-button
+    color="#facc15"
     size="small"
     type="primary"
     :icon="Check"
@@ -63,14 +64,9 @@ async function handleClick(row: VocabRow) {
     :loading="loading"
     :disabled="false"
     :text="!props.row?.vocab?.acquainted"
-    class="max-w-[24px] !border-[1px]"
+    class="!border-[1px] !text-white [.is-text&]:!border-zinc-300 [.is-text&]:!text-transparent [.is-text&]:hover:!text-black [.is-text.is-loading&]:!text-black"
+    circle
     @click.stop="handleClick(props.row)"
   />
 </template>
 
-<style lang="scss" scoped>
-.is-text:hover {
-  background-color: var(--el-color-primary-light-9) !important;
-  border-color: var(--el-color-primary-light-5) !important;
-}
-</style>

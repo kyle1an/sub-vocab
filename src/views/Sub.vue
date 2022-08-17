@@ -30,41 +30,40 @@ const sentences = ref<string[]>([])
 const vocabStore = useVocabStore()
 const { log, logEnd, logPerf } = useTimeStore()
 
-async function structVocab(content: string): Promise<Trie> {
-  const baseVocabTrie = await vocabStore.getPreBuiltTrie()
-  log(['-- All took', '    '])
-  log('· init words')
-  const vocab = new Trie(baseVocabTrie).add(content)
-  logEnd('· init words')
-  return vocab
-}
-
 let timeoutID: number
 watch(inputText, () => {
   clearTimeout(timeoutID)
-  timeoutID = setTimeout(() => {
-    formVocabLists(inputText.value)
+  timeoutID = setTimeout(async () => {
+    ({
+      list: tableDataOfVocab.value,
+      sentences: sentences.value
+    } = await formVocabList(inputText.value))
   }, 50)
 })
 
-let listOfVocab: LabelRow[] = []
 const tableDataOfVocab = shallowRef<LabelRow[]>([])
 
-async function formVocabLists(text: string) {
-  const trie = await structVocab(text)
-  sentences.value = trie.sentences
+async function formVocabList(text: string) {
+  const baseVocabTrie = await vocabStore.getPreBuiltTrie()
+  log(['-- All took', '    '])
+  log('· init words')
+  const trie = new Trie(baseVocabTrie).add(text)
+  logEnd('· init words')
   log(['· categorize vocabulary', ' +  '])
   log('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
   const vocabs = trie.mergedVocabulary()
   logEnd('%c  merge vocabulary')
   log('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
-  listOfVocab = Trie.formVocabList(vocabs)
+  const list = Trie.formVocabList(vocabs)
   logEnd('%c  formLabel vocabulary')
   logEnd(['· categorize vocabulary', ' +  '])
   logEnd(['-- All took', '    '])
-  tableDataOfVocab.value = listOfVocab
-  logVocabInfo(listOfVocab)
+  logVocabInfo(list)
   logPerf()
+  return {
+    list,
+    sentences: trie.sentences,
+  }
 }
 
 function logVocabInfo(listOfVocab: LabelRow[]) {
@@ -86,17 +85,17 @@ function logVocabInfo(listOfVocab: LabelRow[]) {
         >
       </label>
       <div class="flex grow gap-1 overflow-y-auto">
-        <span class="grow truncate pl-3 font-compact text-xs tracking-tight text-indigo-900">
+        <span class="grow truncate pl-3 font-compact text-xs text-indigo-900">
           {{ fileInfo || t('noFileChosen') }}
         </span>
       </div>
     </div>
     <div class="flex flex-col gap-6 md:h-[calc(100vh-140px)] md:flex-row">
       <div class="relative box-border flex-1 basis-auto overflow-visible border-y shadow md:rounded-[12px] md:border-transparent md:shadow">
-        <div class="input-area h-full w-full font-text-sans text-base text-neutral-600 md:text-sm">
+        <div class="input-area h-full w-full text-base text-neutral-600 md:text-sm">
           <textarea
             v-model="inputText"
-            class="h-[260px] max-h-[360px] w-full resize-none py-3 px-[30px] align-top outline-none md:h-full md:max-h-full md:rounded-[12px]"
+            class="h-[260px] max-h-[360px] w-full resize-none py-3 px-[30px] align-top outline-none ffs-normal md:h-full md:max-h-full md:rounded-[12px]"
             :placeholder="t('inputArea')"
           />
         </div>

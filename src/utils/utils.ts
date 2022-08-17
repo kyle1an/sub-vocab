@@ -26,7 +26,6 @@ export function sortNum1st(a: unknown, b: unknown): number {
 
 export function getNode(node: TrieNode, word: string) {
   for (const c of word.split('')) {
-
     node = node[(c as Char)] ??= {}
   }
 

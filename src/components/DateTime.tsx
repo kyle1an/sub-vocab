@@ -32,7 +32,6 @@ function formattedTime(time: string) {
 
 function formatDistance(time: string) {
   const date = new Date(time)
-
   return (
     <div class="flex flex-row gap-0.5 text-neutral-900">
       {formatDistanceToNowStrict(date)}
