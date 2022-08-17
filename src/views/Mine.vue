@@ -2,7 +2,6 @@
 import { useI18n } from 'vue-i18n'
 import { computed, nextTick, onBeforeMount, reactive, ref, shallowRef } from 'vue'
 import { TransitionPresets, useTransition } from '@vueuse/core'
-import Switch from '../components/Switch.vue'
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { compare, selectWord, sortByDateISO } from '../utils/utils'
 import { useVocabStore } from '../store/useVocab'
@@ -45,7 +44,7 @@ const rowsSegmented = computed(() => {
     case 2:
       return source.filter((row) => row.acquainted && !row.is_user)
     case 3:
-      return source.filter((row) => !row.acquainted)
+      return source.filter((row) => !row.acquainted && row.is_user !== 2)
     default:
       return source.filter((row) => row.acquainted)
   }
@@ -53,34 +52,30 @@ const rowsSegmented = computed(() => {
 
 const search = ref('')
 const rowsSearched = computed(() => {
-  const source = [...rowsSegmented.value].sort(sortByTimeModified)
-
   if (!search.value) {
-    return source
+    return rowsSegmented.value
   }
 
-  return source.filter((r: Sieve) => r.w.toLowerCase().includes(search.value.toLowerCase()))
+  return rowsSegmented.value.filter((r: Sieve) => r.w.toLowerCase().includes(search.value.toLowerCase()))
 })
 
 const sortChange = (p: Sorting<Sieve>) => sortBy.value = p
 const sortBy = shallowRef<Sorting<Sieve>>({ order: null, prop: null, })
-const rowsSorted = computed(() => {
-  const source = rowsSearched.value
-  const { prop, order } = sortBy.value
-
-  if (prop && order) {
-    return [...source].sort(compare(prop, order))
-  }
-
-  return source
-})
-
 const page = reactive({
   curr: 1,
   sizes: [100, 200, 500, 1000, Infinity],
   size: 100,
 })
-const rowsPaged = computed(() => rowsSorted.value.slice((page.curr - 1) * page.size, page.curr * page.size))
+const rowsDisplay = computed(() => {
+  const { prop, order } = sortBy.value
+  let rowsSorted = rowsSearched.value
+
+  if (prop && order) {
+    rowsSorted = [...rowsSorted].sort(compare(prop, order))
+  }
+
+  return rowsSorted.slice((page.curr - 1) * page.size, page.curr * page.size)
+})
 
 const total = computed(() => rowsSearched.value.length)
 const disabledTotal = ref(false)
@@ -94,17 +89,9 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
 
 <template>
   <div class="mx-auto max-w-screen-xl pb-5 md:pb-0">
-    <div
-      class="relative flex h-16 items-center"
-      height="100%"
-    >
-      <Switch
-        :state="false"
-        :text="['off','on']"
-      />
-    </div>
-    <div class="m-auto h-[calc(100vh-160px)] max-w-2xl overflow-visible">
-      <div class="mx-5 flex h-full flex-col rounded-xl border border-inherit bg-white shadow-lg will-change-transform md:mx-0">
+    <div class="relative flex h-10 items-center" />
+    <div class="m-auto h-full max-w-2xl overflow-visible">
+      <div class="mx-5 flex h-[calc(100vh-200px)] flex-col overflow-hidden rounded-xl border border-inherit bg-white shadow-lg will-change-transform md:mx-0 md:h-[calc(100vh-150px)]">
         <segmented-control
           :default="selectedSeg"
           :segments="segments"
@@ -114,7 +101,7 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
         />
         <div class="h-px w-full grow">
           <el-table
-            :data="rowsPaged"
+            :data="rowsDisplay"
             class="!h-full !w-full md:w-full [&_th_.cell]:font-compact [&_th_.cell]:tracking-normal [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full"
             fit
             height="200"
@@ -189,7 +176,7 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
               :label="t('distance')"
               align="left"
               class-name="cursor-pointer [td&_.cell]:!pr-0"
-              width="80"
+              width="82"
               prop="time_modified"
               sortable="custom"
             >
@@ -204,12 +191,11 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
         <el-pagination
           v-model:currentPage="page.curr"
           v-model:page-size="page.size"
-          :background="true"
           :page-sizes="page.sizes"
           :pager-count="5"
           :small="true"
           :total="~~totalTransit"
-          class="w-full shrink-0 flex-wrap gap-y-1.5 !p-1.5 tabular-nums [&_*]:!rounded-md [&_.el-pagination\_\_sizes.is-last]:!m-0 [&_.el-pagination\_\_total]:mx-[10px]"
+          class="w-full shrink-0 flex-wrap gap-y-1.5 !p-1.5 tabular-nums [&_*]:!rounded-md [&_.is-active]:bg-neutral-100 [&_.el-pagination\_\_sizes.is-last]:!m-0 [&_.el-pagination\_\_total]:mx-[10px]"
           layout="prev, pager, next, ->, total, sizes"
         />
       </div>

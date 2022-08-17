@@ -1,10 +1,10 @@
 <script lang="tsx" setup>
-import { PropType, computed, nextTick, reactive, ref, shallowRef } from 'vue'
+import { PropType, computed, nextTick, reactive, ref, shallowRef, watch } from 'vue'
 import { TransitionPresets, useTransition } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { ElTable } from 'element-plus'
 import { LabelRow, Sorting } from '../types'
-import { compare, isMobile, selectWord } from '../utils/utils'
+import { compare, isMobile, removeClass, selectWord } from '../utils/utils'
 import Examples from '../components/Examples'
 import SegmentedControl from '../components/SegmentedControl.vue'
 import ToggleButton from './ToggleButton.vue'
@@ -24,27 +24,23 @@ function onSegmentSwitched(seg: number) {
 
 const selectedSeg = ref(+(sessionStorage.getItem('prev-segment-select') || 0))
 const rowsSegmented = computed(() => {
-  const source = props.data
-
   switch (selectedSeg.value) {
     case 1:
-      return source.filter((r) => !r?.vocab?.acquainted && r.len > 2)
+      return props.data.filter((r) => !r?.vocab?.acquainted && r.len > 2)
     case 2:
-      return source.filter((r) => r?.vocab?.acquainted || r.len <= 2)
+      return props.data.filter((r) => r?.vocab?.acquainted || r.len <= 2)
     default:
-      return [...source]
+      return [...props.data]
   }
 })
 
 const search = ref('')
 const rowsSearched = computed(() => {
-  const source = rowsSegmented.value
-
   if (!search.value) {
-    return source
+    return rowsSegmented.value
   }
 
-  return source.filter((r: LabelRow) => r.w.toLowerCase().includes(search.value.toLowerCase()))
+  return rowsSegmented.value.filter((r: LabelRow) => r.w.toLowerCase().includes(search.value.toLowerCase()))
 })
 
 const sortChange = (p: Sorting<LabelRow>) => sortBy.value = p
@@ -54,14 +50,12 @@ const page = reactive({
   sizes: [25, 100, 200, 500, 1000, Infinity],
   size: 100,
 })
-const rowsPaged = computed(() => {
+const rowsDisplay = computed(() => {
   const { prop, order } = sortBy.value
-  let rowsSorted
+  let rowsSorted = rowsSearched.value
 
   if (prop && order) {
-    rowsSorted = [...rowsSearched.value].sort(compare(prop, order))
-  } else {
-    rowsSorted = rowsSearched.value
+    rowsSorted = [...rowsSorted].sort(compare(prop, order))
   }
 
   return rowsSorted.slice((page.curr - 1) * page.size, page.curr * page.size)
@@ -78,6 +72,14 @@ const vocabTable = shallowRef<typeof ElTable>()
 
 function handleRowClick(row: LabelRow) {
   vocabTable.value?.toggleRowExpansion(row)
+}
+
+watch(rowsDisplay, () => {
+  removeClass('expanded')
+})
+
+function handleExpand(row: LabelRow) {
+  document.getElementsByClassName(`v-${row.seq}`)[0].classList.toggle('expanded')
 }
 
 const segments = computed(() => [t('all'), t('new'), t('acquainted')])
@@ -99,10 +101,10 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
         height="200"
         size="small"
         fit
-        :row-class-name="({row})=> row.expanded ? 'expanded' : ''"
-        :data="rowsPaged"
+        :row-class-name="({row})=>`v-${row.seq}`"
+        :data="rowsDisplay"
         @row-click="handleRowClick"
-        @expand-change="(r)=>{r.expanded ^= 1}"
+        @expand-change="handleExpand"
         @sort-change="sortChange"
       >
         <el-table-column
@@ -186,11 +188,10 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
       v-model:page-size="page.size"
       :page-sizes="page.sizes"
       :small="true"
-      :background="true"
       :pager-count="5"
       layout="prev, pager, next, ->, total, sizes"
       :total="~~totalTransit"
-      class="w-full shrink-0 flex-wrap gap-y-1.5 !p-1.5 tabular-nums [&_*]:!rounded-md [&_.el-pagination\_\_sizes.is-last]:!m-0 [&_.el-pagination\_\_total]:mx-[10px]"
+      class="w-full shrink-0 flex-wrap gap-y-1.5 !p-1.5 tabular-nums [&_*]:!rounded-md [&_.is-active]:bg-neutral-100 [&_.el-pagination\_\_sizes.is-last]:!m-0 [&_.el-pagination\_\_total]:mx-[10px]"
     />
   </div>
 </template>

@@ -129,9 +129,9 @@ export default class LabeledTire {
   }
 
   mergeVocabOfDifferentSuffixes(current: TrieNode, previousChar: Char, parentLayer: TrieNode) {
-    const curr_s$ = previousChar === 's' ? undefined : current?.s?.$
-    const curr_e$ = current?.e?.$
     const curr_$ = current?.$
+    const curr_e$ = current?.e?.$
+    const curr_s$ = previousChar === 's' ? undefined : current?.s?.$
 
     const followingWords = (curr: TrieNode) => {
       const curr_in = curr?.i?.n
