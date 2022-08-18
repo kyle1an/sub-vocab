@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { PropType, computed, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useElementBounding } from '@vueuse/core'
 
 const emit = defineEmits(['input'])
-const props = defineProps({
-  'default': { type: Number, default: 0 },
-  'name': { type: String, default: '' },
-  'segments': { type: Array as PropType<string[]>, default: () => [''] },
+const props = withDefaults(defineProps<{
+  default: number,
+  name: string,
+  segments: string[],
+}>(), {
+  default: 0,
+  name: '',
+  segments: () => ['']
 })
 watch(() => props.default, (id) => {
   selectedId.value = id

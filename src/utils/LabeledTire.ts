@@ -19,7 +19,7 @@ export default class LabeledTire {
     const totalSize = this.sentences.length
 
     for (; previousSize < totalSize; previousSize++) {
-      for (const m of this.sentences[previousSize].matchAll(/(?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þa-zß-ÿ]+[a-zß-ÿ]*)+(?:['-]?[A-Za-zÀ-ÿ]'?)+/mg)) {
+      for (const m of this.sentences[previousSize].matchAll(/(?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þa-zß-ÿ]+[a-zß-ÿ]*)+(?:['’-]?[A-Za-zÀ-ÿ]'?)+/mg)) {
         const matchedWord = m[0]
         if (m.index === undefined) continue
         this.#update(matchedWord, hasUppercase(matchedWord), m.index, previousSize)

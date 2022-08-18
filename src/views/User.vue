@@ -2,6 +2,7 @@
 import type { FormInstance } from 'element-plus'
 import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
 import { useUserStore } from '../store/useState'
 import router from '../router'
 import { changePassword, changeUsername, existsUsername, logoutToken } from '../api/user'

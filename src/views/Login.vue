@@ -1,7 +1,7 @@
 <script lang="tsx" setup>
 import type { FormInstance } from 'element-plus'
 import Cookies from 'js-cookie'
-import { ElNotification } from 'element-plus/es'
+import { ElButton, ElForm, ElFormItem, ElInput, ElNotification } from 'element-plus'
 import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useVocabStore } from '../store/useVocab'

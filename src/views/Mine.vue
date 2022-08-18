@@ -2,6 +2,7 @@
 import { useI18n } from 'vue-i18n'
 import { computed, nextTick, onBeforeMount, reactive, ref, shallowRef } from 'vue'
 import { TransitionPresets, useTransition } from '@vueuse/core'
+import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
 import SegmentedControl from '../components/SegmentedControl.vue'
 import { compare, selectWord, sortByDateISO } from '../utils/utils'
 import { useVocabStore } from '../store/useVocab'
@@ -124,7 +125,6 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
               </template>
             </el-table-column>
             <el-table-column
-              align="left"
               class-name="cursor-pointer [td&>.cell]:!pr-0"
               label="Vocabulary"
               min-width="70"
@@ -151,8 +151,7 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
             </el-table-column>
             <el-table-column
               :label="t('length')"
-              align="right"
-              class-name="cursor-pointer [th&>.cell]:!p-0"
+              class-name="cursor-pointer !text-right [th&>.cell]:!p-0"
               width="67"
               prop="len"
               sortable="custom"
@@ -164,9 +163,8 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
               </template>
             </el-table-column>
             <el-table-column
-              align="center"
               width="32"
-              class-name="overflow-visible [&_.cell]:!px-0"
+              class-name="overflow-visible !text-center [&_.cell]:!px-0"
             >
               <template #default="{row}">
                 <toggle-button :row="{w:row.w, vocab:row}" />
@@ -174,7 +172,6 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
             </el-table-column>
             <el-table-column
               :label="t('distance')"
-              align="left"
               class-name="cursor-pointer [td&_.cell]:!pr-0"
               width="82"
               prop="time_modified"

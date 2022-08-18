@@ -1,7 +1,7 @@
 <script lang="tsx" setup>
-import { Check } from '@element-plus/icons-vue'
-import { PropType, ref } from 'vue'
-import { ElNotification } from 'element-plus'
+import { Check, Loading } from '@element-plus/icons-vue'
+import { ref } from 'vue'
+import { ElButton, ElIcon, ElNotification } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { LabelRow, Sieve } from '../types'
 import { acquaint, revokeWord } from '../api/vocab-service'
@@ -12,10 +12,7 @@ import router from '../router'
 type VocabRow = LabelRow | { w: string, vocab: Sieve }
 const { t } = useI18n()
 const userStore = useUserStore()
-const props = defineProps({
-  'row': { type: Object as PropType<VocabRow>, default: () => ({}) },
-})
-
+const props = defineProps<{ row: VocabRow }>()
 const vocabStore = useVocabStore()
 const loading = ref(false)
 
@@ -58,15 +55,16 @@ async function handleClick(row: VocabRow) {
   <el-button
     color="#facc15"
     size="small"
-    type="primary"
-    :icon="Check"
-    :plain="!props.row?.vocab?.acquainted"
-    :loading="loading"
-    :disabled="false"
-    :text="!props.row?.vocab?.acquainted"
-    class="!border-[1px] !text-white [.is-text&]:!border-zinc-300 [.is-text&]:!text-transparent [.is-text&]:hover:!text-black [.is-text.is-loading&]:!text-black"
+    :disabled="loading"
+    :class="`${props.row?.vocab?.acquainted?'':'un '}${loading?'load ':''}!text-white [.load&_.is-loading]:!inline-flex [.load&_.check]:hidden [.un&]:!border-zinc-300 [.un&]:!bg-transparent [.un&]:!text-transparent [.un&]:hover:!text-black [.un.load&]:!text-black`"
     circle
     @click.stop="handleClick(props.row)"
-  />
+  >
+    <el-icon class="is-loading !hidden">
+      <Loading />
+    </el-icon>
+    <el-icon class="check">
+      <Check />
+    </el-icon>
+  </el-button>
 </template>
-
