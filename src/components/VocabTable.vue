@@ -1,8 +1,8 @@
 <script lang="tsx" setup>
-import { PropType, computed, nextTick, reactive, ref, shallowRef, watch } from 'vue'
+import { computed, nextTick, reactive, ref, shallowRef, watch } from 'vue'
 import { TransitionPresets, useTransition } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
-import { ElTable } from 'element-plus'
+import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
 import { LabelRow, Sorting } from '../types'
 import { compare, isMobile, removeClass, selectWord } from '../utils/utils'
 import Examples from '../components/Examples'
@@ -10,9 +10,12 @@ import SegmentedControl from '../components/SegmentedControl.vue'
 import ToggleButton from './ToggleButton.vue'
 
 const { t } = useI18n()
-const props = defineProps({
-  'data': { type: Array as PropType<LabelRow[]>, default: () => [''] },
-  'sentences': { type: Array as PropType<string[]>, default: () => [''] },
+const props = withDefaults(defineProps<{
+  data: LabelRow[],
+  sentences: string[]
+}>(), {
+  data: () => [],
+  sentences: () => ['']
 })
 
 function onSegmentSwitched(seg: number) {
@@ -75,11 +78,11 @@ function handleRowClick(row: LabelRow) {
 }
 
 watch(rowsDisplay, () => {
-  removeClass('expanded')
+  removeClass('xpd')
 })
 
 function handleExpand(row: LabelRow) {
-  document.getElementsByClassName(`v-${row.seq}`)[0].classList.toggle('expanded')
+  document.getElementsByClassName(`v-${row.seq}`)[0].classList.toggle('xpd')
 }
 
 const segments = computed(() => [t('all'), t('new'), t('acquainted')])
@@ -97,7 +100,7 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
     <div class="h-px w-full grow">
       <el-table
         ref="vocabTable"
-        class="!h-full [&_th_.cell]:font-compact [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-icon]:pointer-events-none"
+        class="!h-full from-[var(--el-border-color-lighter)] to-white [&_.xpd_td]:!border-white [&_.xpd_td]:!bg-white [&_.xpd:hover>td]:bg-gradient-to-b [&_th_.cell]:font-compact [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-icon]:pointer-events-none"
         height="200"
         size="small"
         fit
@@ -122,7 +125,6 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
         <el-table-column
           :label="t('frequency')"
           prop="freq"
-          align="right"
           width="62"
           sortable="custom"
           class-name="cursor-pointer [th&>.cell]:!p-0"
@@ -136,7 +138,6 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
         <el-table-column
           label="Vocabulary"
           prop="w"
-          align="left"
           min-width="16"
           sortable="custom"
           class-name="cursor-pointer [td&>.cell]:!pr-0"
@@ -161,10 +162,9 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
         <el-table-column
           :label="t('length')"
           prop="len"
-          align="right"
           width="68"
           sortable="custom"
-          class-name="cursor-pointer [th&>.cell]:!p-0"
+          class-name="cursor-pointer !text-right [th&>.cell]:!p-0"
         >
           <template #default="{row}">
             <div class="select-none font-compact tabular-nums">
@@ -173,9 +173,8 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
           </template>
         </el-table-column>
         <el-table-column
-          align="center"
           width="40"
-          class-name="overflow-visible [td&>.cell]:!pl-0"
+          class-name="overflow-visible !text-center [td&>.cell]:!pl-0"
         >
           <template #default="{row}">
             <toggle-button :row="row" />
@@ -195,15 +194,3 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
     />
   </div>
 </template>
-
-<style lang="scss" scoped>
-:deep(.expanded) {
-  &:hover > td {
-    background-image: linear-gradient(to bottom, var(--el-border-color-lighter), white);
-  }
-
-  td {
-    border-color: white !important;
-  }
-}
-</style>

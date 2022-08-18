@@ -6,6 +6,7 @@ import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import type { Language } from 'element-plus/es/locale'
+import { ElConfigProvider, ElDropdown, ElDropdownItem, ElDropdownMenu, ElIcon } from 'element-plus'
 import { useUserStore } from '../store/useState'
 
 const { t, locale } = useI18n({ useScope: 'global' }) // call `useI18n`, and spread `t` from  `useI18n` returning
@@ -71,7 +72,7 @@ function handleCommand(command: string) {
           {{ t('signup') }}
         </router-link>
         <el-dropdown @command="handleCommand">
-          <div class="el-dropdown-link flex px-4 outline-none">
+          <div class="flex px-4 outline-none">
             文/Aa
             <el-icon class="el-icon--right">
               <CaretBottom class="text-slate-300" />
