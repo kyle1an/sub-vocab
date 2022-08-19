@@ -1,4 +1,4 @@
-import { Char, TrieNode } from '../types'
+import { Char, Order, TrieNode } from '../types'
 
 export function sortByChar(a: string, b: string): number {
   return a.localeCompare(b, 'en', { sensitivity: 'base' })
@@ -80,7 +80,7 @@ export async function readFiles(files: FileList): Promise<any[]> {
 
 export const jsonClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj))
 
-export function compare(propName: string | number, order: string) {
+export function compare(propName: string | number, order: Order) {
   return (obj1: Record<string, unknown>, obj2: Record<string, unknown>): number => {
     return (order === 'ascending' ? 1 : -1) * sort(obj1[propName], obj2[propName])
 

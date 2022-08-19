@@ -32,9 +32,10 @@ export interface LabelRow extends Label {
 }
 
 export type Source = number[][];
+export type Order = 'ascending' | 'descending';
 
 export interface Sorting<T> {
-  order: 'ascending' | 'descending' | null;
+  order: Order | null;
   prop: keyof T | null;
 }
 

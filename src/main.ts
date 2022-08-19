@@ -10,7 +10,6 @@ import { messages } from './utils/localeMessages'
 
 const app = createApp(App)
 app.use(createPinia())
-// Make sure to _use_ the router instance to make the whole app router-aware.
 app.use(router)
 app.use(createI18n({
   legacy: false,
@@ -18,7 +17,5 @@ app.use(createI18n({
   fallbackLocale: 'en',
   messages
 }))
-// app.config.productionTip = false
-// app.config.devtools = false
 
 app.mount('#app')

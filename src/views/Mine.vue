@@ -89,7 +89,7 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
 </script>
 
 <template>
-  <div class="mx-auto max-w-screen-xl pb-5 md:pb-0">
+  <div class="w-full max-w-screen-xl pb-5 md:pb-0">
     <div class="relative flex h-10 items-center" />
     <div class="m-auto h-full max-w-2xl overflow-visible">
       <div class="mx-5 flex h-[calc(100vh-200px)] flex-col overflow-hidden rounded-xl border border-inherit bg-white shadow-lg will-change-transform md:mx-0 md:h-[calc(100vh-150px)]">
@@ -111,9 +111,7 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
           >
             <el-table-column
               :label="t('rank')"
-              align="center"
-              class-name="cursor-pointer [th&>.cell]:!pr-0"
-              header-align="center"
+              class-name="cursor-pointer !text-center [th&>.cell]:!pr-0"
               width="64"
               prop="rank"
               sortable="custom"

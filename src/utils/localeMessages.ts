@@ -1,11 +1,11 @@
 export const messages = {
   en: {
-    'Confirm Changes': 'Confirm Changes',
+    'Confirm Changes': 'Confirm changes',
     'Create Account': 'Create account',
     'log out': 'Log out',
-    'New Password Confirm': 'New Password Confirm',
-    'New Password': 'New Password',
-    'Old Password': 'Old Password',
+    'New Password Confirm': 'Confirm new password',
+    'New Password': 'New password',
+    'Old Password': 'Old password',
     'Please input name': 'Please input name',
     'Please input the password again': 'Please input the password again',
     'Please input the password': 'Please input the password',

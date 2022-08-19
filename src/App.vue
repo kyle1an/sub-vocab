@@ -11,8 +11,10 @@ if (userName) {
 </script>
 
 <template>
-  <TopBar />
-  <router-view />
+  <TopBar class="fixed h-12" />
+  <div class="flex min-h-[100vh] flex-col items-center pt-12">
+    <router-view />
+  </div>
 </template>
 
 <style lang="scss">
@@ -25,7 +27,6 @@ html {
 
 body {
   min-height: 100%;
-  margin: 0;
 
   &::-webkit-scrollbar {
     display: none; /* Safari and Chrome */
@@ -33,6 +34,8 @@ body {
 }
 
 #app {
+  display: flex;
+  flex-direction: column;
   @apply antialiased;
 }
 
@@ -44,7 +47,6 @@ body {
 
   body {
     overflow: auto;
-    margin: 0 !important;
   }
 }
 </style>

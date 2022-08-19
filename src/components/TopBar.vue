@@ -27,7 +27,7 @@ function handleCommand(command: string) {
 </script>
 
 <template>
-  <header class="relative z-50 box-border flex h-12 w-full min-w-[auto] items-center justify-center bg-white tracking-wide shadow [&_[href]]:tap-transparent">
+  <header class="z-50 box-border flex w-full min-w-[auto] items-center justify-center bg-white tracking-wide shadow [&_[href]]:tap-transparent">
     <nav class="box-border flex h-full w-full max-w-screen-xl justify-center">
       <div class="flex w-full items-center text-[14px]">
         <router-link
@@ -52,7 +52,7 @@ function handleCommand(command: string) {
         </router-link>
         <router-link
           v-show="username"
-          to="/user"
+          to="/users"
           class="flex h-full items-center px-4 hover:bg-gray-100"
         >
           {{ username }}
