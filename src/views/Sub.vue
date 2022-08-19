@@ -73,7 +73,7 @@ function logVocabInfo(listOfVocab: LabelRow[]) {
 </script>
 
 <template>
-  <div class="mx-auto max-w-screen-xl">
+  <div class="w-full max-w-screen-xl">
     <div class="relative mx-3 flex h-14 items-center xl:mx-0">
       <label class="el-button grow-0 !rounded-md px-3 py-2.5 text-sm leading-3">
         {{ t('browseFiles') }}

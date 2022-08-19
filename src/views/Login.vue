@@ -1,5 +1,5 @@
 <script lang="tsx" setup>
-import type { FormInstance } from 'element-plus'
+import type { FormInstance, FormItemRule } from 'element-plus'
 import Cookies from 'js-cookie'
 import { ElButton, ElForm, ElFormItem, ElInput, ElNotification } from 'element-plus'
 import { reactive, ref } from 'vue'
@@ -14,8 +14,7 @@ const { t } = useI18n()
 const store = useUserStore()
 const ruleFormRef = ref<FormInstance>()
 
-function checkUsername(rule: any, value: any, callback: any) {
-  const username = String(value)
+function checkUsername(rule: FormItemRule | FormItemRule[], username: string, callback: (arg0?: Error) => void) {
   if (!username.length) {
     return callback(new Error(t('Please input name')))
   }
@@ -31,8 +30,8 @@ function checkUsername(rule: any, value: any, callback: any) {
   callback()
 }
 
-function validatePass(rule: any, value: any, callback: any) {
-  if (value === '') {
+function validatePass(rule: FormItemRule | FormItemRule[], password: string, callback: (arg0?: Error) => void) {
+  if (password === '') {
     return callback(new Error(t('Please input the password')))
   }
 
@@ -75,7 +74,7 @@ function submitForm(formEl: FormInstance | undefined) {
 <template>
   <div class="flex flex-row">
     <div class="mx-auto py-6">
-      <div class="flex w-80 justify-center rounded-md border-0 bg-white py-5 shadow-lg ">
+      <div class="flex w-80 justify-center rounded-md bg-white py-5 shadow-lg ">
         <el-form
           ref="ruleFormRef"
           :model="ruleForm"

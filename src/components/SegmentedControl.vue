@@ -30,30 +30,30 @@ watch(width, (w) => {
 </script>
 
 <template>
-  <div class="ffs-cv08 text-precision overflow-scrolling-touch m-0 box-border flex !touch-manipulation justify-center px-5 pt-3 pb-2 tracking-wide antialiased tap-transparent [&_*]:box-border">
-    <div class="m-0 grid w-full select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-[9px] border-0 bg-[#EFEFF0] p-0.5 leading-6 outline-none">
+  <div class="ffs-cv08 text-precision overflow-scrolling-touch box-border flex !touch-manipulation px-5 pt-3 pb-2 tracking-wide antialiased tap-transparent [&_*]:box-border">
+    <div class="grid w-full select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-[9px] bg-[#EFEFF0] p-0.5 outline-none">
       <span
         ref="pill"
         :style="pillTransformStyles"
-        class="z-[2] col-start-1 col-end-auto row-start-1 row-end-auto rounded-[7px] border-[.5px] border-black/[0.04] bg-white shadow-md transition-transform duration-300 ease-[ease] will-change-transform"
+        class="z-10 col-start-1 col-end-auto row-start-1 row-end-auto rounded-[7px] border-[.5px] border-black/[0.04] bg-white shadow-md transition-transform duration-300 ease-[ease] will-change-transform"
       />
       <div
         v-for="(title,index) of segments"
         :key="index"
-        class="option relative cursor-pointer"
+        class="option relative"
       >
         <input
           :id="index"
           v-model="selectedId"
           type="radio"
           :value="index"
-          class="absolute inset-0 m-0 h-full w-full appearance-none border-0 p-0 opacity-0 outline-none"
+          class="absolute inset-0 appearance-none opacity-0 outline-none [&+label]:checked:cursor-default [&+label_span]:checked:font-medium"
         >
         <label
           :for="index"
-          class="relative block cursor-[inherit] bg-transparent !p-0 px-[5vmin] text-center text-[14px]"
+          class="relative block cursor-pointer bg-transparent text-center"
         >
-          <span class="relative z-[2] flex justify-center text-black transition-all duration-200 ease-[ease] will-change-transform">{{ title }}</span>
+          <span class="relative z-10 flex justify-center text-sm leading-6 text-black transition-all duration-200 ease-[ease] will-change-transform">{{ title }}</span>
         </label>
       </div>
     </div>
@@ -113,19 +113,11 @@ label {
   }
 }
 
-input:checked {
-  + label {
-    cursor: default;
-
-    &::before,
-    &::after {
-      background: rgba(239, 239, 240, 1);
-      z-index: 1;
-    }
-
-    span {
-      font-weight: 500;
-    }
+input:checked + label {
+  &::before,
+  &::after {
+    background: rgba(239, 239, 240, 1);
+    z-index: 1;
   }
 }
 </style>
