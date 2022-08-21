@@ -16,6 +16,7 @@ app.use(cors({
     /.*10.207.1.106.*$/,
     /.*198.18.0.1.*$/,
     /.*subvocab.netlify.app/,
+    /.*subvocab.*.vercel.app/,
     /.*sub-vocab.*.vercel.app/,
   ],
   credentials: true,
