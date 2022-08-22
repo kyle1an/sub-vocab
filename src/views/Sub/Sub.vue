@@ -1,12 +1,12 @@
 <script lang="tsx" setup>
 import { useI18n } from 'vue-i18n'
 import { ref, shallowRef, watch } from 'vue'
-import Trie from '../utils/LabeledTire'
-import VocabTable from '../components/VocabTable.vue'
-import { LabelRow } from '../types'
-import { readFiles, sortByChar } from '../utils/utils'
-import { useVocabStore } from '../store/useVocab'
-import { useTimeStore } from '../store/usePerf'
+import VocabTable from './VocabTable.vue'
+import Trie from '@/utils/LabeledTire'
+import { LabelRow } from '@/types'
+import { readFiles, sortByChar } from '@/utils/utils'
+import { useVocabStore } from '@/store/useVocab'
+import { useTimeStore } from '@/store/usePerf'
 
 const { t } = useI18n()
 const fileInfo = ref('')

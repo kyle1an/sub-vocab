@@ -3,11 +3,11 @@ import { Check, Loading } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import { ElButton, ElIcon, ElNotification } from 'element-plus'
 import { useI18n } from 'vue-i18n'
-import { LabelRow, Sieve } from '../types'
-import { acquaint, revokeWord } from '../api/vocab-service'
-import { useVocabStore } from '../store/useVocab'
-import { useUserStore } from '../store/useState'
-import router from '../router'
+import { LabelRow, Sieve } from '@/types'
+import { acquaint, revokeWord } from '@/api/vocab-service'
+import { useVocabStore } from '@/store/useVocab'
+import { useUserStore } from '@/store/useState'
+import router from '@/router'
 
 type VocabRow = LabelRow | { w: string, vocab: Sieve }
 const { t } = useI18n()

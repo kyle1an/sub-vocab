@@ -4,11 +4,11 @@ import Cookies from 'js-cookie'
 import { ElButton, ElForm, ElFormItem, ElInput, ElNotification } from 'element-plus'
 import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useVocabStore } from '../store/useVocab'
-import { useUserStore } from '../store/useState'
-import router from '../router'
-import { login } from '../api/user'
-import { resetForm } from '../utils/elements'
+import { useVocabStore } from '@/store/useVocab'
+import { useUserStore } from '@/store/useState'
+import router from '@/router'
+import { login } from '@/api/user'
+import { resetForm } from '@/utils/elements'
 
 const { t } = useI18n()
 const store = useUserStore()

@@ -3,11 +3,11 @@ import { computed, nextTick, reactive, ref, shallowRef, watch } from 'vue'
 import { TransitionPresets, useTransition } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
-import { LabelRow, Sorting } from '../types'
-import { compare, isMobile, removeClass, selectWord } from '../utils/utils'
-import Examples from '../components/Examples'
-import SegmentedControl from '../components/SegmentedControl.vue'
-import ToggleButton from './ToggleButton.vue'
+import { LabelRow, Sorting } from '@/types'
+import { compare, isMobile, removeClass, selectWord } from '@/utils/utils'
+import Examples from '@/components/Examples'
+import SegmentedControl from '@/components/SegmentedControl.vue'
+import ToggleButton from '@/components/ToggleButton.vue'
 
 const { t } = useI18n()
 const props = withDefaults(defineProps<{

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Cookies from 'js-cookie'
-import TopBar from './components/TopBar.vue'
-import { useUserStore } from './store/useState'
+import TopBar from '@/components/TopBar.vue'
+import { useUserStore } from '@/store/useState'
 
 const useStore = useUserStore()
 const userName = Cookies.get('_user')
@@ -18,7 +18,7 @@ if (userName) {
 </template>
 
 <style lang="scss">
-@import './style/utils.scss';
+@import '@/style/utils.scss';
 
 html {
   height: 100%;

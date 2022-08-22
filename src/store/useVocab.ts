@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import Cookies from 'js-cookie'
-import { queryWordsByUser, stemsMapping } from '../api/vocab-service'
-import { Sieve, TrieNode } from '../types'
-import { getNode, hasUppercase, promiseClone, timer, timerEnd } from '../utils/utils'
+import { queryWordsByUser, stemsMapping } from '@/api/vocab-service'
+import { Sieve, TrieNode } from '@/types'
+import { getNode, hasUppercase, promiseClone, timer, timerEnd } from '@/utils/utils'
 
 export const useVocabStore = defineStore('vocabStore', () => {
   let user: string = Cookies.get('_user') ?? ''
