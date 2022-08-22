@@ -49,6 +49,7 @@ export type Char = `'` | '-' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | '
 export interface TrieNode {
   $?: Label;
   "'"?: TrieNode;
+  '’'?: TrieNode;
   '-'?: TrieNode;
   a?: TrieNode;
   b?: TrieNode;
