@@ -140,6 +140,7 @@ export default class LabeledTire {
         curr?.e?.s?.$,
         curr?.e?.d?.$,
         curr_in?.[`'`]?.$,
+        curr_in?.[`’`]?.$,
         curr_ing?.$,
         curr_ing?.s?.$,
       ]
@@ -190,6 +191,10 @@ export default class LabeledTire {
       if (current?.[`'`]) {
         this.batchMergeTo(curr_$, nextAposWords(current?.[`'`]))
       }
+
+      if (current?.[`’`]) {
+        this.batchMergeTo(curr_$, nextAposWords(current?.[`’`]))
+      }
     } else if (curr_e$) {
       this.batchMergeTo(curr_e$, followingWords(current))
     } else if (curr_s$) {
@@ -197,6 +202,7 @@ export default class LabeledTire {
       this.batchMergeTo($, [
         ...followingWords(current),
         ...(current?.[`'`] ? nextAposWords(current?.[`'`]) : []),
+        ...(current?.[`’`] ? nextAposWords(current?.[`’`]) : []),
       ])
 
       if ($.derive.length) {
