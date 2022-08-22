@@ -1,27 +1,21 @@
-import { wrapCookie } from '../utils/cookie'
-import { Sieve, Stems, userVocab } from '../types'
-import { fetchPost } from './request'
+import { wrapCookie } from '@/utils/cookie'
+import { Sieve, Stems, userVocab } from '@/types'
+import { postRequest } from '@/api/request'
 
 export async function queryWordsByUser(user: string): Promise<Sieve[]> {
-  return fetchPost(`${import.meta.env.VITE_SUB_PROD}/api/queryWords`, {
-    body: JSON.stringify(wrapCookie({ user })),
-  })
+  return postRequest(`${import.meta.env.VITE_SUB_PROD}/api/queryWords`, wrapCookie({ user }))
 }
 
 export async function stemsMapping(): Promise<Stems[]> {
-  return fetchPost(`${import.meta.env.VITE_SUB_PROD}/api/stemsMapping`)
+  return postRequest(`${import.meta.env.VITE_SUB_PROD}/api/stemsMapping`)
 }
 
 export async function acquaint(newWordInfo: userVocab) {
   if (newWordInfo.word.length > 32) return
-  return fetchPost(`${import.meta.env.VITE_SUB_PROD}/api/acquaint`, {
-    body: JSON.stringify(wrapCookie(newWordInfo)),
-  })
+  return postRequest(`${import.meta.env.VITE_SUB_PROD}/api/acquaint`, wrapCookie(newWordInfo))
 }
 
 export async function revokeWord(vocabInfo: userVocab) {
   if (vocabInfo.word.length > 32) return
-  return fetchPost(`${import.meta.env.VITE_SUB_PROD}/api/revokeWord`, {
-    body: JSON.stringify(wrapCookie(vocabInfo)),
-  })
+  return postRequest(`${import.meta.env.VITE_SUB_PROD}/api/revokeWord`, wrapCookie(vocabInfo))
 }

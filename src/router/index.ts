@@ -1,18 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Sub from '../views/Sub.vue'
-import User from '../components/user/UserPassword.vue'
-import Profile from '../components/user/Profile.vue'
+import Sub from '@/views/Sub/Sub.vue'
+import User from '@/views/user/Password.vue'
+import Profile from '@/views/user/Profile.vue'
 
 const About = { template: '<div>About</div>' }
 const routes = [
   { path: '/', component: Sub },
   { path: '/about', component: About },
-  { path: '/mine', component: () => import('../views/Mine.vue') },
-  { path: '/login', component: () => import('../views/Login.vue') },
-  { path: '/register', component: () => import('../views/Register.vue') },
-  { path: '/user', component: () => import('../components/user/UserPassword.vue') },
+  { path: '/mine', component: () => import('@/views/Mine.vue') },
+  { path: '/login', component: () => import('@/views/Login.vue') },
+  { path: '/register', component: () => import('@/views/Register.vue') },
+  { path: '/user', component: () => import('@/views/user/Password.vue') },
   {
-    path: '/users', component: () => import('../views/Account.vue'),
+    path: '/users', component: () => import('@/views/Account.vue'),
     children: [
       {
         path: '',

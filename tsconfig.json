@@ -15,7 +15,12 @@
       "dom"
     ],
     "skipLibCheck": true,
-    "allowJs": true
+    "allowJs": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
   },
   "include": [
     "src/**/*.ts",

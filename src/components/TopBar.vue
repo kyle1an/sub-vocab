@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import type { Language } from 'element-plus/es/locale'
 import { ElConfigProvider, ElDropdown, ElDropdownItem, ElDropdownMenu, ElIcon } from 'element-plus'
-import { useUserStore } from '../store/useState'
+import { useUserStore } from '@/store/useState'
 
 const { t, locale } = useI18n({ useScope: 'global' }) // call `useI18n`, and spread `t` from  `useI18n` returning
 const localeMap: Record<string, Language> = {

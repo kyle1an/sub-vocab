@@ -1,5 +1,5 @@
-import { Char, Label, LabelRow, TrieNode } from '../types'
 import { caseOr, getNode, hasUppercase } from './utils'
+import { Char, Label, LabelRow, TrieNode } from '@/types'
 
 export default class LabeledTire {
   root: TrieNode

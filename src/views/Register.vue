@@ -3,10 +3,10 @@ import type { FormInstance, FormItemRule } from 'element-plus'
 import { ElButton, ElForm, ElFormItem, ElInput, ElNotification } from 'element-plus'
 import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { userInfo } from '../types/user'
-import router from '../router'
-import { existsUsername, register } from '../api/user'
-import { resetForm } from '../utils/elements'
+import { userInfo } from '@/types/user'
+import router from '@/router'
+import { isUsernameTaken, register } from '@/api/user'
+import { resetForm } from '@/utils/elements'
 
 const { t } = useI18n()
 const ruleFormRef = ref<FormInstance>()
@@ -24,7 +24,7 @@ async function checkUsername(rule: FormItemRule | FormItemRule[], username: stri
     return callback(new Error(t('NameLimitMsg')))
   }
 
-  if ((await existsUsername({ username })).has) {
+  if ((await isUsernameTaken({ username })).has) {
     return callback(new Error(`${username}${t('alreadyTaken')}`))
   }
 

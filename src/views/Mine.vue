@@ -3,12 +3,12 @@ import { useI18n } from 'vue-i18n'
 import { computed, nextTick, onBeforeMount, reactive, ref, shallowRef } from 'vue'
 import { TransitionPresets, useTransition } from '@vueuse/core'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
-import SegmentedControl from '../components/SegmentedControl.vue'
-import { compare, selectWord, sortByDateISO } from '../utils/utils'
-import { useVocabStore } from '../store/useVocab'
-import { Sieve, Sorting } from '../types'
-import DateTime from '../components/DateTime'
-import ToggleButton from '../components/ToggleButton.vue'
+import SegmentedControl from '@/components/SegmentedControl.vue'
+import { compare, selectWord, sortByDateISO } from '@/utils/utils'
+import { useVocabStore } from '@/store/useVocab'
+import { Sieve, Sorting } from '@/types'
+import DateTime from '@/components/DateTime'
+import ToggleButton from '@/components/ToggleButton.vue'
 
 const { t } = useI18n()
 const vocabStore = useVocabStore()

@@ -1,4 +1,4 @@
-import { Char, Order, TrieNode } from '../types'
+import { Char, Order, TrieNode } from '@/types'
 
 export function sortByChar(a: string, b: string): number {
   return a.localeCompare(b, 'en', { sensitivity: 'base' })

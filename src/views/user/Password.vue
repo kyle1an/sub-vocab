@@ -3,43 +3,51 @@ import type { FormInstance, FormItemRule } from 'element-plus'
 import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
-import { useUserStore } from '../../store/useState'
-import router from '../../router'
-import { changeUsername, existsUsername, logoutToken } from '../../api/user'
-import { eraseCookie } from '../../utils/cookie'
-import { useVocabStore } from '../../store/useVocab'
-import { resetForm } from '../../utils/elements'
+import { useUserStore } from '@/store/useState'
+import router from '@/router'
+import { changePassword, logoutToken } from '@/api/user'
+import { eraseCookie } from '@/utils/cookie'
+import { useVocabStore } from '@/store/useVocab'
+import { resetForm } from '@/utils/elements'
 
 const { t } = useI18n()
 const store = useUserStore()
 const ruleFormRef = ref<FormInstance>()
 
-async function checkUsername(rule: FormItemRule | FormItemRule[], username: string, callback: (arg0?: Error) => void) {
-  if (!username.length) {
-    return callback(new Error(t('Please input name')))
+function validatePass(rule: FormItemRule | FormItemRule[], value: string, callback: () => void) {
+  if (value === '') {
+    return callback()
   }
 
-  if (username.length > 20) {
-    return callback(new Error(t('Please use a shorter name')))
+  if (ruleForm.checkPass !== '') {
+    if (!ruleFormRef.value) return
+    ruleFormRef.value.validateField('checkPass', () => null)
   }
 
-  if (username.length < 2) {
-    return callback(new Error(t('NameLimitMsg')))
+  callback()
+}
+
+function validatePass2(rule: FormItemRule | FormItemRule[], value: string, callback: (arg0?: Error) => void) {
+  if (value === '' && ruleForm.password === '') {
+    return callback()
   }
 
-  if (username !== store.user.name && (await existsUsername({ username })).has) {
-    return callback(new Error(`${username}${t('alreadyTaken')}`))
+  if (value !== ruleForm.password) {
+    return callback(new Error(t('inputsNotMatch')))
   }
 
   callback()
 }
 
 const ruleForm = reactive({
-  username: '',
+  oldPassword: '',
+  password: '',
+  checkPass: '',
 })
 
 const rules = reactive({
-  username: [{ validator: checkUsername, trigger: 'blur' }],
+  password: [{ validator: validatePass, trigger: 'blur' }],
+  checkPass: [{ validator: validatePass2, trigger: 'blur' }],
 })
 
 function submitForm(formEl: FormInstance | undefined) {
@@ -57,15 +65,16 @@ function submitForm(formEl: FormInstance | undefined) {
 const errorMsg = ref('')
 
 async function alterInfo(form: typeof ruleForm) {
-  if (form.username !== '' && form.username !== store.user.name) {
-    form.username = form.username.trim()
-    const res = await changeUsername({
+  if (form.password !== '') {
+    form.password = form.password.trim()
+    const res = await changePassword({
       username: store.user.name,
-      newUsername: form.username,
+      oldPassword: form.oldPassword,
+      newPassword: form.password,
     })
 
     if (res.success) {
-      store.user.name = form.username
+      await logOut()
     } else {
       errorMsg.value = res.message || 'something went wrong'
     }
@@ -99,16 +108,39 @@ async function logOut() {
           status-icon
         >
           <el-form-item
-            :label="t('Name')"
-            prop="username"
+            :label="t('Old Password')"
+            prop="oldPassword"
             :error="errorMsg"
           >
             <el-input
-              v-model.number="ruleForm.username"
+              v-model="ruleForm.oldPassword"
+              type="password"
+              autocomplete="off"
               class="!text-base md:!text-xs"
             />
           </el-form-item>
-
+          <el-form-item
+            :label="t('New Password')"
+            prop="password"
+          >
+            <el-input
+              v-model="ruleForm.password"
+              type="password"
+              autocomplete="off"
+              class="!text-base md:!text-xs"
+            />
+          </el-form-item>
+          <el-form-item
+            :label="t('New Password Confirm')"
+            prop="checkPass"
+          >
+            <el-input
+              v-model="ruleForm.checkPass"
+              type="password"
+              autocomplete="off"
+              class="!text-base md:!text-xs"
+            />
+          </el-form-item>
           <el-form-item>
             <el-button
               type="primary"
@@ -121,11 +153,6 @@ async function logOut() {
             </el-button>
           </el-form-item>
         </el-form>
-      </div>
-      <div class="flex justify-center pt-8">
-        <el-button @click="logOut">
-          {{ t('log out') }}
-        </el-button>
       </div>
     </div>
   </div>

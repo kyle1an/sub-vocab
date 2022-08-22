@@ -1,12 +1,5 @@
-export function fetchPost(url: string, options: RequestInit = {}) {
-  return fetch(url, {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-    ...options
-  })
-    .then(response => response.json())
-    .then(data => data)
+import axios from 'axios'
+
+export function postRequest(url: string, payload = {}) {
+  return axios.post(`${url}`, payload).then(response => response.data)
 }
