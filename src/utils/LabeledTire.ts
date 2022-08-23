@@ -3,14 +3,13 @@ import { Char, Label, LabelRow, TrieNode } from '@/types'
 
 export default class LabeledTire {
   root: TrieNode
-  #sequence: number
-  sentences: string[]
+  #sequence = 1
+  sentences: string[] = []
+  wordCount = 0
   vocabulary: Array<Label | null> = []
 
   constructor(baseTrie: TrieNode) {
     this.root = baseTrie
-    this.sentences = []
-    this.#sequence = 1
   }
 
   add(input: string) {
@@ -21,6 +20,7 @@ export default class LabeledTire {
     for (; previousSize < totalSize; previousSize++) {
       for (const m of this.sentences[previousSize].matchAll(/(?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þa-zß-ÿ]+[a-zß-ÿ]*)+(?:['’-]?[A-Za-zÀ-ÿ]'?)+/mg)) {
         const matchedWord = m[0]
+        this.wordCount++
         if (m.index === undefined) continue
         this.#update(matchedWord, hasUppercase(matchedWord), m.index, previousSize)
       }

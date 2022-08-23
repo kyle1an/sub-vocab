@@ -1,4 +1,4 @@
-<script lang="tsx" setup>
+<script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
 import { ref, shallowRef, watch } from 'vue'
 import VocabTable from './VocabTable.vue'
@@ -26,16 +26,18 @@ async function onFileChange(ev: Event) {
   inputText.value = fileList.reduce((pre, { result }) => pre + result, '')
 }
 
+const count = ref(0)
 const sentences = ref<string[]>([])
 const vocabStore = useVocabStore()
 const { log, logEnd, logPerf } = useTimeStore()
 
-let timeoutID: number
+let timeoutID: ReturnType<typeof setTimeout>
 watch(inputText, () => {
   clearTimeout(timeoutID)
   timeoutID = setTimeout(async () => {
     ({
       list: tableDataOfVocab.value,
+      count: count.value,
       sentences: sentences.value
     } = await formVocabList(inputText.value))
   }, 50)
@@ -63,6 +65,7 @@ async function formVocabList(text: string) {
   return {
     list,
     sentences: trie.sentences,
+    count: trie.wordCount,
   }
 }
 
@@ -84,15 +87,19 @@ function logVocabInfo(listOfVocab: LabelRow[]) {
           @change="onFileChange"
         >
       </label>
-      <div class="flex grow gap-1 overflow-y-auto">
-        <span class="grow truncate pl-3 font-compact text-xs text-indigo-900">
-          {{ fileInfo || t('noFileChosen') }}
-        </span>
-      </div>
     </div>
     <div class="flex flex-col gap-6 md:h-[calc(100vh-140px)] md:flex-row">
-      <div class="relative box-border flex-1 basis-auto overflow-visible border-y shadow md:rounded-[12px] md:border-transparent md:shadow">
-        <div class="input-area h-full w-full text-base text-neutral-600 md:text-sm">
+      <div class="relative box-border flex flex-1 basis-auto flex-col overflow-hidden shadow md:rounded-[12px] md:border-transparent md:shadow">
+        <div class="flex h-10 shrink-0 items-center border-b bg-gray-100 py-2 pr-2 pl-4 font-compact text-xs text-neutral-600">
+          <span class="grow truncate">
+            {{ fileInfo + '&nbsp;' }}
+          </span>
+          <span class="mx-1 inline-block h-[18px] w-px border-l align-middle" />
+          <span class="shrink-0 text-right font-mono tabular-nums">
+            {{ `&nbsp;${count.toLocaleString('en-US')} ${t('words')}` }}
+          </span>
+        </div>
+        <div class="input-area h-full w-full grow text-base text-zinc-700 md:text-sm">
           <textarea
             v-model="inputText"
             class="h-[260px] max-h-[360px] w-full resize-none py-3 px-[30px] align-top outline-none ffs-normal md:h-full md:max-h-full md:rounded-[12px]"
