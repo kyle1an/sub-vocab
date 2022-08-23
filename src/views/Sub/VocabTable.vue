@@ -1,4 +1,4 @@
-<script lang="tsx" setup>
+<script lang="ts" setup>
 import { computed, nextTick, reactive, ref, shallowRef, watch } from 'vue'
 import { TransitionPresets, useTransition } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'

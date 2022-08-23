@@ -123,7 +123,7 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
               </template>
             </el-table-column>
             <el-table-column
-              class-name="cursor-pointer [td&>.cell]:!pr-0"
+              class-name="cursor-pointer [&>.cell]:!pr-0"
               label="Vocabulary"
               min-width="70"
               prop="w"

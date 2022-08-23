@@ -17,6 +17,7 @@ const localeMap: Record<string, Language> = {
 const elLocale = computed(() => localeMap[locale.value as string])
 const userStore = useUserStore()
 const username = computed(() => userStore.user.name)
+const isLoggedIn = computed(() => !!username.value)
 const acquaintedSection = computed(() => userStore.user.name ? t('mine') : t('common'))
 const isWide = window.innerWidth >= 460
 
@@ -44,33 +45,33 @@ function handleCommand(command: string) {
         </router-link>
         <div class="grow" />
         <router-link
-          v-show="username||isWide"
+          v-if="isLoggedIn||isWide"
           to="/mine"
           class="flex h-full items-center px-4 hover:bg-gray-100"
         >
           {{ acquaintedSection }}
         </router-link>
         <router-link
-          v-show="username"
+          v-if="isLoggedIn"
           to="/users"
           class="flex h-full items-center px-4 hover:bg-gray-100"
         >
           {{ username }}
         </router-link>
-        <router-link
-          v-show="!username"
-          to="/login"
-          class="flex items-center rounded-md py-1 px-4 hover:bg-gray-100"
-        >
-          {{ t('login') }}
-        </router-link>
-        <router-link
-          v-show="!username"
-          to="/register"
-          class="s-btn ml-2 flex rounded py-2 px-3 text-white"
-        >
-          {{ t('signup') }}
-        </router-link>
+        <template v-else>
+          <router-link
+            to="/login"
+            class="flex items-center rounded-md py-1 px-4 hover:bg-gray-100"
+          >
+            {{ t('login') }}
+          </router-link>
+          <router-link
+            to="/register"
+            class="s-btn ml-2 flex rounded py-2 px-3 text-white"
+          >
+            {{ t('signup') }}
+          </router-link>
+        </template>
         <el-dropdown @command="handleCommand">
           <div class="flex px-4 outline-none">
             文/Aa
