@@ -177,7 +177,7 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
             >
               <template #default="{row}">
                 <div class="select-none font-compact tabular-nums tracking-normal ffs-normal">
-                  <date-time :time="row?.time_modified" />
+                  <date-time :time="row.time_modified" />
                 </div>
               </template>
             </el-table-column>

@@ -29,9 +29,9 @@ const selectedSeg = ref(+(sessionStorage.getItem('prev-segment-select') || 0))
 const rowsSegmented = computed(() => {
   switch (selectedSeg.value) {
     case 1:
-      return props.data.filter((r) => !r?.vocab?.acquainted && r.len > 2)
+      return props.data.filter((r) => !r.vocab?.acquainted && r.len > 2)
     case 2:
-      return props.data.filter((r) => r?.vocab?.acquainted || r.len <= 2)
+      return props.data.filter((r) => r.vocab?.acquainted || r.len <= 2)
     default:
       return [...props.data]
   }
