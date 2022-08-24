@@ -100,7 +100,7 @@ export default class LabeledTire {
   }
 
   static collectNestedSource($: Label) {
-    if ($?.derive?.length) {
+    if ($.derive?.length) {
       for (const d of $.derive) {
         this.collectNestedSource(d)
 
@@ -129,16 +129,16 @@ export default class LabeledTire {
   }
 
   mergeVocabOfDifferentSuffixes(current: TrieNode, previousChar: Char, parentLayer: TrieNode) {
-    const curr_$ = current?.$
-    const curr_e$ = current?.e?.$
-    const curr_s$ = previousChar === 's' ? undefined : current?.s?.$
+    const curr_$ = current.$
+    const curr_e$ = current.e?.$
+    const curr_s$ = previousChar === 's' ? undefined : current.s?.$
 
     const followingWords = (curr: TrieNode) => {
-      const curr_in = curr?.i?.n
+      const curr_in = curr.i?.n
       const curr_ing = curr_in?.g
       return [
-        curr?.e?.s?.$,
-        curr?.e?.d?.$,
+        curr.e?.s?.$,
+        curr.e?.d?.$,
         curr_in?.[`'`]?.$,
         curr_in?.[`’`]?.$,
         curr_ing?.$,
@@ -157,14 +157,14 @@ export default class LabeledTire {
 
       if (isThe2ndToLastCharVowel) {
         return [
-          current?.[previousChar]?.i?.n?.g?.$
+          current[previousChar]?.i?.n?.g?.$
         ]
       }
 
       if (previousChar === 'y') {
         return [
-          parentLayer?.i?.e?.s?.$,
-          parentLayer?.i?.e?.d?.$,
+          parentLayer.i?.e?.s?.$,
+          parentLayer.i?.e?.d?.$,
         ]
       }
 
@@ -172,10 +172,10 @@ export default class LabeledTire {
     }
 
     const nextAposWords = (curr_apos: TrieNode) => [
-      curr_apos?.s?.$,
-      curr_apos?.l?.l?.$,
-      curr_apos?.v?.e?.$,
-      curr_apos?.d?.$,
+      curr_apos.s?.$,
+      curr_apos.l?.l?.$,
+      curr_apos.v?.e?.$,
+      curr_apos.d?.$,
     ]
 
     if (curr_$) {
@@ -188,12 +188,12 @@ export default class LabeledTire {
         this.mergeNodes(curr_$, curr_s$)
       }
 
-      if (current?.[`'`]) {
-        this.batchMergeTo(curr_$, nextAposWords(current?.[`'`]))
+      if (current[`'`]) {
+        this.batchMergeTo(curr_$, nextAposWords(current[`'`]))
       }
 
-      if (current?.[`’`]) {
-        this.batchMergeTo(curr_$, nextAposWords(current?.[`’`]))
+      if (current[`’`]) {
+        this.batchMergeTo(curr_$, nextAposWords(current[`’`]))
       }
     } else if (curr_e$) {
       this.batchMergeTo(curr_e$, followingWords(current))
@@ -201,8 +201,8 @@ export default class LabeledTire {
       const $ = { w: curr_s$.w.slice(0, -1), src: [], derive: [] }
       this.batchMergeTo($, [
         ...followingWords(current),
-        ...(current?.[`'`] ? nextAposWords(current?.[`'`]) : []),
-        ...(current?.[`’`] ? nextAposWords(current?.[`’`]) : []),
+        ...(current[`'`] ? nextAposWords(current[`'`]) : []),
+        ...(current[`’`] ? nextAposWords(current[`’`]) : []),
       ])
 
       if ($.derive.length) {
