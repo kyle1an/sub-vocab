@@ -89,7 +89,7 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
 </script>
 
 <template>
-  <div class="mx-5 flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-md will-change-transform md:mx-0">
+  <div class="mx-5 flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-sm will-change-transform md:mx-0">
     <segmented-control
       name="vocab-seg"
       :segments="segments"
@@ -100,10 +100,8 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
     <div class="h-px w-full grow">
       <el-table
         ref="vocabTable"
-        class="!h-full from-[var(--el-border-color-lighter)] to-white [&_.xpd_td]:!border-white [&_.xpd_td]:!bg-white [&_.xpd:hover>td]:bg-gradient-to-b [&_th_.cell]:font-compact [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-icon]:pointer-events-none"
-        height="200"
+        class="!h-full from-[var(--el-border-color-lighter)] to-white [&_th_.cell]:font-compact [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full [&_.xpd_td]:!border-white [&_.xpd_td]:!bg-white [&_.xpd:hover>td]:bg-gradient-to-b [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-icon]:pointer-events-none"
         size="small"
-        fit
         :row-class-name="({row})=>`v-${row.seq}`"
         :data="rowsDisplay"
         @row-click="handleRowClick"

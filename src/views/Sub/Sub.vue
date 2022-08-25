@@ -20,7 +20,7 @@ async function onFileChange(ev: Event) {
   if (numberOfFiles > 1) {
     fileInfo.value = `${numberOfFiles} files selected`
   } else {
-    fileInfo.value = fileList[0].file.name
+    fileInfo.value = files[0].name
   }
 
   inputText.value = fileList.reduce((pre, { result }) => pre + result, '')
@@ -89,7 +89,7 @@ function logVocabInfo(listOfVocab: LabelRow[]) {
       </label>
     </div>
     <div class="flex flex-col gap-6 md:h-[calc(100vh-140px)] md:flex-row">
-      <div class="relative box-border flex flex-1 basis-auto flex-col overflow-hidden shadow md:rounded-[12px] md:border-transparent md:shadow">
+      <div class="relative box-border flex flex-1 basis-auto flex-col overflow-hidden border shadow-sm md:rounded-[12px]">
         <div class="flex h-10 shrink-0 items-center border-b bg-gray-100 py-2 pr-2 pl-4 font-compact text-xs text-neutral-600">
           <span class="grow truncate">
             {{ fileInfo + '&nbsp;' }}
@@ -102,7 +102,7 @@ function logVocabInfo(listOfVocab: LabelRow[]) {
         <div class="input-area h-full w-full grow text-base text-zinc-700 md:text-sm">
           <textarea
             v-model="inputText"
-            class="h-[260px] max-h-[360px] w-full resize-none py-3 px-[30px] align-top outline-none ffs-normal md:h-full md:max-h-full md:rounded-[12px]"
+            class="h-[260px] max-h-[360px] w-full resize-none py-3 px-[30px] align-top outline-none ffs-[normal] md:h-full md:max-h-full md:rounded-[12px]"
             :placeholder="t('inputArea')"
           />
         </div>

@@ -3,10 +3,10 @@ import type { FormInstance, FormItemRule } from 'element-plus'
 import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
+import Cookies from 'js-cookie'
 import { useUserStore } from '@/store/useState'
 import router from '@/router'
 import { changeUsername, isUsernameTaken, logoutToken } from '@/api/user'
-import { eraseCookie } from '@/utils/cookie'
 import { useVocabStore } from '@/store/useVocab'
 import { resetForm } from '@/utils/elements'
 
@@ -76,7 +76,8 @@ const userStore = useUserStore()
 
 async function logOut() {
   await logoutToken({ username: store.user.name })
-  eraseCookie(['_user', 'acct'])
+  Cookies.remove('_user', { path: '' })
+  Cookies.remove('acct', { path: '' })
   userStore.user.name = ''
   useVocabStore().resetUserVocab()
   setTimeout(() => {

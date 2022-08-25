@@ -11,8 +11,8 @@ if (userName) {
 </script>
 
 <template>
-  <TopBar class="fixed h-12" />
-  <div class="flex min-h-[100vh] flex-col items-center pt-12">
+  <TopBar class="ffs-pre fixed h-12" />
+  <div class="ffs-pre flex min-h-[100vh] flex-col items-center pt-12">
     <router-view />
   </div>
 </template>
@@ -27,10 +27,6 @@ html {
 
 body {
   min-height: 100%;
-
-  &::-webkit-scrollbar {
-    display: none; /* Safari and Chrome */
-  }
 }
 
 #app {

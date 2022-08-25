@@ -1,8 +1,13 @@
 import { defineStore } from 'pinia'
 
+type perf = {
+  label: string | string[]
+  times: number[]
+  style: string
+}
 export const useTimeStore = defineStore('timeStore', () => {
-  const perfTime: Record<string, any> = {}
-  const logsRes: Record<string, any> = {}
+  const perfTime: Record<string, perf> = {}
+  const logsRes: Record<string, perf> = {}
 
   function log(label: string | string[], style = '') {
     const name = typeof label === 'string' ? label : label.join('')

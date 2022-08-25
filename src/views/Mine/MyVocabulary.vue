@@ -91,8 +91,8 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
 <template>
   <div class="w-full max-w-screen-xl pb-5 md:pb-0">
     <div class="relative flex h-10 items-center" />
-    <div class="m-auto h-full max-w-2xl overflow-visible">
-      <div class="mx-5 flex h-[calc(100vh-200px)] flex-col overflow-hidden rounded-xl border border-inherit bg-white shadow-lg will-change-transform md:mx-0 md:h-[calc(100vh-150px)]">
+    <div class="m-auto h-[calc(100vh-200px)] max-w-2xl overflow-visible md:h-[calc(100vh-120px)]">
+      <div class="mx-5 flex h-full flex-col overflow-hidden rounded-xl border bg-white shadow will-change-transform md:mx-0">
         <segmented-control
           :default="selectedSeg"
           :segments="segments"
@@ -104,8 +104,6 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
           <el-table
             :data="rowsDisplay"
             class="!h-full !w-full md:w-full [&_th_.cell]:font-compact [&_th_.cell]:tracking-normal [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full"
-            fit
-            height="200"
             size="small"
             @sort-change="sortChange"
           >
@@ -176,7 +174,7 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
               sortable="custom"
             >
               <template #default="{row}">
-                <div class="select-none font-compact tabular-nums tracking-normal ffs-normal">
+                <div class="select-none font-compact tabular-nums tracking-normal ffs-[normal]">
                   <date-time :time="row.time_modified" />
                 </div>
               </template>

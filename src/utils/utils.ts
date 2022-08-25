@@ -44,6 +44,8 @@ export function caseOr(a: string, b: string): string {
 
 export const hasUppercase = (chars: string) => /[A-ZÀ-Þ]/.test(chars)
 
+export const isVowel = (chars: string) => ['a', 'e', 'i', 'o', 'u'].includes(chars)
+
 export const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 
 export function selectWord(e: Event) {
@@ -57,20 +59,22 @@ export function removeClass(className: string) {
   }
 }
 
-export function readSingleFile(file: File): Promise<any> {
+type fileResult = { result: FileReader['result'] }
+
+export function readSingleFile(file: File): Promise<fileResult> {
   return new Promise((resolve, reject) => {
     const fr = new FileReader()
     fr.onload = () => {
       const { result } = fr
-      resolve({ file, result })
+      resolve({ result })
     }
     fr.onerror = reject
     fr.readAsText(file)
   })
 }
 
-export async function readFiles(files: FileList): Promise<any[]> {
-  const fileList = []
+export async function readFiles(files: FileList) {
+  const fileList: fileResult[] = []
   for (let i = 0; i < files.length; i++) {
     fileList.push(await readSingleFile(files[i]))
   }

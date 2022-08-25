@@ -8,10 +8,6 @@
   -webkit-overflow-scrolling: touch !important;
 }
 
-.ffs-cv08 {
-  font-feature-settings: 'cv08';
-}
-
 .text-precision {
   text-rendering: geometricPrecision;
 }
@@ -29,6 +25,9 @@ input {
   font-family: var(--sys-font-stack);
   /*-moz-font-feature-settings: 'smcp';*/
   /* -webkit-font-feature-settings: 'tnum'  !important;*/
+}
+
+.ffs-pre {
   /*  'cv01' 96, 'ss01' 1, 'ss02' 4, 'cv02', 'cv03' :J, 'cv04', 'cv05' I, 'cv06' l, 'ss07' a, 'cv07' , 'cv08' 0 zh, 'nlck', 'nalt' 0, 'ital',  'ss03' 0, 'ss04' 1, */
   font-feature-settings: 'cv01', 'ss02', 'cv02', 'cv03', 'cv04', 'cv05', 'cv06' 0, 'cv08' 0, 'nlck', 'ital', 'ss03', 'ss04';
 }
