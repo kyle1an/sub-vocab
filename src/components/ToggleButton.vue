@@ -56,7 +56,7 @@ async function handleClick(row: VocabRow) {
     color="#facc15"
     size="small"
     :disabled="loading"
-    :class="`${props.row.vocab?.acquainted?'':'un '}${loading?'load ':''}!text-white [.load&_.is-loading]:!inline-flex [.load&_.check]:hidden [.un&]:!border-zinc-300 [.un&]:!bg-transparent [.un&]:!text-transparent [.un&]:hover:!text-black [.un.load&]:!text-black`"
+    :class="`${props.row.vocab?.acquainted?'':'un !border-zinc-300 !bg-transparent !text-transparent hover:!text-black '}${loading?'[&_.is-loading]:!inline-flex [&_.check]:hidden [.un&]:!text-black ':''}!text-white`"
     circle
     @click.stop="handleClick(props.row)"
   >

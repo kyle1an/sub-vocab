@@ -4,7 +4,7 @@ import Sub from '@/views/Sub/Sub.vue'
 const routes = [
   { path: '/', component: Sub },
   { path: '/about', component: { template: '<div>About</div>' } },
-  { path: '/mine', component: () => import('@/views/Mine.vue') },
+  { path: '/mine', component: () => import('@/views/Mine/MyVocabulary.vue') },
   { path: '/login', component: () => import('@/views/Login.vue') },
   { path: '/register', component: () => import('@/views/Register.vue') },
   { path: '/user', component: () => import('@/views/user/Password.vue') },

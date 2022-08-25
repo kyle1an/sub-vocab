@@ -18,11 +18,19 @@ module.exports = {
     },
   },
   plugins: [
-    plugin(function ({ addBase, addComponents, addUtilities, theme }) {
-      addUtilities({
-        '.tap-transparent': { '-webkit-tap-highlight-color': 'transparent' },
-        '.ffs-normal': { fontFeatureSettings: 'normal' },
-      })
+    plugin(function ({ addBase, addComponents, addUtilities, matchUtilities, theme }) {
+      addUtilities(
+        {
+          '.tap-transparent': { '-webkit-tap-highlight-color': 'transparent' },
+        }
+      )
+      matchUtilities(
+        {
+          'ffs': (value) => ({
+            fontFeatureSettings: value
+          }),
+        },
+      )
     })
   ],
 }

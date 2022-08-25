@@ -1,4 +1,4 @@
-import { caseOr, getNode, hasUppercase } from './utils'
+import { caseOr, getNode, hasUppercase, isVowel } from './utils'
 import { Char, Label, LabelRow, TrieNode } from '@/types'
 
 export default class LabeledTire {
@@ -132,43 +132,32 @@ export default class LabeledTire {
     const curr_$ = current.$
     const curr_e$ = current.e?.$
     const curr_s$ = previousChar === 's' ? undefined : current.s?.$
+    const isTheLastCharConsonant = !isVowel(previousChar)
+    const curr_ying$ = isTheLastCharConsonant ? current.y?.i?.n?.g?.$ : undefined
 
-    const followingWords = (curr: TrieNode) => {
+    function followingWords(curr: TrieNode) {
       const curr_in = curr.i?.n
-      const curr_ing = curr_in?.g
-      return [
+      const following$ = [
         curr.e?.s?.$,
-        curr.e?.d?.$,
-        curr_in?.[`'`]?.$,
-        curr_in?.[`’`]?.$,
-        curr_ing?.$,
-        curr_ing?.s?.$,
+        curr.e?.d?.$
       ]
-    }
 
-    const irregularEndingDerivatives = ($: Label) => {
-      const isTheLastCharVowel = ['a', 'e', 'i', 'o', 'u'].includes(previousChar)
+      if (curr_in) {
+        following$.push(
+          curr_in[`'`]?.$,
+          curr_in[`’`]?.$,
+        )
+        const curr_ing = curr_in.g
 
-      if (isTheLastCharVowel) {
-        return []
+        if (curr_ing) {
+          following$.push(
+            curr_ing.$,
+            curr_ing.s?.$,
+          )
+        }
       }
 
-      const isThe2ndToLastCharVowel = ['a', 'e', 'i', 'o', 'u'].includes($.w.slice(-2, -1))
-
-      if (isThe2ndToLastCharVowel) {
-        return [
-          current[previousChar]?.i?.n?.g?.$
-        ]
-      }
-
-      if (previousChar === 'y') {
-        return [
-          parentLayer.i?.e?.s?.$,
-          parentLayer.i?.e?.d?.$,
-        ]
-      }
-
-      return []
+      return following$
     }
 
     const nextAposWords = (curr_apos: TrieNode) => [
@@ -179,10 +168,23 @@ export default class LabeledTire {
     ]
 
     if (curr_$) {
-      this.batchMergeTo(curr_e$ || curr_$, [
-        ...followingWords(current),
-        ...irregularEndingDerivatives(curr_$)
-      ])
+      this.batchMergeTo(curr_e$ || curr_$, followingWords(current))
+
+      if (isTheLastCharConsonant) {
+        if (isVowel(curr_$.w.slice(-2, -1))) {
+          // word ends with vowel + consonant
+          this.batchMergeTo(curr_$, [
+            current[previousChar]?.i?.n?.g?.$,
+            current[previousChar]?.e?.d?.$
+          ])
+        } else if (previousChar === 'y') {
+          // word ends with consonant + y
+          this.batchMergeTo(curr_$, [
+            parentLayer.i?.e?.s?.$,
+            parentLayer.i?.e?.d?.$,
+          ])
+        }
+      }
 
       if (curr_s$) {
         this.mergeNodes(curr_$, curr_s$)
@@ -199,15 +201,32 @@ export default class LabeledTire {
       this.batchMergeTo(curr_e$, followingWords(current))
     } else if (curr_s$) {
       const $ = { w: curr_s$.w.slice(0, -1), src: [], derive: [] }
-      this.batchMergeTo($, [
-        ...followingWords(current),
-        ...(current[`'`] ? nextAposWords(current[`'`]) : []),
-        ...(current[`’`] ? nextAposWords(current[`’`]) : []),
-      ])
+      this.batchMergeTo($, followingWords(current))
+
+      if (current[`'`]) {
+        this.batchMergeTo($, nextAposWords(current[`'`]))
+      }
+
+      if (current[`’`]) {
+        this.batchMergeTo($, nextAposWords(current[`’`]))
+      }
 
       if ($.derive.length) {
         this.mergeNodes($, curr_s$)
         current.$ = $
+        this.vocabulary.push($)
+      }
+    } else if (curr_ying$) {
+      const $ = { w: curr_ying$.w.slice(0, -3), src: [], derive: [] }
+      this.batchMergeTo($, [
+        current.i?.e?.s?.$,
+        current.i?.e?.d?.$,
+      ])
+
+      if ($.derive.length) {
+        this.mergeNodes($, curr_ying$)
+        current.y ??= {}
+        current.y.$ = $
         this.vocabulary.push($)
       }
     }
