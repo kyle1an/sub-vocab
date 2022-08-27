@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { computed, nextTick, onBeforeMount, reactive, ref, shallowRef } from 'vue'
+import { computed, nextTick, onBeforeMount, reactive, ref, shallowRef, watch } from 'vue'
 import { TransitionPresets, useTransition } from '@vueuse/core'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
 import SegmentedControl from '@/components/SegmentedControl.vue'
@@ -14,12 +14,7 @@ const { t } = useI18n()
 const vocabStore = useVocabStore()
 const rows = shallowRef<Sieve[]>([])
 onBeforeMount(async () => {
-  rows.value = (await vocabStore.getBaseVocab()).map((word) => {
-    word.len = word.w.length
-    return word
-  }).sort(sortByTimeModified)
-
-  await vocabStore.getPreBuiltTrie()
+  rows.value = [...await vocabStore.getBaseVocab()].sort(sortByTimeModified)
 })
 
 function sortByTimeModified(a: Sieve, b: Sieve) {
@@ -36,7 +31,8 @@ function onSegmentSwitched(seg: number) {
 }
 
 const selectedSeg = ref(+(sessionStorage.getItem('prev-segment-mine') || 0))
-const rowsSegmented = computed(() => {
+const rowsSegmented = ref<Sieve[]>([])
+const rowsSegmentedComp = () => {
   const source = rows.value
 
   switch (selectedSeg.value) {
@@ -49,6 +45,10 @@ const rowsSegmented = computed(() => {
     default:
       return source.filter((row) => row.acquainted)
   }
+}
+
+watch(selectedSeg, () => {
+  rowsSegmented.value = rowsSegmentedComp()
 })
 
 const search = ref('')
@@ -89,9 +89,9 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
 </script>
 
 <template>
-  <div class="w-full max-w-screen-xl md:pb-0">
-    <div class="m-auto h-[calc(100vh-200px)] max-w-2xl overflow-visible md:h-[calc(100vh-60px)]">
-      <div class="mx-5 flex h-full flex-col overflow-hidden rounded-xl border bg-white shadow will-change-transform md:mx-0">
+  <div class="h-[calc(100vh-160px)] w-full md:h-full md:pb-0">
+    <div class="m-auto h-full max-w-full overflow-visible">
+      <div class="flex h-full flex-col overflow-hidden rounded-xl border bg-white shadow will-change-transform md:mx-0">
         <segmented-control
           :default="selectedSeg"
           :segments="segments"
@@ -141,19 +141,21 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
                   @mouseover="selectWord"
                   @touchstart.passive="selectWord"
                   @click.stop
-                >{{ row.w }}</span>
+                >
+                  {{ row.w }}
+                </span>
               </template>
             </el-table-column>
             <el-table-column
               :label="t('length')"
               class-name="cursor-pointer !text-right [th&>.cell]:!p-0"
               width="67"
-              prop="len"
+              prop="w.length"
               sortable="custom"
             >
               <template #default="{row}">
                 <div class="select-none tabular-nums">
-                  {{ row.len }}
+                  {{ row.w.length }}
                 </div>
               </template>
             </el-table-column>
@@ -162,7 +164,7 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
               class-name="overflow-visible !text-center [&_.cell]:!px-0"
             >
               <template #default="{row}">
-                <toggle-button :row="{w:row.w, vocab:row}" />
+                <toggle-button :row="row" />
               </template>
             </el-table-column>
             <el-table-column

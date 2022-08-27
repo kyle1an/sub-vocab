@@ -24,14 +24,6 @@ export function sortNum1st(a: unknown, b: unknown): number {
   return 0
 }
 
-export function getNode(node: TrieNode, word: string) {
-  for (const c of word.split('')) {
-    node = node[(c as Char)] ??= {}
-  }
-
-  return node
-}
-
 export function caseOr(a: string, b: string): string {
   const r = []
 
@@ -86,7 +78,16 @@ export const jsonClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj))
 
 export function compare(propName: string | number, order: Order) {
   return (obj1: Record<string, unknown>, obj2: Record<string, unknown>): number => {
-    return (order === 'ascending' ? 1 : -1) * sort(obj1[propName], obj2[propName])
+    let o1 = obj1[propName]
+    let o2 = obj2[propName]
+
+    if (typeof propName === 'string' && propName.includes('.')) {
+      const path = propName.split('.')
+      o1 = path.reduce((o, prop) => o[prop] as Record<string, unknown>, obj1)
+      o2 = path.reduce((o, prop) => o[prop] as Record<string, unknown>, obj2)
+    }
+
+    return (order === 'ascending' ? 1 : -1) * sort(o1, o2)
 
     function sort(a: unknown, b: unknown) {
       if (typeof a === 'string' && typeof b === 'string') {
