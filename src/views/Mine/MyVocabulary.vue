@@ -89,9 +89,8 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
 </script>
 
 <template>
-  <div class="w-full max-w-screen-xl pb-5 md:pb-0">
-    <div class="relative flex h-10 items-center" />
-    <div class="m-auto h-[calc(100vh-200px)] max-w-2xl overflow-visible md:h-[calc(100vh-120px)]">
+  <div class="w-full max-w-screen-xl md:pb-0">
+    <div class="m-auto h-[calc(100vh-200px)] max-w-2xl overflow-visible md:h-[calc(100vh-60px)]">
       <div class="mx-5 flex h-full flex-col overflow-hidden rounded-xl border bg-white shadow will-change-transform md:mx-0">
         <segmented-control
           :default="selectedSeg"

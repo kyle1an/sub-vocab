@@ -53,7 +53,7 @@ function handleCommand(command: string) {
         </router-link>
         <router-link
           v-if="isLoggedIn"
-          to="/users"
+          to="/user"
           class="flex h-full items-center px-4 hover:bg-gray-100"
         >
           {{ username }}

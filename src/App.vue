@@ -13,7 +13,20 @@ if (userName) {
 <template>
   <TopBar class="ffs-pre fixed h-12" />
   <div class="ffs-pre flex min-h-[100vh] flex-col items-center pt-12">
-    <router-view />
+    <router-view v-slot="{ Component, route }">
+      <keep-alive>
+        <component
+          :is="Component"
+          v-if="route.meta.keepAlive"
+          :key="route.path"
+        />
+      </keep-alive>
+      <component
+        :is="Component"
+        v-if="!route.meta.keepAlive"
+        :key="route.path"
+      />
+    </router-view>
   </div>
 </template>
 

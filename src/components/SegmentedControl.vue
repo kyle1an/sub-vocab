@@ -17,13 +17,13 @@ watch(() => props.default, (id) => {
 })
 const selectedId = ref(props.default)
 watch(selectedId, (id) => emit('input', id))
-
 const pill = ref()
 const { width } = useElementBounding(pill)
 const pillName = `${props.name}-prev-pill-width`
 const pillWidth = ref(props.name ? +(sessionStorage.getItem(pillName) || 0) : 0)
 const pillTransformStyles = computed(() => `transform:translateX(${pillWidth.value * selectedId.value}px)`)
 watch(width, (w) => {
+  if (w === 0) return
   pillWidth.value = w
   sessionStorage.setItem(pillName, String(w))
 })
