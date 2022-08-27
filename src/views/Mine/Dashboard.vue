@@ -2,37 +2,23 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import Footer from '@/components/Footer.vue'
-import { useUserStore } from '@/store/useState'
 
 const { t } = useI18n()
 const currentPath = computed(() => useRoute().fullPath)
-const userStore = useUserStore()
-const username = computed(() => userStore.user.name)
 const subNav = computed(() => [
   {
     id: 1,
-    title: t('Profile'),
-    path: '/user',
-  },
-  {
-    id: 2,
-    title: t('Password'),
-    path: '/user/password',
+    title: t('Vocabulary'),
+    path: '/mine',
   },
 ])
 </script>
 
 <template>
-  <div class="flex w-full max-w-screen-lg grow flex-col p-6">
-    <div class="pb-5">
-      <div class="text-2xl">
-        {{ username }}
-      </div>
-    </div>
+  <div class="flex w-full max-w-screen-lg grow flex-col p-8">
     <div class="flex w-full grow flex-col sm:flex-row">
-      <div class="mr-6 w-52 shrink-0">
-        <div class="sticky top-28">
+      <div class="mr-6 w-48 shrink-0">
+        <div class="sticky top-20">
           <nav>
             <ol>
               <li
@@ -53,10 +39,22 @@ const subNav = computed(() => [
           </nav>
         </div>
       </div>
-      <div class="w-full flex-1 p-4">
-        <router-view />
+      <div class="w-full flex-1">
+        <router-view v-slot="{ Component,route }">
+          <keep-alive>
+            <component
+              :is="Component"
+              v-if="route.meta.keepAlive"
+              :key="route.path"
+            />
+          </keep-alive>
+          <component
+            :is="Component"
+            v-if="!route.meta.keepAlive"
+            :key="route.path"
+          />
+        </router-view>
       </div>
     </div>
   </div>
-  <Footer />
 </template>

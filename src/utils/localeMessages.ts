@@ -45,6 +45,7 @@ export const messages = {
     status: 'Status',
     Submit: 'Submit',
     top: 'Top',
+    Vocabulary: 'Vocabulary',
     words: 'words',
   },
 
@@ -94,6 +95,7 @@ export const messages = {
     status: '状态',
     Submit: '提交',
     top: '最常用',
+    Vocabulary: '单词',
     words: '词',
   },
 }
