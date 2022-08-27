@@ -29,9 +29,9 @@ const selectedSeg = ref(+(sessionStorage.getItem('prev-segment-select') || 0))
 const rowsSegmented = computed(() => {
   switch (selectedSeg.value) {
     case 1:
-      return props.data.filter((r) => !r.vocab?.acquainted && r.len > 2)
+      return props.data.filter((r) => !r.vocab.acquainted && r.vocab.w.length > 2)
     case 2:
-      return props.data.filter((r) => r.vocab?.acquainted || r.len <= 2)
+      return props.data.filter((r) => r.vocab.acquainted || r.vocab.w.length <= 2)
     default:
       return [...props.data]
   }
@@ -43,7 +43,7 @@ const rowsSearched = computed(() => {
     return rowsSegmented.value
   }
 
-  return rowsSegmented.value.filter((r: LabelRow) => r.w.toLowerCase().includes(search.value.toLowerCase()))
+  return rowsSegmented.value.filter((r: LabelRow) => r.vocab.w.toLowerCase().includes(search.value.toLowerCase()))
 })
 
 const sortChange = (p: Sorting<LabelRow>) => sortBy.value = p
@@ -82,7 +82,7 @@ watch(rowsDisplay, () => {
 })
 
 function handleExpand(row: LabelRow) {
-  document.getElementsByClassName(`v-${row.seq}`)[0].classList.toggle('xpd')
+  document.getElementsByClassName(`v-${row.src[0][3]}`)[0].classList.toggle('xpd')
 }
 
 const segments = computed(() => [t('all'), t('new'), t('acquainted')])
@@ -102,7 +102,7 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
         ref="vocabTable"
         class="!h-full from-[var(--el-border-color-lighter)] to-white [&_th_.cell]:font-compact [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full [&_.xpd_td]:!border-white [&_.xpd_td]:!bg-white [&_.xpd:hover>td]:bg-gradient-to-b [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-icon]:pointer-events-none"
         size="small"
-        :row-class-name="({row})=>`v-${row.seq}`"
+        :row-class-name="({row})=>`v-${row.src[0][3]}`"
         :data="rowsDisplay"
         @row-click="handleRowClick"
         @expand-change="handleExpand"
@@ -122,20 +122,20 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
         </el-table-column>
         <el-table-column
           :label="t('frequency')"
-          prop="freq"
+          prop="src.length"
           width="62"
           sortable="custom"
           class-name="cursor-pointer [th&>.cell]:!p-0"
         >
           <template #default="{row}">
             <div class="select-none text-right font-compact tabular-nums text-slate-400">
-              {{ row.freq }}
+              {{ row.src.length }}
             </div>
           </template>
         </el-table-column>
         <el-table-column
           label="Vocabulary"
-          prop="w"
+          prop="vocab.w"
           min-width="16"
           sortable="custom"
           class-name="cursor-pointer [td&>.cell]:!pr-0"
@@ -154,19 +154,21 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
               class="cursor-text font-compact text-[16px] tracking-wide text-neutral-900"
               v-on="isMobile ? {} : { mouseover: selectWord }"
               @click.stop
-            >{{ row.w }}</span>
+            >
+              {{ row.vocab.w }}
+            </span>
           </template>
         </el-table-column>
         <el-table-column
           :label="t('length')"
-          prop="len"
+          prop="vocab.w.length"
           width="68"
           sortable="custom"
           class-name="cursor-pointer !text-right [th&>.cell]:!p-0"
         >
           <template #default="{row}">
             <div class="select-none font-compact tabular-nums">
-              {{ row.len }}
+              {{ row.vocab.w.length }}
             </div>
           </template>
         </el-table-column>
@@ -175,7 +177,7 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
           class-name="overflow-visible !text-center [td&>.cell]:!pl-0"
         >
           <template #default="{row}">
-            <toggle-button :row="row" />
+            <toggle-button :row="row.vocab" />
           </template>
         </el-table-column>
       </el-table>

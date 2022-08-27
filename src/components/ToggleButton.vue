@@ -3,34 +3,34 @@ import { Check, Loading } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import { ElButton, ElIcon, ElNotification } from 'element-plus'
 import { useI18n } from 'vue-i18n'
-import { LabelRow, Sieve } from '@/types'
+import { Sieve } from '@/types'
 import { acquaint, revokeWord } from '@/api/vocab-service'
 import { useVocabStore } from '@/store/useVocab'
 import { useUserStore } from '@/store/useState'
 import router from '@/router'
 
-type VocabRow = LabelRow | { w: string, vocab: Sieve }
 const { t } = useI18n()
 const userStore = useUserStore()
-const props = defineProps<{ row: VocabRow }>()
+const props = defineProps<{ row: Sieve }>()
 const vocabStore = useVocabStore()
 const loading = ref(false)
 
-async function toggleWordState(row: VocabRow, name: string) {
+async function toggleWordState(row: Sieve, name: string) {
   const word = row.w
   const vocabInfo = {
     word: word.replace(/'/g, `''`),
     user: name,
   }
-  const acquainted = row.vocab?.acquainted
+  const acquainted = row.acquainted
   const res = await (acquainted ? revokeWord : acquaint)(vocabInfo)
 
   if (res.affectedRows) {
-    row.vocab = vocabStore.updateWord(word, !acquainted)
+    vocabStore.updateWord(word, !acquainted)
+    row.acquainted = !acquainted
   }
 }
 
-async function handleClick(row: VocabRow) {
+async function handleClick(row: Sieve) {
   loading.value = true
 
   if (userStore.user.name) {
@@ -56,7 +56,7 @@ async function handleClick(row: VocabRow) {
     color="#facc15"
     size="small"
     :disabled="loading"
-    :class="`${props.row.vocab?.acquainted?'':'un !border-zinc-300 !bg-transparent !text-transparent hover:!text-black '}${loading?'[&_.is-loading]:!inline-flex [&_.check]:hidden [.un&]:!text-black ':''}!text-white`"
+    :class="`${props.row.acquainted?'!text-white':'un !border-zinc-300 !bg-transparent !text-transparent hover:!text-black'} ${loading?'[&_.is-loading]:!inline-flex [&_.check]:hidden [.un&]:!text-black':''}`"
     circle
     @click.stop="handleClick(props.row)"
   >

@@ -15,16 +15,16 @@ const subNav = computed(() => [
 </script>
 
 <template>
-  <div class="flex w-full max-w-screen-lg grow flex-col p-8">
-    <div class="flex w-full grow flex-col sm:flex-row">
-      <div class="mr-6 w-48 shrink-0">
+  <div class="flex w-full max-w-screen-lg grow flex-col py-8 px-5 md:px-8">
+    <div class="flex w-full grow flex-col gap-4 md:flex-row md:gap-6">
+      <div class="w-48 shrink-0">
         <div class="sticky top-20">
           <nav>
             <ol>
               <li
                 v-for="nav in subNav"
                 :key="nav.id"
-                :class="`${currentPath===nav.path?'[&>a]:bg-gray-100 ':''}`"
+                :class="`${currentPath===nav.path?'[&>a]:bg-gray-100':''}`"
               >
                 <router-link
                   :to="nav.path"

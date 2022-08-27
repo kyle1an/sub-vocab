@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { ref, shallowRef, watch } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 import VocabTable from './VocabTable.vue'
 import Trie from '@/utils/LabeledTire'
 import { LabelRow } from '@/types'
 import { readFiles, sortByChar } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
 import { useTimeStore } from '@/store/usePerf'
+import { useUserStore } from '@/store/useState'
 
 const { t } = useI18n()
 const fileInfo = ref('')
@@ -30,26 +31,25 @@ const count = ref(0)
 const sentences = ref<string[]>([])
 const vocabStore = useVocabStore()
 const { log, logEnd, logPerf } = useTimeStore()
-
+const userStore = useUserStore()
+const username = computed(() => userStore.user.name)
 let timeoutID: ReturnType<typeof setTimeout>
-watch(inputText, () => {
+watch([inputText, username], () => {
   clearTimeout(timeoutID)
   timeoutID = setTimeout(async () => {
     ({
       list: tableDataOfVocab.value,
       count: count.value,
       sentences: sentences.value
-    } = await formVocabList(inputText.value))
+    } = await formVocabList(inputText.value, await vocabStore.getPreBuiltTrie()))
   }, 50)
 })
-
 const tableDataOfVocab = shallowRef<LabelRow[]>([])
 
-async function formVocabList(text: string) {
-  const baseVocabTrie = await vocabStore.getPreBuiltTrie()
+async function formVocabList(text: string, trie: Trie) {
   log(['-- All took', '    '])
   log('· init words')
-  const trie = new Trie(baseVocabTrie).add(text)
+  trie.add(text)
   logEnd('· init words')
   log(['· categorize vocabulary', ' +  '])
   log('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
@@ -70,7 +70,7 @@ async function formVocabList(text: string) {
 }
 
 function logVocabInfo(listOfVocab: LabelRow[]) {
-  const untouchedVocabList = [...listOfVocab].sort((a, b) => sortByChar(a.w, b.w))
+  const untouchedVocabList = [...listOfVocab].sort((a, b) => sortByChar(a.vocab.w, b.vocab.w))
   console.log(`(${untouchedVocabList.length}) words`, { _: untouchedVocabList })
 }
 </script>

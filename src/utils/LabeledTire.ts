@@ -1,15 +1,86 @@
-import { caseOr, getNode, hasUppercase, isVowel } from './utils'
-import { Char, Label, LabelRow, TrieNode } from '@/types'
+import { caseOr, hasUppercase, isVowel } from './utils'
+import { Char, Label, LabelPre, LabelRow, Sieve, TrieNode } from '@/types'
 
 export default class LabeledTire {
-  root: TrieNode
-  #sequence = 1
+  root: TrieNode<Label>
+  #sequence = 0
   sentences: string[] = []
   wordCount = 0
   vocabulary: Array<Label | null> = []
 
-  constructor(baseTrie: TrieNode) {
+  constructor(baseTrie: TrieNode<Label> = {}) {
     this.root = baseTrie
+    return this
+  }
+
+  getNode(word: string) {
+    let node = this.root
+    for (const c of word.split('')) {
+      node = node[(c as Char)] ??= {}
+    }
+
+    return node
+  }
+
+  path(vocab: Sieve[]) {
+    for (const sieve of vocab) {
+      const original = sieve.w
+      const hasUp = hasUppercase(original)
+      const node = this.getNode(hasUp ? original.toLowerCase() : original) as TrieNode<LabelPre>
+
+      if (!node.$) {
+        node.$ = {
+          w: original,
+          up: hasUp,
+          src: [],
+          vocab: sieve,
+        }
+      } else {
+        const $ = node.$
+
+        if ($.up) {
+          if (hasUp) {
+            if ($.vocab.rank) {
+              if (sieve.rank && sieve.rank < $.vocab.rank) {
+                $.vocab = sieve
+              }
+            } else if (sieve.rank) {
+              $.vocab = sieve
+            }
+          } else {
+            $.w = original
+            $.up = false
+            $.vocab = sieve
+          }
+        }
+      }
+    }
+
+    return this
+  }
+
+  share(irregularMaps: string[][]) {
+    for (const irregulars of irregularMaps) {
+      const base = irregulars[0]
+      const hasUp = hasUppercase(base)
+      const baseNode = this.getNode(hasUp ? base.toLowerCase() : base)
+      baseNode.$ ??= {
+        w: base,
+        up: hasUp,
+        src: [],
+        vocab: {
+          w: base,
+          acquainted: false,
+          is_user: 0,
+        },
+      }
+      let i = irregulars.length
+      while (--i) {
+        this.getNode(irregulars[i]).$ = baseNode.$
+      }
+    }
+
+    return this
   }
 
   add(input: string) {
@@ -17,10 +88,10 @@ export default class LabeledTire {
     this.sentences = this.sentences.concat(input.match(/["'@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|{[^}]*})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ])|\.{3} *)*["'@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/mg) || [])
     const totalSize = this.sentences.length
 
-    for (; previousSize < totalSize; previousSize++) {
+    for (; previousSize < totalSize; ++previousSize) {
       for (const m of this.sentences[previousSize].matchAll(/(?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þa-zß-ÿ]+[a-zß-ÿ]*)+(?:['’-]?[A-Za-zÀ-ÿ]'?)+/mg)) {
         const matchedWord = m[0]
-        this.wordCount++
+        ++this.wordCount
         if (m.index === undefined) continue
         this.#update(matchedWord, hasUppercase(matchedWord), m.index, previousSize)
       }
@@ -30,7 +101,7 @@ export default class LabeledTire {
   }
 
   #update(original: string, hasUp: boolean, index: number, currentSentenceIndex: number) {
-    const branch = getNode(this.root, hasUp ? original.toLowerCase() : original)
+    const branch = this.getNode(hasUp ? original.toLowerCase() : original)
 
     if (!branch.$) {
       branch.$ = { w: original, up: hasUp, src: [] }
@@ -69,56 +140,53 @@ export default class LabeledTire {
 
   mergedVocabulary() {
     this.traverseMerge(this.root)
-    return this.vocabulary as LabelRow[]
+    return this.vocabulary
   }
 
-  static formVocabList(vocabulary: LabelRow[]) {
+  static formVocabList(vocabulary: Array<Label | null>) {
     const all: LabelRow[] = []
 
     for (const v of vocabulary) {
       if (!v || v.variant) continue
 
-      const $: Label = {
-        w: v.w,
-        up: v.up,
-        len: v.w.length,
-        src: [],
-      }
-
-      if (v.vocab) {
-        $.vocab = v.vocab
-      }
-
-      this.collectNestedSource(v)
-      $.src = v.src
-      $.freq = $.src.length
-      $.seq = $.src[0][3]
-      all.push($ as LabelRow)
+      all.push({
+        src: this.collectNestedSource(v),
+        vocab: v.vocab ?? {
+          w: v.w,
+          acquainted: false,
+          is_user: 0,
+          invalid: true,
+        },
+      })
     }
 
     return all
   }
 
   static collectNestedSource($: Label) {
-    if ($.derive?.length) {
-      for (const d of $.derive) {
-        this.collectNestedSource(d)
+    let src: number[][] = [...$.src]
 
-        if (!$.src.length) {
-          $.src = d.src
+    if ($.derive?.length) {
+      for (const d$ of $.derive) {
+        const srcFromDerived = this.collectNestedSource(d$)
+
+        if (src.length === 0) {
+          src = srcFromDerived
           continue
         }
 
-        if (d.src[0][3] < $.src[0][3]) {
-          $.src = d.src.concat($.src)
+        if (srcFromDerived[0][3] < src[0][3]) {
+          src = srcFromDerived.concat(src)
         } else {
-          $.src = $.src.concat(d.src)
+          src = src.concat(srcFromDerived)
         }
       }
     }
+
+    return src
   }
 
-  traverseMerge(layer: TrieNode) {
+  traverseMerge(layer: TrieNode<Label>) {
     for (const key in layer) {
       if (key === '$') continue
       const innerLayer = layer[key as Char] ?? {}
@@ -128,14 +196,14 @@ export default class LabeledTire {
     }
   }
 
-  mergeVocabOfDifferentSuffixes(current: TrieNode, previousChar: Char, parentLayer: TrieNode) {
+  mergeVocabOfDifferentSuffixes(current: TrieNode<Label>, previousChar: Char, parentLayer: TrieNode<Label>) {
     const curr_$ = current.$
     const curr_e$ = current.e?.$
     const curr_s$ = previousChar === 's' ? undefined : current.s?.$
     const isTheLastCharConsonant = !isVowel(previousChar)
     const curr_ying$ = isTheLastCharConsonant ? current.y?.i?.n?.g?.$ : undefined
 
-    function followingWords(curr: TrieNode) {
+    function followingWords(curr: TrieNode<Label>) {
       const curr_in = curr.i?.n
       const following$ = [
         curr.e?.s?.$,
@@ -160,7 +228,7 @@ export default class LabeledTire {
       return following$
     }
 
-    const nextAposWords = (curr_apos: TrieNode) => [
+    const nextAposWords = (curr_apos: TrieNode<Label>) => [
       curr_apos.s?.$,
       curr_apos.l?.l?.$,
       curr_apos.v?.e?.$,
@@ -200,7 +268,8 @@ export default class LabeledTire {
     } else if (curr_e$) {
       this.batchMergeTo(curr_e$, followingWords(current))
     } else if (curr_s$) {
-      const $ = { w: curr_s$.w.slice(0, -1), src: [], derive: [] }
+      const original = curr_s$.w.slice(0, -1)
+      const $ = { w: curr_s$.w.slice(0, -1), src: [], up: hasUppercase(original), derive: [] }
       this.batchMergeTo($, followingWords(current))
 
       if (current[`'`]) {
@@ -217,7 +286,8 @@ export default class LabeledTire {
         this.vocabulary.push($)
       }
     } else if (curr_ying$) {
-      const $ = { w: curr_ying$.w.slice(0, -3), src: [], derive: [] }
+      const original = curr_ying$.w.slice(0, -3)
+      const $ = { w: original, src: [], up: hasUppercase(original), derive: [] }
       this.batchMergeTo($, [
         current.i?.e?.s?.$,
         current.i?.e?.d?.$,

@@ -38,7 +38,7 @@ const subNav = computed(() => [
               <li
                 v-for="nav in subNav"
                 :key="nav.id"
-                :class="`${currentPath===nav.path?'[&>a]:bg-gray-100 ':''}`"
+                :class="`${currentPath===nav.path?'[&>a]:bg-gray-100':''}`"
               >
                 <router-link
                   :to="nav.path"
