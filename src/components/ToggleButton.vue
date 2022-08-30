@@ -6,11 +6,9 @@ import { useI18n } from 'vue-i18n'
 import { Sieve } from '@/types'
 import { acquaint, revokeWord } from '@/api/vocab-service'
 import { useVocabStore } from '@/store/useVocab'
-import { useUserStore } from '@/store/useState'
 import router from '@/router'
 
 const { t } = useI18n()
-const userStore = useUserStore()
 const props = defineProps<{ row: Sieve }>()
 const vocabStore = useVocabStore()
 const loading = ref(false)
@@ -25,16 +23,17 @@ async function toggleWordState(row: Sieve, name: string) {
   const res = await (acquainted ? revokeWord : acquaint)(vocabInfo)
 
   if (res.affectedRows) {
-    vocabStore.updateWord(word, !acquainted)
+    vocabStore.updateWord(row, !acquainted)
     row.acquainted = !acquainted
   }
 }
 
 async function handleClick(row: Sieve) {
   loading.value = true
+  vocabStore.loadingQueue.push(true)
 
-  if (userStore.user.name) {
-    await toggleWordState(row, userStore.user.name)
+  if (vocabStore.user) {
+    await toggleWordState(row, vocabStore.user)
   } else {
     ElNotification({
       message: (
@@ -47,6 +46,7 @@ async function handleClick(row: Sieve) {
     })
   }
 
+  vocabStore.loadingQueue.pop()
   loading.value = false
 }
 </script>

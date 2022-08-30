@@ -1,13 +1,16 @@
 <script lang="ts" setup>
 import { computed, nextTick, reactive, ref, shallowRef, watch } from 'vue'
-import { TransitionPresets, useTransition } from '@vueuse/core'
+import { logicAnd, logicNot } from '@vueuse/math'
+import { TransitionPresets, useElementHover, useTransition, watchTriggerable, whenever } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
+import { storeToRefs } from 'pinia'
 import { LabelRow, Sorting } from '@/types'
 import { compare, isMobile, removeClass, selectWord } from '@/utils/utils'
 import Examples from '@/components/Examples'
 import SegmentedControl from '@/components/SegmentedControl.vue'
 import ToggleButton from '@/components/ToggleButton.vue'
+import { useVocabStore } from '@/store/useVocab'
 
 const { t } = useI18n()
 const props = withDefaults(defineProps<{
@@ -26,25 +29,25 @@ function onSegmentSwitched(seg: number) {
 }
 
 const selectedSeg = ref(+(sessionStorage.getItem('prev-segment-select') || 0))
-const rowsSegmented = computed(() => {
-  switch (selectedSeg.value) {
-    case 1:
-      return props.data.filter((r) => !r.vocab.acquainted && r.vocab.w.length > 2)
-    case 2:
-      return props.data.filter((r) => r.vocab.acquainted || r.vocab.w.length <= 2)
-    default:
-      return [...props.data]
-  }
-})
+// use shallowRef to avoid issue of cannot expand row
+const rowsSegmented = shallowRef<LabelRow[]>([])
+const needRefresh = ref(true)
+const { inUpdating } = storeToRefs(useVocabStore())
+const { trigger } = watchTriggerable([selectedSeg, () => props.data], () => {
+  rowsSegmented.value = props.data.filter(
+    selectedSeg.value === 1 ? (r) => !r.vocab.acquainted && r.vocab.w.length > 2 :
+      selectedSeg.value === 2 ? (r) => r.vocab.acquainted || r.vocab.w.length <= 2 : () => true)
 
+  if (!inUpdating.value) needRefresh.value = false
+})
+const vocabTable = ref()
+const isHovered = useElementHover(vocabTable)
+whenever(inUpdating, () => needRefresh.value = true)
+whenever(logicAnd(logicNot(isHovered), logicNot(inUpdating)), () => needRefresh.value && trigger())
 const search = ref('')
-const rowsSearched = computed(() => {
-  if (!search.value) {
-    return rowsSegmented.value
-  }
-
-  return rowsSegmented.value.filter((r: LabelRow) => r.vocab.w.toLowerCase().includes(search.value.toLowerCase()))
-})
+const rowsSearched = computed(() =>
+  rowsSegmented.value
+    .filter(search.value ? (r) => r.vocab.w.toLowerCase().includes(search.value.toLowerCase()) : () => true))
 
 const sortChange = (p: Sorting<LabelRow>) => sortBy.value = p
 const sortBy = shallowRef<Sorting<LabelRow>>({ order: null, prop: null, })
@@ -71,15 +74,12 @@ const totalTransit = useTransition(total, {
   transition: TransitionPresets.easeOutCirc,
 })
 
-const vocabTable = shallowRef<typeof ElTable>()
-
 function handleRowClick(row: LabelRow) {
-  vocabTable.value?.toggleRowExpansion(row)
+  (vocabTable.value as typeof ElTable).toggleRowExpansion(row)
 }
 
-watch(rowsDisplay, () => {
-  removeClass('xpd')
-})
+watch(rowsDisplay, () => removeClass('xpd'))
+whenever(logicNot(inUpdating), () => removeClass('xpd'))
 
 function handleExpand(row: LabelRow) {
   document.getElementsByClassName(`v-${row.src[0][3]}`)[0].classList.toggle('xpd')

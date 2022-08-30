@@ -14,6 +14,7 @@ In addition to Vue 3 and Vite, the project's stack includes:
 - [TypeScript](https://typescriptlang.org)
 - [Element Plus](https://element-plus.org)
 - [Pinia](https://pinia.vuejs.org)
+- [VueUse](https://vueuse.org)
 - [Vue Router](https://router.vuejs.org)
 - [Vue I18n](https://kazupon.github.io/vue-i18n)
 - [Axios](https://axios-http.com)

@@ -140,7 +140,7 @@ export default class LabeledTire {
 
   mergedVocabulary() {
     this.traverseMerge(this.root)
-    return this.vocabulary
+    return this
   }
 
   static formVocabList(vocabulary: Array<Label | null>) {

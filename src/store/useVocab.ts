@@ -1,84 +1,92 @@
 import { defineStore } from 'pinia'
 import Cookies from 'js-cookie'
-import { reactive } from 'vue'
+import { until, useAsyncState } from '@vueuse/core'
+import { computed, ref, shallowRef, watch } from 'vue'
+import { logicAnd } from '@vueuse/math'
 import { queryWordsByUser, stemsMapping } from '@/api/vocab-service'
 import { Sieve } from '@/types'
-import { hasUppercase, timer, timerEnd } from '@/utils/utils'
+import { timer, timerEnd } from '@/utils/utils'
 import Trie from '@/utils/LabeledTire'
+import { logoutToken } from '@/api/user'
 
 export const useVocabStore = defineStore('vocabStore', () => {
-  let user: string = Cookies.get('_user') ?? ''
+  const user = ref(Cookies.get('_user') ?? '')
+  watch(user, () => Cookies.set('_user', user.value, { expires: 30 }))
 
-  let baseVocabPromise = queryWordsByUser(user)
-  let baseVocab: Sieve[] = []
-
-  const irregularMapsPromise = stemsMapping()
-  let irregularMaps: string[][] = []
-
-  let preBuiltTrie: Trie
-
-  function resetUserVocab() {
-    const currUser = Cookies.get('_user') ?? ''
-    baseVocabPromise = queryWordsByUser(currUser)
-    user = currUser
-    baseVocab = []
+  function login(username: string, tk: string) {
+    Cookies.set('_user', username, { expires: 30 })
+    Cookies.set('acct', tk, { expires: 30 })
+    user.value = username
   }
 
-  async function getBaseVocab() {
-    console.log('fetching')
-
-    if (baseVocab.length === 0) {
-      timer('vocab fetching')
-      baseVocab = (await baseVocabPromise).map((v) => reactive(v))
-      timerEnd('vocab fetching')
-    }
-
-    console.log('done')
-    return baseVocab
+  async function logout() {
+    await logoutToken({ username: user.value })
+    Cookies.remove('_user', { path: '' })
+    Cookies.remove('acct', { path: '' })
+    user.value = ''
   }
 
-  async function buildStemTrie(vocab: Sieve[]) {
-    console.time('struct sieve')
+  const baseVocab = ref<Sieve[]>([])
+  const baseReady = ref(false)
+  watch(user, async () => {
+    baseReady.value = false
+    const { state, isReady } = useAsyncState(queryWordsByUser(user.value), [])
+    await until(isReady).toBe(true)
+    baseVocab.value = state.value
+    baseReady.value = true
+    requestAnimationFrame(backTrie)
+  }, { immediate: true })
 
-    if (!irregularMaps.length) {
-      irregularMaps = (await irregularMapsPromise).map((m) => [m.stem_word, ...m.derivations.split(',')])
-    }
+  const { state: irregularMaps, isReady: irrReady } = useAsyncState(async () =>
+      (await stemsMapping()).map((m) => [m.stem_word, ...m.derivations.split(',')])
+    , [])
 
-    const trie = new Trie().path(vocab).share(irregularMaps)
-    console.timeEnd('struct sieve')
+  async function buildStemTrie() {
+    timer('struct sieve')
+    await until(logicAnd(baseReady, irrReady)).toBe(true)
+    const trie = new Trie().path(baseVocab.value).share(irregularMaps.value)
+    timerEnd('struct sieve')
     return trie
   }
 
+  const baseTrie = shallowRef(new Trie())
+  const trieReady = ref(false)
+
+  async function backTrie() {
+    trieReady.value = false
+    const { state, isReady } = useAsyncState(buildStemTrie, new Trie())
+    await until(isReady).toBe(true)
+    baseTrie.value = state.value
+    trieReady.value = true
+  }
+
   async function getPreBuiltTrie() {
-    return preBuiltTrie = await buildStemTrie(await getBaseVocab())
+    await until(trieReady).toBe(true)
+    requestAnimationFrame(backTrie)
+    return baseTrie.value
   }
 
-  function updateWord(word: string, got: boolean) {
-    if (!preBuiltTrie) return
-
-    const original = word
-    const hasUp = hasUppercase(original)
-    const node = preBuiltTrie.getNode(hasUp ? original.toLowerCase() : original)
-
-    node.$ ??= {
-      w: original,
-      up: hasUp,
-      src: [],
+  function updateWord($: Sieve, got: boolean) {
+    if ($.invalid) {
+      baseVocab.value = [...baseVocab.value, $]
+      $.invalid = false
     }
 
-    if (!node.$.vocab) {
-      node.$.vocab = {
-        w: original,
-        is_user: true,
-        acquainted: false
-      }
-
-      baseVocab.push(node.$.vocab)
-    }
-
-    node.$.vocab.acquainted = got
-    node.$.vocab.time_modified = new Date().toISOString()
+    $.acquainted = got
+    $.time_modified = new Date().toISOString()
   }
 
-  return { getBaseVocab, getPreBuiltTrie, resetUserVocab, updateWord }
+  const loadingQueue = ref<boolean[]>([])
+  return {
+    baseVocab,
+    getPreBuiltTrie,
+    inUpdating: computed(() => loadingQueue.value.length > 0),
+    loadingQueue,
+    trieReady,
+    updateWord,
+    user,
+    baseReady,
+    login,
+    logout,
+  }
 })

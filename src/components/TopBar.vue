@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import type { Language } from 'element-plus/es/locale'
 import { ElConfigProvider, ElDropdown, ElDropdownItem, ElDropdownMenu, ElIcon } from 'element-plus'
-import { useUserStore } from '@/store/useState'
+import { useVocabStore } from '@/store/useVocab'
 
 const { t, locale } = useI18n({ useScope: 'global' }) // call `useI18n`, and spread `t` from  `useI18n` returning
 const localeMap: Record<string, Language> = {
@@ -15,10 +15,10 @@ const localeMap: Record<string, Language> = {
   'zh': zhCn,
 }
 const elLocale = computed(() => localeMap[locale.value as string])
-const userStore = useUserStore()
-const username = computed(() => userStore.user.name)
+const store = useVocabStore()
+const username = computed(() => store.user)
 const isLoggedIn = computed(() => !!username.value)
-const acquaintedSection = computed(() => userStore.user.name ? t('mine') : t('common'))
+const acquaintedSection = computed(() => store.user ? t('mine') : t('common'))
 const isWide = window.innerWidth >= 460
 
 function handleCommand(command: string) {

@@ -4,6 +4,7 @@ export interface Sieve extends Record<string, unknown> {
   is_user: number | boolean,
   rank?: number | null,
   time_modified?: string | null,
+  invalid?: boolean,
 }
 
 export interface Stems {
