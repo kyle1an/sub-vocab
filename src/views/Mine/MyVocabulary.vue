@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { computed, nextTick, onBeforeMount, reactive, ref, shallowRef, watch } from 'vue'
-import { TransitionPresets, useTransition } from '@vueuse/core'
+import { computed, nextTick, reactive, ref, shallowRef, watch } from 'vue'
+import { TransitionPresets, useElementHover, useTransition, watchTriggerable, whenever } from '@vueuse/core'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
+import { logicAnd, logicNot } from '@vueuse/math'
+import { storeToRefs } from 'pinia'
 import SegmentedControl from '@/components/SegmentedControl.vue'
 import { compare, selectWord, sortByDateISO } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
@@ -11,17 +13,12 @@ import DateTime from '@/components/DateTime'
 import ToggleButton from '@/components/ToggleButton.vue'
 
 const { t } = useI18n()
-const vocabStore = useVocabStore()
+const { inUpdating, baseVocab } = storeToRefs(useVocabStore())
 const rows = shallowRef<Sieve[]>([])
-onBeforeMount(async () => {
-  rows.value = [...await vocabStore.getBaseVocab()].sort(sortByTimeModified)
-})
-
-function sortByTimeModified(a: Sieve, b: Sieve) {
-  const aDate = a.time_modified || ''
-  const bDate = b.time_modified || ''
-  return sortByDateISO(bDate, aDate)
-}
+watch(baseVocab, () => {
+  rows.value = [...baseVocab.value]
+    .sort((a, b) => sortByDateISO(b.time_modified || '', a.time_modified || ''))
+}, { immediate: true })
 
 function onSegmentSwitched(seg: number) {
   disabledTotal.value = true
@@ -32,33 +29,24 @@ function onSegmentSwitched(seg: number) {
 
 const selectedSeg = ref(+(sessionStorage.getItem('prev-segment-mine') || 0))
 const rowsSegmented = ref<Sieve[]>([])
-const rowsSegmentedComp = () => {
-  const source = rows.value
+const needRefresh = ref(true)
+const { trigger } = watchTriggerable([selectedSeg, rows], () => {
+  rowsSegmented.value = rows.value.filter(
+    selectedSeg.value === 0 ? (row) => row.acquainted :
+      selectedSeg.value === 1 ? (row) => row.acquainted && row.is_user :
+        selectedSeg.value === 2 ? (row) => row.acquainted && !row.is_user :
+          selectedSeg.value === 3 ? (row) => !row.acquainted && row.is_user !== 2 : () => true)
 
-  switch (selectedSeg.value) {
-    case 1:
-      return source.filter((row) => row.acquainted && row.is_user)
-    case 2:
-      return source.filter((row) => row.acquainted && !row.is_user)
-    case 3:
-      return source.filter((row) => !row.acquainted && row.is_user !== 2)
-    default:
-      return source.filter((row) => row.acquainted)
-  }
-}
-
-watch(selectedSeg, () => {
-  rowsSegmented.value = rowsSegmentedComp()
-})
-
+  if (!inUpdating.value) needRefresh.value = false
+}, { immediate: true })
+const myVocabTable = ref()
+const isHovered = useElementHover(myVocabTable)
+whenever(inUpdating, () => needRefresh.value = true)
+whenever(logicAnd(logicNot(isHovered), logicNot(inUpdating)), () => needRefresh.value && trigger())
 const search = ref('')
-const rowsSearched = computed(() => {
-  if (!search.value) {
-    return rowsSegmented.value
-  }
-
-  return rowsSegmented.value.filter((r: Sieve) => r.w.toLowerCase().includes(search.value.toLowerCase()))
-})
+const rowsSearched = computed(() =>
+  rowsSegmented.value
+    .filter(search.value ? (r) => r.w.toLowerCase().includes(search.value.toLowerCase()) : () => true))
 
 const sortChange = (p: Sorting<Sieve>) => sortBy.value = p
 const sortBy = shallowRef<Sorting<Sieve>>({ order: null, prop: null, })
@@ -101,6 +89,7 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
         />
         <div class="h-px w-full grow">
           <el-table
+            ref="myVocabTable"
             :data="rowsDisplay"
             class="!h-full !w-full md:w-full [&_th_.cell]:font-compact [&_th_.cell]:tracking-normal [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full"
             size="small"

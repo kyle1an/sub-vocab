@@ -3,15 +3,13 @@ import type { FormInstance, FormItemRule } from 'element-plus'
 import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
-import Cookies from 'js-cookie'
-import { useUserStore } from '@/store/useState'
 import router from '@/router'
-import { changePassword, logoutToken } from '@/api/user'
+import { changePassword } from '@/api/user'
 import { useVocabStore } from '@/store/useVocab'
 import { resetForm } from '@/utils/elements'
 
 const { t } = useI18n()
-const store = useUserStore()
+const store = useVocabStore()
 const ruleFormRef = ref<FormInstance>()
 
 function validatePass(rule: FormItemRule | FormItemRule[], value: string, callback: () => void) {
@@ -68,30 +66,18 @@ async function alterInfo(form: typeof ruleForm) {
   if (form.password !== '') {
     form.password = form.password.trim()
     const res = await changePassword({
-      username: store.user.name,
+      username: store.user,
       oldPassword: form.oldPassword,
       newPassword: form.password,
     })
 
     if (res.success) {
-      await logOut()
+      useVocabStore().logout()
+      requestAnimationFrame(() => router.push('/'))
     } else {
       errorMsg.value = res.message || 'something went wrong'
     }
   }
-}
-
-const userStore = useUserStore()
-
-async function logOut() {
-  await logoutToken({ username: store.user.name })
-  Cookies.remove('_user', { path: '' })
-  Cookies.remove('acct', { path: '' })
-  userStore.user.name = ''
-  useVocabStore().resetUserVocab()
-  setTimeout(() => {
-    router.push('/login')
-  }, 0)
 }
 </script>
 

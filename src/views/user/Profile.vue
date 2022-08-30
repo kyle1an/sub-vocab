@@ -3,15 +3,13 @@ import type { FormInstance, FormItemRule } from 'element-plus'
 import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
-import Cookies from 'js-cookie'
-import { useUserStore } from '@/store/useState'
 import router from '@/router'
-import { changeUsername, isUsernameTaken, logoutToken } from '@/api/user'
+import { changeUsername, isUsernameTaken } from '@/api/user'
 import { useVocabStore } from '@/store/useVocab'
 import { resetForm } from '@/utils/elements'
 
 const { t } = useI18n()
-const store = useUserStore()
+const store = useVocabStore()
 const ruleFormRef = ref<FormInstance>()
 
 async function checkUsername(rule: FormItemRule | FormItemRule[], username: string, callback: (arg0?: Error) => void) {
@@ -27,7 +25,7 @@ async function checkUsername(rule: FormItemRule | FormItemRule[], username: stri
     return callback(new Error(t('NameLimitMsg')))
   }
 
-  if (username !== store.user.name && (await isUsernameTaken({ username })).has) {
+  if (username !== store.user && (await isUsernameTaken({ username })).has) {
     return callback(new Error(`${username}${t('alreadyTaken')}`))
   }
 
@@ -57,32 +55,24 @@ function submitForm(formEl: FormInstance | undefined) {
 const errorMsg = ref('')
 
 async function alterInfo(form: typeof ruleForm) {
-  if (form.username !== '' && form.username !== store.user.name) {
+  if (form.username !== '' && form.username !== store.user) {
     form.username = form.username.trim()
     const res = await changeUsername({
-      username: store.user.name,
+      username: store.user,
       newUsername: form.username,
     })
 
     if (res.success) {
-      store.user.name = form.username
+      store.user = form.username
     } else {
       errorMsg.value = res.message || 'something went wrong'
     }
   }
 }
 
-const userStore = useUserStore()
-
-async function logOut() {
-  await logoutToken({ username: store.user.name })
-  Cookies.remove('_user', { path: '' })
-  Cookies.remove('acct', { path: '' })
-  userStore.user.name = ''
-  useVocabStore().resetUserVocab()
-  setTimeout(() => {
-    router.push('/login')
-  }, 0)
+function logOut() {
+  useVocabStore().logout()
+  requestAnimationFrame(() => router.push('/'))
 }
 </script>
 

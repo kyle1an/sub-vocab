@@ -1,13 +1,8 @@
 <script setup lang="ts">
-import Cookies from 'js-cookie'
 import TopBar from '@/components/TopBar.vue'
-import { useUserStore } from '@/store/useState'
+import { useVocabStore } from '@/store/useVocab'
 
-const useStore = useUserStore()
-const userName = Cookies.get('_user')
-if (userName) {
-  useStore.user.name = userName
-}
+useVocabStore()
 </script>
 
 <template>

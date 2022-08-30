@@ -3,12 +3,11 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import Footer from '@/components/Footer.vue'
-import { useUserStore } from '@/store/useState'
+import { useVocabStore } from '@/store/useVocab'
 
 const { t } = useI18n()
 const currentPath = computed(() => useRoute().fullPath)
-const userStore = useUserStore()
-const username = computed(() => userStore.user.name)
+const username = computed(() => useVocabStore().user)
 const subNav = computed(() => [
   {
     id: 1,

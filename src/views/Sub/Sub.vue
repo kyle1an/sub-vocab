@@ -1,13 +1,14 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { computed, ref, shallowRef, watch } from 'vue'
+import { ref, shallowRef, watch } from 'vue'
+import { watchOnce, whenever } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
 import VocabTable from './VocabTable.vue'
 import Trie from '@/utils/LabeledTire'
 import { LabelRow } from '@/types'
 import { readFiles, sortByChar } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
 import { useTimeStore } from '@/store/usePerf'
-import { useUserStore } from '@/store/useState'
 
 const { t } = useI18n()
 const fileInfo = ref('')
@@ -30,11 +31,17 @@ async function onFileChange(ev: Event) {
 const count = ref(0)
 const sentences = ref<string[]>([])
 const vocabStore = useVocabStore()
+const { trieReady, baseReady, baseVocab } = storeToRefs(useVocabStore())
 const { log, logEnd, logPerf } = useTimeStore()
-const userStore = useUserStore()
-const username = computed(() => userStore.user.name)
 let timeoutID: ReturnType<typeof setTimeout>
-watch([inputText, username], () => {
+watch(inputText, reformVocabList)
+
+function reformVocabList() {
+  if (!trieReady.value) {
+    watchOnce(trieReady, reformVocabList)
+    return
+  }
+
   clearTimeout(timeoutID)
   timeoutID = setTimeout(async () => {
     ({
@@ -43,7 +50,9 @@ watch([inputText, username], () => {
       sentences: sentences.value
     } = await formVocabList(inputText.value, await vocabStore.getPreBuiltTrie()))
   }, 50)
-})
+}
+
+watchOnce(baseReady, () => whenever(baseReady, () => baseVocab.value.length && reformVocabList()))
 const tableDataOfVocab = shallowRef<LabelRow[]>([])
 
 async function formVocabList(text: string, trie: Trie) {
@@ -53,10 +62,10 @@ async function formVocabList(text: string, trie: Trie) {
   logEnd('· init words')
   log(['· categorize vocabulary', ' +  '])
   log('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
-  const vocabs = trie.mergedVocabulary()
+  const { vocabulary, sentences, wordCount } = trie.mergedVocabulary()
   logEnd('%c  merge vocabulary')
   log('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
-  const list = Trie.formVocabList(vocabs)
+  const list = Trie.formVocabList(vocabulary)
   logEnd('%c  formLabel vocabulary')
   logEnd(['· categorize vocabulary', ' +  '])
   logEnd(['-- All took', '    '])
@@ -64,9 +73,14 @@ async function formVocabList(text: string, trie: Trie) {
   logPerf()
   return {
     list,
-    sentences: trie.sentences,
-    count: trie.wordCount,
+    sentences,
+    count: wordCount,
   }
+}
+
+function handleTextChange() {
+  const input = document.getElementById('input') as HTMLInputElement
+  if (input) input.value = ''
 }
 
 function logVocabInfo(listOfVocab: LabelRow[]) {
@@ -81,6 +95,7 @@ function logVocabInfo(listOfVocab: LabelRow[]) {
       <label class="el-button grow-0 !rounded-md px-3 py-2.5 text-sm leading-3">
         {{ t('browseFiles') }}
         <input
+          id="input"
           type="file"
           hidden
           multiple
@@ -104,6 +119,7 @@ function logVocabInfo(listOfVocab: LabelRow[]) {
             v-model="inputText"
             class="h-[260px] max-h-[360px] w-full resize-none py-3 px-[30px] align-top outline-none ffs-[normal] md:h-full md:max-h-full md:rounded-[12px]"
             :placeholder="t('inputArea')"
+            @change="handleTextChange"
           />
         </div>
       </div>

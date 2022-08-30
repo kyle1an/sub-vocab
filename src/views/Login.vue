@@ -1,17 +1,15 @@
 <script lang="tsx" setup>
 import type { FormInstance, FormItemRule } from 'element-plus'
-import Cookies from 'js-cookie'
 import { ElButton, ElForm, ElFormItem, ElInput, ElNotification } from 'element-plus'
 import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useVocabStore } from '@/store/useVocab'
-import { useUserStore } from '@/store/useState'
 import router from '@/router'
 import { login } from '@/api/user'
 import { resetForm } from '@/utils/elements'
 
 const { t } = useI18n()
-const store = useUserStore()
+const store = useVocabStore()
 const ruleFormRef = ref<FormInstance>()
 
 function checkUsername(rule: FormItemRule | FormItemRule[], username: string, callback: (arg0?: Error) => void) {
@@ -60,13 +58,8 @@ function submitForm(formEl: FormInstance | undefined) {
       })
     }
 
-    store.user.name = ruleForm.username
-    Cookies.set('_user', ruleForm.username, { expires: 30, })
-    Cookies.set('acct', resAuth[1], { expires: 30, })
-    useVocabStore().resetUserVocab()
-    setTimeout(() => {
-      router.push('/')
-    }, 0)
+    store.login(ruleForm.username, resAuth[1])
+    requestAnimationFrame(() => router.push('/'))
   })
 }
 </script>
