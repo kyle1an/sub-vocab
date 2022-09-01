@@ -25,9 +25,6 @@ module.exports = {
   "rules": {
     "semi": [1, "never"],
     "quotes": [1, "single", { "avoidEscape": true, "allowTemplateLiterals": true }],
-    "vue/attribute-hyphenation": "off",
-    "vue/multi-word-component-names": "off",
-    "tailwindcss/no-custom-classname": "off",
     "import/order": [1, { "groups": ["builtin", "external", "parent", "sibling", "index"] }],
     "sort-imports": [1, {
       "ignoreCase": false,
@@ -36,6 +33,10 @@ module.exports = {
       "memberSyntaxSortOrder": ["none", "all", "multiple", "single"],
       "allowSeparatedGroups": false
     }],
+    "tailwindcss/no-custom-classname": "off",
+    "vue/attribute-hyphenation": "off",
+    "vue/multi-word-component-names": "off",
+    "vue/no-setup-props-destructure": "off",
   },
   "settings": {
     "import/parsers": {

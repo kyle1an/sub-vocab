@@ -3,29 +3,27 @@ import { computed, ref, watch } from 'vue'
 import { useElementBounding } from '@vueuse/core'
 
 const emit = defineEmits(['input'])
-const props = withDefaults(defineProps<{
-  default: number,
+const {
+  init = 0,
+  name = '',
+  segments = ['']
+} = defineProps<{
+  init: number,
   name: string,
   segments: string[],
-}>(), {
-  default: 0,
-  name: '',
-  segments: () => ['']
-})
-watch(() => props.default, (id) => {
-  selectedId.value = id
-})
-const selectedId = ref(props.default)
-watch(selectedId, (id) => emit('input', id))
+}>()
+watch($$(init), (id) => selectedId = id)
+let selectedId = $ref(init)
+watch($$(selectedId), (id) => emit('input', id))
 const pill = ref()
-const { width } = useElementBounding(pill)
-const pillName = `${props.name}-prev-pill-width`
-const pillWidth = ref(props.name ? +(sessionStorage.getItem(pillName) || 0) : 0)
-const pillTransformStyles = computed(() => `transform:translateX(${pillWidth.value * selectedId.value}px)`)
-watch(width, (w) => {
-  if (w === 0) return
-  pillWidth.value = w
-  sessionStorage.setItem(pillName, String(w))
+const { width } = $(useElementBounding(pill))
+const pillName = `${name}-prev-pill-width`
+let pillWidth = $ref(name ? +(sessionStorage.getItem(pillName) || 0) : 0)
+const pillTransformStyles = computed(() => `transform:translateX(${pillWidth * selectedId}px)`)
+watch($$(width), () => {
+  if (width === 0) return
+  pillWidth = width
+  sessionStorage.setItem(pillName, String(width))
 })
 </script>
 

@@ -1,74 +1,82 @@
 import { defineStore } from 'pinia'
 import Cookies from 'js-cookie'
 import { until, useAsyncState } from '@vueuse/core'
-import { computed, ref, shallowRef, watch } from 'vue'
+import { watch } from 'vue'
 import { logicAnd } from '@vueuse/math'
 import { queryWordsByUser, stemsMapping } from '@/api/vocab-service'
 import { Sieve } from '@/types'
 import { timer, timerEnd } from '@/utils/utils'
 import Trie from '@/utils/LabeledTire'
-import { logoutToken } from '@/api/user'
+import { login as loginUser, logoutToken } from '@/api/user'
+import router from '@/router'
 
 export const useVocabStore = defineStore('vocabStore', () => {
-  const user = ref(Cookies.get('_user') ?? '')
-  watch(user, () => Cookies.set('_user', user.value, { expires: 30 }))
-
-  function login(username: string, tk: string) {
-    Cookies.set('_user', username, { expires: 30 })
-    Cookies.set('acct', tk, { expires: 30 })
-    user.value = username
-  }
-
-  async function logout() {
-    await logoutToken({ username: user.value })
-    Cookies.remove('_user', { path: '' })
-    Cookies.remove('acct', { path: '' })
-    user.value = ''
-  }
-
-  const baseVocab = ref<Sieve[]>([])
-  const baseReady = ref(false)
-  watch(user, async () => {
-    baseReady.value = false
-    const { state, isReady } = useAsyncState(queryWordsByUser(user.value), [])
+  let user = $ref(Cookies.get('_user') ?? '')
+  let baseVocab = $ref<Sieve[]>([])
+  let baseReady = $ref(false)
+  watch($$(user), async () => {
+    Cookies.set('_user', user, { expires: 30 })
+    baseReady = false
+    const { state, isReady } = useAsyncState(queryWordsByUser(user), [])
     await until(isReady).toBe(true)
-    baseVocab.value = state.value
-    baseReady.value = true
+    baseVocab = state.value
+    baseReady = true
     requestAnimationFrame(backTrie)
   }, { immediate: true })
 
-  const { state: irregularMaps, isReady: irrReady } = useAsyncState(async () =>
+  async function login(info: { username: string, password: string }) {
+    const resAuth = await loginUser(info)
+
+    if (!resAuth.length) return
+
+    Cookies.set('_user', info.username, { expires: 30 })
+    Cookies.set('acct', resAuth[1], { expires: 30 })
+    user = info.username
+    requestAnimationFrame(() => router.push('/'))
+    return true
+  }
+
+  async function logout() {
+    await logoutToken({ username: user })
+    Cookies.remove('_user', { path: '' })
+    Cookies.remove('acct', { path: '' })
+    user = ''
+    requestAnimationFrame(() => router.push('/'))
+  }
+
+  const { state: irregularMaps, isReady: irrReady } = $(useAsyncState(async () =>
       (await stemsMapping()).map((m) => [m.stem_word, ...m.derivations.split(',')])
-    , [])
+    , []))
 
   async function buildStemTrie() {
     timer('struct sieve')
-    await until(logicAnd(baseReady, irrReady)).toBe(true)
-    const trie = new Trie().path(baseVocab.value).share(irregularMaps.value)
+    await until(logicAnd($$(baseReady), $$(irrReady))).toBe(true)
+    const trie = new Trie().path(baseVocab).share(irregularMaps)
     timerEnd('struct sieve')
     return trie
   }
 
-  const baseTrie = shallowRef(new Trie())
-  const trieReady = ref(false)
+  let baseTrie = $shallowRef(new Trie())
+  let trieReady = $ref(false)
 
   async function backTrie() {
-    trieReady.value = false
-    const { state, isReady } = useAsyncState(buildStemTrie, new Trie())
-    await until(isReady).toBe(true)
-    baseTrie.value = state.value
-    trieReady.value = true
+    trieReady = false
+    const { state, isReady } = $(useAsyncState(buildStemTrie, new Trie()))
+    await until($$(isReady)).toBe(true)
+    baseTrie = state
+    trieReady = true
   }
 
   async function getPreBuiltTrie() {
-    await until(trieReady).toBe(true)
+    await until($$(trieReady)).toBe(true)
     requestAnimationFrame(backTrie)
-    return baseTrie.value
+    return baseTrie
   }
 
   function updateWord($: Sieve, got: boolean) {
     if ($.invalid) {
-      baseVocab.value = [...baseVocab.value, $]
+      baseVocab = [...baseVocab, $]
+      requestAnimationFrame(backTrie)
       $.invalid = false
     }
 
@@ -76,11 +84,12 @@ export const useVocabStore = defineStore('vocabStore', () => {
     $.time_modified = new Date().toISOString()
   }
 
-  const loadingQueue = ref<boolean[]>([])
-  return {
+  const loadingQueue = $ref<boolean[]>([])
+  const inUpdating = $computed(() => loadingQueue.length > 0)
+  return $$({
     baseVocab,
     getPreBuiltTrie,
-    inUpdating: computed(() => loadingQueue.value.length > 0),
+    inUpdating,
     loadingQueue,
     trieReady,
     updateWord,
@@ -88,5 +97,5 @@ export const useVocabStore = defineStore('vocabStore', () => {
     baseReady,
     login,
     logout,
-  }
+  })
 })

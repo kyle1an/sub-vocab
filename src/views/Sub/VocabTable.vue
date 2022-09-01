@@ -1,85 +1,98 @@
 <script lang="ts" setup>
-import { computed, nextTick, reactive, ref, shallowRef, watch } from 'vue'
-import { logicAnd, logicNot } from '@vueuse/math'
-import { TransitionPresets, useElementHover, useTransition, watchTriggerable, whenever } from '@vueuse/core'
+import { computed, nextTick, ref, watch } from 'vue'
+import { logicNot } from '@vueuse/math'
+import { TransitionPresets, until, useElementHover, whenever } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
-import { storeToRefs } from 'pinia'
 import { LabelRow, Sorting } from '@/types'
-import { compare, isMobile, removeClass, selectWord } from '@/utils/utils'
+import { compare, isMobile, removeClass, selectWord, useRange } from '@/utils/utils'
 import Examples from '@/components/Examples'
 import SegmentedControl from '@/components/SegmentedControl.vue'
 import ToggleButton from '@/components/ToggleButton.vue'
 import { useVocabStore } from '@/store/useVocab'
+import { useDebounceRAF, useDebounceTransition } from '@/composables/useDebounce'
 
 const { t } = useI18n()
-const props = withDefaults(defineProps<{
+const {
+  data = [],
+  sentences = ['']
+} = defineProps<{
   data: LabelRow[],
   sentences: string[]
-}>(), {
-  data: () => [],
-  sentences: () => ['']
-})
+}>()
 
 function onSegmentSwitched(seg: number) {
-  disabledTotal.value = true
-  selectedSeg.value = seg
-  sessionStorage.setItem('prev-segment-select', String(seg))
-  nextTick().then(() => disabledTotal.value = false)
+  disabledTotal = true
+  selectedSeg = seg
+  sessionStorage.setItem('prev-segment-select', String(selectedSeg))
+  refreshTableData()
 }
 
-const selectedSeg = ref(+(sessionStorage.getItem('prev-segment-select') || 0))
+let selectedSeg = $ref(+(sessionStorage.getItem('prev-segment-select') || 0))
 // use shallowRef to avoid issue of cannot expand row
-const rowsSegmented = shallowRef<LabelRow[]>([])
-const needRefresh = ref(true)
-const { inUpdating } = storeToRefs(useVocabStore())
-const { trigger } = watchTriggerable([selectedSeg, () => props.data], () => {
-  rowsSegmented.value = props.data.filter(
-    selectedSeg.value === 1 ? (r) => !r.vocab.acquainted && r.vocab.w.length > 2 :
-      selectedSeg.value === 2 ? (r) => r.vocab.acquainted || r.vocab.w.length <= 2 : () => true)
-
-  if (!inUpdating.value) needRefresh.value = false
-})
+let needRefresh = $ref(true)
+const { inUpdating } = $(useVocabStore())
+const segCb = (id: number): (r: LabelRow) => boolean =>
+  id === 1 ? (r) => Boolean(!r.vocab.acquainted && r.vocab.w.length > 2) :
+    id === 2 ? (r) => Boolean(r.vocab.acquainted || r.vocab.w.length <= 2) : () => true
 const vocabTable = ref()
-const isHovered = useElementHover(vocabTable)
-whenever(inUpdating, () => needRefresh.value = true)
-whenever(logicAnd(logicNot(isHovered), logicNot(inUpdating)), () => needRefresh.value && trigger())
-const search = ref('')
-const rowsSearched = computed(() =>
-  rowsSegmented.value
-    .filter(search.value ? (r) => r.vocab.w.toLowerCase().includes(search.value.toLowerCase()) : () => true))
-
-const sortChange = (p: Sorting<LabelRow>) => sortBy.value = p
-const sortBy = shallowRef<Sorting<LabelRow>>({ order: null, prop: null, })
-const page = reactive({
-  curr: 1,
-  sizes: [25, 100, 200, 500, 1000, Infinity],
-  size: 100,
+const isHovered = $(useElementHover(vocabTable))
+watch($$(inUpdating), () => {
+  if (inUpdating) {
+    needRefresh = true
+  } else if (!isHovered && selectedSeg !== 0) {
+    refreshTableData()
+    needRefresh = false
+  }
 })
-const rowsDisplay = computed(() => {
-  const { prop, order } = sortBy.value
-  let rowsSorted = rowsSearched.value
+whenever(logicNot($$(isHovered)), () => {
+  if (needRefresh && !inUpdating && selectedSeg !== 0) {
+    refreshTableData()
+    needRefresh = false
+  }
+})
+const search = $ref('')
+const sortChange = (p: Sorting<LabelRow>) => sortBy = p
+let sortBy = $shallowRef<Sorting<LabelRow>>({ order: null, prop: null, })
+const currPage = $ref(1)
+const pageSize = $ref(100)
+let rowsDisplay = $shallowRef<LabelRow[]>([])
+
+const refreshTableData = useDebounceRAF(() => {
+  const { prop, order } = sortBy
+  const rowsSearched = data
+    .filter(segCb(selectedSeg))
+    .filter(search ? (r) => r.vocab.w.toLowerCase().includes(search.toLowerCase()) : () => true)
+
+  ;(async () => {
+    await until($$(inTransition)).toBe(false)
+    total = rowsSearched.length
+  })()
 
   if (prop && order) {
-    rowsSorted = [...rowsSorted].sort(compare(prop, order))
+    rowsSearched.sort(compare(prop, order))
   }
 
-  return rowsSorted.slice((page.curr - 1) * page.size, page.curr * page.size)
+  rowsDisplay = rowsSearched.slice(...useRange(currPage, pageSize))
+  requestAnimationFrame(() => {
+    removeClass('xpd')
+    nextTick().then(() => disabledTotal = false)
+  })
 })
 
-const total = computed(() => rowsSearched.value.length)
-const disabledTotal = ref(false)
-const totalTransit = useTransition(total, {
-  disabled: disabledTotal,
+let total = $ref(0)
+watch([$$(data), $$(sortBy), $$(search), $$(currPage), $$(pageSize)], refreshTableData, { immediate: true })
+let disabledTotal = $ref(false)
+const { output: totalTransit, inTransition } = $(useDebounceTransition($$(total), {
+  disabled: $$(disabledTotal),
   transition: TransitionPresets.easeOutCirc,
-})
+}))
 
 function handleRowClick(row: LabelRow) {
   (vocabTable.value as typeof ElTable).toggleRowExpansion(row)
 }
 
-watch(rowsDisplay, () => removeClass('xpd'))
-whenever(logicNot(inUpdating), () => removeClass('xpd'))
+whenever(logicNot($$(inUpdating)), () => removeClass('xpd'))
 
 function handleExpand(row: LabelRow) {
   document.getElementsByClassName(`v-${row.src[0][3]}`)[0].classList.toggle('xpd')
@@ -93,7 +106,7 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
     <segmented-control
       name="vocab-seg"
       :segments="segments"
-      :default="selectedSeg"
+      :init="selectedSeg"
       class="w-full grow-0"
       @input="onSegmentSwitched"
     />
@@ -110,11 +123,11 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
       >
         <el-table-column
           type="expand"
-          class-name="[&_.el-table\_\_expand-icon_i]:text-slate-500"
+          class-name="[&_i]:text-slate-500"
         >
           <template #default="{row}">
             <Examples
-              :sentences="props.sentences"
+              :sentences="sentences"
               :src="row.src"
               class="tracking-wide"
             />
@@ -125,7 +138,7 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
           prop="src.length"
           width="62"
           sortable="custom"
-          class-name="cursor-pointer [th&>.cell]:!p-0"
+          class-name="cursor-pointer !text-right [th&>.cell]:!p-0"
         >
           <template #default="{row}">
             <div class="select-none text-right font-compact tabular-nums text-slate-400">
@@ -183,9 +196,9 @@ const segments = computed(() => [t('all'), t('new'), t('acquainted')])
       </el-table>
     </div>
     <el-pagination
-      v-model:currentPage="page.curr"
-      v-model:page-size="page.size"
-      :page-sizes="page.sizes"
+      v-model:currentPage="currPage"
+      v-model:page-size="pageSize"
+      :page-sizes="[25, 100, 200, 500, 1000, Infinity]"
       :small="true"
       :pager-count="5"
       layout="prev, pager, next, ->, total, sizes"

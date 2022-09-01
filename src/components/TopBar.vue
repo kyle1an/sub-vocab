@@ -15,10 +15,9 @@ const localeMap: Record<string, Language> = {
   'zh': zhCn,
 }
 const elLocale = computed(() => localeMap[locale.value as string])
-const store = useVocabStore()
-const username = computed(() => store.user)
-const isLoggedIn = computed(() => !!username.value)
-const acquaintedSection = computed(() => store.user ? t('mine') : t('common'))
+const { user } = $(useVocabStore())
+const isLoggedIn = computed(() => !!user)
+const acquaintedSection = computed(() => user ? t('mine') : t('common'))
 const isWide = window.innerWidth >= 460
 
 function handleCommand(command: string) {
@@ -56,7 +55,7 @@ function handleCommand(command: string) {
           to="/user"
           class="flex h-full items-center px-4 hover:bg-gray-100"
         >
-          {{ username }}
+          {{ user }}
         </router-link>
         <template v-else>
           <router-link

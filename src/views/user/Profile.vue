@@ -1,15 +1,14 @@
 <script lang="ts" setup>
 import type { FormInstance, FormItemRule } from 'element-plus'
+import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
 import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
-import router from '@/router'
 import { changeUsername, isUsernameTaken } from '@/api/user'
 import { useVocabStore } from '@/store/useVocab'
 import { resetForm } from '@/utils/elements'
 
 const { t } = useI18n()
-const store = useVocabStore()
+let { user } = $(useVocabStore())
 const ruleFormRef = ref<FormInstance>()
 
 async function checkUsername(rule: FormItemRule | FormItemRule[], username: string, callback: (arg0?: Error) => void) {
@@ -25,7 +24,7 @@ async function checkUsername(rule: FormItemRule | FormItemRule[], username: stri
     return callback(new Error(t('NameLimitMsg')))
   }
 
-  if (username !== store.user && (await isUsernameTaken({ username })).has) {
+  if (username !== user && (await isUsernameTaken({ username })).has) {
     return callback(new Error(`${username}${t('alreadyTaken')}`))
   }
 
@@ -35,7 +34,6 @@ async function checkUsername(rule: FormItemRule | FormItemRule[], username: stri
 const ruleForm = reactive({
   username: '',
 })
-
 const rules = reactive({
   username: [{ validator: checkUsername, trigger: 'blur' }],
 })
@@ -52,28 +50,25 @@ function submitForm(formEl: FormInstance | undefined) {
   })
 }
 
-const errorMsg = ref('')
+let errorMsg = $ref('')
 
 async function alterInfo(form: typeof ruleForm) {
-  if (form.username !== '' && form.username !== store.user) {
+  if (form.username !== '' && form.username !== user) {
     form.username = form.username.trim()
     const res = await changeUsername({
-      username: store.user,
+      username: user,
       newUsername: form.username,
     })
 
     if (res.success) {
-      store.user = form.username
+      user = form.username
     } else {
-      errorMsg.value = res.message || 'something went wrong'
+      errorMsg = res.message || 'something went wrong'
     }
   }
 }
 
-function logOut() {
-  useVocabStore().logout()
-  requestAnimationFrame(() => router.push('/'))
-}
+const { logout } = useVocabStore()
 </script>
 
 <template>
@@ -118,7 +113,7 @@ function logOut() {
       {{ t('status') }}
     </div>
     <div class="flex">
-      <el-button @click="logOut">
+      <el-button @click="logout">
         {{ t('log out') }}
       </el-button>
     </div>
