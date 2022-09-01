@@ -1,7 +1,7 @@
 <script lang="tsx" setup>
 import type { FormInstance, FormItemRule } from 'element-plus'
-import { ElButton, ElForm, ElFormItem, ElInput, ElNotification } from 'element-plus'
-import { reactive, ref } from 'vue'
+import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
+import { reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { userInfo } from '@/types/user'
 import router from '@/router'
@@ -9,7 +9,7 @@ import { isUsernameTaken, register } from '@/api/user'
 import { resetForm } from '@/utils/elements'
 
 const { t } = useI18n()
-const ruleFormRef = ref<FormInstance>()
+const ruleFormRef = $ref<FormInstance>()
 
 async function checkUsername(rule: FormItemRule | FormItemRule[], username: string, callback: (arg0?: Error) => void) {
   if (!username.length) {
@@ -37,8 +37,8 @@ function validatePass(rule: FormItemRule | FormItemRule[], value: string, callba
   }
 
   if (ruleForm.checkPass !== '') {
-    if (!ruleFormRef.value) return
-    ruleFormRef.value.validateField('checkPass', () => null)
+    if (!ruleFormRef) return
+    ruleFormRef.validateField('checkPass', () => null)
   }
 
   callback()
@@ -61,12 +61,12 @@ const ruleForm = reactive({
   password: '',
   checkPass: '',
 })
-
 const rules = reactive({
   username: [{ validator: checkUsername, trigger: 'blur' }],
   password: [{ validator: validatePass, trigger: 'blur' }],
   checkPass: [{ validator: validatePass2, trigger: 'blur' }],
 })
+let errorMsg = $ref('')
 
 function submitForm(formEl: FormInstance | undefined) {
   if (!formEl) return
@@ -76,10 +76,8 @@ function submitForm(formEl: FormInstance | undefined) {
     }
 
     if (!await registerStatus(ruleForm)) {
-      ElNotification({
-        message:
-          <span style={{ color: 'teal' }}>Something went wrong.</span>
-      })
+      errorMsg = 'Something went wrong.'
+      return
     }
 
     await router.push('/login')
@@ -108,6 +106,7 @@ async function registerStatus(form: userInfo) {
           <el-form-item
             :label="t('Name')"
             prop="username"
+            :error="errorMsg"
           >
             <el-input
               v-model.number="ruleForm.username"

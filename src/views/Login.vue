@@ -1,15 +1,13 @@
 <script lang="tsx" setup>
 import type { FormInstance, FormItemRule } from 'element-plus'
-import { ElButton, ElForm, ElFormItem, ElInput, ElNotification } from 'element-plus'
+import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
 import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useVocabStore } from '@/store/useVocab'
-import router from '@/router'
-import { login } from '@/api/user'
 import { resetForm } from '@/utils/elements'
 
 const { t } = useI18n()
-const store = useVocabStore()
+const { login } = useVocabStore()
 const ruleFormRef = ref<FormInstance>()
 
 function checkUsername(rule: FormItemRule | FormItemRule[], username: string, callback: (arg0?: Error) => void) {
@@ -44,22 +42,16 @@ const rules = reactive({
   username: [{ validator: checkUsername, trigger: 'blur' }],
   password: [{ validator: validatePass, trigger: 'blur' }],
 })
+let errorMsg = $ref('')
 
 function submitForm(formEl: FormInstance | undefined) {
   if (!formEl) return
   formEl.validate(async (valid) => {
     if (!valid) return
 
-    const resAuth = await login(ruleForm)
-    if (!resAuth.length) {
-      return ElNotification({
-        message:
-          <span style={{ color: 'teal' }}>{t('incorrectUserPassword')}</span>
-      })
+    if (!(await login(ruleForm))) {
+      errorMsg = t('incorrectUserPassword')
     }
-
-    store.login(ruleForm.username, resAuth[1])
-    requestAnimationFrame(() => router.push('/'))
   })
 }
 </script>
@@ -80,6 +72,7 @@ function submitForm(formEl: FormInstance | undefined) {
           <el-form-item
             :label="t('Name')"
             prop="username"
+            :error="errorMsg"
           >
             <el-input
               v-model.number="ruleForm.username"

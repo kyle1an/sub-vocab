@@ -1,6 +1,5 @@
 <script lang="tsx" setup>
 import { Check, Loading } from '@element-plus/icons-vue'
-import { ref } from 'vue'
 import { ElButton, ElIcon, ElNotification } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { Sieve } from '@/types'
@@ -9,9 +8,9 @@ import { useVocabStore } from '@/store/useVocab'
 import router from '@/router'
 
 const { t } = useI18n()
-const props = defineProps<{ row: Sieve }>()
-const vocabStore = useVocabStore()
-const loading = ref(false)
+const { row } = defineProps<{ row: Sieve }>()
+const { user, loadingQueue, updateWord } = $(useVocabStore())
+let isLoading = $ref(false)
 
 async function toggleWordState(row: Sieve, name: string) {
   const word = row.w
@@ -23,17 +22,17 @@ async function toggleWordState(row: Sieve, name: string) {
   const res = await (acquainted ? revokeWord : acquaint)(vocabInfo)
 
   if (res.affectedRows) {
-    vocabStore.updateWord(row, !acquainted)
+    updateWord(row, !acquainted)
     row.acquainted = !acquainted
   }
 }
 
 async function handleClick(row: Sieve) {
-  loading.value = true
-  vocabStore.loadingQueue.push(true)
+  isLoading = true
+  loadingQueue.push(true)
 
-  if (vocabStore.user) {
-    await toggleWordState(row, vocabStore.user)
+  if (user) {
+    await toggleWordState(row, user)
   } else {
     ElNotification({
       message: (
@@ -46,8 +45,8 @@ async function handleClick(row: Sieve) {
     })
   }
 
-  vocabStore.loadingQueue.pop()
-  loading.value = false
+  loadingQueue.pop()
+  isLoading = false
 }
 </script>
 
@@ -55,10 +54,10 @@ async function handleClick(row: Sieve) {
   <el-button
     color="#facc15"
     size="small"
-    :disabled="loading"
-    :class="`${props.row.acquainted?'!text-white':'un !border-zinc-300 !bg-transparent !text-transparent hover:!text-black'} ${loading?'[&_.is-loading]:!inline-flex [&_.check]:hidden [.un&]:!text-black':''}`"
+    :disabled="isLoading"
+    :class="`${row.acquainted?'!text-white':'un !border-zinc-300 !bg-transparent !text-transparent hover:!text-black'} ${isLoading?'[&_.is-loading]:!inline-flex [&_.check]:hidden [.un&]:!text-black':''}`"
     circle
-    @click.stop="handleClick(props.row)"
+    @click.stop="handleClick(row)"
   >
     <el-icon class="is-loading !hidden">
       <Loading />

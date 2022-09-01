@@ -1,16 +1,15 @@
 <script lang="ts" setup>
 import type { FormInstance, FormItemRule } from 'element-plus'
-import { reactive, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
-import router from '@/router'
+import { reactive } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { changePassword } from '@/api/user'
 import { useVocabStore } from '@/store/useVocab'
 import { resetForm } from '@/utils/elements'
 
 const { t } = useI18n()
-const store = useVocabStore()
-const ruleFormRef = ref<FormInstance>()
+const { user } = $(useVocabStore())
+const ruleFormRef = $ref<FormInstance>()
 
 function validatePass(rule: FormItemRule | FormItemRule[], value: string, callback: () => void) {
   if (value === '') {
@@ -18,8 +17,8 @@ function validatePass(rule: FormItemRule | FormItemRule[], value: string, callba
   }
 
   if (ruleForm.checkPass !== '') {
-    if (!ruleFormRef.value) return
-    ruleFormRef.value.validateField('checkPass', () => null)
+    if (!ruleFormRef) return
+    ruleFormRef.validateField('checkPass', () => null)
   }
 
   callback()
@@ -42,7 +41,6 @@ const ruleForm = reactive({
   password: '',
   checkPass: '',
 })
-
 const rules = reactive({
   password: [{ validator: validatePass, trigger: 'blur' }],
   checkPass: [{ validator: validatePass2, trigger: 'blur' }],
@@ -60,22 +58,21 @@ function submitForm(formEl: FormInstance | undefined) {
   })
 }
 
-const errorMsg = ref('')
+let errorMsg = $ref('')
 
 async function alterInfo(form: typeof ruleForm) {
   if (form.password !== '') {
     form.password = form.password.trim()
     const res = await changePassword({
-      username: store.user,
+      username: user,
       oldPassword: form.oldPassword,
       newPassword: form.password,
     })
 
     if (res.success) {
       useVocabStore().logout()
-      requestAnimationFrame(() => router.push('/'))
     } else {
-      errorMsg.value = res.message || 'something went wrong'
+      errorMsg = res.message || 'something went wrong'
     }
   }
 }

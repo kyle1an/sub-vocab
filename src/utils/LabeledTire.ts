@@ -27,31 +27,28 @@ export default class LabeledTire {
       const original = sieve.w
       const hasUp = hasUppercase(original)
       const node = this.getNode(hasUp ? original.toLowerCase() : original) as TrieNode<LabelPre>
+      const $ = node.$
 
-      if (!node.$) {
+      if (!$) {
         node.$ = {
           w: original,
           up: hasUp,
           src: [],
           vocab: sieve,
         }
-      } else {
-        const $ = node.$
-
-        if ($.up) {
-          if (hasUp) {
-            if ($.vocab.rank) {
-              if (sieve.rank && sieve.rank < $.vocab.rank) {
-                $.vocab = sieve
-              }
-            } else if (sieve.rank) {
+      } else if ($.up) {
+        if (hasUp) {
+          if ($.vocab.rank) {
+            if (sieve.rank && sieve.rank < $.vocab.rank) {
               $.vocab = sieve
             }
-          } else {
-            $.w = original
-            $.up = false
+          } else if (sieve.rank) {
             $.vocab = sieve
           }
+        } else {
+          $.w = original
+          $.up = false
+          $.vocab = sieve
         }
       }
     }
@@ -72,7 +69,7 @@ export default class LabeledTire {
           w: base,
           acquainted: false,
           is_user: 0,
-        },
+        }
       }
       let i = irregulars.length
       while (--i) {
@@ -102,19 +99,20 @@ export default class LabeledTire {
 
   #update(original: string, hasUp: boolean, index: number, currentSentenceIndex: number) {
     const branch = this.getNode(hasUp ? original.toLowerCase() : original)
+    const $ = branch.$
 
-    if (!branch.$) {
-      branch.$ = { w: original, up: hasUp, src: [] }
-      const $ = branch.$
-      $.src.push([
-        currentSentenceIndex,
-        index,
-        original.length,
-        ++this.#sequence,
-      ])
-      this.vocabulary[$.src[0][3]] = $
+    if (!$) {
+      branch.$ = {
+        w: original, up: hasUp,
+        src: [[
+          currentSentenceIndex,
+          index,
+          original.length,
+          ++this.#sequence,
+        ]]
+      }
+      this.vocabulary[branch.$.src[0][3]] = branch.$
     } else {
-      const $ = branch.$
       $.src.push([
         currentSentenceIndex,
         index,
@@ -122,7 +120,7 @@ export default class LabeledTire {
         $.src.length ? this.#sequence : ++this.#sequence,
       ])
 
-      if (branch.$.src.length === 1) {
+      if ($.src.length === 1) {
         this.vocabulary[$.src[0][3]] = $
       }
 
@@ -143,10 +141,10 @@ export default class LabeledTire {
     return this
   }
 
-  static formVocabList(vocabulary: Array<Label | null>) {
+  formVocabList() {
     const all: LabelRow[] = []
 
-    for (const v of vocabulary) {
+    for (const v of this.vocabulary) {
       if (!v || v.variant) continue
 
       all.push({
@@ -156,14 +154,14 @@ export default class LabeledTire {
           acquainted: false,
           is_user: 0,
           invalid: true,
-        },
+        }
       })
     }
 
     return all
   }
 
-  static collectNestedSource($: Label) {
+  collectNestedSource($: Label) {
     let src: number[][] = [...$.src]
 
     if ($.derive?.length) {

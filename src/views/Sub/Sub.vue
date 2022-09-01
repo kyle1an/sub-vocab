@@ -1,18 +1,17 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { ref, shallowRef, watch } from 'vue'
+import { watch } from 'vue'
 import { watchOnce, whenever } from '@vueuse/core'
-import { storeToRefs } from 'pinia'
 import VocabTable from './VocabTable.vue'
-import Trie from '@/utils/LabeledTire'
 import { LabelRow } from '@/types'
 import { readFiles, sortByChar } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
 import { useTimeStore } from '@/store/usePerf'
+import { useDebounceTimeout } from '@/composables/useDebounce'
 
 const { t } = useI18n()
-const fileInfo = ref('')
-const inputText = ref('')
+let fileInfo = $ref('')
+let inputText = $ref('')
 
 async function onFileChange(ev: Event) {
   const files = (ev.target as HTMLInputElement).files
@@ -20,63 +19,52 @@ async function onFileChange(ev: Event) {
   if (!numberOfFiles) return
   const fileList = await readFiles(files)
   if (numberOfFiles > 1) {
-    fileInfo.value = `${numberOfFiles} files selected`
+    fileInfo = `${numberOfFiles} files selected`
   } else {
-    fileInfo.value = files[0].name
+    fileInfo = files[0].name
   }
 
-  inputText.value = fileList.reduce((pre, { result }) => pre + result, '')
+  inputText = fileList.reduce((pre, { result }) => pre + result, '')
 }
 
-const count = ref(0)
-const sentences = ref<string[]>([])
-const vocabStore = useVocabStore()
-const { trieReady, baseReady, baseVocab } = storeToRefs(useVocabStore())
+let count = $ref(0)
+let sentences = $ref<string[]>([])
+const { trieReady, baseReady, getPreBuiltTrie } = $(useVocabStore())
 const { log, logEnd, logPerf } = useTimeStore()
-let timeoutID: ReturnType<typeof setTimeout>
-watch(inputText, reformVocabList)
+watch($$(inputText), reformVocabList)
 
 function reformVocabList() {
-  if (!trieReady.value) {
-    watchOnce(trieReady, reformVocabList)
+  if (!trieReady) {
+    watchOnce($$(trieReady), formVocabList)
     return
   }
 
-  clearTimeout(timeoutID)
-  timeoutID = setTimeout(async () => {
-    ({
-      list: tableDataOfVocab.value,
-      count: count.value,
-      sentences: sentences.value
-    } = await formVocabList(inputText.value, await vocabStore.getPreBuiltTrie()))
-  }, 50)
+  formVocabList()
 }
 
-watchOnce(baseReady, () => whenever(baseReady, () => baseVocab.value.length && reformVocabList()))
-const tableDataOfVocab = shallowRef<LabelRow[]>([])
-
-async function formVocabList(text: string, trie: Trie) {
+whenever($$(baseReady), reformVocabList)
+let tableDataOfVocab = $shallowRef<LabelRow[]>([])
+const formVocabList = useDebounceTimeout(async function refreshVocab() {
+  const trie = await getPreBuiltTrie()
   log(['-- All took', '    '])
   log('· init words')
-  trie.add(text)
+  trie.add(inputText)
   logEnd('· init words')
   log(['· categorize vocabulary', ' +  '])
   log('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
-  const { vocabulary, sentences, wordCount } = trie.mergedVocabulary()
+  trie.mergedVocabulary()
   logEnd('%c  merge vocabulary')
   log('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
-  const list = Trie.formVocabList(vocabulary)
+  const list = trie.formVocabList()
   logEnd('%c  formLabel vocabulary')
   logEnd(['· categorize vocabulary', ' +  '])
   logEnd(['-- All took', '    '])
   logVocabInfo(list)
   logPerf()
-  return {
-    list,
-    sentences,
-    count: wordCount,
-  }
-}
+  tableDataOfVocab = list
+  count = trie.wordCount
+  sentences = trie.sentences
+}, 50)
 
 function handleTextChange() {
   const input = document.getElementById('input') as HTMLInputElement
@@ -104,7 +92,7 @@ function logVocabInfo(listOfVocab: LabelRow[]) {
       </label>
     </div>
     <div class="flex flex-col gap-6 md:h-[calc(100vh-140px)] md:flex-row">
-      <div class="relative box-border flex flex-1 basis-auto flex-col overflow-hidden border shadow-sm md:rounded-[12px]">
+      <div class="relative box-border flex flex-1 basis-auto flex-col overflow-hidden border md:rounded-[12px] md:shadow-sm">
         <div class="flex h-10 shrink-0 items-center border-b bg-gray-100 py-2 pr-2 pl-4 font-compact text-xs text-neutral-600">
           <span class="grow truncate">
             {{ fileInfo + '&nbsp;' }}
@@ -114,7 +102,7 @@ function logVocabInfo(listOfVocab: LabelRow[]) {
             {{ `&nbsp;${count.toLocaleString('en-US')} ${t('words')}` }}
           </span>
         </div>
-        <div class="input-area h-full w-full grow text-base text-zinc-700 md:text-sm">
+        <div class="h-full w-full grow text-base text-zinc-700 md:text-sm">
           <textarea
             v-model="inputText"
             class="h-[260px] max-h-[360px] w-full resize-none py-3 px-[30px] align-top outline-none ffs-[normal] md:h-full md:max-h-full md:rounded-[12px]"

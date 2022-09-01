@@ -34,10 +34,10 @@ export interface LabelRow extends Record<string, unknown> {
 }
 
 export type Source = number[][];
-export type Order = 'ascending' | 'descending';
+export type Order = 'ascending' | 'descending' | null;
 
 export interface Sorting<T> {
-  order: Order | null;
+  order: Order;
   prop: keyof T | null;
 }
 

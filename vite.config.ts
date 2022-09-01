@@ -5,7 +5,9 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 
 export default defineConfig({
   plugins: [
-    vue(),
+    vue({
+      reactivityTransform: true
+    }),
     vueJsx({
       // options are passed on to @vue/babel-plugin-jsx
     }),

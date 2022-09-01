@@ -122,3 +122,5 @@ export function promiseClone<T>(trie: T): Promise<T> {
     resolve(structuredClone(trie))
   })
 }
+
+export const useRange = (currPage: number, pageSize: number) => [(currPage - 1) * pageSize, currPage * pageSize]
