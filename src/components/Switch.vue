@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const emit = defineEmits(['toggle'])
 const props = defineProps({
   state: Boolean,
   text: { type: Array, default: () => ['off', 'on'] },
 })
+const emit = defineEmits(['toggle'])
 const toggleState = ref<boolean>(props.state)
 const toggleFilter = () => emit('toggle', toggleState.value)
 </script>
