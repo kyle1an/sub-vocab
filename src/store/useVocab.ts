@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import Cookies from 'js-cookie'
 import { until, useAsyncState } from '@vueuse/core'
-import { watch } from 'vue'
+import { ref } from 'vue'
 import { logicAnd } from '@vueuse/math'
 import { queryWordsByUser, stemsMapping } from '@/api/vocab-service'
 import { Sieve } from '@/types'
@@ -9,20 +9,18 @@ import { timer, timerEnd } from '@/utils/utils'
 import Trie from '@/utils/LabeledTire'
 import { login as loginUser, logoutToken } from '@/api/user'
 import router from '@/router'
+import { watched } from '@/composables/watch'
 
 export const useVocabStore = defineStore('vocabStore', () => {
-  let user = $ref(Cookies.get('_user') ?? '')
   let baseVocab = $ref<Sieve[]>([])
   let baseReady = $ref(false)
-  watch($$(user), async () => {
+  let user = $(watched(ref(Cookies.get('_user') ?? ''), async (user) => {
     Cookies.set('_user', user, { expires: 30 })
     baseReady = false
-    const { state, isReady } = useAsyncState(queryWordsByUser(user), [])
-    await until(isReady).toBe(true)
-    baseVocab = state.value
+    baseVocab = await queryWordsByUser(user)
     baseReady = true
-    requestAnimationFrame(backTrie)
-  }, { immediate: true })
+    queueMicrotask(backTrie)
+  }, { immediate: true }))
 
   async function login(info: { username: string, password: string }) {
     const resAuth = await loginUser(info)
@@ -61,22 +59,19 @@ export const useVocabStore = defineStore('vocabStore', () => {
 
   async function backTrie() {
     trieReady = false
-    const { state, isReady } = $(useAsyncState(buildStemTrie, new Trie()))
-    await until($$(isReady)).toBe(true)
-    baseTrie = state
+    baseTrie = await buildStemTrie()
     trieReady = true
   }
 
   async function getPreBuiltTrie() {
     await until($$(trieReady)).toBe(true)
-    requestAnimationFrame(backTrie)
     return baseTrie
   }
 
   function updateWord($: Sieve, got: boolean) {
     if ($.invalid) {
       baseVocab = [...baseVocab, $]
-      requestAnimationFrame(backTrie)
+      queueMicrotask(backTrie)
       $.invalid = false
     }
 
@@ -88,6 +83,7 @@ export const useVocabStore = defineStore('vocabStore', () => {
   const inUpdating = $computed(() => loadingQueue.length > 0)
   return $$({
     baseVocab,
+    backTrie,
     getPreBuiltTrie,
     inUpdating,
     loadingQueue,

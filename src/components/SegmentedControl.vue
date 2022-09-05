@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useElementBounding } from '@vueuse/core'
+import { watched } from '@/composables/watch'
 
-const emit = defineEmits(['input'])
 const {
   init = 0,
   name = '',
@@ -12,19 +12,18 @@ const {
   name: string,
   segments: string[],
 }>()
+const emit = defineEmits(['input'])
 watch($$(init), (id) => selectedId = id)
-let selectedId = $ref(init)
-watch($$(selectedId), (id) => emit('input', id))
+let selectedId = $(watched(ref(init), (selectedId) => emit('input', selectedId)))
 const pill = ref()
-const { width } = $(useElementBounding(pill))
 const pillName = `${name}-prev-pill-width`
 let pillWidth = $ref(name ? +(sessionStorage.getItem(pillName) || 0) : 0)
 const pillTransformStyles = computed(() => `transform:translateX(${pillWidth * selectedId}px)`)
-watch($$(width), () => {
+const width = $(watched(useElementBounding(pill).width, (width) => {
   if (width === 0) return
   pillWidth = width
   sessionStorage.setItem(pillName, String(width))
-})
+}, { immediate: true }))
 </script>
 
 <template>

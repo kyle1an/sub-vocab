@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import { computed, nextTick, ref, watch } from 'vue'
-import { logicNot } from '@vueuse/math'
-import { TransitionPresets, until, useElementHover, whenever } from '@vueuse/core'
+import { nextTick, ref, watch } from 'vue'
+import { TransitionPresets, until, useElementHover } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
 import { LabelRow, Sorting } from '@/types'
@@ -11,8 +10,8 @@ import SegmentedControl from '@/components/SegmentedControl.vue'
 import ToggleButton from '@/components/ToggleButton.vue'
 import { useVocabStore } from '@/store/useVocab'
 import { useDebounceRAF, useDebounceTransition } from '@/composables/useDebounce'
+import { watched } from '@/composables/watch'
 
-const { t } = useI18n()
 const {
   data = [],
   sentences = ['']
@@ -20,6 +19,7 @@ const {
   data: LabelRow[],
   sentences: string[]
 }>()
+const { t } = useI18n()
 
 function onSegmentSwitched(seg: number) {
   disabledTotal = true
@@ -29,33 +29,29 @@ function onSegmentSwitched(seg: number) {
 }
 
 let selectedSeg = $ref(+(sessionStorage.getItem('prev-segment-select') || 0))
-// use shallowRef to avoid issue of cannot expand row
-let needRefresh = $ref(true)
+let dirty = $ref(true)
 const { inUpdating } = $(useVocabStore())
 const segCb = (id: number): (r: LabelRow) => boolean =>
   id === 1 ? (r) => Boolean(!r.vocab.acquainted && r.vocab.w.length > 2) :
     id === 2 ? (r) => Boolean(r.vocab.acquainted || r.vocab.w.length <= 2) : () => true
 const vocabTable = ref()
-const isHovered = $(useElementHover(vocabTable))
 watch($$(inUpdating), () => {
-  if (inUpdating) {
-    needRefresh = true
-  } else if (!isHovered && selectedSeg !== 0) {
-    refreshTableData()
-    needRefresh = false
-  }
+  if (selectedSeg !== 0) dirty = true
+  if (inUpdating) return
+  requestAnimationFrame(() => removeClass('xpd'))
+  if (isHovered || selectedSeg === 0) return
+  refreshTableData()
 })
-whenever(logicNot($$(isHovered)), () => {
-  if (needRefresh && !inUpdating && selectedSeg !== 0) {
-    refreshTableData()
-    needRefresh = false
-  }
-})
+const isHovered = $(watched(useElementHover(vocabTable), (isHovered) => {
+  if (isHovered || !dirty || inUpdating || selectedSeg === 0) return
+  refreshTableData()
+}))
 const search = $ref('')
 const sortChange = (p: Sorting<LabelRow>) => sortBy = p
 let sortBy = $shallowRef<Sorting<LabelRow>>({ order: null, prop: null, })
 const currPage = $ref(1)
 const pageSize = $ref(100)
+// use shallowRef to avoid issue of cannot expand row
 let rowsDisplay = $shallowRef<LabelRow[]>([])
 
 const refreshTableData = useDebounceRAF(() => {
@@ -63,17 +59,14 @@ const refreshTableData = useDebounceRAF(() => {
   const rowsSearched = data
     .filter(segCb(selectedSeg))
     .filter(search ? (r) => r.vocab.w.toLowerCase().includes(search.toLowerCase()) : () => true)
-
-  ;(async () => {
-    await until($$(inTransition)).toBe(false)
-    total = rowsSearched.length
-  })()
+  until($$(inTransition)).toBe(false).then(() => total = rowsSearched.length)
 
   if (prop && order) {
     rowsSearched.sort(compare(prop, order))
   }
 
   rowsDisplay = rowsSearched.slice(...useRange(currPage, pageSize))
+  dirty = false
   requestAnimationFrame(() => {
     removeClass('xpd')
     nextTick().then(() => disabledTotal = false)
@@ -92,20 +85,16 @@ function handleRowClick(row: LabelRow) {
   (vocabTable.value as typeof ElTable).toggleRowExpansion(row)
 }
 
-whenever(logicNot($$(inUpdating)), () => removeClass('xpd'))
-
 function handleExpand(row: LabelRow) {
   document.getElementsByClassName(`v-${row.src[0][3]}`)[0].classList.toggle('xpd')
 }
-
-const segments = computed(() => [t('all'), t('new'), t('acquainted')])
 </script>
 
 <template>
   <div class="mx-5 flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-sm will-change-transform md:mx-0">
     <segmented-control
       name="vocab-seg"
-      :segments="segments"
+      :segments="[t('all'), t('new'), t('acquainted')]"
       :init="selectedSeg"
       class="w-full grow-0"
       @input="onSegmentSwitched"

@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { computed, nextTick, ref, watch } from 'vue'
-import { TransitionPresets, until, useElementHover, whenever } from '@vueuse/core'
+import { nextTick, ref, watch } from 'vue'
+import { TransitionPresets, until, useElementHover } from '@vueuse/core'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
-import { logicNot } from '@vueuse/math'
 import SegmentedControl from '@/components/SegmentedControl.vue'
 import { compare, selectWord, sortByDateISO, useRange } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
@@ -11,14 +10,11 @@ import { Sieve, Sorting } from '@/types'
 import DateTime from '@/components/DateTime'
 import ToggleButton from '@/components/ToggleButton.vue'
 import { useDebounceRAF, useDebounceTransition } from '@/composables/useDebounce'
+import { watched } from '@/composables/watch'
 
 const { t } = useI18n()
 const { inUpdating, baseVocab } = $(useVocabStore())
-let rows = $shallowRef<Sieve[]>([])
-watch($$(baseVocab), () => {
-  rows = [...baseVocab]
-    .sort((a, b) => sortByDateISO(b.time_modified || '', a.time_modified || ''))
-}, { immediate: true })
+const rows = $computed(() => [...baseVocab].sort((a, b) => sortByDateISO(b.time_modified || '', a.time_modified || '')))
 
 function onSegmentSwitched(seg: number) {
   disabledTotal = true
@@ -28,27 +24,22 @@ function onSegmentSwitched(seg: number) {
 }
 
 let selectedSeg = $ref(+(sessionStorage.getItem('prev-segment-mine') || 0))
-let needRefresh = $ref(false)
+let dirty = $ref(false)
 const segCb = (id: number): (r: Sieve) => boolean =>
   id === 1 ? (r) => Boolean(r.acquainted && r.is_user) :
     id === 2 ? (r) => Boolean(r.acquainted && !r.is_user) :
       id === 3 ? (r) => Boolean(!r.acquainted && r.is_user !== 2) : (r) => !!r.acquainted
 
 const myVocabTable = ref()
-const isHovered = $(useElementHover(myVocabTable))
-watch($$(inUpdating), () => {
-  if (inUpdating) {
-    needRefresh = true
-  } else if (!isHovered) {
-    refreshTableData()
-    needRefresh = false
-  }
+watch([$$(rows), $$(inUpdating)], () => {
+  dirty = true
+  if (inUpdating || isHovered) return
+  refreshTableData()
 })
-whenever(logicNot($$(isHovered)), () => {
-  if (needRefresh && !inUpdating) {
-    refreshTableData()
-  }
-})
+const isHovered = $(watched(useElementHover(myVocabTable), (isHovered) => {
+  if (isHovered || !dirty || inUpdating) return
+  refreshTableData()
+}))
 const search = $ref('')
 const sortChange = (p: Sorting<Sieve>) => sortBy = p
 let sortBy = $shallowRef<Sorting<Sieve>>({ order: null, prop: null, })
@@ -60,27 +51,23 @@ const refreshTableData = useDebounceRAF(() => {
   const rowsSearched = rows
     .filter(segCb(selectedSeg))
     .filter(search ? (r) => r.w.toLowerCase().includes(search.toLowerCase()) : () => true)
-
-  ;(async () => {
-    await until($$(inTransition)).toBe(false)
-    total = rowsSearched.length
-  })()
+  until($$(inTransition)).toBe(false).then(() => total = rowsSearched.length)
 
   if (prop && order) {
     rowsSearched.sort(compare(prop, order))
   }
 
   rowsDisplay = rowsSearched.slice(...useRange(currPage, pageSize))
+  dirty = false
   requestAnimationFrame(() => nextTick().then(() => disabledTotal = false))
 })
 let total = $ref(0)
-watch([$$(rows), $$(sortBy), $$(search), $$(currPage), $$(pageSize)], refreshTableData, { immediate: true })
+watch([$$(sortBy), $$(search), $$(currPage), $$(pageSize)], refreshTableData, { immediate: true })
 let disabledTotal = $ref(false)
 const { output: totalTransit, inTransition } = $(useDebounceTransition($$(total), {
   disabled: $$(disabledTotal),
   transition: TransitionPresets.easeOutCirc,
 }))
-const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
 </script>
 
 <template>
@@ -89,7 +76,7 @@ const segments = computed(() => [t('all'), t('mine'), t('top'), t('recent')])
       <div class="flex h-full flex-col overflow-hidden rounded-xl border bg-white shadow will-change-transform md:mx-0">
         <segmented-control
           :init="selectedSeg"
-          :segments="segments"
+          :segments="[t('all'), t('mine'), t('top'), t('recent')]"
           class="w-full grow-0 pt-3 pb-2"
           name="segment-mine"
           @input="onSegmentSwitched"

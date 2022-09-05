@@ -7,8 +7,8 @@ import { acquaint, revokeWord } from '@/api/vocab-service'
 import { useVocabStore } from '@/store/useVocab'
 import router from '@/router'
 
-const { t } = useI18n()
 const { row } = defineProps<{ row: Sieve }>()
+const { t } = useI18n()
 const { user, loadingQueue, updateWord } = $(useVocabStore())
 let isLoading = $ref(false)
 
@@ -23,7 +23,6 @@ async function toggleWordState(row: Sieve, name: string) {
 
   if (res.affectedRows) {
     updateWord(row, !acquainted)
-    row.acquainted = !acquainted
   }
 }
 

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { watch } from 'vue'
+import { ref } from 'vue'
 import { watchOnce, whenever } from '@vueuse/core'
 import VocabTable from './VocabTable.vue'
 import { LabelRow } from '@/types'
@@ -8,10 +8,10 @@ import { readFiles, sortByChar } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
 import { useTimeStore } from '@/store/usePerf'
 import { useDebounceTimeout } from '@/composables/useDebounce'
+import { watched } from '@/composables/watch'
 
 const { t } = useI18n()
 let fileInfo = $ref('')
-let inputText = $ref('')
 
 async function onFileChange(ev: Event) {
   const files = (ev.target as HTMLInputElement).files
@@ -29,9 +29,9 @@ async function onFileChange(ev: Event) {
 
 let count = $ref(0)
 let sentences = $ref<string[]>([])
-const { trieReady, baseReady, getPreBuiltTrie } = $(useVocabStore())
+const { trieReady, baseReady, getPreBuiltTrie, backTrie } = $(useVocabStore())
 const { log, logEnd, logPerf } = useTimeStore()
-watch($$(inputText), reformVocabList)
+let inputText = $(watched(ref(''), reformVocabList))
 
 function reformVocabList() {
   if (!trieReady) {
@@ -64,6 +64,7 @@ const formVocabList = useDebounceTimeout(async function refreshVocab() {
   tableDataOfVocab = list
   count = trie.wordCount
   sentences = trie.sentences
+  requestAnimationFrame(() => requestAnimationFrame(backTrie))
 }, 50)
 
 function handleTextChange() {
