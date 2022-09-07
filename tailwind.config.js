@@ -9,6 +9,8 @@ module.exports = {
     fontFamily: {
       'mono': ['SF Mono', 'ui-monospace', 'SFMono-Regular'],
       'compact': ['SF Compact Text', '-apple-system', 'sans-serif'],
+      'pro-rnd': ['SF Pro Rounded', '-apple-system', 'sans-serif'],
+      'compact-rnd': ['SF Compact Rounded', '-apple-system', 'sans-serif'],
       'text-sans': 'Work Sans',
     },
     extend: {

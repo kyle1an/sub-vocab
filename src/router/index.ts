@@ -18,6 +18,11 @@ const routes = [
         component: () => import('@/views/Mine/MyVocabulary.vue'),
         meta: { keepAlive: true },
       },
+      {
+        path: '/chart',
+        component: () => import('@/views/Mine/Chart.vue'),
+        meta: { keepAlive: true },
+      },
     ],
   },
   { path: '/login', component: () => import('@/views/Login.vue') },

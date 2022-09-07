@@ -47,8 +47,11 @@ export const messages = {
     top: 'Top',
     Vocabulary: 'Vocabulary',
     words: 'words',
+    W: 'W',
+    M: 'M',
+    '6M': '6M',
+    Y: 'Y'
   },
-
   zh: {
     'Confirm Changes': '确认修改',
     'Create Account': '创建账户',
@@ -97,5 +100,9 @@ export const messages = {
     top: '最常用',
     Vocabulary: '单词',
     words: '词',
+    W: '周',
+    M: '月',
+    '6M': '半年',
+    Y: '年'
   },
 }
