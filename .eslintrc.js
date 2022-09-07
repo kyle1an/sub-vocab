@@ -37,6 +37,7 @@ module.exports = {
     "vue/attribute-hyphenation": "off",
     "vue/multi-word-component-names": "off",
     "vue/no-setup-props-destructure": "off",
+    "@typescript-eslint/no-unused-vars": "off"
   },
   "settings": {
     "import/parsers": {

@@ -11,6 +11,11 @@ const subNav = computed(() => [
     title: t('Vocabulary'),
     path: '/mine',
   },
+  {
+    id: 2,
+    title: 'Chart',
+    path: '/chart',
+  },
 ])
 </script>
 

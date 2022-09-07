@@ -106,7 +106,7 @@ function logVocabInfo(listOfVocab: LabelRow[]) {
         <div class="h-full w-full grow text-base text-zinc-700 md:text-sm">
           <textarea
             v-model="inputText"
-            class="h-[260px] max-h-[360px] w-full resize-none py-3 px-[30px] align-top outline-none ffs-[normal] md:h-full md:max-h-full md:rounded-[12px]"
+            class="h-[260px] max-h-[360px] w-full resize-none rounded-none py-3 px-[30px] align-top outline-none ffs-[normal] md:h-full md:max-h-full"
             :placeholder="t('inputArea')"
             @change="handleTextChange"
           />

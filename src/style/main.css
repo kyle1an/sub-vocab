@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Work+Sans&display=swap');
-@import url('https://cdn.jsdelivr.net/gh/kyle1an/SF-Fonts@master/Fonts/SF-Fonts.css');
+@import url('https://cdn.jsdelivr.net/gh/kyle1an/cust-fonts@master/style/fonts/SF-fonts.css');
 
 @tailwind base;
 @tailwind components;

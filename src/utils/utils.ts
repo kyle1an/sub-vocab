@@ -124,3 +124,24 @@ export function promiseClone<T>(trie: T): Promise<T> {
 }
 
 export const useRange = (currPage: number, pageSize: number) => [(currPage - 1) * pageSize, currPage * pageSize]
+
+export const daysInMonth = (month: number, year: number) => new Date(year, month, 0).getDate()
+
+export const range = (start: number, end?: number, increment?: number) => {
+  if (typeof end === 'undefined') {
+    end = start
+    start = 0
+  }
+
+  increment ??= Math.sign(end - start)
+  const length = Math.abs((end - start) / (increment || 1))
+  const { result } = Array.from({ length }).reduce(
+    ({ result, current }) => ({
+      result: [...result, current],
+      current: current + increment,
+    }),
+    { current: start, result: [] }
+  )
+
+  return result
+}
