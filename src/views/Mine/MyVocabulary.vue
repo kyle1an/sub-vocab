@@ -1,73 +1,64 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { nextTick, ref, watch } from 'vue'
-import { TransitionPresets, until, useElementHover } from '@vueuse/core'
+import { computed, nextTick, shallowRef } from 'vue'
+import { TransitionPresets, until } from '@vueuse/core'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
+import { pipe } from 'fp-ts/function'
+import { filter } from 'fp-ts/Array'
 import SegmentedControl from '@/components/SegmentedControl.vue'
-import { compare, selectWord, sortByDateISO, useRange } from '@/utils/utils'
+import { orderBy, paging, selectWord, skipAfter, sortByDateISO } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
-import { Sieve, Sorting } from '@/types'
+import { MyVocabRow, Sieve, Sorting } from '@/types'
 import DateTime from '@/components/DateTime'
 import ToggleButton from '@/components/ToggleButton.vue'
-import { useDebounceRAF, useDebounceTransition } from '@/composables/useDebounce'
-import { watched } from '@/composables/watch'
+import { useDebounceTransition } from '@/composables/useDebounce'
+import { useElHover, useState, useStateCallback, watched } from '@/composables/utilities'
+import { find } from '@/utils/vocab'
 
 const { t } = useI18n()
 const { inUpdating, baseVocab } = $(useVocabStore())
-const rows = $computed(() => [...baseVocab].sort((a, b) => sortByDateISO(b.time_modified || '', a.time_modified || '')))
-
-function onSegmentSwitched(seg: number) {
+type MyVocabSegment = typeof segments[number]['value']
+const [seg, setSeg] = $(useStateCallback<MyVocabSegment>(sessionStorage.getItem('prev-segment-mine') as MyVocabSegment | null || 'all', (v) => {
   disabledTotal = true
-  selectedSeg = seg
-  sessionStorage.setItem('prev-segment-mine', String(seg))
-  refreshTableData()
-}
-
-let selectedSeg = $ref(+(sessionStorage.getItem('prev-segment-mine') || 0))
+  sessionStorage.setItem('prev-segment-mine', String(v))
+  requestAnimationFrame(() => nextTick().then(() => disabledTotal = false))
+}))
 let dirty = $ref(false)
-const segCb = (id: number): (r: Sieve) => boolean =>
-  id === 1 ? (r) => Boolean(r.acquainted && r.is_user) :
-    id === 2 ? (r) => Boolean(r.acquainted && !r.is_user) :
-      id === 3 ? (r) => Boolean(!r.acquainted && r.is_user !== 2) : (r) => !!r.acquainted
-
-const myVocabTable = ref()
-watch([$$(rows), $$(inUpdating)], () => {
-  dirty = true
-  if (inUpdating || isHovered) return
-  refreshTableData()
-})
-const isHovered = $(watched(useElementHover(myVocabTable), (isHovered) => {
-  if (isHovered || !dirty || inUpdating) return
-  refreshTableData()
+const isHovered = $(watched(useElHover('.el-table__body-wrapper'), (isHovered) => {
+  if ((isHovered && rowsDisplay.length !== 0) || !dirty || inUpdating) return
+  rowsDisplay = rows as MyVocabRow[]
 }))
 const search = $ref('')
-const sortChange = (p: Sorting<Sieve>) => sortBy = p
-let sortBy = $shallowRef<Sorting<Sieve>>({ order: null, prop: null, })
+const [sortBy, setSortBy] = $(useState<Sorting<Sieve>>({ order: null, prop: null, }))
 const currPage = $ref(1)
 const pageSize = $ref(100)
-let rowsDisplay = $shallowRef<Sieve[]>([])
-const refreshTableData = useDebounceRAF(() => {
-  const { prop, order } = sortBy
-  const rowsSearched = rows
-    .filter(segCb(selectedSeg))
-    .filter(search ? (r) => r.w.toLowerCase().includes(search.toLowerCase()) : () => true)
-  until($$(inTransition)).toBe(false).then(() => total = rowsSearched.length)
-
-  if (prop && order) {
-    rowsSearched.sort(compare(prop, order))
-  }
-
-  rowsDisplay = rowsSearched.slice(...useRange(currPage, pageSize))
-  dirty = false
-  requestAnimationFrame(() => nextTick().then(() => disabledTotal = false))
-})
+let rowsDisplay = $(watched(shallowRef<MyVocabRow[]>([]), () => dirty = false))
 let total = $ref(0)
-watch([$$(sortBy), $$(search), $$(currPage), $$(pageSize)], refreshTableData, { immediate: true })
 let disabledTotal = $ref(false)
 const { output: totalTransit, inTransition } = $(useDebounceTransition($$(total), {
   disabled: $$(disabledTotal),
   transition: TransitionPresets.easeOutCirc,
 }))
+const rows = $(watched(computed(() => pipe(
+  [...baseVocab].sort((a, b) => sortByDateISO(b.time_modified || '', a.time_modified || '')).map((r) => ({ vocab: r })),
+  seg === 'mine' ? filter((r) => Boolean(r.vocab.acquainted && r.vocab.is_user)) :
+    seg === 'top' ? filter((r) => Boolean(r.vocab.acquainted && !r.vocab.is_user)) :
+      seg === 'recent' ? filter((r) => !r.vocab.acquainted && r.vocab.is_user !== 2) : filter((r) => !!r.vocab.acquainted),
+  find(search),
+  skipAfter((a) => until($$(inTransition)).toBe(false).then(() => total = a.length)),
+  orderBy(sortBy.prop, sortBy.order),
+  paging(currPage, pageSize),
+)), (v) => {
+  dirty = true
+  if (inUpdating || (isHovered && rowsDisplay.length !== 0)) return
+  rowsDisplay = v
+}))
+const segments = $computed(() => [
+  { value: 'all', label: t('all') },
+  { value: 'mine', label: t('mine') },
+  { value: 'top', label: t('top') },
+  { value: 'recent', label: t('recent') },
+] as const)
 </script>
 
 <template>
@@ -75,30 +66,29 @@ const { output: totalTransit, inTransition } = $(useDebounceTransition($$(total)
     <div class="m-auto h-full max-w-full overflow-visible">
       <div class="flex h-full flex-col overflow-hidden rounded-xl border bg-white shadow will-change-transform md:mx-0">
         <segmented-control
-          :init="selectedSeg"
-          :segments="[t('all'), t('mine'), t('top'), t('recent')]"
+          :value="seg"
+          :segments="segments"
           class="w-full grow-0 pt-3 pb-2"
           name="segment-mine"
-          @input="onSegmentSwitched"
+          :onChoose="setSeg"
         />
         <div class="h-px w-full grow">
           <el-table
-            ref="myVocabTable"
             :data="rowsDisplay"
             class="!h-full !w-full md:w-full [&_th_.cell]:font-compact [&_th_.cell]:tracking-normal [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full"
             size="small"
-            @sort-change="sortChange"
+            @sort-change="setSortBy"
           >
             <el-table-column
               :label="t('rank')"
               class-name="cursor-pointer !text-center [th&>.cell]:!pr-0"
               width="64"
-              prop="rank"
+              prop="vocab.rank"
               sortable="custom"
             >
               <template #default="{row}">
                 <div class="select-none tabular-nums text-neutral-500">
-                  {{ row.rank }}
+                  {{ row.vocab.rank }}
                 </div>
               </template>
             </el-table-column>
@@ -106,7 +96,7 @@ const { output: totalTransit, inTransition } = $(useDebounceTransition($$(total)
               class-name="cursor-pointer [&>.cell]:!pr-0"
               :label="t('Vocabulary')"
               min-width="70"
-              prop="w"
+              prop="vocab.w"
               sortable="custom"
             >
               <template #header>
@@ -125,7 +115,7 @@ const { output: totalTransit, inTransition } = $(useDebounceTransition($$(total)
                   @touchstart.passive="selectWord"
                   @click.stop
                 >
-                  {{ row.w }}
+                  {{ row.vocab.w }}
                 </span>
               </template>
             </el-table-column>
@@ -133,12 +123,12 @@ const { output: totalTransit, inTransition } = $(useDebounceTransition($$(total)
               :label="t('length')"
               class-name="cursor-pointer !text-right [th&>.cell]:!p-0"
               width="67"
-              prop="w.length"
+              prop="vocab.w.length"
               sortable="custom"
             >
               <template #default="{row}">
                 <div class="select-none tabular-nums">
-                  {{ row.w.length }}
+                  {{ row.vocab.w.length }}
                 </div>
               </template>
             </el-table-column>
@@ -147,19 +137,19 @@ const { output: totalTransit, inTransition } = $(useDebounceTransition($$(total)
               class-name="overflow-visible !text-center [&_.cell]:!px-0"
             >
               <template #default="{row}">
-                <toggle-button :row="row" />
+                <toggle-button :row="row.vocab" />
               </template>
             </el-table-column>
             <el-table-column
               :label="t('distance')"
               class-name="cursor-pointer [td&_.cell]:!pr-0"
               width="82"
-              prop="time_modified"
+              prop="vocab.time_modified"
               sortable="custom"
             >
               <template #default="{row}">
                 <div class="select-none font-compact tabular-nums tracking-normal ffs-[normal]">
-                  <date-time :time="row.time_modified" />
+                  <date-time :time="row.vocab.time_modified" />
                 </div>
               </template>
             </el-table-column>

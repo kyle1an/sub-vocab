@@ -1,29 +1,25 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useElementBounding } from '@vueuse/core'
-import { watched } from '@/composables/watch'
 
 const {
-  init = 0,
+  value = '',
   name = '',
-  segments = ['']
+  segments = [{ value: '', label: '' }],
+  onChoose
 } = defineProps<{
-  init: number,
+  value: string,
   name: string,
-  segments: string[],
+  segments: { value: string, label: string }[],
+  onChoose: (arg: string) => void
 }>()
-const emit = defineEmits(['input'])
-watch($$(init), (id) => selectedId = id)
-let selectedId = $(watched(ref(init), (selectedId) => emit('input', selectedId)))
 const pill = ref()
-const pillName = `${name}-prev-pill-width`
-let pillWidth = $ref(name ? +(sessionStorage.getItem(pillName) || 0) : 0)
-const pillTransformStyles = computed(() => `transform:translateX(${pillWidth * selectedId}px)`)
-const width = $(watched(useElementBounding(pill).width, (width) => {
-  if (width === 0) return
-  pillWidth = width
-  sessionStorage.setItem(pillName, String(width))
-}, { immediate: true }))
+const { width } = $(useElementBounding(pill))
+const pillWidth = computed(() => {
+  if (width === 0) return name ? +(sessionStorage.getItem(name) || 0) : 0
+  name && sessionStorage.setItem(name, String(width))
+  return width
+})
 </script>
 
 <template>
@@ -31,26 +27,27 @@ const width = $(watched(useElementBounding(pill).width, (width) => {
     <div class="grid w-full select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-[9px] bg-[#EFEFF0] p-0.5 outline-none">
       <span
         ref="pill"
-        :style="pillTransformStyles"
+        :style="{transform:`translateX(${pillWidth * segments.findIndex((seg) => seg.value === value)}px)`}"
         class="z-10 col-start-1 col-end-auto row-start-1 row-end-auto rounded-[7px] border-[.5px] border-black/[0.04] bg-white shadow-md transition-transform duration-300 ease-[ease] will-change-transform"
       />
       <div
-        v-for="(title,index) of segments"
+        v-for="(item,index) of segments"
         :key="index"
         class="option relative"
       >
         <input
-          :id="index"
-          v-model="selectedId"
+          :id="item.value"
           type="radio"
-          :value="index"
+          :value="item.value"
+          :checked="item.value===value"
           class="absolute inset-0 appearance-none opacity-0 outline-none [&+label]:checked:cursor-default [&+label_span]:checked:font-medium"
+          @input="(ev)=>onChoose(ev.target.value)"
         >
         <label
-          :for="index"
+          :for="item.value"
           class="relative block cursor-pointer bg-transparent text-center"
         >
-          <span class="relative z-10 flex justify-center text-sm leading-6 text-black transition-all duration-200 ease-[ease] will-change-transform">{{ title }}</span>
+          <span class="relative z-10 flex justify-center text-sm leading-6 text-black transition-all duration-200 ease-[ease] will-change-transform">{{ item.label }}</span>
         </label>
       </div>
     </div>

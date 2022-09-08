@@ -4,7 +4,7 @@ import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { format } from 'date-fns'
 import { useVocabStore } from '@/store/useVocab'
-import { watched } from '@/composables/watch'
+import { useStateCallback, watched } from '@/composables/utilities'
 import SegmentedControl from '@/components/SegmentedControl.vue'
 import { range } from '@/utils/utils'
 
@@ -24,7 +24,6 @@ Chart.defaults.font.family = ff.join(', ')
 Chart.defaults.font.weight = '500'
 const { t } = useI18n()
 const { baseVocab } = $(useVocabStore())
-let selectedSeg = $ref(+(sessionStorage.getItem('prev-chart-select') || 0))
 const groupedRows = $computed(() => {
   rows.forEach(r => {
     const date = r.time_modified?.split('T')[0]
@@ -70,20 +69,22 @@ onMounted(() => {
 onBeforeUnmount(() => {
   myChart.destroy()
 })
-
-function onSegmentSwitched(seg: number) {
-  selectedSeg = seg
-  sessionStorage.setItem('prev-chart-select', String(selectedSeg))
-}
+type ChartSegment = typeof segments[number]['value']
+const [seg, setSeg] = $(useStateCallback<ChartSegment>(sessionStorage.getItem('prev-chart-select') as ChartSegment | null || 'W', (v) => {
+  sessionStorage.setItem('prev-chart-select', String(v))
+}))
+const segments = $computed(() => [
+  { value: 'W', label: t('W') },
+] as const)
 </script>
 
 <template>
   <segmented-control
     name="vocab-seg"
-    :segments="[t('W')]"
-    :init="selectedSeg"
+    :segments="segments"
+    :value="seg"
     class="w-full grow-0"
-    @input="onSegmentSwitched"
+    :onChoose="setSeg"
   />
   <div
     id="chart"

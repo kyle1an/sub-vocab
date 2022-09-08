@@ -10,12 +10,10 @@ const currentPath = computed(() => useRoute().fullPath)
 const username = computed(() => useVocabStore().user)
 const subNav = computed(() => [
   {
-    id: 1,
     title: t('Profile'),
     path: '/user',
   },
   {
-    id: 2,
     title: t('Password'),
     path: '/user/password',
   },
@@ -36,7 +34,7 @@ const subNav = computed(() => [
             <ol>
               <li
                 v-for="nav in subNav"
-                :key="nav.id"
+                :key="nav.path"
                 :class="`${currentPath===nav.path?'[&>a]:bg-gray-100':''}`"
               >
                 <router-link

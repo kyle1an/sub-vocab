@@ -9,7 +9,7 @@ import { timer, timerEnd } from '@/utils/utils'
 import Trie from '@/utils/LabeledTire'
 import { login as loginUser, logoutToken } from '@/api/user'
 import router from '@/router'
-import { watched } from '@/composables/watch'
+import { watched } from '@/composables/utilities'
 
 export const useVocabStore = defineStore('vocabStore', () => {
   let baseVocab = $ref<Sieve[]>([])

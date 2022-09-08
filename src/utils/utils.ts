@@ -76,15 +76,19 @@ export async function readFiles(files: FileList) {
 
 export const jsonClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj))
 
-export function compare(propName: string | number, order: Order) {
-  return (obj1: Record<string, unknown>, obj2: Record<string, unknown>): number => {
+type RecordUnknown = Record<string, unknown>
+
+export const orderBy = (prop: string | number | null, order: Order) => prop && order ? <T extends RecordUnknown>(rows: T[]) => rows.sort(compare(prop, order)) : skip
+
+export function compare(propName: string | number, order: NonNullable<Order>) {
+  return (obj1: RecordUnknown, obj2: RecordUnknown): number => {
     let o1 = obj1[propName]
     let o2 = obj2[propName]
 
     if (typeof propName === 'string' && propName.includes('.')) {
       const path = propName.split('.')
-      o1 = path.reduce((o, prop) => o[prop] as Record<string, unknown>, obj1)
-      o2 = path.reduce((o, prop) => o[prop] as Record<string, unknown>, obj2)
+      o1 = path.reduce((o, prop) => o[prop] as RecordUnknown, obj1)
+      o2 = path.reduce((o, prop) => o[prop] as RecordUnknown, obj2)
     }
 
     return (order === 'ascending' ? 1 : -1) * sort(o1, o2)
@@ -123,7 +127,7 @@ export function promiseClone<T>(trie: T): Promise<T> {
   })
 }
 
-export const useRange = (currPage: number, pageSize: number) => [(currPage - 1) * pageSize, currPage * pageSize]
+export const paging = (currPage: number, pageSize: number) => <T>(rows: T[]) => rows.slice((currPage - 1) * pageSize, currPage * pageSize)
 
 export const daysInMonth = (month: number, year: number) => new Date(year, month, 0).getDate()
 
@@ -135,13 +139,20 @@ export const range = (start: number, end?: number, increment?: number) => {
 
   increment ??= Math.sign(end - start)
   const length = Math.abs((end - start) / (increment || 1))
-  const { result } = Array.from({ length }).reduce(
-    ({ result, current }) => ({
-      result: [...result, current],
-      current: current + increment,
-    }),
-    { current: start, result: [] }
-  )
+  const { result } = Array.from({ length }).reduce(({ result, current }) => ({
+    result: [...result, current],
+    current: current + increment,
+  }), {
+    current: start,
+    result: []
+  })
 
   return result
+}
+
+export const skip = <T>(a: T) => a
+
+export const skipAfter = <T>(callback: (arg: T) => void) => (a: T) => {
+  callback(a)
+  return a
 }

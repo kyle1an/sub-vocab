@@ -12,11 +12,10 @@ export interface Stems {
   stem_word: string,
 }
 
-export interface LabelPre extends Record<string, unknown> {
+export interface LabelPre extends MyVocabRow {
   w: string;
   src: Source;
   up: boolean;
-  vocab: Sieve;
 }
 
 export interface Label extends Record<string, unknown> {
@@ -28,8 +27,11 @@ export interface Label extends Record<string, unknown> {
   variant?: boolean;
 }
 
-export interface LabelRow extends Record<string, unknown> {
+export interface SourceRow extends MyVocabRow {
   src: Source;
+}
+
+export interface MyVocabRow extends Record<string, unknown> {
   vocab: Sieve;
 }
 
