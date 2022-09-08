@@ -1,5 +1,5 @@
 import { caseOr, hasUppercase, isVowel } from './utils'
-import { Char, Label, LabelPre, LabelRow, Sieve, TrieNode } from '@/types'
+import { Char, Label, LabelPre, Sieve, SourceRow, TrieNode } from '@/types'
 
 export default class LabeledTire {
   root: TrieNode<Label>
@@ -142,7 +142,7 @@ export default class LabeledTire {
   }
 
   formVocabList() {
-    const all: LabelRow[] = []
+    const all: SourceRow[] = []
 
     for (const v of this.vocabulary) {
       if (!v || v.variant) continue

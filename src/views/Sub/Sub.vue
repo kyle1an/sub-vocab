@@ -1,14 +1,14 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
-import { watchOnce, whenever } from '@vueuse/core'
+import { whenever } from '@vueuse/core'
 import VocabTable from './VocabTable.vue'
-import { LabelRow } from '@/types'
+import { SourceRow } from '@/types'
 import { readFiles, sortByChar } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
 import { useTimeStore } from '@/store/usePerf'
 import { useDebounceTimeout } from '@/composables/useDebounce'
-import { watched } from '@/composables/watch'
+import { useState, watched } from '@/composables/utilities'
 
 const { t } = useI18n()
 let fileInfo = $ref('')
@@ -29,23 +29,14 @@ async function onFileChange(ev: Event) {
 
 let count = $ref(0)
 let sentences = $ref<string[]>([])
-const { trieReady, baseReady, getPreBuiltTrie, backTrie } = $(useVocabStore())
+const { baseReady, getPreBuiltTrie, backTrie } = $(useVocabStore())
 const { log, logEnd, logPerf } = useTimeStore()
-let inputText = $(watched(ref(''), reformVocabList))
-
-function reformVocabList() {
-  if (!trieReady) {
-    watchOnce($$(trieReady), formVocabList)
-    return
-  }
-
-  formVocabList()
-}
-
-whenever($$(baseReady), reformVocabList)
-let tableDataOfVocab = $shallowRef<LabelRow[]>([])
-const formVocabList = useDebounceTimeout(async function refreshVocab() {
+let inputText = $(watched(ref(''), () => !inWaiting && reformVocabList()))
+const [inWaiting, setInWaiting] = $(useState(false))
+const reformVocabList = useDebounceTimeout(async function refreshVocab() {
+  setInWaiting(true)
   const trie = await getPreBuiltTrie()
+  setInWaiting(false)
   log(['-- All took', '    '])
   log('· init words')
   trie.add(inputText)
@@ -66,13 +57,15 @@ const formVocabList = useDebounceTimeout(async function refreshVocab() {
   sentences = trie.sentences
   requestAnimationFrame(() => requestAnimationFrame(backTrie))
 }, 50)
+whenever($$(baseReady), reformVocabList)
+let tableDataOfVocab = $shallowRef<SourceRow[]>([])
 
 function handleTextChange() {
   const input = document.getElementById('input') as HTMLInputElement
   if (input) input.value = ''
 }
 
-function logVocabInfo(listOfVocab: LabelRow[]) {
+function logVocabInfo(listOfVocab: SourceRow[]) {
   const untouchedVocabList = [...listOfVocab].sort((a, b) => sortByChar(a.vocab.w, b.vocab.w))
   console.log(`(${untouchedVocabList.length}) words`, { _: untouchedVocabList })
 }

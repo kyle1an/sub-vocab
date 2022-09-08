@@ -19,9 +19,7 @@
   --sys-font-stack-mono: 'SF Mono', 'SFMono-Regular', 'Ubuntu Mono', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
 }
 
-html,
-body,
-input {
+html {
   font-family: var(--sys-font-stack);
   /*-moz-font-feature-settings: 'smcp';*/
   /* -webkit-font-feature-settings: 'tnum'  !important;*/

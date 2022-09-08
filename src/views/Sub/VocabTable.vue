@@ -1,103 +1,94 @@
 <script lang="ts" setup>
-import { nextTick, ref, watch } from 'vue'
-import { TransitionPresets, until, useElementHover } from '@vueuse/core'
+import { computed, nextTick, ref, shallowRef } from 'vue'
+import { TransitionPresets, until } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
-import { LabelRow, Sorting } from '@/types'
-import { compare, isMobile, removeClass, selectWord, useRange } from '@/utils/utils'
+import { pipe } from 'fp-ts/function'
+import { filter } from 'fp-ts/Array'
+import { MyVocabRow, Sorting, SourceRow } from '@/types'
+import { isMobile, orderBy, paging, removeClass, selectWord, skip, skipAfter } from '@/utils/utils'
 import Examples from '@/components/Examples'
 import SegmentedControl from '@/components/SegmentedControl.vue'
 import ToggleButton from '@/components/ToggleButton.vue'
 import { useVocabStore } from '@/store/useVocab'
-import { useDebounceRAF, useDebounceTransition } from '@/composables/useDebounce'
-import { watched } from '@/composables/watch'
+import { useDebounceTransition } from '@/composables/useDebounce'
+import { useElHover, useState, useStateCallback, watched } from '@/composables/utilities'
+import { find } from '@/utils/vocab'
 
 const {
   data = [],
   sentences = ['']
 } = defineProps<{
-  data: LabelRow[],
+  data: SourceRow[],
   sentences: string[]
 }>()
 const { t } = useI18n()
-
-function onSegmentSwitched(seg: number) {
+type TableSegment = typeof segments[number]['value']
+const [seg, setSeg] = $(useStateCallback<TableSegment>(sessionStorage.getItem('prev-segment-select') as TableSegment | null || 'all', (v) => {
   disabledTotal = true
-  selectedSeg = seg
-  sessionStorage.setItem('prev-segment-select', String(selectedSeg))
-  refreshTableData()
-}
-
-let selectedSeg = $ref(+(sessionStorage.getItem('prev-segment-select') || 0))
+  sessionStorage.setItem('prev-segment-select', String(v))
+  requestAnimationFrame(() => nextTick().then(() => disabledTotal = false))
+}))
 let dirty = $ref(true)
 const { inUpdating } = $(useVocabStore())
-const segCb = (id: number): (r: LabelRow) => boolean =>
-  id === 1 ? (r) => Boolean(!r.vocab.acquainted && r.vocab.w.length > 2) :
-    id === 2 ? (r) => Boolean(r.vocab.acquainted || r.vocab.w.length <= 2) : () => true
 const vocabTable = ref()
-watch($$(inUpdating), () => {
-  if (selectedSeg !== 0) dirty = true
-  if (inUpdating) return
-  requestAnimationFrame(() => removeClass('xpd'))
-  if (isHovered || selectedSeg === 0) return
-  refreshTableData()
-})
-const isHovered = $(watched(useElementHover(vocabTable), (isHovered) => {
-  if (isHovered || !dirty || inUpdating || selectedSeg === 0) return
-  refreshTableData()
+const isHovered = $(watched(useElHover('.el-table__body-wrapper'), (isHovered) => {
+  if ((isHovered && rowsDisplay.length !== 0) || !dirty || inUpdating) return
+  rowsDisplay = rows as SourceRow[]
 }))
 const search = $ref('')
-const sortChange = (p: Sorting<LabelRow>) => sortBy = p
-let sortBy = $shallowRef<Sorting<LabelRow>>({ order: null, prop: null, })
+const [sortBy, setSortBy] = $(useState<Sorting<SourceRow>>({ order: null, prop: null, }))
 const currPage = $ref(1)
 const pageSize = $ref(100)
 // use shallowRef to avoid issue of cannot expand row
-let rowsDisplay = $shallowRef<LabelRow[]>([])
-
-const refreshTableData = useDebounceRAF(() => {
-  const { prop, order } = sortBy
-  const rowsSearched = data
-    .filter(segCb(selectedSeg))
-    .filter(search ? (r) => r.vocab.w.toLowerCase().includes(search.toLowerCase()) : () => true)
-  until($$(inTransition)).toBe(false).then(() => total = rowsSearched.length)
-
-  if (prop && order) {
-    rowsSearched.sort(compare(prop, order))
-  }
-
-  rowsDisplay = rowsSearched.slice(...useRange(currPage, pageSize))
+let rowsDisplay = $(watched(shallowRef<MyVocabRow[]>([]), () => {
   dirty = false
-  requestAnimationFrame(() => {
-    removeClass('xpd')
-    nextTick().then(() => disabledTotal = false)
-  })
-})
-
+  requestAnimationFrame(() => removeClass('xpd'))
+}))
 let total = $ref(0)
-watch([$$(data), $$(sortBy), $$(search), $$(currPage), $$(pageSize)], refreshTableData, { immediate: true })
 let disabledTotal = $ref(false)
 const { output: totalTransit, inTransition } = $(useDebounceTransition($$(total), {
   disabled: $$(disabledTotal),
   transition: TransitionPresets.easeOutCirc,
 }))
+const rows = $(watched(computed(() => pipe(data,
+  seg === 'new' ? filter((r) => !r.vocab.acquainted && r.vocab.w.length > 2) :
+    seg === 'acquainted' ? filter((r) => Boolean(r.vocab.acquainted || r.vocab.w.length <= 2)) : skip,
+  find(search),
+  skipAfter((a) => until($$(inTransition)).toBe(false).then(() => total = a.length)),
+  orderBy(sortBy.prop, sortBy.order),
+  paging(currPage, pageSize),
+)), (v) => {
+  dirty = true
+  if (inUpdating) return
+  requestAnimationFrame(() => removeClass('xpd'))
+  if (isHovered && rowsDisplay.length !== 0) return
+  rowsDisplay = v
+}))
 
-function handleRowClick(row: LabelRow) {
+function handleRowClick(row: SourceRow) {
   (vocabTable.value as typeof ElTable).toggleRowExpansion(row)
 }
 
-function handleExpand(row: LabelRow) {
+function handleExpand(row: SourceRow) {
   document.getElementsByClassName(`v-${row.src[0][3]}`)[0].classList.toggle('xpd')
 }
+
+const segments = $computed(() => [
+  { value: 'all', label: t('all') },
+  { value: 'new', label: t('new') },
+  { value: 'acquainted', label: t('acquainted') },
+] as const)
 </script>
 
 <template>
   <div class="mx-5 flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-sm will-change-transform md:mx-0">
     <segmented-control
-      name="vocab-seg"
-      :segments="[t('all'), t('new'), t('acquainted')]"
-      :init="selectedSeg"
+      name="vocab-table"
+      :segments="segments"
+      :value="seg"
       class="w-full grow-0"
-      @input="onSegmentSwitched"
+      :onChoose="setSeg"
     />
     <div class="h-px w-full grow">
       <el-table
@@ -108,7 +99,7 @@ function handleExpand(row: LabelRow) {
         :data="rowsDisplay"
         @row-click="handleRowClick"
         @expand-change="handleExpand"
-        @sort-change="sortChange"
+        @sort-change="setSortBy"
       >
         <el-table-column
           type="expand"

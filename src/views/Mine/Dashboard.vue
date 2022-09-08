@@ -7,12 +7,10 @@ const { t } = useI18n()
 const currentPath = computed(() => useRoute().fullPath)
 const subNav = computed(() => [
   {
-    id: 1,
     title: t('Vocabulary'),
     path: '/mine',
   },
   {
-    id: 2,
     title: 'Chart',
     path: '/chart',
   },
@@ -28,7 +26,7 @@ const subNav = computed(() => [
             <ol>
               <li
                 v-for="nav in subNav"
-                :key="nav.id"
+                :key="nav.path"
                 :class="`${currentPath===nav.path?'[&>a]:bg-gray-100':''}`"
               >
                 <router-link
