@@ -1,6 +1,7 @@
 import express from 'express'
 import { pool } from '../config/connection'
 import crypto from 'crypto'
+import { isTokenInvalid, tokenChecker } from '../lib/timeUtil'
 
 const router = express.Router()
 router.post('/login', (req, res) => {
@@ -33,7 +34,7 @@ router.post('/register', (req, res) => {
   })
 })
 
-router.post('/changeUsername', (req, res) => {
+router.post('/changeUsername', tokenChecker, (req, res) => {
   pool.getConnection((err, connection) => {
     const { username, newUsername, acct, } = req.body
     connection.query(`SELECT change_username(get_user_id_by_name('${username}'), '${newUsername}') as result;
