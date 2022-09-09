@@ -1,6 +1,6 @@
 import express from 'express'
 import { pool } from '../config/connection'
-import { isTokenInvalid } from '../lib/timeUtil'
+import { isTokenInvalid, tokenChecker } from '../lib/timeUtil'
 
 const router = express.Router()
 /* GET users listing. */
@@ -10,11 +10,10 @@ router.get('/', (req, res, next) => {
 })
 
 router.post('/queryWords', async (req, res) => {
-  const { user, acct } = req.body
-  let realUser = user
-  if (realUser && await isTokenInvalid(req, res, acct)) realUser = ''
+  let { user } = req.body
+  if (user && await isTokenInvalid(req, res, req.body.acct)) user = ''
   pool.getConnection((err, connection) => {
-    connection.query(`CALL words_from_user(get_user_id_by_name('${realUser}'));
+    connection.query(`CALL words_from_user(get_user_id_by_name('${user}'));
     `, (err, rows, fields) => {
       connection.release()
       if (err) throw err
@@ -34,9 +33,8 @@ router.post('/stemsMapping', async (req, res) => {
   })
 })
 
-router.post('/acquaint', async (req, res) => {
-  const { word, user, acct } = req.body
-  if (await isTokenInvalid(req, res, acct)) return res.send(JSON.stringify({ affectedRows: 0, message: 'Invalid' }))
+router.post('/acquaint', tokenChecker, async (req, res) => {
+  const { word, user } = req.body
   pool.getConnection((err, connection) => {
     connection.query(`CALL acquaint_vocab('${word}', get_user_id_by_name('${user}'));
     `, (err, rows, fields) => {
@@ -47,9 +45,8 @@ router.post('/acquaint', async (req, res) => {
   })
 })
 
-router.post('/revokeWord', async (req, res) => {
-  const { word, user, acct } = req.body
-  if (await isTokenInvalid(req, res, acct)) return res.send(JSON.stringify({ affectedRows: 0, message: 'Invalid' }))
+router.post('/revokeWord', tokenChecker, async (req, res) => {
+  const { word, user } = req.body
   pool.getConnection((err, connection) => {
     connection.query(`CALL revoke_vocab_record('${word}', get_user_id_by_name('${user}'));
     `, (err, rows, fields) => {
