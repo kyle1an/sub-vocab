@@ -1,3 +1,4 @@
+import { reactive } from 'vue'
 import { caseOr, hasUppercase, isVowel } from './utils'
 import { Char, Label, LabelPre, Sieve, SourceRow, TrieNode } from '@/types'
 
@@ -149,12 +150,12 @@ export default class LabeledTire {
 
       all.push({
         src: this.collectNestedSource(v),
-        vocab: v.vocab ?? {
+        vocab: reactive(v.vocab ?? {
           w: v.w,
           acquainted: false,
           is_user: 0,
           invalid: true,
-        }
+        })
       })
     }
 

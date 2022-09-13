@@ -1,18 +1,18 @@
 <script lang="ts" setup>
-import { computed, nextTick, ref, shallowRef } from 'vue'
+import { computed, nextTick, ref, shallowRef, watch } from 'vue'
 import { TransitionPresets, until } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
 import { pipe } from 'fp-ts/function'
 import { filter } from 'fp-ts/Array'
-import { MyVocabRow, Sorting, SourceRow } from '@/types'
-import { isMobile, orderBy, paging, removeClass, selectWord, skip, skipAfter } from '@/utils/utils'
+import { Sorting, SourceRow } from '@/types'
+import { isMobile, orderBy, paging, removeClass, selectWord, skip } from '@/utils/utils'
 import Examples from '@/components/Examples'
 import SegmentedControl from '@/components/SegmentedControl.vue'
 import ToggleButton from '@/components/ToggleButton.vue'
 import { useVocabStore } from '@/store/useVocab'
 import { useDebounceTransition } from '@/composables/useDebounce'
-import { useElHover, useState, useStateCallback, watched } from '@/composables/utilities'
+import { useElHover, useStateCallback, watched } from '@/composables/utilities'
 import { find } from '@/utils/vocab'
 
 const {
@@ -33,38 +33,43 @@ let dirty = $ref(true)
 const { inUpdating } = $(useVocabStore())
 const vocabTable = ref()
 const isHovered = $(watched(useElHover('.el-table__body-wrapper'), (isHovered) => {
-  if ((isHovered && rowsDisplay.length !== 0) || !dirty || inUpdating) return
-  rowsDisplay = rows as SourceRow[]
+  if ((isHovered && rowsDisplay.value.length !== 0) || !dirty || inUpdating) return
+  rowsDisplay.value = rows
 }))
 const search = $ref('')
-const [sortBy, setSortBy] = $(useState<Sorting<SourceRow>>({ order: null, prop: null, }))
+let sortBy = $ref<Sorting<SourceRow>>({ order: 'ascending', prop: 'src.0.3' })
+const setSortBy = (sort: Sorting<SourceRow>) => {
+  sortBy = sort.order === null ? { order: 'ascending', prop: 'src.0.3' } : sort
+}
 const currPage = $ref(1)
 const pageSize = $ref(100)
 // use shallowRef to avoid issue of cannot expand row
-let rowsDisplay = $(watched(shallowRef<MyVocabRow[]>([]), () => {
+const rowsDisplay = watched(shallowRef<SourceRow[]>([]), () => {
   dirty = false
   requestAnimationFrame(() => removeClass('xpd'))
-}))
+})
 let total = $ref(0)
 let disabledTotal = $ref(false)
 const { output: totalTransit, inTransition } = $(useDebounceTransition($$(total), {
   disabled: $$(disabledTotal),
   transition: TransitionPresets.easeOutCirc,
 }))
-const rows = $(watched(computed(() => pipe(data,
+const rowsSearched = $(watched(computed(() => pipe(data,
   seg === 'new' ? filter((r) => !r.vocab.acquainted && r.vocab.w.length > 2) :
     seg === 'acquainted' ? filter((r) => Boolean(r.vocab.acquainted || r.vocab.w.length <= 2)) : skip,
   find(search),
-  skipAfter((a) => until($$(inTransition)).toBe(false).then(() => total = a.length)),
+)), (newSearched) => until($$(inTransition)).toBe(false).then(() => total = newSearched.length)))
+const rows = $computed(() => pipe(rowsSearched,
   orderBy(sortBy.prop, sortBy.order),
   paging(currPage, pageSize),
-)), (v) => {
+))
+watch([$$(inUpdating), $$(rows)], () => {
   dirty = true
   if (inUpdating) return
   requestAnimationFrame(() => removeClass('xpd'))
-  if (isHovered && rowsDisplay.length !== 0) return
-  rowsDisplay = v
-}))
+  if (isHovered && rowsDisplay.value.length !== 0) return
+  rowsDisplay.value = rows
+}, { immediate: true })
 
 function handleRowClick(row: SourceRow) {
   (vocabTable.value as typeof ElTable).toggleRowExpansion(row)
@@ -175,15 +180,17 @@ const segments = $computed(() => [
         </el-table-column>
       </el-table>
     </div>
-    <el-pagination
-      v-model:currentPage="currPage"
-      v-model:page-size="pageSize"
-      :page-sizes="[25, 100, 200, 500, 1000, Infinity]"
-      :small="true"
-      :pager-count="5"
-      layout="prev, pager, next, ->, total, sizes"
-      :total="~~totalTransit"
-      class="w-full shrink-0 flex-wrap gap-y-1.5 !p-1.5 tabular-nums [&_*]:!rounded-md [&_.is-active]:bg-neutral-100 [&_.el-pagination\_\_sizes.is-last]:!m-0 [&_.el-pagination\_\_total]:mx-[10px]"
-    />
+    <div class="w-full">
+      <el-pagination
+        v-model:currentPage="currPage"
+        v-model:page-size="pageSize"
+        :page-sizes="[25, 100, 200, 500, 1000, Infinity]"
+        :small="true"
+        :pager-count="5"
+        layout="prev, pager, next, ->, total, sizes"
+        :total="~~totalTransit"
+        class="shrink-0 flex-wrap gap-y-1.5 !p-1.5 tabular-nums [&_*]:!rounded-md [&_.is-active]:bg-neutral-100 [&_.el-pagination\_\_sizes.is-last]:!m-0 [&_.el-pagination\_\_total]:mx-[10px]"
+      />
+    </div>
   </div>
 </template>

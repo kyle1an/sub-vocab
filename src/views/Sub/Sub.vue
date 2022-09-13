@@ -4,7 +4,7 @@ import { ref } from 'vue'
 import { whenever } from '@vueuse/core'
 import VocabTable from './VocabTable.vue'
 import { SourceRow } from '@/types'
-import { readFiles, sortByChar } from '@/utils/utils'
+import { readFiles, resetFileInput, sortByChar } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
 import { useTimeStore } from '@/store/usePerf'
 import { useDebounceTimeout } from '@/composables/useDebounce'
@@ -59,11 +59,7 @@ const reformVocabList = useDebounceTimeout(async function refreshVocab() {
 }, 50)
 whenever($$(baseReady), reformVocabList)
 let tableDataOfVocab = $shallowRef<SourceRow[]>([])
-
-function handleTextChange() {
-  const input = document.getElementById('input') as HTMLInputElement
-  if (input) input.value = ''
-}
+const handleTextChange = () => resetFileInput('.file-input')
 
 function logVocabInfo(listOfVocab: SourceRow[]) {
   const untouchedVocabList = [...listOfVocab].sort((a, b) => sortByChar(a.vocab.w, b.vocab.w))
@@ -77,7 +73,7 @@ function logVocabInfo(listOfVocab: SourceRow[]) {
       <label class="el-button grow-0 !rounded-md px-3 py-2.5 text-sm leading-3">
         {{ t('browseFiles') }}
         <input
-          id="input"
+          class="file-input"
           type="file"
           hidden
           multiple
@@ -87,7 +83,7 @@ function logVocabInfo(listOfVocab: SourceRow[]) {
     </div>
     <div class="flex flex-col gap-6 md:h-[calc(100vh-140px)] md:flex-row">
       <div class="relative box-border flex flex-1 basis-auto flex-col overflow-hidden border md:rounded-[12px] md:shadow-sm">
-        <div class="flex h-10 shrink-0 items-center border-b bg-gray-100 py-2 pr-2 pl-4 font-compact text-xs text-neutral-600">
+        <div class="flex h-10 shrink-0 items-center border-b bg-zinc-50 py-2 pr-2 pl-4 font-compact text-xs text-neutral-600">
           <span class="grow truncate">
             {{ fileInfo + '&nbsp;' }}
           </span>

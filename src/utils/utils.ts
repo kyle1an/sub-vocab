@@ -5,7 +5,7 @@ export function sortByChar(a: string, b: string): number {
 }
 
 export function sortByDateISO(a: string, b: string): number {
-  return (a < b) ? -1 : ((a > b) ? 1 : 0)
+  return (a < b) ? -1 : (a > b) ? 1 : 0
 }
 
 export function sortNum1st(a: unknown, b: unknown): number {
@@ -78,9 +78,9 @@ export const jsonClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj))
 
 type RecordUnknown = Record<string, unknown>
 
-export const orderBy = (prop: string | number | null, order: Order) => prop && order ? <T extends RecordUnknown>(rows: T[]) => rows.sort(compare(prop, order)) : skip
+export const orderBy = (prop: string | number | null, order: Order) => <T extends RecordUnknown>(rows: T[]) => prop && order ? rows.sort(compareFn(prop, order)) : rows
 
-export function compare(propName: string | number, order: NonNullable<Order>) {
+export function compareFn(propName: string | number, order: NonNullable<Order>) {
   return (obj1: RecordUnknown, obj2: RecordUnknown): number => {
     let o1 = obj1[propName]
     let o2 = obj2[propName]
@@ -91,9 +91,9 @@ export function compare(propName: string | number, order: NonNullable<Order>) {
       o2 = path.reduce((o, prop) => o[prop] as RecordUnknown, obj2)
     }
 
-    return (order === 'ascending' ? 1 : -1) * sort(o1, o2)
+    return (order === 'ascending' ? 1 : -1) * compare(o1, o2)
 
-    function sort(a: unknown, b: unknown) {
+    function compare(a: unknown, b: unknown) {
       if (typeof a === 'string' && typeof b === 'string') {
         return sortByChar(a, b)
       }
@@ -155,4 +155,11 @@ export const skip = <T>(a: T) => a
 export const skipAfter = <T>(callback: (arg: T) => void) => (a: T) => {
   callback(a)
   return a
+}
+
+export function resetFileInput(selectors: string) {
+  const input = document.querySelectorAll(selectors) as NodeListOf<HTMLInputElement>
+  for (let i = 0; i < input.length; i++) {
+    input[i].value = ''
+  }
 }

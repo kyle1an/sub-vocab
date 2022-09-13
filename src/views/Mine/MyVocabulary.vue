@@ -1,18 +1,18 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
-import { computed, nextTick, shallowRef } from 'vue'
+import { computed, nextTick, shallowRef, watch } from 'vue'
 import { TransitionPresets, until } from '@vueuse/core'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
 import { pipe } from 'fp-ts/function'
 import { filter } from 'fp-ts/Array'
 import SegmentedControl from '@/components/SegmentedControl.vue'
-import { orderBy, paging, selectWord, skipAfter, sortByDateISO } from '@/utils/utils'
+import { orderBy, paging, selectWord, sortByDateISO } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
 import { MyVocabRow, Sieve, Sorting } from '@/types'
 import DateTime from '@/components/DateTime'
 import ToggleButton from '@/components/ToggleButton.vue'
 import { useDebounceTransition } from '@/composables/useDebounce'
-import { useElHover, useState, useStateCallback, watched } from '@/composables/utilities'
+import { useElHover, useStateCallback, watched } from '@/composables/utilities'
 import { find } from '@/utils/vocab'
 
 const { t } = useI18n()
@@ -25,34 +25,39 @@ const [seg, setSeg] = $(useStateCallback<MyVocabSegment>(sessionStorage.getItem(
 }))
 let dirty = $ref(false)
 const isHovered = $(watched(useElHover('.el-table__body-wrapper'), (isHovered) => {
-  if ((isHovered && rowsDisplay.length !== 0) || !dirty || inUpdating) return
-  rowsDisplay = rows as MyVocabRow[]
+  if ((isHovered && rowsDisplay.value.length !== 0) || !dirty || inUpdating) return
+  rowsDisplay.value = rows
 }))
 const search = $ref('')
-const [sortBy, setSortBy] = $(useState<Sorting<Sieve>>({ order: null, prop: null, }))
+let sortBy = $ref<Sorting<Sieve>>({ order: 'descending', prop: 'vocab.time_modified' })
+const setSortBy = (sort: Sorting<Sieve>) => {
+  sortBy = sort.order === null ? { order: 'descending', prop: 'vocab.time_modified' } : sort
+}
 const currPage = $ref(1)
 const pageSize = $ref(100)
-let rowsDisplay = $(watched(shallowRef<MyVocabRow[]>([]), () => dirty = false))
+let rowsDisplay = watched(shallowRef<MyVocabRow[]>([]), () => dirty = false)
 let total = $ref(0)
 let disabledTotal = $ref(false)
 const { output: totalTransit, inTransition } = $(useDebounceTransition($$(total), {
   disabled: $$(disabledTotal),
   transition: TransitionPresets.easeOutCirc,
 }))
-const rows = $(watched(computed(() => pipe(
+const rowsSearched = $(watched(computed(() => pipe(
   [...baseVocab].sort((a, b) => sortByDateISO(b.time_modified || '', a.time_modified || '')).map((r) => ({ vocab: r })),
   seg === 'mine' ? filter((r) => Boolean(r.vocab.acquainted && r.vocab.is_user)) :
     seg === 'top' ? filter((r) => Boolean(r.vocab.acquainted && !r.vocab.is_user)) :
       seg === 'recent' ? filter((r) => !r.vocab.acquainted && r.vocab.is_user !== 2) : filter((r) => !!r.vocab.acquainted),
   find(search),
-  skipAfter((a) => until($$(inTransition)).toBe(false).then(() => total = a.length)),
+)), (newSearched) => until($$(inTransition)).toBe(false).then(() => total = newSearched.length), { immediate: true }))
+const rows = $computed(() => pipe(rowsSearched,
   orderBy(sortBy.prop, sortBy.order),
   paging(currPage, pageSize),
-)), (v) => {
+))
+watch([$$(inUpdating), $$(rows)], () => {
   dirty = true
-  if (inUpdating || (isHovered && rowsDisplay.length !== 0)) return
-  rowsDisplay = v
-}))
+  if (inUpdating || (isHovered && rowsDisplay.value.length !== 0)) return
+  rowsDisplay.value = rows
+}, { immediate: true })
 const segments = $computed(() => [
   { value: 'all', label: t('all') },
   { value: 'mine', label: t('mine') },
