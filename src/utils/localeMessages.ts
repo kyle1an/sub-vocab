@@ -50,7 +50,10 @@ export const messages = {
     W: 'W',
     M: 'M',
     '6M': '6M',
-    Y: 'Y'
+    Y: 'Y',
+    importVocab: 'Import vocabulary',
+    acquaintedAll: 'Mark all as Acquainted',
+    browseVocabFile: 'Browse vocabulary file',
   },
   zh: {
     'Confirm Changes': '确认修改',
@@ -103,6 +106,9 @@ export const messages = {
     W: '周',
     M: '月',
     '6M': '半年',
-    Y: '年'
+    Y: '年',
+    importVocab: '导入单词',
+    acquaintedAll: '全部标记为已认识',
+    browseVocabFile: '浏览单词文件',
   },
 }

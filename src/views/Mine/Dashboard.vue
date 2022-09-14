@@ -18,7 +18,7 @@ const subNav = computed(() => [
 </script>
 
 <template>
-  <div class="flex w-full max-w-screen-lg grow flex-col py-8 px-5 md:px-8">
+  <div class="flex w-full max-w-screen-lg grow flex-col py-3 px-5 md:px-8">
     <div class="flex w-full grow flex-col gap-4 md:flex-row md:gap-6">
       <div class="w-48 shrink-0">
         <div class="sticky top-20">

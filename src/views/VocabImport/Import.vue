@@ -1,17 +1,21 @@
-<script lang="ts" setup>
+<script lang="tsx" setup>
 import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
 import { whenever } from '@vueuse/core'
-import VocabTable from '../../components/vocabulary/VocabTable.vue'
-import { SourceRow } from '@/types'
+import { ElNotification } from 'element-plus'
+import VocabTable from '@/components/vocabulary/VocabTable.vue'
+import { Sieve, SourceRow } from '@/types'
 import { readFiles, resetFileInput, sortByChar } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
 import { useTimeStore } from '@/store/usePerf'
 import { useDebounceTimeout } from '@/composables/useDebounce'
 import { useState, watched } from '@/composables/utilities'
+import { acquaint } from '@/api/vocab-service'
+import router from '@/router'
 
 const { t } = useI18n()
 let fileInfo = $ref('')
+const { user, loadingQueue, updateWord } = $(useVocabStore())
 
 async function onFileChange(ev: Event) {
   const files = (ev.target as HTMLInputElement).files
@@ -28,7 +32,6 @@ async function onFileChange(ev: Event) {
 }
 
 let count = $ref(0)
-let sentences = $ref<string[]>([])
 const { baseReady, getPreBuiltTrie, backTrie } = $(useVocabStore())
 const { log, logEnd, logPerf } = useTimeStore()
 let inputText = $(watched(ref(''), () => !inWaiting && reformVocabList()))
@@ -54,7 +57,6 @@ const reformVocabList = useDebounceTimeout(async function refreshVocab() {
   logPerf()
   tableDataOfVocab = list
   count = trie.wordCount
-  sentences = trie.sentences
   requestAnimationFrame(() => requestAnimationFrame(backTrie))
 }, 50)
 whenever($$(baseReady), reformVocabList)
@@ -65,6 +67,45 @@ function logVocabInfo(listOfVocab: SourceRow[]) {
   const untouchedVocabList = [...listOfVocab].sort((a, b) => sortByChar(a.vocab.w, b.vocab.w))
   console.log(`(${untouchedVocabList.length}) words`, { _: untouchedVocabList })
 }
+
+async function acquaintVocab(row: Sieve, name: string) {
+  row.inUpdating = true
+  loadingQueue.push(true)
+  const word = row.w
+  const vocabInfo = {
+    word: word.replace(/'/g, `''`),
+    user: name,
+  }
+  const acquainted = row.acquainted
+  const res = await acquaint(vocabInfo)
+
+  if (res.affectedRows) {
+    updateWord(row, !acquainted)
+  }
+  loadingQueue.pop()
+  row.inUpdating = false
+}
+
+function batchAcquaint() {
+  if (user) {
+    for (const row of tableDataOfVocab) {
+      if (!row.vocab.acquainted) {
+        acquaintVocab(row.vocab, user)
+      }
+    }
+  } else {
+    ElNotification({
+      message: (
+        <span style={{ color: 'teal' }}>
+          {t('please')}
+          {' '}<i onClick={() => router.push('/login')}>{t('login')}</i>{' '}
+          {t('to mark words')}
+        </span>
+      ),
+      offset: 40,
+    })
+  }
+}
 </script>
 
 <template>
@@ -72,12 +113,12 @@ function logVocabInfo(listOfVocab: SourceRow[]) {
     <div class="relative mx-3 flex h-14 items-center xl:mx-0">
       <label
         class="btn"
-        for="browseFiles"
+        for="browseVocabFile"
       >
-        {{ t('browseFiles') }}
+        {{ t('browseVocabFile') }}
       </label>
       <input
-        id="browseFiles"
+        id="browseVocabFile"
         class="file-input"
         type="file"
         hidden
@@ -91,25 +132,33 @@ function logVocabInfo(listOfVocab: SourceRow[]) {
           <span class="grow truncate">
             {{ fileInfo + '&nbsp;' }}
           </span>
-          <span class="mx-1 inline-block h-[18px] w-px border-l align-middle" />
-          <span class="shrink-0 text-right font-mono tabular-nums">
-            {{ `&nbsp;${count.toLocaleString('en-US')} ${t('words')}` }}
-          </span>
         </div>
-        <div class="h-full w-full grow text-base text-zinc-700 md:text-sm">
+        <div class="h-full w-full grow border-b text-base text-zinc-700 md:text-sm">
           <textarea
             v-model="inputText"
-            class="h-[260px] max-h-[360px] w-full resize-none rounded-none py-3 px-[30px] align-top outline-none ffs-[normal] md:h-full md:max-h-full"
+            class="h-[260px] w-full resize-none rounded-none py-3 px-[30px] align-top outline-none ffs-[normal] md:h-full md:max-h-full"
             :placeholder="t('inputArea')"
             @change="handleTextChange"
           />
+        </div>
+        <div class="flex h-9 shrink-0 items-center bg-zinc-50 p-1.5 font-compact text-xs text-neutral-600">
+          <span class="grow truncate" />
+          <span class="shrink-0 text-right font-mono tabular-nums">
+            {{ `&nbsp;${count.toLocaleString('en-US')} ${t('words')}` }}
+          </span>
+          <span class="mx-1 inline-block h-[18px] w-px border-l align-middle" />
+          <button
+            class="box-border inline-flex h-7 max-h-full grow-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-md bg-zinc-200 px-3 py-2.5 text-center align-middle text-sm leading-3 transition-colors hover:bg-yellow-300"
+            @click="batchAcquaint"
+          >
+            {{ t('acquaintedAll') }}
+          </button>
         </div>
       </div>
       <div class="h-[86vh] overflow-visible pb-5 md:mt-0 md:h-full md:w-[44%] md:pb-0">
         <vocab-table
           :data="tableDataOfVocab"
-          :sentences="sentences"
-          :expand="true"
+          :expand="false"
         />
       </div>
     </div>

@@ -70,6 +70,7 @@ export default class LabeledTire {
           w: base,
           acquainted: false,
           is_user: 0,
+          inUpdating: false,
         }
       }
       let i = irregulars.length
@@ -155,6 +156,7 @@ export default class LabeledTire {
           acquainted: false,
           is_user: 0,
           invalid: true,
+          inUpdating: false,
         })
       })
     }

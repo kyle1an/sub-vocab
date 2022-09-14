@@ -17,7 +17,10 @@ export const useVocabStore = defineStore('vocabStore', () => {
   let user = $(watched(ref(Cookies.get('_user') ?? ''), async (user) => {
     Cookies.set('_user', user, { expires: 30 })
     baseReady = false
-    baseVocab = await queryWordsByUser(user)
+    baseVocab = (await queryWordsByUser(user)).map((sieve) => {
+      sieve.inUpdating = false
+      return sieve
+    }) as Sieve[]
     baseReady = true
     queueMicrotask(backTrie)
   }, { immediate: true }))

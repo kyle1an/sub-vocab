@@ -1,10 +1,13 @@
-export interface Sieve extends Record<string, unknown> {
+export interface UserVocab extends Record<string, unknown> {
   w: string;
   acquainted: number | boolean,
   is_user: number | boolean,
   rank?: number | null,
   time_modified?: string | null,
-  invalid?: boolean,
+}
+
+export interface Sieve extends UserVocab {
+  inUpdating: boolean,
 }
 
 export interface Stems {

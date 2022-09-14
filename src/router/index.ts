@@ -15,7 +15,7 @@ const routes = [
     children: [
       {
         path: '',
-        component: () => import('@/views/Mine/MyVocabulary.vue'),
+        component: () => import('@/views/Mine/MineVocab.vue'),
         meta: { keepAlive: true },
       },
       {
@@ -24,6 +24,11 @@ const routes = [
         meta: { keepAlive: true },
       },
     ],
+  },
+  {
+    path: '/import',
+    component: () => import('@/views/VocabImport/Import.vue'),
+    meta: { keepAlive: true },
   },
   { path: '/login', component: () => import('@/views/Login.vue') },
   { path: '/register', component: () => import('@/views/Register.vue') },
