@@ -1,8 +1,8 @@
 import { wrapCookie } from '@/utils/cookie'
-import { Sieve, Stems, userVocab } from '@/types'
+import { Stems, UserVocab, userVocab } from '@/types'
 import { postRequest } from '@/api/request'
 
-export async function queryWordsByUser(user: string): Promise<Sieve[]> {
+export async function queryWordsByUser(user: string): Promise<UserVocab[]> {
   return postRequest(`${import.meta.env.VITE_SUB_PROD}/api/queryWords`, wrapCookie({ user }))
 }
 

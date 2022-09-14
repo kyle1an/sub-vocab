@@ -10,9 +10,10 @@ import router from '@/router'
 const { row } = defineProps<{ row: Sieve }>()
 const { t } = useI18n()
 const { user, loadingQueue, updateWord } = $(useVocabStore())
-let isLoading = $ref(false)
 
 async function toggleWordState(row: Sieve, name: string) {
+  row.inUpdating = true
+  loadingQueue.push(true)
   const word = row.w
   const vocabInfo = {
     word: word.replace(/'/g, `''`),
@@ -24,12 +25,11 @@ async function toggleWordState(row: Sieve, name: string) {
   if (res.affectedRows) {
     updateWord(row, !acquainted)
   }
+  loadingQueue.pop()
+  row.inUpdating = false
 }
 
 async function handleClick(row: Sieve) {
-  isLoading = true
-  loadingQueue.push(true)
-
   if (user) {
     await toggleWordState(row, user)
   } else {
@@ -40,12 +40,10 @@ async function handleClick(row: Sieve) {
           {' '}<i onClick={() => router.push('/login')}>{t('login')}</i>{' '}
           {t('to mark words')}
         </span>
-      )
+      ),
+      offset: 40,
     })
   }
-
-  loadingQueue.pop()
-  isLoading = false
 }
 </script>
 
@@ -53,8 +51,8 @@ async function handleClick(row: Sieve) {
   <el-button
     color="#facc15"
     size="small"
-    :disabled="isLoading"
-    :class="`${row.acquainted?'!text-white':'un !border-zinc-300 !bg-transparent !text-transparent hover:!text-black'} ${isLoading?'[&_.is-loading]:!inline-flex [&_.check]:hidden [.un&]:!text-black':''}`"
+    :disabled="row.inUpdating"
+    :class="`${row.acquainted?'!text-white':'un !border-zinc-300 !bg-transparent !text-transparent hover:!text-black'} ${row.inUpdating?'[&_.is-loading]:!inline-flex [&_.check]:hidden [.un&]:!text-black':''}`"
     circle
     @click.stop="handleClick(row)"
   >

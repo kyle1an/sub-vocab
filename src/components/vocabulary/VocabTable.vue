@@ -6,10 +6,10 @@ import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
 import { pipe } from 'fp-ts/function'
 import { filter } from 'fp-ts/Array'
 import { Sorting, SourceRow } from '@/types'
-import { isMobile, orderBy, paging, removeClass, selectWord, skip } from '@/utils/utils'
-import Examples from '@/components/Examples'
+import { isMobile, orderBy, paging, selectWord, skip } from '@/utils/utils'
+import Examples from '@/components/vocabulary/Examples'
 import SegmentedControl from '@/components/SegmentedControl.vue'
-import ToggleButton from '@/components/ToggleButton.vue'
+import ToggleButton from '@/components/vocabulary/ToggleButton.vue'
 import { useVocabStore } from '@/store/useVocab'
 import { useDebounceTransition } from '@/composables/useDebounce'
 import { useElHover, useStateCallback, watched } from '@/composables/utilities'
@@ -17,10 +17,12 @@ import { find } from '@/utils/vocab'
 
 const {
   data = [],
-  sentences = ['']
+  sentences = [''],
+  expand = false,
 } = defineProps<{
   data: SourceRow[],
-  sentences: string[]
+  sentences?: string[]
+  expand: boolean,
 }>()
 const { t } = useI18n()
 type TableSegment = typeof segments[number]['value']
@@ -33,8 +35,12 @@ let dirty = $ref(true)
 const { inUpdating } = $(useVocabStore())
 const vocabTable = ref()
 const isHovered = $(watched(useElHover('.el-table__body-wrapper'), (isHovered) => {
-  if ((isHovered && rowsDisplay.value.length !== 0) || !dirty || inUpdating) return
-  rowsDisplay.value = rows
+  if (!dirty) return
+  if (!isHovered && !inUpdating) {
+    rowsDisplay.value = rows
+  } else {
+    dirty = true
+  }
 }))
 const search = $ref('')
 let sortBy = $ref<Sorting<SourceRow>>({ order: 'ascending', prop: 'src.0.3' })
@@ -44,39 +50,44 @@ const setSortBy = (sort: Sorting<SourceRow>) => {
 const currPage = $ref(1)
 const pageSize = $ref(100)
 // use shallowRef to avoid issue of cannot expand row
-const rowsDisplay = watched(shallowRef<SourceRow[]>([]), () => {
-  dirty = false
-  requestAnimationFrame(() => removeClass('xpd'))
-})
+const rowsDisplay = watched(shallowRef<SourceRow[]>([]), () => dirty = false)
 let total = $ref(0)
 let disabledTotal = $ref(false)
 const { output: totalTransit, inTransition } = $(useDebounceTransition($$(total), {
   disabled: $$(disabledTotal),
   transition: TransitionPresets.easeOutCirc,
 }))
+let inputDirty = $ref(false)
+watch($$(data), () => inputDirty = true)
 const rowsSearched = $(watched(computed(() => pipe(data,
   seg === 'new' ? filter((r) => !r.vocab.acquainted && r.vocab.w.length > 2) :
     seg === 'acquainted' ? filter((r) => Boolean(r.vocab.acquainted || r.vocab.w.length <= 2)) : skip,
   find(search),
 )), (newSearched) => until($$(inTransition)).toBe(false).then(() => total = newSearched.length)))
-const rows = $computed(() => pipe(rowsSearched,
+const rows = $(watched(computed(() => pipe(rowsSearched,
   orderBy(sortBy.prop, sortBy.order),
   paging(currPage, pageSize),
-))
-watch([$$(inUpdating), $$(rows)], () => {
-  dirty = true
-  if (inUpdating) return
-  requestAnimationFrame(() => removeClass('xpd'))
-  if (isHovered && rowsDisplay.value.length !== 0) return
-  rowsDisplay.value = rows
+)), (v) => {
+  if (inputDirty) {
+    rowsDisplay.value = v
+    inputDirty = false
+  } else if (!isHovered && !inUpdating) {
+    rowsDisplay.value = v
+  } else {
+    dirty = true
+  }
+}, { immediate: true }))
+watch($$(inUpdating), () => {
+  if (seg === 'all') return
+  if (!isHovered && !inUpdating) {
+    rowsDisplay.value = rows
+  } else {
+    dirty = true
+  }
 }, { immediate: true })
 
 function handleRowClick(row: SourceRow) {
   (vocabTable.value as typeof ElTable).toggleRowExpansion(row)
-}
-
-function handleExpand(row: SourceRow) {
-  document.getElementsByClassName(`v-${row.src[0][3]}`)[0].classList.toggle('xpd')
 }
 
 const segments = $computed(() => [
@@ -98,15 +109,16 @@ const segments = $computed(() => [
     <div class="h-px w-full grow">
       <el-table
         ref="vocabTable"
-        class="!h-full from-[var(--el-border-color-lighter)] to-white [&_th_.cell]:font-compact [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full [&_.xpd_td]:!border-white [&_.xpd_td]:!bg-white [&_.xpd:hover>td]:bg-gradient-to-b [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-icon]:pointer-events-none"
+        class="!h-full from-[var(--el-border-color-lighter)] to-white [&_.el-table\_\_row:has(+tr:not([class]))>td]:!border-white [&_.el-table\_\_row:has(+tr:not([class]))>td]:bg-gradient-to-b [&_*]:overscroll-contain [&_th_.cell]:font-compact [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-icon]:pointer-events-none"
         size="small"
-        :row-class-name="({row})=>`v-${row.src[0][3]}`"
+        :row-class-name="()=>`${expand?'cursor-pointer':''}`"
+        :row-key="(row)=>row.src[0][3]"
         :data="rowsDisplay"
-        @row-click="handleRowClick"
-        @expand-change="handleExpand"
+        v-on="expand ? { 'row-click': handleRowClick } : {}"
         @sort-change="setSortBy"
       >
         <el-table-column
+          v-if="expand"
           type="expand"
           class-name="[&_i]:text-slate-500"
         >
@@ -121,12 +133,12 @@ const segments = $computed(() => [
         <el-table-column
           :label="t('frequency')"
           prop="src.length"
-          width="62"
+          :width="`${expand?62:72}`"
           sortable="custom"
-          class-name="cursor-pointer !text-right [th&>.cell]:!p-0"
+          class-name="!text-right [th&>.cell]:!p-0"
         >
           <template #default="{row}">
-            <div class="select-none text-right font-compact tabular-nums text-slate-400">
+            <div class="font-compact tabular-nums text-slate-400">
               {{ row.src.length }}
             </div>
           </template>
@@ -136,7 +148,7 @@ const segments = $computed(() => [
           prop="vocab.w"
           min-width="16"
           sortable="custom"
-          class-name="cursor-pointer [td&>.cell]:!pr-0"
+          class-name="select-none [td&>.cell]:!pr-0"
         >
           <template #header>
             <el-input
@@ -149,7 +161,7 @@ const segments = $computed(() => [
           </template>
           <template #default="{row}">
             <span
-              class="cursor-text font-compact text-[16px] tracking-wide text-neutral-900"
+              class="cursor-text select-text font-compact text-[16px] tracking-wide text-neutral-900"
               v-on="isMobile ? {} : { mouseover: selectWord }"
               @click.stop
             >
@@ -162,10 +174,10 @@ const segments = $computed(() => [
           prop="vocab.w.length"
           width="68"
           sortable="custom"
-          class-name="cursor-pointer !text-right [th&>.cell]:!p-0"
+          class-name="!text-right [th&>.cell]:!p-0"
         >
           <template #default="{row}">
-            <div class="select-none font-compact tabular-nums">
+            <div class="font-compact tabular-nums">
               {{ row.vocab.w.length }}
             </div>
           </template>
@@ -180,7 +192,7 @@ const segments = $computed(() => [
         </el-table-column>
       </el-table>
     </div>
-    <div class="w-full">
+    <div class="min-h-9 w-full">
       <el-pagination
         v-model:currentPage="currPage"
         v-model:page-size="pageSize"
