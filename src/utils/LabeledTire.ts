@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 import { caseOr, hasUppercase, isVowel } from './utils'
-import { Char, Label, LabelPre, Sieve, SourceRow, TrieNode } from '@/types'
+import type { Char, Label, LabelPre, Sieve, SourceRow, TrieNode } from '@/types'
 
 export default class LabeledTire {
   root: TrieNode<Label>

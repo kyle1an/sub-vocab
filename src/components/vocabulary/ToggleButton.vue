@@ -1,31 +1,26 @@
 <script lang="tsx" setup>
 import { Check, Loading } from '@element-plus/icons-vue'
 import { ElButton, ElIcon, ElNotification } from 'element-plus'
-import { useI18n } from 'vue-i18n'
-import { Sieve } from '@/types'
+import { t } from '@/i18n'
+import type { Sieve } from '@/types'
 import { acquaint, revokeWord } from '@/api/vocab-service'
 import { useVocabStore } from '@/store/useVocab'
 import router from '@/router'
 
 const { row } = defineProps<{ row: Sieve }>()
-const { t } = useI18n()
-const { user, loadingQueue, updateWord } = $(useVocabStore())
+const { user, updateWord } = $(useVocabStore())
 
 async function toggleWordState(row: Sieve, name: string) {
   row.inUpdating = true
-  loadingQueue.push(true)
-  const word = row.w
-  const vocabInfo = {
-    word: word.replace(/'/g, `''`),
+  const res = await (row.acquainted ? revokeWord : acquaint)({
+    word: row.w.replace(/'/g, `''`),
     user: name,
-  }
-  const acquainted = row.acquainted
-  const res = await (acquainted ? revokeWord : acquaint)(vocabInfo)
+  })
 
   if (res.affectedRows) {
-    updateWord(row, !acquainted)
+    updateWord(row, !row.acquainted)
   }
-  loadingQueue.pop()
+
   row.inUpdating = false
 }
 

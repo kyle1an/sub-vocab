@@ -16,8 +16,8 @@ const {
 const pill = ref()
 const { width } = $(useElementBounding(pill))
 const pillWidth = computed(() => {
-  if (width === 0) return name ? +(sessionStorage.getItem(name) || 0) : 0
-  name && sessionStorage.setItem(name, String(width))
+  if (width === 0) return name ? +(sessionStorage.getItem(`${name}-width`) || 0) : 0
+  name && sessionStorage.setItem(`${name}-width`, String(width))
   return width
 })
 </script>

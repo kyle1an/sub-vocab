@@ -1,5 +1,5 @@
 import { PropType, defineComponent } from 'vue'
-import { Source } from '@/types'
+import type { Source } from '@/types'
 
 function source(src: Source) {
   const lines: [number, [number, number][]][] = []

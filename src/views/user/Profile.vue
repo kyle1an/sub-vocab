@@ -2,30 +2,20 @@
 import type { FormInstance, FormItemRule } from 'element-plus'
 import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
 import { reactive, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { changeUsername, isUsernameTaken } from '@/api/user'
+import { t } from '@/i18n'
+import { changeUsername } from '@/api/user'
 import { useVocabStore } from '@/store/useVocab'
 import { resetForm } from '@/utils/elements'
+import { checkUsername, checkUsernameTaken } from '@/utils/validation'
 
-const { t } = useI18n()
 let { user } = $(useVocabStore())
 const ruleFormRef = ref<FormInstance>()
 
-async function checkUsername(rule: FormItemRule | FormItemRule[], username: string, callback: (arg0?: Error) => void) {
-  if (!username.length) {
-    return callback(new Error(t('Please input name')))
-  }
+async function checkUsernameChange(rule: FormItemRule | FormItemRule[], username: string, callback: (arg0?: Error) => void) {
+  checkUsername(rule, username, callback)
 
-  if (username.length > 20) {
-    return callback(new Error(t('Please use a shorter name')))
-  }
-
-  if (username.length < 2) {
-    return callback(new Error(t('NameLimitMsg')))
-  }
-
-  if (username !== user && (await isUsernameTaken({ username })).has) {
-    return callback(new Error(`${username}${t('alreadyTaken')}`))
+  if (username !== user) {
+    await checkUsernameTaken(rule, username, callback)
   }
 
   callback()
@@ -35,7 +25,7 @@ const ruleForm = reactive({
   username: '',
 })
 const rules = reactive({
-  username: [{ validator: checkUsername, trigger: 'blur' }],
+  username: [{ validator: checkUsernameChange, trigger: 'blur' }],
 })
 
 function submitForm(formEl: FormInstance | undefined) {

@@ -2,35 +2,21 @@
 import type { FormInstance, FormItemRule } from 'element-plus'
 import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
 import { reactive, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
 import { resetForm } from '@/utils/elements'
+import { checkUsername, noEmptyPassword } from '@/utils/validation'
 
-const { t } = useI18n()
 const { login } = useVocabStore()
 const ruleFormRef = ref<FormInstance>()
 
-function checkUsername(rule: FormItemRule | FormItemRule[], username: string, callback: (arg0?: Error) => void) {
-  if (!username.length) {
-    return callback(new Error(t('Please input name')))
-  }
-
-  if (username.length > 20) {
-    return callback(new Error(t('Please use a shorter name')))
-  }
-
-  if (username.length < 2) {
-    return callback(new Error(t('NameLimitMsg')))
-  }
-
+function checkUsernameLogin(rule: FormItemRule | FormItemRule[], username: string, callback: (arg0?: Error) => void) {
+  checkUsername(rule, username, callback)
   callback()
 }
 
 function validatePass(rule: FormItemRule | FormItemRule[], password: string, callback: (arg0?: Error) => void) {
-  if (password === '') {
-    return callback(new Error(t('Please input the password')))
-  }
-
+  noEmptyPassword(rule, password, callback)
   callback()
 }
 
@@ -39,7 +25,7 @@ const ruleForm = reactive({
   password: '',
 })
 const rules = reactive({
-  username: [{ validator: checkUsername, trigger: 'blur' }],
+  username: [{ validator: checkUsernameLogin, trigger: 'blur' }],
   password: [{ validator: validatePass, trigger: 'blur' }],
 })
 let errorMsg = $ref('')

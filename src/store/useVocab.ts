@@ -4,7 +4,7 @@ import { until, useAsyncState } from '@vueuse/core'
 import { ref } from 'vue'
 import { logicAnd } from '@vueuse/math'
 import { queryWordsByUser, stemsMapping } from '@/api/vocab-service'
-import { Sieve } from '@/types'
+import type { Sieve } from '@/types'
 import { timer, timerEnd } from '@/utils/utils'
 import Trie from '@/utils/LabeledTire'
 import { login as loginUser, logoutToken } from '@/api/user'
@@ -82,14 +82,10 @@ export const useVocabStore = defineStore('vocabStore', () => {
     $.time_modified = new Date().toISOString()
   }
 
-  const loadingQueue = $ref<boolean[]>([])
-  const inUpdating = $computed(() => loadingQueue.length > 0)
   return $$({
     baseVocab,
     backTrie,
     getPreBuiltTrie,
-    inUpdating,
-    loadingQueue,
     trieReady,
     updateWord,
     user,

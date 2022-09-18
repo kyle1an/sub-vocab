@@ -2,39 +2,23 @@
 import type { FormInstance, FormItemRule } from 'element-plus'
 import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
 import { reactive } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { t } from '@/i18n'
 import { userInfo } from '@/types/user'
 import router from '@/router'
-import { isUsernameTaken, register } from '@/api/user'
+import { register } from '@/api/user'
 import { resetForm } from '@/utils/elements'
+import { checkUsername, checkUsernameTaken, noEmptyPassword } from '@/utils/validation'
 
-const { t } = useI18n()
 const ruleFormRef = $ref<FormInstance>()
 
-async function checkUsername(rule: FormItemRule | FormItemRule[], username: string, callback: (arg0?: Error) => void) {
-  if (!username.length) {
-    return callback(new Error(t('Please input name')))
-  }
-
-  if (username.length > 20) {
-    return callback(new Error(t('Please use a shorter name')))
-  }
-
-  if (username.length < 2) {
-    return callback(new Error(t('NameLimitMsg')))
-  }
-
-  if ((await isUsernameTaken({ username })).has) {
-    return callback(new Error(`${username}${t('alreadyTaken')}`))
-  }
-
+async function checkUsernameRegister(rule: FormItemRule | FormItemRule[], username: string, callback: (arg0?: Error) => void) {
+  checkUsername(rule, username, callback)
+  await checkUsernameTaken(rule, username, callback)
   callback()
 }
 
 function validatePass(rule: FormItemRule | FormItemRule[], value: string, callback: (arg0?: Error) => void) {
-  if (value === '') {
-    return callback(new Error(t('Please input the password')))
-  }
+  noEmptyPassword(rule, value, callback)
 
   if (ruleForm.checkPass !== '') {
     if (!ruleFormRef) return
@@ -62,7 +46,7 @@ const ruleForm = reactive({
   checkPass: '',
 })
 const rules = reactive({
-  username: [{ validator: checkUsername, trigger: 'blur' }],
+  username: [{ validator: checkUsernameRegister, trigger: 'blur' }],
   password: [{ validator: validatePass, trigger: 'blur' }],
   checkPass: [{ validator: validatePass2, trigger: 'blur' }],
 })

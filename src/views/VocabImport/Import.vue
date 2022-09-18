@@ -1,10 +1,10 @@
 <script lang="tsx" setup>
-import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
 import { whenever } from '@vueuse/core'
 import { ElNotification } from 'element-plus'
-import VocabTable from '@/components/vocabulary/VocabTable.vue'
-import { Sieve, SourceRow } from '@/types'
+import { t } from '@/i18n'
+import VocabTable from '@/components/vocabulary/VocabSource.vue'
+import type { Sieve, SourceRow } from '@/types'
 import { readFiles, resetFileInput, sortByChar } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
 import { useTimeStore } from '@/store/usePerf'
@@ -13,9 +13,8 @@ import { useState, watched } from '@/composables/utilities'
 import { acquaint } from '@/api/vocab-service'
 import router from '@/router'
 
-const { t } = useI18n()
 let fileInfo = $ref('')
-const { user, loadingQueue, updateWord } = $(useVocabStore())
+const { user, updateWord } = $(useVocabStore())
 
 async function onFileChange(ev: Event) {
   const files = (ev.target as HTMLInputElement).files
@@ -33,22 +32,22 @@ async function onFileChange(ev: Event) {
 
 let count = $ref(0)
 const { baseReady, getPreBuiltTrie, backTrie } = $(useVocabStore())
-const { log, logEnd, logPerf } = useTimeStore()
+const { logTime, logEnd, logPerf } = useTimeStore()
 let inputText = $(watched(ref(''), () => !inWaiting && reformVocabList()))
 const [inWaiting, setInWaiting] = $(useState(false))
 const reformVocabList = useDebounceTimeout(async function refreshVocab() {
   setInWaiting(true)
   const trie = await getPreBuiltTrie()
   setInWaiting(false)
-  log(['-- All took', '    '])
-  log('· init words')
+  logTime(['-- All took', '    '])
+  logTime('· init words')
   trie.add(inputText)
   logEnd('· init words')
-  log(['· categorize vocabulary', ' +  '])
-  log('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
+  logTime(['· categorize vocabulary', ' +  '])
+  logTime('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
   trie.mergedVocabulary()
   logEnd('%c  merge vocabulary')
-  log('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
+  logTime('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
   const list = trie.formVocabList()
   logEnd('%c  formLabel vocabulary')
   logEnd(['· categorize vocabulary', ' +  '])
@@ -70,19 +69,15 @@ function logVocabInfo(listOfVocab: SourceRow[]) {
 
 async function acquaintVocab(row: Sieve, name: string) {
   row.inUpdating = true
-  loadingQueue.push(true)
-  const word = row.w
-  const vocabInfo = {
-    word: word.replace(/'/g, `''`),
+  const res = await acquaint({
+    word: row.w.replace(/'/g, `''`),
     user: name,
-  }
-  const acquainted = row.acquainted
-  const res = await acquaint(vocabInfo)
+  })
 
   if (res.affectedRows) {
-    updateWord(row, !acquainted)
+    updateWord(row, !row.acquainted)
   }
-  loadingQueue.pop()
+
   row.inUpdating = false
 }
 
@@ -159,6 +154,7 @@ function batchAcquaint() {
         <vocab-table
           :data="tableDataOfVocab"
           :expand="false"
+          tableName="vocab-import"
         />
       </div>
     </div>

@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import { useI18n } from 'vue-i18n'
+import { t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
-import MyVocabulary from '@/views/Mine/MyVocabulary.vue'
+import MyVocabulary from '@/components/vocabulary/VocabData.vue'
 
-const { t } = useI18n()
 const { baseVocab } = $(useVocabStore())
 </script>
 
@@ -23,6 +22,7 @@ const { baseVocab } = $(useVocabStore())
       </div>
       <MyVocabulary
         :myVocab="baseVocab"
+        tableName="my-vocab"
       />
     </div>
   </div>

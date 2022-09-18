@@ -1,17 +1,17 @@
 <script lang="ts" setup>
 import Chart from 'chart.js/auto'
 import { computed, onBeforeUnmount, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { format } from 'date-fns'
+import { rangeRight } from 'lodash'
+import { t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
 import { useStateCallback, watched } from '@/composables/utilities'
 import SegmentedControl from '@/components/SegmentedControl.vue'
-import { range } from '@/utils/utils'
 
 const rows = $computed(() => baseVocab.filter((r) => r.acquainted))
 const map = new Map<string, number>()
 const week: Record<string, string> = {}
-range(6, -1).forEach((i) => {
+rangeRight(7).forEach((i) => {
   const d = new Date()
   d.setDate(d.getDate() - i)
   const date = format(d, 'yyyy-MM-dd')
@@ -22,7 +22,6 @@ let ff = ['SF Pro Rounded', 'SF Pro Text', '-apple-system', 'Inter', 'system-ui'
 if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) ff = ff.slice(1)
 Chart.defaults.font.family = ff.join(', ')
 Chart.defaults.font.weight = '500'
-const { t } = useI18n()
 const { baseVocab } = $(useVocabStore())
 const groupedRows = $computed(() => {
   rows.forEach(r => {

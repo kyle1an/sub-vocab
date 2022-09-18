@@ -1,16 +1,15 @@
 <script lang="ts" setup>
-import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
 import { whenever } from '@vueuse/core'
-import VocabTable from '../../components/vocabulary/VocabTable.vue'
-import { SourceRow } from '@/types'
+import VocabTable from '../../components/vocabulary/VocabSource.vue'
+import { t } from '@/i18n'
+import type { SourceRow } from '@/types'
 import { readFiles, resetFileInput, sortByChar } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
 import { useTimeStore } from '@/store/usePerf'
 import { useDebounceTimeout } from '@/composables/useDebounce'
 import { useState, watched } from '@/composables/utilities'
 
-const { t } = useI18n()
 let fileInfo = $ref('')
 
 async function onFileChange(ev: Event) {
@@ -30,22 +29,22 @@ async function onFileChange(ev: Event) {
 let count = $ref(0)
 let sentences = $ref<string[]>([])
 const { baseReady, getPreBuiltTrie, backTrie } = $(useVocabStore())
-const { log, logEnd, logPerf } = useTimeStore()
+const { logTime, logEnd, logPerf } = useTimeStore()
 let inputText = $(watched(ref(''), () => !inWaiting && reformVocabList()))
 const [inWaiting, setInWaiting] = $(useState(false))
 const reformVocabList = useDebounceTimeout(async function refreshVocab() {
   setInWaiting(true)
   const trie = await getPreBuiltTrie()
   setInWaiting(false)
-  log(['-- All took', '    '])
-  log('· init words')
+  logTime(['-- All took', '    '])
+  logTime('· init words')
   trie.add(inputText)
   logEnd('· init words')
-  log(['· categorize vocabulary', ' +  '])
-  log('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
+  logTime(['· categorize vocabulary', ' +  '])
+  logTime('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
   trie.mergedVocabulary()
   logEnd('%c  merge vocabulary')
-  log('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
+  logTime('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
   const list = trie.formVocabList()
   logEnd('%c  formLabel vocabulary')
   logEnd(['· categorize vocabulary', ' +  '])
@@ -110,6 +109,7 @@ function logVocabInfo(listOfVocab: SourceRow[]) {
           :data="tableDataOfVocab"
           :sentences="sentences"
           :expand="true"
+          tableName="vocab-statistics"
         />
       </div>
     </div>
