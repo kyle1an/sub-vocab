@@ -1,5 +1,5 @@
 import { wrapCookie } from '@/utils/cookie'
-import { Stems, UserVocab, userVocab } from '@/types'
+import type { Stems, UserVocab, userVocab } from '@/types'
 import { postRequest } from '@/api/request'
 
 export async function queryWordsByUser(user: string): Promise<UserVocab[]> {

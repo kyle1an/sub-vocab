@@ -3,26 +3,24 @@ import Cookies from 'js-cookie'
 import { CaretBottom } from '@element-plus/icons-vue'
 import en from 'element-plus/es/locale/lang/en'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
-import { useI18n } from 'vue-i18n'
-import { computed } from 'vue'
 import type { Language } from 'element-plus/es/locale'
 import { ElConfigProvider, ElDropdown, ElDropdownItem, ElDropdownMenu, ElIcon } from 'element-plus'
+import { i18n, t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
 
-const { t, locale } = useI18n({ useScope: 'global' }) // call `useI18n`, and spread `t` from  `useI18n` returning
+let { locale } = $(i18n.global)
 const localeMap: Record<string, Language> = {
   'en': en,
   'zh': zhCn,
 }
-const elLocale = computed(() => localeMap[locale.value as string])
+const elLocale = $computed(() => localeMap[locale])
 const { user } = $(useVocabStore())
-const isLoggedIn = computed(() => !!user)
-const acquaintedSection = computed(() => user ? t('mine') : t('common'))
+const isLoggedIn = $computed(() => !!user)
 const isWide = window.innerWidth >= 460
 
-function handleCommand(command: string) {
+function handleCommand(command: typeof locale) {
   Cookies.set('_locale', command, { expires: 365, })
-  locale.value = command
+  locale = command
 }
 </script>
 
@@ -48,7 +46,7 @@ function handleCommand(command: string) {
           to="/mine"
           class="flex h-full items-center px-4 hover:bg-gray-100"
         >
-          {{ acquaintedSection }}
+          {{ user ? t('mine') : t('common') }}
         </router-link>
         <router-link
           v-if="isLoggedIn"

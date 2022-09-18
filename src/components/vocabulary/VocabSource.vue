@@ -1,16 +1,15 @@
 <script lang="ts" setup>
 import { computed, nextTick, ref, shallowRef, watch } from 'vue'
 import { TransitionPresets, until } from '@vueuse/core'
-import { useI18n } from 'vue-i18n'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
 import { pipe } from 'fp-ts/function'
 import { filter } from 'fp-ts/Array'
-import { Sorting, SourceRow } from '@/types'
+import { t } from '@/i18n'
+import type { Sorting, SourceRow } from '@/types'
 import { isMobile, orderBy, paging, selectWord, skip } from '@/utils/utils'
 import Examples from '@/components/vocabulary/Examples'
 import SegmentedControl from '@/components/SegmentedControl.vue'
 import ToggleButton from '@/components/vocabulary/ToggleButton.vue'
-import { useVocabStore } from '@/store/useVocab'
 import { useDebounceTransition } from '@/composables/useDebounce'
 import { useElHover, useStateCallback, watched } from '@/composables/utilities'
 import { find } from '@/utils/vocab'
@@ -19,38 +18,36 @@ const {
   data = [],
   sentences = [''],
   expand = false,
+  tableName,
 } = defineProps<{
   data: SourceRow[],
-  sentences?: string[]
+  sentences?: string[],
   expand: boolean,
+  tableName: string,
 }>()
-const { t } = useI18n()
+type RowData = typeof data[number]
 type TableSegment = typeof segments[number]['value']
-const [seg, setSeg] = $(useStateCallback<TableSegment>(sessionStorage.getItem('prev-segment-select') as TableSegment | null || 'all', (v) => {
+const [seg, setSeg] = $(useStateCallback<TableSegment>(sessionStorage.getItem(`${tableName}-segment`) as TableSegment | null || 'all', (v) => {
   disabledTotal = true
-  sessionStorage.setItem('prev-segment-select', String(v))
+  sessionStorage.setItem(`${tableName}-segment`, String(v))
   requestAnimationFrame(() => nextTick().then(() => disabledTotal = false))
 }))
-let dirty = $ref(true)
-const { inUpdating } = $(useVocabStore())
+let dirty = $ref(false)
 const vocabTable = ref()
 const isHovered = $(watched(useElHover('.el-table__body-wrapper'), (isHovered) => {
-  if (!dirty) return
-  if (!isHovered && !inUpdating) {
+  if (dirty && !isHovered) {
     rowsDisplay.value = rows
-  } else {
-    dirty = true
+    dirty = false
   }
 }))
 const search = $ref('')
-let sortBy = $ref<Sorting<SourceRow>>({ order: 'ascending', prop: 'src.0.3' })
-const setSortBy = (sort: Sorting<SourceRow>) => {
-  sortBy = sort.order === null ? { order: 'ascending', prop: 'src.0.3' } : sort
-}
+const defaultSort: Sorting = { order: 'ascending', prop: 'src.0.3' }
+let sortBy = $ref(defaultSort)
+const setSortBy = ({ order, prop }: Sorting) => sortBy = order && prop ? { order, prop } : defaultSort
 const currPage = $ref(1)
 const pageSize = $ref(100)
 // use shallowRef to avoid issue of cannot expand row
-const rowsDisplay = watched(shallowRef<SourceRow[]>([]), () => dirty = false)
+const rowsDisplay = shallowRef<RowData[]>([])
 let total = $ref(0)
 let disabledTotal = $ref(false)
 const { output: totalTransit, inTransition } = $(useDebounceTransition($$(total), {
@@ -71,22 +68,14 @@ const rows = $(watched(computed(() => pipe(rowsSearched,
   if (inputDirty) {
     rowsDisplay.value = v
     inputDirty = false
-  } else if (!isHovered && !inUpdating) {
+  } else if (!isHovered) {
     rowsDisplay.value = v
   } else {
     dirty = true
   }
 }, { immediate: true }))
-watch($$(inUpdating), () => {
-  if (seg === 'all') return
-  if (!isHovered && !inUpdating) {
-    rowsDisplay.value = rows
-  } else {
-    dirty = true
-  }
-}, { immediate: true })
 
-function handleRowClick(row: SourceRow) {
+function handleRowClick(row: RowData) {
   (vocabTable.value as typeof ElTable).toggleRowExpansion(row)
 }
 
@@ -100,7 +89,7 @@ const segments = $computed(() => [
 <template>
   <div class="mx-5 flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-sm will-change-transform md:mx-0">
     <segmented-control
-      name="vocab-table"
+      :name="tableName"
       :segments="segments"
       :value="seg"
       class="w-full grow-0"
@@ -109,11 +98,11 @@ const segments = $computed(() => [
     <div class="h-px w-full grow">
       <el-table
         ref="vocabTable"
-        class="!h-full from-[var(--el-border-color-lighter)] to-white [&_.el-table\_\_row:has(+tr:not([class]))>td]:!border-white [&_.el-table\_\_row:has(+tr:not([class]))>td]:bg-gradient-to-b [&_*]:overscroll-contain [&_th_.cell]:font-compact [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-icon]:pointer-events-none"
+        :data="rowsDisplay"
+        :row-key="(row)=>row.src[0][3]"
+        class="!h-full from-[var(--el-border-color-lighter)] to-white [&_th_.cell]:font-compact [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_row:has(+tr:not([class]))>td]:!border-white [&_.el-table\_\_row:has(+tr:not([class]))>td]:bg-gradient-to-b [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-icon]:pointer-events-none"
         size="small"
         :row-class-name="()=>`${expand?'cursor-pointer':''}`"
-        :row-key="(row)=>row.src[0][3]"
-        :data="rowsDisplay"
         v-on="expand ? { 'row-click': handleRowClick } : {}"
         @sort-change="setSortBy"
       >
@@ -138,7 +127,7 @@ const segments = $computed(() => [
           class-name="!text-right [th&>.cell]:!p-0"
         >
           <template #default="{row}">
-            <div class="font-compact tabular-nums text-slate-400">
+            <div class="tabular-nums text-slate-400">
               {{ row.src.length }}
             </div>
           </template>
@@ -177,7 +166,7 @@ const segments = $computed(() => [
           class-name="!text-right [th&>.cell]:!p-0"
         >
           <template #default="{row}">
-            <div class="font-compact tabular-nums">
+            <div class="tabular-nums">
               {{ row.vocab.w.length }}
             </div>
           </template>
@@ -197,11 +186,11 @@ const segments = $computed(() => [
         v-model:currentPage="currPage"
         v-model:page-size="pageSize"
         :page-sizes="[25, 100, 200, 500, 1000, Infinity]"
-        :small="true"
         :pager-count="5"
-        layout="prev, pager, next, ->, total, sizes"
+        :small="true"
         :total="~~totalTransit"
         class="shrink-0 flex-wrap gap-y-1.5 !p-1.5 tabular-nums [&_*]:!rounded-md [&_.is-active]:bg-neutral-100 [&_.el-pagination\_\_sizes.is-last]:!m-0 [&_.el-pagination\_\_total]:mx-[10px]"
+        layout="prev, pager, next, ->, total, sizes"
       />
     </div>
   </div>

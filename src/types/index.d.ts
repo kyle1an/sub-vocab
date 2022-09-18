@@ -41,9 +41,9 @@ export interface MyVocabRow extends Record<string, unknown> {
 export type Source = number[][];
 export type Order = 'ascending' | 'descending' | null;
 
-export interface Sorting<T> {
+export interface Sorting {
   order: Order;
-  prop: keyof T | null;
+  prop: string | null;
 }
 
 export interface userVocab {

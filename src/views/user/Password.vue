@@ -2,12 +2,11 @@
 import type { FormInstance, FormItemRule } from 'element-plus'
 import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
 import { reactive } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { t } from '@/i18n'
 import { changePassword } from '@/api/user'
 import { useVocabStore } from '@/store/useVocab'
 import { resetForm } from '@/utils/elements'
 
-const { t } = useI18n()
 const { user } = $(useVocabStore())
 const ruleFormRef = $ref<FormInstance>()
 

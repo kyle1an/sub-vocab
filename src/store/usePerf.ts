@@ -9,7 +9,7 @@ export const useTimeStore = defineStore('timeStore', () => {
   const perfTime: Record<string, perf> = {}
   const logsRes: Record<string, perf> = {}
 
-  function log(label: string | string[], style = '') {
+  function logTime(label: string | string[], style = '') {
     const name = typeof label === 'string' ? label : label.join('')
     perfTime[name] = {
       label: label,
@@ -59,5 +59,5 @@ export const useTimeStore = defineStore('timeStore', () => {
     }
   }
 
-  return { log, logEnd, logPerf }
+  return { logTime, logEnd, logPerf }
 })

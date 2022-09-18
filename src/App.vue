@@ -1,8 +1,5 @@
 <script setup lang="ts">
 import TopBar from '@/components/TopBar.vue'
-import { useVocabStore } from '@/store/useVocab'
-
-useVocabStore()
 </script>
 
 <template>
