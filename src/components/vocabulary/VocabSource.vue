@@ -179,6 +179,19 @@ const segments = $computed(() => [
             <toggle-button :row="row.vocab" />
           </template>
         </el-table-column>
+        <el-table-column
+          :label="t('rank')"
+          prop="vocab.rank"
+          width="56"
+          sortable="custom"
+          class-name="!text-center [th&>.cell]:!p-0"
+        >
+          <template #default="{row}">
+            <div class="tabular-nums">
+              {{ row.vocab.rank }}
+            </div>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
     <div class="min-h-9 w-full">

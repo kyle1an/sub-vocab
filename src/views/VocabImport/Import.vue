@@ -4,13 +4,13 @@ import { whenever } from '@vueuse/core'
 import { ElNotification } from 'element-plus'
 import { t } from '@/i18n'
 import VocabTable from '@/components/vocabulary/VocabSource.vue'
-import type { Sieve, SourceRow } from '@/types'
+import type { SourceRow } from '@/types'
 import { readFiles, resetFileInput, sortByChar } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
 import { useTimeStore } from '@/store/usePerf'
 import { useDebounceTimeout } from '@/composables/useDebounce'
 import { useState, watched } from '@/composables/utilities'
-import { acquaint } from '@/api/vocab-service'
+import { batchAcquaint } from '@/api/vocab-service'
 import router from '@/router'
 
 let fileInfo = $ref('')
@@ -67,26 +67,28 @@ function logVocabInfo(listOfVocab: SourceRow[]) {
   console.log(`(${untouchedVocabList.length}) words`, { _: untouchedVocabList })
 }
 
-async function acquaintVocab(row: Sieve, name: string) {
-  row.inUpdating = true
-  const res = await acquaint({
-    word: row.w.replace(/'/g, `''`),
-    user: name,
-  })
-
-  if (res.affectedRows) {
-    updateWord(row, !row.acquainted)
-  }
-
-  row.inUpdating = false
-}
-
-function batchAcquaint() {
+async function acquaintAll() {
   if (user) {
-    for (const row of tableDataOfVocab) {
-      if (!row.vocab.acquainted) {
-        acquaintVocab(row.vocab, user)
+    const rowsMap: Record<string, SourceRow> = {}
+    const words: string[] = []
+    tableDataOfVocab.forEach((row) => {
+      if (!row.vocab.acquainted && row.vocab.w.length < 32) {
+        const word = row.vocab.w.replace(/'/g, `''`)
+        row.vocab.inUpdating = true
+        rowsMap[word] = row
+        words.push(word)
       }
+    })
+    const res = await batchAcquaint({ user, words }) as string
+    if (res === 'success') {
+      Object.values(rowsMap).forEach((row) => {
+        updateWord(row.vocab, true)
+        row.vocab.inUpdating = false
+      })
+    } else {
+      Object.values(rowsMap).forEach((row) => {
+        row.vocab.inUpdating = false
+      })
     }
   } else {
     ElNotification({
@@ -144,7 +146,7 @@ function batchAcquaint() {
           <span class="mx-1 inline-block h-[18px] w-px border-l align-middle" />
           <button
             class="box-border inline-flex h-7 max-h-full grow-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-md bg-zinc-200 px-3 py-2.5 text-center align-middle text-sm leading-3 transition-colors hover:bg-yellow-300"
-            @click="batchAcquaint"
+            @click="acquaintAll"
           >
             {{ t('acquaintedAll') }}
           </button>

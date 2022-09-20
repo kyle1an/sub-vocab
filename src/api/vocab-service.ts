@@ -15,6 +15,10 @@ export async function acquaint(newWordInfo: userVocab) {
   return postRequest(`${import.meta.env.VITE_SUB_PROD}/api/acquaint`, wrapCookie(newWordInfo))
 }
 
+export async function batchAcquaint(wordsInfo: { words: string[]; user: string }) {
+  return postRequest(`${import.meta.env.VITE_SUB_PROD}/api/acquaintWords`, wrapCookie(wordsInfo))
+}
+
 export async function revokeWord(vocabInfo: userVocab) {
   if (vocabInfo.word.length > 32) return
   return postRequest(`${import.meta.env.VITE_SUB_PROD}/api/revokeWord`, wrapCookie(vocabInfo))
