@@ -68,21 +68,24 @@ function logVocabInfo(listOfVocab: SourceRow[]) {
 
 <template>
   <div class="w-full max-w-screen-xl">
-    <div class="relative mx-3 flex h-14 items-center xl:mx-0">
-      <label
-        class="btn"
-        for="browseFiles"
-      >
-        {{ t('browseFiles') }}
-      </label>
-      <input
-        id="browseFiles"
-        class="file-input"
-        type="file"
-        hidden
-        multiple
-        @change="onFileChange"
-      >
+    <div class="relative z-10 mx-3 flex h-14 items-center xl:mx-0">
+      <div>
+        <label
+          class="btn"
+          for="browseFiles"
+        >
+          {{ t('browseFiles') }}
+        </label>
+        <input
+          id="browseFiles"
+          class="file-input"
+          type="file"
+          hidden
+          multiple
+          @change="onFileChange"
+        >
+      </div>
+      <div class="grow" />
     </div>
     <div class="flex flex-col gap-6 md:h-[calc(100vh-140px)] md:flex-row">
       <div class="relative box-border flex flex-1 basis-auto flex-col overflow-hidden border md:rounded-[12px] md:shadow-sm">

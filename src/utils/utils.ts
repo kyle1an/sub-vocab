@@ -65,12 +65,12 @@ export function compareFn(propName: string | number, order: NonNullable<Order>) 
   return (obj1: RecordUnknown, obj2: RecordUnknown): number => {
     const a = get(obj1, propName)
     const b = get(obj2, propName)
-    const isAsc = order === 'ascending'
+    const reverse = order === 'ascending' ? 1 : -1
 
-    if (typeof a === 'string' && typeof b === 'string') return (isAsc ? 1 : -1) * sortByChar(a, b)
-    if (typeof a === 'number' && typeof b === 'number') return (isAsc ? 1 : -1) * a - b
-    if (!a && b) return 1
-    if (!b && a) return -1
+    if (typeof a === 'string' && typeof b === 'string') return reverse * sortByChar(a, b)
+    if (typeof a === 'number' && typeof b === 'number') return reverse * a - b
+    if (!a && b) return reverse
+    if (!b && a) return -reverse
     return 0
   }
 }
