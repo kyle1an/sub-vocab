@@ -1,14 +1,15 @@
-import express from 'express'
-import { pool } from '../config/connection'
 import crypto from 'crypto'
-import { isTokenInvalid, tokenChecker } from '../lib/timeUtil'
+import express from 'express'
+import type { RowDataPacket } from 'mysql2'
+import { pool } from '../config/connection'
+import { tokenChecker, tokenInvalid } from '../lib/timeUtil'
 
 const router = express.Router()
 router.post('/login', (req, res) => {
   const token = crypto.randomBytes(32).toString('hex')
   pool.getConnection((err, connection) => {
     const { username, password } = req.body
-    connection.query(`SELECT login_token('${username}', '${password}', '${token}') AS output;
+    connection.query<RowDataPacket[]>(`SELECT login_token('${username}', '${password}', '${token}') AS output;
     `, (err, rows, fields) => {
       connection.release()
       if (err) throw err
@@ -37,7 +38,7 @@ router.post('/register', (req, res) => {
 router.post('/changeUsername', tokenChecker, (req, res) => {
   pool.getConnection((err, connection) => {
     const { username, newUsername, acct, } = req.body
-    connection.query(`SELECT change_username(get_user_id_by_name('${username}'), '${newUsername}') as result;
+    connection.query<RowDataPacket[]>(`SELECT change_username(get_user_id_by_name('${username}'), '${newUsername}') as result;
     `, (err, rows, fields) => {
       connection.release()
       if (err) throw err
@@ -92,7 +93,7 @@ router.post('/logoutToken', (req, res) => {
 router.post('/existsUsername', (req, res) => {
   pool.getConnection((err, connection) => {
     const { username } = req.body
-    connection.query(`CALL username_exists('${username}');
+    connection.query<RowDataPacket[]>(`CALL username_exists('${username}');
     `, (err, rows, fields) => {
       connection.release()
       if (err) throw err

@@ -4,12 +4,13 @@
  * Module dependencies.
  */
 import app from '../app'
+import ErrnoException = NodeJS.ErrnoException;
 
-const debug = require('debug')('subvocab-server:server')
 const http = require('http')
+const debug = require('debug')('subvocab-server:server')
 
 /**
- * Get port from environment and store in Express.
+ * Get port from the environment and store in Express.
  */
 const port = normalizePort(process.env.PORT || '5001')
 app.set('port', port)
@@ -31,7 +32,7 @@ server.on('listening', onListening)
  * Normalize a port into a number, string, or false.
  */
 
-function normalizePort(val) {
+function normalizePort(val: string) {
   const port = parseInt(val, 10)
 
   if (isNaN(port)) {
@@ -50,7 +51,7 @@ function normalizePort(val) {
 /**
  * Event listener for HTTP server "error" event.
  */
-function onError(error) {
+function onError(error: ErrnoException) {
   if (error.syscall !== 'listen') {
     throw error
   }

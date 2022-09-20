@@ -1,12 +1,13 @@
+import path from 'path'
 import createError from 'http-errors'
 import express from 'express'
-import path from 'path'
 import cookieParser from 'cookie-parser'
 import logger from 'morgan'
+import cors from 'cors'
+import type { ErrorRequestHandler, NextFunction, Request, Response } from 'express'
 import indexRouter from './routes/index'
 import vocabRouter from './routes/vocab'
 import authRouter from './routes/auth'
-import cors from 'cors'
 
 const app = express()
 app.use(cors({
@@ -45,8 +46,7 @@ app.use(function (req, res, next) {
   next(createError(404))
 })
 
-// error handler
-app.use(function (err, req, res, next) {
+app.use(function (err: Parameters<ErrorRequestHandler>[0], req: Request, res: Response, next: NextFunction) {
   // set locals, only providing errors in development
   res.locals.message = err.message
   res.locals.error = req.app.get('env') === 'development' ? err : {}
