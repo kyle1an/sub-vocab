@@ -1,6 +1,5 @@
-import { reactive } from 'vue'
 import { caseOr, hasUppercase, isVowel } from './utils'
-import type { Char, Label, LabelPre, Sieve, SourceRow, TrieNode } from '@/types'
+import type { Char, Label, LabelPre, Sieve, TrieNode } from '@/types'
 
 export default class LabeledTire {
   root: TrieNode<Label>
@@ -17,7 +16,7 @@ export default class LabeledTire {
   getNode(word: string) {
     let node = this.root
     for (const c of word.split('')) {
-      node = node[(c as Char)] ??= {}
+      node = node[c as Char] ??= {}
     }
 
     return node
@@ -143,93 +142,48 @@ export default class LabeledTire {
     return this
   }
 
-  formVocabList() {
-    const all: SourceRow[] = []
-
-    for (const v of this.vocabulary) {
-      if (!v || v.variant) continue
-
-      all.push({
-        src: this.collectNestedSource(v),
-        vocab: reactive(v.vocab ?? {
-          w: v.w,
-          acquainted: false,
-          is_user: 0,
-          invalid: true,
-          inUpdating: false,
-        })
-      })
-    }
-
-    return all
-  }
-
-  collectNestedSource($: Label) {
-    let src: number[][] = [...$.src]
-
-    if ($.derive?.length) {
-      for (const d$ of $.derive) {
-        const srcFromDerived = this.collectNestedSource(d$)
-
-        if (src.length === 0) {
-          src = srcFromDerived
-          continue
-        }
-
-        if (srcFromDerived[0][3] < src[0][3]) {
-          src = srcFromDerived.concat(src)
-        } else {
-          src = src.concat(srcFromDerived)
-        }
-      }
-    }
-
-    return src
-  }
-
   traverseMerge(layer: TrieNode<Label>) {
     for (const key in layer) {
       if (key === '$') continue
       const innerLayer = layer[key as Char] ?? {}
       // deep first traverse eg: beings(being) vs bee
       this.traverseMerge(innerLayer)
-      this.mergeVocabOfDifferentSuffixes(innerLayer, (key as Char), layer)
+      this.mergeVocabOfDifferentSuffixes(innerLayer, key as Char, layer)
     }
   }
 
-  mergeVocabOfDifferentSuffixes(current: TrieNode<Label>, previousChar: Char, parentLayer: TrieNode<Label>) {
-    const curr_$ = current.$
-    const curr_e$ = current.e?.$
-    const curr_s$ = previousChar === 's' ? undefined : current.s?.$
+  mergeVocabOfDifferentSuffixes(curr: TrieNode<Label>, previousChar: Char, parentLayer: TrieNode<Label>) {
+    const curr_$ = curr.$
+    const curr_e$ = curr.e?.$
+    const curr_s$ = previousChar === 's' ? undefined : curr.s?.$
     const isTheLastCharConsonant = !isVowel(previousChar)
-    const curr_ying$ = isTheLastCharConsonant ? current.y?.i?.n?.g?.$ : undefined
+    const curr_ying$ = isTheLastCharConsonant ? curr.y?.i?.n?.g?.$ : undefined
 
-    function followingWords(curr: TrieNode<Label>) {
-      const curr_in = curr.i?.n
-      const following$ = [
+    function suffixLabels(curr: TrieNode<Label>) {
+      const labels = [
         curr.e?.s?.$,
         curr.e?.d?.$
       ]
 
+      const curr_in = curr.i?.n
       if (curr_in) {
-        following$.push(
+        labels.push(
           curr_in[`'`]?.$,
           curr_in[`’`]?.$,
         )
         const curr_ing = curr_in.g
-
         if (curr_ing) {
-          following$.push(
+          labels.push(
             curr_ing.$,
             curr_ing.s?.$,
           )
         }
       }
 
-      return following$
+      return labels
     }
 
-    const nextAposWords = (curr_apos: TrieNode<Label>) => [
+    const aposSuffixLabels = (curr_apos: TrieNode<Label>) => [
       curr_apos.s?.$,
       curr_apos.l?.l?.$,
       curr_apos.v?.e?.$,
@@ -237,17 +191,17 @@ export default class LabeledTire {
     ]
 
     if (curr_$) {
-      this.batchMergeTo(curr_e$ || curr_$, followingWords(current))
+      this.batchMergeTo(curr_e$ || curr_$, suffixLabels(curr))
 
       if (isTheLastCharConsonant) {
         if (isVowel(curr_$.w.slice(-2, -1))) {
           // word ends with vowel + consonant
           this.batchMergeTo(curr_$, [
-            current[previousChar]?.i?.n?.g?.$,
-            current[previousChar]?.e?.d?.$
+            curr[previousChar]?.i?.n?.g?.$,
+            curr[previousChar]?.e?.d?.$
           ])
         } else if (previousChar === 'y') {
-          // word ends with consonant + y
+          // word ends with consonant + y(consonant)
           this.batchMergeTo(curr_$, [
             parentLayer.i?.e?.s?.$,
             parentLayer.i?.e?.d?.$,
@@ -255,49 +209,36 @@ export default class LabeledTire {
         }
       }
 
-      if (curr_s$) {
-        this.mergeNodes(curr_$, curr_s$)
-      }
-
-      if (current[`'`]) {
-        this.batchMergeTo(curr_$, nextAposWords(current[`'`]))
-      }
-
-      if (current[`’`]) {
-        this.batchMergeTo(curr_$, nextAposWords(current[`’`]))
-      }
+      if (curr_s$) this.mergeNodes(curr_$, curr_s$)
+      if (curr[`'`]) this.batchMergeTo(curr_$, aposSuffixLabels(curr[`'`]))
+      if (curr[`’`]) this.batchMergeTo(curr_$, aposSuffixLabels(curr[`’`]))
     } else if (curr_e$) {
-      this.batchMergeTo(curr_e$, followingWords(current))
+      this.batchMergeTo(curr_e$, suffixLabels(curr))
     } else if (curr_s$) {
       const original = curr_s$.w.slice(0, -1)
       const $ = { w: curr_s$.w.slice(0, -1), src: [], up: hasUppercase(original), derive: [] }
-      this.batchMergeTo($, followingWords(current))
+      this.batchMergeTo($, suffixLabels(curr))
 
-      if (current[`'`]) {
-        this.batchMergeTo($, nextAposWords(current[`'`]))
-      }
-
-      if (current[`’`]) {
-        this.batchMergeTo($, nextAposWords(current[`’`]))
-      }
+      if (curr[`'`]) this.batchMergeTo($, aposSuffixLabels(curr[`'`]))
+      if (curr[`’`]) this.batchMergeTo($, aposSuffixLabels(curr[`’`]))
 
       if ($.derive.length) {
         this.mergeNodes($, curr_s$)
-        current.$ = $
+        curr.$ = $
         this.vocabulary.push($)
       }
     } else if (curr_ying$) {
       const original = curr_ying$.w.slice(0, -3)
       const $ = { w: original, src: [], up: hasUppercase(original), derive: [] }
       this.batchMergeTo($, [
-        current.i?.e?.s?.$,
-        current.i?.e?.d?.$,
+        curr.i?.e?.s?.$,
+        curr.i?.e?.d?.$,
       ])
 
       if ($.derive.length) {
         this.mergeNodes($, curr_ying$)
-        current.y ??= {}
-        current.y.$ = $
+        curr.y ??= {}
+        curr.y.$ = $
         this.vocabulary.push($)
       }
     }
