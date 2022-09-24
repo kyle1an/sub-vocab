@@ -15,28 +15,24 @@ export interface Stems {
   stem_word: string,
 }
 
-export interface LabelPre extends MyVocabRow {
+export interface LabelBase extends Record<string, unknown> {
   w: string;
-  src: Source;
   up: boolean;
+  src: Source;
 }
 
-export interface Label extends Record<string, unknown> {
-  w: string;
-  src: Source;
-  up: boolean;
+export interface LabelPre extends LabelBase {
+  vocab: Sieve;
+}
+
+export interface Label extends LabelBase {
   vocab?: Sieve;
   derive?: Label[];
   variant?: boolean;
 }
 
-export interface SourceRow extends MyVocabRow {
-  src: Source;
-}
-
-export interface MyVocabRow extends Record<string, unknown> {
-  vocab: Sieve;
-}
+export type MyVocabRow = Pick<LabelPre, 'vocab'>;
+export type SourceRow = Pick<LabelPre, 'vocab' | 'src'>;
 
 export type Source = number[][];
 export type Order = 'ascending' | 'descending' | null;

@@ -9,9 +9,10 @@ import { readFiles, resetFileInput, sortByChar } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
 import { useTimeStore } from '@/store/usePerf'
 import { useDebounceTimeout } from '@/composables/useDebounce'
-import { useState, watched } from '@/composables/utilities'
+import { watched } from '@/composables/utilities'
 import { batchAcquaint } from '@/api/vocab-service'
 import router from '@/router'
+import { formVocabList } from '@/utils/vocab'
 
 let fileInfo = $ref('')
 const { user, updateWord } = $(useVocabStore())
@@ -34,11 +35,11 @@ let count = $ref(0)
 const { baseReady, getPreBuiltTrie, backTrie } = $(useVocabStore())
 const { logTime, logEnd, logPerf } = useTimeStore()
 let inputText = $(watched(ref(''), () => !inWaiting && reformVocabList()))
-const [inWaiting, setInWaiting] = $(useState(false))
+let inWaiting = false
 const reformVocabList = useDebounceTimeout(async function refreshVocab() {
-  setInWaiting(true)
+  inWaiting = true
   const trie = await getPreBuiltTrie()
-  setInWaiting(false)
+  inWaiting = false
   logTime(['-- All took', '    '])
   logTime('· init words')
   trie.add(inputText)
@@ -48,7 +49,7 @@ const reformVocabList = useDebounceTimeout(async function refreshVocab() {
   trie.mergedVocabulary()
   logEnd('%c  merge vocabulary')
   logTime('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
-  const list = trie.formVocabList()
+  const list = formVocabList(trie.vocabulary)
   logEnd('%c  formLabel vocabulary')
   logEnd(['· categorize vocabulary', ' +  '])
   logEnd(['-- All took', '    '])
