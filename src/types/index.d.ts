@@ -81,3 +81,8 @@ export interface TrieNode<T> {
   y?: TrieNode<T>;
   z?: TrieNode<T>;
 }
+
+export interface userInfo {
+  username: string;
+  password: string;
+}

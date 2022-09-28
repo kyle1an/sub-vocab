@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-
-const props = defineProps({
-  state: Boolean,
-  text: { type: Array, default: () => ['off', 'on'] },
-})
-const emit = defineEmits(['toggle'])
-const toggleState = ref<boolean>(props.state)
-const toggleFilter = () => emit('toggle', toggleState.value)
+const {
+  state = false,
+  text = ['off', 'on'],
+  onToggle,
+} = defineProps<{
+  state?: boolean,
+  text?: [string, string],
+  onToggle: (state: boolean) => void,
+}>()
 </script>
 
 <template>
@@ -15,10 +15,10 @@ const toggleFilter = () => emit('toggle', toggleState.value)
     <label class="form-switch flex cursor-pointer justify-center tap-transparent">
       <span class="mx-2.5 flex flex-col-reverse justify-center text-base">{{ text[0] }}</span>
       <input
-        v-model="toggleState"
+        :checked="state"
         type="checkbox"
         class="hidden"
-        @change="toggleFilter"
+        @change="(ev)=>onToggle(ev.target.checked)"
       >
       <i class="relative mr-2 inline-block h-[26px] w-[46px] select-none rounded-[23px] bg-[#e6e6e6] align-text-bottom transition-all duration-300 ease-linear" />
       <span class="mx-2.5 flex flex-col-reverse justify-center text-base">{{ text[1] }}</span>

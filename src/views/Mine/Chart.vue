@@ -8,50 +8,52 @@ import { useVocabStore } from '@/store/useVocab'
 import { useStateCallback, watched } from '@/composables/utilities'
 import SegmentedControl from '@/components/SegmentedControl.vue'
 
-const rows = $computed(() => baseVocab.filter((r) => r.acquainted))
+const { baseVocab } = $(useVocabStore())
+let fontFamily = ['SF Pro Rounded', 'SF Pro Text', '-apple-system', 'Inter', 'system-ui', 'sans-serif']
+if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) fontFamily = fontFamily.slice(1)
+Chart.defaults.font.family = fontFamily.join(', ')
+Chart.defaults.font.weight = '500'
+
 const map = new Map<string, number>()
 const week: Record<string, string> = {}
 rangeRight(7).forEach((i) => {
-  const d = new Date()
-  d.setDate(d.getDate() - i)
-  const date = format(d, 'yyyy-MM-dd')
+  const day = new Date()
+  day.setDate(day.getDate() - i)
+  const date = format(day, 'yyyy-MM-dd')
   map.set(date, 0)
-  week[date] = i === 0 ? 'Today' : i === 1 ? 'Yesterday' : format(d, 'EEE')
+  week[date] = i === 0 ? 'Today' : i === 1 ? 'Yesterday' : format(day, 'EEE')
 })
-let ff = ['SF Pro Rounded', 'SF Pro Text', '-apple-system', 'Inter', 'system-ui', 'sans-serif']
-if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) ff = ff.slice(1)
-Chart.defaults.font.family = ff.join(', ')
-Chart.defaults.font.weight = '500'
-const { baseVocab } = $(useVocabStore())
+
 const groupedRows = $computed(() => {
-  rows.forEach(r => {
+  baseVocab.forEach(r => {
+    if (!r.acquainted) return
     const date = r.time_modified?.split('T')[0]
     if (!date || !week[date]) return
     map.set(date, (map.get(date) || 0) + 1)
   })
   return map
 })
+
+const weekLabels = $computed(() => [...groupedRows.keys()].map(k => week[k]))
+const vocabCount = $computed(() => [...groupedRows.values()])
 let myChart: Chart<'bar', number[], string>
-const canvas = document.createElement('canvas')
 const chartData = $(watched(computed(() => ({
-  labels: [...groupedRows.keys()].map(k => week[k]),
+  labels: weekLabels,
   datasets: [{
-    borderRadius: {
-      topRight: 3,
-      topLeft: 3,
-    },
+    borderRadius: { topRight: 3, topLeft: 3, },
     label: 'Acquainted Vocabulary',
-    data: [...groupedRows.values()],
+    data: vocabCount,
     backgroundColor: 'rgba(255, 99, 132, 0.05)',
     borderColor: 'rgba(255, 99, 132, 1)',
     borderWidth: 1,
   }]
-})), () => {
-  myChart.data = chartData
+})), (v) => {
+  myChart.data = v
   myChart.update()
 }))
 
 onMounted(() => {
+  const canvas = document.createElement('canvas')
   if (myChart) return
   const root = document.getElementById('chart') as HTMLElement
   root.innerHTML = ''
@@ -59,9 +61,7 @@ onMounted(() => {
   myChart = new Chart(canvas, {
     type: 'bar',
     data: chartData,
-    options: {
-      plugins: {}
-    }
+    options: { plugins: {} }
   })
 })
 
