@@ -99,11 +99,6 @@ export const daysInMonth = (month: number, year: number) => new Date(year, month
 
 export const skip = <T>(a: T) => a
 
-export const skipAfter = <T>(callback: (arg: T) => void) => (a: T) => {
-  callback(a)
-  return a
-}
-
 export function resetFileInput(selectors: string) {
   const input = document.querySelectorAll(selectors) as NodeListOf<HTMLInputElement>
   for (let i = 0; i < input.length; i++) {

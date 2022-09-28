@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { computed, nextTick, shallowRef } from 'vue'
-import { TransitionPresets, until } from '@vueuse/core'
+import { computed } from 'vue'
+import { TransitionPresets, useTransition } from '@vueuse/core'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
 import { pipe } from 'fp-ts/function'
 import { filter } from 'fp-ts/Array'
@@ -10,7 +10,6 @@ import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
 import type { MyVocabRow, Sieve, Sorting } from '@/types'
 import DateTime from '@/components/DateTime'
 import ToggleButton from '@/components/vocabulary/ToggleButton.vue'
-import { useDebounceTransition } from '@/composables/useDebounce'
 import { useElHover, useStateCallback, watched } from '@/composables/utilities'
 import { find } from '@/utils/vocab'
 
@@ -21,17 +20,22 @@ const {
   myVocab: Sieve[],
   tableName: string,
 }>()
+const segments = $computed(() => [
+  { value: 'all', label: t('all') },
+  { value: 'mine', label: t('mine') },
+  { value: 'top', label: t('top') },
+  { value: 'recent', label: t('recent') },
+] as const)
 type TableSegment = typeof segments[number]['value']
-const [seg, setSeg] = $(useStateCallback<TableSegment>(sessionStorage.getItem(`${tableName}-segment`) as TableSegment | null || 'all', (v) => {
+const [seg, setSeg] = $(useStateCallback<TableSegment>(segments.find((s) => s.value === sessionStorage.getItem(`${tableName}-segment`))?.value || 'all', (v) => {
   disabledTotal = true
   sessionStorage.setItem(`${tableName}-segment`, String(v))
-  requestAnimationFrame(() => nextTick().then(() => disabledTotal = false))
 }))
 let dirty = $ref(false)
 const isHovered = $(watched(useElHover('.el-table__body-wrapper'), (isHovered) => {
   if (!dirty) return
-  if (!isHovered || rowsDisplay.value.length === 0) {
-    rowsDisplay.value = rows
+  if (!isHovered || rowsDisplay.length === 0) {
+    rowsDisplay = rows
     dirty = false
   }
 }))
@@ -41,36 +45,33 @@ let sortBy = $ref(defaultSort)
 const setSortBy = ({ order, prop }: Sorting) => sortBy = order && prop ? { order, prop } : defaultSort
 const currPage = $ref(1)
 const pageSize = $ref(100)
-const rowsDisplay = shallowRef<MyVocabRow[]>([])
-let total = $ref(0)
-let disabledTotal = $ref(false)
-const { output: totalTransit, inTransition } = $(useDebounceTransition($$(total), {
-  disabled: $$(disabledTotal),
-  transition: TransitionPresets.easeOutCirc,
-}))
-const srcRows = $computed(() => myVocab.map((r) => ({ vocab: r })))
-const rowsSearched = $(watched(computed(() => pipe(srcRows,
+let rowsDisplay = $shallowRef<MyVocabRow[]>([])
+let disabledTotal = $ref(true)
+const srcRows = $computed(() => {
+  disabledTotal = false
+  return myVocab.map((r) => ({ vocab: r }))
+})
+const rowsSegmented = $computed(() => pipe(srcRows,
   seg === 'mine' ? filter((r) => Boolean(r.vocab.acquainted && r.vocab.is_user)) :
     seg === 'top' ? filter((r) => Boolean(r.vocab.acquainted && !r.vocab.is_user)) :
-      seg === 'recent' ? filter((r) => !r.vocab.acquainted && r.vocab.is_user !== 2) : filter((r) => !!r.vocab.acquainted),
-  find(search),
-)), (newSearched) => until($$(inTransition)).toBe(false).then(() => total = newSearched.length), { immediate: true }))
-const rows = $(watched(computed(() => pipe(rowsSearched,
+      seg === 'recent' ? filter((r) => !r.vocab.acquainted && r.vocab.is_user !== 2) :
+        filter((r) => !!r.vocab.acquainted),
+))
+const searched = $computed(() => find(search)(rowsSegmented))
+const rows = $(watched(computed(() => pipe(searched,
   orderBy(sortBy.prop, sortBy.order),
   paging(currPage, pageSize),
 )), (v) => {
-  if (!isHovered || rowsDisplay.value.length === 0) {
-    rowsDisplay.value = v
+  if (!isHovered || rowsDisplay.length === 0) {
+    rowsDisplay = v
   } else {
     dirty = true
   }
 }, { immediate: true }))
-const segments = $computed(() => [
-  { value: 'all', label: t('all') },
-  { value: 'mine', label: t('mine') },
-  { value: 'top', label: t('top') },
-  { value: 'recent', label: t('recent') },
-] as const)
+const totalTransit = $(useTransition(computed(() => searched.length), {
+  disabled: $$(disabledTotal),
+  transition: TransitionPresets.easeOutCirc,
+}))
 </script>
 
 <template>

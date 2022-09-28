@@ -1,6 +1,5 @@
 import { reactive } from 'vue'
-import type { Sieve } from '@/types'
-import { Label, SourceRow } from '@/types'
+import type { Label, Sieve, SourceRow } from '@/types'
 
 export function find(search: string) {
   return <T extends { vocab: Sieve }>(rows: T[]) => search ? rows.filter((r) => r.vocab.w.toLowerCase().includes(search.toLowerCase())) : rows

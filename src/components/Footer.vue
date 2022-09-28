@@ -1,7 +1,3 @@
-<script lang="tsx" setup>
-
-</script>
-
 <template>
   <footer class="w-full bg-zinc-100">
     <div class="mx-auto max-w-screen-xl">
