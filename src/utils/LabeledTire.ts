@@ -156,6 +156,7 @@ export default class LabeledTire {
     const curr_$ = curr.$
     const curr_e$ = curr.e?.$
     const curr_s$ = previousChar === 's' ? undefined : curr.s?.$
+    const curr_sApos$ = previousChar === 's' ? undefined : [curr.s?.[`'`]?.$, curr.s?.[`’`]?.$]
     const isTheLastCharConsonant = !isVowel(previousChar)
     const curr_ying$ = isTheLastCharConsonant ? curr.y?.i?.n?.g?.$ : undefined
 
@@ -210,6 +211,7 @@ export default class LabeledTire {
       }
 
       if (curr_s$) this.mergeNodes(curr_$, curr_s$)
+      if (curr_sApos$) this.batchMergeTo(curr_$, curr_sApos$)
       if (curr[`'`]) this.batchMergeTo(curr_$, aposSuffixLabels(curr[`'`]))
       if (curr[`’`]) this.batchMergeTo(curr_$, aposSuffixLabels(curr[`’`]))
     } else if (curr_e$) {

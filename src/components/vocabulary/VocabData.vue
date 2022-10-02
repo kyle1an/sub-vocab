@@ -3,7 +3,6 @@ import { computed } from 'vue'
 import { TransitionPresets, useTransition } from '@vueuse/core'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
 import { pipe } from 'fp-ts/function'
-import { filter } from 'fp-ts/Array'
 import { t } from '@/i18n'
 import SegmentedControl from '@/components/SegmentedControl.vue'
 import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
@@ -51,11 +50,11 @@ const srcRows = $computed(() => {
   disabledTotal = false
   return myVocab.map((r) => ({ vocab: r }))
 })
-const rowsSegmented = $computed(() => pipe(srcRows,
-  seg === 'mine' ? filter((r) => Boolean(r.vocab.acquainted && r.vocab.is_user)) :
-    seg === 'top' ? filter((r) => Boolean(r.vocab.acquainted && !r.vocab.is_user)) :
-      seg === 'recent' ? filter((r) => !r.vocab.acquainted && r.vocab.is_user !== 2) :
-        filter((r) => !!r.vocab.acquainted),
+const rowsSegmented = $computed(() => srcRows.filter(
+  seg === 'mine' ? (r) => Boolean(r.vocab.acquainted && r.vocab.is_user) :
+    seg === 'top' ? (r) => Boolean(r.vocab.acquainted && !r.vocab.is_user) :
+      seg === 'recent' ? (r) => !r.vocab.acquainted && r.vocab.is_user !== 2 :
+        (r) => !!r.vocab.acquainted
 ))
 const searched = $computed(() => find(search)(rowsSegmented))
 const rows = $(watched(computed(() => pipe(searched,

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useElementBounding } from '@vueuse/core'
+import { ref, watch } from 'vue'
+import { useElementBounding, useSessionStorage } from '@vueuse/core'
 
 const {
   value = '',
@@ -14,12 +14,8 @@ const {
   onChoose: (arg: string) => void
 }>()
 const pill = ref()
-const { width } = $(useElementBounding(pill))
-const pillWidth = computed(() => {
-  if (width === 0) return name ? +(sessionStorage.getItem(`${name}-width`) || 0) : 0
-  name && sessionStorage.setItem(`${name}-width`, String(width))
-  return width
-})
+let pillWidth = $(useSessionStorage(`${name}-width`, 0))
+watch(useElementBounding(pill).width, (v) => v !== 0 && (pillWidth = v))
 </script>
 
 <template>

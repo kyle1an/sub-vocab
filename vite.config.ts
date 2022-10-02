@@ -8,9 +8,7 @@ export default defineConfig({
     vue({
       reactivityTransform: true
     }),
-    vueJsx({
-      // options are passed on to @vue/babel-plugin-jsx
-    }),
+    vueJsx({}),
   ],
   define: {
     __VUE_OPTIONS_API__: false,

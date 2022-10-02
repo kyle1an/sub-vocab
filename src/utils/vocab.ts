@@ -6,7 +6,7 @@ export function find(search: string) {
 }
 
 export function collectNestedSource($: Label) {
-  let src: number[][] = [...$.src]
+  let src = [...$.src]
 
   if ($.derive?.length) {
     for (const d$ of $.derive) {
