@@ -2,7 +2,7 @@ import crypto from 'crypto'
 import express from 'express'
 import type { RowDataPacket } from 'mysql2'
 import { pool } from '../config/connection'
-import { tokenChecker, tokenInvalid } from '../lib/timeUtil'
+import { tokenChecker } from '../lib/timeUtil'
 
 const router = express.Router()
 router.post('/login', (req, res) => {
