@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue'
-import { TransitionPresets, useTransition } from '@vueuse/core'
+import { TransitionPresets, useSessionStorage, useTransition } from '@vueuse/core'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
 import { pipe } from 'fp-ts/function'
-import { filter } from 'fp-ts/Array'
 import { t } from '@/i18n'
 import type { Sorting, SourceRow } from '@/types'
 import { isMobile, orderBy, paging, selectWord, skip } from '@/utils/utils'
@@ -30,9 +29,10 @@ const segments = $computed(() => [
   { value: 'acquainted', label: t('acquainted') },
 ] as const)
 type TableSegment = typeof segments[number]['value']
-const [seg, setSeg] = $(useStateCallback<TableSegment>(segments.find((s) => s.value === sessionStorage.getItem(`${tableName}-segment`))?.value || 'all', (v) => {
+const prevSeg = useSessionStorage(`${tableName}-segment`, 'all')
+const [seg, setSeg] = $(useStateCallback<TableSegment>(segments.find((s) => s.value === prevSeg.value)?.value ?? 'all', (v) => {
   disabledTotal = true
-  sessionStorage.setItem(`${tableName}-segment`, String(v))
+  prevSeg.value = String(v)
 }))
 let dirty = $ref(false)
 const vocabTable = ref()
@@ -48,7 +48,6 @@ let sortBy = $ref(defaultSort)
 const setSortBy = ({ order, prop }: Sorting) => sortBy = order && prop ? { order, prop } : defaultSort
 const currPage = $ref(1)
 const pageSize = $ref(100)
-// use shallowRef to avoid issue of cannot expand row
 let rowsDisplay = $shallowRef<typeof data[number][]>([])
 let disabledTotal = $ref(true)
 let inputDirty = $ref(false)
@@ -56,11 +55,11 @@ watch($$(data), () => {
   disabledTotal = false
   inputDirty = true
 })
-const rowsSegmented = $computed(() => pipe(data,
-  seg === 'new' ? filter((r) => !r.vocab.acquainted && r.vocab.w.length > 2) :
-    seg === 'acquainted' ? filter((r) => Boolean(r.vocab.acquainted || r.vocab.w.length <= 2)) :
-      skip,
-))
+const rowsSegmented = $computed(() =>
+  seg === 'new' ? data.filter((r) => !r.vocab.acquainted && r.vocab.w.length > 2) :
+    seg === 'acquainted' ? data.filter((r) => Boolean(r.vocab.acquainted || r.vocab.w.length <= 2)) :
+      data,
+)
 const searched = $computed(() => find(search)(rowsSegmented))
 const rows = $(watched(computed(() => pipe(searched,
   orderBy(sortBy.prop, sortBy.order),
