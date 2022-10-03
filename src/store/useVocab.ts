@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
 import Cookies from 'js-cookie'
-import { until, useAsyncState } from '@vueuse/core'
+import { until } from '@vueuse/core'
 import { ref } from 'vue'
 import { logicAnd } from '@vueuse/math'
+import { useQuery } from '@tanstack/vue-query'
 import { queryWordsByUser, stemsMapping } from '@/api/vocab-service'
 import type { Sieve } from '@/types'
 import { timer, timerEnd } from '@/utils/utils'
@@ -45,36 +46,28 @@ export const useVocabStore = defineStore('vocabStore', () => {
     requestAnimationFrame(() => router.push('/'))
   }
 
-  const { state: irregularMaps, isReady: irrReady } = $(useAsyncState(async () =>
-      (await stemsMapping()).map((m) => [m.stem_word, ...m.derivations.split(',')])
-    , []))
-
-  async function buildStemTrie() {
-    timer('struct sieve')
-    await until(logicAnd($$(baseReady), $$(irrReady))).toBe(true)
-    const trie = new Trie().path(baseVocab).share(irregularMaps)
-    timerEnd('struct sieve')
-    return trie
-  }
+  const { isSuccess: irrReady, data: irregularMaps } = $(useQuery(['stems'], stemsMapping, {
+    initialData: [], refetchOnWindowFocus: false,
+  }))
 
   let baseTrie = $shallowRef(new Trie())
   let trieReady = $ref(false)
 
   async function backTrie() {
     trieReady = false
-    baseTrie = await buildStemTrie()
+    timer('struct sieve')
+    await until(logicAnd($$(baseReady), $$(irrReady))).toBe(true)
+    baseTrie = new Trie().path(baseVocab).share(irregularMaps)
+    timerEnd('struct sieve')
     trieReady = true
   }
 
-  async function getPreBuiltTrie() {
-    await until($$(trieReady)).toBe(true)
-    return baseTrie
-  }
+  const getPreBuiltTrie = () => until($$(trieReady)).toBe(true).then(() => baseTrie)
 
   function updateWord($: Sieve, got: boolean) {
     if ($.invalid) {
-      baseVocab = [...baseVocab, $]
-      queueMicrotask(backTrie)
+      baseVocab.push($)
+      queueMicrotask(() => baseTrie.path([$]))
       $.invalid = false
     }
 

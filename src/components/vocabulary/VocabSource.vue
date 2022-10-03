@@ -32,7 +32,7 @@ type TableSegment = typeof segments[number]['value']
 const prevSeg = useSessionStorage(`${tableName}-segment`, 'all')
 const [seg, setSeg] = $(useStateCallback<TableSegment>(segments.find((s) => s.value === prevSeg.value)?.value ?? 'all', (v) => {
   disabledTotal = true
-  prevSeg.value = String(v)
+  prevSeg.value = v
 }))
 let dirty = $ref(false)
 const vocabTable = ref()
@@ -196,7 +196,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
         :pager-count="5"
         :small="true"
         :total="~~totalTransit"
-        class="shrink-0 flex-wrap gap-y-1.5 !p-1.5 tabular-nums [&_*]:!rounded-md [&_.is-active]:bg-neutral-100 [&_.el-pagination\_\_sizes.is-last]:!m-0 [&_.el-pagination\_\_total]:mx-[10px]"
+        class="shrink-0 select-none flex-wrap gap-y-1.5 !p-1.5 tabular-nums [&_*]:!rounded-md [&_.is-active]:bg-neutral-100 [&_.el-pagination\_\_sizes.is-last]:!m-0 [&_.el-pagination\_\_total]:mx-[10px]"
         layout="prev, pager, next, ->, total, sizes"
       />
     </div>

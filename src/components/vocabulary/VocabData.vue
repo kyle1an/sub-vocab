@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { TransitionPresets, useTransition } from '@vueuse/core'
+import { TransitionPresets, useSessionStorage, useTransition } from '@vueuse/core'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
 import { pipe } from 'fp-ts/function'
 import { t } from '@/i18n'
@@ -26,9 +26,10 @@ const segments = $computed(() => [
   { value: 'recent', label: t('recent') },
 ] as const)
 type TableSegment = typeof segments[number]['value']
-const [seg, setSeg] = $(useStateCallback<TableSegment>(segments.find((s) => s.value === sessionStorage.getItem(`${tableName}-segment`))?.value || 'all', (v) => {
+const prevSeg = useSessionStorage(`${tableName}-segment`, 'all')
+const [seg, setSeg] = $(useStateCallback<TableSegment>(segments.find((s) => s.value === prevSeg.value)?.value || 'all', (v) => {
   disabledTotal = true
-  sessionStorage.setItem(`${tableName}-segment`, String(v))
+  prevSeg.value = v
 }))
 let dirty = $ref(false)
 const isHovered = $(watched(useElHover('.el-table__body-wrapper'), (isHovered) => {
@@ -173,7 +174,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
         :pager-count="5"
         :small="true"
         :total="~~totalTransit"
-        class="shrink-0 flex-wrap gap-y-1.5 !p-1.5 tabular-nums [&_*]:!rounded-md [&_.is-active]:bg-neutral-100 [&_.el-pagination\_\_sizes.is-last]:!m-0 [&_.el-pagination\_\_total]:mx-[10px]"
+        class="shrink-0 select-none flex-wrap gap-y-1.5 !p-1.5 tabular-nums [&_*]:!rounded-md [&_.is-active]:bg-neutral-100 [&_.el-pagination\_\_sizes.is-last]:!m-0 [&_.el-pagination\_\_total]:mx-[10px]"
         layout="prev, pager, next, ->, total, sizes"
       />
     </div>

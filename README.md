@@ -7,11 +7,13 @@ You can enter English material, such as English subtitles or an article, and the
 After you log in, you may mark the words you already know by clicking on the checkboxes, or click again to delete the words you don't know. You can find all the words you have marked as acquainted in the *Mine* section.
 
 ## Quick Features
+
 - Merge plural nouns and irregular verbs to stem words
 - 100k words mering and analysis took less than 0.2s (on average PC or Mac)
 - Login to mark or batch import your own vocabulary
 
 ### overview
+
 <img width="595" alt="Screen Shot 2022-09-24 at 10 13 31 PM" src="https://user-images.githubusercontent.com/50689806/192102710-25a2acf0-78b8-4acf-a79e-87a921fafd15.png">
 
 ## Stack
@@ -25,6 +27,7 @@ In addition to Vue 3 and Vite, the project's stack includes:
 - [VueUse](https://vueuse.org)
 - [Vue Router](https://router.vuejs.org)
 - [Vue I18n](https://kazupon.github.io/vue-i18n)
+- [TanStack Query](https://tanstack.com/query/v4/docs/adapters/vue-query)
 - [Axios](https://axios-http.com)
 
 ## Visualization
