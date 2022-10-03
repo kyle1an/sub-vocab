@@ -10,11 +10,6 @@ export interface Sieve extends UserVocab {
   inUpdating: boolean,
 }
 
-export interface Stems {
-  derivations: string,
-  stem_word: string,
-}
-
 export interface LabelBase extends Record<string, unknown> {
   w: string;
   up: boolean;

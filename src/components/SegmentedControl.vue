@@ -32,7 +32,7 @@ watch(useElementBounding(pill).width, (v) => v !== 0 && (pillWidth = v))
         class="option relative"
       >
         <input
-          :id="item.value"
+          :id="`${name}-${item.value}`"
           type="radio"
           :value="item.value"
           :checked="item.value===value"
@@ -40,7 +40,7 @@ watch(useElementBounding(pill).width, (v) => v !== 0 && (pillWidth = v))
           @input="(ev)=>onChoose(ev.target.value)"
         >
         <label
-          :for="item.value"
+          :for="`${name}-${item.value}`"
           class="relative block cursor-pointer bg-transparent text-center"
         >
           <span class="relative z-10 flex justify-center text-sm leading-6 text-black transition-all duration-200 ease-[ease] will-change-transform">{{ item.label }}</span>

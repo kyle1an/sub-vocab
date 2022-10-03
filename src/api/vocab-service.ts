@@ -1,12 +1,12 @@
 import { wrapCookie } from '@/utils/cookie'
-import type { Stems, UserVocab, userVocab } from '@/types'
+import type { UserVocab, userVocab } from '@/types'
 import { postRequest } from '@/api/request'
 
 export async function queryWordsByUser(user: string): Promise<UserVocab[]> {
   return postRequest(`${import.meta.env.VITE_SUB_PROD}/api/queryWords`, wrapCookie({ user }))
 }
 
-export async function stemsMapping(): Promise<Stems[]> {
+export async function stemsMapping(): Promise<string[][]> {
   return postRequest(`${import.meta.env.VITE_SUB_PROD}/api/stemsMapping`)
 }
 
