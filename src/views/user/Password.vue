@@ -83,7 +83,7 @@ async function alterInfo(form: typeof ruleForm) {
       {{ t('changePassword') }}
     </div>
     <div class="flex w-80">
-      <el-form
+      <ElForm
         ref="ruleFormRef"
         :model="ruleForm"
         :rules="rules"
@@ -92,52 +92,52 @@ async function alterInfo(form: typeof ruleForm) {
         class="max-w-[460px] [&>.el-form-item_label]:font-bold"
         status-icon
       >
-        <el-form-item
+        <ElFormItem
           :label="t('Old Password')"
           prop="oldPassword"
           :error="errorMsg"
         >
-          <el-input
+          <ElInput
             v-model="ruleForm.oldPassword"
             type="password"
             autocomplete="off"
             class="!text-base md:!text-xs"
           />
-        </el-form-item>
-        <el-form-item
+        </ElFormItem>
+        <ElFormItem
           :label="t('New Password')"
           prop="password"
         >
-          <el-input
+          <ElInput
             v-model="ruleForm.password"
             type="password"
             autocomplete="off"
             class="!text-base md:!text-xs"
           />
-        </el-form-item>
-        <el-form-item
+        </ElFormItem>
+        <ElFormItem
           :label="t('New Password Confirm')"
           prop="checkPass"
         >
-          <el-input
+          <ElInput
             v-model="ruleForm.checkPass"
             type="password"
             autocomplete="off"
             class="!text-base md:!text-xs"
           />
-        </el-form-item>
-        <el-form-item>
-          <el-button
+        </ElFormItem>
+        <ElFormItem>
+          <ElButton
             type="primary"
             @click="submitForm(ruleFormRef)"
           >
             {{ t('Confirm Changes') }}
-          </el-button>
-          <el-button @click="resetForm(ruleFormRef)">
+          </ElButton>
+          <ElButton @click="resetForm(ruleFormRef)">
             {{ t('Reset') }}
-          </el-button>
-        </el-form-item>
-      </el-form>
+          </ElButton>
+        </ElFormItem>
+      </ElForm>
     </div>
   </div>
 </template>

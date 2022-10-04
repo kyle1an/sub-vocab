@@ -67,7 +67,7 @@ const { logout } = useVocabStore()
       {{ t('changeUsername') }}
     </div>
     <div class="flex w-80">
-      <el-form
+      <ElForm
         ref="ruleFormRef"
         :model="ruleForm"
         :rules="rules"
@@ -76,36 +76,36 @@ const { logout } = useVocabStore()
         class="max-w-[460px] [&>.el-form-item_label]:font-bold"
         status-icon
       >
-        <el-form-item
+        <ElFormItem
           :label="t('Name')"
           prop="username"
           :error="errorMsg"
         >
-          <el-input
+          <ElInput
             v-model="ruleForm.username"
             class="!text-base md:!text-xs"
           />
-        </el-form-item>
-        <el-form-item>
-          <el-button
+        </ElFormItem>
+        <ElFormItem>
+          <ElButton
             type="primary"
             @click="submitForm(ruleFormRef)"
           >
             {{ t('Confirm Changes') }}
-          </el-button>
-          <el-button @click="resetForm(ruleFormRef)">
+          </ElButton>
+          <ElButton @click="resetForm(ruleFormRef)">
             {{ t('Reset') }}
-          </el-button>
-        </el-form-item>
-      </el-form>
+          </ElButton>
+        </ElFormItem>
+      </ElForm>
     </div>
     <div class="mb-3 border-b pb-1 text-xl">
       {{ t('status') }}
     </div>
     <div class="flex">
-      <el-button @click="logout">
+      <ElButton @click="logout">
         {{ t('log out') }}
-      </el-button>
+      </ElButton>
     </div>
   </div>
 </template>

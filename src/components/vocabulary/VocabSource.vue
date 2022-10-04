@@ -82,7 +82,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
 
 <template>
   <div class="mx-5 flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-sm will-change-transform md:mx-0">
-    <segmented-control
+    <SegmentedControl
       :name="tableName"
       :segments="segments"
       :value="seg"
@@ -90,7 +90,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
       :onChoose="setSeg"
     />
     <div class="h-px w-full grow">
-      <el-table
+      <ElTable
         ref="vocabTable"
         :data="rowsDisplay"
         :row-key="(row)=>row.src[0][3]"
@@ -100,33 +100,31 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
         v-on="expand ? { 'row-click': (row)=>vocabTable.toggleRowExpansion(row) } : {}"
         @sort-change="setSortBy"
       >
-        <el-table-column
+        <ElTableColumn
           v-if="expand"
+          v-slot="{row}"
           type="expand"
           class-name="[&_i]:text-slate-500"
         >
-          <template #default="{row}">
-            <Examples
-              :sentences="sentences"
-              :src="row.src"
-              class="tracking-wide"
-            />
-          </template>
-        </el-table-column>
-        <el-table-column
+          <Examples
+            :sentences="sentences"
+            :src="row.src"
+            class="tracking-wide"
+          />
+        </ElTableColumn>
+        <ElTableColumn
+          v-slot="{row}"
           :label="t('frequency')"
           class-name="!text-right [th&>.cell]:!p-0"
           :width="`${expand?62:72}`"
           prop="src.length"
           sortable="custom"
         >
-          <template #default="{row}">
-            <div class="tabular-nums text-slate-400">
-              {{ row.src.length }}
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column
+          <div class="tabular-nums text-slate-400">
+            {{ row.src.length }}
+          </div>
+        </ElTableColumn>
+        <ElTableColumn
           label="Vocabulary"
           prop="vocab.w"
           min-width="16"
@@ -134,7 +132,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
           class-name="select-none [td&>.cell]:!pr-0"
         >
           <template #header>
-            <el-input
+            <ElInput
               v-model="search"
               class="!w-[calc(100%-26px)] !text-base md:!text-xs"
               size="small"
@@ -151,45 +149,42 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
               {{ row.vocab.w }}
             </span>
           </template>
-        </el-table-column>
-        <el-table-column
+        </ElTableColumn>
+        <ElTableColumn
+          v-slot="{row}"
           :label="t('length')"
           prop="vocab.w.length"
           width="68"
           sortable="custom"
           class-name="!text-right [th&>.cell]:!p-0"
         >
-          <template #default="{row}">
-            <div class="tabular-nums">
-              {{ row.vocab.w.length }}
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column
+          <div class="tabular-nums">
+            {{ row.vocab.w.length }}
+          </div>
+        </ElTableColumn>
+        <ElTableColumn
+          v-slot="{row}"
           width="40"
           class-name="overflow-visible !text-center [td&>.cell]:!pl-0"
         >
-          <template #default="{row}">
-            <toggle-button :row="row.vocab" />
-          </template>
-        </el-table-column>
-        <el-table-column
+          <ToggleButton :row="row.vocab" />
+        </ElTableColumn>
+        <ElTableColumn
+          v-slot="{row}"
           :label="t('rank')"
           class-name="!text-center [th&>.cell]:!p-0"
           width="56"
           prop="vocab.rank"
           sortable="custom"
         >
-          <template #default="{row}">
-            <div class="tabular-nums">
-              {{ row.vocab.rank }}
-            </div>
-          </template>
-        </el-table-column>
-      </el-table>
+          <div class="tabular-nums">
+            {{ row.vocab.rank }}
+          </div>
+        </ElTableColumn>
+      </ElTable>
     </div>
     <div class="min-h-9 w-full">
-      <el-pagination
+      <ElPagination
         v-model:currentPage="currPage"
         v-model:page-size="pageSize"
         :page-sizes="[25, 100, 200, 500, 1000, Infinity]"

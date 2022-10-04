@@ -27,34 +27,34 @@ const subNav = $computed(() => [
                 :key="nav.path"
                 :class="`${currentPath===nav.path?'[&>a]:bg-gray-100':''}`"
               >
-                <router-link
+                <RouterLink
                   :to="nav.path"
                   class="flex h-full items-center rounded-md px-4 py-2 hover:!bg-gray-200"
                 >
                   <div class="text-sm">
                     {{ nav.title }}
                   </div>
-                </router-link>
+                </RouterLink>
               </li>
             </ol>
           </nav>
         </div>
       </div>
       <div class="w-full flex-1">
-        <router-view v-slot="{ Component,route }">
-          <keep-alive>
+        <RouterView v-slot="{ Component,route }">
+          <KeepAlive>
             <component
               :is="Component"
               v-if="route.meta.keepAlive"
               :key="route.path"
             />
-          </keep-alive>
+          </KeepAlive>
           <component
             :is="Component"
             v-if="!route.meta.keepAlive"
             :key="route.path"
           />
-        </router-view>
+        </RouterView>
       </div>
     </div>
   </div>

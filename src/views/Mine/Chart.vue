@@ -78,7 +78,7 @@ const segments = $computed(() => [
 </script>
 
 <template>
-  <segmented-control
+  <SegmentedControl
     name="vocab-seg"
     :segments="segments"
     :value="seg"

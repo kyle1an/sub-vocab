@@ -35,21 +35,21 @@ const subNav = $computed(() => [
                 :key="nav.path"
                 :class="`${currentPath===nav.path?'[&>a]:bg-gray-100':''}`"
               >
-                <router-link
+                <RouterLink
                   :to="nav.path"
                   class="flex h-full items-center rounded-md px-4 py-2 hover:!bg-gray-200"
                 >
                   <div class="text-sm">
                     {{ nav.title }}
                   </div>
-                </router-link>
+                </RouterLink>
               </li>
             </ol>
           </nav>
         </div>
       </div>
       <div class="w-full flex-1 p-4">
-        <router-view />
+        <RouterView />
       </div>
     </div>
   </div>

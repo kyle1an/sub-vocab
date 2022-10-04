@@ -109,7 +109,7 @@ function logVocabInfo(listOfVocab: SourceRow[]) {
         </div>
       </div>
       <div class="h-[86vh] overflow-visible pb-5 md:mt-0 md:h-full md:w-[44%] md:pb-0">
-        <vocab-table
+        <VocabTable
           :data="tableDataOfVocab"
           :sentences="sentences"
           :expand="true"

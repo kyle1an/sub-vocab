@@ -5,20 +5,20 @@ import TopBar from '@/components/TopBar.vue'
 <template>
   <TopBar class="ffs-pre fixed h-12" />
   <div class="ffs-pre flex min-h-[100vh] flex-col items-center pt-12">
-    <router-view v-slot="{ Component, route }">
-      <keep-alive>
+    <RouterView v-slot="{ Component, route }">
+      <KeepAlive>
         <component
           :is="Component"
           v-if="route.meta.keepAlive"
           :key="route.path"
         />
-      </keep-alive>
+      </KeepAlive>
       <component
         :is="Component"
         v-if="!route.meta.keepAlive"
         :key="route.path"
       />
-    </router-view>
+    </RouterView>
   </div>
 </template>
 
