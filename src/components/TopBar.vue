@@ -28,66 +28,66 @@ function handleCommand(command: typeof locale) {
   <header class="z-50 box-border flex w-full min-w-[auto] items-center justify-center bg-white tracking-wide shadow [&_[href]]:tap-transparent">
     <nav class="box-border flex h-full w-full max-w-screen-xl justify-center">
       <div class="flex w-full items-center text-[14px]">
-        <router-link
+        <RouterLink
           to="/"
           class="flex h-full items-center px-4 hover:bg-gray-100"
         >
           {{ t('home') }}
-        </router-link>
-        <router-link
+        </RouterLink>
+        <RouterLink
           to="/about"
           class="flex items-center rounded-full py-1 px-4 hover:bg-gray-100"
         >
           {{ t('about') }}
-        </router-link>
+        </RouterLink>
         <div class="grow" />
-        <router-link
+        <RouterLink
           v-if="isLoggedIn||isWide"
           to="/mine"
           class="flex h-full items-center px-4 hover:bg-gray-100"
         >
           {{ user ? t('mine') : t('common') }}
-        </router-link>
-        <router-link
+        </RouterLink>
+        <RouterLink
           v-if="isLoggedIn"
           to="/user"
           class="flex h-full items-center px-4 hover:bg-gray-100"
         >
           {{ user }}
-        </router-link>
+        </RouterLink>
         <template v-else>
-          <router-link
+          <RouterLink
             to="/login"
             class="flex items-center rounded-md py-1 px-4 hover:bg-gray-100"
           >
             {{ t('login') }}
-          </router-link>
-          <router-link
+          </RouterLink>
+          <RouterLink
             to="/register"
             class="s-btn ml-2 flex rounded py-2 px-3 text-white"
           >
             {{ t('signup') }}
-          </router-link>
+          </RouterLink>
         </template>
-        <el-dropdown @command="handleCommand">
+        <ElDropdown @command="handleCommand">
           <div class="flex px-4 outline-none">
             文/Aa
-            <el-icon class="el-icon--right">
+            <ElIcon class="el-icon--right">
               <CaretBottom class="text-slate-300" />
-            </el-icon>
+            </ElIcon>
           </div>
           <template #dropdown>
-            <el-dropdown-menu class="outline-none">
-              <el-dropdown-item command="zh">
+            <ElDropdownMenu class="outline-none">
+              <ElDropdownItem command="zh">
                 中文
-              </el-dropdown-item>
-              <el-dropdown-item command="en">
+              </ElDropdownItem>
+              <ElDropdownItem command="en">
                 English
-              </el-dropdown-item>
-            </el-dropdown-menu>
+              </ElDropdownItem>
+            </ElDropdownMenu>
           </template>
-        </el-dropdown>
-        <el-config-provider :locale="elLocale" />
+        </ElDropdown>
+        <ElConfigProvider :locale="elLocale" />
       </div>
     </nav>
   </header>

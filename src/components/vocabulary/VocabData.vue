@@ -76,7 +76,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
 
 <template>
   <div class="flex grow flex-col overflow-hidden rounded-xl border bg-white shadow will-change-transform md:mx-0">
-    <segmented-control
+    <SegmentedControl
       :name="tableName"
       :segments="segments"
       :value="seg"
@@ -84,27 +84,26 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
       :onChoose="setSeg"
     />
     <div class="h-px w-full grow">
-      <el-table
+      <ElTable
         :data="rowsDisplay"
         :row-key="(row)=>row.vocab.w"
         class="!h-full !w-full md:w-full [&_th_.cell]:font-compact [&_th_.cell]:tracking-normal [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full"
         size="small"
         @sort-change="setSortBy"
       >
-        <el-table-column
+        <ElTableColumn
+          v-slot="{row}"
           :label="t('rank')"
           class-name="!text-center [th&>.cell]:!pr-0"
           width="64"
           prop="vocab.rank"
           sortable="custom"
         >
-          <template #default="{row}">
-            <div class="tabular-nums text-neutral-500">
-              {{ row.vocab.rank }}
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column
+          <div class="tabular-nums text-neutral-500">
+            {{ row.vocab.rank }}
+          </div>
+        </ElTableColumn>
+        <ElTableColumn
           :label="t('Vocabulary')"
           prop="vocab.w"
           min-width="70"
@@ -112,7 +111,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
           class-name="select-none [&>.cell]:!pr-0"
         >
           <template #header>
-            <el-input
+            <ElInput
               v-model="search"
               class="!w-[calc(100%-26px)] !text-base md:!text-xs"
               size="small"
@@ -129,45 +128,42 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
               {{ row.vocab.w }}
             </span>
           </template>
-        </el-table-column>
-        <el-table-column
+        </ElTableColumn>
+        <ElTableColumn
+          v-slot="{row}"
           :label="t('length')"
           prop="vocab.w.length"
           width="67"
           sortable="custom"
           class-name="!text-right [th&>.cell]:!p-0"
         >
-          <template #default="{row}">
-            <div class="tabular-nums">
-              {{ row.vocab.w.length }}
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column
+          <div class="tabular-nums">
+            {{ row.vocab.w.length }}
+          </div>
+        </ElTableColumn>
+        <ElTableColumn
+          v-slot="{row}"
           width="32"
           class-name="overflow-visible !text-center [&_.cell]:!px-0"
         >
-          <template #default="{row}">
-            <toggle-button :row="row.vocab" />
-          </template>
-        </el-table-column>
-        <el-table-column
+          <ToggleButton :row="row.vocab" />
+        </ElTableColumn>
+        <ElTableColumn
+          v-slot="{row}"
           :label="t('distance')"
           class-name="[td&_.cell]:!pr-0"
           width="82"
           prop="vocab.time_modified"
           sortable="custom"
         >
-          <template #default="{row}">
-            <div class="font-compact tabular-nums tracking-normal ffs-[normal]">
-              <date-time :time="row.vocab.time_modified" />
-            </div>
-          </template>
-        </el-table-column>
-      </el-table>
+          <div class="font-compact tabular-nums tracking-normal ffs-[normal]">
+            <DateTime :time="row.vocab.time_modified" />
+          </div>
+        </ElTableColumn>
+      </ElTable>
     </div>
     <div class="min-h-9 w-full">
-      <el-pagination
+      <ElPagination
         v-model:currentPage="currPage"
         v-model:page-size="pageSize"
         :page-sizes="[100, 200, 500, 1000, Infinity]"

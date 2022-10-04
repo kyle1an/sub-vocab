@@ -43,7 +43,7 @@ async function handleClick(row: Sieve) {
 </script>
 
 <template>
-  <el-button
+  <ElButton
     color="#facc15"
     size="small"
     :disabled="row.inUpdating"
@@ -51,11 +51,11 @@ async function handleClick(row: Sieve) {
     circle
     @click.stop="handleClick(row)"
   >
-    <el-icon class="is-loading !hidden">
+    <ElIcon class="is-loading !hidden">
       <Loading />
-    </el-icon>
-    <el-icon class="check">
+    </ElIcon>
+    <ElIcon class="check">
       <Check />
-    </el-icon>
-  </el-button>
+    </ElIcon>
+  </ElButton>
 </template>
