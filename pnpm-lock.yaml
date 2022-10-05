@@ -2,10 +2,10 @@ lockfileVersion: 5.4
 
 specifiers:
   '@element-plus/icons-vue': ^2.0.9
-  '@tanstack/vue-query': ^4.9.0
+  '@tanstack/vue-query': ^4.10.1
   '@types/js-cookie': ^3.0.2
   '@types/lodash': ^4.14.186
-  '@types/node': ^18.8.1
+  '@types/node': ^18.8.2
   '@typescript-eslint/eslint-plugin': ^5.39.0
   '@typescript-eslint/parser': ^5.39.0
   '@vitejs/plugin-vue': ^3.1.2
@@ -13,7 +13,7 @@ specifiers:
   '@vueuse/core': ^9.3.0
   '@vueuse/math': ^9.3.0
   autoprefixer: ^10.4.12
-  axios: ^0.27.2
+  axios: ^1.0.0
   chart.js: ^3.9.1
   date-fns: ^2.29.3
   element-plus: ^2.2.17
@@ -21,7 +21,7 @@ specifiers:
   eslint-import-resolver-typescript: ^3.5.1
   eslint-plugin-import: ^2.26.0
   eslint-plugin-tailwindcss: ^3.6.2
-  eslint-plugin-vue: ^9.5.1
+  eslint-plugin-vue: ^9.6.0
   fp-ts: ^2.12.3
   js-cookie: ^3.0.1
   lodash: ^4.17.21
@@ -40,10 +40,10 @@ specifiers:
 
 dependencies:
   '@element-plus/icons-vue': 2.0.9_vue@3.2.40
-  '@tanstack/vue-query': 4.9.0_vue@3.2.40
+  '@tanstack/vue-query': 4.10.1_vue@3.2.40
   '@vueuse/core': 9.3.0_vue@3.2.40
   '@vueuse/math': 9.3.0_vue@3.2.40
-  axios: 0.27.2
+  axios: 1.0.0
   chart.js: 3.9.1
   date-fns: 2.29.3
   element-plus: 2.2.17_vue@3.2.40
@@ -58,7 +58,7 @@ dependencies:
 devDependencies:
   '@types/js-cookie': 3.0.2
   '@types/lodash': 4.14.186
-  '@types/node': 18.8.1
+  '@types/node': 18.8.2
   '@typescript-eslint/eslint-plugin': 5.39.0_xyciw6oqjoiiono4dhv3uhn5my
   '@typescript-eslint/parser': 5.39.0_ypn2ylkkyfa5i233caldtndbqa
   '@vitejs/plugin-vue': 3.1.2_vite@3.1.4+vue@3.2.40
@@ -590,12 +590,12 @@ packages:
     resolution: {integrity: sha512-Ccy0NlLkzr0Ex2FKvh2X+OyERHXJ88XJ1MXtsI9y9fGexlaXaVTPzBCRBwIxFkORuOb+uBqeu+RqnpgYTEZRUQ==}
     dev: false
 
-  /@tanstack/query-core/4.9.0:
-    resolution: {integrity: sha512-Vl0jAWJR3A1md0PoPMoEd6+H1dlRB5NqXDBNF+MZEgjQsR0Nly2kJgJj0Zh6eRDndnn7VlspxTWoOpt+dwDdAA==}
+  /@tanstack/query-core/4.10.1:
+    resolution: {integrity: sha512-UZRYzjgQSfYhQ+cJX0CspAbzutf8p93gR1xFjQuH3OYcb/7t3WnHkdb/qC9mbqrfWXN/JAbBTJlTU/XQHc5HbA==}
     dev: false
 
-  /@tanstack/vue-query/4.9.0_vue@3.2.40:
-    resolution: {integrity: sha512-bDMxLEBxEmJd5QUZXD3Hnc5HyASskdwciX+rw06arIlb2cisL1WXLWK+E6osEcDYc8BOENHLoNO+qTJVbsa6dQ==}
+  /@tanstack/vue-query/4.10.1_vue@3.2.40:
+    resolution: {integrity: sha512-vlmaG8kgcQSi1qHCXe8Dol4t+gOH+4+9N0xv3tlIvPjNPubVZhNBmG+FvLwYH0yXB7eBflLWmk4wma5B97mmtg==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.5.0 || ^3.0.0
@@ -603,7 +603,7 @@ packages:
       '@vue/composition-api':
         optional: true
     dependencies:
-      '@tanstack/query-core': 4.9.0
+      '@tanstack/query-core': 4.10.1
       '@vue/devtools-api': 6.4.3
       match-sorter: 6.3.1
       vue: 3.2.40
@@ -635,8 +635,8 @@ packages:
     resolution: {integrity: sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==}
     dev: true
 
-  /@types/node/18.8.1:
-    resolution: {integrity: sha512-vuYaNuEIbOYLTLUAJh50ezEbvxrD43iby+lpUA2aa148Nh5kX/AVO/9m1Ahmbux2iU5uxJTNF9g2Y+31uml7RQ==}
+  /@types/node/18.8.2:
+    resolution: {integrity: sha512-cRMwIgdDN43GO4xMWAfJAecYn8wV4JbsOGHNfNUIDiuYkUYAR5ec4Rj7IO2SAhFPEfpPtLtUTbbny/TCT7aDwA==}
     dev: true
 
   /@types/normalize-package-data/2.4.1:
@@ -1132,11 +1132,12 @@ packages:
       postcss-value-parser: 4.2.0
     dev: true
 
-  /axios/0.27.2:
-    resolution: {integrity: sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==}
+  /axios/1.0.0:
+    resolution: {integrity: sha512-SsHsGFN1qNPFT5QhSoSD37SHDfGyLSW5AESmyLk2JeCMHv5g0I9g0Hz/zQHx2KNe0jGXh2q2hAm7OdkXm360CA==}
     dependencies:
       follow-redirects: 1.15.2
       form-data: 4.0.0
+      proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
     dev: false
@@ -3074,6 +3075,10 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
     dev: true
+
+  /proxy-from-env/1.1.0:
+    resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
+    dev: false
 
   /punycode/2.1.1:
     resolution: {integrity: sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==}

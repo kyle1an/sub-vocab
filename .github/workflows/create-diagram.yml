@@ -13,5 +13,5 @@ jobs:
       - name: Update diagram
         uses: githubocto/repo-visualizer@main
         with:
-          excluded_paths: "ignore,.github,package-lock.json"
+          excluded_paths: "ignore,.github,package-lock.json,pnpm-lock.yaml"
           excluded_globs: "**/*.gitignore"
