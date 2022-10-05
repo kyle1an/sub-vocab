@@ -13,7 +13,7 @@ specifiers:
   '@vueuse/core': ^9.3.0
   '@vueuse/math': ^9.3.0
   autoprefixer: ^10.4.12
-  axios: ^0.27.2
+  axios: ^1.0.0
   chart.js: ^3.9.1
   date-fns: ^2.29.3
   element-plus: ^2.2.17
@@ -43,7 +43,7 @@ dependencies:
   '@tanstack/vue-query': 4.9.0_vue@3.2.40
   '@vueuse/core': 9.3.0_vue@3.2.40
   '@vueuse/math': 9.3.0_vue@3.2.40
-  axios: 0.27.2
+  axios: 1.0.0
   chart.js: 3.9.1
   date-fns: 2.29.3
   element-plus: 2.2.17_vue@3.2.40
@@ -1132,11 +1132,12 @@ packages:
       postcss-value-parser: 4.2.0
     dev: true
 
-  /axios/0.27.2:
-    resolution: {integrity: sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==}
+  /axios/1.0.0:
+    resolution: {integrity: sha512-SsHsGFN1qNPFT5QhSoSD37SHDfGyLSW5AESmyLk2JeCMHv5g0I9g0Hz/zQHx2KNe0jGXh2q2hAm7OdkXm360CA==}
     dependencies:
       follow-redirects: 1.15.2
       form-data: 4.0.0
+      proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
     dev: false
@@ -3074,6 +3075,10 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
     dev: true
+
+  /proxy-from-env/1.1.0:
+    resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
+    dev: false
 
   /punycode/2.1.1:
     resolution: {integrity: sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==}
