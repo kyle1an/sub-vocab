@@ -1,46 +1,46 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@element-plus/icons-vue': ^2.0.9
-  '@tanstack/vue-query': ^4.9.0
-  '@types/js-cookie': ^3.0.2
-  '@types/lodash': ^4.14.186
-  '@types/node': ^18.8.1
-  '@typescript-eslint/eslint-plugin': ^5.39.0
-  '@typescript-eslint/parser': ^5.39.0
-  '@vitejs/plugin-vue': ^3.1.2
-  '@vitejs/plugin-vue-jsx': ^2.0.1
-  '@vueuse/core': ^9.3.0
-  '@vueuse/math': ^9.3.0
-  autoprefixer: ^10.4.12
-  axios: ^0.27.2
-  chart.js: ^3.9.1
-  date-fns: ^2.29.3
-  element-plus: ^2.2.17
-  eslint: ^8.24.0
-  eslint-import-resolver-typescript: ^3.5.1
-  eslint-plugin-import: ^2.26.0
-  eslint-plugin-tailwindcss: ^3.6.2
-  eslint-plugin-vue: ^9.5.1
-  fp-ts: ^2.12.3
-  js-cookie: ^3.0.1
-  lodash: ^4.17.21
-  pinia: ^2.0.22
-  postcss: ^8.4.17
-  sass: ^1.55.0
-  stylelint: ^14.13.0
-  stylelint-config-standard: ^28.0.0
-  tailwindcss: ^3.1.8
-  typescript: ^4.8.4
-  vite: ^3.1.4
-  vue: ^3.2.40
-  vue-i18n: ^9.2.2
-  vue-router: ^4.1.5
-  vue-tsc: ^0.40.13
+  '@element-plus/icons-vue': 2.0.9
+  '@tanstack/vue-query': 4.10.1
+  '@types/js-cookie': 3.0.2
+  '@types/lodash': 4.14.186
+  '@types/node': 18.8.2
+  '@typescript-eslint/eslint-plugin': 5.39.0
+  '@typescript-eslint/parser': 5.39.0
+  '@vitejs/plugin-vue': 3.1.2
+  '@vitejs/plugin-vue-jsx': 2.0.1
+  '@vueuse/core': 9.3.0
+  '@vueuse/math': 9.3.0
+  autoprefixer: 10.4.12
+  axios: 0.27.2
+  chart.js: 3.9.1
+  date-fns: 2.29.3
+  element-plus: 2.2.17
+  eslint: 8.24.0
+  eslint-import-resolver-typescript: 3.5.1
+  eslint-plugin-import: 2.26.0
+  eslint-plugin-tailwindcss: 3.6.2
+  eslint-plugin-vue: 9.6.0
+  fp-ts: 2.12.3
+  js-cookie: 3.0.1
+  lodash: 4.17.21
+  pinia: 2.0.22
+  postcss: 8.4.17
+  sass: 1.55.0
+  stylelint: 14.13.0
+  stylelint-config-standard: 28.0.0
+  tailwindcss: 3.1.8
+  typescript: 4.8.4
+  vite: 3.1.4
+  vue: 3.2.40
+  vue-i18n: 9.2.2
+  vue-router: 4.1.5
+  vue-tsc: 0.40.13
 
 dependencies:
   '@element-plus/icons-vue': 2.0.9_vue@3.2.40
-  '@tanstack/vue-query': 4.9.0_vue@3.2.40
+  '@tanstack/vue-query': 4.10.1_vue@3.2.40
   '@vueuse/core': 9.3.0_vue@3.2.40
   '@vueuse/math': 9.3.0_vue@3.2.40
   axios: 0.27.2
@@ -58,7 +58,7 @@ dependencies:
 devDependencies:
   '@types/js-cookie': 3.0.2
   '@types/lodash': 4.14.186
-  '@types/node': 18.8.1
+  '@types/node': 18.8.2
   '@typescript-eslint/eslint-plugin': 5.39.0_xyciw6oqjoiiono4dhv3uhn5my
   '@typescript-eslint/parser': 5.39.0_ypn2ylkkyfa5i233caldtndbqa
   '@vitejs/plugin-vue': 3.1.2_vite@3.1.4+vue@3.2.40
@@ -590,12 +590,12 @@ packages:
     resolution: {integrity: sha512-Ccy0NlLkzr0Ex2FKvh2X+OyERHXJ88XJ1MXtsI9y9fGexlaXaVTPzBCRBwIxFkORuOb+uBqeu+RqnpgYTEZRUQ==}
     dev: false
 
-  /@tanstack/query-core/4.9.0:
-    resolution: {integrity: sha512-Vl0jAWJR3A1md0PoPMoEd6+H1dlRB5NqXDBNF+MZEgjQsR0Nly2kJgJj0Zh6eRDndnn7VlspxTWoOpt+dwDdAA==}
+  /@tanstack/query-core/4.10.1:
+    resolution: {integrity: sha512-UZRYzjgQSfYhQ+cJX0CspAbzutf8p93gR1xFjQuH3OYcb/7t3WnHkdb/qC9mbqrfWXN/JAbBTJlTU/XQHc5HbA==}
     dev: false
 
-  /@tanstack/vue-query/4.9.0_vue@3.2.40:
-    resolution: {integrity: sha512-bDMxLEBxEmJd5QUZXD3Hnc5HyASskdwciX+rw06arIlb2cisL1WXLWK+E6osEcDYc8BOENHLoNO+qTJVbsa6dQ==}
+  /@tanstack/vue-query/4.10.1_vue@3.2.40:
+    resolution: {integrity: sha512-vlmaG8kgcQSi1qHCXe8Dol4t+gOH+4+9N0xv3tlIvPjNPubVZhNBmG+FvLwYH0yXB7eBflLWmk4wma5B97mmtg==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.5.0 || ^3.0.0
@@ -603,7 +603,7 @@ packages:
       '@vue/composition-api':
         optional: true
     dependencies:
-      '@tanstack/query-core': 4.9.0
+      '@tanstack/query-core': 4.10.1
       '@vue/devtools-api': 6.4.3
       match-sorter: 6.3.1
       vue: 3.2.40
@@ -635,8 +635,8 @@ packages:
     resolution: {integrity: sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==}
     dev: true
 
-  /@types/node/18.8.1:
-    resolution: {integrity: sha512-vuYaNuEIbOYLTLUAJh50ezEbvxrD43iby+lpUA2aa148Nh5kX/AVO/9m1Ahmbux2iU5uxJTNF9g2Y+31uml7RQ==}
+  /@types/node/18.8.2:
+    resolution: {integrity: sha512-cRMwIgdDN43GO4xMWAfJAecYn8wV4JbsOGHNfNUIDiuYkUYAR5ec4Rj7IO2SAhFPEfpPtLtUTbbny/TCT7aDwA==}
     dev: true
 
   /@types/normalize-package-data/2.4.1:
