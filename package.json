@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.0.9",
-    "@tanstack/vue-query": "^4.9.0",
+    "@tanstack/vue-query": "^4.10.1",
     "@vueuse/core": "^9.3.0",
     "@vueuse/math": "^9.3.0",
     "axios": "^0.27.2",
