@@ -15,7 +15,7 @@
     "@tanstack/vue-query": "^4.9.0",
     "@vueuse/core": "^9.3.0",
     "@vueuse/math": "^9.3.0",
-    "axios": "^0.27.2",
+    "axios": "1.0.0",
     "chart.js": "^3.9.1",
     "date-fns": "^2.29.3",
     "element-plus": "^2.2.17",
