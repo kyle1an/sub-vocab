@@ -28,9 +28,7 @@ export const useVocabStore = defineStore('vocabStore', () => {
 
   async function login(info: { username: string, password: string }) {
     const resAuth = await loginUser(info)
-
     if (!resAuth.length) return
-
     Cookies.set('_user', info.username, { expires: 30 })
     Cookies.set('acct', resAuth[1], { expires: 30 })
     user = info.username
