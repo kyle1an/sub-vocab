@@ -10,7 +10,7 @@ import type { MyVocabRow, Sieve, Sorting } from '@/types'
 import DateTime from '@/components/DateTime'
 import ToggleButton from '@/components/vocabulary/ToggleButton.vue'
 import { useElHover, useStateCallback, watched } from '@/composables/utilities'
-import { find } from '@/utils/vocab'
+import { find, handleVocabToggle } from '@/utils/vocab'
 
 const {
   myVocab = [],
@@ -26,10 +26,10 @@ const segments = $computed(() => [
   { value: 'recent', label: t('recent') },
 ] as const)
 type TableSegment = typeof segments[number]['value']
-const prevSeg = useSessionStorage(`${tableName}-segment`, 'all')
-const [seg, setSeg] = $(useStateCallback<TableSegment>(segments.find((s) => s.value === prevSeg.value)?.value || 'all', (v) => {
+let prevSeg = $(useSessionStorage(`${tableName}-segment`, 'all'))
+const [seg, setSeg] = $(useStateCallback<TableSegment>(segments.find((s) => s.value === prevSeg)?.value || 'all', (v) => {
   disabledTotal = true
-  prevSeg.value = v
+  prevSeg = v
 }))
 let dirty = $ref(false)
 const isHovered = $(watched(useElHover('.el-table__body-wrapper'), (isHovered) => {
@@ -146,7 +146,10 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
           width="32"
           class-name="overflow-visible !text-center [&_.cell]:!px-0"
         >
-          <ToggleButton :row="row.vocab" />
+          <ToggleButton
+            :row="row.vocab"
+            :handleVocabToggle="handleVocabToggle"
+          />
         </ElTableColumn>
         <ElTableColumn
           v-slot="{row}"

@@ -1,7 +1,6 @@
 <script lang="tsx" setup>
 import { ref } from 'vue'
 import { whenever } from '@vueuse/core'
-import { ElNotification } from 'element-plus'
 import { t } from '@/i18n'
 import VocabTable from '@/components/vocabulary/VocabSource.vue'
 import type { SourceRow } from '@/types'
@@ -11,8 +10,7 @@ import { useTimeStore } from '@/store/usePerf'
 import { useDebounceTimeout } from '@/composables/useDebounce'
 import { watched } from '@/composables/utilities'
 import { batchAcquaint } from '@/api/vocab-service'
-import router from '@/router'
-import { formVocabList } from '@/utils/vocab'
+import { formVocabList, loginNotify } from '@/utils/vocab'
 
 let fileInfo = $ref('')
 const { user, updateWord } = $(useVocabStore())
@@ -92,16 +90,7 @@ async function acquaintAll() {
       })
     }
   } else {
-    ElNotification({
-      message: (
-        <span style={{ color: 'teal' }}>
-          {t('please')}
-          {' '}<i onClick={() => router.push('/login')}>{t('login')}</i>{' '}
-          {t('to mark words')}
-        </span>
-      ),
-      offset: 40,
-    })
+    loginNotify()
   }
 }
 </script>

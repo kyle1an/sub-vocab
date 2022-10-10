@@ -5,12 +5,12 @@ import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
 import { pipe } from 'fp-ts/function'
 import { t } from '@/i18n'
 import type { Sorting, SourceRow } from '@/types'
-import { isMobile, orderBy, paging, selectWord, skip } from '@/utils/utils'
+import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
 import Examples from '@/components/vocabulary/Examples'
 import SegmentedControl from '@/components/SegmentedControl.vue'
 import ToggleButton from '@/components/vocabulary/ToggleButton.vue'
 import { useElHover, useStateCallback, watched } from '@/composables/utilities'
-import { find } from '@/utils/vocab'
+import { find, handleVocabToggle } from '@/utils/vocab'
 
 const {
   data = [],
@@ -29,10 +29,10 @@ const segments = $computed(() => [
   { value: 'acquainted', label: t('acquainted') },
 ] as const)
 type TableSegment = typeof segments[number]['value']
-const prevSeg = useSessionStorage(`${tableName}-segment`, 'all')
-const [seg, setSeg] = $(useStateCallback<TableSegment>(segments.find((s) => s.value === prevSeg.value)?.value ?? 'all', (v) => {
+let prevSeg = $(useSessionStorage(`${tableName}-segment`, 'all'))
+const [seg, setSeg] = $(useStateCallback<TableSegment>(segments.find((s) => s.value === prevSeg)?.value ?? 'all', (v) => {
   disabledTotal = true
-  prevSeg.value = v
+  prevSeg = v
 }))
 let dirty = $ref(false)
 const vocabTable = ref()
@@ -165,9 +165,12 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
         <ElTableColumn
           v-slot="{row}"
           width="40"
-          class-name="overflow-visible !text-center [td&>.cell]:!pl-0"
+          class-name="overflow-visible !text-center"
         >
-          <ToggleButton :row="row.vocab" />
+          <ToggleButton
+            :row="row.vocab"
+            :handleVocabToggle="handleVocabToggle"
+          />
         </ElTableColumn>
         <ElTableColumn
           v-slot="{row}"
