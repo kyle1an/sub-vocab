@@ -1,7 +1,23 @@
-import { PropType, defineComponent } from 'vue'
-import type { Source } from '@/types'
+function Line({ sentence = '', idxes = [[0, 0]] }) {
+  let progress = 0
+  return (
+    <>
+      {idxes.map(([start, count]) => (
+        <>
+          <span>
+            {sentence.slice(progress, start)}
+          </span>
+          <span class="font-bold italic">
+            {sentence.slice(start, progress = start + count)}
+          </span>
+        </>
+      ))}
+      <span>{sentence.slice(progress)}</span>
+    </>
+  )
+}
 
-function source(src: Source) {
+export function Examples({ sentences = [''], src = [[0, 0]] }) {
   const lines: [number, [number, number][]][] = []
   src.sort((a, b) => a[0] - b[0] || a[1] - b[1])
 
@@ -13,46 +29,20 @@ function source(src: Source) {
     }
   }
 
-  return lines
-}
-
-function line(sentence: string, idxes: [number, number][]) {
-  let progress = 0
-  return (
-    <>
-      {idxes.map(([start, count]) => (
-        <>
-          <span>{sentence.slice(progress, start)}</span>
-          <span class="font-bold italic">{sentence.slice(start, progress = start + count)}</span>
-        </>
-      ))}
-      <span>{sentence.slice(progress)}</span>
-    </>
-  )
-}
-
-function examples(sentences: string[], src: Source) {
   return (
     <div class="mb-1 ml-5 mr-3">
-      {source(src).map(([no, idx], index) => (
+      {lines.map(([no, idx], index) => (
         <div
           key={index}
           class="break-words"
           style="word-break: break-word;"
         >
-          {line(sentences[no], idx)}
+          <Line
+            sentence={sentences[no]}
+            idxes={idx}
+          />
         </div>
       ))}
     </div>
   )
 }
-
-export default defineComponent({
-  props: {
-    sentences: { type: Array as PropType<string[]>, default: () => [''] },
-    src: { type: Array as PropType<Source>, default: () => [[0, 0]] },
-  },
-  setup(props: { sentences: string[]; src: Source }) {
-    return () => examples(props.sentences, props.src)
-  },
-})

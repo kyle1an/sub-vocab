@@ -19,13 +19,12 @@ export function collectNestedSource($: Label) {
 
       if (src.length === 0) {
         src = srcFromDerived
-        continue
-      }
-
-      if (srcFromDerived[0][3] < src[0][3]) {
-        src = srcFromDerived.concat(src)
       } else {
-        src = src.concat(srcFromDerived)
+        if (srcFromDerived[0][3] < src[0][3]) {
+          src = srcFromDerived.concat(src)
+        } else {
+          src = src.concat(srcFromDerived)
+        }
       }
     }
   }

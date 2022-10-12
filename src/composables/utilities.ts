@@ -11,14 +11,6 @@ export function watched<T>(value: WatchSource<T>, cb: WatchCallback<T>, options?
   return value
 }
 
-export function useState<T>(initial: T): [Ref<T>, (arg: T) => void] {
-  const state = ref(initial) as Ref<T>
-  const setState = (newValue: T) => {
-    state.value = newValue
-  }
-  return [state, setState]
-}
-
 export function useStateCallback<T>(initial: T, cb: (arg: T) => void): [Ref<T>, (arg: T) => void] {
   const state = ref(initial) as Ref<T>
   const setState = (newValue: T) => {
