@@ -4,9 +4,9 @@ import { TransitionPresets, useSessionStorage, useTransition } from '@vueuse/cor
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
 import { pipe } from 'fp-ts/function'
 import { t } from '@/i18n'
-import type { Sorting, SourceRow } from '@/types'
+import type { MyVocabRow, Sorting, SourceRow } from '@/types'
 import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
-import Examples from '@/components/vocabulary/Examples'
+import { Examples } from '@/components/vocabulary/Examples'
 import SegmentedControl from '@/components/SegmentedControl.vue'
 import ToggleButton from '@/components/vocabulary/ToggleButton.vue'
 import { useElHover, useStateCallback, watched } from '@/composables/utilities'
@@ -20,7 +20,7 @@ const {
 } = defineProps<{
   data: SourceRow[],
   sentences?: string[],
-  expand: boolean,
+  expand?: boolean,
   tableName: string,
 }>()
 const segments = $computed(() => [
@@ -93,7 +93,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
       <ElTable
         ref="vocabTable"
         :data="rowsDisplay"
-        :row-key="(row)=>row.src[0][3]"
+        :row-key="(row:MyVocabRow)=>row.vocab.w"
         class="!h-full from-[var(--el-border-color-lighter)] to-white [&_th_.cell]:font-compact [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_row:has(+tr:not([class]))>td]:!border-white [&_.el-table\_\_row:has(+tr:not([class]))>td]:bg-gradient-to-b [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-icon]:pointer-events-none"
         size="small"
         :row-class-name="()=>`${expand?'cursor-pointer':''}`"
@@ -192,7 +192,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
         v-model:page-size="pageSize"
         :page-sizes="[25, 100, 200, 500, 1000, Infinity]"
         :pager-count="5"
-        :small="true"
+        small
         :total="~~totalTransit"
         class="shrink-0 select-none flex-wrap gap-y-1.5 !p-1.5 tabular-nums [&_*]:!rounded-md [&_.is-active]:bg-neutral-100 [&_.el-pagination\_\_sizes.is-last]:!m-0 [&_.el-pagination\_\_total]:mx-[10px]"
         layout="prev, pager, next, ->, total, sizes"

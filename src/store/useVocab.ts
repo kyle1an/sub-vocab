@@ -32,7 +32,7 @@ export const useVocabStore = defineStore('vocabStore', () => {
     Cookies.set('_user', info.username, { expires: 30 })
     Cookies.set('acct', resAuth[1], { expires: 30 })
     user = info.username
-    requestAnimationFrame(() => router.push('/'))
+    requestAnimationFrame(router.back)
     return true
   }
 

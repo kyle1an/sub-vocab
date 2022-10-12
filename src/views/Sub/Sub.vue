@@ -112,7 +112,7 @@ function logVocabInfo(listOfVocab: SourceRow[]) {
         <VocabTable
           :data="tableDataOfVocab"
           :sentences="sentences"
-          :expand="true"
+          expand
           tableName="vocab-statistics"
         />
       </div>

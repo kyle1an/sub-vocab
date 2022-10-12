@@ -1,4 +1,4 @@
-import { get } from 'lodash'
+import { get } from 'lodash-es'
 import type { Order } from '@/types'
 
 export function sortByChar(a: string, b: string): number {

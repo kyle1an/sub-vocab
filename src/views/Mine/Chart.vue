@@ -2,7 +2,7 @@
 import Chart from 'chart.js/auto'
 import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { format } from 'date-fns'
-import { rangeRight } from 'lodash'
+import { rangeRight } from 'lodash-es'
 import { t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
 import { useStateCallback, watched } from '@/composables/utilities'
