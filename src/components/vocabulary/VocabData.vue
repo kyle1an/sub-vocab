@@ -3,11 +3,11 @@ import { computed } from 'vue'
 import { TransitionPresets, useSessionStorage, useTransition } from '@vueuse/core'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
 import { pipe } from 'fp-ts/function'
+import { formatDistanceToNowStrict } from 'date-fns'
 import { t } from '@/i18n'
 import SegmentedControl from '@/components/SegmentedControl.vue'
 import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
 import type { MyVocabRow, Sieve, Sorting } from '@/types'
-import DateTime from '@/components/DateTime'
 import ToggleButton from '@/components/vocabulary/ToggleButton.vue'
 import { useElHover, useStateCallback, watched } from '@/composables/utilities'
 import { find, handleVocabToggle } from '@/utils/vocab'
@@ -86,7 +86,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
     <div class="h-px w-full grow">
       <ElTable
         :data="rowsDisplay"
-        :row-key="(row)=>row.vocab.w"
+        :row-key="(row:MyVocabRow)=>row.vocab.w"
         class="!h-full !w-full md:w-full [&_th_.cell]:font-compact [&_th_.cell]:tracking-normal [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full"
         size="small"
         @sort-change="setSortBy"
@@ -159,8 +159,11 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
           prop="vocab.time_modified"
           sortable="custom"
         >
-          <div class="font-compact tabular-nums tracking-normal ffs-[normal]">
-            <DateTime :time="row.vocab.time_modified" />
+          <div
+            v-if="row.vocab.time_modified"
+            class="flex flex-row gap-0.5 font-compact tabular-nums tracking-normal text-neutral-900 ffs-[normal]"
+          >
+            {{ formatDistanceToNowStrict(new Date(row.vocab.time_modified)) }}
           </div>
         </ElTableColumn>
       </ElTable>
@@ -171,7 +174,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
         v-model:page-size="pageSize"
         :page-sizes="[100, 200, 500, 1000, Infinity]"
         :pager-count="5"
-        :small="true"
+        small
         :total="~~totalTransit"
         class="shrink-0 select-none flex-wrap gap-y-1.5 !p-1.5 tabular-nums [&_*]:!rounded-md [&_.is-active]:bg-neutral-100 [&_.el-pagination\_\_sizes.is-last]:!m-0 [&_.el-pagination\_\_total]:mx-[10px]"
         layout="prev, pager, next, ->, total, sizes"
