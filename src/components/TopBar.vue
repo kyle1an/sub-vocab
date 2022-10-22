@@ -19,7 +19,7 @@ const isLoggedIn = $computed(() => !!user)
 const isWide = window.innerWidth >= 460
 
 function handleCommand(command: typeof locale) {
-  Cookies.set('_locale', command, { expires: 365, })
+  Cookies.set('_locale', command, { expires: 365 })
   locale = command
 }
 </script>

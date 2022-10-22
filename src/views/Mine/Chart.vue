@@ -40,7 +40,7 @@ let myChart: Chart<'bar', number[], string>
 const chartData = $(watched(computed(() => ({
   labels: weekLabels,
   datasets: [{
-    borderRadius: { topRight: 3, topLeft: 3, },
+    borderRadius: { topRight: 3, topLeft: 3 },
     label: 'Acquainted Vocabulary',
     data: vocabCount,
     backgroundColor: 'rgba(255, 99, 132, 0.05)',

@@ -16,7 +16,6 @@ export const useVocabStore = defineStore('vocabStore', () => {
   let baseVocab = $ref<Sieve[]>([])
   let baseReady = $ref(false)
   let user = $(watched(ref(Cookies.get('_user') ?? ''), async (user) => {
-    Cookies.set('_user', user, { expires: 30 })
     baseReady = false
     baseVocab = (await queryWordsByUser(user)).map((sieve) => {
       sieve.inUpdating = false
@@ -29,8 +28,6 @@ export const useVocabStore = defineStore('vocabStore', () => {
   async function login(info: { username: string, password: string }) {
     const resAuth = await loginUser(info)
     if (!resAuth.length) return
-    Cookies.set('_user', info.username, { expires: 30 })
-    Cookies.set('acct', resAuth[1], { expires: 30 })
     user = info.username
     requestAnimationFrame(router.back)
     return true
