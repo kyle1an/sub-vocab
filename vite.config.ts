@@ -1,33 +1,47 @@
 import path from 'path'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import { visualizer } from 'rollup-plugin-visualizer'
 
-export default defineConfig({
-  plugins: [
-    vue({
-      reactivityTransform: true
-    }),
-    vueJsx({}),
-    visualizer(),
-  ],
-  define: {
-    __VUE_OPTIONS_API__: false,
-  },
-  build: {
-    target: 'esnext'
-  },
-  resolve: {
-    alias: [
-      {
-        find: 'vue-i18n',
-        replacement: 'vue-i18n/dist/vue-i18n.cjs.js',
+export default ({ mode }) => {
+  process.env = { ...process.env, ...loadEnv(mode, process.cwd()) }
+
+  return defineConfig({
+    plugins: [
+      vue({
+        reactivityTransform: true
+      }),
+      vueJsx({}),
+      visualizer(),
+    ],
+    define: {
+      __VUE_OPTIONS_API__: false,
+    },
+    server: {
+      proxy: {
+        '/api': {
+          target: process.env.VITE_SUB_PROD,
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/api/, ''),
+        },
       },
-      {
-        find: '@',
-        replacement: path.resolve(__dirname, './src'),
-      },
-    ]
-  }
-})
+    },
+    build: {
+      target: 'esnext'
+    },
+    resolve: {
+      alias: [
+        {
+          find: 'vue-i18n',
+          replacement: 'vue-i18n/dist/vue-i18n.cjs.js',
+        },
+        {
+          find: '@',
+          replacement: path.resolve(__dirname, './src'),
+        },
+      ]
+    }
+  })
+}
