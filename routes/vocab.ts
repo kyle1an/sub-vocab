@@ -5,7 +5,7 @@ import { tokenChecker, tokenInvalid } from '../lib/timeUtil'
 import type { Stems } from '../types'
 
 const router = express.Router()
-/* GET users listing. */
+/* GET user listing. */
 
 router.get('/', (req, res, next) => {
   res.send('respond with a resource')
