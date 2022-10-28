@@ -57,14 +57,3 @@ app.use(function (err: Parameters<ErrorRequestHandler>[0], req: Request, res: Re
 })
 
 export default app
-
-import { pool } from './config/connection'
-
-pool.getConnection((err, connection) => {
-  connection.query(`CALL stem_derivation_map();
-    `, (err, rows, fields) => {
-    connection.release()
-    if (err) throw err
-    console.log(rows)
-  })
-})

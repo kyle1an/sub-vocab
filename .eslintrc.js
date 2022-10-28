@@ -19,8 +19,16 @@ module.exports = {
     "@typescript-eslint"
   ],
   "rules": {
-    'semi': [1, 'never'],
-    'quotes': [1, 'single', { 'allowTemplateLiterals': true, 'avoidEscape': true }],
+    "semi": [1, "never"],
+    "quotes": [1, "single", { "avoidEscape": true, "allowTemplateLiterals": true }],
+    "comma-dangle": ["warn", {
+      "arrays": "only-multiline",
+      "objects": "only-multiline",
+      "imports": "only-multiline",
+      "exports": "only-multiline",
+      "functions": "only-multiline"
+    }],
+
     "import/order": [1, { "groups": ["builtin", "external", "parent", "sibling", "index"] }],
     "sort-imports": [1, {
       "ignoreCase": false,
