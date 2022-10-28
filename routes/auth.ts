@@ -2,7 +2,7 @@ import crypto from 'crypto'
 import express from 'express'
 import type { RowDataPacket } from 'mysql2'
 import { pool } from '../config/connection'
-import { tokenChecker } from '../lib/timeUtil'
+import { daysIn, tokenChecker } from '../lib/timeUtil'
 
 const router = express.Router()
 router.post('/login', (req, res) => {
@@ -15,7 +15,8 @@ router.post('/login', (req, res) => {
       if (err) throw err
       const response = []
       if (rows[0].output) {
-        response[1] = token
+        res.cookie('_user', username, { expires: daysIn(30) })
+        res.cookie('acct', token, { expires: daysIn(30) })
         response[0] = true
       }
       res.send(JSON.stringify(response))
@@ -37,7 +38,7 @@ router.post('/register', (req, res) => {
 
 router.post('/changeUsername', tokenChecker, (req, res) => {
   pool.getConnection((err, connection) => {
-    const { username, newUsername, acct, } = req.body
+    const { username, newUsername } = req.body
     connection.query<RowDataPacket[]>(`SELECT change_username(get_user_id_by_name('${username}'), '${newUsername}') as result;
     `, (err, rows, fields) => {
       connection.release()
@@ -53,7 +54,7 @@ router.post('/changeUsername', tokenChecker, (req, res) => {
 
 router.post('/changePassword', (req, res) => {
   pool.getConnection((err, connection) => {
-    const { username, newPassword, oldPassword, acct, } = req.body
+    const { username, newPassword, oldPassword } = req.body
     connection.query(`CALL change_password(get_user_id_by_name('${username}'), '${newPassword}', '${oldPassword}');
     `, (err, rows, fields) => {
       connection.release()
@@ -69,7 +70,7 @@ router.post('/changePassword', (req, res) => {
 
 router.post('/logoutToken', (req, res) => {
   pool.getConnection((err, connection) => {
-    const { username, acct, } = req.body
+    const { username } = req.body
     const response: any = {}
     if (!req.cookies.acct) {
       response.success = false

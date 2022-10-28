@@ -13,7 +13,7 @@ router.get('/', (req, res, next) => {
 
 router.post('/queryWords', async (req, res) => {
   let { user } = req.body
-  if (user && await tokenInvalid(req, res, req.body.acct)) user = ''
+  if (user && await tokenInvalid(req, res)) user = ''
   pool.getConnection((err, connection) => {
     connection.query<RowDataPacket[]>(`CALL words_from_user(get_user_id_by_name('${user}'));
     `, (err, rows, fields) => {
