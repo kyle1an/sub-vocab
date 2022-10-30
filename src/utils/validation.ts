@@ -18,7 +18,7 @@ export function checkUsername(rule: FormItemRule | FormItemRule[], username: str
 
 export async function checkUsernameTaken(rule: FormItemRule | FormItemRule[], username: string, callback: (arg0?: Error) => void) {
   if ((await isUsernameTaken({ username })).has) {
-    return callback(new Error(`${username}${t('alreadyTaken')}`))
+    return callback(new Error(`${username} ${t('alreadyTaken')}`))
   }
 }
 
