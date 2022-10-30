@@ -39,14 +39,16 @@ const vocabCount = $computed(() => [...groupedRows.values()])
 let myChart: Chart<'bar', number[], string>
 const chartData = $(watched(computed(() => ({
   labels: weekLabels,
-  datasets: [{
-    borderRadius: { topRight: 3, topLeft: 3 },
-    label: 'Acquainted Vocabulary',
-    data: vocabCount,
-    backgroundColor: 'rgba(255, 99, 132, 0.05)',
-    borderColor: 'rgba(255, 99, 132, 1)',
-    borderWidth: 1,
-  }]
+  datasets: [
+    {
+      borderRadius: { topRight: 3, topLeft: 3 },
+      label: 'Acquainted Vocabulary',
+      data: vocabCount,
+      backgroundColor: 'rgba(255, 99, 132, 0.05)',
+      borderColor: 'rgba(255, 99, 132, 1)',
+      borderWidth: 1,
+    }
+  ]
 })), (v) => {
   myChart.data = v
   myChart.update()

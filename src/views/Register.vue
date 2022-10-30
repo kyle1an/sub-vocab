@@ -77,61 +77,79 @@ async function registerStatus(form: userInfo) {
 <template>
   <div class="flex flex-row">
     <div class="mx-auto py-6">
-      <div class="flex w-80 justify-center rounded-md bg-white py-5 shadow-lg ">
-        <ElForm
-          ref="ruleFormRef"
-          :model="ruleForm"
-          :rules="rules"
-          label-position="top"
-          label-width="100px"
-          class="max-w-[460px] [&>.el-form-item_label]:font-bold"
-          status-icon
-        >
-          <ElFormItem
-            :label="t('Name')"
-            prop="username"
-            :error="errorMsg"
-          >
-            <ElInput
-              v-model.number="ruleForm.username"
-              class="!text-base md:!text-xs"
-            />
-          </ElFormItem>
-          <ElFormItem
-            :label="t('Password')"
-            prop="password"
-          >
-            <ElInput
-              v-model="ruleForm.password"
-              type="password"
-              autocomplete="off"
-              class="!text-base md:!text-xs"
-            />
-          </ElFormItem>
-          <ElFormItem
-            :label="t('Confirm')"
-            prop="checkPass"
-          >
-            <ElInput
-              v-model="ruleForm.checkPass"
-              type="password"
-              autocomplete="off"
-              class="!text-base md:!text-xs"
-            />
-          </ElFormItem>
-          <ElFormItem>
-            <ElButton
-              type="primary"
-              @click="submitForm(ruleFormRef)"
-            >
-              {{ t('Create Account') }}
-            </ElButton>
-            <ElButton @click="resetForm(ruleFormRef)">
-              {{ t('Reset') }}
-            </ElButton>
-          </ElFormItem>
-        </ElForm>
-      </div>
+      <section class="py-5">
+        <div class="flex flex-col items-center justify-center px-6 mx-auto lg:py-0">
+          <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0">
+            <div class="max-w-80 md:w-80 p-6 space-y-4 md:space-y-6 sm:p-8">
+              <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
+                {{ t('signup') }}
+              </h1>
+              <ElForm
+                ref="ruleFormRef"
+                :model="ruleForm"
+                :rules="rules"
+                label-position="top"
+                label-width="100px"
+                class="[&>.el-form-item_label]:font-bold"
+                status-icon
+              >
+                <ElFormItem
+                  :label="t('Name')"
+                  prop="username"
+                  :error="errorMsg"
+                >
+                  <ElInput
+                    v-model.number="ruleForm.username"
+                    class="!text-base md:!text-xs"
+                  />
+                </ElFormItem>
+                <ElFormItem
+                  :label="t('Password')"
+                  prop="password"
+                >
+                  <ElInput
+                    v-model="ruleForm.password"
+                    type="password"
+                    autocomplete="off"
+                    class="!text-base md:!text-xs"
+                  />
+                </ElFormItem>
+                <ElFormItem
+                  :label="t('Confirm')"
+                  prop="checkPass"
+                >
+                  <ElInput
+                    v-model="ruleForm.checkPass"
+                    type="password"
+                    autocomplete="off"
+                    class="!text-base md:!text-xs"
+                  />
+                </ElFormItem>
+                <ElFormItem>
+                  <ElButton
+                    type="primary"
+                    @click="submitForm(ruleFormRef)"
+                  >
+                    {{ t('Create Account') }}
+                  </ElButton>
+                  <ElButton @click="resetForm(ruleFormRef)">
+                    {{ t('Reset') }}
+                  </ElButton>
+                </ElFormItem>
+              </ElForm>
+              <p class="text-sm font-light text-gray-500 dark:text-gray-400">
+                Already have an account?
+                <RouterLink
+                  to="/login"
+                  class="text-primary-600 dark:text-primary-500 font-medium hover:underline"
+                >
+                  {{ t('login') }}
+                </RouterLink>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </template>
