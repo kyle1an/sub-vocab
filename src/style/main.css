@@ -1,7 +1,7 @@
 /*noinspection CssUnknownTarget*/
 @import url('https://fonts.googleapis.com/css2?family=Work+Sans&display=swap');
 /*noinspection CssUnknownTarget*/
-@import url('https://cdn.jsdelivr.net/gh/kyle1an/cust-fonts@master/style/fonts/SF-fonts.css');
+@import url('https://cdn.jsdelivr.net/gh/kyle1an/cust-fonts@latest/style/fonts/SF-fonts.min.css');
 
 @tailwind base;
 @tailwind components;
