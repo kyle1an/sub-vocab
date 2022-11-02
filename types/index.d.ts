@@ -1,4 +1,4 @@
 export interface Stems {
-  derivations: string,
+  derived_word: string,
   stem_word: string,
 }
