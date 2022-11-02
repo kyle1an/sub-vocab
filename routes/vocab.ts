@@ -12,8 +12,7 @@ router.get('/', (req, res, next) => {
 })
 
 router.post('/queryWords', async (req, res) => {
-  let { user } = req.body
-  if (user && await tokenInvalid(req, res)) user = ''
+  const user = await tokenInvalid(req, res) ? '' : req.body.user
   pool.getConnection((err, connection) => {
     connection.query<RowDataPacket[]>(`CALL words_from_user(get_user_id_by_name('${user}'));
     `, (err, rows, fields) => {
@@ -26,9 +25,14 @@ router.post('/queryWords', async (req, res) => {
 
 router.post('/stemsMapping', async (req, res) => {
   try {
-    const [rows] = await pool.promise().query<RowDataPacket[]>(`CALL stem_derivation_map();`)
-    const stems = rows[0].map((m: Stems) => [m.stem_word, ...m.derivations.split(',')])
-    res.send(JSON.stringify(stems))
+    const [rows] = await pool.promise().query<RowDataPacket[]>(`CALL stem_derivation_link();`)
+    const map: Record<string, string[]> = {}
+    rows[0].forEach((link: Stems) => {
+      map[link.stem_word] ??= [link.stem_word]
+      map[link.stem_word].push(link.derived_word)
+    })
+
+    res.send(JSON.stringify(Object.values(map)))
   } catch (err) {
     throw new Error(err)
   }
@@ -43,11 +47,10 @@ router.post('/acquaint', tokenChecker, async (req, res) => {
 })
 
 router.post('/acquaintWords', tokenChecker, async (req, res) => {
+  const { words, user } = req.body
   try {
-    const { words, user } = req.body
     const [rows] = await pool.promise().query<RowDataPacket[]>(`select get_user_id_by_name('${user}') as username;`)
-    const { username } = rows[0]
-    const resMap = (<string[]>words).map((word) => acquaint(word, username))
+    const resMap = (<string[]>words).map((word) => acquaint(word, rows[0].username))
     Promise.all(resMap).then(() => {
       res.send(JSON.stringify('success'))
     })
@@ -57,8 +60,8 @@ router.post('/acquaintWords', tokenChecker, async (req, res) => {
 })
 
 router.post('/revokeWord', tokenChecker, async (req, res) => {
+  const { word, user } = req.body
   try {
-    const { word, user } = req.body
     const [rows] = await pool.promise().query(`CALL revoke_vocab_record('${word}', get_user_id_by_name('${user}'));`)
     res.send(JSON.stringify(rows as RowDataPacket[]))
   } catch (err) {
