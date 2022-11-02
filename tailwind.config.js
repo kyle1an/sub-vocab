@@ -8,7 +8,7 @@ module.exports = {
   theme: {
     fontFamily: {
       'mono': ['SF Mono', 'ui-monospace', 'SFMono-Regular', 'Ubuntu Mono', 'Consolas', 'DejaVu Sans Mono', 'Menlo', 'monospace'],
-      'pro': ['SF Pro Text', '-apple-system', 'Inter', 'system-ui', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'sans-serif'],
+      'pro': ['-apple-system', 'SF Pro Text', 'Inter', 'system-ui', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'sans-serif'],
       'compact': ['SF Compact Text', '-apple-system', 'sans-serif'],
       'pro-rnd': ['SF Pro Rounded', '-apple-system', 'sans-serif'],
       'compact-rnd': ['SF Compact Rounded', '-apple-system', 'sans-serif'],
@@ -31,6 +31,9 @@ module.exports = {
         {
           'ffs': (value) => ({
             fontFeatureSettings: value
+          }),
+          'stretch': (value) => ({
+            fontStretch: value
           }),
         },
       )

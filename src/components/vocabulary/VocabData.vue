@@ -52,10 +52,10 @@ const srcRows = $computed(() => {
   return myVocab.map((r) => ({ vocab: r }))
 })
 const rowsSegmented = $computed(() => srcRows.filter(
-  seg === 'mine' ? (r) => Boolean(r.vocab.acquainted && r.vocab.is_user) :
-    seg === 'top' ? (r) => Boolean(r.vocab.acquainted && !r.vocab.is_user) :
-      seg === 'recent' ? (r) => !r.vocab.acquainted && r.vocab.is_user !== 2 :
-        (r) => !!r.vocab.acquainted
+  seg === 'mine' ? (r) => Boolean(r.vocab.acquainted && r.vocab.is_user)
+    : seg === 'top' ? (r) => Boolean(r.vocab.acquainted && !r.vocab.is_user)
+      : seg === 'recent' ? (r) => !r.vocab.acquainted && r.vocab.is_user !== 2
+        : (r) => !!r.vocab.acquainted
 ))
 const searched = $computed(() => find(search)(rowsSegmented))
 const rows = $(watched(computed(() => pipe(searched,
@@ -94,7 +94,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
         <ElTableColumn
           v-slot="{row}"
           :label="t('rank')"
-          class-name="!text-center [th&>.cell]:!pr-0"
+          class-name="!text-center [&>.cell]:stretch-[condensed] [&>.cell]:!font-pro [th&>.cell]:!pr-0"
           width="64"
           prop="vocab.rank"
           sortable="custom"
@@ -133,9 +133,9 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
           v-slot="{row}"
           :label="t('length')"
           prop="vocab.w.length"
-          width="67"
+          width="60"
           sortable="custom"
-          class-name="!text-right [th&>.cell]:!p-0"
+          class-name="!text-right [th&>.cell]:stretch-[condensed] [th&>.cell]:!font-pro [th&>.cell]:!p-0"
         >
           <div class="tabular-nums">
             {{ row.vocab.w.length }}
@@ -154,7 +154,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
         <ElTableColumn
           v-slot="{row}"
           :label="t('distance')"
-          class-name="[td&_.cell]:!pr-0"
+          class-name="[th&>.cell]:stretch-[condensed] [th&>.cell]:!font-pro [td&_.cell]:!pr-0"
           width="82"
           prop="vocab.time_modified"
           sortable="custom"

@@ -56,9 +56,9 @@ watch($$(data), () => {
   inputDirty = true
 })
 const rowsSegmented = $computed(() =>
-  seg === 'new' ? data.filter((r) => !r.vocab.acquainted && r.vocab.w.length > 2) :
-    seg === 'acquainted' ? data.filter((r) => Boolean(r.vocab.acquainted || r.vocab.w.length <= 2)) :
-      data,
+  seg === 'new' ? data.filter((r) => !r.vocab.acquainted && r.vocab.w.length > 2)
+    : seg === 'acquainted' ? data.filter((r) => Boolean(r.vocab.acquainted || r.vocab.w.length <= 2))
+      : data,
 )
 const searched = $computed(() => find(search)(rowsSegmented))
 const rows = $(watched(computed(() => pipe(searched,
@@ -115,8 +115,8 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
         <ElTableColumn
           v-slot="{row}"
           :label="t('frequency')"
-          class-name="!text-right [th&>.cell]:!p-0"
-          :width="`${expand?62:72}`"
+          class-name="!text-right [&>.cell]:stretch-[condensed] [&>.cell]:!font-pro [th&>.cell]:!p-0"
+          :width="`${expand?58:68}`"
           prop="src.length"
           sortable="custom"
         >
@@ -154,9 +154,9 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
           v-slot="{row}"
           :label="t('length')"
           prop="vocab.w.length"
-          width="68"
+          width="62"
           sortable="custom"
-          class-name="!text-right [th&>.cell]:!p-0"
+          class-name="[th&>.cell]:stretch-[condensed] [th&>.cell]:!font-pro !text-right [th&>.cell]:!p-0"
         >
           <div class="tabular-nums">
             {{ row.vocab.w.length }}
@@ -175,8 +175,8 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
         <ElTableColumn
           v-slot="{row}"
           :label="t('rank')"
-          class-name="!text-center [th&>.cell]:!p-0"
-          width="56"
+          class-name="[&>.cell]:stretch-[condensed] [&>.cell]:!font-pro !text-center [th&>.cell]:!p-0"
+          width="52"
           prop="vocab.rank"
           sortable="custom"
         >
