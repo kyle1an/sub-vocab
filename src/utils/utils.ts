@@ -68,10 +68,12 @@ export function compareFn(propName: string | number, order: NonNullable<Order>) 
     const reverse = order === 'ascending' ? 1 : -1
 
     if (typeof a === 'string' && typeof b === 'string') return reverse * sortByChar(a, b)
-    if (typeof a === 'number' && typeof b === 'number') return reverse * a - b
-    if (!a && b) return reverse
-    if (!b && a) return -reverse
-    return 0
+    if (typeof a === 'number' && typeof b === 'number') return reverse * (a - b)
+    if (!a) {
+      return !b ? 0 : reverse
+    } else {
+      return !b ? -reverse : 0
+    }
   }
 }
 
