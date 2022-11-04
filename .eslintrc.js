@@ -34,6 +34,7 @@ module.exports = {
       "functions": "only-multiline"
     }],
     "operator-linebreak": ["warn", "before", { overrides: { "=": "none" } }],
+    "prefer-const": "off",
 
     "import/order": [1, { "groups": ["builtin", "external", "parent", "sibling", "index"] }],
     "sort-imports": [1, {

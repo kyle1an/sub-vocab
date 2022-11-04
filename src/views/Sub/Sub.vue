@@ -1,15 +1,14 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { whenever } from '@vueuse/core'
-import VocabTable from '../../components/vocabulary/VocabSource.vue'
 import { t } from '@/i18n'
+import VocabTable from '@/components/vocabulary/VocabSource.vue'
 import type { SourceRow } from '@/types'
-import { readFiles, resetFileInput, sortByChar } from '@/utils/utils'
+import { readFiles, resetFileInput } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
-import { useTimeStore } from '@/store/usePerf'
 import { useDebounceTimeout } from '@/composables/useDebounce'
 import { watched } from '@/composables/utilities'
-import { formVocabList } from '@/utils/vocab'
+import { generatedVocabTrie } from '@/utils/vocab'
 
 let fileInfo = $ref('')
 
@@ -29,42 +28,19 @@ async function onFileChange(ev: Event) {
 
 let count = $ref(0)
 let sentences = $ref<string[]>([])
-const { baseReady, getPreBuiltTrie, backTrie } = $(useVocabStore())
-const { logTime, logEnd, logPerf } = useTimeStore()
+const { baseReady, getPreBuiltTrie } = $(useVocabStore())
 let inputText = $(watched(ref(''), () => !inWaiting && reformVocabList()))
 let inWaiting = false
 const reformVocabList = useDebounceTimeout(async function refreshVocab() {
   inWaiting = true
   const trie = await getPreBuiltTrie()
   inWaiting = false
-  logTime(['-- All took', '    '])
-  logTime('· init words')
-  trie.add(inputText)
-  logEnd('· init words')
-  logTime(['· categorize vocabulary', ' +  '])
-  logTime('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
-  trie.mergedVocabulary()
-  logEnd('%c  merge vocabulary')
-  logTime('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
-  const list = formVocabList(trie.vocabulary)
-  logEnd('%c  formLabel vocabulary')
-  logEnd(['· categorize vocabulary', ' +  '])
-  logEnd(['-- All took', '    '])
-  logVocabInfo(list)
-  logPerf()
-  tableDataOfVocab = list
-  count = trie.wordCount
-  sentences = trie.sentences
-  requestAnimationFrame(() => requestAnimationFrame(backTrie))
+  ;({ list: tableDataOfVocab, count, sentences } = generatedVocabTrie(trie, inputText))
 }, 50)
+
 whenever($$(baseReady), reformVocabList)
 let tableDataOfVocab = $shallowRef<SourceRow[]>([])
 const handleTextChange = () => resetFileInput('.file-input')
-
-function logVocabInfo(listOfVocab: SourceRow[]) {
-  const untouchedVocabList = [...listOfVocab].sort((a, b) => sortByChar(a.vocab.w, b.vocab.w))
-  console.log(`(${untouchedVocabList.length}) words`, { _: untouchedVocabList })
-}
 </script>
 
 <template>

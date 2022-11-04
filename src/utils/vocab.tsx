@@ -4,7 +4,10 @@ import type { Label, Sieve, SourceRow } from '@/types'
 import { t } from '@/i18n'
 import router from '@/router'
 import { useVocabStore } from '@/store/useVocab'
-import { acquaint, revokeWord } from '@/api/vocab-service'
+import { acquaint, batchAcquaint, revokeWord } from '@/api/vocab-service'
+import { sortByChar } from '@/utils/utils'
+import LabeledTire from '@/utils/LabeledTire'
+import { useTimeStore } from '@/store/usePerf'
 
 export function find(search: string) {
   return <T extends { vocab: Sieve }>(rows: T[]) => search ? rows.filter((r) => r.vocab.w.toLowerCase().includes(search.toLowerCase())) : rows
@@ -77,6 +80,36 @@ export async function handleVocabToggle(row: Sieve) {
   }
 }
 
+export async function acquaintAll(tableDataOfVocab: SourceRow[]) {
+  const { user, updateWord } = $(useVocabStore())
+  if (!user) {
+    loginNotify()
+    return
+  }
+
+  const rowsMap: Record<string, SourceRow> = {}
+  const words: string[] = []
+  tableDataOfVocab.forEach((row) => {
+    if (!row.vocab.acquainted && row.vocab.w.length < 32) {
+      const word = row.vocab.w.replace(/'/g, `''`)
+      row.vocab.inUpdating = true
+      rowsMap[word] = row
+      words.push(word)
+    }
+  })
+  const res = await batchAcquaint({ user, words }) as string
+  if (res === 'success') {
+    Object.values(rowsMap).forEach((row) => {
+      updateWord(row.vocab, true)
+      row.vocab.inUpdating = false
+    })
+  } else {
+    Object.values(rowsMap).forEach((row) => {
+      row.vocab.inUpdating = false
+    })
+  }
+}
+
 export function loginNotify() {
   ElNotification({
     message: (
@@ -93,4 +126,35 @@ export function loginNotify() {
     ),
     offset: 40,
   })
+}
+
+export const generatedVocabTrie = (trie: LabeledTire, inputText: string) => {
+  const { logTime, logEnd, logPerf } = useTimeStore()
+  const { backTrie } = $(useVocabStore())
+  logTime(['-- All took', '    '])
+  logTime('· init words')
+  trie.add(inputText)
+  logEnd('· init words')
+  logTime(['· categorize vocabulary', ' +  '])
+  logTime('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
+  trie.mergedVocabulary()
+  logEnd('%c  merge vocabulary')
+  logTime('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
+  const list = formVocabList(trie.vocabulary)
+  logEnd('%c  formLabel vocabulary')
+  logEnd(['· categorize vocabulary', ' +  '])
+  logEnd(['-- All took', '    '])
+  logVocabInfo(list)
+  logPerf()
+  requestAnimationFrame(() => requestAnimationFrame(backTrie))
+  return {
+    list,
+    count: trie.wordCount,
+    sentences: trie.sentences,
+  }
+}
+
+export function logVocabInfo(listOfVocab: SourceRow[]) {
+  const untouchedVocabList = [...listOfVocab].sort((a, b) => sortByChar(a.vocab.w, b.vocab.w))
+  console.log(`(${untouchedVocabList.length}) words`, { _: untouchedVocabList })
 }
