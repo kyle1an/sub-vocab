@@ -130,7 +130,6 @@ export function loginNotify() {
 
 export const generatedVocabTrie = (trie: LabeledTire, inputText: string) => {
   const { logTime, logEnd, logPerf } = useTimeStore()
-  const { backTrie } = $(useVocabStore())
   logTime(['-- All took', '    '])
   logTime('· init words')
   trie.add(inputText)
@@ -146,7 +145,6 @@ export const generatedVocabTrie = (trie: LabeledTire, inputText: string) => {
   logEnd(['-- All took', '    '])
   logVocabInfo(list)
   logPerf()
-  requestAnimationFrame(() => requestAnimationFrame(backTrie))
   return {
     list,
     count: trie.wordCount,

@@ -1,5 +1,5 @@
 import { caseOr, hasUppercase, isVowel } from './utils'
-import type { Char, Label, LabelPre, Sieve, TrieNode } from '@/types'
+import type { Char, Label, Sieve, TrieNode } from '@/types'
 
 export default class LabeledTire {
   root: TrieNode<Label>
@@ -22,38 +22,42 @@ export default class LabeledTire {
     return node
   }
 
-  path(vocab: Sieve[]) {
+  withPaths(vocab: Sieve[]) {
     for (const sieve of vocab) {
-      const original = sieve.w
-      const hasUp = hasUppercase(original)
-      const node = this.getNode(hasUp ? original.toLowerCase() : original) as TrieNode<LabelPre>
-      const $ = node.$
-
-      if (!$) {
-        node.$ = {
-          w: original,
-          up: hasUp,
-          src: [],
-          vocab: sieve,
-        }
-      } else if ($.up) {
-        if (hasUp) {
-          if ($.vocab.rank) {
-            if (sieve.rank && sieve.rank < $.vocab.rank) {
-              $.vocab = sieve
-            }
-          } else if (sieve.rank) {
-            $.vocab = sieve
-          }
-        } else {
-          $.w = original
-          $.up = false
-          $.vocab = sieve
-        }
-      }
+      this.createPath(sieve)
     }
 
     return this
+  }
+
+  createPath(sieve: Sieve) {
+    const original = sieve.w
+    const hasUp = hasUppercase(original)
+    const node = this.getNode(hasUp ? original.toLowerCase() : original)
+    const $ = node.$
+
+    if (!$) {
+      node.$ = {
+        w: original,
+        up: hasUp,
+        src: [],
+        vocab: sieve,
+      }
+    } else if ($.up) {
+      if (hasUp) {
+        if ($.vocab?.rank) {
+          if (sieve.rank && sieve.rank < $.vocab.rank) {
+            $.vocab = sieve
+          }
+        } else if (sieve.rank) {
+          $.vocab = sieve
+        }
+      } else {
+        $.w = original
+        $.up = false
+        $.vocab = sieve
+      }
+    }
   }
 
   share(irregularMaps: string[][]) {
@@ -138,21 +142,21 @@ export default class LabeledTire {
   }
 
   mergedVocabulary() {
-    this.traverseMerge(this.root)
+    this.#traverseMerge(this.root)
     return this
   }
 
-  traverseMerge(layer: TrieNode<Label>) {
+  #traverseMerge(layer: TrieNode<Label>) {
     for (const key in layer) {
       if (key === '$') continue
       const innerLayer = layer[key as Char] ?? {}
       // deep first traverse eg: beings(being) vs bee
-      this.traverseMerge(innerLayer)
-      this.mergeVocabOfDifferentSuffixes(innerLayer, key as Char, layer)
+      this.#traverseMerge(innerLayer)
+      this.#mergeVocabOfDifferentSuffixes(innerLayer, key as Char, layer)
     }
   }
 
-  mergeVocabOfDifferentSuffixes(curr: TrieNode<Label>, previousChar: Char, parentLayer: TrieNode<Label>) {
+  #mergeVocabOfDifferentSuffixes(curr: TrieNode<Label>, previousChar: Char, parentLayer: TrieNode<Label>) {
     const curr_$ = curr.$
     const curr_e$ = curr.e?.$
     const curr_s$ = previousChar === 's' ? undefined : curr.s?.$
@@ -192,53 +196,53 @@ export default class LabeledTire {
     ]
 
     if (curr_$) {
-      this.batchMergeTo(curr_e$ || curr_$, suffixLabels(curr))
+      this.#batchMergeTo(curr_e$ || curr_$, suffixLabels(curr))
 
       if (isTheLastCharConsonant) {
         if (isVowel(curr_$.w.slice(-2, -1))) {
           // word ends with vowel + consonant
-          this.batchMergeTo(curr_$, [
+          this.#batchMergeTo(curr_$, [
             curr[previousChar]?.i?.n?.g?.$,
             curr[previousChar]?.e?.d?.$
           ])
         } else if (previousChar === 'y') {
           // word ends with consonant + y(consonant)
-          this.batchMergeTo(curr_$, [
+          this.#batchMergeTo(curr_$, [
             parentLayer.i?.e?.s?.$,
             parentLayer.i?.e?.d?.$,
           ])
         }
       }
 
-      if (curr_s$) this.mergeNodes(curr_$, curr_s$)
-      if (curr_sApos$) this.batchMergeTo(curr_$, curr_sApos$)
-      if (curr[`'`]) this.batchMergeTo(curr_$, aposSuffixLabels(curr[`'`]))
-      if (curr[`’`]) this.batchMergeTo(curr_$, aposSuffixLabels(curr[`’`]))
+      if (curr_s$) this.#mergeNodes(curr_$, curr_s$)
+      if (curr_sApos$) this.#batchMergeTo(curr_$, curr_sApos$)
+      if (curr[`'`]) this.#batchMergeTo(curr_$, aposSuffixLabels(curr[`'`]))
+      if (curr[`’`]) this.#batchMergeTo(curr_$, aposSuffixLabels(curr[`’`]))
     } else if (curr_e$) {
-      this.batchMergeTo(curr_e$, suffixLabels(curr))
+      this.#batchMergeTo(curr_e$, suffixLabels(curr))
     } else if (curr_s$) {
       const original = curr_s$.w.slice(0, -1)
       const $ = { w: curr_s$.w.slice(0, -1), src: [], up: hasUppercase(original), derive: [] }
-      this.batchMergeTo($, suffixLabels(curr))
+      this.#batchMergeTo($, suffixLabels(curr))
 
-      if (curr[`'`]) this.batchMergeTo($, aposSuffixLabels(curr[`'`]))
-      if (curr[`’`]) this.batchMergeTo($, aposSuffixLabels(curr[`’`]))
+      if (curr[`'`]) this.#batchMergeTo($, aposSuffixLabels(curr[`'`]))
+      if (curr[`’`]) this.#batchMergeTo($, aposSuffixLabels(curr[`’`]))
 
       if ($.derive.length) {
-        this.mergeNodes($, curr_s$)
+        this.#mergeNodes($, curr_s$)
         curr.$ = $
         this.vocabulary.push($)
       }
     } else if (curr_ying$) {
       const original = curr_ying$.w.slice(0, -3)
       const $ = { w: original, src: [], up: hasUppercase(original), derive: [] }
-      this.batchMergeTo($, [
+      this.#batchMergeTo($, [
         curr.i?.e?.s?.$,
         curr.i?.e?.d?.$,
       ])
 
       if ($.derive.length) {
-        this.mergeNodes($, curr_ying$)
+        this.#mergeNodes($, curr_ying$)
         curr.y ??= {}
         curr.y.$ = $
         this.vocabulary.push($)
@@ -246,15 +250,15 @@ export default class LabeledTire {
     }
   }
 
-  batchMergeTo($: Label, next_$$: Array<Label | undefined>) {
+  #batchMergeTo($: Label, next_$$: Array<Label | undefined>) {
     for (const next_$ of next_$$) {
       if (next_$) {
-        this.mergeNodes($, next_$)
+        this.#mergeNodes($, next_$)
       }
     }
   }
 
-  mergeNodes(targetWord: Label, latterWord: Label) {
+  #mergeNodes(targetWord: Label, latterWord: Label) {
     if (!latterWord.src.length
       || latterWord.vocab
       || latterWord.variant

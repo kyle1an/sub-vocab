@@ -104,7 +104,8 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
           v-if="expand"
           v-slot="{row}"
           type="expand"
-          class-name="[&_i]:text-slate-500"
+          width="30"
+          class-name="[&_i]:text-slate-500 [&>.cell]:!p-0 [&_.el-table\_\_expand-icon]:float-right"
         >
           <Examples
             :sentences="sentences"
