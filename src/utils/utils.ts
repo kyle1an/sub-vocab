@@ -1,5 +1,6 @@
 import { get } from 'lodash-es'
 import type { Order } from '@/types'
+import { MyVocabRow } from '@/types'
 
 export function sortByChar(a: string, b: string): number {
   return a.localeCompare(b, 'en', { sensitivity: 'base' })
@@ -59,21 +60,29 @@ export const jsonClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj))
 
 type RecordUnknown = Record<string, unknown>
 
-export const orderBy = (prop: string | number | null, order: Order) => <T extends RecordUnknown>(rows: T[]) => prop && order ? rows.sort(compareFn(prop, order)) : rows
+export const orderBy = (prop: string | number | null, order: Order) => <T extends MyVocabRow>(rows: T[]) => prop && order ? rows.sort(compareFn(prop, order)) : rows
 
-export function compareFn(propName: string | number, order: NonNullable<Order>) {
-  return (obj1: RecordUnknown, obj2: RecordUnknown): number => {
-    const a = get(obj1, propName)
-    const b = get(obj2, propName)
-    const reverse = order === 'ascending' ? 1 : -1
-
-    if (typeof a === 'string' && typeof b === 'string') return reverse * sortByChar(a, b)
-    if (typeof a === 'number' && typeof b === 'number') return reverse * (a - b)
-    if (!a) {
-      return !b ? 0 : reverse
-    } else {
-      return !b ? -reverse : 0
-    }
+export function compareFn(propName: string | number, order: NonNullable<Order>): (obj1: MyVocabRow, obj2: MyVocabRow) => number {
+  const reverse = order === 'ascending' ? 1 : -1
+  switch (propName) {
+    case 'vocab.rank':
+      return (obj1, obj2) => reverse * (
+        (obj1.vocab.rank ?? Infinity) - (obj2.vocab.rank ?? Infinity)
+        || obj1.vocab.w.length - obj2.vocab.w.length
+        || obj1.vocab.w.localeCompare(obj2.vocab.w, 'en', { sensitivity: 'base' })
+      )
+    case 'vocab.time_modified':
+      return (obj1, obj2) => reverse * (
+        (obj1.vocab.time_modified ?? '').localeCompare(obj2.vocab.time_modified ?? '')
+        || obj1.vocab.w.localeCompare(obj2.vocab.w, 'en', { sensitivity: 'base' })
+      )
+    case 'vocab.w.length':
+      return (obj1, obj2) => reverse * (
+        obj1.vocab.w.length - obj2.vocab.w.length
+        || obj1.vocab.w.localeCompare(obj2.vocab.w, 'en', { sensitivity: 'base' })
+      )
+    default:
+      return (obj1, obj2) => reverse * String(get(obj1, propName)).localeCompare(String(get(obj2, propName)), 'en', { sensitivity: 'base' })
   }
 }
 

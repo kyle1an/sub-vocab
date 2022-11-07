@@ -31,7 +31,7 @@ module.exports = {
       "objects": "only-multiline",
       "imports": "only-multiline",
       "exports": "only-multiline",
-      "functions": "only-multiline"
+      "functions": "only-multiline",
     }],
     "operator-linebreak": ["warn", "before", { overrides: { "=": "none" } }],
     "prefer-const": "off",
@@ -42,7 +42,7 @@ module.exports = {
       "ignoreDeclarationSort": true,
       "ignoreMemberSort": false,
       "memberSyntaxSortOrder": ["none", "all", "multiple", "single"],
-      "allowSeparatedGroups": false
+      "allowSeparatedGroups": false,
     }],
     "tailwindcss/no-custom-classname": "off",
     "vue/component-name-in-template-casing": ["warn", "PascalCase", {
@@ -59,7 +59,7 @@ module.exports = {
   },
   "settings": {
     "import/parsers": {
-      "@typescript-eslint/parser": [".ts", ".tsx",],
+      "@typescript-eslint/parser": [".ts", ".tsx"],
     },
     "import/resolver": {
       "typescript": {
