@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { TransitionPresets, useSessionStorage, useTransition } from '@vueuse/core'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
 import { pipe } from 'fp-ts/function'
@@ -14,7 +14,7 @@ import { find, handleVocabToggle } from '@/utils/vocab'
 
 const {
   myVocab = [],
-  tableName
+  tableName,
 } = defineProps<{
   myVocab: Sieve[],
   tableName: string,
@@ -27,11 +27,12 @@ const segments = $computed(() => [
 ] as const)
 type TableSegment = typeof segments[number]['value']
 let prevSeg = $(useSessionStorage(`${tableName}-segment`, 'all'))
-const [seg, setSeg] = $(useStateCallback<TableSegment>(segments.find((s) => s.value === prevSeg)?.value || 'all', (v) => {
+const [seg, setSeg] = $(useStateCallback<TableSegment>(segments.find((s) => s.value === prevSeg)?.value ?? 'all', (v) => {
   disabledTotal = true
   prevSeg = v
 }))
 let dirty = $ref(false)
+const vocabTable = ref()
 const isHovered = $(watched(useElHover('.el-table__body-wrapper'), (isHovered) => {
   if (!dirty) return
   if (!isHovered || rowsDisplay.length === 0) {
@@ -45,6 +46,9 @@ let sortBy = $ref(defaultSort)
 const setSortBy = ({ order, prop }: Sorting) => sortBy = order && prop ? { order, prop } : defaultSort
 const currPage = $ref(1)
 const pageSize = $ref(100)
+watch($$(currPage), () => {
+  vocabTable.value.setScrollTop(0)
+})
 let rowsDisplay = $shallowRef<MyVocabRow[]>([])
 let disabledTotal = $ref(true)
 const srcRows = $computed(() => {
@@ -85,9 +89,10 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
     />
     <div class="h-px w-full grow">
       <ElTable
+        ref="vocabTable"
         :data="rowsDisplay"
         :row-key="(row:MyVocabRow)=>row.vocab.w"
-        class="!h-full !w-full md:w-full [&_th_.cell]:font-compact [&_th_.cell]:tracking-normal [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full"
+        class="!h-full !w-full md:w-full [&_*]:overscroll-contain [&_th_.cell]:font-compact [&_th_.cell]:tracking-normal [&_.el-table\_\_inner-wrapper]:!h-full"
         size="small"
         @sort-change="setSortBy"
       >

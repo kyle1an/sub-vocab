@@ -48,6 +48,9 @@ let sortBy = $ref(defaultSort)
 const setSortBy = ({ order, prop }: Sorting) => sortBy = order && prop ? { order, prop } : defaultSort
 const currPage = $ref(1)
 const pageSize = $ref(100)
+watch($$(currPage), () => {
+  vocabTable.value.setScrollTop(0)
+})
 let rowsDisplay = $shallowRef<typeof data[number][]>([])
 let disabledTotal = $ref(true)
 let inputDirty = $ref(false)
@@ -94,7 +97,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
         ref="vocabTable"
         :data="rowsDisplay"
         :row-key="(row:MyVocabRow)=>row.vocab.w"
-        class="!h-full from-[var(--el-border-color-lighter)] to-white [&_th_.cell]:font-compact [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_row:has(+tr:not([class]))>td]:!border-white [&_.el-table\_\_row:has(+tr:not([class]))>td]:bg-gradient-to-b [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-icon]:pointer-events-none"
+        class="!h-full from-[var(--el-border-color-lighter)] to-white [&_*]:overscroll-contain [&_th_.cell]:font-compact [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_row:has(+tr:not([class]))>td]:!border-white [&_.el-table\_\_row:has(+tr:not([class]))>td]:bg-gradient-to-b [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-icon]:pointer-events-none"
         size="small"
         :row-class-name="()=>`${expand?'cursor-pointer':''}`"
         v-on="expand ? { 'row-click': (row)=>vocabTable.toggleRowExpansion(row) } : {}"

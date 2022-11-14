@@ -78,9 +78,9 @@ async function registerStatus(form: userInfo) {
   <div class="flex flex-row">
     <div class="mx-auto py-6">
       <section class="py-5">
-        <div class="flex flex-col items-center justify-center px-6 mx-auto lg:py-0">
-          <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0">
-            <div class="max-w-80 md:w-80 p-6 space-y-4 md:space-y-6 sm:p-8">
+        <div class="mx-auto flex flex-col items-center justify-center px-6 lg:py-0">
+          <div class="w-full rounded-lg bg-white shadow dark:border sm:max-w-md md:mt-0 xl:p-0">
+            <div class="max-w-80 space-y-4 p-6 sm:p-8 md:w-80 md:space-y-6">
               <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
                 {{ t('signup') }}
               </h1>
