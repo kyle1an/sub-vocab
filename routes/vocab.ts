@@ -14,12 +14,14 @@ router.get('/', (req, res, next) => {
 router.post('/queryWords', async (req, res) => {
   const user = await tokenInvalid(req, res) ? '' : req.body.user
   pool.getConnection((err, connection) => {
-    connection.query<RowDataPacket[]>(`CALL words_from_user(get_user_id_by_name('${user}'));
-    `, (err, rows, fields) => {
-      connection.release()
-      if (err) throw err
-      res.send(JSON.stringify(rows[0]))
-    })
+    connection.query<RowDataPacket[]>(
+      `CALL words_from_user(get_user_id_by_name('${user}'));`,
+      function (err, rows, fields) {
+        connection.release()
+        if (err) throw err
+        res.send(JSON.stringify(rows[0]))
+      }
+    )
   })
 })
 
