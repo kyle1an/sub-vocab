@@ -26,7 +26,12 @@ module.exports = {
       "objects": "only-multiline",
       "imports": "only-multiline",
       "exports": "only-multiline",
-      "functions": "only-multiline"
+      "functions": "only-multiline",
+    }],
+    "operator-linebreak": ["warn", "before", { overrides: { "=": "none" } }],
+    "prefer-const": [1, {
+      "destructuring": "any",
+      "ignoreReadBeforeAssign": false
     }],
 
     "import/order": [1, { "groups": ["builtin", "external", "parent", "sibling", "index"] }],
@@ -35,14 +40,9 @@ module.exports = {
       "ignoreDeclarationSort": true,
       "ignoreMemberSort": false,
       "memberSyntaxSortOrder": ["none", "all", "multiple", "single"],
-      "allowSeparatedGroups": false
+      "allowSeparatedGroups": false,
     }],
     "@typescript-eslint/no-var-requires": "off",
     '@typescript-eslint/no-unused-vars': 'off',
-    "prefer-const": [1, {
-      "destructuring": "any",
-      "ignoreReadBeforeAssign": false
-    }],
-    '@typescript-eslint/no-explicit-any': 'off',
   }
 }
