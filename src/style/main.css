@@ -1,6 +1,4 @@
 /*noinspection CssUnknownTarget*/
-@import url('https://fonts.googleapis.com/css2?family=Work+Sans&display=swap');
-/*noinspection CssUnknownTarget*/
 @import url('https://cdn.jsdelivr.net/gh/kyle1an/cust-fonts@latest/style/fonts/SF-fonts.min.css');
 
 @tailwind base;
@@ -38,35 +36,12 @@
 
 :root {
   --sys-font-stack: 'SF Pro Text', -apple-system, 'Inter', 'system-ui', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-  --sys-font-stack-mono: 'SF Mono', 'SFMono-Regular', 'Ubuntu Mono', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
 }
 
 html {
   font-family: var(--sys-font-stack);
-  /*-moz-font-feature-settings: 'smcp';*/
-  /* -webkit-font-feature-settings: 'tnum'  !important;*/
 }
 
 .ffs-pre {
-  /*  'cv01' 96, 'ss01' 1, 'ss02' 4, 'cv02', 'cv03' :J, 'cv04', 'cv05' I, 'cv06' l, 'ss07' a, 'cv07' , 'cv08' 0 zh, 'nlck', 'nalt' 0, 'ital',  'ss03' 0, 'ss04' 1, */
   font-feature-settings: 'cv01', 'ss02', 'cv02', 'cv03', 'cv04', 'cv05', 'cv06' 0, 'cv08' 0, 'nlck', 'ital', 'ss03', 'ss04';
 }
-
-/*  'cv01',  'Straight-sided nine'; 6 9. [six six.tnum] by [six.1 six.1.tnum];*/
-/*  'ss01',  sub [six nine six.tnum nine.tnum] by [six.1 nine.1 six.1.tnum nine.1.tnum];*/
-/*  'ss02',  'Open four'; 4*/
-/*  'cv02',*/
-/*  'cv03',  'Vertically centered colon'; : and J*/
-/*  'cv05',  'Seriffed Capital I';*/
-/*  'cv06',  'Tailed lowercase l';*/
-/*  'ss07',  'One storey a';*/
-/*  'cv07',*/
-/*  'cv08',  'Slashed zero'; 0 and Chinese*/
-/*  'trad',*/
-/*  'nlck',*/
-/*  'nalt',*/
-/*  'ital',*/
-/*  'tnum',*/
-/*  'ss03',  -- Mono 'Alternate 0 no slash';*/
-/*  'ss04';   'Alternate 1 no serif';;*/
-/*  'dnom'*/
