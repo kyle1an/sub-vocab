@@ -162,6 +162,9 @@ export default class LabeledTire {
     const curr_s$ = previousChar === 's' ? undefined : curr.s?.$
     const curr_sApos$ = previousChar === 's' ? undefined : [curr.s?.[`'`]?.$, curr.s?.[`’`]?.$]
     const isTheLastCharConsonant = !isVowel(previousChar)
+    const curr_in = curr.i?.n
+    const curr_ing = curr_in?.g
+    const curr_ing$ = curr_ing?.$
     const curr_ying$ = isTheLastCharConsonant ? curr.y?.i?.n?.g?.$ : undefined
 
     function suffixLabels(curr: TrieNode<Label>) {
@@ -170,16 +173,14 @@ export default class LabeledTire {
         curr.e?.d?.$
       ]
 
-      const curr_in = curr.i?.n
       if (curr_in) {
         labels.push(
           curr_in[`'`]?.$,
           curr_in[`’`]?.$,
         )
-        const curr_ing = curr_in.g
         if (curr_ing) {
           labels.push(
-            curr_ing.$,
+            curr_ing$,
             curr_ing.s?.$,
           )
         }
@@ -195,6 +196,13 @@ export default class LabeledTire {
       curr_apos.d?.$,
     ]
 
+    if (curr_ing$) {
+      this.#batchMergeTo(curr_ing$, [
+        curr_in?.[`'`]?.$,
+        curr_in?.[`’`]?.$,
+      ])
+    }
+
     if (curr_$) {
       this.#batchMergeTo(curr_e$ || curr_$, suffixLabels(curr))
 
@@ -203,6 +211,8 @@ export default class LabeledTire {
           // word ends with vowel + consonant
           this.#batchMergeTo(curr_$, [
             curr[previousChar]?.i?.n?.g?.$,
+            curr[previousChar]?.i?.n?.[`'`]?.$,
+            curr[previousChar]?.i?.n?.[`’`]?.$,
             curr[previousChar]?.e?.d?.$
           ])
         } else if (previousChar === 'y') {
