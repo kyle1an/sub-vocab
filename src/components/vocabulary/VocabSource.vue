@@ -4,13 +4,13 @@ import { TransitionPresets, useSessionStorage, useTransition } from '@vueuse/cor
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
 import { pipe } from 'fp-ts/function'
 import { t } from '@/i18n'
-import type { MyVocabRow, Sorting, SourceRow } from '@/types'
+import type { MyVocabRow, RowDisplay, Sorting } from '@/types'
 import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
 import { Examples } from '@/components/vocabulary/Examples'
 import SegmentedControl from '@/components/SegmentedControl.vue'
 import ToggleButton from '@/components/vocabulary/ToggleButton.vue'
 import { useElHover, useStateCallback, watched } from '@/composables/utilities'
-import { find, handleVocabToggle } from '@/utils/vocab'
+import { handleVocabToggle } from '@/utils/vocab'
 
 const {
   data = [],
@@ -18,7 +18,7 @@ const {
   expand = false,
   tableName,
 } = defineProps<{
-  data: SourceRow[],
+  data: RowDisplay[],
   sentences?: string[],
   expand?: boolean,
   tableName: string,
@@ -63,7 +63,14 @@ const rowsSegmented = $computed(() =>
     : seg === 'acquainted' ? data.filter((r) => Boolean(r.vocab.acquainted || r.vocab.w.length <= 2))
       : data,
 )
-const searched = $computed(() => find(search)(rowsSegmented))
+const searched = $computed(() => {
+  const searching = search.trim().toLowerCase()
+  if (!searching) {
+    return rowsSegmented
+  } else {
+    return rowsSegmented.filter((r) => r.vocab.wFamily.some((w) => w.toLowerCase().includes(searching)))
+  }
+})
 const rows = $(watched(computed(() => pipe(searched,
   orderBy(sortBy.prop, sortBy.order),
   paging(currPage, pageSize),
@@ -146,11 +153,19 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
           </template>
           <template #default="{row}">
             <span
-              class="cursor-text select-text font-compact text-[16px] tracking-wide text-neutral-900"
-              v-on="isMobile ? {} : { mouseover: selectWord }"
+              v-for="(w,i) in row.vocab.wFamily"
+              :key="w"
+              class="cursor-text select-text font-compact text-[16px] tracking-wide text-black"
               @click.stop
             >
-              {{ row.vocab.w }}
+              <span
+                :class="`${i!==0? 'text-neutral-500':''}`"
+                v-on="isMobile ? {} : { mouseover: selectWord }"
+              >{{ w }}</span>
+              <span
+                v-if="i!==row.vocab.wFamily.length-1"
+                class="text-neutral-300"
+              >, </span>
             </span>
           </template>
         </ElTableColumn>

@@ -11,7 +11,6 @@ specifiers:
   '@vitejs/plugin-vue': ^3.2.0
   '@vitejs/plugin-vue-jsx': ^2.1.1
   '@vueuse/core': ^9.6.0
-  '@vueuse/math': ^9.6.0
   autoprefixer: ^10.4.13
   axios: ^1.2.0
   chart.js: ^4.0.1
@@ -44,7 +43,6 @@ dependencies:
   '@element-plus/icons-vue': 2.0.10_vue@3.2.45
   '@tanstack/vue-query': 4.19.1_vue@3.2.45
   '@vueuse/core': 9.6.0_vue@3.2.45
-  '@vueuse/math': 9.6.0_vue@3.2.45
   axios: 1.2.0
   chart.js: 4.0.1
   date-fns: 2.29.3
@@ -953,16 +951,6 @@ packages:
     dependencies:
       '@types/web-bluetooth': 0.0.16
       '@vueuse/metadata': 9.6.0
-      '@vueuse/shared': 9.6.0_vue@3.2.45
-      vue-demi: 0.13.11_vue@3.2.45
-    transitivePeerDependencies:
-      - '@vue/composition-api'
-      - vue
-    dev: false
-
-  /@vueuse/math/9.6.0_vue@3.2.45:
-    resolution: {integrity: sha512-bYTFZjTcJwgqPdY7SaxS/J5mrWy1QaESxD5HK5UhXY49DUYf4jjZxXjMVBObM/A46jQgRolqSEQDOXrrpEfEww==}
-    dependencies:
       '@vueuse/shared': 9.6.0_vue@3.2.45
       vue-demi: 0.13.11_vue@3.2.45
     transitivePeerDependencies:

@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 import { ElNotification } from 'element-plus'
-import type { Label, Sieve, SourceRow } from '@/types'
+import type { Label, RowDisplay, Sieve, SourceRow, VocabDisplay } from '@/types'
 import { t } from '@/i18n'
 import router from '@/router'
 import { useVocabStore } from '@/store/useVocab'
@@ -9,30 +9,39 @@ import { sortByChar } from '@/utils/utils'
 import LabeledTire from '@/utils/LabeledTire'
 import { useTimeStore } from '@/store/usePerf'
 
-export function find(search: string) {
-  return <T extends { vocab: Sieve }>(rows: T[]) => search ? rows.filter((r) => r.vocab.w.toLowerCase().includes(search.toLowerCase())) : rows
-}
-
-export function collectNestedSource($: Label) {
+function formVocab($: Label) {
   let src = [...$.src]
+  const wFamily = $.wFamily ?? [$.w]
 
   if ($.derive?.length) {
-    for (const d$ of $.derive) {
-      const srcFromDerived = collectNestedSource(d$)
-
-      if (src.length === 0) {
-        src = srcFromDerived
-      } else {
-        if (srcFromDerived[0][3] < src[0][3]) {
-          src = srcFromDerived.concat(src)
-        } else {
-          src = src.concat(srcFromDerived)
+    (function collectNestedSource(derives: Label[]) {
+      for (const d$ of derives) {
+        if (d$.src.length) {
+          wFamily.push(d$.w)
+          if (src.length) {
+            src = d$.src[0][3] < src[0][3] ? d$.src.concat(src) : src.concat(d$.src)
+          } else {
+            src = d$.src
+          }
         }
+
+        if (d$.derive?.length) collectNestedSource(d$.derive)
       }
-    }
+    })($.derive)
   }
 
-  return src
+  const vocab = $.vocab ?? {
+    w: $.w,
+    acquainted: false,
+    is_user: 0,
+    invalid: true,
+    inUpdating: false,
+  }
+  vocab.wFamily = wFamily
+  return {
+    src,
+    vocab: reactive(vocab)
+  }
 }
 
 export function formVocabList(vocabulary: Array<Label | null>) {
@@ -41,16 +50,7 @@ export function formVocabList(vocabulary: Array<Label | null>) {
   for (const v of vocabulary) {
     if (!v || v.variant) continue
 
-    all.push({
-      src: collectNestedSource(v),
-      vocab: reactive(v.vocab ?? {
-        w: v.w,
-        acquainted: false,
-        is_user: 0,
-        invalid: true,
-        inUpdating: false,
-      })
-    })
+    all.push(formVocab(v))
   }
 
   return all
@@ -130,13 +130,14 @@ export function loginNotify() {
 
 export const generatedVocabTrie = (trie: LabeledTire, inputText: string) => {
   const { logTime, logEnd, logPerf } = useTimeStore()
+  const { irregularMaps } = useVocabStore()
   logTime(['-- All took', '    '])
   logTime('· init words')
   trie.add(inputText)
   logEnd('· init words')
   logTime(['· categorize vocabulary', ' +  '])
   logTime('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
-  trie.mergedVocabulary()
+  trie.mergedVocabulary().shareMerge(irregularMaps)
   logEnd('%c  merge vocabulary')
   logTime('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
   const list = formVocabList(trie.vocabulary)

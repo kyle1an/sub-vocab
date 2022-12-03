@@ -82,7 +82,14 @@ export function compareFn(propName: string | number, order: NonNullable<Order>):
         || obj1.vocab.w.localeCompare(obj2.vocab.w, 'en', { sensitivity: 'base' })
       )
     default:
-      return (obj1, obj2) => reverse * String(get(obj1, propName)).localeCompare(String(get(obj2, propName)), 'en', { sensitivity: 'base' })
+      return (obj1, obj2) => {
+        const a = get(obj1, propName)
+        const b = get(obj2, propName)
+        if (typeof a === 'number' && typeof b === 'number') {
+          return reverse * (a - b)
+        }
+        return reverse * String(a).localeCompare(String(b), 'en', { sensitivity: 'base' })
+      }
   }
 }
 
