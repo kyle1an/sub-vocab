@@ -14,7 +14,6 @@
     "@element-plus/icons-vue": "^2.0.10",
     "@tanstack/vue-query": "^4.19.1",
     "@vueuse/core": "^9.6.0",
-    "@vueuse/math": "^9.6.0",
     "axios": "^1.2.0",
     "chart.js": "^4.0.1",
     "date-fns": "^2.29.3",

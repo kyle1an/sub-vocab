@@ -10,7 +10,7 @@ import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
 import type { MyVocabRow, Sieve, Sorting } from '@/types'
 import ToggleButton from '@/components/vocabulary/ToggleButton.vue'
 import { useElHover, useStateCallback, watched } from '@/composables/utilities'
-import { find, handleVocabToggle } from '@/utils/vocab'
+import { handleVocabToggle } from '@/utils/vocab'
 
 const {
   myVocab = [],
@@ -61,7 +61,14 @@ const rowsSegmented = $computed(() => srcRows.filter(
       : seg === 'recent' ? (r) => !r.vocab.acquainted && r.vocab.is_user !== 2
         : (r) => !!r.vocab.acquainted
 ))
-const searched = $computed(() => find(search)(rowsSegmented))
+const searched = $computed(() => {
+  const searching = search.trim().toLowerCase()
+  if (!searching) {
+    return rowsSegmented
+  } else {
+    return rowsSegmented.filter((r) => r.vocab.w.toLowerCase().includes(searching))
+  }
+})
 const rows = $(watched(computed(() => pipe(searched,
   orderBy(sortBy.prop, sortBy.order),
   paging(currPage, pageSize),

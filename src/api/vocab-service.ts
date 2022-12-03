@@ -6,7 +6,7 @@ export async function queryWordsByUser(user: string): Promise<UserVocab[]> {
 }
 
 export async function stemsMapping(): Promise<string[][]> {
-  return postRequest(`/api/api/stemsMapping`)
+  return postRequest(`/api/api/stemsMapping`, {}, { timeout: 2000 })
 }
 
 export async function acquaint(newWordInfo: userVocab) {

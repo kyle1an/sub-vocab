@@ -60,11 +60,12 @@ export default class LabeledTire {
     }
   }
 
-  share(irregularMaps: string[][]) {
+  shareMerge(irregularMaps: string[][]) {
     for (const irregulars of irregularMaps) {
       const base = irregulars[0]
       const hasUp = hasUppercase(base)
       const baseNode = this.getNode(hasUp ? base.toLowerCase() : base)
+
       baseNode.$ ??= {
         w: base,
         up: hasUp,
@@ -78,7 +79,13 @@ export default class LabeledTire {
       }
       let i = irregulars.length
       while (--i) {
-        this.getNode(irregulars[i]).$ = baseNode.$
+        const derive = this.getNode(irregulars[i]).$
+        if (derive
+          && derive.src.length
+          && !derive.variant
+        ) {
+          this.#mergeTo(baseNode.$, derive)
+        }
       }
     }
 
@@ -157,10 +164,10 @@ export default class LabeledTire {
   }
 
   #mergeVocabOfDifferentSuffixes(curr: TrieNode<Label>, previousChar: Char, parentLayer: TrieNode<Label>) {
+    const isPreviousCharS = previousChar === 's'
     const curr_$ = curr.$
     const curr_e$ = curr.e?.$
-    const curr_s$ = previousChar === 's' ? undefined : curr.s?.$
-    const curr_sApos$ = previousChar === 's' ? undefined : [curr.s?.[`'`]?.$, curr.s?.[`’`]?.$]
+    const curr_s$ = isPreviousCharS ? undefined : curr.s?.$
     const isTheLastCharConsonant = !isVowel(previousChar)
     const curr_in = curr.i?.n
     const curr_ing = curr_in?.g
@@ -205,27 +212,40 @@ export default class LabeledTire {
 
     if (curr_$) {
       this.#batchMergeTo(curr_e$ || curr_$, suffixLabels(curr))
+      const toBeMerged = [
+        curr_s$,
+        curr.e?.r?.$,
+        curr.e?.s?.t?.$,
+        curr.l?.y?.$,
+      ]
 
       if (isTheLastCharConsonant) {
         if (isVowel(curr_$.w.slice(-2, -1))) {
           // word ends with vowel + consonant
-          this.#batchMergeTo(curr_$, [
+          toBeMerged.push(
             curr[previousChar]?.i?.n?.g?.$,
             curr[previousChar]?.i?.n?.[`'`]?.$,
             curr[previousChar]?.i?.n?.[`’`]?.$,
-            curr[previousChar]?.e?.d?.$
-          ])
+            curr[previousChar]?.e?.d?.$,
+          )
         } else if (previousChar === 'y') {
           // word ends with consonant + y(consonant)
-          this.#batchMergeTo(curr_$, [
+          toBeMerged.push(
             parentLayer.i?.e?.s?.$,
             parentLayer.i?.e?.d?.$,
-          ])
+            parentLayer.i?.e?.r?.$,
+            parentLayer.i?.e?.s?.t?.$,
+          )
         }
       }
 
-      if (curr_s$) this.#mergeNodes(curr_$, curr_s$)
-      if (curr_sApos$) this.#batchMergeTo(curr_$, curr_sApos$)
+      if (!isPreviousCharS) {
+        toBeMerged.push(
+          curr.s?.[`'`]?.$,
+          curr.s?.[`’`]?.$,
+        )
+      }
+      this.#batchMergeTo(curr_$, toBeMerged)
       if (curr[`'`]) this.#batchMergeTo(curr_$, aposSuffixLabels(curr[`'`]))
       if (curr[`’`]) this.#batchMergeTo(curr_$, aposSuffixLabels(curr[`’`]))
     } else if (curr_e$) {
@@ -274,11 +294,10 @@ export default class LabeledTire {
       || latterWord.variant
     ) return
 
-    if (targetWord.up && !targetWord.vocab) {
-      targetWord.w = caseOr(targetWord.w, latterWord.w)
-      targetWord.up = latterWord.up ? hasUppercase(targetWord.w) : false
-    }
+    this.#mergeTo(targetWord, latterWord)
+  }
 
+  #mergeTo(targetWord: Label, latterWord: Label) {
     if (!targetWord.derive) {
       targetWord.derive = []
 

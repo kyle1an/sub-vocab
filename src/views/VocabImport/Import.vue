@@ -27,17 +27,14 @@ async function onFileChange(ev: Event) {
 }
 
 let count = $ref(0)
-const { baseReady, getPreBuiltTrie } = $(useVocabStore())
-let inputText = $(watched(ref(''), () => !inWaiting && reformVocabList()))
-let inWaiting = false
-const reformVocabList = useDebounceTimeout(async function refreshVocab() {
-  inWaiting = true
-  const trie = await getPreBuiltTrie()
-  inWaiting = false
-  ;({ list: tableDataOfVocab, count } = generatedVocabTrie(trie, inputText))
+const { baseReady, irregularsReady, getPreBuiltTrie } = $(useVocabStore())
+let inputText = $(watched(ref(''), () => reformVocabList()))
+const reformVocabList = useDebounceTimeout(function refreshVocab() {
+  ({ list: tableDataOfVocab, count } = generatedVocabTrie(getPreBuiltTrie(), inputText))
 }, 50)
 
 whenever($$(baseReady), reformVocabList)
+whenever($$(irregularsReady), reformVocabList)
 let tableDataOfVocab = $shallowRef<SourceRow[]>([])
 const handleTextChange = () => resetFileInput('.file-input')
 </script>
@@ -89,7 +86,7 @@ const handleTextChange = () => resetFileInput('.file-input')
           </button>
         </div>
       </div>
-      <div class="h-[86vh] overflow-visible pb-5 md:mt-0 md:h-full md:w-[44%] md:pb-0">
+      <div class="h-[86vh] overflow-visible pb-6 md:mt-0 md:h-full md:w-[44%] md:pb-0">
         <VocabTable
           :data="tableDataOfVocab"
           tableName="vocab-import"

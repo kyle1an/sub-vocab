@@ -1,7 +1,5 @@
 import { defineStore } from 'pinia'
 import Cookies from 'js-cookie'
-import { until } from '@vueuse/core'
-import { logicAnd } from '@vueuse/math'
 import { useQuery } from '@tanstack/vue-query'
 import { queryWordsByUser, stemsMapping } from '@/api/vocab-service'
 import type { Sieve } from '@/types'
@@ -18,7 +16,7 @@ export const useVocabStore = defineStore('vocabStore', () => {
     sieve.inUpdating = false
     return sieve
   }) as Sieve[], {
-    initialData: [], refetchOnWindowFocus: false,
+    initialData: [], refetchOnWindowFocus: false, retry: 10,
     onSuccess(data) {
       baseVocab = jsonClone(data)
     }
@@ -40,14 +38,14 @@ export const useVocabStore = defineStore('vocabStore', () => {
     requestAnimationFrame(() => router.push('/'))
   }
 
-  const { isSuccess: irrReady, data: irregularMaps } = $(useQuery(['stems'], stemsMapping, {
-    initialData: [], refetchOnWindowFocus: false,
+  const irregularsReady = $computed(() => !irrFetching && irrReady)
+  const { isFetching: irrFetching, isSuccess: irrReady, data: irregularMaps } = $(useQuery(['stems'], stemsMapping, {
+    initialData: [], refetchOnWindowFocus: false, retry: 10,
   }))
 
-  async function getPreBuiltTrie() {
+  function getPreBuiltTrie() {
     timer('struct sieve')
-    await until(logicAnd($$(baseReady), $$(irrReady))).toBe(true)
-    const baseTrie = new Trie().withPaths(baseVocab).share(irregularMaps)
+    const baseTrie = new Trie().withPaths(baseVocab)
     timerEnd('struct sieve')
     return baseTrie
   }
@@ -66,6 +64,8 @@ export const useVocabStore = defineStore('vocabStore', () => {
     baseVocab,
     getPreBuiltTrie,
     updateWord,
+    irregularMaps,
+    irregularsReady,
     user,
     baseReady,
     login,

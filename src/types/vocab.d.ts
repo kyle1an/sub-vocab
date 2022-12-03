@@ -24,9 +24,20 @@ export interface Label extends LabelBase {
   vocab?: Sieve;
   derive?: Label[];
   variant?: boolean;
+  wFamily?: string[];
 }
 
 export type MyVocabRow = Pick<LabelPre, 'vocab'>;
 export type SourceRow = Pick<LabelPre, 'vocab' | 'src'>;
+
+export interface VocabDisplay extends UserVocab {
+  wFamily: string[];
+  inUpdating: boolean,
+}
+
+export type RowDisplay = {
+  src: Source;
+  vocab: VocabDisplay;
+}
 
 export type Source = number[][];
