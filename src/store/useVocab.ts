@@ -3,8 +3,7 @@ import Cookies from 'js-cookie'
 import { useQuery } from '@tanstack/vue-query'
 import { queryWordsByUser, stemsMapping } from '@/api/vocab-service'
 import type { Sieve } from '@/types'
-import { jsonClone, timer, timerEnd } from '@/utils/utils'
-import Trie from '@/utils/LabeledTire'
+import { jsonClone } from '@/utils/utils'
 import { login as loginUser, logoutToken } from '@/api/user'
 import router from '@/router'
 
@@ -43,13 +42,6 @@ export const useVocabStore = defineStore('vocabStore', () => {
     initialData: [], refetchOnWindowFocus: false, retry: 10,
   }))
 
-  function getPreBuiltTrie() {
-    timer('struct sieve')
-    const baseTrie = new Trie().withPaths(baseVocab)
-    timerEnd('struct sieve')
-    return baseTrie
-  }
-
   function updateWord($: Sieve, got: boolean) {
     if ($.invalid) {
       baseVocab.push($)
@@ -62,7 +54,6 @@ export const useVocabStore = defineStore('vocabStore', () => {
 
   return $$({
     baseVocab,
-    getPreBuiltTrie,
     updateWord,
     irregularMaps,
     irregularsReady,

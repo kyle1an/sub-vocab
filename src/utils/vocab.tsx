@@ -114,30 +114,32 @@ export function loginNotify() {
   ElNotification({
     message: (
       <span class="text-[teal]">
-        {t('please')}{' '}
+        {`${t('please')} `}
         <i
           class="cursor-pointer"
           onClick={() => router.push('/login')}
         >
           {t('login')}
         </i>
-        {' '}{t('to mark words')}
+        {` ${t('to mark words')}`}
       </span>
     ),
     offset: 40,
   })
 }
 
-export const generatedVocabTrie = (trie: LabeledTire, inputText: string) => {
+export const generatedVocabTrie = (inputText: string) => {
   const { logTime, logEnd, logPerf } = useTimeStore()
-  const { irregularMaps } = useVocabStore()
+  const { baseVocab, irregularMaps } = useVocabStore()
   logTime(['-- All took', '    '])
   logTime('· init words')
+  const trie = new LabeledTire()
   trie.add(inputText)
   logEnd('· init words')
   logTime(['· categorize vocabulary', ' +  '])
   logTime('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
-  trie.mergedVocabulary().shareMerge(irregularMaps)
+  trie.mergedVocabulary(baseVocab)
+    .shareMerge(irregularMaps)
   logEnd('%c  merge vocabulary')
   logTime('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
   const list = formVocabList(trie.vocabulary)

@@ -28,10 +28,10 @@ async function onFileChange(ev: Event) {
 
 let count = $ref(0)
 let sentences = $ref<string[]>([])
-const { baseReady, irregularsReady, getPreBuiltTrie } = $(useVocabStore())
+const { baseReady, irregularsReady } = $(useVocabStore())
 let inputText = $(watched(ref(''), () => reformVocabList()))
 const reformVocabList = useDebounceTimeout(function refreshVocab() {
-  ({ list: tableDataOfVocab, count, sentences } = generatedVocabTrie(getPreBuiltTrie(), inputText))
+  ({ list: tableDataOfVocab, count, sentences } = generatedVocabTrie(inputText))
 }, 50)
 
 whenever($$(baseReady), reformVocabList)
