@@ -22,40 +22,51 @@ export default class LabeledTire {
     return node
   }
 
-  withPaths(vocab: Sieve[]) {
+  #withPaths(vocab: Sieve[]) {
     for (const sieve of vocab) {
-      this.createPath(sieve)
+      this.#createPath(sieve)
     }
 
     return this
   }
 
-  createPath(sieve: Sieve) {
-    const original = sieve.w
-    const hasUp = hasUppercase(original)
-    const node = this.getNode(hasUp ? original.toLowerCase() : original)
+  #createPath(sieve: Sieve) {
+    const sieveWord = sieve.w
+    const hasUp = hasUppercase(sieveWord)
+    const node = this.getNode(hasUp ? sieveWord.toLowerCase() : sieveWord)
     const $ = node.$
 
     if (!$) {
       node.$ = {
-        w: original,
+        w: sieveWord,
         up: hasUp,
         src: [],
         vocab: sieve,
       }
-    } else if ($.up) {
-      if (hasUp) {
-        if ($.vocab?.rank) {
-          if (sieve.rank && sieve.rank < $.vocab.rank) {
+    } else {
+      if ($.vocab) {
+        $.vocab.acquainted = sieve.acquainted
+        $.vocab.invalid = sieve.invalid
+        $.vocab.time_modified = sieve.time_modified
+        $.vocab.rank = sieve.rank
+        $.wFamily = [$.vocab.w, sieve.w]
+      } else {
+        $.vocab = sieve
+      }
+      if ($.up) {
+        if (hasUp) {
+          if ($.vocab.rank) {
+            if (sieve.rank && sieve.rank < $.vocab.rank) {
+              $.vocab = sieve
+            }
+          } else if (sieve.rank) {
             $.vocab = sieve
           }
-        } else if (sieve.rank) {
+        } else {
+          $.w = sieveWord
+          $.up = false
           $.vocab = sieve
         }
-      } else {
-        $.w = original
-        $.up = false
-        $.vocab = sieve
       }
     }
   }
@@ -148,8 +159,9 @@ export default class LabeledTire {
     }
   }
 
-  mergedVocabulary() {
-    this.#traverseMerge(this.root)
+  mergedVocabulary(baseVocab: Sieve[]) {
+    this.#withPaths(baseVocab)
+      .#traverseMerge(this.root)
     return this
   }
 
@@ -177,6 +189,7 @@ export default class LabeledTire {
     function suffixLabels(curr: TrieNode<Label>) {
       const labels = [
         curr.e?.s?.$,
+        curr.e?.s?.[`'`]?.$,
         curr.e?.d?.$
       ]
 
@@ -232,6 +245,7 @@ export default class LabeledTire {
           // word ends with consonant + y(consonant)
           toBeMerged.push(
             parentLayer.i?.e?.s?.$,
+            parentLayer.i?.e?.s?.[`'`]?.$,
             parentLayer.i?.e?.d?.$,
             parentLayer.i?.e?.r?.$,
             parentLayer.i?.e?.s?.t?.$,
