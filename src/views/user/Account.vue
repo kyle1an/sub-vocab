@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useRoute } from 'vue-router'
 import { t } from '@/i18n'
-import Footer from '@/components/Footer.vue'
+import { Footer } from '@/components/Footer'
 import { useVocabStore } from '@/store/useVocab'
 
 const currentPath = $computed(() => useRoute().fullPath)

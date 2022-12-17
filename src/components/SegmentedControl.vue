@@ -29,85 +29,25 @@ watch(useElementBounding(pill).width, (v) => v !== 0 && (pillWidth = v))
       <div
         v-for="(item,index) of segments"
         :key="index"
-        class="option relative"
+        class="group relative first-of-type:col-[1] first-of-type:row-[1] first-of-type:shadow-[none] before:[&:first-of-type_label]:opacity-0 after:[&:last-of-type_label]:opacity-0"
       >
         <input
           :id="`${name}-${item.value}`"
           type="radio"
           :value="item.value"
           :checked="item.value===value"
-          class="absolute inset-0 appearance-none opacity-0 outline-none [&+label]:checked:cursor-default [&+label_span]:checked:font-medium"
+          class="group/i peer absolute inset-0 appearance-none opacity-0 outline-none"
           @input="(ev)=>onChoose(ev.target.value)"
         >
         <label
           :for="`${name}-${item.value}`"
-          class="relative block cursor-pointer bg-transparent text-center"
+          class="relative block cursor-pointer bg-transparent text-center before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[10px] before:bg-[#8E8E9326] before:transition-[background] before:duration-200 before:ease-[ease] before:will-change-[background] after:absolute after:inset-y-[14%] after:right-0 after:w-px after:translate-x-[.5px] after:rounded-[10px] after:bg-[#8E8E9326] after:transition-[background] after:duration-200 after:ease-[ease] after:will-change-[background] peer-checked:cursor-default before:peer-checked:z-[1] before:peer-checked:bg-[#EFEFF0FF] after:peer-checked:z-[1] after:peer-checked:bg-[#EFEFF0FF] [&_span]:peer-checked:font-medium"
         >
-          <span class="relative z-10 flex justify-center text-sm leading-6 text-black transition-all duration-200 ease-[ease] will-change-transform">{{ item.label }}</span>
+          <span class="relative z-10 flex justify-center text-sm leading-6 text-black transition-all duration-200 ease-[ease] will-change-transform group-hover:opacity-20 group-focus:opacity-20 group-active:opacity-20 group-[&:checked+label]/i:opacity-100 group-active:group-[&:not(:checked)+label]/i:scale-95">
+            {{ item.label }}
+          </span>
         </label>
       </div>
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.option {
-  &:hover,
-  &:active,
-  &:focus {
-    input:not(:checked) + label span {
-      opacity: .2;
-    }
-  }
-
-  &:active {
-    input:not(:checked) + label span {
-      transform: scale(.95);
-    }
-  }
-
-  &:first-of-type {
-    grid-column: 1;
-    grid-row: 1;
-    box-shadow: none;
-  }
-
-  &:first-of-type label::before,
-  &:last-of-type label::after {
-    opacity: 0;
-  }
-}
-
-label {
-  &::before,
-  &::after {
-    content: '';
-    width: 1px;
-    background: rgba(142, 142, 147, .15);
-    position: absolute;
-    top: 14%;
-    bottom: 14%;
-    border-radius: 10px;
-    will-change: background;
-    transition: background .2s ease;
-  }
-
-  &::before {
-    left: 0;
-    transform: translateX(-.5px);
-  }
-
-  &::after {
-    right: 0;
-    transform: translateX(.5px);
-  }
-}
-
-input:checked + label {
-  &::before,
-  &::after {
-    background: rgba(239, 239, 240, 1);
-    z-index: 1;
-  }
-}
-</style>

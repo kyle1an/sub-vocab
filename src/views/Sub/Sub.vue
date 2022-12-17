@@ -1,13 +1,11 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
-import { whenever } from '@vueuse/core'
+import { ref, watch } from 'vue'
 import { t } from '@/i18n'
 import VocabTable from '@/components/vocabulary/VocabSource.vue'
 import type { SourceRow } from '@/types'
 import { readFiles, resetFileInput } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
-import { useDebounceTimeout } from '@/composables/useDebounce'
-import { watched } from '@/composables/utilities'
+import { useDebounceTimeout, watched } from '@/composables/utilities'
 import { generatedVocabTrie } from '@/utils/vocab'
 
 let fileInfo = $ref('')
@@ -16,14 +14,13 @@ async function onFileChange(ev: Event) {
   const files = (ev.target as HTMLInputElement).files
   const numberOfFiles = files?.length
   if (!numberOfFiles) return
-  const fileList = await readFiles(files)
-  if (numberOfFiles > 1) {
-    fileInfo = `${numberOfFiles} files selected`
-  } else {
+  if (numberOfFiles === 1) {
     fileInfo = files[0].name
+  } else {
+    fileInfo = `${numberOfFiles} files selected`
   }
 
-  inputText = fileList.reduce((pre, { result }) => pre + result, '')
+  inputText = (await readFiles(files)).reduce((pre, { result }) => pre + result, '')
 }
 
 let count = $ref(0)
@@ -33,9 +30,12 @@ let inputText = $(watched(ref(''), () => reformVocabList()))
 const reformVocabList = useDebounceTimeout(function refreshVocab() {
   ({ list: tableDataOfVocab, count, sentences } = generatedVocabTrie(inputText))
 }, 50)
-
-whenever($$(baseReady), reformVocabList)
-whenever($$(irregularsReady), reformVocabList)
+watch($$(baseReady), () => {
+  if (baseReady) reformVocabList()
+})
+watch($$(irregularsReady), () => {
+  if (irregularsReady) reformVocabList()
+})
 let tableDataOfVocab = $shallowRef<SourceRow[]>([])
 const handleTextChange = () => resetFileInput('.file-input')
 </script>
@@ -68,7 +68,7 @@ const handleTextChange = () => resetFileInput('.file-input')
             {{ fileInfo + '&nbsp;' }}
           </span>
           <span class="mx-1 inline-block h-[18px] w-px border-l align-middle" />
-          <span class="shrink-0 text-right font-mono tabular-nums">
+          <span class="shrink-0 text-right tabular-nums">
             {{ `&nbsp;${count.toLocaleString('en-US')} ${t('words')}` }}
           </span>
         </div>
