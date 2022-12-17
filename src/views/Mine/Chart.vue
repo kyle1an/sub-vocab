@@ -80,15 +80,17 @@ const segments = $computed(() => [
 </script>
 
 <template>
-  <SegmentedControl
-    name="vocab-seg"
-    :segments="segments"
-    :value="seg"
-    class="w-full grow-0"
-    :onChoose="setSeg"
-  />
-  <div
-    id="chart"
-    class="h-[calc(100vh-160px)] w-full tabular-nums tracking-wide ffs-[normal] md:h-full md:pb-0"
-  />
+  <div class="h-[calc(100vh-160px)]">
+    <SegmentedControl
+      name="vocab-seg"
+      :segments="segments"
+      :value="seg"
+      class="w-full grow-0"
+      :onChoose="setSeg"
+    />
+    <div
+      id="chart"
+      class="w-full tabular-nums tracking-wide ffs-[normal] md:pb-0"
+    />
+  </div>
 </template>

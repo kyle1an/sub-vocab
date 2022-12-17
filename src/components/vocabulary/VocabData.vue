@@ -145,7 +145,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
           v-slot="{row}"
           :label="t('length')"
           prop="vocab.w.length"
-          width="60"
+          width="62"
           sortable="custom"
           class-name="!text-right [th&>.cell]:stretch-[condensed] [th&>.cell]:!font-pro [th&>.cell]:!p-0"
         >
