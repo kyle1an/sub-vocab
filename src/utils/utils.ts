@@ -115,7 +115,7 @@ export const paging = (currPage: number, pageSize: number) => <T>(rows: T[]) => 
 
 export const daysInMonth = (month: number, year: number) => new Date(year, month, 0).getDate()
 
-export const skip = <T>(a: T) => a
+export const tap = <T>(a: T) => a
 
 export function resetFileInput(selectors: string) {
   const input = document.querySelectorAll(selectors) as NodeListOf<HTMLInputElement>

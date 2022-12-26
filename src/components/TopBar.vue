@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 import Cookies from 'js-cookie'
-import { CaretBottom } from '@element-plus/icons-vue'
 import en from 'element-plus/es/locale/lang/en'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import type { Language } from 'element-plus/es/locale'
-import { ElConfigProvider, ElDropdown, ElDropdownItem, ElDropdownMenu, ElIcon } from 'element-plus'
+import { ElConfigProvider, ElDropdown, ElDropdownItem, ElDropdownMenu } from 'element-plus'
 import { i18n, t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
 
@@ -74,9 +73,18 @@ function handleCommand(command: typeof locale) {
         <ElDropdown @command="handleCommand">
           <div class="flex px-4 outline-none">
             文/Aa
-            <ElIcon class="el-icon--right">
-              <CaretBottom class="text-slate-300" />
-            </ElIcon>
+            <i class="el-icon el-icon--right">
+              <svg
+                viewBox="0 0 1024 1024"
+                xmlns="http://www.w3.org/2000/svg"
+                class="text-slate-300"
+              >
+                <path
+                  fill="currentColor"
+                  d="m192 384 320 384 320-384z"
+                />
+              </svg>
+            </i>
           </div>
           <template #dropdown>
             <ElDropdownMenu class="outline-none">

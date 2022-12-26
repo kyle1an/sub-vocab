@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 import { ElNotification } from 'element-plus'
-import type { Label, RowDisplay, Sieve, SourceRow, VocabDisplay } from '@/types'
+import type { Label, Sieve, SourceRow } from '@/types'
 import { t } from '@/i18n'
 import router from '@/router'
 import { useVocabStore } from '@/store/useVocab'

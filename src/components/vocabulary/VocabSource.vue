@@ -88,6 +88,19 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
   disabled: $$(disabledTotal),
   transition: TransitionPresets.easeOutCirc,
 }))
+
+function expandRow(row: RowDisplay, col: unknown, event: Event) {
+  for (const el of event.composedPath()) {
+    if ((el as HTMLElement).tagName.toLowerCase() === 'button') {
+      return
+    }
+
+    if (el === event.currentTarget) {
+      break
+    }
+  }
+  vocabTable.value?.toggleRowExpansion(row)
+}
 </script>
 
 <template>
@@ -107,7 +120,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
         class="!h-full from-[var(--el-border-color-lighter)] to-white [&_*]:overscroll-contain [&_th_.cell]:font-compact [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_row:has(+tr:not([class]))>td]:!border-white [&_.el-table\_\_row:has(+tr:not([class]))>td]:bg-gradient-to-b [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-icon]:pointer-events-none"
         size="small"
         :row-class-name="()=>`${expand?'cursor-pointer':''}`"
-        v-on="expand ? { 'row-click': (row)=>vocabTable.toggleRowExpansion(row) } : {}"
+        v-on="expand ? { 'row-click': expandRow } : {}"
         @sort-change="setSortBy"
       >
         <ElTableColumn
