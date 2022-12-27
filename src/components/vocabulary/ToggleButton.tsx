@@ -1,22 +1,20 @@
-<script lang="tsx" setup>
 import type { Sieve } from '@/types'
 
-const {
-  row,
-  handleVocabToggle
-} = defineProps<{
-  row: Sieve,
-  handleVocabToggle: (row: Sieve) => void
-}>()
-</script>
-
-<template>
+export const ToggleButton = (
+  {
+    row,
+    handleVocabToggle
+  }: {
+    row: Sieve,
+    handleVocabToggle: (row: Sieve) => void
+  }
+) => (
   <button
-    :disabled="row.inUpdating"
-    :class="`el-button !p-[5px] !text-xs !w-6 !h-6 !rounded-[50%] ${row.acquainted?'!bg-[#facc15] focus:!bg-[rgb(252,219,91)] hover:!bg-[rgb(252,219,91)] !border-[#facc15] !text-white':'un !border-zinc-300 !bg-transparent !text-transparent hover:!text-black'} ${row.inUpdating?'[.un&]:!text-black':''}`"
-    @click="handleVocabToggle(row)"
+    disabled={row?.inUpdating}
+    class={`box-border inline-flex h-6 max-h-full w-6 grow-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-[50%] border p-[5px] text-center align-middle text-xs leading-3 tracking-wide transition-colors ${row?.acquainted ? 'border-[#facc15] bg-[#facc15] text-white hover:bg-[rgb(252,219,91)] focus:bg-[rgb(252,219,91)]' : 'un border-zinc-300 bg-transparent text-transparent hover:text-black'} ${row?.inUpdating ? '[.un&]:text-black' : ''}`}
+    onClick={() => handleVocabToggle(row)}
   >
-    <i :class="`el-icon animate-[rotating_2s_linear_infinite] ${row.inUpdating?'':'!hidden'}`">
+    <i class={`relative inline-flex h-[1em] w-[1em] animate-[rotating_2s_linear_infinite] items-center justify-center fill-current leading-[1em] text-inherit ${row?.inUpdating ? '' : '!hidden'}`}>
       <svg
         viewBox="0 0 1024 1024"
         xmlns="http://www.w3.org/2000/svg"
@@ -27,7 +25,7 @@ const {
         />
       </svg>
     </i>
-    <i :class="`el-icon ${row.inUpdating?'!hidden':''}`">
+    <i class={`relative inline-flex h-[1em] w-[1em] items-center justify-center fill-current leading-[1em] text-inherit ${row?.inUpdating ? '!hidden' : ''}`}>
       <svg
         viewBox="0 0 1024 1024"
         xmlns="http://www.w3.org/2000/svg"
@@ -39,4 +37,4 @@ const {
       </svg>
     </i>
   </button>
-</template>
+)
