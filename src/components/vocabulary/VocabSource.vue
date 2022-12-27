@@ -8,7 +8,7 @@ import type { MyVocabRow, RowDisplay, Sorting } from '@/types'
 import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
 import { Examples } from '@/components/vocabulary/Examples'
 import SegmentedControl from '@/components/SegmentedControl.vue'
-import ToggleButton from '@/components/vocabulary/ToggleButton.vue'
+import { ToggleButton } from '@/components/vocabulary/ToggleButton'
 import { useElHover, useStateCallback, watched } from '@/composables/utilities'
 import { handleVocabToggle } from '@/utils/vocab'
 
@@ -116,7 +116,7 @@ function expandRow(row: RowDisplay, col: unknown, event: Event) {
       <ElTable
         ref="vocabTable"
         :data="rowsDisplay"
-        :row-key="(row:MyVocabRow)=>row.vocab.w"
+        :row-key="(row:MyVocabRow)=>'_'+row.vocab.w"
         class="!h-full from-[var(--el-border-color-lighter)] to-white [&_*]:overscroll-contain [&_th_.cell]:font-compact [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_row:has(+tr:not([class]))>td]:!border-white [&_.el-table\_\_row:has(+tr:not([class]))>td]:bg-gradient-to-b [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-icon]:pointer-events-none"
         size="small"
         :row-class-name="()=>`${expand?'cursor-pointer':''}`"

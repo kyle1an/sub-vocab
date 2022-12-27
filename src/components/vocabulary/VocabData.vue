@@ -8,7 +8,7 @@ import { t } from '@/i18n'
 import SegmentedControl from '@/components/SegmentedControl.vue'
 import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
 import type { MyVocabRow, Sieve, Sorting } from '@/types'
-import ToggleButton from '@/components/vocabulary/ToggleButton.vue'
+import { ToggleButton } from '@/components/vocabulary/ToggleButton'
 import { useElHover, useStateCallback, watched } from '@/composables/utilities'
 import { handleVocabToggle } from '@/utils/vocab'
 
@@ -98,7 +98,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
       <ElTable
         ref="vocabTable"
         :data="rowsDisplay"
-        :row-key="(row:MyVocabRow)=>row.vocab.w"
+        :row-key="(row:MyVocabRow)=>'_'+row.vocab.w"
         class="!h-full !w-full md:w-full [&_*]:overscroll-contain [&_th_.cell]:font-compact [&_th_.cell]:tracking-normal [&_.el-table\_\_inner-wrapper]:!h-full"
         size="small"
         @sort-change="setSortBy"
