@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
 import { t } from '@/i18n'
-import VocabTable from '@/components/vocabulary/VocabSource.vue'
-import type { SourceRow } from '@/types'
+import VocabSourceTable from '@/components/vocabulary/VocabSource.vue'
+import type { SrcRow, VocabInfoSubDisplay } from '@/types'
 import { readFiles, resetFileInput } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
 import { useDebounceTimeout, watched } from '@/composables/utilities'
@@ -27,7 +27,8 @@ let count = $ref(0)
 let sentences = $ref<string[]>([])
 const { baseReady, irregularsReady } = $(useVocabStore())
 let inputText = $(watched(ref(''), () => reformVocabList()))
-const reformVocabList = useDebounceTimeout(function refreshVocab() {
+let tableDataOfVocab = $shallowRef<SrcRow<VocabInfoSubDisplay>[]>([])
+const reformVocabList = useDebounceTimeout(() => {
   ({ list: tableDataOfVocab, count, sentences } = generatedVocabTrie(inputText))
 }, 50)
 watch($$(baseReady), () => {
@@ -36,7 +37,6 @@ watch($$(baseReady), () => {
 watch($$(irregularsReady), () => {
   if (irregularsReady) reformVocabList()
 })
-let tableDataOfVocab = $shallowRef<SourceRow[]>([])
 const handleTextChange = () => resetFileInput('.file-input')
 </script>
 
@@ -82,7 +82,7 @@ const handleTextChange = () => resetFileInput('.file-input')
         </div>
       </div>
       <div class="h-[86vh] overflow-visible pb-6 md:mt-0 md:h-full md:w-[44%] md:pb-0">
-        <VocabTable
+        <VocabSourceTable
           :data="tableDataOfVocab"
           :sentences="sentences"
           expand

@@ -41,7 +41,7 @@ const subNav = $computed(() => [
         </div>
       </div>
       <div class="w-full flex-1">
-        <RouterView v-slot="{ Component,route }">
+        <RouterView v-slot="{ Component, route }">
           <KeepAlive>
             <component
               :is="Component"

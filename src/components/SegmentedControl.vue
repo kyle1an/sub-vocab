@@ -19,7 +19,7 @@ watch(useElementBounding(pill).width, (v) => v !== 0 && (pillWidth = v))
 </script>
 
 <template>
-  <div class="text-precision overflow-scrolling-touch box-border flex !touch-manipulation px-5 pt-3 pb-2 tracking-wide antialiased tap-transparent ffs-['cv08'] [&_*]:box-border">
+  <div class="text-precision overflow-scrolling-touch box-border flex w-full grow-0 !touch-manipulation px-5 pt-3 pb-2 tracking-wide antialiased tap-transparent ffs-['cv08'] [&_*]:box-border">
     <div class="grid w-full select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-[9px] bg-[#EFEFF0] p-0.5 outline-none">
       <span
         ref="pill"
