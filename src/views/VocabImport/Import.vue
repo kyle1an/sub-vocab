@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import { t } from '@/i18n'
 import VocabTable from '@/components/vocabulary/VocabSource.vue'
-import type { SourceRow } from '@/types'
+import type { SrcRow, VocabInfoSubDisplay } from '@/types'
 import { readFiles, resetFileInput } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
 import { useDebounceTimeout, watched } from '@/composables/utilities'
@@ -36,7 +36,7 @@ watch($$(baseReady), () => {
 watch($$(irregularsReady), () => {
   if (irregularsReady) reformVocabList()
 })
-let tableDataOfVocab = $shallowRef<SourceRow[]>([])
+let tableDataOfVocab = $shallowRef<SrcRow<VocabInfoSubDisplay>[]>([])
 const handleTextChange = () => resetFileInput('.file-input')
 </script>
 

@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 import { ElNotification } from 'element-plus'
-import type { Label, Sieve, SourceRow } from '@/types'
+import type { LabelVocab, SrcRow, VocabInfoSieveDisplay, VocabInfoSubDisplay } from '@/types'
 import { t } from '@/i18n'
 import router from '@/router'
 import { useVocabStore } from '@/store/useVocab'
@@ -9,12 +9,12 @@ import { sortByChar } from '@/utils/utils'
 import LabeledTire from '@/utils/LabeledTire'
 import { useTimeStore } from '@/store/usePerf'
 
-function formVocab($: Label) {
+function formVocab($: LabelVocab) {
   let src = [...$.src]
   const wFamily = $.wFamily ?? [$.w]
 
   if ($.derive?.length) {
-    (function collectNestedSource(derives: Label[]) {
+    (function collectNestedSource(derives: LabelVocab[]) {
       for (const d$ of derives) {
         if (d$.src.length) {
           wFamily.push(d$.w)
@@ -36,16 +36,16 @@ function formVocab($: Label) {
     is_user: 0,
     invalid: true,
     inUpdating: false,
-  }
-  vocab.wFamily = wFamily
+  };
+  (vocab as VocabInfoSubDisplay).wFamily = wFamily
   return {
     src,
-    vocab: reactive(vocab)
+    vocab: reactive(vocab) as VocabInfoSubDisplay
   }
 }
 
-export function formVocabList(vocabulary: Array<Label | null>) {
-  const all: SourceRow[] = []
+export function formVocabList(vocabulary: Array<LabelVocab | null>) {
+  const all: SrcRow<VocabInfoSubDisplay>[] = []
 
   for (const v of vocabulary) {
     if (!v || v.variant) continue
@@ -56,7 +56,7 @@ export function formVocabList(vocabulary: Array<Label | null>) {
   return all
 }
 
-async function toggleWordState(row: Sieve, name: string) {
+async function toggleWordState(row: VocabInfoSieveDisplay, name: string) {
   const { updateWord } = $(useVocabStore())
   row.inUpdating = true
   const res = await (row.acquainted ? revokeWord : acquaint)({
@@ -71,7 +71,7 @@ async function toggleWordState(row: Sieve, name: string) {
   row.inUpdating = false
 }
 
-export async function handleVocabToggle(row: Sieve) {
+export async function handleVocabToggle(row: VocabInfoSieveDisplay) {
   const { user } = $(useVocabStore())
   if (user) {
     await toggleWordState(row, user)
@@ -80,14 +80,14 @@ export async function handleVocabToggle(row: Sieve) {
   }
 }
 
-export async function acquaintAll(tableDataOfVocab: SourceRow[]) {
+export async function acquaintAll(tableDataOfVocab: SrcRow<VocabInfoSieveDisplay>[]) {
   const { user, updateWord } = $(useVocabStore())
   if (!user) {
     loginNotify()
     return
   }
 
-  const rowsMap: Record<string, SourceRow> = {}
+  const rowsMap: Record<string, SrcRow<VocabInfoSieveDisplay>> = {}
   const words: string[] = []
   tableDataOfVocab.forEach((row) => {
     if (!row.vocab.acquainted && row.vocab.w.length < 32) {
@@ -155,7 +155,7 @@ export const generatedVocabTrie = (inputText: string) => {
   }
 }
 
-export function logVocabInfo(listOfVocab: SourceRow[]) {
+export function logVocabInfo(listOfVocab: SrcRow<VocabInfoSieveDisplay>[]) {
   const untouchedVocabList = [...listOfVocab].sort((a, b) => sortByChar(a.vocab.w, b.vocab.w))
   console.log(`(${untouchedVocabList.length}) words`, { _: untouchedVocabList })
 }

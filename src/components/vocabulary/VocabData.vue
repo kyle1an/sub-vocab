@@ -7,18 +7,18 @@ import { formatDistanceToNowStrict } from 'date-fns'
 import { t } from '@/i18n'
 import SegmentedControl from '@/components/SegmentedControl.vue'
 import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
-import type { MyVocabRow, Sieve, Sorting } from '@/types'
+import type { MyVocabRow, Sorting } from '@/types'
 import { ToggleButton } from '@/components/vocabulary/ToggleButton'
 import { useElHover, useStateCallback, watched } from '@/composables/utilities'
 import { handleVocabToggle } from '@/utils/vocab'
+import { useVocabStore } from '@/store/useVocab'
 
 const {
-  myVocab = [],
   tableName,
 } = defineProps<{
-  myVocab: Sieve[],
   tableName: string,
 }>()
+const { baseVocab } = $(useVocabStore())
 const segments = $computed(() => [
   { value: 'all', label: t('all') },
   { value: 'mine', label: t('mine') },
@@ -53,7 +53,7 @@ let rowsDisplay = $shallowRef<MyVocabRow[]>([])
 let disabledTotal = $ref(true)
 const srcRows = $computed(() => {
   disabledTotal = false
-  return myVocab.map((r) => ({ vocab: r }))
+  return baseVocab.map((r) => ({ vocab: r }))
 })
 const rowsSegmented = $computed(() => srcRows.filter(
   seg === 'mine' ? (r) => Boolean(r.vocab.acquainted && r.vocab.is_user)
@@ -91,7 +91,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
       :name="tableName"
       :segments="segments"
       :value="seg"
-      class="w-full grow-0 pt-3 pb-2"
+      class="pt-3 pb-2"
       :onChoose="setSeg"
     />
     <div class="h-px w-full grow">

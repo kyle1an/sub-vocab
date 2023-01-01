@@ -4,7 +4,7 @@ import { TransitionPresets, useSessionStorage, useTransition } from '@vueuse/cor
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
 import { pipe } from 'fp-ts/function'
 import { t } from '@/i18n'
-import type { MyVocabRow, RowDisplay, Sorting } from '@/types'
+import type { MyVocabRow, Sorting, SrcRow, VocabInfoSubDisplay } from '@/types'
 import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
 import { Examples } from '@/components/vocabulary/Examples'
 import SegmentedControl from '@/components/SegmentedControl.vue'
@@ -18,7 +18,7 @@ const {
   expand = false,
   tableName,
 } = defineProps<{
-  data: RowDisplay[],
+  data: SrcRow<VocabInfoSubDisplay>[],
   sentences?: string[],
   expand?: boolean,
   tableName: string,
@@ -89,7 +89,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
   transition: TransitionPresets.easeOutCirc,
 }))
 
-function expandRow(row: RowDisplay, col: unknown, event: Event) {
+function expandRow(row: SrcRow<VocabInfoSubDisplay>, col: unknown, event: Event) {
   for (const el of event.composedPath()) {
     if ((el as HTMLElement).tagName.toLowerCase() === 'button') {
       return
@@ -109,7 +109,6 @@ function expandRow(row: RowDisplay, col: unknown, event: Event) {
       :name="tableName"
       :segments="segments"
       :value="seg"
-      class="w-full grow-0"
       :onChoose="setSeg"
     />
     <div class="h-px w-full grow">

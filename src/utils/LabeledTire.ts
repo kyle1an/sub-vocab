@@ -1,14 +1,14 @@
 import { caseOr, hasUppercase, isVowel } from './utils'
-import type { Char, Label, Sieve, TrieNode } from '@/types'
+import type { Char, LabelVocab, TrieNode, VocabInfoSieveDisplay } from '@/types'
 
 export default class LabeledTire {
-  root: TrieNode<Label>
+  root: TrieNode<LabelVocab>
   #sequence = 0
   sentences: string[] = []
   wordCount = 0
-  vocabulary: Array<Label | null> = []
+  vocabulary: Array<LabelVocab | null> = []
 
-  constructor(baseTrie: TrieNode<Label> = {}) {
+  constructor(baseTrie: TrieNode<LabelVocab> = {}) {
     this.root = baseTrie
     return this
   }
@@ -22,7 +22,7 @@ export default class LabeledTire {
     return node
   }
 
-  #withPaths(vocab: Sieve[]) {
+  #withPaths(vocab: VocabInfoSieveDisplay[]) {
     for (const sieve of vocab) {
       this.#createPath(sieve)
     }
@@ -30,7 +30,7 @@ export default class LabeledTire {
     return this
   }
 
-  #createPath(sieve: Sieve) {
+  #createPath(sieve: VocabInfoSieveDisplay) {
     const sieveWord = sieve.w
     const hasUp = hasUppercase(sieveWord)
     const node = this.getNode(hasUp ? sieveWord.toLowerCase() : sieveWord)
@@ -86,6 +86,9 @@ export default class LabeledTire {
           acquainted: false,
           is_user: 0,
           inUpdating: false,
+          original: true,
+          rank: null,
+          time_modified: null,
         }
       }
       let i = irregulars.length
@@ -159,13 +162,13 @@ export default class LabeledTire {
     }
   }
 
-  mergedVocabulary(baseVocab: Sieve[]) {
+  mergedVocabulary(baseVocab: VocabInfoSieveDisplay[]) {
     this.#withPaths(baseVocab)
       .#traverseMerge(this.root)
     return this
   }
 
-  #traverseMerge(layer: TrieNode<Label>) {
+  #traverseMerge(layer: TrieNode<LabelVocab>) {
     for (const key in layer) {
       if (key === '$') continue
       const innerLayer = layer[key as Char] ?? {}
@@ -175,7 +178,7 @@ export default class LabeledTire {
     }
   }
 
-  #mergeVocabOfDifferentSuffixes(curr: TrieNode<Label>, previousChar: Char, parentLayer: TrieNode<Label>) {
+  #mergeVocabOfDifferentSuffixes(curr: TrieNode<LabelVocab>, previousChar: Char, parentLayer: TrieNode<LabelVocab>) {
     const isPreviousCharS = previousChar === 's'
     const curr_$ = curr.$
     const curr_e$ = curr.e?.$
@@ -186,7 +189,7 @@ export default class LabeledTire {
     const curr_ing$ = curr_ing?.$
     const curr_ying$ = isTheLastCharConsonant ? curr.y?.i?.n?.g?.$ : undefined
 
-    function suffixLabels(curr: TrieNode<Label>) {
+    function suffixLabels(curr: TrieNode<LabelVocab>) {
       const labels = [
         curr.e?.s?.$,
         curr.e?.s?.[`'`]?.$,
@@ -209,7 +212,7 @@ export default class LabeledTire {
       return labels
     }
 
-    const aposSuffixLabels = (curr_apos: TrieNode<Label>) => [
+    const aposSuffixLabels = (curr_apos: TrieNode<LabelVocab>) => [
       curr_apos.s?.$,
       curr_apos.l?.l?.$,
       curr_apos.v?.e?.$,
@@ -230,9 +233,15 @@ export default class LabeledTire {
         curr.e?.r?.$,
         curr.e?.s?.t?.$,
         curr.l?.y?.$,
+        curr.l?.e?.s?.s?.$,
+        curr.n?.e?.s?.s?.$,
       ]
 
-      if (isTheLastCharConsonant) {
+      if (previousChar === 'e') {
+        toBeMerged.push(
+          parentLayer.d?.e?.n?.$,
+        )
+      } else if (isTheLastCharConsonant) {
         if (isVowel(curr_$.w.slice(-2, -1))) {
           // word ends with vowel + consonant
           toBeMerged.push(
@@ -249,6 +258,7 @@ export default class LabeledTire {
             parentLayer.i?.e?.d?.$,
             parentLayer.i?.e?.r?.$,
             parentLayer.i?.e?.s?.t?.$,
+            parentLayer.i?.l?.y?.$,
           )
         }
       }
@@ -294,7 +304,7 @@ export default class LabeledTire {
     }
   }
 
-  #batchMergeTo($: Label, next_$$: Array<Label | undefined>) {
+  #batchMergeTo($: LabelVocab, next_$$: Array<LabelVocab | undefined>) {
     for (const next_$ of next_$$) {
       if (next_$) {
         this.#mergeNodes($, next_$)
@@ -302,21 +312,22 @@ export default class LabeledTire {
     }
   }
 
-  #mergeNodes(targetWord: Label, latterWord: Label) {
-    if (!latterWord.src.length
-      || latterWord.vocab
+  #mergeNodes(targetWord: LabelVocab, latterWord: LabelVocab) {
+    if (latterWord.vocab?.original
       || latterWord.variant
     ) return
 
     this.#mergeTo(targetWord, latterWord)
   }
 
-  #mergeTo(targetWord: Label, latterWord: Label) {
+  #mergeTo(targetWord: LabelVocab, latterWord: LabelVocab) {
     if (!targetWord.derive) {
       targetWord.derive = []
 
       if (!targetWord.src.length) {
-        this.vocabulary[latterWord.src[0][3]] = targetWord
+        if (latterWord.src.length) {
+          this.vocabulary[latterWord.src[0][3]] = targetWord
+        }
       }
     }
 

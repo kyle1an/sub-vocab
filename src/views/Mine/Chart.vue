@@ -85,7 +85,6 @@ const segments = $computed(() => [
       name="vocab-seg"
       :segments="segments"
       :value="seg"
-      class="w-full grow-0"
       :onChoose="setSeg"
     />
     <div

@@ -13,7 +13,7 @@ export interface Sorting {
   prop: string | null;
 }
 
-export interface userVocab {
+export interface UserVocab {
   user: string;
   word: string;
 }

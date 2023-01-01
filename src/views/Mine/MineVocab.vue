@@ -1,9 +1,6 @@
 <script lang="ts" setup>
 import { t } from '@/i18n'
-import { useVocabStore } from '@/store/useVocab'
 import MyVocabulary from '@/components/vocabulary/VocabData.vue'
-
-const { baseVocab } = $(useVocabStore())
 </script>
 
 <template>
@@ -20,10 +17,7 @@ const { baseVocab } = $(useVocabStore())
           </a>
         </RouterLink>
       </div>
-      <MyVocabulary
-        :myVocab="baseVocab"
-        tableName="my-vocab"
-      />
+      <MyVocabulary tableName="my-vocab" />
     </div>
   </div>
 </template>

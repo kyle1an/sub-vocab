@@ -36,12 +36,12 @@ html {
 
 body {
   min-height: 100%;
+  @apply antialiased;
 }
 
 #app {
   display: flex;
   flex-direction: column;
-  @apply antialiased;
 }
 
 @media only screen and (max-width: 768px) {
