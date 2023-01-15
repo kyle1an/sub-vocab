@@ -19,9 +19,10 @@ export function ToggleButton(
       onClick={() => handleVocabToggle(row)}
     >
       <i
-        class={`${row?.inUpdating ? '' : 'hidden'} relative inline-flex h-[1em] w-[1em] animate-[rotating_2s_linear_infinite] items-center justify-center fill-current leading-[1em] text-inherit`}
+        class={`${row?.inUpdating ? '' : 'hidden'} relative inline-flex animate-[rotating_2s_linear_infinite] items-center justify-center fill-current leading-[1em] text-inherit`}
       >
         <svg
+          class="h-[1em] w-[1em]"
           viewBox="0 0 1024 1024"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -32,9 +33,10 @@ export function ToggleButton(
         </svg>
       </i>
       <i
-        class={`${row?.inUpdating ? 'hidden' : ''} relative inline-flex h-[1em] w-[1em] items-center justify-center fill-current leading-[1em] text-inherit`}
+        class={`${row?.inUpdating ? 'hidden' : ''} relative inline-flex items-center justify-center fill-current leading-[1em] text-inherit`}
       >
         <svg
+          class="h-[1em] w-[1em]"
           viewBox="0 0 1024 1024"
           xmlns="http://www.w3.org/2000/svg"
         >

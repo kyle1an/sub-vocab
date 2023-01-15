@@ -1,4 +1,7 @@
+import { LabelBase } from '@/types/vocab'
+
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicAttributes {
       'class'?: string
@@ -20,7 +23,7 @@ export interface UserVocab {
 
 export type Char = `'` | '’' | '-' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z';
 
-export interface TrieNode<T> {
+export interface TrieNode<T extends LabelBase> {
   $?: T;
   "'"?: TrieNode<T>;
   '’'?: TrieNode<T>;

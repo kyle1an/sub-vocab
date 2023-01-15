@@ -20,7 +20,6 @@ export interface LabelBase extends Record<string, unknown> {
   src: number[][];
 }
 
-
 export interface LabelVocab extends LabelBase {
   vocab?: VocabInfoSieveDisplay;
   derive?: LabelVocab[];
