@@ -169,12 +169,13 @@ export default class LabeledTire {
   }
 
   #traverseMerge(layer: TrieNode<LabelVocab>) {
-    for (const key in layer) {
+    for (const k in layer) {
+      const key = k as keyof typeof layer
       if (key === '$') continue
-      const innerLayer = layer[key as Char] ?? {}
+      const innerLayer = layer[key] ?? {}
       // deep first traverse eg: beings(being) vs bee
       this.#traverseMerge(innerLayer)
-      this.#mergeVocabOfDifferentSuffixes(innerLayer, key as Char, layer)
+      this.#mergeVocabOfDifferentSuffixes(innerLayer, key, layer)
     }
   }
 
@@ -242,24 +243,26 @@ export default class LabeledTire {
           parentLayer.d?.e?.n?.$,
         )
       } else if (isTheLastCharConsonant) {
-        if (isVowel(curr_$.w.slice(-2, -1))) {
-          // word ends with vowel + consonant
+        const wordEndsWithVowelAndConsonant = isVowel(curr_$.w.slice(-2, -1))
+        if (wordEndsWithVowelAndConsonant) {
           toBeMerged.push(
             curr[previousChar]?.i?.n?.g?.$,
             curr[previousChar]?.i?.n?.[`'`]?.$,
             curr[previousChar]?.i?.n?.[`’`]?.$,
             curr[previousChar]?.e?.d?.$,
           )
-        } else if (previousChar === 'y') {
-          // word ends with consonant + y(consonant)
-          toBeMerged.push(
-            parentLayer.i?.e?.s?.$,
-            parentLayer.i?.e?.s?.[`'`]?.$,
-            parentLayer.i?.e?.d?.$,
-            parentLayer.i?.e?.r?.$,
-            parentLayer.i?.e?.s?.t?.$,
-            parentLayer.i?.l?.y?.$,
-          )
+        } else {
+          const wordEndsWithConsonantAndConsonantY = previousChar === 'y'
+          if (wordEndsWithConsonantAndConsonantY) {
+            toBeMerged.push(
+              parentLayer.i?.e?.s?.$,
+              parentLayer.i?.e?.s?.[`'`]?.$,
+              parentLayer.i?.e?.d?.$,
+              parentLayer.i?.e?.r?.$,
+              parentLayer.i?.e?.s?.t?.$,
+              parentLayer.i?.l?.y?.$,
+            )
+          }
         }
       }
 
