@@ -23,37 +23,10 @@ export interface UserVocab {
 
 export type Char = `'` | '’' | '-' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z';
 
-export interface TrieNode<T extends LabelBase> {
-  $?: T;
-  "'"?: TrieNode<T>;
-  '’'?: TrieNode<T>;
-  '-'?: TrieNode<T>;
-  a?: TrieNode<T>;
-  b?: TrieNode<T>;
-  c?: TrieNode<T>;
-  d?: TrieNode<T>;
-  e?: TrieNode<T>;
-  f?: TrieNode<T>;
-  g?: TrieNode<T>;
-  h?: TrieNode<T>;
-  i?: TrieNode<T>;
-  j?: TrieNode<T>;
-  k?: TrieNode<T>;
-  l?: TrieNode<T>;
-  m?: TrieNode<T>;
-  n?: TrieNode<T>;
-  o?: TrieNode<T>;
-  p?: TrieNode<T>;
-  q?: TrieNode<T>;
-  r?: TrieNode<T>;
-  s?: TrieNode<T>;
-  t?: TrieNode<T>;
-  u?: TrieNode<T>;
-  v?: TrieNode<T>;
-  w?: TrieNode<T>;
-  x?: TrieNode<T>;
-  y?: TrieNode<T>;
-  z?: TrieNode<T>;
+export type TrieNode<T extends LabelBase> = {
+  [K in Char | '$']?: K extends Char ? TrieNode<T>
+    : K extends '$' ? T
+      : never
 }
 
 export interface userInfo {

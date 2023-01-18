@@ -1,12 +1,12 @@
 import type { UserVocab, VocabFromUser } from '@/types'
 import { postRequest } from '@/api/request'
 
-export async function queryWordsByUser(user: string): Promise<VocabFromUser[]> {
-  return postRequest(`/api/api/queryWords`, { user }, { timeout: 4000 })
+export async function queryWordsByUser(user: string) {
+  return postRequest<VocabFromUser[]>(`/api/api/queryWords`, { user }, { timeout: 4000 })
 }
 
-export async function stemsMapping(): Promise<string[][]> {
-  return postRequest(`/api/api/stemsMapping`, {}, { timeout: 2000 })
+export async function stemsMapping() {
+  return postRequest<string[][]>(`/api/api/stemsMapping`, {}, { timeout: 2000 })
 }
 
 export async function acquaint(newWordInfo: UserVocab) {

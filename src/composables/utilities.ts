@@ -20,7 +20,7 @@ export function useStateCallback<T>(initial: T, cb: (arg: T) => void): [Ref<T>, 
   return [state, setState]
 }
 
-export function useElHover(selectors: string): Ref<boolean> {
+export function useElHover(selectors: string) {
   let isHovered = $ref(false)
   onMounted(() => watch(useElementHover(document.querySelector(selectors)), (v) => isHovered = v))
   return $$(isHovered)

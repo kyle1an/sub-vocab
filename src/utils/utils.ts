@@ -2,11 +2,11 @@ import { get } from 'lodash-es'
 import type { Order } from '@/types'
 import { MyVocabRow } from '@/types'
 
-export function sortByChar(a: string, b: string): number {
+export function sortByChar(a: string, b: string) {
   return a.localeCompare(b, 'en', { sensitivity: 'base' })
 }
 
-export function caseOr(a: string, b: string): string {
+export function caseOr(a: string, b: string) {
   const r = []
 
   for (let i = 0; i < a.length; i++) {
@@ -35,8 +35,8 @@ export function removeClass(className: string) {
 
 type fileResult = { result: FileReader['result'] }
 
-export function readSingleFile(file: File): Promise<fileResult> {
-  return new Promise((resolve, reject) => {
+export function readSingleFile(file: File) {
+  return new Promise<fileResult>((resolve, reject) => {
     const fr = new FileReader()
     fr.onload = () => {
       const { result } = fr

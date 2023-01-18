@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { RouteRecordRaw, createRouter, createWebHistory } from 'vue-router'
 import Sub from '@/views/Sub/Sub.vue'
 
 const routes = [
@@ -45,7 +45,7 @@ const routes = [
       },
     ],
   },
-]
+] satisfies RouteRecordRaw[]
 
 const router = createRouter({
   history: createWebHistory(''),
