@@ -1,7 +1,8 @@
+import type { LoginResponse, Status, UsernameTaken } from '../../../backend/types'
 import { postRequest } from '@/api/request'
 
 export async function login(info: { username: string, password: string }) {
-  return postRequest<[boolean] | []>(`/api/login`, info)
+  return postRequest<LoginResponse>(`/api/login`, info)
 }
 
 export async function register(info: { username: string, password: string }) {
@@ -9,17 +10,17 @@ export async function register(info: { username: string, password: string }) {
 }
 
 export async function changeUsername(info: { username: string, newUsername: string }) {
-  return postRequest<{ success: boolean }>(`/api/changeUsername`, info)
+  return postRequest<Status>(`/api/changeUsername`, info)
 }
 
 export async function changePassword(info: { username: string, oldPassword: string, newPassword: string }) {
-  return postRequest<{ success: boolean }>(`/api/changePassword`, info)
+  return postRequest<Status>(`/api/changePassword`, info)
 }
 
 export async function logoutToken(info: { username: string }) {
-  return postRequest<{ success: boolean }>(`/api/logoutToken`, info)
+  return postRequest<Status>(`/api/logoutToken`, info)
 }
 
 export async function isUsernameTaken(info: { username: string }) {
-  return postRequest<{ has: boolean }>(`/api/existsUsername`, info)
+  return postRequest<UsernameTaken>(`/api/existsUsername`, info)
 }
