@@ -33,6 +33,7 @@ module.exports = {
       "destructuring": "any",
       "ignoreReadBeforeAssign": false
     }],
+    "no-duplicate-imports": ["warn", { "includeExports": true }],
 
     "import/order": [1, { "groups": ["builtin", "external", "parent", "sibling", "index"] }],
     "sort-imports": [1, {

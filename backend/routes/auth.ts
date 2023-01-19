@@ -3,6 +3,7 @@ import express from 'express'
 import type { RowDataPacket } from 'mysql2'
 import { pool } from '../config/connection'
 import { daysIn, tokenChecker } from '../lib/timeUtil'
+import type { LoginResponse, Status, UsernameTaken } from '../types'
 
 const router = express.Router()
 router.post('/login', (req, res) => {
@@ -14,7 +15,7 @@ router.post('/login', (req, res) => {
       function (err, rows, fields) {
         connection.release()
         if (err) throw err
-        const response = []
+        const response: LoginResponse = [false]
         if (rows[0].output) {
           res.cookie('_user', username, { expires: daysIn(30) })
           res.cookie('acct', token, { expires: daysIn(30) })
@@ -48,7 +49,7 @@ router.post('/changeUsername', tokenChecker, (req, res) => {
       function (err, rows, fields) {
         connection.release()
         if (err) throw err
-        const result = { success: false }
+        const result: Status = { success: false }
         if (rows[0].result) {
           result.success = true
         }
@@ -66,7 +67,7 @@ router.post('/changePassword', (req, res) => {
       function (err, rows, fields) {
         connection.release()
         if (err) throw err
-        const result = { success: false }
+        const result: Status = { success: false }
         if ('affectedRows' in rows && rows.affectedRows) {
           result.success = true
         }
@@ -79,7 +80,7 @@ router.post('/changePassword', (req, res) => {
 router.post('/logoutToken', (req, res) => {
   pool.getConnection((err, connection) => {
     const { username } = req.body
-    const response = { success: false }
+    const response: Status = { success: false }
     if (!req.cookies.acct) {
       return res.send(JSON.stringify(response))
     }
@@ -108,7 +109,7 @@ router.post('/existsUsername', (req, res) => {
       function (err, rows, fields) {
         connection.release()
         if (err) throw err
-        const result = { has: rows[0][0].does_exist }
+        const result: UsernameTaken = { has: rows[0][0].does_exist }
         res.send(JSON.stringify(result))
       }
     )
