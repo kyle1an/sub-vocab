@@ -1,6 +1,5 @@
 import { get } from 'lodash-es'
-import type { Order } from '@/types'
-import { MyVocabRow } from '@/types'
+import type { MyVocabRow, Order } from '@/types'
 
 export function sortByChar(a: string, b: string) {
   return a.localeCompare(b, 'en', { sensitivity: 'base' })
@@ -60,9 +59,9 @@ export const jsonClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj))
 
 type RecordUnknown = Record<string, unknown>
 
-export const orderBy = (prop: string | number | null, order: Order) => <T extends MyVocabRow>(rows: T[]) => prop && order ? rows.sort(compareFn(prop, order)) : rows
+export const orderBy = (prop: string | null, order: Order) => <T extends MyVocabRow>(rows: T[]) => prop && order ? rows.sort(compareFn(prop, order)) : rows
 
-export function compareFn(propName: string | number, order: NonNullable<Order>): (obj1: MyVocabRow, obj2: MyVocabRow) => number {
+export function compareFn(propName: string, order: NonNullable<Order>): (obj1: MyVocabRow, obj2: MyVocabRow) => number {
   const reverse = order === 'ascending' ? 1 : -1
   switch (propName) {
     case 'vocab.rank':

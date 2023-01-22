@@ -1,4 +1,4 @@
-import { LabelBase } from '@/types/vocab'
+import type { LabelBase } from '@/types/vocab'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

@@ -2,25 +2,16 @@
 import { ref, watch } from 'vue'
 import { t } from '@/i18n'
 import VocabSourceTable from '@/components/vocabulary/VocabSource.vue'
+import FileInput from '@/components/FileInput.vue'
 import type { SrcRow, VocabInfoSubDisplay } from '@/types'
-import { readFiles, resetFileInput } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
 import { useDebounceTimeout, watched } from '@/composables/utilities'
 import { generatedVocabTrie } from '@/utils/vocab'
 
 let fileInfo = $ref('')
 
-async function onFileChange(ev: Event) {
-  const files = (ev.target as HTMLInputElement).files
-  const numberOfFiles = files?.length
-  if (!numberOfFiles) return
-  if (numberOfFiles === 1) {
-    fileInfo = files[0].name
-  } else {
-    fileInfo = `${numberOfFiles} files selected`
-  }
-
-  inputText = (await readFiles(files)).reduce((pre, { result }) => pre + result, '')
+async function onFileChange(ev: { info: string, text: string }) {
+  ({ info: fileInfo, text: inputText } = ev)
 }
 
 let count = $ref(0)
@@ -37,28 +28,18 @@ watch($$(baseReady), () => {
 watch($$(irregularsReady), () => {
   if (irregularsReady) reformVocabList()
 })
-const handleTextChange = () => resetFileInput('.file-input')
+const sourceFileInput = $ref()
 </script>
 
 <template>
   <div class="w-full max-w-screen-xl">
     <div class="relative z-10 mx-3 flex h-14 items-center xl:mx-0">
-      <div>
-        <label
-          class="btn"
-          for="browseFiles"
-        >
-          {{ t('browseFiles') }}
-        </label>
-        <input
-          id="browseFiles"
-          class="file-input"
-          type="file"
-          hidden
-          multiple
-          @change="onFileChange"
-        >
-      </div>
+      <FileInput
+        ref="sourceFileInput"
+        @file-input="onFileChange"
+      >
+        {{ t('browseFiles') }}
+      </FileInput>
       <div class="grow" />
     </div>
     <div class="flex flex-col gap-6 md:h-[calc(100vh-140px)] md:flex-row">
@@ -77,7 +58,7 @@ const handleTextChange = () => resetFileInput('.file-input')
             v-model="inputText"
             class="h-[260px] max-h-[360px] w-full resize-none rounded-none py-3 px-[30px] align-top outline-none ffs-[normal] md:h-full md:max-h-full"
             :placeholder="t('inputArea')"
-            @change="handleTextChange"
+            @change="sourceFileInput.inputChanged"
           />
         </div>
       </div>

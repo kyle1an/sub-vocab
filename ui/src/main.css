@@ -4,12 +4,6 @@
 @tailwind base;
 @tailwind components;
 
-@layer components {
-  .btn {
-    @apply bg-white px-3 py-2.5 text-sm leading-3 tracking-wide text-neutral-800 transition-colors hover:border-sky-300 hover:bg-sky-100 hover:text-sky-600 box-border inline-flex h-8 max-h-full grow-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-md border align-middle text-center;
-  }
-}
-
 .overflow-scrolling-touch {
   -webkit-overflow-scrolling: touch !important;
 }
