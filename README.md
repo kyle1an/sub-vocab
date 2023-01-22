@@ -29,6 +29,7 @@ In addition to Vue 3 and Vite, the project's stack includes:
 - [Vue I18n](https://kazupon.github.io/vue-i18n)
 - [TanStack Query](https://tanstack.com/query/v4/docs/adapters/vue-query)
 - [Axios](https://axios-http.com)
+- [Express](https://github.com/expressjs/express)
 
 ## Visualization
 

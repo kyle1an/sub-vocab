@@ -64,7 +64,7 @@ function handleCommand(command: typeof locale) {
           </RouterLink>
           <RouterLink
             to="/register"
-            class="s-btn ml-2 box-border flex cursor-pointer items-center rounded border border-solid border-transparent bg-[hsl(206,100%,52%)] py-2 px-3 leading-[14px] text-white hover:bg-[hsl(206,100%,40%)]"
+            class="ml-2 box-border flex cursor-pointer items-center rounded border border-solid border-transparent bg-[hsl(206,100%,52%)] py-2 px-3 leading-[14px] text-white hover:bg-[hsl(206,100%,40%)]"
             style="box-shadow: inset 0 1px 0 0 hsl(0deg 0% 100% / 40%);"
           >
             {{ t('signup') }}

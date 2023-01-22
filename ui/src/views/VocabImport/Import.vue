@@ -2,25 +2,16 @@
 import { ref, watch } from 'vue'
 import { t } from '@/i18n'
 import VocabTable from '@/components/vocabulary/VocabSource.vue'
+import FileInput from '@/components/FileInput.vue'
 import type { SrcRow, VocabInfoSubDisplay } from '@/types'
-import { readFiles, resetFileInput } from '@/utils/utils'
 import { useVocabStore } from '@/store/useVocab'
 import { useDebounceTimeout, watched } from '@/composables/utilities'
 import { acquaintAll, generatedVocabTrie } from '@/utils/vocab'
 
 let fileInfo = $ref('')
 
-async function onFileChange(ev: Event) {
-  const files = (ev.target as HTMLInputElement).files
-  const numberOfFiles = files?.length
-  if (!numberOfFiles) return
-  if (numberOfFiles === 1) {
-    fileInfo = files[0].name
-  } else {
-    fileInfo = `${numberOfFiles} files selected`
-  }
-
-  inputText = (await readFiles(files)).reduce((pre, { result }) => pre + result, '')
+async function onFileChange(ev: { info: string, text: string }) {
+  ({ info: fileInfo, text: inputText } = ev)
 }
 
 let count = $ref(0)
@@ -37,27 +28,18 @@ watch($$(irregularsReady), () => {
   if (irregularsReady) reformVocabList()
 })
 let tableDataOfVocab = $shallowRef<SrcRow<VocabInfoSubDisplay>[]>([])
-const handleTextChange = () => resetFileInput('.file-input')
+const importFileInput = $ref()
 </script>
 
 <template>
   <div class="w-full max-w-screen-xl">
-    <div class="relative mx-3 flex h-14 items-center xl:mx-0">
-      <label
-        class="btn"
-        for="browseVocabFile"
-      >
-        {{ t('browseVocabFile') }}
-      </label>
-      <input
-        id="browseVocabFile"
-        class="file-input"
-        type="file"
-        hidden
-        multiple
-        @change="onFileChange"
-      >
-    </div>
+    <FileInput
+      ref="importFileInput"
+      class="relative mx-3 flex h-14 items-center xl:mx-0"
+      @file-input="onFileChange"
+    >
+      {{ t('browseVocabFile') }}
+    </FileInput>
     <div class="flex flex-col gap-6 md:h-[calc(100vh-140px)] md:flex-row">
       <div class="relative box-border flex flex-1 basis-auto flex-col overflow-hidden border md:rounded-[12px] md:shadow-sm">
         <div class="flex h-10 shrink-0 items-center border-b bg-zinc-50 py-2 pr-2 pl-4 font-compact text-xs text-neutral-600">
@@ -70,7 +52,7 @@ const handleTextChange = () => resetFileInput('.file-input')
             v-model="inputText"
             class="h-[260px] w-full resize-none rounded-none py-3 px-[30px] align-top outline-none ffs-[normal] md:h-full md:max-h-full"
             :placeholder="t('inputArea')"
-            @change="handleTextChange"
+            @change="importFileInput.inputChanged"
           />
         </div>
         <div class="flex h-9 shrink-0 items-center bg-zinc-50 p-1.5 font-compact text-xs text-neutral-600">

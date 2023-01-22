@@ -35,7 +35,6 @@ module.exports = {
     }],
     "operator-linebreak": ["warn", "before", { overrides: { "=": "none" } }],
     "prefer-const": "off",
-    "no-duplicate-imports": ["warn", { "includeExports": true }],
 
     "import/order": [1, { "groups": ["builtin", "external", "parent", "sibling", "index"] }],
     "sort-imports": [1, {
@@ -65,7 +64,10 @@ module.exports = {
     "import/resolver": {
       "typescript": {
         "alwaysTryTypes": true, // always try to resolve types under `<root>@types` directory even it doesn't contain any source code, like `@types/unist`
-        "project": "./tsconfig.json",
+        "project": ["tsconfig.json", "ui/tsconfig.json"]
+      },
+      "node": {
+        "project": ["tsconfig.json", "ui/tsconfig.json"]
       }
     }
   }
