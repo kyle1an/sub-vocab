@@ -1,14 +1,15 @@
 <script lang="ts" setup>
 import type { FormInstance, FormItemRule } from 'element-plus'
 import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { t } from '@/i18n'
 import { changePassword } from '@/api/user'
 import { useVocabStore } from '@/store/useVocab'
 import { resetForm } from '@/utils/elements'
+import { useState } from '@/composables/utilities'
 
-const { user } = $(useVocabStore())
-const ruleFormRef = $ref<FormInstance>()
+const store = useVocabStore()
+const ruleFormRef = ref<FormInstance>()
 
 function validatePass(rule: FormItemRule | FormItemRule[], value: string, callback: () => void) {
   if (value === '') {
@@ -16,8 +17,8 @@ function validatePass(rule: FormItemRule | FormItemRule[], value: string, callba
   }
 
   if (ruleForm.checkPass !== '') {
-    if (!ruleFormRef) return
-    ruleFormRef.validateField('checkPass', () => null)
+    if (!ruleFormRef.value) return
+    ruleFormRef.value.validateField('checkPass', () => null)
   }
 
   callback()
@@ -57,21 +58,21 @@ function submitForm(formEl: FormInstance | undefined) {
   })
 }
 
-let errorMsg = $ref('')
+const [errorMsg, setErrorMsg] = useState('')
 
 async function alterInfo(form: typeof ruleForm) {
   if (form.password !== '') {
     form.password = form.password.trim()
     const res = await changePassword({
-      username: user,
+      username: store.user,
       oldPassword: form.oldPassword,
       newPassword: form.password,
     })
 
     if (res.success) {
-      useVocabStore().logout()
+      await useVocabStore().logout()
     } else {
-      errorMsg = res.message || 'something went wrong'
+      setErrorMsg(res.message || 'something went wrong')
     }
   }
 }

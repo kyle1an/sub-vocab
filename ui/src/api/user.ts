@@ -1,4 +1,4 @@
-import type { LoginResponse, Status, UsernameTaken } from '../../../backend/types'
+import type { LoginResponse, RegisterResponse, Status, UsernameTaken } from '../../../backend/types'
 import { postRequest } from '@/api/request'
 
 export async function login(info: { username: string, password: string }) {
@@ -6,7 +6,7 @@ export async function login(info: { username: string, password: string }) {
 }
 
 export async function register(info: { username: string, password: string }) {
-  return postRequest(`/api/register`, info)
+  return postRequest<RegisterResponse>(`/api/register`, info)
 }
 
 export async function changeUsername(info: { username: string, newUsername: string }) {

@@ -57,32 +57,32 @@ export function formVocabList(vocabulary: Array<LabelVocab | null>) {
 }
 
 async function toggleWordState(row: VocabInfoSieveDisplay, name: string) {
-  const { updateWord } = $(useVocabStore())
+  const store = useVocabStore()
   row.inUpdating = true
   const res = await (row.acquainted ? revokeWord : acquaint)({
     word: row.w.replace(/'/g, `''`),
     user: name,
   })
 
-  if (res.affectedRows) {
-    updateWord(row, !row.acquainted)
+  if (res?.affectedRows) {
+    store.updateWord(row, !row.acquainted)
   }
 
   row.inUpdating = false
 }
 
 export async function handleVocabToggle(row: VocabInfoSieveDisplay) {
-  const { user } = $(useVocabStore())
-  if (user) {
-    await toggleWordState(row, user)
+  const store = useVocabStore()
+  if (store.user) {
+    await toggleWordState(row, store.user)
   } else {
     loginNotify()
   }
 }
 
 export async function acquaintAll(tableDataOfVocab: SrcRow<VocabInfoSieveDisplay>[]) {
-  const { user, updateWord } = $(useVocabStore())
-  if (!user) {
+  const store = useVocabStore()
+  if (!store.user) {
     loginNotify()
     return
   }
@@ -97,10 +97,10 @@ export async function acquaintAll(tableDataOfVocab: SrcRow<VocabInfoSieveDisplay
       words.push(word)
     }
   })
-  const res = await batchAcquaint({ user, words }) as string
+  const res = await batchAcquaint({ user: store.user, words }) as string
   if (res === 'success') {
     Object.values(rowsMap).forEach((row) => {
-      updateWord(row.vocab, true)
+      store.updateWord(row.vocab, true)
       row.vocab.inUpdating = false
     })
   } else {
@@ -130,7 +130,7 @@ export function loginNotify() {
 
 export const generatedVocabTrie = (inputText: string) => {
   const { logTime, logEnd, logPerf } = useTimeStore()
-  const { baseVocab, irregularMaps } = useVocabStore()
+  const store = useVocabStore()
   logTime(['-- All took', '    '])
   logTime('· init words')
   const trie = new LabeledTire()
@@ -138,8 +138,8 @@ export const generatedVocabTrie = (inputText: string) => {
   logEnd('· init words')
   logTime(['· categorize vocabulary', ' +  '])
   logTime('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
-  trie.mergedVocabulary(baseVocab)
-    .shareMerge(irregularMaps)
+  trie.mergedVocabulary(store.baseVocab)
+    .shareMerge(store.irregularMaps)
   logEnd('%c  merge vocabulary')
   logTime('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
   const list = formVocabList(trie.vocabulary)

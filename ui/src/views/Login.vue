@@ -6,6 +6,7 @@ import { t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
 import { resetForm } from '@/utils/elements'
 import { checkUsername, noEmptyPassword } from '@/utils/validation'
+import { useState } from '@/composables/utilities'
 
 const { login } = useVocabStore()
 const ruleFormRef = ref<FormInstance>()
@@ -28,7 +29,7 @@ const rules = reactive({
   username: [{ validator: checkUsernameLogin, trigger: 'blur' }],
   password: [{ validator: validatePass, trigger: 'blur' }],
 })
-let errorMsg = $ref('')
+const [errorMsg, setErrorMsg] = useState('')
 
 function submitForm(formEl: FormInstance | undefined) {
   if (!formEl) return
@@ -36,7 +37,7 @@ function submitForm(formEl: FormInstance | undefined) {
     if (!valid) return
 
     if (!(await login(ruleForm))) {
-      errorMsg = t('incorrectUserPassword')
+      setErrorMsg(t('incorrectUserPassword'))
     }
   })
 }

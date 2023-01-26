@@ -5,10 +5,13 @@ export interface Stems {
 
 export interface Status {
   success: boolean
+  message?: string
 }
 
 export interface UsernameTaken {
   has: boolean
 }
+
+export type RegisterResponse = [{ result: number }]
 
 export type LoginResponse = [boolean]

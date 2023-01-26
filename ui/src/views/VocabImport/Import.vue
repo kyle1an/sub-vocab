@@ -5,30 +5,30 @@ import VocabTable from '@/components/vocabulary/VocabSource.vue'
 import FileInput from '@/components/FileInput.vue'
 import type { SrcRow, VocabInfoSubDisplay } from '@/types'
 import { useVocabStore } from '@/store/useVocab'
-import { useDebounceTimeout, watched } from '@/composables/utilities'
+import { useDebounceTimeout, useState, watched } from '@/composables/utilities'
 import { acquaintAll, generatedVocabTrie } from '@/utils/vocab'
 
-let fileInfo = $ref('')
+const [fileInfo, setFileInfo] = useState('')
 
-async function onFileChange(ev: { info: string, text: string }) {
-  ({ info: fileInfo, text: inputText } = ev)
+async function onFileChange({ info, text }: { info: string, text: string }) {
+  setFileInfo(info)
+  setInputText(text)
 }
 
-let count = $ref(0)
-const { baseReady, irregularsReady } = $(useVocabStore())
-let inputText = $(watched(ref(''), () => reformVocabList()))
+const [count, setCount] = useState(0)
+const store = useVocabStore()
+const [inputText, setInputText] = useState('')
+watch(inputText, () => reformVocabList())
 const reformVocabList = useDebounceTimeout(function refreshVocab() {
-  ({ list: tableDataOfVocab, count } = generatedVocabTrie(inputText))
+  const { list, count } = generatedVocabTrie(inputText.value)
+  setCount(count)
+  setTableDataOfVocab(list)
 }, 50)
 
-watch($$(baseReady), () => {
-  if (baseReady) reformVocabList()
-})
-watch($$(irregularsReady), () => {
-  if (irregularsReady) reformVocabList()
-})
-let tableDataOfVocab = $shallowRef<SrcRow<VocabInfoSubDisplay>[]>([])
-const importFileInput = $ref()
+watch(() => store.baseReady, (isReady) => isReady && reformVocabList())
+watch(() => store.irregularsReady, (isReady) => isReady && reformVocabList())
+const [tableDataOfVocab, setTableDataOfVocab] = useState<SrcRow<VocabInfoSubDisplay>[]>([])
+const importFileInput = ref()
 </script>
 
 <template>

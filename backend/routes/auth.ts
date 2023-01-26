@@ -3,7 +3,7 @@ import express from 'express'
 import type { RowDataPacket } from 'mysql2'
 import { pool } from '../config/connection'
 import { daysIn, tokenChecker } from '../lib/timeUtil'
-import type { LoginResponse, Status, UsernameTaken } from '../types'
+import type { LoginResponse, RegisterResponse, Status, UsernameTaken } from '../types'
 
 const router = express.Router()
 router.post('/login', (req, res) => {
@@ -35,7 +35,7 @@ router.post('/register', (req, res) => {
       function (err, rows, fields) {
         connection.release()
         if (err) throw err
-        res.send(JSON.stringify(rows))
+        res.send(JSON.stringify(rows as RegisterResponse))
       }
     )
   })

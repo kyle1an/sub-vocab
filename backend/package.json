@@ -16,7 +16,7 @@
     "hbs": "~4.2.0",
     "http-errors": "~2.0.0",
     "morgan": "~1.10.0",
-    "mysql2": "^3.0.1"
+    "mysql2": "^2.3.3"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.3",

@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { useRoute } from 'vue-router'
+import { computed } from 'vue'
 import { t } from '@/i18n'
 
-const currentPath = $computed(() => useRoute().fullPath)
-const subNav = $computed(() => [
+const currentPath = computed(() => useRoute().fullPath)
+const subNav = computed(() => [
   {
     title: t('Vocabulary'),
     path: '/mine',

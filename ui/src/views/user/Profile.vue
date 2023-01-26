@@ -7,14 +7,15 @@ import { changeUsername } from '@/api/user'
 import { useVocabStore } from '@/store/useVocab'
 import { resetForm } from '@/utils/elements'
 import { checkUsername, checkUsernameTaken } from '@/utils/validation'
+import { useState } from '@/composables/utilities'
 
-let { user } = $(useVocabStore())
+const store = useVocabStore()
 const ruleFormRef = ref<FormInstance>()
 
 async function checkUsernameChange(rule: FormItemRule | FormItemRule[], username: string, callback: (arg0?: Error) => void) {
   checkUsername(rule, username, callback)
 
-  if (username !== user) {
+  if (username !== store.user) {
     await checkUsernameTaken(rule, username, callback)
   }
 
@@ -40,20 +41,20 @@ function submitForm(formEl: FormInstance | undefined) {
   })
 }
 
-let errorMsg = $ref('')
+const [errorMsg, setErrorMsg] = useState('')
 
 async function alterInfo(form: typeof ruleForm) {
-  if (form.username !== '' && form.username !== user) {
+  if (form.username !== '' && form.username !== store.user) {
     form.username = form.username.trim()
     const res = await changeUsername({
-      username: user,
+      username: store.user,
       newUsername: form.username,
     })
 
     if (res.success) {
-      user = form.username
+      store.user = form.username
     } else {
-      errorMsg = res.message || 'something went wrong'
+      setErrorMsg(res.message || 'something went wrong')
     }
   }
 }
