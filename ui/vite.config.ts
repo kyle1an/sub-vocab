@@ -10,7 +10,7 @@ export default ({ mode }) => {
   return defineConfig({
     plugins: [
       vue({
-        reactivityTransform: true
+        reactivityTransform: false
       }),
       vueJsx({}),
       visualizer(),

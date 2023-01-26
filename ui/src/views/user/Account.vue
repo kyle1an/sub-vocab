@@ -1,12 +1,13 @@
 <script lang="ts" setup>
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { t } from '@/i18n'
 import { Footer } from '@/components/Footer'
 import { useVocabStore } from '@/store/useVocab'
 
-const currentPath = $computed(() => useRoute().fullPath)
-const username = $computed(() => useVocabStore().user)
-const subNav = $computed(() => [
+const currentPath = computed(() => useRoute().fullPath)
+const username = computed(() => useVocabStore().user)
+const subNav = computed(() => [
   {
     title: t('Profile'),
     path: '/user',

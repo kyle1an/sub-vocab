@@ -9,85 +9,85 @@ import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
 import { Examples } from '@/components/vocabulary/Examples'
 import SegmentedControl from '@/components/SegmentedControl.vue'
 import { ToggleButton } from '@/components/vocabulary/ToggleButton'
-import { useElHover, useStateCallback, watched } from '@/composables/utilities'
+import { useElHover, useState, useStateCallback, watched } from '@/composables/utilities'
 import { handleVocabToggle } from '@/utils/vocab'
 
-const {
-  data = [],
-  sentences = [''],
-  expand = false,
-  tableName,
-} = defineProps<{
+const props = withDefaults(defineProps<{
   data: SrcRow<VocabInfoSubDisplay>[],
   sentences?: string[],
   expand?: boolean,
   tableName: string,
-}>()
-const segments = $computed(() => [
+}>(), {
+  data: () => [],
+  sentences: () => [''],
+})
+const segments = computed(() => [
   { value: 'all', label: t('all') },
   { value: 'new', label: t('new') },
   { value: 'acquainted', label: t('acquainted') },
 ] as const)
-type TableSegment = typeof segments[number]['value']
-let prevSeg = $(useSessionStorage(`${tableName}-segment`, 'all'))
-const [seg, setSeg] = $(useStateCallback<TableSegment>(segments.find((s) => s.value === prevSeg)?.value ?? 'all', (v) => {
-  disabledTotal = true
-  prevSeg = v
-}))
-let dirty = $ref(false)
+type TableSegment = typeof segments['value'][number]['value']
+const prevSeg = useSessionStorage(`${props.tableName}-segment`, 'all')
+const [seg, setSeg] = useStateCallback<TableSegment>(segments.value.find((s) => s.value === prevSeg.value)?.value ?? 'all', (v) => {
+  setDisabledTotal(true)
+  prevSeg.value = v
+})
+const [dirty, setDirty] = useState(false)
 const vocabTable = ref()
-const isHovered = $(watched(useElHover('.el-table__body-wrapper'), (isHovered) => {
-  if (dirty && !isHovered) {
-    rowsDisplay = rows
-    dirty = false
+const isHoveringOnTable = watched(useElHover('.el-table__body-wrapper'), (isHovering) => {
+  if (dirty.value && !isHovering) {
+    setRowsDisplay(rows.value)
+    setDirty(false)
   }
-}))
-const search = $ref('')
+})
+const [search, setSearch] = useState('')
 const defaultSort: Sorting = { order: 'ascending', prop: 'src.0.3' }
-let sortBy = $ref(defaultSort)
-const setSortBy = ({ order, prop }: Sorting) => sortBy = order && prop ? { order, prop } : defaultSort
-const currPage = $ref(1)
-const pageSize = $ref(100)
-watch($$(currPage), () => {
+const [sortBy, setSortBy] = useState(defaultSort)
+const onSortChange = ({ order, prop }: Sorting) => {
+  setSortBy(order && prop ? { order, prop } : defaultSort)
+}
+const [currPage, setCurrPage] = useState(1)
+const [pageSize, setPageSize] = useState(100)
+watch(currPage, () => {
   vocabTable.value.setScrollTop(0)
 })
-let rowsDisplay = $shallowRef<typeof data[number][]>([])
-let disabledTotal = $ref(true)
-let inputDirty = $ref(false)
-watch($$(data), () => {
-  disabledTotal = false
-  inputDirty = true
+const [rowsDisplay, setRowsDisplay] = useState<typeof props.data[number][]>([])
+const [disabledTotal, setDisabledTotal] = useState(true)
+const [inputDirty, setInputDirty] = useState(false)
+watch(() => props.data, () => {
+  setDisabledTotal(false)
+  setInputDirty(true)
 })
-const rowsSegmented = $computed(() =>
-  seg === 'new' ? data.filter((r) => !r.vocab.acquainted && r.vocab.w.length > 2)
-    : seg === 'acquainted' ? data.filter((r) => Boolean(r.vocab.acquainted || r.vocab.w.length <= 2))
-      : data,
+const rowsSegmented = computed(() =>
+  seg.value === 'new' ? props.data.filter((r) => !r.vocab.acquainted && r.vocab.w.length > 2)
+    : seg.value === 'acquainted' ? props.data.filter((r) => Boolean(r.vocab.acquainted || r.vocab.w.length <= 2))
+      : props.data,
 )
-const searched = $computed(() => {
-  const searching = search.trim().toLowerCase()
+const searched = computed(() => {
+  const searching = search.value.trim().toLowerCase()
   if (!searching) {
-    return rowsSegmented
+    return rowsSegmented.value
   } else {
-    return rowsSegmented.filter((r) => r.vocab.wFamily.some((w) => w.toLowerCase().includes(searching)))
+    return rowsSegmented.value.filter((r) => r.vocab.wFamily.some((w) => w.toLowerCase().includes(searching)))
   }
 })
-const rows = $(watched(computed(() => pipe(searched,
-  orderBy(sortBy.prop, sortBy.order),
-  paging(currPage, pageSize),
+const rows = watched(computed(() => pipe(searched.value,
+  orderBy(sortBy.value.prop, sortBy.value.order),
+  paging(currPage.value, pageSize.value),
 )), (v) => {
-  if (inputDirty) {
-    rowsDisplay = v
-    inputDirty = false
-  } else if (!isHovered) {
-    rowsDisplay = v
+  if (inputDirty.value) {
+    setRowsDisplay(v)
+    setInputDirty(false)
+  } else if (!isHoveringOnTable.value) {
+    setRowsDisplay(v)
   } else {
-    dirty = true
+    setDirty(true)
   }
-}, { immediate: true }))
-const totalTransit = $(useTransition(computed(() => searched.length), {
-  disabled: $$(disabledTotal),
+}, { immediate: true })
+const totalTransit = useTransition(computed(() => searched.value.length), {
+  disabled: disabledTotal,
   transition: TransitionPresets.easeOutCirc,
-}))
+})
 
 function expandRow(row: SrcRow<VocabInfoSubDisplay>, col: unknown, event: Event) {
   for (const el of event.composedPath()) {
@@ -106,7 +106,7 @@ function expandRow(row: SrcRow<VocabInfoSubDisplay>, col: unknown, event: Event)
 <template>
   <div class="mx-5 flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-sm will-change-transform md:mx-0">
     <SegmentedControl
-      :name="tableName"
+      :name="props.tableName"
       :segments="segments"
       :value="seg"
       :onChoose="setSeg"
@@ -118,19 +118,19 @@ function expandRow(row: SrcRow<VocabInfoSubDisplay>, col: unknown, event: Event)
         :row-key="(row:MyVocabRow)=>'_'+row.vocab.w"
         class="!h-full from-[var(--el-border-color-lighter)] to-white [&_*]:overscroll-contain [&_th_.cell]:font-compact [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_row:has(+tr:not([class]))>td]:!border-white [&_.el-table\_\_row:has(+tr:not([class]))>td]:bg-gradient-to-b [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-icon]:pointer-events-none"
         size="small"
-        :row-class-name="()=>`${expand?'cursor-pointer':''}`"
-        v-on="expand ? { 'row-click': expandRow } : {}"
-        @sort-change="setSortBy"
+        :row-class-name="()=>`${props.expand?'cursor-pointer':''}`"
+        v-on="props.expand ? { 'row-click': expandRow } : {}"
+        @sort-change="onSortChange"
       >
         <ElTableColumn
-          v-if="expand"
+          v-if="props.expand"
           v-slot="{row}"
           type="expand"
           width="30"
           class-name="[&_i]:text-slate-500 [&>.cell]:!p-0 [&_.el-table\_\_expand-icon]:float-right"
         >
           <Examples
-            :sentences="sentences"
+            :sentences="props.sentences"
             :src="row.src"
             class="tracking-wide"
           />
@@ -139,7 +139,7 @@ function expandRow(row: SrcRow<VocabInfoSubDisplay>, col: unknown, event: Event)
           v-slot="{row}"
           :label="t('frequency')"
           class-name="!text-right [&>.cell]:stretch-[condensed] [&>.cell]:!font-pro [th&>.cell]:!p-0"
-          :width="`${expand?58:68}`"
+          :width="`${props.expand?58:68}`"
           prop="src.length"
           sortable="custom"
         >

@@ -1,15 +1,16 @@
 <script lang="tsx" setup>
 import type { FormInstance, FormItemRule } from 'element-plus'
 import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { t } from '@/i18n'
 import type { userInfo } from '@/types'
 import router from '@/router'
 import { register } from '@/api/user'
 import { resetForm } from '@/utils/elements'
 import { checkUsername, checkUsernameTaken, noEmptyPassword } from '@/utils/validation'
+import { useState } from '@/composables/utilities'
 
-const ruleFormRef = $ref<FormInstance>()
+const ruleFormRef = ref<FormInstance>()
 
 async function checkUsernameRegister(rule: FormItemRule | FormItemRule[], username: string, callback: (arg0?: Error) => void) {
   checkUsername(rule, username, callback)
@@ -21,8 +22,8 @@ function validatePass(rule: FormItemRule | FormItemRule[], value: string, callba
   noEmptyPassword(rule, value, callback)
 
   if (ruleForm.checkPass !== '') {
-    if (!ruleFormRef) return
-    ruleFormRef.validateField('checkPass', () => null)
+    if (!ruleFormRef.value) return
+    ruleFormRef.value.validateField('checkPass', () => null)
   }
 
   callback()
@@ -50,7 +51,7 @@ const rules = reactive({
   password: [{ validator: validatePass, trigger: 'blur' }],
   checkPass: [{ validator: validatePass2, trigger: 'blur' }],
 })
-let errorMsg = $ref('')
+const [errorMsg, setErrorMsg] = useState('')
 
 function submitForm(formEl: FormInstance | undefined) {
   if (!formEl) return
@@ -60,7 +61,7 @@ function submitForm(formEl: FormInstance | undefined) {
     }
 
     if (!await registerStatus(ruleForm)) {
-      errorMsg = 'Something went wrong.'
+      setErrorMsg('Something went wrong.')
       return
     }
 

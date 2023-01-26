@@ -40,7 +40,9 @@ router.post('/stemsMapping', async (req, res) => {
   }
 })
 
-const acquaint = async (word: string, userid: string) => await pool.promise().query<RowDataPacket[]>(`CALL acquaint_vocab('${word}', ${userid});`)
+async function acquaint(word: string, userid: string) {
+  return await pool.promise().query<RowDataPacket[]>(`CALL acquaint_vocab('${word}', ${userid});`)
+}
 
 router.post('/acquaint', tokenChecker, async (req, res) => {
   const { word, user } = req.body

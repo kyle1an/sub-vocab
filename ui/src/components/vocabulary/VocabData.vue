@@ -9,86 +9,86 @@ import SegmentedControl from '@/components/SegmentedControl.vue'
 import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
 import type { MyVocabRow, Sorting } from '@/types'
 import { ToggleButton } from '@/components/vocabulary/ToggleButton'
-import { useElHover, useStateCallback, watched } from '@/composables/utilities'
+import { useElHover, useState, useStateCallback, watched } from '@/composables/utilities'
 import { handleVocabToggle } from '@/utils/vocab'
 import { useVocabStore } from '@/store/useVocab'
 
-const {
-  tableName,
-} = defineProps<{
+const props = defineProps<{
   tableName: string,
 }>()
-const { baseVocab } = $(useVocabStore())
-const segments = $computed(() => [
+const store = useVocabStore()
+const segments = computed(() => [
   { value: 'all', label: t('all') },
   { value: 'mine', label: t('mine') },
   { value: 'top', label: t('top') },
   { value: 'recent', label: t('recent') },
 ] as const)
-type TableSegment = typeof segments[number]['value']
-let prevSeg = $(useSessionStorage(`${tableName}-segment`, 'all'))
-const [seg, setSeg] = $(useStateCallback<TableSegment>(segments.find((s) => s.value === prevSeg)?.value ?? 'all', (v) => {
-  disabledTotal = true
-  prevSeg = v
-}))
-let dirty = $ref(false)
+type TableSegment = typeof segments['value'][number]['value']
+const prevSeg = useSessionStorage(`${props.tableName}-segment`, 'all')
+const [seg, setSeg] = useStateCallback<TableSegment>(segments.value.find((s) => s.value === prevSeg.value)?.value ?? 'all', (v) => {
+  setDisabledTotal(true)
+  prevSeg.value = v
+})
+const [dirty, setDirty] = useState(false)
 const vocabTable = ref()
-const isHovered = $(watched(useElHover('.el-table__body-wrapper'), (isHovered) => {
-  if (!dirty) return
-  if (!isHovered || rowsDisplay.length === 0) {
-    rowsDisplay = rows
-    dirty = false
+const isHoveringOnTable = watched(useElHover('.el-table__body-wrapper'), (isHovering) => {
+  if (!dirty.value) return
+  if (!isHovering || rowsDisplay.value.length === 0) {
+    setRowsDisplay(rows.value)
+    setDirty(false)
   }
-}))
-const search = $ref('')
+})
+const [search, setSearch] = useState('')
 const defaultSort: Sorting = { order: 'descending', prop: 'vocab.time_modified' }
-let sortBy = $ref(defaultSort)
-const setSortBy = ({ order, prop }: Sorting) => sortBy = order && prop ? { order, prop } : defaultSort
-const currPage = $ref(1)
-const pageSize = $ref(100)
-watch($$(currPage), () => {
+const [sortBy, setSortBy] = useState(defaultSort)
+const onSortChange = ({ order, prop }: Sorting) => {
+  setSortBy(order && prop ? { order, prop } : defaultSort)
+}
+const [currPage, setCurrPage] = useState(1)
+const [pageSize, setPageSize] = useState(100)
+watch(currPage, () => {
   vocabTable.value.setScrollTop(0)
 })
-let rowsDisplay = $shallowRef<MyVocabRow[]>([])
-let disabledTotal = $ref(true)
-const srcRows = $computed(() => {
-  disabledTotal = false
-  return baseVocab.map((r) => ({ vocab: r }))
+const [rowsDisplay, setRowsDisplay] = useState<MyVocabRow[]>([])
+const [disabledTotal, setDisabledTotal] = useState(true)
+const srcRows = computed(() => {
+  setDisabledTotal(false)
+  return store.baseVocab.map((r) => ({ vocab: r }))
 })
-const rowsSegmented = $computed(() => srcRows.filter(
-  seg === 'mine' ? (r) => Boolean(r.vocab.acquainted && r.vocab.is_user)
-    : seg === 'top' ? (r) => Boolean(r.vocab.acquainted && !r.vocab.is_user)
-      : seg === 'recent' ? (r) => !r.vocab.acquainted && r.vocab.is_user !== 2
+const rowsSegmented = computed(() => srcRows.value.filter(
+  seg.value === 'mine' ? (r) => Boolean(r.vocab.acquainted && r.vocab.is_user)
+    : seg.value === 'top' ? (r) => Boolean(r.vocab.acquainted && !r.vocab.is_user)
+      : seg.value === 'recent' ? (r) => !r.vocab.acquainted && r.vocab.is_user !== 2
         : (r) => !!r.vocab.acquainted
 ))
-const searched = $computed(() => {
-  const searching = search.trim().toLowerCase()
+const searched = computed(() => {
+  const searching = search.value.trim().toLowerCase()
   if (!searching) {
-    return rowsSegmented
+    return rowsSegmented.value
   } else {
-    return rowsSegmented.filter((r) => r.vocab.w.toLowerCase().includes(searching))
+    return rowsSegmented.value.filter((r) => r.vocab.w.toLowerCase().includes(searching))
   }
 })
-const rows = $(watched(computed(() => pipe(searched,
-  orderBy(sortBy.prop, sortBy.order),
-  paging(currPage, pageSize),
+const rows = watched(computed(() => pipe(searched.value,
+  orderBy(sortBy.value.prop, sortBy.value.order),
+  paging(currPage.value, pageSize.value),
 )), (v) => {
-  if (!isHovered || rowsDisplay.length === 0) {
-    rowsDisplay = v
+  if (!isHoveringOnTable.value || rowsDisplay.value.length === 0) {
+    setRowsDisplay(v)
   } else {
-    dirty = true
+    setDirty(true)
   }
-}, { immediate: true }))
-const totalTransit = $(useTransition(computed(() => searched.length), {
-  disabled: $$(disabledTotal),
+}, { immediate: true })
+const totalTransit = useTransition(computed(() => searched.value.length), {
+  disabled: disabledTotal,
   transition: TransitionPresets.easeOutCirc,
-}))
+})
 </script>
 
 <template>
   <div class="flex grow flex-col overflow-hidden rounded-xl border bg-white shadow will-change-transform md:mx-0">
     <SegmentedControl
-      :name="tableName"
+      :name="props.tableName"
       :segments="segments"
       :value="seg"
       class="pt-3 pb-2"
@@ -101,7 +101,7 @@ const totalTransit = $(useTransition(computed(() => searched.length), {
         :row-key="(row:MyVocabRow)=>'_'+row.vocab.w"
         class="!h-full !w-full md:w-full [&_*]:overscroll-contain [&_th_.cell]:font-compact [&_th_.cell]:tracking-normal [&_.el-table\_\_inner-wrapper]:!h-full"
         size="small"
-        @sort-change="setSortBy"
+        @sort-change="onSortChange"
       >
         <ElTableColumn
           v-slot="{row}"
