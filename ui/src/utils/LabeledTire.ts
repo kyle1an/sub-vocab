@@ -129,25 +129,28 @@ export default class LabeledTire {
 
     if (!$) {
       branch.$ = {
-        w: original, up: hasUp,
-        src: [[
-          currentSentenceIndex,
-          index,
-          original.length,
-          ++this.#sequence,
-        ]]
+        w: original,
+        up: hasUp,
+        src: [{
+          sentenceId: currentSentenceIndex,
+          startIndex: index,
+          wordLength: original.length,
+          wordSequence: ++this.#sequence,
+        }]
       }
-      this.vocabulary[branch.$.src[0][3]] = branch.$
+      this.vocabulary[branch.$.src[0].wordSequence] = branch.$
     } else {
-      $.src.push([
-        currentSentenceIndex,
-        index,
-        original.length,
-        $.src.length ? this.#sequence : ++this.#sequence,
-      ])
+      $.src.push(
+        {
+          sentenceId: currentSentenceIndex,
+          startIndex: index,
+          wordLength: original.length,
+          wordSequence: $.src.length ? this.#sequence : ++this.#sequence,
+        }
+      )
 
       if ($.src.length === 1) {
-        this.vocabulary[$.src[0][3]] = $
+        this.vocabulary[$.src[0].wordSequence] = $
       }
 
       if ($.up && !$.vocab) {
@@ -329,7 +332,7 @@ export default class LabeledTire {
 
       if (!targetWord.src.length) {
         if (latterWord.src.length) {
-          this.vocabulary[latterWord.src[0][3]] = targetWord
+          this.vocabulary[latterWord.src[0].wordSequence] = targetWord
         }
       }
     }

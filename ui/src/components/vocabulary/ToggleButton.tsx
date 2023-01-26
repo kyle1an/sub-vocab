@@ -1,15 +1,12 @@
-interface AcquaintToggle {
-  acquainted: number | boolean,
-  inUpdating: boolean,
-}
+import { AcquaintToggle } from '@/types'
 
-export function ToggleButton(
+export function ToggleButton<T extends AcquaintToggle>(
   {
     row,
     handleVocabToggle
   }: {
-    row: AcquaintToggle,
-    handleVocabToggle: (row: AcquaintToggle) => void
+    row: T,
+    handleVocabToggle: (row: T) => void
   }
 ) {
   return (

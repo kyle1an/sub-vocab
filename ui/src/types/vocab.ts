@@ -7,17 +7,23 @@ export interface VocabFromUser extends Record<string, unknown> {
   time_modified: string | null,
 }
 
-export interface VocabInfoSieveDisplay extends VocabFromUser, InUpdating {
-}
+export interface VocabInfoSieveDisplay extends VocabFromUser, InUpdating {}
 
 export interface InUpdating {
   inUpdating: boolean,
 }
 
+export type VocabSource = {
+  sentenceId: number;
+  startIndex: number;
+  wordLength: number;
+  wordSequence: number;
+}[]
+
 export interface LabelBase extends Record<string, unknown> {
   w: string;
   up: boolean;
-  src: number[][];
+  src: VocabSource;
 }
 
 export interface LabelVocab extends LabelBase {
@@ -31,11 +37,16 @@ export interface MyVocabRow {
   vocab: VocabInfoSieveDisplay;
 }
 
-export interface VocabInfoSubDisplay extends VocabFromUser, InUpdating {
+export interface VocabInfoSubDisplay extends VocabInfoSieveDisplay {
   wFamily: string[];
 }
 
 export type SrcRow<T> = {
-  src: number[][];
+  src: VocabSource;
   vocab: T;
+}
+
+export interface AcquaintToggle {
+  acquainted: number | boolean;
+  inUpdating: boolean;
 }

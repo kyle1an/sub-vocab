@@ -5,7 +5,7 @@ import { useElementBounding, useSessionStorage } from '@vueuse/core'
 const props = withDefaults(defineProps<{
   value: string,
   name: string,
-  segments: { value: string, label: string }[],
+  segments: readonly { value: string, label: string }[],
   onChoose: (arg: string) => void
 }>(), {
   value: '',
