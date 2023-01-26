@@ -1,6 +1,7 @@
 import type { ComputedRef, Ref, ShallowRef, WatchCallback, WatchOptions, WatchSource } from 'vue'
 import { onMounted, shallowRef, watch } from 'vue'
 import { useElementHover } from '@vueuse/core'
+import produce, { Draft } from 'immer'
 
 export function watched<T>(value: Ref<T>, cb: WatchCallback<T>, options?: WatchOptions): Ref<T>
 export function watched<T>(value: ComputedRef<T>, cb: WatchCallback<T>, options?: WatchOptions): ComputedRef<T>
@@ -9,6 +10,18 @@ export function watched<T>(value: () => T, cb: WatchCallback<T>, options?: Watch
 export function watched<T>(value: WatchSource<T>, cb: WatchCallback<T>, options?: WatchOptions) {
   watch(value, cb, options)
   return value
+}
+
+export function useImmer<T>(baseState: T) {
+  const state = shallowRef(baseState)
+  const update = (updater: (arg: Draft<T>) => void) => {
+    state.value = produce(state.value, updater)
+  }
+
+  return [state, update] as [
+    Readonly<ShallowRef<T>>,
+    (updater: (arg: Draft<T>) => void) => void
+  ]
 }
 
 export function useState<T>(initial: T): [Readonly<ShallowRef<T>>, (arg: T) => void] {

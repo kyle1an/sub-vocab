@@ -5,7 +5,7 @@ import VocabSourceTable from '@/components/vocabulary/VocabSource.vue'
 import FileInput from '@/components/FileInput.vue'
 import type { SrcRow, VocabInfoSubDisplay } from '@/types'
 import { useVocabStore } from '@/store/useVocab'
-import { useDebounceTimeout, useState, watched } from '@/composables/utilities'
+import { useDebounceTimeout, useState } from '@/composables/utilities'
 import { generatedVocabTrie } from '@/utils/vocab'
 
 const [fileInfo, setFileInfo] = useState('')

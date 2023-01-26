@@ -1,7 +1,20 @@
-function Line({ sentence = '', idxes = [[0, 0]] }) {
+import { VocabSource } from '@/types'
+
+function Line(
+  {
+    sentence = '',
+    idxes,
+  }: {
+    sentence: string,
+    idxes: [number, number][],
+  }
+) {
   let progress = 0
   return (
-    <>
+    <div
+      class="break-words"
+      style="word-break: break-word;"
+    >
       {idxes.map(([start, count]) => (
         <>
           <span>
@@ -13,35 +26,46 @@ function Line({ sentence = '', idxes = [[0, 0]] }) {
         </>
       ))}
       <span>{sentence.slice(progress)}</span>
-    </>
+    </div>
   )
 }
 
-export function Examples({ sentences = [''], src = [[0, 0]] }) {
-  const lines: [number, [number, number][]][] = []
-  src.sort((a, b) => a[0] - b[0] || a[1] - b[1])
+export function Examples(
+  {
+    sentences,
+    src = [],
+  }: {
+    sentences: string[],
+    src: VocabSource,
+  }
+) {
+  const vocabPositions: [number, [number, number][]][] = []
+  src.sort((a, b) => a.sentenceId - b.sentenceId || a.startIndex - b.startIndex)
 
-  for (const [sid, start, count] of src) {
-    if (lines[lines.length - 1]?.[0] === sid) {
-      lines[lines.length - 1][1].push([start, count])
+  for (const { sentenceId, startIndex, wordLength } of src) {
+    if (vocabPositions.length === 0) {
+      vocabPositions.push([sentenceId, [[startIndex, wordLength]]])
+      continue
+    }
+
+    const adjacentSentence = vocabPositions[vocabPositions.length - 1]
+    const adjacentSentenceIdex = adjacentSentence[0]
+    const currentAndAdjacentAreFromTheSameSentence = sentenceId === adjacentSentenceIdex
+    if (currentAndAdjacentAreFromTheSameSentence) {
+      adjacentSentence[1].push([startIndex, wordLength])
     } else {
-      lines.push([sid, [[start, count]]])
+      vocabPositions.push([sentenceId, [[startIndex, wordLength]]])
     }
   }
 
   return (
     <div class="mb-1 ml-5 mr-3">
-      {lines.map(([no, idx], index) => (
-        <div
+      {vocabPositions.map(([no, idx], index) => (
+        <Line
           key={index}
-          class="break-words"
-          style="word-break: break-word;"
-        >
-          <Line
-            sentence={sentences[no]}
-            idxes={idx}
-          />
-        </div>
+          sentence={sentences[no]}
+          idxes={idx}
+        />
       ))}
     </div>
   )

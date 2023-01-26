@@ -41,7 +41,7 @@ const isHoveringOnTable = watched(useElHover('.el-table__body-wrapper'), (isHove
   }
 })
 const [search, setSearch] = useState('')
-const defaultSort: Sorting = { order: 'ascending', prop: 'src.0.3' }
+const defaultSort: Sorting = { order: 'ascending', prop: 'src.0.wordSequence' }
 const [sortBy, setSortBy] = useState(defaultSort)
 const onSortChange = ({ order, prop }: Sorting) => {
   setSortBy(order && prop ? { order, prop } : defaultSort)

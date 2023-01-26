@@ -57,8 +57,6 @@ export async function readFiles(files: FileList) {
 
 export const jsonClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj))
 
-type RecordUnknown = Record<string, unknown>
-
 export const orderBy = (prop: string | null, order: Order) => <T extends MyVocabRow>(rows: T[]) => prop && order ? rows.sort(compareFn(prop, order)) : rows
 
 export function compareFn(propName: string, order: NonNullable<Order>): (obj1: MyVocabRow, obj2: MyVocabRow) => number {

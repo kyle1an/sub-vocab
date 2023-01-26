@@ -4,7 +4,6 @@ import type { LabelVocab, SrcRow, VocabInfoSieveDisplay, VocabInfoSubDisplay } f
 import { t } from '@/i18n'
 import router from '@/router'
 import { useVocabStore } from '@/store/useVocab'
-import { acquaint, batchAcquaint, revokeWord } from '@/api/vocab-service'
 import { sortByChar } from '@/utils/utils'
 import LabeledTire from '@/utils/LabeledTire'
 import { useTimeStore } from '@/store/usePerf'
@@ -19,7 +18,7 @@ function formVocab($: LabelVocab) {
         if (d$.src.length) {
           wFamily.push(d$.w)
           if (src.length) {
-            src = d$.src[0][3] < src[0][3] ? d$.src.concat(src) : src.concat(d$.src)
+            src = d$.src[0].wordSequence < src[0].wordSequence ? d$.src.concat(src) : src.concat(d$.src)
           } else {
             src = d$.src
           }
@@ -56,25 +55,10 @@ export function formVocabList(vocabulary: Array<LabelVocab | null>) {
   return all
 }
 
-async function toggleWordState(row: VocabInfoSieveDisplay, name: string) {
-  const store = useVocabStore()
-  row.inUpdating = true
-  const res = await (row.acquainted ? revokeWord : acquaint)({
-    word: row.w.replace(/'/g, `''`),
-    user: name,
-  })
-
-  if (res?.affectedRows) {
-    store.updateWord(row, !row.acquainted)
-  }
-
-  row.inUpdating = false
-}
-
-export async function handleVocabToggle(row: VocabInfoSieveDisplay) {
+export function handleVocabToggle(row: VocabInfoSieveDisplay) {
   const store = useVocabStore()
   if (store.user) {
-    await toggleWordState(row, store.user)
+    store.toggleWordState(row, store.user)
   } else {
     loginNotify()
   }
@@ -87,27 +71,7 @@ export async function acquaintAll(tableDataOfVocab: SrcRow<VocabInfoSieveDisplay
     return
   }
 
-  const rowsMap: Record<string, SrcRow<VocabInfoSieveDisplay>> = {}
-  const words: string[] = []
-  tableDataOfVocab.forEach((row) => {
-    if (!row.vocab.acquainted && row.vocab.w.length < 32) {
-      const word = row.vocab.w.replace(/'/g, `''`)
-      row.vocab.inUpdating = true
-      rowsMap[word] = row
-      words.push(word)
-    }
-  })
-  const res = await batchAcquaint({ user: store.user, words }) as string
-  if (res === 'success') {
-    Object.values(rowsMap).forEach((row) => {
-      store.updateWord(row.vocab, true)
-      row.vocab.inUpdating = false
-    })
-  } else {
-    Object.values(rowsMap).forEach((row) => {
-      row.vocab.inUpdating = false
-    })
-  }
+  await store.acquaintEveryVocab(tableDataOfVocab)
 }
 
 export function loginNotify() {
