@@ -20,22 +20,10 @@
 
 html {
   font-family: var(--sys-font-stack);
-  height: 100%;
-  background-color: white;
 }
 
 .ffs-pre {
   font-feature-settings: 'cv01', 'ss02', 'cv02', 'cv03', 'cv04', 'cv05', 'cv06' 0, 'cv08' 0, 'nlck', 'ital', 'ss03', 'ss04';
-}
-
-body {
-  min-height: 100%;
-  @apply antialiased;
-}
-
-#app {
-  display: flex;
-  flex-direction: column;
 }
 
 @media only screen and (max-width: 768px) {
