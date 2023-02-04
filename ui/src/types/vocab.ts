@@ -1,4 +1,4 @@
-export interface VocabFromUser extends Record<string, unknown> {
+export interface LabelFromUser extends Record<string, unknown> {
   w: string;
   acquainted: number | boolean,
   is_user: number | boolean,
@@ -7,9 +7,8 @@ export interface VocabFromUser extends Record<string, unknown> {
   time_modified: string | null,
 }
 
-export interface VocabInfoSieveDisplay extends VocabFromUser, InUpdating {}
-
-export interface InUpdating {
+export interface LabelFlag {
+  inStore: boolean,
   inUpdating: boolean,
 }
 
@@ -27,17 +26,19 @@ export interface LabelBase extends Record<string, unknown> {
 }
 
 export interface LabelVocab extends LabelBase {
-  vocab?: VocabInfoSieveDisplay;
+  vocab?: LabelSieveDisplay;
   derive?: LabelVocab[];
   variant?: boolean;
   wFamily?: string[];
 }
 
 export interface MyVocabRow {
-  vocab: VocabInfoSieveDisplay;
+  vocab: LabelSieveDisplay;
 }
 
-export interface VocabInfoSubDisplay extends VocabInfoSieveDisplay {
+export interface LabelSieveDisplay extends LabelFromUser, LabelFlag {}
+
+export interface LabelSubDisplay extends LabelSieveDisplay {
   wFamily: string[];
 }
 

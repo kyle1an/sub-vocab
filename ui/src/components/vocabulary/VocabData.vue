@@ -9,7 +9,7 @@ import SegmentedControl from '@/components/SegmentedControl.vue'
 import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
 import type { MyVocabRow, Sorting } from '@/types'
 import { ToggleButton } from '@/components/vocabulary/ToggleButton'
-import { useElHover, useState, useStateCallback, watched } from '@/composables/utilities'
+import { useElHover, useState, useStateCallback } from '@/composables/utilities'
 import { handleVocabToggle } from '@/utils/vocab'
 import { useVocabStore } from '@/store/useVocab'
 
@@ -23,7 +23,7 @@ const segments = computed(() => [
   { value: 'top', label: t('top') },
   { value: 'recent', label: t('recent') },
 ] as const)
-type TableSegment = typeof segments['value'][number]['value']
+type TableSegment = typeof segments.value[number]['value']
 const prevSeg = useSessionStorage(`${props.tableName}-segment`, 'all')
 const [seg, setSeg] = useStateCallback<TableSegment>(segments.value.find((s) => s.value === prevSeg.value)?.value ?? 'all', (v) => {
   setDisabledTotal(true)
@@ -31,21 +31,22 @@ const [seg, setSeg] = useStateCallback<TableSegment>(segments.value.find((s) => 
 })
 const [dirty, setDirty] = useState(false)
 const vocabTable = ref()
-const isHoveringOnTable = watched(useElHover('.el-table__body-wrapper'), (isHovering) => {
+const isHoveringOnTable = useElHover('.el-table__body-wrapper')
+watch(isHoveringOnTable, (isHovering) => {
   if (!dirty.value) return
   if (!isHovering || rowsDisplay.value.length === 0) {
     setRowsDisplay(rows.value)
     setDirty(false)
   }
 })
-const [search, setSearch] = useState('')
+const [search] = useState('')
 const defaultSort: Sorting = { order: 'descending', prop: 'vocab.time_modified' }
 const [sortBy, setSortBy] = useState(defaultSort)
 const onSortChange = ({ order, prop }: Sorting) => {
   setSortBy(order && prop ? { order, prop } : defaultSort)
 }
-const [currPage, setCurrPage] = useState(1)
-const [pageSize, setPageSize] = useState(100)
+const [currPage] = useState(1)
+const [pageSize] = useState(100)
 watch(currPage, () => {
   vocabTable.value.setScrollTop(0)
 })
@@ -69,10 +70,11 @@ const searched = computed(() => {
     return rowsSegmented.value.filter((r) => r.vocab.w.toLowerCase().includes(searching))
   }
 })
-const rows = watched(computed(() => pipe(searched.value,
+const rows = computed(() => pipe(searched.value,
   orderBy(sortBy.value.prop, sortBy.value.order),
   paging(currPage.value, pageSize.value),
-)), (v) => {
+))
+watch(rows, (v) => {
   if (!isHoveringOnTable.value || rowsDisplay.value.length === 0) {
     setRowsDisplay(v)
   } else {
@@ -99,7 +101,7 @@ const totalTransit = useTransition(computed(() => searched.value.length), {
         ref="vocabTable"
         :data="rowsDisplay"
         :row-key="(row:MyVocabRow)=>'_'+row.vocab.w"
-        class="!h-full !w-full md:w-full [&_*]:overscroll-contain [&_th_.cell]:font-compact [&_th_.cell]:tracking-normal [&_.el-table\_\_inner-wrapper]:!h-full"
+        class="!h-full !w-full md:w-full [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full [&_th_.cell]:font-compact [&_th_.cell]:tracking-normal"
         size="small"
         @sort-change="onSortChange"
       >
@@ -188,7 +190,7 @@ const totalTransit = useTransition(computed(() => searched.value.length), {
         :pager-count="5"
         small
         :total="~~totalTransit"
-        class="shrink-0 select-none flex-wrap gap-y-1.5 !p-1.5 tabular-nums [&_*]:!rounded-md [&_.is-active]:bg-neutral-100 [&_.el-pagination\_\_sizes.is-last]:!m-0 [&_.el-pagination\_\_total]:mx-[10px]"
+        class="shrink-0 select-none flex-wrap gap-y-1.5 !p-1.5 tabular-nums [&_*]:!rounded-md [&_.el-pagination\_\_sizes.is-last]:!m-0 [&_.el-pagination\_\_total]:mx-[10px] [&_.is-active]:bg-neutral-100"
         layout="prev, pager, next, ->, total, sizes"
       />
     </div>

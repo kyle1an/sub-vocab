@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 import { ElNotification } from 'element-plus'
-import type { LabelVocab, SrcRow, VocabInfoSieveDisplay, VocabInfoSubDisplay } from '@/types'
+import type { LabelSieveDisplay, LabelSubDisplay, LabelVocab, SrcRow } from '@/types'
 import { t } from '@/i18n'
 import router from '@/router'
 import { useVocabStore } from '@/store/useVocab'
@@ -29,22 +29,27 @@ function formVocab($: LabelVocab) {
     })($.derive)
   }
 
-  const vocab = $.vocab ?? {
+  const vocab = Object.assign($.vocab ?? {
     w: $.w,
     acquainted: false,
     is_user: 0,
-    invalid: true,
+    inStore: false,
     inUpdating: false,
-  };
-  (vocab as VocabInfoSubDisplay).wFamily = wFamily
+  }, {
+    wFamily,
+    original: false,
+    time_modified: null,
+    rank: null,
+  })
+
   return {
     src,
-    vocab: reactive(vocab) as VocabInfoSubDisplay
+    vocab: reactive(vocab)
   }
 }
 
 export function formVocabList(vocabulary: Array<LabelVocab | null>) {
-  const all: SrcRow<VocabInfoSubDisplay>[] = []
+  const all: SrcRow<LabelSubDisplay>[] = []
 
   for (const v of vocabulary) {
     if (!v || v.variant) continue
@@ -55,7 +60,7 @@ export function formVocabList(vocabulary: Array<LabelVocab | null>) {
   return all
 }
 
-export function handleVocabToggle(row: VocabInfoSieveDisplay) {
+export function handleVocabToggle(row: LabelSieveDisplay) {
   const store = useVocabStore()
   if (store.user) {
     store.toggleWordState(row, store.user)
@@ -64,7 +69,7 @@ export function handleVocabToggle(row: VocabInfoSieveDisplay) {
   }
 }
 
-export async function acquaintAll(tableDataOfVocab: SrcRow<VocabInfoSieveDisplay>[]) {
+export async function acquaintAll(tableDataOfVocab: SrcRow<LabelSieveDisplay>[]) {
   const store = useVocabStore()
   if (!store.user) {
     loginNotify()
@@ -103,7 +108,7 @@ export const generatedVocabTrie = (inputText: string) => {
   logTime(['· categorize vocabulary', ' +  '])
   logTime('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
   trie.mergedVocabulary(store.baseVocab)
-    .shareMerge(store.irregularMaps)
+    .mergeDerivedWordIntoStem(store.irregularMaps)
   logEnd('%c  merge vocabulary')
   logTime('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
   const list = formVocabList(trie.vocabulary)
@@ -119,7 +124,7 @@ export const generatedVocabTrie = (inputText: string) => {
   }
 }
 
-export function logVocabInfo(listOfVocab: SrcRow<VocabInfoSieveDisplay>[]) {
+export function logVocabInfo(listOfVocab: SrcRow<LabelSieveDisplay>[]) {
   const untouchedVocabList = [...listOfVocab].sort((a, b) => sortByChar(a.vocab.w, b.vocab.w))
   console.log(`(${untouchedVocabList.length}) words`, { _: untouchedVocabList })
 }
