@@ -3,7 +3,7 @@ import { ref, watch } from 'vue'
 import { t } from '@/i18n'
 import VocabSourceTable from '@/components/vocabulary/VocabSource.vue'
 import FileInput from '@/components/FileInput.vue'
-import type { SrcRow, VocabInfoSubDisplay } from '@/types'
+import type { LabelSubDisplay, SrcRow } from '@/types'
 import { useVocabStore } from '@/store/useVocab'
 import { useDebounceTimeout, useState } from '@/composables/utilities'
 import { generatedVocabTrie } from '@/utils/vocab'
@@ -19,16 +19,13 @@ const [count, setCount] = useState(0)
 const [sentences, setSentences] = useState<string[]>([])
 const store = useVocabStore()
 const [inputText, setInputText] = useState('')
-watch(inputText, () => reformVocabList())
-const [tableDataOfVocab, setTableDataOfVocab] = useState<SrcRow<VocabInfoSubDisplay>[]>([])
-const reformVocabList = useDebounceTimeout(() => {
+const [tableDataOfVocab, setTableDataOfVocab] = useState<SrcRow<LabelSubDisplay>[]>([])
+watch(() => [inputText.value, store.baseVocab, store.irregularMaps], useDebounceTimeout(() => {
   const { list, count, sentences } = generatedVocabTrie(inputText.value)
   setCount(count)
   setSentences(sentences)
   setTableDataOfVocab(list)
-}, 50)
-watch(() => store.baseReady, (isReady) => isReady && reformVocabList())
-watch(() => store.irregularsReady, (isReady) => isReady && reformVocabList())
+}, 50))
 const sourceFileInput = ref()
 </script>
 

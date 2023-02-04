@@ -1,5 +1,5 @@
 import { caseOr, hasUppercase, isVowel } from './utils'
-import type { Char, LabelVocab, TrieNode, VocabInfoSieveDisplay } from '@/types'
+import type { Char, LabelSieveDisplay, LabelVocab, TrieNode } from '@/types'
 
 export default class LabeledTire {
   root: TrieNode<LabelVocab>
@@ -22,7 +22,7 @@ export default class LabeledTire {
     return node
   }
 
-  #withPaths(vocab: VocabInfoSieveDisplay[]) {
+  #withPaths(vocab: LabelSieveDisplay[]) {
     for (const sieve of vocab) {
       this.#createPath(sieve)
     }
@@ -30,7 +30,7 @@ export default class LabeledTire {
     return this
   }
 
-  #createPath(sieve: VocabInfoSieveDisplay) {
+  #createPath(sieve: LabelSieveDisplay) {
     const sieveWord = sieve.w
     const hasUp = hasUppercase(sieveWord)
     const node = this.getNode(hasUp ? sieveWord.toLowerCase() : sieveWord)
@@ -46,7 +46,7 @@ export default class LabeledTire {
     } else {
       if ($.vocab) {
         $.vocab.acquainted = sieve.acquainted
-        $.vocab.invalid = sieve.invalid
+        $.vocab.inStore = sieve.inStore
         $.vocab.time_modified = sieve.time_modified
         $.vocab.rank = sieve.rank
         $.wFamily = [$.vocab.w, sieve.w]
@@ -71,21 +71,22 @@ export default class LabeledTire {
     }
   }
 
-  shareMerge(irregularMaps: string[][]) {
+  mergeDerivedWordIntoStem(irregularMaps: string[][]) {
     for (const irregulars of irregularMaps) {
-      const base = irregulars[0]
-      const hasUp = hasUppercase(base)
-      const baseNode = this.getNode(hasUp ? base.toLowerCase() : base)
+      const stem = irregulars[0]
+      const hasUp = hasUppercase(stem)
+      const stemNode = this.getNode(hasUp ? stem.toLowerCase() : stem)
 
-      baseNode.$ ??= {
-        w: base,
+      stemNode.$ ??= {
+        w: stem,
         up: hasUp,
         src: [],
         vocab: {
-          w: base,
+          w: stem,
           acquainted: false,
           is_user: 0,
           inUpdating: false,
+          inStore: false,
           original: true,
           rank: null,
           time_modified: null,
@@ -98,7 +99,7 @@ export default class LabeledTire {
           && derive.src.length
           && !derive.variant
         ) {
-          this.#mergeTo(baseNode.$, derive)
+          this.#mergeTo(stemNode.$, derive)
         }
       }
     }
@@ -165,7 +166,7 @@ export default class LabeledTire {
     }
   }
 
-  mergedVocabulary(baseVocab: VocabInfoSieveDisplay[]) {
+  mergedVocabulary(baseVocab: LabelSieveDisplay[]) {
     this.#withPaths(baseVocab)
       .#traverseMerge(this.root)
     return this

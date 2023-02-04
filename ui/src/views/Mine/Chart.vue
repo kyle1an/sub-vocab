@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import Chart from 'chart.js/auto'
-import { computed, onBeforeUnmount, onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { format } from 'date-fns'
 import { rangeRight } from 'lodash-es'
 import { t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
-import { useStateCallback, watched } from '@/composables/utilities'
+import { useStateCallback } from '@/composables/utilities'
 import SegmentedControl from '@/components/SegmentedControl.vue'
 
 const store = useVocabStore()
@@ -37,7 +37,7 @@ const groupedRows = computed(() => {
 const weekLabels = computed(() => [...groupedRows.value.keys()].map(k => week[k]))
 const vocabCount = computed(() => [...groupedRows.value.values()])
 let myChart: Chart<'bar', number[], string>
-const chartData = watched(computed(() => ({
+const chartData = computed(() => ({
   labels: weekLabels.value,
   datasets: [
     {
@@ -49,7 +49,8 @@ const chartData = watched(computed(() => ({
       borderWidth: 1,
     }
   ]
-})), (v) => {
+}))
+watch(chartData, (v) => {
   myChart.data = v
   myChart.update()
 })
@@ -70,7 +71,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   myChart.destroy()
 })
-type ChartSegment = typeof segments['value'][number]['value']
+type ChartSegment = typeof segments.value[number]['value']
 const [seg, setSeg] = useStateCallback<ChartSegment>(sessionStorage.getItem('prev-chart-select') as ChartSegment | null || 'W', (v) => {
   sessionStorage.setItem('prev-chart-select', String(v))
 })

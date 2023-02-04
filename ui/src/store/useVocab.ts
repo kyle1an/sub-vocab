@@ -1,26 +1,24 @@
 import { defineStore } from 'pinia'
 import Cookies from 'js-cookie'
 import { useQuery } from '@tanstack/vue-query'
-import { computed } from 'vue'
 import { acquaint, batchAcquaint, queryWordsByUser, revokeWord, stemsMapping } from '@/api/vocab-service'
-import type { VocabInfoSieveDisplay } from '@/types'
-import { jsonClone } from '@/utils/utils'
+import type { LabelSieveDisplay } from '@/types'
 import { login as loginUser, logoutToken } from '@/api/user'
 import router from '@/router'
 import { useState } from '@/composables/utilities'
 import { SrcRow } from '@/types'
 
 export const useVocabStore = defineStore('SubVocabulary', () => {
-  const [baseVocab, setBaseVocab] = useState<VocabInfoSieveDisplay[]>([])
-  const baseReady = computed(() => !isFetching.value && isSuccess.value)
+  const [baseVocab, setBaseVocab] = useState<LabelSieveDisplay[]>([])
   const [user, setUser] = useState(Cookies.get('_user') ?? '')
-  const { isFetching, isSuccess } = useQuery(['userWords', user.value], async () => (await queryWordsByUser(user.value)).map((sieve) => {
-    sieve.inUpdating = false
-    return sieve
-  }) as VocabInfoSieveDisplay[], {
+  useQuery(['userWords', user.value], () => queryWordsByUser(user.value), {
     initialData: [], refetchOnWindowFocus: false, retry: 10,
     onSuccess(data) {
-      setBaseVocab(jsonClone(data))
+      setBaseVocab(data.map((sieve) => ({
+        ...sieve,
+        inUpdating: false,
+        inStore: true,
+      })))
     }
   })
 
@@ -40,22 +38,21 @@ export const useVocabStore = defineStore('SubVocabulary', () => {
     requestAnimationFrame(() => router.push('/'))
   }
 
-  const irregularsReady = computed(() => !irrFetching.value && irrReady.value)
-  const { isFetching: irrFetching, isSuccess: irrReady, data: irregularMaps } = useQuery(['stems'], stemsMapping, {
+  const { data: irregularMaps } = useQuery(['stems'], stemsMapping, {
     initialData: [], refetchOnWindowFocus: false, retry: 10,
   })
 
-  function updateWord($: VocabInfoSieveDisplay, got: boolean) {
-    if ($.invalid) {
-      setBaseVocab([...baseVocab.value, $])
-      $.invalid = false
+  function updateWord($: LabelSieveDisplay, got: boolean) {
+    if (!$.inStore) {
+      baseVocab.value.push($)
+      $.inStore = true
     }
 
     $.acquainted = got
     $.time_modified = new Date().toISOString()
   }
 
-  async function toggleWordState(row: VocabInfoSieveDisplay, name: string) {
+  async function toggleWordState(row: LabelSieveDisplay, name: string) {
     row.inUpdating = true
     const res = await (row.acquainted ? revokeWord : acquaint)({
       word: row.w.replace(/'/g, `''`),
@@ -69,15 +66,15 @@ export const useVocabStore = defineStore('SubVocabulary', () => {
     row.inUpdating = false
   }
 
-  async function acquaintEveryVocab(tableDataOfVocab: SrcRow<VocabInfoSieveDisplay>[]) {
-    const rowsMap: Record<string, SrcRow<VocabInfoSieveDisplay>> = {}
+  async function acquaintEveryVocab(tableDataOfVocab: SrcRow<LabelSieveDisplay>[]) {
+    const rowsMap: Record<string, SrcRow<LabelSieveDisplay>> = {}
     const words: string[] = []
     tableDataOfVocab.forEach((row) => {
       if (!row.vocab.acquainted && row.vocab.w.length < 32) {
-        const word = row.vocab.w.replace(/'/g, `''`)
+        const word = row.vocab.w
         row.vocab.inUpdating = true
         rowsMap[word] = row
-        words.push(word)
+        words.push(word.replace(/'/g, `''`))
       }
     })
     const res = await batchAcquaint({ user: user.value, words }) as string
@@ -98,9 +95,7 @@ export const useVocabStore = defineStore('SubVocabulary', () => {
     acquaintEveryVocab,
     toggleWordState,
     irregularMaps,
-    irregularsReady,
     user,
-    baseReady,
     login,
     logout,
   }

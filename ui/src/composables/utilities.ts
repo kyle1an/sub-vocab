@@ -1,16 +1,6 @@
-import type { ComputedRef, Ref, ShallowRef, WatchCallback, WatchOptions, WatchSource } from 'vue'
-import { onMounted, shallowRef, watch } from 'vue'
+import { onMounted, shallowRef, triggerRef, watch } from 'vue'
 import { useElementHover } from '@vueuse/core'
 import produce, { Draft } from 'immer'
-
-export function watched<T>(value: Ref<T>, cb: WatchCallback<T>, options?: WatchOptions): Ref<T>
-export function watched<T>(value: ComputedRef<T>, cb: WatchCallback<T>, options?: WatchOptions): ComputedRef<T>
-export function watched<T>(value: () => T, cb: WatchCallback<T>, options?: WatchOptions): () => T
-
-export function watched<T>(value: WatchSource<T>, cb: WatchCallback<T>, options?: WatchOptions) {
-  watch(value, cb, options)
-  return value
-}
 
 export function useImmer<T>(baseState: T) {
   const state = shallowRef(baseState)
@@ -18,27 +8,34 @@ export function useImmer<T>(baseState: T) {
     state.value = produce(state.value, updater)
   }
 
-  return [state, update] as [
-    Readonly<ShallowRef<T>>,
-    (updater: (arg: Draft<T>) => void) => void
-  ]
+  return [state, update] as const
 }
 
-export function useState<T>(initial: T): [Readonly<ShallowRef<T>>, (arg: T) => void] {
+export function createSignal<T>(initialValue: T, options?: { equals?: false | ((prev: T, next: T) => boolean) }) {
+  const r = shallowRef(initialValue)
+  const get = () => r.value
+  const set = (v: (arg: T) => T) => {
+    r.value = typeof v === 'function' ? v(r.value) : v
+    if (options?.equals === false) triggerRef(r)
+  }
+  return [get, set] as const
+}
+
+export function useState<T>(initial: T) {
   const state = shallowRef(initial)
   const setState = function set(newValue: T) {
     state.value = newValue
   }
-  return [state, setState]
+  return [state, setState] as const
 }
 
-export function useStateCallback<T>(initial: T, cb: (arg: T) => void): [ShallowRef<T>, (arg: T) => void] {
+export function useStateCallback<T>(initial: T, cb: (arg: T) => void) {
   const state = shallowRef(initial)
   const setState = function set(newValue: T) {
     state.value = newValue
     cb(newValue)
   }
-  return [state, setState]
+  return [state, setState] as const
 }
 
 export function useElHover(selectors: string) {

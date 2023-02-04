@@ -1,10 +1,10 @@
-import type { UserVocab, VocabFromUser } from '@/types'
+import type { LabelFromUser, UserVocab } from '@/types'
 import { postRequest } from '@/api/request'
 
 type ToggleWordResponse = { affectedRows: number }
 
 export async function queryWordsByUser(user: string) {
-  return postRequest<VocabFromUser[]>(`/api/api/queryWords`, { user }, { timeout: 4000 })
+  return postRequest<LabelFromUser[]>(`/api/api/queryWords`, { user }, { timeout: 4000 })
 }
 
 export async function stemsMapping() {
