@@ -9,7 +9,6 @@ module.exports = {
     "plugin:@typescript-eslint/recommended",
     "plugin:import/recommended",
     "plugin:import/typescript",
-    "plugin:react/recommended",
   ],
   "parserOptions": {
     "parser": "@typescript-eslint/parser",
@@ -44,6 +43,7 @@ module.exports = {
       "memberSyntaxSortOrder": ["none", "all", "multiple", "single"],
       "allowSeparatedGroups": false,
     }],
+    "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unused-vars": "off",
     "tailwindcss/no-custom-classname": "off",
     "vue/component-name-in-template-casing": ["warn", "PascalCase", {
@@ -53,9 +53,6 @@ module.exports = {
     "vue/attribute-hyphenation": "off",
     "vue/multi-word-component-names": "off",
     "vue/no-setup-props-destructure": "off",
-    "react/no-unknown-property": ["error", { "ignore": ["class"] }],
-    "react/react-in-jsx-scope": "off",
-    "react/prop-types": "off",
   },
   "settings": {
     "import/parsers": {

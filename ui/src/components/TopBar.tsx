@@ -1,13 +1,15 @@
-<script lang="ts" setup>
 import Cookies from 'js-cookie'
 import en from 'element-plus/es/locale/lang/en'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import type { Language } from 'element-plus/es/locale'
 import { ElConfigProvider, ElDropdown, ElDropdownItem, ElDropdownMenu } from 'element-plus'
-import { computed } from 'vue'
+import { computed, defineComponent } from 'vue'
+import { RouterLink } from 'vue-router'
 import { i18n, t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
 
+export const TopBar = defineComponent({
+  setup() {
 const { locale } = i18n.global
 const localeMap = {
   'en': en,
@@ -22,9 +24,8 @@ function handleCommand(command: typeof locale.value) {
   Cookies.set('_locale', command, { expires: 365 })
   locale.value = command
 }
-</script>
 
-<template>
+return () => (
   <header class="z-50 box-border flex w-full min-w-[auto] items-center justify-center bg-white tracking-wide shadow [&_[href]]:tap-transparent">
     <nav class="box-border flex h-full w-full max-w-screen-xl justify-center">
       <div class="flex w-full items-center text-[14px]">
@@ -32,73 +33,79 @@ function handleCommand(command: typeof locale.value) {
           to="/"
           class="flex h-full items-center px-4 hover:bg-gray-100"
         >
-          {{ t('home') }}
+          {t('home')}
         </RouterLink>
-        <RouterLink
-          v-if="isLoggedIn||isWide"
-          to="/about"
-          class="flex items-center rounded-full py-1 px-4 hover:bg-gray-100"
-        >
-          {{ t('about') }}
-        </RouterLink>
+        {(isLoggedIn.value || isWide) && (
+          <RouterLink
+            to="/about"
+            class="flex items-center rounded-full py-1 px-4 hover:bg-gray-100"
+          >
+            {t('about')}
+          </RouterLink>
+        )}
         <div class="grow" />
-        <RouterLink
-          v-if="isLoggedIn||isWide"
-          to="/mine"
-          class="flex h-full items-center px-4 hover:bg-gray-100"
-        >
-          {{ store.user ? t('mine') : t('common') }}
-        </RouterLink>
-        <RouterLink
-          v-if="isLoggedIn"
-          to="/user"
-          class="flex h-full items-center px-4 hover:bg-gray-100"
-        >
-          {{ store.user }}
-        </RouterLink>
-        <template v-else>
+        {(isLoggedIn.value || isWide) && (
           <RouterLink
-            to="/login"
-            class="flex items-center rounded-md py-1 px-4 hover:bg-gray-100"
+            to="/mine"
+            class="flex h-full items-center px-4 hover:bg-gray-100"
           >
-            {{ t('login') }}
+            {store.user ? t('mine') : t('common')}
           </RouterLink>
+        )}
+        {(isLoggedIn.value) ? (
           <RouterLink
-            to="/register"
-            class="ml-2 box-border flex cursor-pointer items-center rounded border border-solid border-transparent bg-[hsl(206,100%,52%)] py-2 px-3 leading-[14px] text-white hover:bg-[hsl(206,100%,40%)]"
-            style="box-shadow: inset 0 1px 0 0 hsl(0deg 0% 100% / 40%);"
+            to="/user"
+            class="flex h-full items-center px-4 hover:bg-gray-100"
           >
-            {{ t('signup') }}
+            {store.user}
           </RouterLink>
-        </template>
-        <ElDropdown @command="handleCommand">
-          <div class="flex px-4 outline-none">
-            文/Aa
-            <i class="el-icon el-icon--right">
-              <svg
-                viewBox="0 0 1024 1024"
-                xmlns="http://www.w3.org/2000/svg"
-                class="text-slate-300"
-              >
-                <path
-                  fill="currentColor"
-                  d="m192 384 320 384 320-384z"
-                />
-              </svg>
-            </i>
-          </div>
-          <template #dropdown>
-            <ElDropdownMenu class="outline-none">
-              <ElDropdownItem command="zh">
-                中文
-              </ElDropdownItem>
-              <ElDropdownItem command="en">
-                English
-              </ElDropdownItem>
-            </ElDropdownMenu>
-          </template>
+        ) : (
+          <>
+            <RouterLink
+              to="/login"
+              class="flex items-center rounded-md py-1 px-4 hover:bg-gray-100"
+            >
+              {t('login')}
+            </RouterLink>
+            <RouterLink
+              to="/register"
+              class="ml-2 box-border flex cursor-pointer items-center rounded border border-solid border-transparent bg-[hsl(206,100%,52%)] py-2 px-3 leading-[14px] text-white hover:bg-[hsl(206,100%,40%)]"
+              style="box-shadow: inset 0 1px 0 0 hsl(0deg 0% 100% / 40%);"
+            >
+              {t('signup')}
+            </RouterLink>
+          </>
+        )}
+        <ElDropdown onCommand={handleCommand}>
+          {{
+            default: () =>
+              <div class="flex px-4 outline-none">
+                文/Aa
+                <i class="el-icon el-icon--right">
+                  <svg
+                    viewBox="0 0 1024 1024"
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="text-slate-300"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="m192 384 320 384 320-384z"
+                    />
+                  </svg>
+                </i>
+              </div>,
+            dropdown: () =>
+              <ElDropdownMenu class="outline-none">
+                <ElDropdownItem command="zh">
+                  中文
+                </ElDropdownItem>
+                <ElDropdownItem command="en">
+                  English
+                </ElDropdownItem>
+              </ElDropdownMenu>
+          }}
         </ElDropdown>
-        <ElConfigProvider :locale="elLocale" />
+        <ElConfigProvider locale={elLocale.value} />
         <a
           href="https://github.com/kyle1an/sub-vocab"
           target="_blank"
@@ -116,4 +123,6 @@ function handleCommand(command: typeof locale.value) {
       </div>
     </nav>
   </header>
-</template>
+)
+  }
+})
