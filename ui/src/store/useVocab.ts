@@ -11,7 +11,7 @@ import { SrcRow } from '@/types'
 export const useVocabStore = defineStore('SubVocabulary', () => {
   const [baseVocab, setBaseVocab] = useState<LabelSieveDisplay[]>([])
   const [user, setUser] = useState(Cookies.get('_user') ?? '')
-  useQuery(['userWords', user.value], () => queryWordsByUser(user.value), {
+  useQuery(['userWords', user], () => queryWordsByUser(user.value), {
     initialData: [], refetchOnWindowFocus: false, retry: 10,
     onSuccess(data) {
       setBaseVocab(data.map((sieve) => ({

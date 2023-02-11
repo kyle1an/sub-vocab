@@ -7,12 +7,19 @@ import type { LabelSubDisplay, SrcRow } from '@/types'
 import { useVocabStore } from '@/store/useVocab'
 import { useDebounceTimeout, useState } from '@/composables/utilities'
 import { acquaintAll, generatedVocabTrie } from '@/utils/vocab'
+import { TextareaInput } from '@/components/TextareaInput'
 
 const [fileInfo, setFileInfo] = useState('')
 
-async function onFileChange({ info, text }: { info: string, text: string }) {
-  setFileInfo(info)
-  setInputText(text)
+async function onFileChange({ name, value }: { name: string, value: string }) {
+  setFileInfo(name)
+  setInputText(value)
+}
+
+async function onTextChange({ name, value }: { name?: string, value: string }) {
+  setInputText(value)
+  if (name) setFileInfo(name)
+  importFileInput.value.inputChanged()
 }
 
 const [count, setCount] = useState(0)
@@ -44,11 +51,10 @@ const importFileInput = ref()
           </span>
         </div>
         <div class="h-full w-full grow border-b text-base text-zinc-700 md:text-sm">
-          <textarea
-            v-model="inputText"
-            class="h-[260px] w-full resize-none rounded-none py-3 px-[30px] align-top outline-none ffs-[normal] md:h-full md:max-h-full"
+          <TextareaInput
+            :value="inputText"
             :placeholder="t('inputArea')"
-            @change="importFileInput.inputChanged"
+            @text-change="onTextChange"
           />
         </div>
         <div class="flex h-9 shrink-0 items-center bg-zinc-50 p-1.5 font-compact text-xs text-neutral-600">

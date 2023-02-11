@@ -10,18 +10,40 @@ async function onFileChange(ev: Event) {
   if (!numberOfFiles) return
 
   emit('fileInput', {
-    text: (await readFiles(files)).reduce((pre, { result }) => pre + result, ''),
-    info: numberOfFiles === 1 ? files[0].name : `${numberOfFiles} files selected`
+    value: (await readFiles(files)).reduce((pre, { result }) => pre + result, ''),
+    name: numberOfFiles === 1 ? files[0].name : `${numberOfFiles} files selected`
   })
 }
 
-const inputChanged = () => resetFileInput('.file-input')
-defineExpose({ inputChanged })
+function dropFile(ev: DragEvent) {
+  ev.preventDefault()
+  const file = ev.dataTransfer?.files[0]
+  if (file) {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      emit('fileInput', {
+        value: e.target?.result as string,
+        name: file.name
+      })
+    }
+    reader.readAsText(file)
+  }
+}
+
+defineExpose({
+  inputChanged() {
+    resetFileInput('#browseFiles' + id)
+  }
+})
 const id = uuidv4()
 </script>
 
 <template>
-  <div>
+  <div
+    @drop.prevent="dropFile"
+    @dragenter.prevent
+    @dragover.prevent
+  >
     <label
       class="box-border inline-flex h-8 max-h-full grow-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-md border bg-white px-3 py-2.5 text-center align-middle text-sm leading-3 tracking-wide text-neutral-800 transition-colors hover:border-sky-300 hover:bg-sky-100 hover:text-sky-600"
       :for="'browseFiles'+id"
