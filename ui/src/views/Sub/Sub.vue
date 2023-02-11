@@ -7,12 +7,13 @@ import type { LabelSubDisplay, SrcRow } from '@/types'
 import { useVocabStore } from '@/store/useVocab'
 import { useDebounceTimeout, useState } from '@/composables/utilities'
 import { generatedVocabTrie } from '@/utils/vocab'
+import { TextareaInput } from '@/components/TextareaInput'
 
 const [fileInfo, setFileInfo] = useState('')
 
-async function onFileChange({ info, text }: { info: string, text: string }) {
-  setFileInfo(info)
-  setInputText(text)
+async function onFileChange({ name, value }: { name: string, value: string }) {
+  setFileInfo(name)
+  setInputText(value)
 }
 
 const [count, setCount] = useState(0)
@@ -27,6 +28,12 @@ watch(() => [inputText.value, store.baseVocab, store.irregularMaps], useDebounce
   setTableDataOfVocab(list)
 }, 50))
 const sourceFileInput = ref()
+
+async function onTextChange({ name, value }: { name?: string, value: string }) {
+  setInputText(value)
+  if (name) setFileInfo(name)
+  sourceFileInput.value.inputChanged()
+}
 </script>
 
 <template>
@@ -52,11 +59,10 @@ const sourceFileInput = ref()
           </span>
         </div>
         <div class="h-full w-full grow text-base text-zinc-700 md:text-sm">
-          <textarea
-            v-model="inputText"
-            class="h-[260px] max-h-[360px] w-full resize-none rounded-none py-3 px-[30px] align-top outline-none ffs-[normal] md:h-full md:max-h-full"
+          <TextareaInput
+            :value="inputText"
             :placeholder="t('inputArea')"
-            @change="sourceFileInput.inputChanged"
+            @text-change="onTextChange"
           />
         </div>
       </div>
