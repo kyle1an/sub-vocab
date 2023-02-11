@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { FormInstance, FormItemRule } from 'element-plus'
+import type { FormInstance } from 'element-plus'
 import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
 import { reactive, ref } from 'vue'
 import { t } from '@/i18n'
@@ -7,44 +7,50 @@ import { changePassword } from '@/api/user'
 import { useVocabStore } from '@/store/useVocab'
 import { resetForm } from '@/utils/elements'
 import { useState } from '@/composables/utilities'
+import type { FormRules } from '@/types/forms'
 
 const store = useVocabStore()
 const ruleFormRef = ref<FormInstance>()
-
-function validatePass(rule: FormItemRule | FormItemRule[], value: string, callback: () => void) {
-  if (value === '') {
-    return callback()
-  }
-
-  if (ruleForm.checkPass !== '') {
-    if (!ruleFormRef.value) return
-    ruleFormRef.value.validateField('checkPass', () => null)
-  }
-
-  callback()
-}
-
-function validatePass2(rule: FormItemRule | FormItemRule[], value: string, callback: (arg0?: Error) => void) {
-  if (value === '' && ruleForm.password === '') {
-    return callback()
-  }
-
-  if (value !== ruleForm.password) {
-    return callback(new Error(t('inputsNotMatch')))
-  }
-
-  callback()
-}
-
 const ruleForm = reactive({
   oldPassword: '',
   password: '',
   checkPass: '',
 })
 const rules = reactive({
-  password: [{ validator: validatePass, trigger: 'blur' }],
-  checkPass: [{ validator: validatePass2, trigger: 'blur' }],
-})
+  password: [
+    {
+      validator(rule, value: string, callback) {
+        if (value === '') {
+          return callback()
+        }
+
+        if (ruleForm.checkPass !== '') {
+          if (!ruleFormRef.value) return
+          ruleFormRef.value.validateField('checkPass', () => null)
+        }
+
+        callback()
+      },
+      trigger: 'blur'
+    }
+  ],
+  checkPass: [
+    {
+      validator(rule, value: string, callback) {
+        if (value === '' && ruleForm.password === '') {
+          return callback()
+        }
+
+        if (value !== ruleForm.password) {
+          return callback(new Error(t('inputsNotMatch')))
+        }
+
+        callback()
+      },
+      trigger: 'blur'
+    }
+  ],
+} satisfies FormRules<typeof ruleForm>)
 
 function submitForm(formEl: FormInstance | undefined) {
   if (!formEl) return

@@ -1,34 +1,51 @@
 <script lang="tsx" setup>
-import type { FormInstance, FormItemRule } from 'element-plus'
+import type { FormInstance } from 'element-plus'
 import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
 import { reactive, ref } from 'vue'
+import { z } from 'zod'
 import { t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
 import { resetForm } from '@/utils/elements'
-import { checkUsername, noEmptyPassword } from '@/utils/validation'
+import { inputPasswordSchema, inputnameSchema } from '@/utils/validation'
 import { useState } from '@/composables/utilities'
+import type { FormRules } from '@/types/forms'
 
 const { login } = useVocabStore()
 const ruleFormRef = ref<FormInstance>()
-
-function checkUsernameLogin(rule: FormItemRule | FormItemRule[], username: string, callback: (arg0?: Error) => void) {
-  checkUsername(rule, username, callback)
-  callback()
-}
-
-function validatePass(rule: FormItemRule | FormItemRule[], password: string, callback: (arg0?: Error) => void) {
-  noEmptyPassword(rule, password, callback)
-  callback()
-}
-
 const ruleForm = reactive({
   username: '',
   password: '',
 })
 const rules = reactive({
-  username: [{ validator: checkUsernameLogin, trigger: 'blur' }],
-  password: [{ validator: validatePass, trigger: 'blur' }],
-})
+  username: [
+    {
+      required: true,
+      validator(rule, username: string | number, callback) {
+        try {
+          inputnameSchema.parse(String(username).trim())
+        } catch (err) {
+          if (err instanceof z.ZodError) return callback(new Error(err.issues[0].message))
+        }
+        callback()
+      },
+      trigger: 'blur',
+    }
+  ],
+  password: [
+    {
+      required: true,
+      validator(rule, password: string | number, callback) {
+        try {
+          inputPasswordSchema.parse(String(password))
+        } catch (err) {
+          if (err instanceof z.ZodError) return callback(new Error(err.issues[0].message))
+        }
+        callback()
+      },
+      trigger: 'blur',
+    }
+  ],
+} satisfies FormRules<typeof ruleForm>)
 const [errorMsg, setErrorMsg] = useState('')
 
 function submitForm(formEl: FormInstance | undefined) {

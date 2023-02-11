@@ -1,56 +1,80 @@
 <script lang="tsx" setup>
-import type { FormInstance, FormItemRule } from 'element-plus'
+import type { FormInstance } from 'element-plus'
 import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
 import { reactive, ref } from 'vue'
+import { z } from 'zod'
 import { t } from '@/i18n'
 import type { userInfo } from '@/types'
 import router from '@/router'
-import { register } from '@/api/user'
+import { isUsernameTaken, register } from '@/api/user'
 import { resetForm } from '@/utils/elements'
-import { checkUsername, checkUsernameTaken, noEmptyPassword } from '@/utils/validation'
+import { inputPasswordSchema, usernameSchema } from '@/utils/validation'
 import { useState } from '@/composables/utilities'
+import type { FormRules } from '@/types/forms'
 
 const ruleFormRef = ref<FormInstance>()
-
-async function checkUsernameRegister(rule: FormItemRule | FormItemRule[], username: string, callback: (arg0?: Error) => void) {
-  checkUsername(rule, username, callback)
-  await checkUsernameTaken(rule, username, callback)
-  callback()
-}
-
-function validatePass(rule: FormItemRule | FormItemRule[], value: string, callback: (arg0?: Error) => void) {
-  noEmptyPassword(rule, value, callback)
-
-  if (ruleForm.checkPass !== '') {
-    if (!ruleFormRef.value) return
-    ruleFormRef.value.validateField('checkPass', () => null)
-  }
-
-  callback()
-}
-
-function validatePass2(rule: FormItemRule | FormItemRule[], value: string, callback: (arg0?: Error) => void) {
-  if (value === '') {
-    return callback(new Error(t('Please input the password again')))
-  }
-
-  if (value !== ruleForm.password) {
-    return callback(new Error(t('inputsNotMatch')))
-  }
-
-  callback()
-}
-
 const ruleForm = reactive({
   username: '',
   password: '',
   checkPass: '',
 })
 const rules = reactive({
-  username: [{ validator: checkUsernameRegister, trigger: 'blur' }],
-  password: [{ validator: validatePass, trigger: 'blur' }],
-  checkPass: [{ validator: validatePass2, trigger: 'blur' }],
-})
+  username: [
+    {
+      required: true,
+      async asyncValidator(rule, username: string, callback) {
+        try {
+          usernameSchema.parse(String(username))
+        } catch (err) {
+          if (err instanceof z.ZodError) return callback(new Error(err.issues[0].message))
+        }
+
+        if ((await isUsernameTaken({ username })).has) {
+          return callback(new Error(`${username} ${t('alreadyTaken')}`))
+        }
+        callback()
+      },
+      trigger: 'blur',
+    }
+  ],
+  password: [
+    {
+      required: true,
+      validator(rule, value: string, callback) {
+        try {
+          inputPasswordSchema.parse(String(value))
+        } catch (err) {
+          if (err instanceof z.ZodError) return callback(new Error(err.issues[0].message))
+        }
+
+        if (ruleForm.checkPass !== '') {
+          if (!ruleFormRef.value) return
+          ruleFormRef.value.validateField('checkPass', () => null)
+        }
+
+        callback()
+      },
+      trigger: 'blur',
+    }
+  ],
+  checkPass: [
+    {
+      required: true,
+      validator(rule, value: string, callback) {
+        if (value === '') {
+          return callback(new Error(t('Please input the password again')))
+        }
+
+        if (value !== ruleForm.password) {
+          return callback(new Error(t('inputsNotMatch')))
+        }
+
+        callback()
+      },
+      trigger: 'blur',
+    }
+  ],
+} satisfies FormRules<typeof ruleForm>)
 const [errorMsg, setErrorMsg] = useState('')
 
 function submitForm(formEl: FormInstance | undefined) {

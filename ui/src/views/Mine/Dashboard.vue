@@ -13,7 +13,7 @@ const subNav = computed(() => [
     title: 'Chart',
     path: '/chart',
   },
-])
+] as const)
 </script>
 
 <template>
