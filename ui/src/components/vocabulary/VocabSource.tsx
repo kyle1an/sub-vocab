@@ -1,5 +1,4 @@
-<script lang="ts" setup>
-import { computed, ref, watch } from 'vue'
+import { PropType, computed, defineComponent, ref, watch } from 'vue'
 import { TransitionPresets, useSessionStorage, useTransition } from '@vueuse/core'
 import { ElInput, ElPagination, ElTable, ElTableColumn } from 'element-plus'
 import { pipe } from 'fp-ts/function'
@@ -7,20 +6,19 @@ import { t } from '@/i18n'
 import type { LabelSubDisplay, MyVocabRow, Sorting, SrcRow } from '@/types'
 import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
 import { Examples } from '@/components/vocabulary/Examples'
-import SegmentedControl from '@/components/SegmentedControl.vue'
+import { SegmentedControl } from '@/components/SegmentedControl'
 import { ToggleButton } from '@/components/vocabulary/ToggleButton'
 import { useElHover, useState, useStateCallback } from '@/composables/utilities'
 import { handleVocabToggle } from '@/utils/vocab'
 
-const props = withDefaults(defineProps<{
-  data: SrcRow<LabelSubDisplay>[],
-  sentences?: string[],
-  expand?: boolean,
-  tableName: string,
-}>(), {
-  data: () => [],
-  sentences: () => [''],
-})
+export const VocabSourceTable = defineComponent({
+  props: {
+    data: { default: () => [], type: Array as PropType<SrcRow<LabelSubDisplay>[]> },
+    sentences: { default: () => [''], type: Array as PropType<string[]> },
+    expand: { default: false, type: Boolean },
+    tableName: { required: true, type: String }
+  },
+  setup(props) {
 const segments = computed(() => [
   { value: 'all', label: t('all') },
   { value: 'new', label: t('new') },
@@ -103,133 +101,144 @@ function expandRow(row: SrcRow<LabelSubDisplay>, col: unknown, event: Event) {
   }
   vocabTable.value?.toggleRowExpansion(row)
 }
-</script>
 
-<template>
+return () => (
   <div class="mx-5 flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-sm will-change-transform md:mx-0">
     <SegmentedControl
-      :name="props.tableName"
-      :segments="segments"
-      :value="seg"
-      :onChoose="setSeg"
+      name={props.tableName}
+      segments={segments.value}
+      value={seg.value}
+      onChoose={setSeg}
     />
     <div class="h-px w-full grow">
       <ElTable
-        ref="vocabTable"
-        :data="rowsDisplay"
-        :row-key="(row:MyVocabRow)=>'_'+row.vocab.w"
-        class="!h-full from-[var(--el-border-color-lighter)] to-white [&_*]:overscroll-contain [&_.el-icon]:pointer-events-none [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_row:has(+tr:not([class]))>td]:!border-white [&_.el-table\_\_row:has(+tr:not([class]))>td]:bg-gradient-to-b [&_th_.cell]:font-compact"
+        ref={vocabTable}
+        data={rowsDisplay.value}
+        rowKey={(row: typeof props.data[number]) => '_' + row.vocab.w}
+        class="!h-full from-[var(--el-border-color-lighter)] to-white [&_*]:overscroll-contain [&_.el-icon]:pointer-events-none [&_.el-table\\_\\_expand-icon]:tap-transparent [&_.el-table\\_\\_inner-wrapper]:!h-full [&_.el-table\\_\\_row:has(+tr:not([class]))>td]:!border-white [&_.el-table\\_\\_row:has(+tr:not([class]))>td]:bg-gradient-to-b [&_th_.cell]:font-compact"
         size="small"
-        :row-class-name="()=>`${props.expand?'cursor-pointer':''}`"
-        v-on="props.expand ? { 'row-click': expandRow } : {}"
-        @sort-change="onSortChange"
+        rowClassName={() => `${props.expand ? 'cursor-pointer' : ''}`}
+        onRow-click={props.expand ? expandRow : () => void 0}
+        onSort-change={onSortChange}
       >
+        {props.expand && (
         <ElTableColumn
-          v-if="props.expand"
-          v-slot="{row}"
           type="expand"
-          width="30"
-          class-name="[&_i]:text-slate-500 [&>.cell]:!p-0 [&_.el-table\_\_expand-icon]:float-right"
-        >
+          width={30}
+          className="[&>.cell]:!p-0 [&_.el-table\\_\\_expand-icon]:float-right [&_i]:text-slate-500"
+        >{{
+          default: ({ row }: { row: typeof props.data[number] }) =>
           <Examples
-            :sentences="props.sentences"
-            :src="row.src"
+            sentences={props.sentences}
+            src={row.src}
             class="tracking-wide"
           />
+        }}
         </ElTableColumn>
+        )}
         <ElTableColumn
-          v-slot="{row}"
-          :label="t('frequency')"
-          class-name="!text-right [&>.cell]:stretch-[condensed] [&>.cell]:!font-pro [th&>.cell]:!p-0"
-          :width="`${props.expand?58:68}`"
+          label={t('frequency')}
+          className="!text-right [&>.cell]:!font-pro [&>.cell]:stretch-[condensed] [th&>.cell]:!p-0"
+          width={`${props.expand ? 58 : 68}`}
           prop="src.length"
           sortable="custom"
-        >
+        >{{
+          default: ({ row }: { row: typeof props.data[number] }) =>
           <div class="tabular-nums text-slate-400">
-            {{ row.src.length }}
+            {row.src.length}
           </div>
+        }}
         </ElTableColumn>
         <ElTableColumn
           label="Vocabulary"
           prop="vocab.w"
-          min-width="16"
+          min-width={16}
           sortable="custom"
-          class-name="select-none [td&>.cell]:!pr-0"
-        >
-          <template #header>
+          className="select-none [td&>.cell]:!pr-0"
+        >{{
+          header: () => (
+          <div class={'inline'} onClick={(ev) => ev.stopPropagation()}>
             <ElInput
-              v-model="search"
+              v-model={search.value}
+              onInput={(val) => search.value = val}
               class="!w-[calc(100%-26px)] !text-base md:!text-xs"
               size="small"
-              :placeholder="t('search')"
-              @click.stop
+              placeholder={t('search')}
             />
-          </template>
-          <template #default="{row}">
-            <span
-              v-for="(w,i) in row.vocab.wFamily"
-              :key="w"
-              class="cursor-text select-text font-compact text-[16px] tracking-wide text-black"
-              @click.stop
+          </div>
+          ),
+          default: ({ row }: { row: typeof props.data[number] }) => (
+            row.vocab.wFamily.map((w, i) => (
+            <div
+              key={w}
+              class="inline-block cursor-text select-text font-compact text-[16px] tracking-wide text-black"
+              onClick={(ev) => ev.stopPropagation()}
             >
               <span
-                :class="`${i!==0? 'text-neutral-500':''}`"
-                v-on="isMobile ? {} : { mouseover: selectWord }"
-              >{{ w }}</span>
-              <span
-                v-if="i!==row.vocab.wFamily.length-1"
-                class="text-neutral-300"
-              >, </span>
-            </span>
-          </template>
+                class={`${i !== 0 ? 'text-neutral-500' : ''}`}
+                onMouseover={isMobile ? () => void 0 : selectWord}
+              >
+                {w}
+              </span>
+              {i !== row.vocab.wFamily.length - 1 && <span class="pr-1 text-neutral-300">, </span>}
+            </div>
+            )))
+        }}
         </ElTableColumn>
         <ElTableColumn
-          v-slot="{row}"
-          :label="t('length')"
+          label={t('length')}
           prop="vocab.w.length"
-          width="62"
+          width={62}
           sortable="custom"
-          class-name="[th&>.cell]:stretch-[condensed] [th&>.cell]:!font-pro !text-right [th&>.cell]:!p-0"
-        >
+          className="!text-right [th&>.cell]:!p-0 [th&>.cell]:!font-pro [th&>.cell]:stretch-[condensed]"
+        >{{
+          default: ({ row }: { row: typeof props.data[number] }) =>
           <div class="tabular-nums">
-            {{ row.vocab.w.length }}
+            {row.vocab.w.length}
           </div>
+        }}
         </ElTableColumn>
         <ElTableColumn
-          v-slot="{row}"
-          width="40"
-          class-name="overflow-visible !text-center"
-        >
+          width={40}
+          className="overflow-visible !text-center"
+        >{{
+          default: ({ row }: { row: typeof props.data[number] }) =>
           <ToggleButton
-            :row="row.vocab"
-            :handleVocabToggle="handleVocabToggle"
+            row={row.vocab}
+            handleVocabToggle={handleVocabToggle}
           />
+        }}
         </ElTableColumn>
         <ElTableColumn
-          v-slot="{row}"
-          :label="t('rank')"
-          class-name="[&>.cell]:stretch-[condensed] [&>.cell]:!font-pro !text-center [th&>.cell]:!p-0"
-          width="52"
+          label={t('rank')}
+          className="!text-center [&>.cell]:!font-pro [&>.cell]:stretch-[condensed] [th&>.cell]:!p-0"
+          width={52}
           prop="vocab.rank"
           sortable="custom"
-        >
+        >{{
+          default: ({ row }: { row: typeof props.data[number] }) =>
           <div class="tabular-nums">
-            {{ row.vocab.rank }}
+            {row.vocab.rank}
           </div>
+        }}
         </ElTableColumn>
       </ElTable>
     </div>
     <div class="min-h-9 w-full">
       <ElPagination
-        v-model:currentPage="currPage"
-        v-model:page-size="pageSize"
-        :page-sizes="[25, 100, 200, 500, 1000, Infinity]"
-        :pager-count="5"
+        currentPage={currPage.value}
+        onUpdate:current-page={(curr) => currPage.value = curr}
+        pageSize={pageSize.value}
+        onUpdate:page-size={(size) => pageSize.value = size}
+        pageSizes={[25, 100, 200, 500, 1000, rowsSegmented.value.length]}
+        pagerCount={5}
         small
-        :total="~~totalTransit"
-        class="shrink-0 select-none flex-wrap gap-y-1.5 !p-1.5 tabular-nums [&_*]:!rounded-md [&_.el-pagination\_\_sizes.is-last]:!m-0 [&_.el-pagination\_\_total]:mx-[10px] [&_.is-active]:bg-neutral-100"
+        total={~~totalTransit.value}
+        class="shrink-0 select-none flex-wrap gap-y-1.5 !p-1.5 tabular-nums [&_*]:!rounded-md [&_.el-pagination\\_\\_sizes.is-last]:!m-0 [&_.el-pagination\\_\\_total]:mx-[10px] [&_.is-active]:bg-neutral-100"
         layout="prev, pager, next, ->, total, sizes"
       />
     </div>
   </div>
-</template>
+)
+  }
+})

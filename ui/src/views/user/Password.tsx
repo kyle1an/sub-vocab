@@ -1,7 +1,6 @@
-<script lang="ts" setup>
 import type { FormInstance } from 'element-plus'
 import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
-import { reactive, ref } from 'vue'
+import { defineComponent, reactive, ref } from 'vue'
 import { t } from '@/i18n'
 import { changePassword } from '@/api/user'
 import { useVocabStore } from '@/store/useVocab'
@@ -9,6 +8,8 @@ import { resetForm } from '@/utils/elements'
 import { useState } from '@/composables/utilities'
 import type { FormRules } from '@/types/forms'
 
+export const Password = defineComponent({
+  setup() {
 const store = useVocabStore()
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive({
@@ -82,52 +83,51 @@ async function alterInfo(form: typeof ruleForm) {
     }
   }
 }
-</script>
 
-<template>
+return () => (
   <div class="flex flex-col">
     <div class="mb-3 border-b pb-1.5 text-xl">
-      {{ t('changePassword') }}
+      {t('changePassword')}
     </div>
     <div class="flex w-80">
       <ElForm
-        ref="ruleFormRef"
-        :model="ruleForm"
-        :rules="rules"
+        ref={ruleFormRef}
+        model={ruleForm}
+        rules={rules}
         label-position="top"
         label-width="100px"
         class="max-w-[460px] [&>.el-form-item_label]:font-bold"
         status-icon
       >
         <ElFormItem
-          :label="t('Old Password')"
+          label={t('Old Password')}
           prop="oldPassword"
-          :error="errorMsg"
+          error={errorMsg.value}
         >
           <ElInput
-            v-model="ruleForm.oldPassword"
+            v-model={ruleForm.oldPassword}
             type="password"
             autocomplete="off"
             class="!text-base md:!text-xs"
           />
         </ElFormItem>
         <ElFormItem
-          :label="t('New Password')"
+          label={t('New Password')}
           prop="password"
         >
           <ElInput
-            v-model="ruleForm.password"
+            v-model={ruleForm.password}
             type="password"
             autocomplete="off"
             class="!text-base md:!text-xs"
           />
         </ElFormItem>
         <ElFormItem
-          :label="t('New Password Confirm')"
+          label={t('New Password Confirm')}
           prop="checkPass"
         >
           <ElInput
-            v-model="ruleForm.checkPass"
+            v-model={ruleForm.checkPass}
             type="password"
             autocomplete="off"
             class="!text-base md:!text-xs"
@@ -136,15 +136,17 @@ async function alterInfo(form: typeof ruleForm) {
         <ElFormItem>
           <ElButton
             type="primary"
-            @click="submitForm(ruleFormRef)"
+            onClick={() => submitForm(ruleFormRef.value)}
           >
-            {{ t('Confirm Changes') }}
+            {t('Confirm Changes')}
           </ElButton>
-          <ElButton @click="resetForm(ruleFormRef)">
-            {{ t('Reset') }}
+          <ElButton onClick={() => resetForm(ruleFormRef.value)}>
+            {t('Reset')}
           </ElButton>
         </ElFormItem>
       </ElForm>
     </div>
   </div>
-</template>
+)
+  }
+})

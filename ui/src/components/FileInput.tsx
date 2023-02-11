@@ -1,9 +1,10 @@
-<script lang="ts" setup>
+import { defineComponent } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 import { readFiles, resetFileInput } from '@/utils/utils'
 
-const emit = defineEmits(['fileInput'])
-
+export const FileInput = defineComponent({
+  emits: ['fileInput'],
+  setup(props, { slots, emit, expose }) {
 async function onFileChange(ev: Event) {
   const files = (ev.target as HTMLInputElement).files
   const numberOfFiles = files?.length
@@ -30,33 +31,29 @@ function dropFile(ev: DragEvent) {
   }
 }
 
-defineExpose({
+expose({
   inputChanged() {
     resetFileInput('#browseFiles' + id)
   }
 })
 const id = uuidv4()
-</script>
-
-<template>
-  <div
-    @drop.prevent="dropFile"
-    @dragenter.prevent
-    @dragover.prevent
-  >
+return () => (
+  <div onDrop={dropFile}>
     <label
       class="box-border inline-flex h-8 max-h-full grow-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-md border bg-white px-3 py-2.5 text-center align-middle text-sm leading-3 tracking-wide text-neutral-800 transition-colors hover:border-sky-300 hover:bg-sky-100 hover:text-sky-600"
-      :for="'browseFiles'+id"
+      for={'browseFiles' + id}
     >
-      <slot />
+      {slots.default?.()}
     </label>
     <input
-      :id="'browseFiles'+id"
+      id={'browseFiles' + id}
       class="file-input"
       type="file"
       hidden
       multiple
-      @change="onFileChange"
-    >
+      onChange={onFileChange}
+    />
   </div>
-</template>
+)
+  },
+})

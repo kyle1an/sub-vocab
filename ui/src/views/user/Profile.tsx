@@ -1,7 +1,6 @@
-<script lang="ts" setup>
 import type { FormInstance } from 'element-plus'
 import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
-import { reactive, ref } from 'vue'
+import { defineComponent, reactive, ref } from 'vue'
 import { z } from 'zod'
 import { t } from '@/i18n'
 import { changeUsername, isUsernameTaken } from '@/api/user'
@@ -11,6 +10,8 @@ import { usernameSchema } from '@/utils/validation'
 import { useState } from '@/composables/utilities'
 import type { FormRules } from '@/types/forms'
 
+export const Profile = defineComponent({
+  setup() {
 const store = useVocabStore()
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive({
@@ -70,53 +71,54 @@ async function alterInfo(form: typeof ruleForm) {
 }
 
 const { logout } = useVocabStore()
-</script>
-
-<template>
+return () => (
   <div class="flex flex-col">
     <div class="mb-3 border-b pb-1.5 text-xl">
-      {{ t('changeUsername') }}
+      {t('changeUsername')}
     </div>
     <div class="flex w-80">
       <ElForm
-        ref="ruleFormRef"
-        :model="ruleForm"
-        :rules="rules"
+        ref={ruleFormRef}
+        model={ruleForm}
+        rules={rules}
         label-position="top"
         label-width="100px"
         class="max-w-[460px] [&>.el-form-item_label]:font-bold"
         status-icon
       >
         <ElFormItem
-          :label="t('Name')"
+          label={t('Name')}
           prop="username"
-          :error="errorMsg"
+          error={errorMsg.value}
         >
           <ElInput
-            v-model="ruleForm.username"
+            v-model={ruleForm.username}
+            onInput={(val) => (ruleForm.username = val)}
             class="!text-base md:!text-xs"
           />
         </ElFormItem>
         <ElFormItem>
           <ElButton
             type="primary"
-            @click="submitForm(ruleFormRef)"
+            onClick={() => submitForm(ruleFormRef.value)}
           >
-            {{ t('Confirm Changes') }}
+            {t('Confirm Changes')}
           </ElButton>
-          <ElButton @click="resetForm(ruleFormRef)">
-            {{ t('Reset') }}
+          <ElButton onClick={() => resetForm(ruleFormRef.value)}>
+            {t('Reset')}
           </ElButton>
         </ElFormItem>
       </ElForm>
     </div>
     <div class="mb-3 border-b pb-1 text-xl">
-      {{ t('status') }}
+      {t('status')}
     </div>
     <div class="flex">
-      <ElButton @click="logout">
-        {{ t('log out') }}
+      <ElButton onClick={logout}>
+        {t('log out')}
       </ElButton>
     </div>
   </div>
-</template>
+)
+  }
+})

@@ -1,13 +1,14 @@
-<script lang="ts" setup>
 import Chart from 'chart.js/auto'
-import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
+import { computed, defineComponent, onBeforeUnmount, onMounted, watch } from 'vue'
 import { format } from 'date-fns'
 import { rangeRight } from 'lodash-es'
 import { t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
-import { useStateCallback } from '@/composables/utilities'
-import SegmentedControl from '@/components/SegmentedControl.vue'
+import { useState } from '@/composables/utilities'
+import { SegmentedControl } from '@/components/SegmentedControl'
 
+export const VChart = defineComponent({
+  setup() {
 const store = useVocabStore()
 let fontFamily = ['SF Pro Rounded', 'SF Pro Text', '-apple-system', 'Inter', 'system-ui', 'sans-serif']
 if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) fontFamily = fontFamily.slice(1)
@@ -72,25 +73,26 @@ onBeforeUnmount(() => {
   myChart.destroy()
 })
 type ChartSegment = typeof segments.value[number]['value']
-const [seg, setSeg] = useStateCallback<ChartSegment>(sessionStorage.getItem('prev-chart-select') as ChartSegment | null || 'W', (v) => {
+const [seg, setSeg] = useState(sessionStorage.getItem('prev-chart-select') as ChartSegment | null || 'W')
+watch(seg, (v) => {
   sessionStorage.setItem('prev-chart-select', String(v))
 })
 const segments = computed(() => [
   { value: 'W', label: t('W') },
 ] as const)
-</script>
-
-<template>
+return () => (
   <div class="h-[calc(100vh-160px)]">
     <SegmentedControl
       name="vocab-seg"
-      :segments="segments"
-      :value="seg"
-      :onChoose="setSeg"
+      segments={segments.value}
+      value={seg.value}
+      onChoose={setSeg}
     />
     <div
       id="chart"
       class="w-full tabular-nums tracking-wide ffs-[normal] md:pb-0"
     />
   </div>
-</template>
+)
+  }
+})
