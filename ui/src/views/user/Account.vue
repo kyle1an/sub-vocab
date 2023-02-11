@@ -16,7 +16,7 @@ const subNav = computed(() => [
     title: t('Password'),
     path: '/user/password',
   },
-])
+] as const)
 </script>
 
 <template>

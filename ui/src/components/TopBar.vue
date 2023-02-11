@@ -9,10 +9,10 @@ import { i18n, t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
 
 const { locale } = i18n.global
-const localeMap: Record<string, Language> = {
+const localeMap = {
   'en': en,
   'zh': zhCn,
-}
+} as const satisfies Record<string, Language>
 const elLocale = computed(() => localeMap[locale.value])
 const store = useVocabStore()
 const isLoggedIn = computed(() => !!store.user)

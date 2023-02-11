@@ -1,33 +1,43 @@
 <script lang="ts" setup>
-import type { FormInstance, FormItemRule } from 'element-plus'
+import type { FormInstance } from 'element-plus'
 import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
 import { reactive, ref } from 'vue'
+import { z } from 'zod'
 import { t } from '@/i18n'
-import { changeUsername } from '@/api/user'
+import { changeUsername, isUsernameTaken } from '@/api/user'
 import { useVocabStore } from '@/store/useVocab'
 import { resetForm } from '@/utils/elements'
-import { checkUsername, checkUsernameTaken } from '@/utils/validation'
+import { usernameSchema } from '@/utils/validation'
 import { useState } from '@/composables/utilities'
+import type { FormRules } from '@/types/forms'
 
 const store = useVocabStore()
 const ruleFormRef = ref<FormInstance>()
-
-async function checkUsernameChange(rule: FormItemRule | FormItemRule[], username: string, callback: (arg0?: Error) => void) {
-  checkUsername(rule, username, callback)
-
-  if (username !== store.user) {
-    await checkUsernameTaken(rule, username, callback)
-  }
-
-  callback()
-}
-
 const ruleForm = reactive({
   username: '',
 })
 const rules = reactive({
-  username: [{ validator: checkUsernameChange, trigger: 'blur' }],
-})
+  username: [
+    {
+      async asyncValidator(rule, username: string, callback) {
+        try {
+          usernameSchema.parse(String(username))
+        } catch (err) {
+          if (err instanceof z.ZodError) return callback(new Error(err.issues[0].message))
+        }
+
+        if (username !== store.user) {
+          if ((await isUsernameTaken({ username })).has) {
+            return callback(new Error(`${username} ${t('alreadyTaken')}`))
+          }
+        }
+
+        callback()
+      },
+      trigger: 'blur'
+    }
+  ],
+} satisfies FormRules<typeof ruleForm>)
 
 function submitForm(formEl: FormInstance | undefined) {
   if (!formEl) return

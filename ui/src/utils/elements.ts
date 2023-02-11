@@ -1,4 +1,4 @@
-import { FormInstance } from 'element-plus'
+import type { FormInstance } from 'element-plus'
 
 export function resetForm(formEl: FormInstance | undefined) {
   if (!formEl) return
