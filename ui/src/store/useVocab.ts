@@ -2,11 +2,11 @@ import { defineStore } from 'pinia'
 import Cookies from 'js-cookie'
 import { useQuery } from '@tanstack/vue-query'
 import { acquaint, batchAcquaint, queryWordsByUser, revokeWord, stemsMapping } from '@/api/vocab-service'
-import type { LabelSieveDisplay } from '@/types'
+import type { LabelSieveDisplay, SrcRow } from '@/types'
 import { login as loginUser, logoutToken } from '@/api/user'
 import router from '@/router'
 import { useState } from '@/composables/utilities'
-import { SrcRow } from '@/types'
+import { loginNotify } from '@/utils/vocab'
 
 export const useVocabStore = defineStore('SubVocabulary', () => {
   const [baseVocab, setBaseVocab] = useState<LabelSieveDisplay[]>([])
@@ -52,11 +52,16 @@ export const useVocabStore = defineStore('SubVocabulary', () => {
     $.time_modified = new Date().toISOString()
   }
 
-  async function toggleWordState(row: LabelSieveDisplay, name: string) {
+  async function toggleWordState(row: LabelSieveDisplay) {
+    if (!user.value) {
+      loginNotify()
+      return
+    }
+
     row.inUpdating = true
     const res = await (row.acquainted ? revokeWord : acquaint)({
       word: row.w.replace(/'/g, `''`),
-      user: name,
+      user: user.value,
     })
 
     if (res?.affectedRows) {
@@ -67,6 +72,11 @@ export const useVocabStore = defineStore('SubVocabulary', () => {
   }
 
   async function acquaintEveryVocab(tableDataOfVocab: SrcRow<LabelSieveDisplay>[]) {
+    if (!user.value) {
+      loginNotify()
+      return
+    }
+
     const rowsMap: Record<string, SrcRow<LabelSieveDisplay>> = {}
     const words: string[] = []
     tableDataOfVocab.forEach((row) => {

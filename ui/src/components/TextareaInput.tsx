@@ -1,7 +1,12 @@
 import { defineComponent } from 'vue'
 
 export const TextareaInput = defineComponent({
-  emits: ['textChange'],
+  emits: {
+    textChange: (e: {
+      value: string,
+      name?: string,
+    }) => e,
+  },
   setup(props: {
     value: string
     placeholder?: string

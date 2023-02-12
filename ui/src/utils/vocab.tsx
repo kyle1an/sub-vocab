@@ -60,25 +60,6 @@ export function formVocabList(vocabulary: Array<LabelVocab | null>) {
   return all
 }
 
-export function handleVocabToggle(row: LabelSieveDisplay) {
-  const store = useVocabStore()
-  if (store.user) {
-    store.toggleWordState(row, store.user)
-  } else {
-    loginNotify()
-  }
-}
-
-export async function acquaintAll(tableDataOfVocab: SrcRow<LabelSieveDisplay>[]) {
-  const store = useVocabStore()
-  if (!store.user) {
-    loginNotify()
-    return
-  }
-
-  await store.acquaintEveryVocab(tableDataOfVocab)
-}
-
 export function loginNotify() {
   ElNotification({
     message: (

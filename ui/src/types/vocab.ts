@@ -46,8 +46,3 @@ export type SrcRow<T> = {
   src: VocabSource;
   vocab: T;
 }
-
-export interface AcquaintToggle {
-  acquainted: number | boolean;
-  inUpdating: boolean;
-}
