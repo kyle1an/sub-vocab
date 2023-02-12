@@ -1,34 +1,4 @@
-import { VocabSource } from '@/types'
-
-function Line(
-  {
-    sentence = '',
-    idxes,
-  }: {
-    sentence: string,
-    idxes: [number, number][],
-  }
-) {
-  let progress = 0
-  return (
-    <div
-      class="break-words"
-      style="word-break: break-word;"
-    >
-      {idxes.map(([start, count]) => (
-        <>
-          <span>
-            {sentence.slice(progress, start)}
-          </span>
-          <span class="font-bold italic">
-            {sentence.slice(start, progress = start + count)}
-          </span>
-        </>
-      ))}
-      <span>{sentence.slice(progress)}</span>
-    </div>
-  )
-}
+import type { VocabSource } from '@/types'
 
 export function Examples(
   {
@@ -60,13 +30,23 @@ export function Examples(
 
   return (
     <div class="mb-1 ml-5 mr-3">
-      {vocabPositions.map(([no, idx], index) => (
-        <Line
-          key={index}
-          sentence={sentences[no]}
-          idxes={idx}
-        />
-      ))}
+      {vocabPositions.map(([no, wordIndexes], index) => {
+        let progress = 0
+        const sentence = sentences[no]
+        return (
+          <div
+            key={index}
+            class="break-words"
+            style="word-break: break-word;"
+          >{wordIndexes.map(([start, count]) => (
+            <>
+              <span>{sentence.slice(progress, start)}</span>
+              <span class="font-bold italic">{sentence.slice(start, progress = start + count)}</span>
+            </>
+          ))}<span>{sentence.slice(progress)}</span>
+          </div>
+        )
+      })}
     </div>
   )
 }

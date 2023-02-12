@@ -10,143 +10,143 @@ import type { FormRules } from '@/types/forms'
 
 export const Password = defineComponent({
   setup() {
-const store = useVocabStore()
-const ruleFormRef = ref<FormInstance>()
-const ruleForm = reactive({
-  oldPassword: '',
-  password: '',
-  checkPass: '',
-})
-const rules = reactive({
-  password: [
-    {
-      validator(rule, value: string, callback) {
-        if (value === '') {
-          return callback()
-        }
-
-        if (ruleForm.checkPass !== '') {
-          if (!ruleFormRef.value) return
-          ruleFormRef.value.validateField('checkPass', () => null)
-        }
-
-        callback()
-      },
-      trigger: 'blur'
-    }
-  ],
-  checkPass: [
-    {
-      validator(rule, value: string, callback) {
-        if (value === '' && ruleForm.password === '') {
-          return callback()
-        }
-
-        if (value !== ruleForm.password) {
-          return callback(new Error(t('inputsNotMatch')))
-        }
-
-        callback()
-      },
-      trigger: 'blur'
-    }
-  ],
-} satisfies FormRules<typeof ruleForm>)
-
-function submitForm(formEl: FormInstance | undefined) {
-  if (!formEl) return
-  formEl.validate((valid) => {
-    if (!valid) {
-      console.log('error submit!')
-      return false
-    }
-
-    alterInfo(ruleForm)
-  })
-}
-
-const [errorMsg, setErrorMsg] = useState('')
-
-async function alterInfo(form: typeof ruleForm) {
-  if (form.password !== '') {
-    form.password = form.password.trim()
-    const res = await changePassword({
-      username: store.user,
-      oldPassword: form.oldPassword,
-      newPassword: form.password,
+    const store = useVocabStore()
+    const ruleFormRef = ref<FormInstance>()
+    const ruleForm = reactive({
+      oldPassword: '',
+      password: '',
+      checkPass: '',
     })
+    const rules = reactive({
+      password: [
+        {
+          validator(rule, value: string, callback) {
+            if (value === '') {
+              return callback()
+            }
 
-    if (res.success) {
-      await useVocabStore().logout()
-    } else {
-      setErrorMsg(res.message || 'something went wrong')
+            if (ruleForm.checkPass !== '') {
+              if (!ruleFormRef.value) return
+              ruleFormRef.value.validateField('checkPass', () => null)
+            }
+
+            callback()
+          },
+          trigger: 'blur'
+        }
+      ],
+      checkPass: [
+        {
+          validator(rule, value: string, callback) {
+            if (value === '' && ruleForm.password === '') {
+              return callback()
+            }
+
+            if (value !== ruleForm.password) {
+              return callback(new Error(t('inputsNotMatch')))
+            }
+
+            callback()
+          },
+          trigger: 'blur'
+        }
+      ],
+    } satisfies FormRules<typeof ruleForm>)
+
+    function submitForm(formEl: FormInstance | undefined) {
+      if (!formEl) return
+      formEl.validate((valid) => {
+        if (!valid) {
+          console.log('error submit!')
+          return false
+        }
+
+        alterInfo(ruleForm)
+      })
     }
-  }
-}
 
-return () => (
-  <div class="flex flex-col">
-    <div class="mb-3 border-b pb-1.5 text-xl">
-      {t('changePassword')}
-    </div>
-    <div class="flex w-80">
-      <ElForm
-        ref={ruleFormRef}
-        model={ruleForm}
-        rules={rules}
-        label-position="top"
-        label-width="100px"
-        class="max-w-[460px] [&>.el-form-item_label]:font-bold"
-        status-icon
-      >
-        <ElFormItem
-          label={t('Old Password')}
-          prop="oldPassword"
-          error={errorMsg.value}
-        >
-          <ElInput
-            v-model={ruleForm.oldPassword}
-            type="password"
-            autocomplete="off"
-            class="!text-base md:!text-xs"
-          />
-        </ElFormItem>
-        <ElFormItem
-          label={t('New Password')}
-          prop="password"
-        >
-          <ElInput
-            v-model={ruleForm.password}
-            type="password"
-            autocomplete="off"
-            class="!text-base md:!text-xs"
-          />
-        </ElFormItem>
-        <ElFormItem
-          label={t('New Password Confirm')}
-          prop="checkPass"
-        >
-          <ElInput
-            v-model={ruleForm.checkPass}
-            type="password"
-            autocomplete="off"
-            class="!text-base md:!text-xs"
-          />
-        </ElFormItem>
-        <ElFormItem>
-          <ElButton
-            type="primary"
-            onClick={() => submitForm(ruleFormRef.value)}
+    const [errorMsg, setErrorMsg] = useState('')
+
+    async function alterInfo(form: typeof ruleForm) {
+      if (form.password !== '') {
+        form.password = form.password.trim()
+        const res = await changePassword({
+          username: store.user,
+          oldPassword: form.oldPassword,
+          newPassword: form.password,
+        })
+
+        if (res.success) {
+          await useVocabStore().logout()
+        } else {
+          setErrorMsg(res.message || 'something went wrong')
+        }
+      }
+    }
+
+    return () => (
+      <div class="flex flex-col">
+        <div class="mb-3 border-b pb-1.5 text-xl">
+          {t('changePassword')}
+        </div>
+        <div class="flex w-80">
+          <ElForm
+            ref={ruleFormRef}
+            model={ruleForm}
+            rules={rules}
+            label-position="top"
+            label-width="100px"
+            class="max-w-[460px] [&>.el-form-item_label]:font-bold"
+            status-icon
           >
-            {t('Confirm Changes')}
-          </ElButton>
-          <ElButton onClick={() => resetForm(ruleFormRef.value)}>
-            {t('Reset')}
-          </ElButton>
-        </ElFormItem>
-      </ElForm>
-    </div>
-  </div>
-)
+            <ElFormItem
+              label={t('Old Password')}
+              prop="oldPassword"
+              error={errorMsg.value}
+            >
+              <ElInput
+                v-model={ruleForm.oldPassword}
+                type="password"
+                autocomplete="off"
+                class="!text-base md:!text-xs"
+              />
+            </ElFormItem>
+            <ElFormItem
+              label={t('New Password')}
+              prop="password"
+            >
+              <ElInput
+                v-model={ruleForm.password}
+                type="password"
+                autocomplete="off"
+                class="!text-base md:!text-xs"
+              />
+            </ElFormItem>
+            <ElFormItem
+              label={t('New Password Confirm')}
+              prop="checkPass"
+            >
+              <ElInput
+                v-model={ruleForm.checkPass}
+                type="password"
+                autocomplete="off"
+                class="!text-base md:!text-xs"
+              />
+            </ElFormItem>
+            <ElFormItem>
+              <ElButton
+                type="primary"
+                onClick={() => submitForm(ruleFormRef.value)}
+              >
+                {t('Confirm Changes')}
+              </ElButton>
+              <ElButton onClick={() => resetForm(ruleFormRef.value)}>
+                {t('Reset')}
+              </ElButton>
+            </ElFormItem>
+          </ElForm>
+        </div>
+      </div>
+    )
   }
 })

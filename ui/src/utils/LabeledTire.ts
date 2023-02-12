@@ -1,5 +1,25 @@
-import { caseOr, hasUppercase, isVowel } from './utils'
-import type { Char, LabelSieveDisplay, LabelVocab, TrieNode } from '@/types'
+import type { LabelBase, LabelSieveDisplay, LabelVocab } from '@/types'
+
+type Char = `'` | '’' | '-' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z';
+
+type TrieNode<T extends LabelBase> = {
+  [K in Char | '$']?: K extends Char ? TrieNode<T>
+    : K extends '$' ? T
+      : never
+}
+
+function caseOr(a: string, b: string) {
+  const r = []
+
+  for (let i = 0; i < a.length; i++) {
+    r.push(a.charCodeAt(i) | b.charCodeAt(i))
+  }
+
+  return String.fromCharCode(...r)
+}
+
+const hasUppercase = (chars: string) => /[A-ZÀ-Þ]/.test(chars)
+const isVowel = (chars: string) => ['a', 'e', 'i', 'o', 'u'].includes(chars)
 
 export default class LabeledTire {
   root: TrieNode<LabelVocab>

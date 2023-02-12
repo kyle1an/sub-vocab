@@ -5,20 +5,6 @@ export function sortByChar(a: string, b: string) {
   return a.localeCompare(b, 'en', { sensitivity: 'base' })
 }
 
-export function caseOr(a: string, b: string) {
-  const r = []
-
-  for (let i = 0; i < a.length; i++) {
-    r.push(a.charCodeAt(i) | b.charCodeAt(i))
-  }
-
-  return String.fromCharCode(...r)
-}
-
-export const hasUppercase = (chars: string) => /[A-ZÀ-Þ]/.test(chars)
-
-export const isVowel = (chars: string) => ['a', 'e', 'i', 'o', 'u'].includes(chars)
-
 export const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 
 export function selectWord(e: Event) {
@@ -32,33 +18,17 @@ export function removeClass(className: string) {
   }
 }
 
-type fileResult = { result: FileReader['result'] }
-
-export function readSingleFile(file: File) {
-  return new Promise<fileResult>((resolve, reject) => {
-    const fr = new FileReader()
-    fr.onload = () => {
-      const { result } = fr
-      resolve({ result })
-    }
-    fr.onerror = reject
-    fr.readAsText(file)
-  })
-}
-
-export async function readFiles(files: FileList) {
-  const fileList: fileResult[] = []
-  for (let i = 0; i < files.length; i++) {
-    fileList.push(await readSingleFile(files[i]))
-  }
-
-  return fileList
-}
-
 export const jsonClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj))
 
-export const orderBy = (prop: string | null, order: Order) => <T extends MyVocabRow>(rows: T[]) => prop && order ? rows.sort(compareFn(prop, order)) : rows
+export const orderBy = (prop: string | null, order: Order) => {
+  return <T extends MyVocabRow>(rows: T[]) => {
+    if (!prop || !order) {
+      return rows
+    }
 
+    return rows.sort(compareFn(prop, order))
+  }
+}
 export function compareFn(propName: string, order: NonNullable<Order>): (obj1: MyVocabRow, obj2: MyVocabRow) => number {
   const reverse = order === 'ascending' ? 1 : -1
   switch (propName) {
@@ -113,10 +83,3 @@ export const paging = (currPage: number, pageSize: number) => <T>(rows: T[]) => 
 export const daysInMonth = (month: number, year: number) => new Date(year, month, 0).getDate()
 
 export const tap = <T>(a: T) => a
-
-export function resetFileInput(selectors: string) {
-  const input = document.querySelectorAll(selectors) as NodeListOf<HTMLInputElement>
-  for (let i = 0; i < input.length; i++) {
-    input[i].value = ''
-  }
-}
