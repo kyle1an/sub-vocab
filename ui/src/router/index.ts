@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { Sub } from '@/views/Sub/Sub'
+import { Sub } from '@/views/sub/Sub'
 
 const router = createRouter({
   history: createWebHistory(''),
@@ -12,24 +12,24 @@ const router = createRouter({
     { path: '/about', component: { template: '<div>About</div>' } },
     {
       path: '/mine',
-      component: () => import('@/views/Mine/Dashboard').then(({ Dashboard }) => Dashboard),
+      component: () => import('@/views/mine/Dashboard').then(({ Dashboard }) => Dashboard),
       meta: { keepAlive: true },
       children: [
         {
           path: '',
-          component: () => import('@/views/Mine/MineVocab').then(({ MineVocab }) => MineVocab),
+          component: () => import('@/views/mine/MineVocab').then(({ MineVocab }) => MineVocab),
           meta: { keepAlive: true },
         },
         {
           path: '/chart',
-          component: () => import('@/views/Mine/Chart').then(({ VChart }) => VChart),
+          component: () => import('@/views/mine/Chart').then(({ VChart }) => VChart),
           meta: { keepAlive: true },
         },
       ],
     },
     {
       path: '/import',
-      component: () => import('@/views/VocabImport/Import').then(({ Import }) => Import),
+      component: () => import('@/views/vocab-import/Import').then(({ Import }) => Import),
       meta: { keepAlive: true },
     },
     { path: '/login', component: () => import('@/views/Login').then(({ Login }) => Login) },

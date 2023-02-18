@@ -26,7 +26,7 @@ export const useVocabStore = defineStore('SubVocabulary', () => {
     const resAuth = await loginUser(info)
     if (!resAuth[0]) return
     setUser(info.username)
-    requestAnimationFrame(router.back)
+    requestAnimationFrame(() => router.push('/'))
     return true
   }
 
@@ -52,52 +52,63 @@ export const useVocabStore = defineStore('SubVocabulary', () => {
     $.time_modified = new Date().toISOString()
   }
 
-  async function toggleWordState(row: LabelSieveDisplay) {
+  function toggleWordState(vocab: LabelSieveDisplay) {
     if (!user.value) {
       loginNotify()
       return
     }
 
-    row.inUpdating = true
-    const res = await (row.acquainted ? revokeWord : acquaint)({
-      word: row.w.replace(/'/g, `''`),
+    vocab.inUpdating = true
+    ;(vocab.acquainted ? revokeWord : acquaint)({
+      word: vocab.w.replace(/'/g, `''`),
       user: user.value,
     })
-
-    if (res?.affectedRows) {
-      updateWord(row, !row.acquainted)
-    }
-
-    row.inUpdating = false
+      .then((res) => {
+        if (res?.affectedRows) {
+          updateWord(vocab, !vocab.acquainted)
+        }
+      })
+      .finally(() => {
+        vocab.inUpdating = false
+      })
   }
 
-  async function acquaintEveryVocab(tableDataOfVocab: SrcRow<LabelSieveDisplay>[]) {
+  function acquaintEveryVocab(tableDataOfVocab: SrcRow<LabelSieveDisplay>[]) {
     if (!user.value) {
       loginNotify()
       return
     }
 
-    const rowsMap: Record<string, SrcRow<LabelSieveDisplay>> = {}
+    const rows: SrcRow<LabelSieveDisplay>[] = []
     const words: string[] = []
     tableDataOfVocab.forEach((row) => {
       if (!row.vocab.acquainted && row.vocab.w.length < 32) {
-        const word = row.vocab.w
         row.vocab.inUpdating = true
-        rowsMap[word] = row
-        words.push(word.replace(/'/g, `''`))
+        rows.push(row)
+        words.push(row.vocab.w.replace(/'/g, `''`))
       }
     })
-    const res = await batchAcquaint({ user: user.value, words }) as string
-    if (res === 'success') {
-      Object.values(rowsMap).forEach((row) => {
-        updateWord(row.vocab, true)
-        row.vocab.inUpdating = false
-      })
-    } else {
-      Object.values(rowsMap).forEach((row) => {
-        row.vocab.inUpdating = false
-      })
+
+    if (words.length === 0) {
+      return
     }
+
+    batchAcquaint({
+      user: user.value,
+      words,
+    })
+      .then((res) => {
+        if (res === 'success') {
+          rows.forEach((row) => {
+            updateWord(row.vocab, true)
+          })
+        }
+      })
+      .finally(() => {
+        rows.forEach((row) => {
+          row.vocab.inUpdating = false
+        })
+      })
   }
 
   return {

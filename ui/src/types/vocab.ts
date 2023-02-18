@@ -1,31 +1,14 @@
-export interface LabelFromUser extends Record<string, unknown> {
-  w: string;
-  acquainted: number | boolean,
-  is_user: number | boolean,
-  original: number | boolean,
-  rank: number | null,
-  time_modified: string | null,
-}
+import { LabelFromUser } from '../../../backend/routes/vocab'
 
-export interface LabelFlag {
-  inStore: boolean,
-  inUpdating: boolean,
-}
-
-export type VocabSource = {
-  sentenceId: number;
-  startIndex: number;
-  wordLength: number;
-  wordSequence: number;
-}[]
-
-export interface LabelBase extends Record<string, unknown> {
+export interface LabelVocab extends Record<string, unknown> {
   w: string;
   up: boolean;
-  src: VocabSource;
-}
-
-export interface LabelVocab extends LabelBase {
+  src: {
+    sentenceId: number;
+    startIndex: number;
+    wordLength: number;
+    wordSequence: number;
+  }[];
   vocab?: LabelSieveDisplay;
   derive?: LabelVocab[];
   variant?: boolean;
@@ -36,13 +19,16 @@ export interface MyVocabRow {
   vocab: LabelSieveDisplay;
 }
 
-export interface LabelSieveDisplay extends LabelFromUser, LabelFlag {}
+export interface LabelSieveDisplay extends LabelFromUser {
+  inStore: boolean,
+  inUpdating: boolean,
+}
 
 export interface LabelSubDisplay extends LabelSieveDisplay {
   wFamily: string[];
 }
 
 export type SrcRow<T> = {
-  src: VocabSource;
+  src: LabelVocab['src'];
   vocab: T;
 }

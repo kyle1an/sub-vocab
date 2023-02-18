@@ -12,7 +12,9 @@ const props = withDefaults(defineProps<{
 <template>
   <div>
     <label class="form-switch flex cursor-pointer justify-center tap-transparent">
-      <span class="mx-2.5 flex flex-col-reverse justify-center text-base">{{ props.text[0] }}</span>
+      <span class="mx-2.5 flex flex-col-reverse justify-center text-base">
+        {{ props.text[0] }}
+      </span>
       <input
         :checked="props.state"
         type="checkbox"
@@ -20,7 +22,9 @@ const props = withDefaults(defineProps<{
         @change="(ev)=>props.onToggle(ev.target.checked)"
       >
       <i class="relative mr-2 inline-block h-[26px] w-[46px] select-none rounded-[23px] bg-[#e6e6e6] align-text-bottom transition-all duration-300 ease-linear" />
-      <span class="mx-2.5 flex flex-col-reverse justify-center text-base">{{ props.text[1] }}</span>
+      <span class="mx-2.5 flex flex-col-reverse justify-center text-base">
+        {{ props.text[1] }}
+      </span>
     </label>
   </div>
 </template>

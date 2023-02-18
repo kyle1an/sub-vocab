@@ -1,10 +1,9 @@
-import type { MyVocabRow } from '@/types'
+import type { LabelSieveDisplay, MyVocabRow } from '@/types'
 import { useVocabStore } from '@/store/useVocab'
-import { LabelSieveDisplay } from '@/types'
 
-function handleVocabToggle(row: LabelSieveDisplay) {
+function handleVocabToggle(vocab: LabelSieveDisplay) {
   const store = useVocabStore()
-  store.toggleWordState(row).then()
+  store.toggleWordState(vocab)
 }
 
 export function VocabToggle({ row }: { row: MyVocabRow }) {

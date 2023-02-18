@@ -76,8 +76,9 @@ export const TopBar = defineComponent({
                 </RouterLink>
               </>
             )}
-            <ElDropdown onCommand={handleCommand}>
-              {{
+            <ElDropdown
+              onCommand={handleCommand}
+              v-slots={{
                 default: () =>
                   <div class="flex px-4 outline-none">
                     文/Aa
@@ -104,13 +105,14 @@ export const TopBar = defineComponent({
                     </ElDropdownItem>
                   </ElDropdownMenu>
               }}
-            </ElDropdown>
+            />
             <ElConfigProvider locale={elLocale.value} />
             <a
               href="https://github.com/kyle1an/sub-vocab"
               target="_blank"
               class="mr-3 block text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 xl:mr-0"
-            ><span class="sr-only">SubVocab on GitHub</span>
+            >
+              <span class="sr-only">SubVocab on GitHub</span>
               <svg
                 viewBox="0 0 16 16"
                 class="h-5 w-5"

@@ -1,27 +1,21 @@
 import { defineComponent } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 
-type fileResult = { result: FileReader['result'] }
-
-function readSingleFile(file: File) {
-  return new Promise<fileResult>((resolve, reject) => {
-    const fr = new FileReader()
-    fr.onload = () => {
-      const { result } = fr
-      resolve({ result })
-    }
-    fr.onerror = reject
-    fr.readAsText(file)
-  })
-}
-
 async function readFiles(files: FileList) {
-  const fileList: fileResult[] = []
+  const fileList = []
   for (let i = 0; i < files.length; i++) {
-    fileList.push(await readSingleFile(files[i]))
+    fileList.push(new Promise<{ result: FileReader['result'] }>((resolve, reject) => {
+      const fr = new FileReader()
+      fr.onload = () => {
+        const { result } = fr
+        resolve({ result })
+      }
+      fr.onerror = reject
+      fr.readAsText(files[i])
+    }))
   }
 
-  return fileList
+  return await Promise.all(fileList)
 }
 
 export const FileInput = defineComponent({

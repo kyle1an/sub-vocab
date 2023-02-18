@@ -96,7 +96,7 @@ export const generatedVocabTrie = (inputText: string) => {
   logEnd('%c  formLabel vocabulary')
   logEnd(['· categorize vocabulary', ' +  '])
   logEnd(['-- All took', '    '])
-  logVocabInfo(list)
+  // logVocabInfo(list)
   logPerf()
   return {
     list,

@@ -1,6 +1,7 @@
-import { KeepAlive, defineComponent } from 'vue'
+import { defineComponent } from 'vue'
 import { RouterView } from 'vue-router'
 import { TopBar } from '@/components/TopBar'
+import { KeepViewAlive } from '@/components/common/KeepViewAlive'
 
 export const App = defineComponent({
   setup() {
@@ -9,17 +10,7 @@ export const App = defineComponent({
         <TopBar class="ffs-pre fixed h-12" />
         <div class="ffs-pre flex min-h-[100vh] flex-col items-center pt-12">
           <RouterView>
-            {({ Component, route }: any) => (
-              route.meta?.keepAlive ? (
-                <KeepAlive>
-                  {Component}
-                </KeepAlive>
-              ) : (
-                <>
-                  {Component}
-                </>
-              )
-            )}
+            {KeepViewAlive}
           </RouterView>
         </div>
       </div>

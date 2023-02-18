@@ -6,9 +6,9 @@ import { formatDistanceToNowStrict } from 'date-fns'
 import { t } from '@/i18n'
 import { SegmentedControl } from '@/components/SegmentedControl'
 import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
-import type { LabelSieveDisplay, MyVocabRow, Sorting, SrcRow } from '@/types'
+import type { MyVocabRow, Sorting, SrcRow } from '@/types'
 import { VocabToggle } from '@/components/vocabulary/ToggleButton'
-import { useElHover, useState, useStateCallback } from '@/composables/utilities'
+import { useElHover, useState } from '@/composables/utilities'
 import { Length, Rank, VocabSearch } from '@/components/vocabulary/VocabComponents'
 import { useVocabStore } from '@/store/useVocab'
 
@@ -25,10 +25,11 @@ export const VocabDataTable = defineComponent({
       { value: 'recent', label: t('recent') },
     ] as const)
     type TableSegment = typeof segments.value[number]['value']
-    type DataRow = SrcRow<LabelSieveDisplay>
+    type RowData = SrcRow<typeof store.baseVocab[number]>
     const prevSegment = useSessionStorage(`${props.tableName}-segment`, 'all')
     const initialSegment = segments.value.find((s) => s.value === prevSegment.value)?.value ?? 'all'
-    const [segment, setSegment] = useStateCallback<TableSegment>(initialSegment, (v) => {
+    const [segment, setSegment] = useState<TableSegment>(initialSegment)
+    watch(segment, (v) => {
       setDisabledTotal(true)
       prevSegment.value = v
     })
@@ -101,7 +102,7 @@ export const VocabDataTable = defineComponent({
           <ElTable
             ref={vocabTable}
             data={rowsDisplay.value}
-            row-key={(row: DataRow) => '_' + row.vocab.w}
+            row-key={(row: RowData) => '_' + row.vocab.w}
             class={String.raw`!h-full !w-full md:w-full [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full [&_th_.cell]:font-compact [&_th_.cell]:tracking-normal`}
             size="small"
             onSort-change={onSortChange}
@@ -123,12 +124,14 @@ export const VocabDataTable = defineComponent({
                   className="select-none [&>.cell]:!pr-0"
                   v-slots={{
                     header: () => VocabSearch(search),
-                    default: ({ row }: { row: DataRow }) =>
+                    default: ({ row }: { row: RowData }) =>
                       <span
                         class="cursor-text select-text text-[16px] tracking-wide text-neutral-800"
                         onMouseover={isMobile ? () => void 0 : selectWord}
                         onClick={(ev) => ev.stopPropagation()}
-                      >{row.vocab.w}</span>
+                      >
+                        {row.vocab.w}
+                      </span>
                   }}
                 />
                 <ElTableColumn
@@ -150,7 +153,7 @@ export const VocabDataTable = defineComponent({
                   width={82}
                   prop="vocab.time_modified"
                   sortable="custom"
-                  v-slots={({ row }: { row: DataRow }) => row.vocab.time_modified && (
+                  v-slots={({ row }: { row: RowData }) => row.vocab.time_modified && (
                     <div
                       class="flex flex-row gap-0.5 font-compact tabular-nums tracking-normal text-neutral-900 ffs-[normal]"
                     >
