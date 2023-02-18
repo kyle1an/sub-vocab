@@ -45,6 +45,15 @@ module.exports = {
     }],
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/ban-types": [
+      "error",
+      {
+        "types": {
+          "{}": false
+        },
+        "extendDefaults": true
+      }
+    ],
     "tailwindcss/no-custom-classname": "off",
     "vue/component-name-in-template-casing": ["warn", "PascalCase", {
       "registeredComponentsOnly": true,

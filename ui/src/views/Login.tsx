@@ -5,7 +5,6 @@ import { z } from 'zod'
 import { RouterLink } from 'vue-router'
 import { t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
-import { resetForm } from '@/utils/elements'
 import { inputPasswordSchema, inputnameSchema } from '@/utils/validation'
 import { useState } from '@/composables/utilities'
 import type { FormRules } from '@/types/forms'
@@ -108,7 +107,7 @@ export const Login = defineComponent({
                       >
                         {t('Submit')}
                       </ElButton>
-                      <ElButton onClick={() => resetForm(ruleFormRef.value)}>
+                      <ElButton onClick={() => ruleFormRef.value && ruleFormRef.value.resetFields()}>
                         {t('Reset')}
                       </ElButton>
                     </ElFormItem>

@@ -6,7 +6,6 @@ import { z } from 'zod'
 import { t } from '@/i18n'
 import router from '@/router'
 import { isUsernameTaken, register } from '@/api/user'
-import { resetForm } from '@/utils/elements'
 import { inputPasswordSchema, usernameSchema } from '@/utils/validation'
 import { useState } from '@/composables/utilities'
 import type { FormRules } from '@/types/forms'
@@ -160,7 +159,7 @@ export const Register = defineComponent({
                       >
                         {t('Create Account')}
                       </ElButton>
-                      <ElButton onClick={() => resetForm(ruleFormRef.value)}>
+                      <ElButton onClick={() => ruleFormRef.value && ruleFormRef.value.resetFields()}>
                         {t('Reset')}
                       </ElButton>
                     </ElFormItem>
