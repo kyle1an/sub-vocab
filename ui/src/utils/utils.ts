@@ -26,37 +26,34 @@ export const orderBy = (prop: string | null, order: Order) => {
       return rows
     }
 
-    return rows.sort(compareFn(prop, order))
-  }
-}
-export function compareFn(propName: string, order: NonNullable<Order>): (obj1: MyVocabRow, obj2: MyVocabRow) => number {
-  const reverse = order === 'ascending' ? 1 : -1
-  switch (propName) {
-    case 'vocab.rank':
-      return (obj1, obj2) => reverse * (
-        (obj1.vocab.rank ?? Infinity) - (obj2.vocab.rank ?? Infinity)
-        || obj1.vocab.w.length - obj2.vocab.w.length
-        || obj1.vocab.w.localeCompare(obj2.vocab.w, 'en', { sensitivity: 'base' })
-      )
-    case 'vocab.time_modified':
-      return (obj1, obj2) => reverse * (
-        (obj1.vocab.time_modified ?? '').localeCompare(obj2.vocab.time_modified ?? '')
-        || obj1.vocab.w.localeCompare(obj2.vocab.w, 'en', { sensitivity: 'base' })
-      )
-    case 'vocab.w.length':
-      return (obj1, obj2) => reverse * (
-        obj1.vocab.w.length - obj2.vocab.w.length
-        || obj1.vocab.w.localeCompare(obj2.vocab.w, 'en', { sensitivity: 'base' })
-      )
-    default:
-      return (obj1, obj2) => {
-        const a = get(obj1, propName)
-        const b = get(obj2, propName)
-        if (typeof a === 'number' && typeof b === 'number') {
-          return reverse * (a - b)
-        }
-        return reverse * String(a).localeCompare(String(b), 'en', { sensitivity: 'base' })
-      }
+    const reverse = order === 'ascending' ? 1 : -1
+    switch (prop) {
+      case 'vocab.rank':
+        return rows.sort((obj1, obj2) => reverse * (
+          (obj1.vocab.rank ?? Infinity) - (obj2.vocab.rank ?? Infinity)
+          || obj1.vocab.w.length - obj2.vocab.w.length
+          || obj1.vocab.w.localeCompare(obj2.vocab.w, 'en', { sensitivity: 'base' })
+        ))
+      case 'vocab.time_modified':
+        return rows.sort((obj1, obj2) => reverse * (
+          (obj1.vocab.time_modified ?? '').localeCompare(obj2.vocab.time_modified ?? '')
+          || obj1.vocab.w.localeCompare(obj2.vocab.w, 'en', { sensitivity: 'base' })
+        ))
+      case 'vocab.w.length':
+        return rows.sort((obj1, obj2) => reverse * (
+          obj1.vocab.w.length - obj2.vocab.w.length
+          || obj1.vocab.w.localeCompare(obj2.vocab.w, 'en', { sensitivity: 'base' })
+        ))
+      default:
+        return rows.sort((obj1, obj2) => {
+          const a = get(obj1, prop)
+          const b = get(obj2, prop)
+          if (typeof a === 'number' && typeof b === 'number') {
+            return reverse * (a - b)
+          }
+          return reverse * String(a).localeCompare(String(b), 'en', { sensitivity: 'base' })
+        })
+    }
   }
 }
 

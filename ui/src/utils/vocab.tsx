@@ -35,11 +35,11 @@ function formVocab($: LabelVocab) {
     is_user: 0,
     inStore: false,
     inUpdating: false,
-  }, {
-    wFamily,
     original: false,
     time_modified: null,
     rank: null,
+  }, {
+    wFamily,
   })
 
   return {

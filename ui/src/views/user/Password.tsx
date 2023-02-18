@@ -4,7 +4,6 @@ import { defineComponent, reactive, ref } from 'vue'
 import { t } from '@/i18n'
 import { changePassword } from '@/api/user'
 import { useVocabStore } from '@/store/useVocab'
-import { resetForm } from '@/utils/elements'
 import { useState } from '@/composables/utilities'
 import type { FormRules } from '@/types/forms'
 
@@ -140,7 +139,7 @@ export const Password = defineComponent({
               >
                 {t('Confirm Changes')}
               </ElButton>
-              <ElButton onClick={() => resetForm(ruleFormRef.value)}>
+              <ElButton onClick={() => ruleFormRef.value && ruleFormRef.value.resetFields()}>
                 {t('Reset')}
               </ElButton>
             </ElFormItem>

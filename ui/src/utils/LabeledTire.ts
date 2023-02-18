@@ -1,12 +1,12 @@
-import type { LabelBase, LabelSieveDisplay, LabelVocab } from '@/types'
+import type { LabelBase, LabelSieveDisplay, LabelVocab, Prettify } from '@/types'
 
 type Char = `'` | '’' | '-' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z';
 
-type TrieNode<T extends LabelBase> = {
-  [K in Char | '$']?: K extends Char ? TrieNode<T>
-    : K extends '$' ? T
-      : never
-}
+type TrieNode<T extends LabelBase> = Prettify<{
+  [K in Char]?: K extends Char ? TrieNode<T> : never
+} & {
+  '$'?: T
+}>
 
 function caseOr(a: string, b: string) {
   const r = []
@@ -18,7 +18,7 @@ function caseOr(a: string, b: string) {
   return String.fromCharCode(...r)
 }
 
-const hasUppercase = (chars: string) => /[A-ZÀ-Þ]/.test(chars)
+const capitalIn = (chars: string) => /[A-ZÀ-Þ]/.test(chars)
 const isVowel = (chars: string) => ['a', 'e', 'i', 'o', 'u'].includes(chars)
 
 export default class LabeledTire {
@@ -52,40 +52,39 @@ export default class LabeledTire {
 
   #createPath(sieve: LabelSieveDisplay) {
     const sieveWord = sieve.w
-    const hasUp = hasUppercase(sieveWord)
-    const node = this.getNode(hasUp ? sieveWord.toLowerCase() : sieveWord)
-    const $ = node.$
+    const hasCapital = capitalIn(sieveWord)
+    const node = this.getNode(hasCapital ? sieveWord.toLowerCase() : sieveWord)
 
-    if (!$) {
+    if (!node.$) {
       node.$ = {
         w: sieveWord,
-        up: hasUp,
+        up: hasCapital,
         src: [],
         vocab: sieve,
       }
     } else {
-      if ($.vocab) {
-        $.vocab.acquainted = sieve.acquainted
-        $.vocab.inStore = sieve.inStore
-        $.vocab.time_modified = sieve.time_modified
-        $.vocab.rank = sieve.rank
-        $.wFamily = [$.vocab.w, sieve.w]
+      if (node.$.vocab) {
+        node.$.vocab.acquainted = sieve.acquainted
+        node.$.vocab.inStore = sieve.inStore
+        node.$.vocab.time_modified = sieve.time_modified
+        node.$.vocab.rank = sieve.rank
+        node.$.wFamily = [node.$.vocab.w, sieve.w]
       } else {
-        $.vocab = sieve
+        node.$.vocab = sieve
       }
-      if ($.up) {
-        if (hasUp) {
-          if ($.vocab.rank) {
-            if (sieve.rank && sieve.rank < $.vocab.rank) {
-              $.vocab = sieve
+      if (node.$.up) {
+        if (hasCapital) {
+          if (node.$.vocab.rank) {
+            if (sieve.rank && sieve.rank < node.$.vocab.rank) {
+              node.$.vocab = sieve
             }
           } else if (sieve.rank) {
-            $.vocab = sieve
+            node.$.vocab = sieve
           }
         } else {
-          $.w = sieveWord
-          $.up = false
-          $.vocab = sieve
+          node.$.w = sieveWord
+          node.$.up = false
+          node.$.vocab = sieve
         }
       }
     }
@@ -94,12 +93,12 @@ export default class LabeledTire {
   mergeDerivedWordIntoStem(irregularMaps: string[][]) {
     for (const irregulars of irregularMaps) {
       const stem = irregulars[0]
-      const hasUp = hasUppercase(stem)
-      const stemNode = this.getNode(hasUp ? stem.toLowerCase() : stem)
+      const hasCapital = capitalIn(stem)
+      const stemNode = this.getNode(hasCapital ? stem.toLowerCase() : stem)
 
       stemNode.$ ??= {
         w: stem,
-        up: hasUp,
+        up: hasCapital,
         src: [],
         vocab: {
           w: stem,
@@ -137,21 +136,20 @@ export default class LabeledTire {
         const matchedWord = m[0]
         ++this.wordCount
         if (m.index === undefined) continue
-        this.#update(matchedWord, hasUppercase(matchedWord), m.index, previousSize)
+        this.#update(matchedWord, capitalIn(matchedWord), m.index, previousSize)
       }
     }
 
     return this
   }
 
-  #update(original: string, hasUp: boolean, index: number, currentSentenceIndex: number) {
-    const branch = this.getNode(hasUp ? original.toLowerCase() : original)
-    const $ = branch.$
+  #update(original: string, hasCapital: boolean, index: number, currentSentenceIndex: number) {
+    const branch = this.getNode(hasCapital ? original.toLowerCase() : original)
 
-    if (!$) {
+    if (!branch.$) {
       branch.$ = {
         w: original,
-        up: hasUp,
+        up: hasCapital,
         src: [{
           sentenceId: currentSentenceIndex,
           startIndex: index,
@@ -161,26 +159,26 @@ export default class LabeledTire {
       }
       this.vocabulary[branch.$.src[0].wordSequence] = branch.$
     } else {
-      $.src.push(
+      branch.$.src.push(
         {
           sentenceId: currentSentenceIndex,
           startIndex: index,
           wordLength: original.length,
-          wordSequence: $.src.length ? this.#sequence : ++this.#sequence,
+          wordSequence: branch.$.src.length ? this.#sequence : ++this.#sequence,
         }
       )
 
-      if ($.src.length === 1) {
-        this.vocabulary[$.src[0].wordSequence] = $
+      if (branch.$.src.length === 1) {
+        this.vocabulary[branch.$.src[0].wordSequence] = branch.$
       }
 
-      if ($.up && !$.vocab) {
-        if (hasUp) {
-          $.w = caseOr($.w, original)
-          $.up = hasUppercase($.w)
+      if (branch.$.up && !branch.$.vocab) {
+        if (hasCapital) {
+          branch.$.w = caseOr(branch.$.w, original)
+          branch.$.up = capitalIn(branch.$.w)
         } else {
-          $.w = original
-          $.up = false
+          branch.$.w = original
+          branch.$.up = false
         }
       }
     }
@@ -303,7 +301,7 @@ export default class LabeledTire {
       this.#batchMergeTo(curr_e$, suffixLabels(curr))
     } else if (curr_s$) {
       const original = curr_s$.w.slice(0, -1)
-      const $ = { w: curr_s$.w.slice(0, -1), src: [], up: hasUppercase(original), derive: [] }
+      const $ = { w: curr_s$.w.slice(0, -1), src: [], up: capitalIn(original), derive: [] }
       this.#batchMergeTo($, suffixLabels(curr))
 
       if (curr[`'`]) this.#batchMergeTo($, aposSuffixLabels(curr[`'`]))
@@ -316,7 +314,7 @@ export default class LabeledTire {
       }
     } else if (curr_ying$) {
       const original = curr_ying$.w.slice(0, -3)
-      const $ = { w: original, src: [], up: hasUppercase(original), derive: [] }
+      const $ = { w: original, src: [], up: capitalIn(original), derive: [] }
       this.#batchMergeTo($, [
         curr.i?.e?.s?.$,
         curr.i?.e?.d?.$,

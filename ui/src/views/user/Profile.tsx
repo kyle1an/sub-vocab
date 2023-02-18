@@ -5,7 +5,6 @@ import { z } from 'zod'
 import { t } from '@/i18n'
 import { changeUsername, isUsernameTaken } from '@/api/user'
 import { useVocabStore } from '@/store/useVocab'
-import { resetForm } from '@/utils/elements'
 import { usernameSchema } from '@/utils/validation'
 import { useState } from '@/composables/utilities'
 import type { FormRules } from '@/types/forms'
@@ -103,7 +102,7 @@ export const Profile = defineComponent({
               >
                 {t('Confirm Changes')}
               </ElButton>
-              <ElButton onClick={() => resetForm(ruleFormRef.value)}>
+              <ElButton onClick={() => ruleFormRef.value && ruleFormRef.value.resetFields()}>
                 {t('Reset')}
               </ElButton>
             </ElFormItem>
