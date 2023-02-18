@@ -1,17 +1,14 @@
-export interface Stems {
-  derived_word: string,
-  stem_word: string,
+import type { Request, Response, Send } from 'express-serve-static-core'
+
+export interface RequestBody<T = {}> extends Request {
+  body: T
+}
+
+export interface TypedResponse<ResBody = {}> extends Response {
+  json: Send<ResBody, this>;
 }
 
 export interface Status {
   success: boolean
   message?: string
 }
-
-export interface UsernameTaken {
-  has: boolean
-}
-
-export type RegisterResponse = [{ result: number }]
-
-export type LoginResponse = [boolean]

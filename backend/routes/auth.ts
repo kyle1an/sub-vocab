@@ -1,65 +1,69 @@
 import crypto from 'crypto'
 import express from 'express'
-import type { RowDataPacket } from 'mysql2'
+import type { OkPacket, ResultSetHeader } from 'mysql2'
 import { pool } from '../config/connection'
 import { daysIn, tokenChecker } from '../lib/timeUtil'
-import type { LoginResponse, RegisterResponse, Status, UsernameTaken } from '../types'
+import type { RequestBody, Status, TypedResponse } from '../types'
+import type { Credential, NewCredential, NewUsername, Username } from '../../ui/src/api/user'
 
 const router = express.Router()
-router.post('/login', (req, res) => {
+
+export type LoginResponse = [boolean]
+
+router.post('/login', (req: RequestBody<Credential>, res: TypedResponse<LoginResponse>) => {
   const token = crypto.randomBytes(32).toString('hex')
   pool.getConnection((err, connection) => {
     const { username, password } = req.body
-    connection.query<RowDataPacket[]>(
+    connection.query(
       `SELECT login_token('${username}', '${password}', '${token}') AS output;`,
-      function (err, rows, fields) {
+      function (err, rows: [{ output: number }, OkPacket | ResultSetHeader], fields) {
         connection.release()
         if (err) throw err
-        const response: LoginResponse = [false]
+        const response: [boolean] = [false]
         if (rows[0].output) {
           res.cookie('_user', username, { expires: daysIn(30) })
           res.cookie('acct', token, { expires: daysIn(30) })
           response[0] = true
         }
-        res.send(JSON.stringify(response))
+        res.json(response)
       }
     )
   })
 })
 
-router.post('/register', (req, res) => {
+export type RegisterResponse = [{ result: number }]
+
+router.post('/register', (req: RequestBody<Credential>, res: TypedResponse<RegisterResponse>) => {
   pool.getConnection((err, connection) => {
     const { username, password } = req.body
     connection.query(
       `SELECT user_register('${username}', '${password}') as result;`,
-      function (err, rows, fields) {
+      function (err, rows: RegisterResponse, fields) {
         connection.release()
         if (err) throw err
-        res.send(JSON.stringify(rows as RegisterResponse))
+        res.json(rows)
       }
     )
   })
 })
 
-router.post('/changeUsername', tokenChecker, (req, res) => {
+router.post('/changeUsername', tokenChecker, (req: RequestBody<NewUsername>, res: TypedResponse<Status>) => {
   pool.getConnection((err, connection) => {
     const { username, newUsername } = req.body
-    connection.query<RowDataPacket[]>(
+    connection.query(
       `SELECT change_username(get_user_id_by_name('${username}'), '${newUsername}') as result;`,
-      function (err, rows, fields) {
+      function (err, rows: RegisterResponse, fields) {
         connection.release()
         if (err) throw err
-        const result: Status = { success: false }
-        if (rows[0].result) {
-          result.success = true
-        }
-        res.send(JSON.stringify(result))
+        res.json({
+          success: !!rows[0].result
+        })
       }
     )
   })
 })
 
-router.post('/changePassword', (req, res) => {
+router.post('/changePassword', (req: RequestBody<NewCredential>, res: TypedResponse<Status>) => {
   pool.getConnection((err, connection) => {
     const { username, newPassword, oldPassword } = req.body
     connection.query(
@@ -67,22 +71,19 @@ router.post('/changePassword', (req, res) => {
       function (err, rows, fields) {
         connection.release()
         if (err) throw err
-        const result: Status = { success: false }
-        if ('affectedRows' in rows && rows.affectedRows) {
-          result.success = true
-        }
-        res.send(JSON.stringify(result))
+        res.json({
+          success: !!('affectedRows' in rows && rows.affectedRows)
+        })
       }
     )
   })
 })
 
-router.post('/logoutToken', (req, res) => {
+router.post('/logoutToken', (req: RequestBody<Username>, res: TypedResponse<Status>) => {
   pool.getConnection((err, connection) => {
     const { username } = req.body
-    const response: Status = { success: false }
     if (!req.cookies.acct) {
-      return res.send(JSON.stringify(response))
+      return res.json({ success: false })
     }
     connection.query(
       `CALL logout_token(get_user_id_by_name('${username}'), '${req.cookies.acct}');`,
@@ -94,23 +95,25 @@ router.post('/logoutToken', (req, res) => {
           res.clearCookie('acct', { path: '/' })
           res.clearCookie('_user', { path: '/' })
         }
-        response.success = !!rowCount
-        res.send(JSON.stringify(response))
+        res.json({ success: !!rowCount })
       }
     )
   })
 })
 
-router.post('/existsUsername', (req, res) => {
+export interface UsernameTaken {
+  has: boolean
+}
+
+router.post('/existsUsername', (req: RequestBody<Username>, res: TypedResponse<UsernameTaken>) => {
   pool.getConnection((err, connection) => {
     const { username } = req.body
-    connection.query<RowDataPacket[]>(
+    connection.query(
       `CALL username_exists('${username}');`,
-      function (err, rows, fields) {
+      function (err, rows: [[{ does_exist: number }], OkPacket | ResultSetHeader], fields) {
         connection.release()
         if (err) throw err
-        const result: UsernameTaken = { has: rows[0][0].does_exist }
-        res.send(JSON.stringify(result))
+        res.json({ has: !!rows[0][0].does_exist })
       }
     )
   })

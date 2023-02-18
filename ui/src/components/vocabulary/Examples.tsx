@@ -1,4 +1,4 @@
-import type { VocabSource } from '@/types'
+import type { LabelVocab } from '@/types'
 
 export function Examples(
   {
@@ -6,7 +6,7 @@ export function Examples(
     src = [],
   }: {
     sentences: string[],
-    src: VocabSource,
+    src: LabelVocab['src'],
   }
 ) {
   const vocabPositions: [number, [number, number][]][] = []
@@ -19,9 +19,9 @@ export function Examples(
     }
 
     const adjacentSentence = vocabPositions[vocabPositions.length - 1]
-    const adjacentSentenceIdex = adjacentSentence[0]
-    const currentAndAdjacentAreFromTheSameSentence = sentenceId === adjacentSentenceIdex
-    if (currentAndAdjacentAreFromTheSameSentence) {
+    const adjacentSentenceIndex = adjacentSentence[0]
+    const areCurrentAndAdjacentInTheSameSentence = sentenceId === adjacentSentenceIndex
+    if (areCurrentAndAdjacentInTheSameSentence) {
       adjacentSentence[1].push([startIndex, wordLength])
     } else {
       vocabPositions.push([sentenceId, [[startIndex, wordLength]]])
@@ -38,12 +38,18 @@ export function Examples(
             key={index}
             class="break-words"
             style="word-break: break-word;"
-          >{wordIndexes.map(([start, count]) => (
-            <>
-              <span>{sentence.slice(progress, start)}</span>
-              <span class="font-bold italic">{sentence.slice(start, progress = start + count)}</span>
-            </>
-          ))}<span>{sentence.slice(progress)}</span>
+          >
+            {wordIndexes.map(([start, count]) => (
+              <>
+                <span>
+                  {sentence.slice(progress, start)}
+                </span>
+                <span class="font-bold italic">
+                  {sentence.slice(start, progress = start + count)}
+                </span>
+              </>
+            ))}
+            <span>{sentence.slice(progress)}</span>
           </div>
         )
       })}

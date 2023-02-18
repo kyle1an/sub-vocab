@@ -1,6 +1,7 @@
 import { RouterLink, RouterView, useRoute } from 'vue-router'
-import { KeepAlive, computed, defineComponent } from 'vue'
+import { computed, defineComponent } from 'vue'
 import { t } from '@/i18n'
+import { KeepViewAlive } from '@/components/common/KeepViewAlive'
 
 export const Dashboard = defineComponent({
   setup() {
@@ -43,17 +44,7 @@ export const Dashboard = defineComponent({
           </div>
           <div class="w-full flex-1">
             <RouterView>
-              {({ Component, route }: any) => (
-                route.meta?.keepAlive ? (
-                  <KeepAlive>
-                    {Component}
-                  </KeepAlive>
-                ) : (
-                  <>
-                    {Component}
-                  </>
-                )
-              )}
+              {KeepViewAlive}
             </RouterView>
           </div>
         </div>

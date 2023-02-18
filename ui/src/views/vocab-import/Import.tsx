@@ -45,7 +45,9 @@ export const Import = defineComponent({
         <div class="flex flex-col gap-6 md:h-[calc(100vh-140px)] md:flex-row">
           <div class="relative box-border flex flex-1 basis-auto flex-col overflow-hidden border md:rounded-[12px] md:shadow-sm">
             <div class="flex h-10 shrink-0 items-center border-b bg-zinc-50 py-2 pr-2 pl-4 font-compact text-xs text-neutral-600">
-              <span class="grow truncate">{`${fileInfo.value} `}</span>
+              <span class="grow truncate">
+                {`${fileInfo.value} `}
+              </span>
             </div>
             <div class="h-full w-full grow border-b text-base text-zinc-700 md:text-sm">
               <TextareaInput
@@ -56,7 +58,9 @@ export const Import = defineComponent({
             </div>
             <div class="flex h-9 shrink-0 items-center bg-zinc-50 p-1.5 font-compact text-xs text-neutral-600">
               <span class="grow truncate" />
-              <span class="shrink-0 text-right tabular-nums">{` ${count.value.toLocaleString('en-US')} ${t('words')}`}</span>
+              <span class="shrink-0 text-right tabular-nums">
+                {` ${count.value.toLocaleString('en-US')} ${t('words')}`}
+              </span>
               <span class="mx-1 inline-block h-[18px] w-px border-l align-middle" />
               <button
                 class="box-border inline-flex h-7 max-h-full grow-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-md bg-zinc-200 px-3 py-2.5 text-center align-middle text-sm leading-3 transition-colors hover:bg-yellow-300"

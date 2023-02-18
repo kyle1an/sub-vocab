@@ -1,16 +1,17 @@
 import { defineComponent } from 'vue'
 
 export const TextareaInput = defineComponent({
+  props: {
+    value: { required: true, type: String },
+    placeholder: { type: String, default: '' },
+  },
   emits: {
     textChange: (e: {
       value: string,
       name?: string,
     }) => e,
   },
-  setup(props: {
-    value: string
-    placeholder?: string
-  }, { emit }) {
+  setup(props, { emit }) {
     function inputChanged(ev: Event) {
       emit('textChange', {
         value: (ev.target as HTMLInputElement).value

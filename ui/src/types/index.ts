@@ -1,4 +1,4 @@
-import type { LabelBase } from '@/types/vocab'
+import '@total-typescript/ts-reset'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -22,6 +22,11 @@ export interface Sorting {
 export interface UserVocab {
   user: string;
   word: string;
+}
+
+export interface UserVocabs {
+  user: string;
+  words: string[];
 }
 
 export * from './vocab'

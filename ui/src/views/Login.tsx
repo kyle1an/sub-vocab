@@ -11,7 +11,7 @@ import type { FormRules } from '@/types/forms'
 
 export const Login = defineComponent({
   setup() {
-    const { login } = useVocabStore()
+    const store = useVocabStore()
     const ruleFormRef = ref<FormInstance>()
     const ruleForm = reactive({
       username: '',
@@ -54,7 +54,7 @@ export const Login = defineComponent({
       formEl.validate(async (valid) => {
         if (!valid) return
 
-        if (!(await login(ruleForm))) {
+        if (!(await store.login(ruleForm))) {
           setErrorMsg(t('incorrectUserPassword'))
         }
       }).then()

@@ -44,5 +44,14 @@ module.exports = {
     }],
     "@typescript-eslint/no-var-requires": "off",
     '@typescript-eslint/no-unused-vars': 'off',
+    "@typescript-eslint/ban-types": [
+      "error",
+      {
+        "types": {
+          "{}": false
+        },
+        "extendDefaults": true
+      }
+    ],
   }
 }

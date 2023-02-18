@@ -18,7 +18,7 @@ export function removeClass(className: string) {
   }
 }
 
-export const jsonClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj))
+export const jsonClone = <T>(obj: T) => JSON.parse(JSON.stringify(obj))
 
 export const orderBy = (prop: string | null, order: Order) => {
   return <T extends MyVocabRow>(rows: T[]) => {

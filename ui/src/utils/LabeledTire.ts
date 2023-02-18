@@ -1,8 +1,8 @@
-import type { LabelBase, LabelSieveDisplay, LabelVocab, Prettify } from '@/types'
+import type { LabelSieveDisplay, LabelVocab, Prettify } from '@/types'
 
 type Char = `'` | '’' | '-' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z';
 
-type TrieNode<T extends LabelBase> = Prettify<{
+type TrieNode<T> = Prettify<{
   [K in Char]?: K extends Char ? TrieNode<T> : never
 } & {
   '$'?: T

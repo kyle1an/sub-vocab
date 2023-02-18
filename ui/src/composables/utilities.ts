@@ -29,15 +29,6 @@ export function useState<T>(initial: T) {
   return [state, setState] as const
 }
 
-export function useStateCallback<T>(initial: T, cb: (arg: T) => void) {
-  const state = shallowRef(initial)
-  const setState = function set(newValue: T) {
-    state.value = newValue
-    cb(newValue)
-  }
-  return [state, setState] as const
-}
-
 export function useElHover(selectors: string) {
   const [isHovered, setIsHovered] = useState(false)
   onMounted(() => watch(useElementHover(document.querySelector(selectors)), setIsHovered))

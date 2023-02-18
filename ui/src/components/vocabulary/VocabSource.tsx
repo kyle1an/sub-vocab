@@ -8,14 +8,14 @@ import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
 import { Examples } from '@/components/vocabulary/Examples'
 import { SegmentedControl } from '@/components/SegmentedControl'
 import { Length, Rank, VocabSearch } from '@/components/vocabulary/VocabComponents'
-import { useElHover, useState, useStateCallback } from '@/composables/utilities'
+import { useElHover, useState } from '@/composables/utilities'
 import { VocabToggle } from '@/components/vocabulary/ToggleButton'
 
 export const VocabSourceTable = defineComponent({
   props: {
-    data: { default: () => [], type: Array as PropType<SrcRow<LabelSubDisplay>[]> },
-    sentences: { default: () => [''], type: Array as PropType<string[]> },
-    expand: { default: false, type: Boolean },
+    data: { type: Array as PropType<SrcRow<LabelSubDisplay>[]>, default: () => [] },
+    sentences: { type: Array as PropType<string[]>, default: () => [''] },
+    expand: { type: Boolean, default: false },
     tableName: { required: true, type: String }
   },
   setup(props) {
@@ -25,9 +25,11 @@ export const VocabSourceTable = defineComponent({
       { value: 'acquainted', label: t('acquainted') },
     ] as const)
     type TableSegment = typeof segments.value[number]['value']
+    type RowData = typeof props.data[number]
     const prevSegment = useSessionStorage(`${props.tableName}-segment`, 'all')
     const initialSegment = segments.value.find((s) => s.value === prevSegment.value)?.value ?? 'all'
-    const [segment, setSegment] = useStateCallback<TableSegment>(initialSegment, (v) => {
+    const [segment, setSegment] = useState<TableSegment>(initialSegment)
+    watch(segment, (v) => {
       setDisabledTotal(true)
       prevSegment.value = v
     })
@@ -51,7 +53,7 @@ export const VocabSourceTable = defineComponent({
     watch(currPage, () => {
       vocabTable.value.setScrollTop(0)
     })
-    const [rowsDisplay, setRowsDisplay] = useState<typeof props.data[number][]>([])
+    const [rowsDisplay, setRowsDisplay] = useState<RowData[]>([])
     const [disabledTotal, setDisabledTotal] = useState(true)
     const [inputDirty, setInputDirty] = useState(false)
     watch(() => props.data, () => {
@@ -90,7 +92,7 @@ export const VocabSourceTable = defineComponent({
       transition: TransitionPresets.easeOutCirc,
     })
 
-    function expandRow(row: SrcRow<LabelSubDisplay>, col: unknown, event: Event) {
+    function expandRow(row: RowData, col: unknown, event: Event) {
       for (const el of event.composedPath()) {
         if ((el as HTMLElement).tagName.toLowerCase() === 'button') {
           return
@@ -115,7 +117,7 @@ export const VocabSourceTable = defineComponent({
           <ElTable
             ref={vocabTable}
             data={rowsDisplay.value}
-            rowKey={(row: typeof props.data[number]) => '_' + row.vocab.w}
+            rowKey={(row: RowData) => '_' + row.vocab.w}
             class={String.raw`!h-full from-[var(--el-border-color-lighter)] to-white [&_*]:overscroll-contain [&_.el-icon]:pointer-events-none [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_row:has(+tr:not([class]))>td]:!border-white [&_.el-table\_\_row:has(+tr:not([class]))>td]:bg-gradient-to-b [&_th_.cell]:font-compact`}
             size="small"
             rowClassName={() => `${props.expand ? 'cursor-pointer' : ''}`}
@@ -128,7 +130,7 @@ export const VocabSourceTable = defineComponent({
                     type="expand"
                     width={30}
                     className={String.raw`[&>.cell]:!p-0 [&_.el-table\_\_expand-icon]:float-right [&_i]:text-slate-500`}
-                    v-slots={({ row }: { row: typeof props.data[number] }) =>
+                    v-slots={({ row }: { row: RowData }) =>
                       <Examples
                         sentences={props.sentences}
                         src={row.src}
@@ -143,7 +145,7 @@ export const VocabSourceTable = defineComponent({
                   width={`${props.expand ? 58 : 68}`}
                   prop="src.length"
                   sortable="custom"
-                  v-slots={({ row }: { row: typeof props.data[number] }) =>
+                  v-slots={({ row }: { row: RowData }) =>
                     <div class="tabular-nums text-slate-400">
                       {row.src.length}
                     </div>
@@ -157,14 +159,19 @@ export const VocabSourceTable = defineComponent({
                   className="select-none [td&>.cell]:!pr-0"
                   v-slots={{
                     header: () => VocabSearch(search),
-                    default: ({ row }: { row: typeof props.data[number] }) => (
+                    default: ({ row }: { row: RowData }) => (
                       row.vocab.wFamily.map((w, i) => (
                         <div
                           key={w}
                           class="inline-block cursor-text select-text font-compact text-[16px] tracking-wide text-black"
                           onClick={(ev) => ev.stopPropagation()}
                         >
-                          <span class={`${i !== 0 ? 'text-neutral-500' : ''}`} onMouseover={isMobile ? () => void 0 : selectWord}>{w}</span>
+                          <span
+                            class={`${i !== 0 ? 'text-neutral-500' : ''}`}
+                            onMouseover={isMobile ? () => void 0 : selectWord}
+                          >
+                            {w}
+                          </span>
                           {i !== row.vocab.wFamily.length - 1 && <span class="pr-1 text-neutral-300">, </span>}
                         </div>
                       )))
