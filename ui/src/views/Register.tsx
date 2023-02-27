@@ -7,7 +7,7 @@ import { t } from '@/i18n'
 import router from '@/router'
 import { isUsernameTaken, register } from '@/api/user'
 import { inputPasswordSchema, usernameSchema } from '@/utils/validation'
-import { useState } from '@/composables/utilities'
+import { createSignal } from '@/composables/utilities'
 import type { FormRules } from '@/types/forms'
 
 export const Register = defineComponent({
@@ -18,7 +18,7 @@ export const Register = defineComponent({
       password: '',
       checkPass: '',
     })
-    const rules = reactive({
+    const rules: FormRules<typeof ruleForm> = reactive({
       username: [
         {
           required: true,
@@ -74,8 +74,8 @@ export const Register = defineComponent({
           trigger: 'blur',
         }
       ],
-    } satisfies FormRules<typeof ruleForm>)
-    const [errorMsg, setErrorMsg] = useState('')
+    })
+    const [errorMsg, setErrorMsg] = createSignal('')
 
     function submitForm(formEl: FormInstance | undefined) {
       if (!formEl) return
@@ -123,7 +123,7 @@ export const Register = defineComponent({
                     <ElFormItem
                       label={t('Name')}
                       prop="username"
-                      error={errorMsg.value}
+                      error={errorMsg()}
                     >
                       <ElInput
                         v-model={ruleForm.username}
@@ -159,7 +159,7 @@ export const Register = defineComponent({
                       >
                         {t('Create Account')}
                       </ElButton>
-                      <ElButton onClick={() => ruleFormRef.value && ruleFormRef.value.resetFields()}>
+                      <ElButton onClick={() => ruleFormRef.value?.resetFields()}>
                         {t('Reset')}
                       </ElButton>
                     </ElFormItem>
@@ -170,7 +170,7 @@ export const Register = defineComponent({
                       to="/login"
                       class="text-primary-600 dark:text-primary-500 font-medium hover:underline"
                     >
-                      {t('login')}
+                      {` ${t('login')}`}
                     </RouterLink>
                   </p>
                 </div>

@@ -5,8 +5,8 @@ import { z } from 'zod'
 import { RouterLink } from 'vue-router'
 import { t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
-import { inputPasswordSchema, inputnameSchema } from '@/utils/validation'
-import { useState } from '@/composables/utilities'
+import { inputPasswordSchema, inputNameSchema } from '@/utils/validation'
+import { createSignal } from '@/composables/utilities'
 import type { FormRules } from '@/types/forms'
 
 export const Login = defineComponent({
@@ -17,13 +17,13 @@ export const Login = defineComponent({
       username: '',
       password: '',
     })
-    const rules = reactive({
+    const rules: FormRules<typeof ruleForm> = reactive({
       username: [
         {
           required: true,
           validator(rule, username: string | number, callback) {
             try {
-              inputnameSchema.parse(String(username).trim())
+              inputNameSchema.parse(String(username).trim())
             } catch (err) {
               if (err instanceof z.ZodError) return callback(new Error(err.issues[0].message))
             }
@@ -46,8 +46,8 @@ export const Login = defineComponent({
           trigger: 'blur',
         }
       ],
-    } satisfies FormRules<typeof ruleForm>)
-    const [errorMsg, setErrorMsg] = useState('')
+    })
+    const [errorMsg, setErrorMsg] = createSignal('')
 
     function submitForm(formEl: FormInstance | undefined) {
       if (!formEl) return
@@ -82,7 +82,7 @@ export const Login = defineComponent({
                     <ElFormItem
                       label={t('Name')}
                       prop="username"
-                      error={errorMsg.value}
+                      error={errorMsg()}
                     >
                       <ElInput
                         v-model={ruleForm.username}
@@ -107,7 +107,7 @@ export const Login = defineComponent({
                       >
                         {t('Submit')}
                       </ElButton>
-                      <ElButton onClick={() => ruleFormRef.value && ruleFormRef.value.resetFields()}>
+                      <ElButton onClick={() => ruleFormRef.value?.resetFields()}>
                         {t('Reset')}
                       </ElButton>
                     </ElFormItem>
@@ -118,7 +118,7 @@ export const Login = defineComponent({
                       to="/register"
                       class="text-primary-600 dark:text-primary-500 font-medium hover:underline"
                     >
-                      {t('signup')}
+                      {` ${t('signup')}`}
                     </RouterLink>
                   </p>
                 </div>

@@ -59,22 +59,6 @@ export const orderBy = (prop: string | null, order: Order) => {
 
 export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
-const timers: Record<string, boolean> = {}
-
-export function timer(label: string) {
-  if (timers[label]) return
-
-  console.time(label)
-  timers[label] = true
-}
-
-export function timerEnd(label: string) {
-  if (!timers[label]) return
-
-  console.timeEnd(label)
-  timers[label] = false
-}
-
 export const paging = (currPage: number, pageSize: number) => <T>(rows: T[]) => rows.slice((currPage - 1) * pageSize, currPage * pageSize)
 
 export const daysInMonth = (month: number, year: number) => new Date(year, month, 0).getDate()

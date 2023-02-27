@@ -6,7 +6,7 @@ import { t } from '@/i18n'
 import { changeUsername, isUsernameTaken } from '@/api/user'
 import { useVocabStore } from '@/store/useVocab'
 import { usernameSchema } from '@/utils/validation'
-import { useState } from '@/composables/utilities'
+import { createSignal } from '@/composables/utilities'
 import type { FormRules } from '@/types/forms'
 
 export const Profile = defineComponent({
@@ -26,7 +26,7 @@ export const Profile = defineComponent({
               if (err instanceof z.ZodError) return callback(new Error(err.issues[0].message))
             }
 
-            if (username !== store.user) {
+            if (username !== store.user()) {
               if ((await isUsernameTaken({ username })).has) {
                 return callback(new Error(`${username} ${t('alreadyTaken')}`))
               }
@@ -51,18 +51,18 @@ export const Profile = defineComponent({
       })
     }
 
-    const [errorMsg, setErrorMsg] = useState('')
+    const [errorMsg, setErrorMsg] = createSignal('')
 
     async function alterInfo(form: typeof ruleForm) {
-      if (form.username !== '' && form.username !== store.user) {
+      if (form.username !== '' && form.username !== store.user()) {
         form.username = form.username.trim()
         const res = await changeUsername({
-          username: store.user,
+          username: store.user(),
           newUsername: form.username,
         })
 
         if (res.success) {
-          store.user = form.username
+          store.setUser(form.username)
         } else {
           setErrorMsg(res.message || 'something went wrong')
         }
@@ -88,7 +88,7 @@ export const Profile = defineComponent({
             <ElFormItem
               label={t('Name')}
               prop="username"
-              error={errorMsg.value}
+              error={errorMsg()}
             >
               <ElInput
                 v-model={ruleForm.username}
@@ -102,7 +102,7 @@ export const Profile = defineComponent({
               >
                 {t('Confirm Changes')}
               </ElButton>
-              <ElButton onClick={() => ruleFormRef.value && ruleFormRef.value.resetFields()}>
+              <ElButton onClick={() => ruleFormRef.value?.resetFields()}>
                 {t('Reset')}
               </ElButton>
             </ElFormItem>

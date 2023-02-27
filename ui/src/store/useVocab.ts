@@ -1,24 +1,25 @@
 import { defineStore } from 'pinia'
 import Cookies from 'js-cookie'
 import { useQuery } from '@tanstack/vue-query'
+import { computed, ref } from 'vue'
 import { acquaint, batchAcquaint, queryWordsByUser, revokeWord, stemsMapping } from '@/api/vocab-service'
 import type { LabelSieveDisplay, SrcRow } from '@/types'
 import { login as loginUser, logoutToken } from '@/api/user'
 import router from '@/router'
-import { useState } from '@/composables/utilities'
+import { createSignal } from '@/composables/utilities'
 import { loginNotify } from '@/utils/vocab'
 
 export const useVocabStore = defineStore('SubVocabulary', () => {
-  const [baseVocab, setBaseVocab] = useState<LabelSieveDisplay[]>([])
-  const [user, setUser] = useState(Cookies.get('_user') ?? '')
-  useQuery(['userWords', user], () => queryWordsByUser(user.value), {
+  const baseVocab = ref<LabelSieveDisplay[]>([])
+  const [user, setUser] = createSignal(Cookies.get('_user') ?? '')
+  useQuery(['userWords', computed(user)], () => queryWordsByUser(user()), {
     initialData: [], refetchOnWindowFocus: false, retry: 10,
     onSuccess(data) {
-      setBaseVocab(data.map((sieve) => ({
+      baseVocab.value = data.map((sieve) => ({
         ...sieve,
         inUpdating: false,
         inStore: true,
-      })))
+      }))
     }
   })
 
@@ -31,7 +32,7 @@ export const useVocabStore = defineStore('SubVocabulary', () => {
   }
 
   async function logout() {
-    await logoutToken({ username: user.value })
+    await logoutToken({ username: user() })
     Cookies.remove('_user', { path: '' })
     Cookies.remove('acct', { path: '' })
     setUser('')
@@ -53,7 +54,7 @@ export const useVocabStore = defineStore('SubVocabulary', () => {
   }
 
   function toggleWordState(vocab: LabelSieveDisplay) {
-    if (!user.value) {
+    if (!user()) {
       loginNotify()
       return
     }
@@ -61,7 +62,7 @@ export const useVocabStore = defineStore('SubVocabulary', () => {
     vocab.inUpdating = true
     ;(vocab.acquainted ? revokeWord : acquaint)({
       word: vocab.w.replace(/'/g, `''`),
-      user: user.value,
+      user: user(),
     })
       .then((res) => {
         if (res?.affectedRows) {
@@ -74,7 +75,7 @@ export const useVocabStore = defineStore('SubVocabulary', () => {
   }
 
   function acquaintEveryVocab(tableDataOfVocab: SrcRow<LabelSieveDisplay>[]) {
-    if (!user.value) {
+    if (!user()) {
       loginNotify()
       return
     }
@@ -94,7 +95,7 @@ export const useVocabStore = defineStore('SubVocabulary', () => {
     }
 
     batchAcquaint({
-      user: user.value,
+      user: user(),
       words,
     })
       .then((res) => {
@@ -117,6 +118,7 @@ export const useVocabStore = defineStore('SubVocabulary', () => {
     toggleWordState,
     irregularMaps,
     user,
+    setUser,
     login,
     logout,
   }

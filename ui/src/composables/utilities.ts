@@ -11,27 +11,49 @@ export function useImmer<T>(baseState: T) {
   return [state, update] as const
 }
 
+type ValueOrFn<T> = T | ((arg: T) => T)
+
 export function createSignal<T>(initialValue: T, options?: { equals?: false | ((prev: T, next: T) => boolean) }) {
   const r = shallowRef(initialValue)
-  const get = () => r.value
-  const set = (v: (arg: T) => T) => {
-    r.value = typeof v === 'function' ? v(r.value) : v
-    if (options?.equals === false) triggerRef(r)
-  }
-  return [get, set] as const
-}
+  const getNewValue = (valueOrFn: ValueOrFn<T>) => valueOrFn instanceof Function ? valueOrFn(r.value) : valueOrFn
 
-export function useState<T>(initial: T) {
-  const state = shallowRef(initial)
-  const setState = function set(newValue: T) {
-    state.value = newValue
+  function set(): (valueOrFn: ValueOrFn<T>) => void {
+    if (options === undefined) {
+      return (valueOrFn) => {
+        r.value = getNewValue(valueOrFn)
+      }
+    }
+
+    if (options.equals === false) {
+      return (valueOrFn) => {
+        r.value = getNewValue(valueOrFn)
+        triggerRef(r)
+      }
+    }
+
+    if (typeof options.equals === 'function') {
+      const equals = options.equals
+      return (valueOrFn) => {
+        const newValue = getNewValue(valueOrFn)
+        const isTrigger = equals(r.value, newValue)
+        r.value = newValue
+        if (isTrigger) triggerRef(r)
+      }
+    }
+
+    return (valueOrFn) => {
+      r.value = getNewValue(valueOrFn)
+    }
   }
-  return [state, setState] as const
+
+  return [() => r.value, set()] as const
 }
 
 export function useElHover(selectors: string) {
-  const [isHovered, setIsHovered] = useState(false)
-  onMounted(() => watch(useElementHover(document.querySelector(selectors)), setIsHovered))
+  const [isHovered, setIsHovered] = createSignal(false)
+  onMounted(() => {
+    watch(useElementHover(document.querySelector(selectors)), setIsHovered)
+  })
   return isHovered
 }
 

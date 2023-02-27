@@ -1,4 +1,4 @@
-import { computed, defineComponent } from 'vue'
+import { defineComponent } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { t } from '@/i18n'
 import { Footer } from '@/components/Footer'
@@ -6,9 +6,7 @@ import { useVocabStore } from '@/store/useVocab'
 
 export const Account = defineComponent({
   setup() {
-    const currentPath = computed(() => useRoute().fullPath)
-    const username = computed(() => useVocabStore().user)
-    const subNav = computed(() => [
+    const subNav = () => [
       {
         title: t('Profile'),
         path: '/user',
@@ -17,13 +15,13 @@ export const Account = defineComponent({
         title: t('Password'),
         path: '/user/password',
       },
-    ] as const)
+    ] as const
     return () => (
       <>
         <div class="flex w-full max-w-screen-lg grow flex-col p-6">
           <div class="pb-5">
             <div class="text-2xl">
-              {username.value}
+              {useVocabStore().user()}
             </div>
           </div>
           <div class="flex w-full grow flex-col sm:flex-row">
@@ -31,10 +29,10 @@ export const Account = defineComponent({
               <div class="sticky top-28">
                 <nav>
                   <ol>
-                    {subNav.value.map((nav) => (
+                    {subNav().map((nav) => (
                       <li
                         key={nav.path}
-                        class={`${currentPath.value === nav.path ? '[&>a]:bg-gray-100' : ''}`}
+                        class={`${useRoute().fullPath === nav.path ? '[&>a]:bg-gray-100' : ''}`}
                       >
                         <RouterLink
                           to={nav.path}

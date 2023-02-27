@@ -96,7 +96,9 @@ export const generatedVocabTrie = (inputText: string) => {
   logEnd('%c  formLabel vocabulary')
   logEnd(['· categorize vocabulary', ' +  '])
   logEnd(['-- All took', '    '])
-  // logVocabInfo(list)
+  if (import.meta.env.VITE_SUB_ENV === 'dev') {
+    logVocabInfo(list)
+  }
   logPerf()
   return {
     list,

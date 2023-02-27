@@ -3,7 +3,7 @@ export const Footer = () => (
     <div class="mx-auto max-w-screen-xl">
       <section class="px-5 py-3">
         <div class="text-xs tracking-wide text-neutral-500">
-          Copyright © 2022 Mitchell
+          Copyright © 2023 Mitchell
         </div>
       </section>
     </div>

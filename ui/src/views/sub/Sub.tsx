@@ -4,26 +4,26 @@ import { VocabSourceTable } from '@/components/vocabulary/VocabSource'
 import { FileInput } from '@/components/FileInput'
 import type { LabelSubDisplay, SrcRow } from '@/types'
 import { useVocabStore } from '@/store/useVocab'
-import { useDebounceTimeout, useState } from '@/composables/utilities'
+import { createSignal, useDebounceTimeout } from '@/composables/utilities'
 import { generatedVocabTrie } from '@/utils/vocab'
 import { TextareaInput } from '@/components/TextareaInput'
 
 export const Sub = defineComponent({
   setup() {
-    const [fileInfo, setFileInfo] = useState('')
+    const [fileInfo, setFileInfo] = createSignal('')
 
     async function onFileChange({ name, value }: { name: string, value: string }) {
       setFileInfo(name)
       setInputText(value)
     }
 
-    const [count, setCount] = useState(0)
-    const [sentences, setSentences] = useState<string[]>([])
+    const [count, setCount] = createSignal(0)
+    const [sentences, setSentences] = createSignal<string[]>([])
     const store = useVocabStore()
-    const [inputText, setInputText] = useState('')
-    const [tableDataOfVocab, setTableDataOfVocab] = useState<SrcRow<LabelSubDisplay>[]>([])
-    watch(() => [inputText.value, store.baseVocab, store.irregularMaps], useDebounceTimeout(() => {
-      const { list, count, sentences } = generatedVocabTrie(inputText.value)
+    const [inputText, setInputText] = createSignal('')
+    const [tableDataOfVocab, setTableDataOfVocab] = createSignal<SrcRow<LabelSubDisplay>[]>([])
+    watch([inputText, () => store.baseVocab, () => store.irregularMaps], useDebounceTimeout(() => {
+      const { list, count, sentences } = generatedVocabTrie(inputText())
       setCount(count)
       setSentences(sentences)
       setTableDataOfVocab(list)
@@ -51,16 +51,16 @@ export const Sub = defineComponent({
           <div class="relative box-border flex flex-1 basis-auto flex-col overflow-hidden border md:rounded-[12px] md:shadow-sm">
             <div class="flex h-10 shrink-0 items-center border-b bg-zinc-50 py-2 pr-2 pl-4 font-compact text-xs text-neutral-600">
               <span class="grow truncate">
-                {`${fileInfo.value} `}
+                {`${fileInfo()} `}
               </span>
               <span class="mx-1 inline-block h-[18px] w-px border-l align-middle" />
               <span class="shrink-0 text-right tabular-nums">
-                {` ${count.value.toLocaleString('en-US')} ${t('words')}`}
+                {` ${count().toLocaleString('en-US')} ${t('words')}`}
               </span>
             </div>
             <div class="h-full w-full grow text-base text-zinc-700 md:text-sm">
               <TextareaInput
-                value={inputText.value}
+                value={inputText()}
                 placeholder={t('inputArea')}
                 onTextChange={onTextChange}
               />
@@ -68,8 +68,8 @@ export const Sub = defineComponent({
           </div>
           <div class="h-[86vh] overflow-visible pb-6 md:mt-0 md:h-full md:w-[44%] md:pb-0">
             <VocabSourceTable
-              data={tableDataOfVocab.value}
-              sentences={sentences.value}
+              data={tableDataOfVocab()}
+              sentences={sentences()}
               expand
               tableName={'vocab-statistics'}
             />
