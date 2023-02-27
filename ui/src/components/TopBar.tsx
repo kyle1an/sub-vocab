@@ -3,7 +3,7 @@ import en from 'element-plus/es/locale/lang/en'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import type { Language } from 'element-plus/es/locale'
 import { ElConfigProvider, ElDropdown, ElDropdownItem, ElDropdownMenu } from 'element-plus'
-import { computed, defineComponent } from 'vue'
+import { defineComponent } from 'vue'
 import { RouterLink } from 'vue-router'
 import { i18n, t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
@@ -15,9 +15,8 @@ export const TopBar = defineComponent({
       'en': en,
       'zh': zhCn,
     } as const satisfies Record<string, Language>
-    const elLocale = computed(() => localeMap[locale.value])
+    const elLocale = () => localeMap[locale.value]
     const store = useVocabStore()
-    const isLoggedIn = computed(() => !!store.user)
     const isWide = window.innerWidth >= 460
 
     function handleCommand(command: typeof locale.value) {
@@ -35,7 +34,7 @@ export const TopBar = defineComponent({
             >
               {t('home')}
             </RouterLink>
-            {(isLoggedIn.value || isWide) && (
+            {(!!store.user() || isWide) && (
               <RouterLink
                 to="/about"
                 class="flex items-center rounded-full py-1 px-4 hover:bg-gray-100"
@@ -44,20 +43,20 @@ export const TopBar = defineComponent({
               </RouterLink>
             )}
             <div class="grow" />
-            {(isLoggedIn.value || isWide) && (
+            {(!!store.user() || isWide) && (
               <RouterLink
                 to="/mine"
                 class="flex h-full items-center px-4 hover:bg-gray-100"
               >
-                {store.user ? t('mine') : t('common')}
+                {store.user() ? t('mine') : t('common')}
               </RouterLink>
             )}
-            {(isLoggedIn.value) ? (
+            {(!!store.user()) ? (
               <RouterLink
                 to="/user"
                 class="flex h-full items-center px-4 hover:bg-gray-100"
               >
-                {store.user}
+                {store.user()}
               </RouterLink>
             ) : (
               <>
@@ -106,7 +105,7 @@ export const TopBar = defineComponent({
                   </ElDropdownMenu>
               }}
             />
-            <ElConfigProvider locale={elLocale.value} />
+            <ElConfigProvider locale={elLocale()} />
             <a
               href="https://github.com/kyle1an/sub-vocab"
               target="_blank"

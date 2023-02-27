@@ -1,6 +1,6 @@
-import { PropType, computed, defineComponent, ref, watch } from 'vue'
+import { PropType, computed, defineComponent, ref, shallowRef, watch } from 'vue'
 import { TransitionPresets, useSessionStorage, useTransition } from '@vueuse/core'
-import { ElPagination, ElTable, ElTableColumn } from 'element-plus'
+import { ElPagination, ElTable, ElTableColumn, TableInstance } from 'element-plus'
 import { pipe } from 'fp-ts/function'
 import { t } from '@/i18n'
 import type { LabelSubDisplay, Sorting, SrcRow } from '@/types'
@@ -8,56 +8,56 @@ import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
 import { Examples } from '@/components/vocabulary/Examples'
 import { SegmentedControl } from '@/components/SegmentedControl'
 import { Length, Rank, VocabSearch } from '@/components/vocabulary/VocabComponents'
-import { useElHover, useState } from '@/composables/utilities'
+import { createSignal, useElHover } from '@/composables/utilities'
 import { VocabToggle } from '@/components/vocabulary/ToggleButton'
 
 export const VocabSourceTable = defineComponent({
   props: {
-    data: { type: Array as PropType<SrcRow<LabelSubDisplay>[]>, default: () => [] },
-    sentences: { type: Array as PropType<string[]>, default: () => [''] },
+    data: { required: true, type: Array as PropType<SrcRow<LabelSubDisplay>[]> },
+    sentences: { type: Array as PropType<string[]>, default: () => [] },
     expand: { type: Boolean, default: false },
     tableName: { required: true, type: String }
   },
   setup(props) {
-    const segments = computed(() => [
+    const segments = () => [
       { value: 'all', label: t('all') },
       { value: 'new', label: t('new') },
       { value: 'acquainted', label: t('acquainted') },
-    ] as const)
-    type TableSegment = typeof segments.value[number]['value']
+    ] as const
+    type TableSegment = ReturnType<typeof segments>[number]['value']
     type RowData = typeof props.data[number]
-    const prevSegment = useSessionStorage(`${props.tableName}-segment`, 'all')
-    const initialSegment = segments.value.find((s) => s.value === prevSegment.value)?.value ?? 'all'
-    const [segment, setSegment] = useState<TableSegment>(initialSegment)
+    const cachedSeg = useSessionStorage(`${props.tableName}-segment`, 'all')
+    const initialSegment = segments().find((s) => s.value === cachedSeg.value)?.value ?? 'all'
+    const segment = shallowRef<TableSegment>(initialSegment)
     watch(segment, (v) => {
-      setDisabledTotal(true)
-      prevSegment.value = v
+      disabledTotal.value = true
+      cachedSeg.value = v
     })
-    const [dirty, setDirty] = useState(false)
-    const vocabTable = ref()
+    const [dirty, setDirty] = createSignal(false)
+    const vocabTable = ref<TableInstance>()
     const isHoveringOnTable = useElHover('.el-table__body-wrapper')
     watch(isHoveringOnTable, (isHovering) => {
-      if (dirty.value && !isHovering) {
+      if (dirty() && !isHovering) {
         setRowsDisplay(rows.value)
         setDirty(false)
       }
     })
-    const [search] = useState('')
+    const search = shallowRef('')
     const defaultSort: Sorting = { order: 'ascending', prop: 'src.0.wordSequence' }
-    const [sortBy, setSortBy] = useState(defaultSort)
+    const [sortBy, setSortBy] = createSignal(defaultSort)
     const onSortChange = ({ order, prop }: Sorting) => {
       setSortBy(order && prop ? { order, prop } : defaultSort)
     }
-    const [currPage] = useState(1)
-    const [pageSize] = useState(100)
+    const currPage = shallowRef(1)
+    const pageSize = shallowRef(100)
     watch(currPage, () => {
-      vocabTable.value.setScrollTop(0)
+      vocabTable.value?.setScrollTop(0)
     })
-    const [rowsDisplay, setRowsDisplay] = useState<RowData[]>([])
-    const [disabledTotal, setDisabledTotal] = useState(true)
-    const [inputDirty, setInputDirty] = useState(false)
+    const [rowsDisplay, setRowsDisplay] = createSignal<RowData[]>([])
+    const disabledTotal = shallowRef(true)
+    const [inputDirty, setInputDirty] = createSignal(false)
     watch(() => props.data, () => {
-      setDisabledTotal(false)
+      disabledTotal.value = false
       setInputDirty(true)
     })
     const rowsSegmented = computed(() =>
@@ -74,14 +74,14 @@ export const VocabSourceTable = defineComponent({
       }
     })
     const rows = computed(() => pipe(searched.value,
-      orderBy(sortBy.value.prop, sortBy.value.order),
+      orderBy(sortBy().prop, sortBy().order),
       paging(currPage.value, pageSize.value),
     ))
     watch(rows, (v) => {
-      if (inputDirty.value) {
+      if (inputDirty()) {
         setRowsDisplay(v)
         setInputDirty(false)
-      } else if (!isHoveringOnTable.value) {
+      } else if (!isHoveringOnTable()) {
         setRowsDisplay(v)
       } else {
         setDirty(true)
@@ -109,14 +109,14 @@ export const VocabSourceTable = defineComponent({
       <div class="mx-5 flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-sm will-change-transform md:mx-0">
         <SegmentedControl
           name={props.tableName}
-          segments={segments.value}
+          segments={segments()}
           value={segment.value}
-          onChoose={setSegment}
+          onChoose={(v) => segment.value = v}
         />
         <div class="h-px w-full grow">
           <ElTable
             ref={vocabTable}
-            data={rowsDisplay.value}
+            data={rowsDisplay()}
             rowKey={(row: RowData) => '_' + row.vocab.w}
             class={String.raw`!h-full from-[var(--el-border-color-lighter)] to-white [&_*]:overscroll-contain [&_.el-icon]:pointer-events-none [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_row:has(+tr:not([class]))>td]:!border-white [&_.el-table\_\_row:has(+tr:not([class]))>td]:bg-gradient-to-b [&_th_.cell]:font-compact`}
             size="small"

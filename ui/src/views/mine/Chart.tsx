@@ -1,17 +1,21 @@
-import Chart from 'chart.js/auto'
+// eslint-disable-next-line import/no-named-as-default
+import Chart, { ChartData } from 'chart.js/auto'
 import { computed, defineComponent, onBeforeUnmount, onMounted, watch } from 'vue'
 import { format } from 'date-fns'
 import { rangeRight } from 'lodash-es'
 import { t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
-import { useState } from '@/composables/utilities'
+import { createSignal } from '@/composables/utilities'
 import { SegmentedControl } from '@/components/SegmentedControl'
 
 export const VChart = defineComponent({
   setup() {
     const store = useVocabStore()
-    let fontFamily = ['SF Pro Rounded', 'SF Pro Text', '-apple-system', 'Inter', 'system-ui', 'sans-serif']
-    if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) fontFamily = fontFamily.slice(1)
+    const fontFamily = [
+      ...(navigator.userAgent.includes('Safari')
+      && !navigator.userAgent.includes('Chrome') ? [] : ['SF Pro Rounded']),
+      ...['SF Pro Text', '-apple-system', 'Inter', 'system-ui', 'sans-serif'],
+    ]
     Chart.defaults.font.family = fontFamily.join(', ')
     Chart.defaults.font.weight = '500'
 
@@ -22,15 +26,19 @@ export const VChart = defineComponent({
       day.setDate(day.getDate() - i)
       const date = format(day, 'yyyy-MM-dd')
       map.set(date, 0)
-      week[date] = i === 0 ? 'Today' : i === 1 ? 'Yesterday' : format(day, 'EEE')
+      week[date] = i === 0 ? 'Today'
+        : i === 1 ? 'Yesterday'
+          : format(day, 'EEE')
     })
 
     const groupedRows = computed(() => {
       store.baseVocab.forEach((r) => {
-        if (!r.acquainted) return
-        const date = r.time_modified?.split('T')[0]
-        if (!date || !week[date]) return
-        map.set(date, (map.get(date) || 0) + 1)
+        if (r.acquainted) {
+          const date = r.time_modified?.split('T')[0]
+          if (date && week[date]) {
+            map.set(date, (map.get(date) || 0) + 1)
+          }
+        }
       })
       return map
     })
@@ -50,7 +58,7 @@ export const VChart = defineComponent({
           borderWidth: 1,
         }
       ]
-    }))
+    } satisfies ChartData<'bar', number[], string>))
     watch(chartData, (v) => {
       myChart.data = v
       myChart.update()
@@ -72,20 +80,21 @@ export const VChart = defineComponent({
     onBeforeUnmount(() => {
       myChart.destroy()
     })
-    type ChartSegment = typeof segments.value[number]['value']
-    const [seg, setSeg] = useState(sessionStorage.getItem('prev-chart-select') as ChartSegment | null || 'W')
-    watch(seg, (v) => {
-      sessionStorage.setItem('prev-chart-select', String(v))
-    })
-    const segments = computed(() => [
+    const segments = () => [
+      { value: '6M', label: t('6M') },
+      { value: 'M', label: t('M') },
       { value: 'W', label: t('W') },
-    ] as const)
+    ] as const
+    type ChartSegment = ReturnType<typeof segments>[number]['value']
+    const SEG = 'prev-chart-select' as const
+    const [seg, setSeg] = createSignal(sessionStorage.getItem(`${SEG}`) as ChartSegment | null || 'W')
+    watch(seg, (v) => sessionStorage.setItem(`${SEG}`, String(v)))
     return () => (
       <div class="h-[calc(100vh-160px)]">
         <SegmentedControl
-          name="vocab-seg"
-          segments={segments.value}
-          value={seg.value}
+          name={SEG}
+          segments={segments()}
+          value={seg()}
           onChoose={setSeg}
         />
         <div

@@ -22,16 +22,11 @@ const capitalIn = (chars: string) => /[A-ZÀ-Þ]/.test(chars)
 const isVowel = (chars: string) => ['a', 'e', 'i', 'o', 'u'].includes(chars)
 
 export default class LabeledTire {
-  root: TrieNode<LabelVocab>
+  root: TrieNode<LabelVocab> = {}
   #sequence = 0
   sentences: string[] = []
   wordCount = 0
   vocabulary: Array<LabelVocab | null> = []
-
-  constructor(baseTrie: TrieNode<LabelVocab> = {}) {
-    this.root = baseTrie
-    return this
-  }
 
   getNode(word: string) {
     let node = this.root
@@ -127,23 +122,21 @@ export default class LabeledTire {
   }
 
   add(input: string) {
-    let previousSize = this.sentences.length
-    this.sentences = this.sentences.concat(input.match(/["'@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|{[^}]*})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ])|\.{3} *)*["'@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/mg) || [])
-    const totalSize = this.sentences.length
-
-    for (; previousSize < totalSize; ++previousSize) {
-      for (const m of this.sentences[previousSize].matchAll(/(?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þa-zß-ÿ]+[a-zß-ÿ]*)+(?:['’-]?[A-Za-zÀ-ÿ]'?)+/mg)) {
+    for (const sentence of input.match(/["'@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|{[^}]*})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ])|\.{3} *)*["'@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/mg) || []) {
+      this.sentences.push(sentence)
+      for (const m of sentence.matchAll(/(?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þa-zß-ÿ]+[a-zß-ÿ]*)+(?:['’-]?[A-Za-zÀ-ÿ]'?)+/mg)) {
         const matchedWord = m[0]
         ++this.wordCount
         if (m.index === undefined) continue
-        this.#update(matchedWord, capitalIn(matchedWord), m.index, previousSize)
+        this.#update(matchedWord, m.index)
       }
     }
 
     return this
   }
 
-  #update(original: string, hasCapital: boolean, index: number, currentSentenceIndex: number) {
+  #update(original: string, index: number) {
+    const hasCapital = capitalIn(original)
     const branch = this.getNode(hasCapital ? original.toLowerCase() : original)
 
     if (!branch.$) {
@@ -151,7 +144,7 @@ export default class LabeledTire {
         w: original,
         up: hasCapital,
         src: [{
-          sentenceId: currentSentenceIndex,
+          sentenceId: this.sentences.length - 1,
           startIndex: index,
           wordLength: original.length,
           wordSequence: ++this.#sequence,
@@ -161,7 +154,7 @@ export default class LabeledTire {
     } else {
       branch.$.src.push(
         {
-          sentenceId: currentSentenceIndex,
+          sentenceId: this.sentences.length - 1,
           startIndex: index,
           wordLength: original.length,
           wordSequence: branch.$.src.length ? this.#sequence : ++this.#sequence,

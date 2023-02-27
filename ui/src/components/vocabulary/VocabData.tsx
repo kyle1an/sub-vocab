@@ -1,6 +1,6 @@
-import { computed, defineComponent, ref, watch } from 'vue'
+import { computed, defineComponent, ref, shallowRef, watch } from 'vue'
 import { TransitionPresets, useSessionStorage, useTransition } from '@vueuse/core'
-import { ElPagination, ElTable, ElTableColumn } from 'element-plus'
+import { ElPagination, ElTable, ElTableColumn, TableInstance } from 'element-plus'
 import { pipe } from 'fp-ts/function'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { t } from '@/i18n'
@@ -8,7 +8,7 @@ import { SegmentedControl } from '@/components/SegmentedControl'
 import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
 import type { MyVocabRow, Sorting, SrcRow } from '@/types'
 import { VocabToggle } from '@/components/vocabulary/ToggleButton'
-import { useElHover, useState } from '@/composables/utilities'
+import { createSignal, useElHover } from '@/composables/utilities'
 import { Length, Rank, VocabSearch } from '@/components/vocabulary/VocabComponents'
 import { useVocabStore } from '@/store/useVocab'
 
@@ -18,48 +18,49 @@ export const VocabDataTable = defineComponent({
   },
   setup(props) {
     const store = useVocabStore()
-    const segments = computed(() => [
+    const segments = () => [
       { value: 'all', label: t('all') },
       { value: 'mine', label: t('mine') },
       { value: 'top', label: t('top') },
       { value: 'recent', label: t('recent') },
-    ] as const)
-    type TableSegment = typeof segments.value[number]['value']
+    ] as const
+    type TableSegment = ReturnType<typeof segments>[number]['value']
     type RowData = SrcRow<typeof store.baseVocab[number]>
-    const prevSegment = useSessionStorage(`${props.tableName}-segment`, 'all')
-    const initialSegment = segments.value.find((s) => s.value === prevSegment.value)?.value ?? 'all'
-    const [segment, setSegment] = useState<TableSegment>(initialSegment)
+    const cachedSeg = useSessionStorage(`${props.tableName}-segment`, 'all')
+    const initialSegment = segments().find((s) => s.value === cachedSeg.value)?.value ?? 'all'
+    const segment = shallowRef<TableSegment>(initialSegment)
     watch(segment, (v) => {
-      setDisabledTotal(true)
-      prevSegment.value = v
+      disabledTotal.value = true
+      cachedSeg.value = v
     })
-    const [dirty, setDirty] = useState(false)
-    const vocabTable = ref()
+    const [dirty, setDirty] = createSignal(false)
+    const vocabTable = ref<TableInstance>()
     const isHoveringOnTable = useElHover('.el-table__body-wrapper')
     watch(isHoveringOnTable, (isHovering) => {
-      if (!dirty.value) return
-      if (!isHovering || rowsDisplay.value.length === 0) {
+      if (!dirty()) return
+      if (!isHovering || rowsDisplay().length === 0) {
         setRowsDisplay(rows.value)
         setDirty(false)
       }
     })
-    const [search] = useState('')
+    const search = shallowRef('')
     const defaultSort: Sorting = { order: 'descending', prop: 'vocab.time_modified' }
-    const [sortBy, setSortBy] = useState(defaultSort)
+    const [sortBy, setSortBy] = createSignal(defaultSort)
     const onSortChange = ({ order, prop }: Sorting) => {
       setSortBy(order && prop ? { order, prop } : defaultSort)
     }
-    const [currPage] = useState(1)
-    const [pageSize] = useState(100)
+    const currPage = shallowRef(1)
+    const pageSize = shallowRef(100)
     watch(currPage, () => {
-      vocabTable.value.setScrollTop(0)
+      vocabTable.value?.setScrollTop(0)
     })
-    const [rowsDisplay, setRowsDisplay] = useState<MyVocabRow[]>([])
-    const [disabledTotal, setDisabledTotal] = useState(true)
-    const srcRows = computed(() => {
-      setDisabledTotal(false)
-      return store.baseVocab.map((r) => ({ vocab: r }))
-    })
+    const [rowsDisplay, setRowsDisplay] = createSignal<MyVocabRow[]>([])
+    const disabledTotal = shallowRef(true)
+    const srcRows = shallowRef<MyVocabRow[]>([])
+    watch([() => store.baseVocab, () => store.baseVocab.length], () => {
+      srcRows.value = store.baseVocab.map((r) => ({ vocab: r }))
+      disabledTotal.value = false
+    }, { immediate: true })
     const rowsSegmented = computed(() => srcRows.value.filter(
       segment.value === 'mine' ? (r) => Boolean(r.vocab.acquainted && r.vocab.is_user)
         : segment.value === 'top' ? (r) => Boolean(r.vocab.acquainted && !r.vocab.is_user)
@@ -75,11 +76,14 @@ export const VocabDataTable = defineComponent({
       }
     })
     const rows = computed(() => pipe(searched.value,
-      orderBy(sortBy.value.prop, sortBy.value.order),
+      orderBy(sortBy().prop, sortBy().order),
       paging(currPage.value, pageSize.value),
     ))
     watch(rows, (v) => {
-      if (!isHoveringOnTable.value || rowsDisplay.value.length === 0) {
+      if (
+        !isHoveringOnTable()
+        || rowsDisplay().length === 0
+      ) {
         setRowsDisplay(v)
       } else {
         setDirty(true)
@@ -93,15 +97,15 @@ export const VocabDataTable = defineComponent({
       <div class="flex grow flex-col overflow-hidden rounded-xl border bg-white shadow will-change-transform md:mx-0">
         <SegmentedControl
           name={props.tableName}
-          segments={segments.value}
+          segments={segments()}
           value={segment.value}
           class="pt-3 pb-2"
-          onChoose={setSegment}
+          onChoose={(v) => segment.value = v}
         />
         <div class="h-px w-full grow">
           <ElTable
             ref={vocabTable}
-            data={rowsDisplay.value}
+            data={rowsDisplay()}
             row-key={(row: RowData) => '_' + row.vocab.w}
             class={String.raw`!h-full !w-full md:w-full [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full [&_th_.cell]:font-compact [&_th_.cell]:tracking-normal`}
             size="small"
@@ -154,9 +158,7 @@ export const VocabDataTable = defineComponent({
                   prop="vocab.time_modified"
                   sortable="custom"
                   v-slots={({ row }: { row: RowData }) => row.vocab.time_modified && (
-                    <div
-                      class="flex flex-row gap-0.5 font-compact tabular-nums tracking-normal text-neutral-900 ffs-[normal]"
-                    >
+                    <div class="flex flex-row gap-0.5 font-compact tabular-nums tracking-normal text-neutral-900 ffs-[normal]">
                       {formatDistanceToNowStrict(new Date(row.vocab.time_modified))}
                     </div>
                   )}

@@ -4,7 +4,7 @@ import { defineComponent, reactive, ref } from 'vue'
 import { t } from '@/i18n'
 import { changePassword } from '@/api/user'
 import { useVocabStore } from '@/store/useVocab'
-import { useState } from '@/composables/utilities'
+import { createSignal } from '@/composables/utilities'
 import type { FormRules } from '@/types/forms'
 
 export const Password = defineComponent({
@@ -16,7 +16,7 @@ export const Password = defineComponent({
       password: '',
       checkPass: '',
     })
-    const rules = reactive({
+    const rules: FormRules<typeof ruleForm> = reactive({
       password: [
         {
           validator(rule, value: string, callback) {
@@ -50,7 +50,7 @@ export const Password = defineComponent({
           trigger: 'blur'
         }
       ],
-    } satisfies FormRules<typeof ruleForm>)
+    })
 
     function submitForm(formEl: FormInstance | undefined) {
       if (!formEl) return
@@ -64,13 +64,13 @@ export const Password = defineComponent({
       })
     }
 
-    const [errorMsg, setErrorMsg] = useState('')
+    const [errorMsg, setErrorMsg] = createSignal('')
 
     async function alterInfo(form: typeof ruleForm) {
       if (form.password !== '') {
         form.password = form.password.trim()
         const res = await changePassword({
-          username: store.user,
+          username: store.user(),
           oldPassword: form.oldPassword,
           newPassword: form.password,
         })
@@ -101,7 +101,7 @@ export const Password = defineComponent({
             <ElFormItem
               label={t('Old Password')}
               prop="oldPassword"
-              error={errorMsg.value}
+              error={errorMsg()}
             >
               <ElInput
                 v-model={ruleForm.oldPassword}
@@ -139,7 +139,7 @@ export const Password = defineComponent({
               >
                 {t('Confirm Changes')}
               </ElButton>
-              <ElButton onClick={() => ruleFormRef.value && ruleFormRef.value.resetFields()}>
+              <ElButton onClick={() => ruleFormRef.value?.resetFields()}>
                 {t('Reset')}
               </ElButton>
             </ElFormItem>

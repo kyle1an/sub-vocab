@@ -1,12 +1,11 @@
 import { RouterLink, RouterView, useRoute } from 'vue-router'
-import { computed, defineComponent } from 'vue'
+import { defineComponent } from 'vue'
 import { t } from '@/i18n'
 import { KeepViewAlive } from '@/components/common/KeepViewAlive'
 
 export const Dashboard = defineComponent({
   setup() {
-    const currentPath = computed(() => useRoute().fullPath)
-    const subNav = computed(() => [
+    const subNav = () => [
       {
         title: t('Vocabulary'),
         path: '/mine',
@@ -15,7 +14,7 @@ export const Dashboard = defineComponent({
         title: 'Chart',
         path: '/chart',
       },
-    ] as const)
+    ] as const
     return () => (
       <div class="flex w-full max-w-screen-lg grow flex-col py-3 px-5 pb-9 md:px-8">
         <div class="flex w-full grow flex-col gap-4 md:flex-row md:gap-6">
@@ -23,10 +22,10 @@ export const Dashboard = defineComponent({
             <div class="sticky top-20">
               <nav>
                 <ol>
-                  {subNav.value.map((nav) => (
+                  {subNav().map((nav) => (
                     <li
                       key={nav.path}
-                      class={`${currentPath.value === nav.path ? '[&>a]:bg-gray-100' : ''}`}
+                      class={`${useRoute().fullPath === nav.path ? '[&>a]:bg-gray-100' : ''}`}
                     >
                       <RouterLink
                         to={nav.path}
