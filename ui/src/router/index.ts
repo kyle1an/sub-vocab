@@ -9,7 +9,10 @@ const router = createRouter({
       component: Sub,
       meta: { keepAlive: true },
     },
-    { path: '/about', component: { template: '<div>About</div>' } },
+    {
+      path: '/about',
+      component: { template: '<div>About</div>' }
+    },
     {
       path: '/mine',
       component: () => import('@/views/mine/Dashboard').then(({ Dashboard }) => Dashboard),
@@ -32,10 +35,13 @@ const router = createRouter({
       component: () => import('@/views/vocab-import/Import').then(({ Import }) => Import),
       meta: { keepAlive: true },
     },
-    { path: '/login', component: () => import('@/views/Login').then(({ Login }) => Login) },
+    {
+      path: '/login', component: () => import('@/views/Login').then(({ Login }) => Login)
+    },
     { path: '/register', component: () => import('@/views/Register').then(({ Register }) => Register) },
     {
-      path: '/user', component: () => import('@/views/user/Account').then(({ Account }) => Account),
+      path: '/user',
+      component: () => import('@/views/user/Account').then(({ Account }) => Account),
       children: [
         {
           path: '',
