@@ -187,7 +187,8 @@ export default class LabeledTire {
     for (const k in layer) {
       const key = k as keyof typeof layer
       if (key === '$') continue
-      const innerLayer = layer[key] ?? {}
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const innerLayer = layer[key]!
       // deep first traverse eg: beings(being) vs bee
       this.#traverseMerge(innerLayer)
       this.#mergeVocabOfDifferentSuffixes(innerLayer, key, layer)
