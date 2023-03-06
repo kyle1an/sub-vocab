@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { RouterLink } from 'vue-router'
 import { t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
-import { inputPasswordSchema, inputNameSchema } from '@/utils/validation'
+import { inputNameSchema, inputPasswordSchema } from '@/utils/validation'
 import { createSignal } from '@/composables/utilities'
 import type { FormRules } from '@/types/forms'
 

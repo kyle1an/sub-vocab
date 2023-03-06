@@ -98,6 +98,7 @@ export const generatedVocabTrie = (inputText: string) => {
   logEnd(['-- All took', '    '])
   if (import.meta.env.VITE_SUB_ENV === 'dev') {
     logVocabInfo(list)
+    console.log('trie', trie)
   }
   logPerf()
   return {
