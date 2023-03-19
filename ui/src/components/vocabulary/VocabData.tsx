@@ -171,7 +171,7 @@ export const VocabDataTable = defineComponent({
           <ElPagination
             v-model:currentPage={currPage.value}
             v-model:pageSize={pageSize.value}
-            pageSizes={[100, 200, 500, 1000, rowsSegmented.value.length]}
+            pageSizes={[50, 100, 200, 500, 1000, rowsSegmented.value.length]}
             pagerCount={5}
             small
             total={~~totalTransit.value}

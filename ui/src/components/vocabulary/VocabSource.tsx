@@ -206,7 +206,7 @@ export const VocabSourceTable = defineComponent({
           <ElPagination
             v-model:currentPage={currPage.value}
             v-model:pageSize={pageSize.value}
-            pageSizes={[25, 100, 200, 500, 1000, rowsSegmented.value.length]}
+            pageSizes={[25, 50, 100, 200, 500, 1000, rowsSegmented.value.length]}
             pagerCount={5}
             small
             total={~~totalTransit.value}
