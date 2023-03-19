@@ -1,4 +1,4 @@
-import { FormItemRule } from 'element-plus/es/tokens/form'
+import { FormItemRule } from 'element-plus'
 
 type Arrayable<T> = T | T[];
 
