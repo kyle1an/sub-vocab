@@ -49,15 +49,16 @@ export const Login = defineComponent({
     })
     const [errorMsg, setErrorMsg] = createSignal('')
 
-    function submitForm(formEl: FormInstance | undefined) {
+    function submitForm() {
+      const formEl = ruleFormRef.value
       if (!formEl) return
-      formEl.validate(async (valid) => {
-        if (!valid) return
-
-        if (!(await store.login(ruleForm))) {
-          setErrorMsg(t('incorrectUserPassword'))
-        }
-      }).then()
+      formEl.validate()
+        .then(async () => {
+          if (!await store.login(ruleForm)) {
+            setErrorMsg(t('incorrectUserPassword'))
+          }
+        })
+        .catch(console.error)
     }
 
     return () => (
@@ -103,7 +104,7 @@ export const Login = defineComponent({
                     <ElFormItem>
                       <ElButton
                         type="primary"
-                        onClick={() => submitForm(ruleFormRef.value)}
+                        onClick={submitForm}
                       >
                         {t('Submit')}
                       </ElButton>

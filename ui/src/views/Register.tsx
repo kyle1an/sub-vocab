@@ -49,7 +49,7 @@ export const Register = defineComponent({
 
             if (ruleForm.checkPass !== '') {
               if (!ruleFormRef.value) return
-              ruleFormRef.value.validateField('checkPass', () => null)
+              ruleFormRef.value.validateField('checkPass', () => null).catch(console.error)
             }
 
             callback()
@@ -77,28 +77,18 @@ export const Register = defineComponent({
     })
     const [errorMsg, setErrorMsg] = createSignal('')
 
-    function submitForm(formEl: FormInstance | undefined) {
+    function submitForm() {
+      const formEl = ruleFormRef.value
       if (!formEl) return
-      formEl.validate(async (valid) => {
-        if (!valid) {
-          return false
-        }
-
-        if (!await registerStatus(ruleForm)) {
-          setErrorMsg('Something went wrong.')
-          return
-        }
-
-        await router.push('/login')
-      })
-    }
-
-    async function registerStatus(form: {
-      username: string;
-      password: string;
-    }) {
-      const signUpRes = await register(form)
-      return signUpRes[0].result === 1
+      formEl.validate()
+        .then(async () => {
+          if ((await register(ruleForm))[0].result === 1) {
+            router.push('/login').catch(console.error)
+          } else {
+            setErrorMsg('Something went wrong.')
+          }
+        })
+        .catch(console.error)
     }
 
     return () => (
@@ -155,7 +145,7 @@ export const Register = defineComponent({
                     <ElFormItem>
                       <ElButton
                         type="primary"
-                        onClick={() => submitForm(ruleFormRef.value)}
+                        onClick={submitForm}
                       >
                         {t('Create Account')}
                       </ElButton>

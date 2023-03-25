@@ -8,28 +8,32 @@ import { useVocabStore } from '@/store/useVocab'
 import { createSignal } from '@/composables/utilities'
 import { SegmentedControl } from '@/components/SegmentedControl'
 
+function createWeekMap() {
+  const map = new Map<string, number>()
+  const week: Record<string, string> = {}
+  ;(rangeRight(7) as number[]).forEach((i) => {
+    const day = new Date()
+    day.setDate(day.getDate() - i)
+    const date = format(day, 'yyyy-MM-dd')
+    map.set(date, 0)
+    week[date] = i === 0 ? 'Today'
+      : i === 1 ? 'Yesterday'
+        : format(day, 'EEE')
+  })
+
+  return { map, week }
+}
+
 export const VChart = defineComponent({
   setup() {
-    const store = useVocabStore()
-    const fontFamily = [
-      ...(navigator.userAgent.includes('Safari')
-      && !navigator.userAgent.includes('Chrome') ? [] : ['SF Pro Rounded']),
+    Chart.defaults.font.family = [
+      ...(navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome') ? [] : ['SF Pro Rounded']),
       ...['SF Pro Text', '-apple-system', 'Inter', 'system-ui', 'sans-serif'],
-    ]
-    Chart.defaults.font.family = fontFamily.join(', ')
+    ].join(', ')
     Chart.defaults.font.weight = '500'
 
-    const map = new Map<string, number>()
-    const week: Record<string, string> = {}
-    rangeRight(7).forEach((i: number) => {
-      const day = new Date()
-      day.setDate(day.getDate() - i)
-      const date = format(day, 'yyyy-MM-dd')
-      map.set(date, 0)
-      week[date] = i === 0 ? 'Today'
-        : i === 1 ? 'Yesterday'
-          : format(day, 'EEE')
-    })
+    const store = useVocabStore()
+    const { map, week } = createWeekMap()
 
     const groupedRows = computed(() => {
       store.baseVocab.forEach((r) => {

@@ -12,7 +12,7 @@ export const Sub = defineComponent({
   setup() {
     const [fileInfo, setFileInfo] = createSignal('')
 
-    async function onFileChange({ name, value }: { name: string, value: string }) {
+    function onFileChange({ name, value }: { name: string, value: string }) {
       setFileInfo(name)
       setInputText(value)
     }
@@ -28,12 +28,15 @@ export const Sub = defineComponent({
       setSentences(sentences)
       setTableDataOfVocab(list)
     }, 50))
-    const sourceFileInput = ref()
+    const sourceFileInput = ref<InstanceType<typeof FileInput> | null>(null)
 
-    async function onTextChange({ name, value }: { name?: string, value: string }) {
+    function onTextChange({ name, value }: { name?: string, value: string }) {
       setInputText(value)
       if (name) setFileInfo(name)
-      sourceFileInput.value.inputChanged()
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      // eslint-disable-next-line
+      sourceFileInput.value?.inputChanged()
     }
 
     return () => (

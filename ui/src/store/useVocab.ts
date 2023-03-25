@@ -27,7 +27,9 @@ export const useVocabStore = defineStore('SubVocabulary', () => {
     const resAuth = await loginUser(info)
     if (!resAuth[0]) return
     setUser(info.username)
-    requestAnimationFrame(() => router.push('/'))
+    requestAnimationFrame(() => {
+      router.push('/').catch(console.error)
+    })
     return true
   }
 
@@ -36,7 +38,9 @@ export const useVocabStore = defineStore('SubVocabulary', () => {
     Cookies.remove('_user', { path: '' })
     Cookies.remove('acct', { path: '' })
     setUser('')
-    requestAnimationFrame(() => router.push('/'))
+    requestAnimationFrame(() => {
+      router.push('/').catch(console.error)
+    })
   }
 
   const { data: irregularMaps } = useQuery(['stems'], stemsMapping, {

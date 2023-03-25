@@ -111,7 +111,7 @@ export const VocabSourceTable = defineComponent({
           name={props.tableName}
           segments={segments()}
           value={segment.value}
-          onChoose={(v) => segment.value = v}
+          onChoose={(v: TableSegment) => segment.value = v}
         />
         <div class="h-px w-full grow">
           <ElTable

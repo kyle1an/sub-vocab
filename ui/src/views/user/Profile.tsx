@@ -39,16 +39,14 @@ export const Profile = defineComponent({
       ],
     } satisfies FormRules<typeof ruleForm>)
 
-    function submitForm(formEl: FormInstance | undefined) {
+    function submitForm() {
+      const formEl = ruleFormRef.value
       if (!formEl) return
-      formEl.validate((valid) => {
-        if (!valid) {
-          console.log('error submit!')
-          return false
-        }
-
-        alterInfo(ruleForm)
-      })
+      formEl.validate()
+        .then(() => {
+          alterInfo(ruleForm).catch(console.error)
+        })
+        .catch(console.error)
     }
 
     const [errorMsg, setErrorMsg] = createSignal('')
@@ -98,7 +96,7 @@ export const Profile = defineComponent({
             <ElFormItem>
               <ElButton
                 type="primary"
-                onClick={() => submitForm(ruleFormRef.value)}
+                onClick={submitForm}
               >
                 {t('Confirm Changes')}
               </ElButton>

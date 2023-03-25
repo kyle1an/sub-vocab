@@ -1,25 +1,28 @@
 import { defineStore } from 'pinia'
 
-type perf = {
+type Perf = {
   label: string | string[]
   times: number[]
   style: string
 }
+
 export const useTimeStore = defineStore('timeStore', () => {
-  const perfTime: Record<string, perf> = {}
-  const logsRes: Record<string, perf> = {}
+  const perfTime: Record<string, Perf> = {}
+  const logsRes: Record<string, Perf> = {}
+
+  const getName = (label: string | string[]) => typeof label === 'string' ? label : label.join('')
 
   function logTime(label: string | string[], style = '') {
-    const name = typeof label === 'string' ? label : label.join('')
+    const name = getName(label)
     perfTime[name] = {
-      label: label,
+      label,
       times: [performance.now()],
-      style: style
+      style,
     }
   }
 
   function logEnd(label: string | string[]) {
-    const name = typeof label === 'string' ? label : label.join('')
+    const name = getName(label)
     if (!perfTime[name]) {
       console.warn(`${name} not logged`)
       return
@@ -29,33 +32,30 @@ export const useTimeStore = defineStore('timeStore', () => {
     logsRes[name] = perfTime[name]
   }
 
-  function alignWord(des: string | string[], time: number, indent = 30) {
-    let title
-    let desStr
-    let append
-
-    if (Array.isArray(des)) {
-      title = des[0]
-      desStr = des.join('')
-      append = des[1]
-    } else {
-      title = des
-      desStr = des
-      append = ''
+  function formatLogMessage(des: string | string[], time: number, indent = 30) {
+    const {
+      title,
+      append,
+      desStr,
+    } = Array.isArray(des) ? {
+      title: des[0],
+      append: des[1],
+      desStr: des.join('')
+    } : {
+      title: des,
+      append: '',
+      desStr: des
     }
 
-    const desHolder = desStr.replace(/%c/g, '')
-    let gap = indent - desHolder.length - (~~time + '').length
-    if (gap < 0) gap = 1
-    const space = ' '.repeat(gap)
-    return `${title + space + append + time} ms`
+    const space = ' '.repeat(Math.max(indent - desStr.replace(/%c/g, '').length - String(~~time).length, 1))
+    return `${title}${space}${append}${time} ms`
   }
 
   function logPerf() {
     const logs = Object.entries(logsRes).sort((a, b) => a[1].times[1] - b[1].times[1])
     for (const [, { label, times, style }] of logs) {
       const [start, end] = times
-      console.log(alignWord(label, end - start), style)
+      console.log(formatLogMessage(label, end - start), style)
     }
   }
 

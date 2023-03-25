@@ -67,7 +67,9 @@ export function loginNotify() {
         {`${t('please')} `}
         <i
           class="cursor-pointer"
-          onClick={() => router.push('/login')}
+          onClick={() => {
+            router.push('/').catch(console.error)
+          }}
         >
           {t('login')}
         </i>

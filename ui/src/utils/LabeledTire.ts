@@ -266,6 +266,8 @@ export default class LabeledTire {
             curr[previousChar]?.i?.n?.[`'`]?.$,
             curr[previousChar]?.i?.n?.[`’`]?.$,
             curr[previousChar]?.e?.d?.$,
+            curr[previousChar]?.e?.r?.$,
+            curr[previousChar]?.e?.s?.t?.$,
           )
         } else {
           const wordEndsWithConsonantAndConsonantY = previousChar === 'y'
