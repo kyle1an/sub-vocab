@@ -26,14 +26,18 @@ export const FileInput = defineComponent({
     }) => e,
   },
   setup(props, { slots, emit, expose }) {
-    async function onFileChange(ev: Event) {
-      const files = (ev.target as HTMLInputElement).files
-      const numberOfFiles = files?.length
-      if (!numberOfFiles) return
-      emit('fileInput', {
-        value: (await readFiles(files)).reduce((pre, { result }) => pre + result, ''),
-        name: numberOfFiles === 1 ? files[0].name : `${numberOfFiles} files selected`
-      })
+    function onFileChange(ev: Event) {
+      const fileList = (ev.target as HTMLInputElement).files
+      if (fileList && fileList.length > 0) {
+        readFiles(fileList)
+          .then((fl) => {
+            emit('fileInput', {
+              value: fl.reduce((pre, { result }) => pre + String(result), ''),
+              name: fileList.length === 1 ? fileList[0].name : `${fileList.length} files selected`
+            })
+          })
+          .catch(console.error)
+      }
     }
 
     function dropFile(ev: DragEvent) {
@@ -52,7 +56,7 @@ export const FileInput = defineComponent({
     }
 
     function resetFileInput(selectors: string) {
-      const input = document.querySelectorAll(selectors) as NodeListOf<HTMLInputElement>
+      const input: NodeListOf<HTMLInputElement> = document.querySelectorAll(selectors)
       for (let i = 0; i < input.length; i++) {
         input[i].value = ''
       }

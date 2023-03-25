@@ -100,7 +100,7 @@ export const VocabDataTable = defineComponent({
           segments={segments()}
           value={segment.value}
           class="pt-3 pb-2"
-          onChoose={(v) => segment.value = v}
+          onChoose={(v: TableSegment) => segment.value = v}
         />
         <div class="h-px w-full grow">
           <ElTable

@@ -26,7 +26,7 @@ export const Password = defineComponent({
 
             if (ruleForm.checkPass !== '') {
               if (!ruleFormRef.value) return
-              ruleFormRef.value.validateField('checkPass', () => null)
+              ruleFormRef.value.validateField('checkPass', () => null).catch(console.error)
             }
 
             callback()
@@ -52,16 +52,14 @@ export const Password = defineComponent({
       ],
     })
 
-    function submitForm(formEl: FormInstance | undefined) {
+    function submitForm() {
+      const formEl = ruleFormRef.value
       if (!formEl) return
-      formEl.validate((valid) => {
-        if (!valid) {
-          console.log('error submit!')
-          return false
-        }
-
-        alterInfo(ruleForm)
-      })
+      formEl.validate()
+        .then(() => {
+          alterInfo(ruleForm).catch(console.error)
+        })
+        .catch(console.error)
     }
 
     const [errorMsg, setErrorMsg] = createSignal('')
@@ -135,7 +133,7 @@ export const Password = defineComponent({
             <ElFormItem>
               <ElButton
                 type="primary"
-                onClick={() => submitForm(ruleFormRef.value)}
+                onClick={submitForm}
               >
                 {t('Confirm Changes')}
               </ElButton>

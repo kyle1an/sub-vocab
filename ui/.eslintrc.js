@@ -7,6 +7,7 @@ module.exports = {
     "plugin:vue/vue3-recommended",
     "plugin:tailwindcss/recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "plugin:import/recommended",
     "plugin:import/typescript",
   ],
@@ -15,13 +16,15 @@ module.exports = {
     "extraFileExtensions": [".vue"],
     "ecmaVersion": "latest",
     "sourceType": "module",
+    project: true,
+    tsconfigRootDir: __dirname,
   },
   "plugins": [
     "vue",
     "@typescript-eslint",
   ],
   "parser": "vue-eslint-parser",
-  "ignorePatterns": ["**/*.json", ".eslintrc.js", "*.config.js", "/dist/"],
+  "ignorePatterns": ["**/*.json", ".eslintrc.js", "*.config.js", "*.config.ts", "/dist/"],
   "rules": {
     "semi": [1, "never"],
     "quotes": [1, "single", { "avoidEscape": true, "allowTemplateLiterals": true }],
@@ -54,6 +57,9 @@ module.exports = {
         "extendDefaults": true
       }
     ],
+    // Note: you must disable the base rule as it can report incorrect errors
+    "require-await": "off",
+    "@typescript-eslint/require-await": "error",
     "tailwindcss/no-custom-classname": "off",
     "vue/component-name-in-template-casing": ["warn", "PascalCase", {
       "registeredComponentsOnly": true,

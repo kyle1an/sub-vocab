@@ -12,15 +12,18 @@ export const Import = defineComponent({
   setup() {
     const [fileInfo, setFileInfo] = createSignal('')
 
-    async function onFileChange({ name, value }: { name: string, value: string }) {
+    function onFileChange({ name, value }: { name: string, value: string }) {
       setFileInfo(name)
       setInputText(value)
     }
 
-    async function onTextChange({ name, value }: { name?: string, value: string }) {
+    function onTextChange({ name, value }: { name?: string, value: string }) {
       setInputText(value)
       if (name) setFileInfo(name)
-      importFileInput.value.inputChanged()
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      // eslint-disable-next-line
+      importFileInput.value?.inputChanged()
     }
 
     const [count, setCount] = createSignal(0)
@@ -32,7 +35,7 @@ export const Import = defineComponent({
       setTableDataOfVocab(list)
     }, 50))
     const [tableDataOfVocab, setTableDataOfVocab] = createSignal<SrcRow<LabelSubDisplay>[]>([])
-    const importFileInput = ref()
+    const importFileInput = ref<InstanceType<typeof FileInput> | null>(null)
     return () => (
       <div class="w-full max-w-screen-xl">
         <FileInput
