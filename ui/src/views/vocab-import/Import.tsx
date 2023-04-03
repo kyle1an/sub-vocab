@@ -47,7 +47,7 @@ export const Import = defineComponent({
         </FileInput>
         <div class="flex flex-col gap-6 md:h-[calc(100vh-140px)] md:flex-row">
           <div class="relative box-border flex flex-1 basis-auto flex-col overflow-hidden border md:rounded-[12px] md:shadow-sm">
-            <div class="flex h-10 shrink-0 items-center border-b bg-zinc-50 py-2 pr-2 pl-4 font-compact text-xs text-neutral-600">
+            <div class="flex h-10 shrink-0 items-center border-b bg-zinc-50 py-2 pl-4 pr-2 font-compact text-xs text-neutral-600">
               <span class="grow truncate">
                 {`${fileInfo()} `}
               </span>

@@ -2,6 +2,7 @@ import { defineComponent } from 'vue'
 import { RouterView } from 'vue-router'
 import { TopBar } from '@/components/TopBar'
 import { KeepViewAlive } from '@/components/common/KeepViewAlive'
+import '@/styles/index.scss'
 
 export const App = defineComponent({
   setup() {

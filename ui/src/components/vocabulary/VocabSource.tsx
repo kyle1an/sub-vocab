@@ -99,10 +99,10 @@ export const VocabSourceTable = defineComponent({
         }
 
         if (el === event.currentTarget) {
+          vocabTable.value?.toggleRowExpansion(row)
           break
         }
       }
-      vocabTable.value?.toggleRowExpansion(row)
     }
 
     return () => (
@@ -118,7 +118,7 @@ export const VocabSourceTable = defineComponent({
             ref={vocabTable}
             data={rowsDisplay()}
             rowKey={(row: RowData) => '_' + row.vocab.w}
-            class={String.raw`!h-full [&_*]:overscroll-contain [&_.el-icon]:pointer-events-none [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_row:has(+tr:not([class]))>td]:!border-white [&_.el-table\_\_row:has(+tr:not([class])):hover>td]:!bg-white [&_tr:not([class])+tr]:shadow-[0px_-4px_10px_-4px_rgba(0,0,0,0.1)] [&_tr:not([class])+tr]:z-[1] [&_tr:not([class])+tr]:relative [&_th_.cell]:font-compact`}
+            class={String.raw`!h-full [&_*]:overscroll-contain [&_.el-icon]:pointer-events-none [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_row:has(+tr:not([class]))>td]:!border-white [&_.el-table\_\_row:has(+tr:not([class])):hover>td]:!bg-white ${props.expand ? String.raw`[&_.el-table\_\_row+.el-table\_\_row]:shadow-[0px_-4px_10px_-6px_rgba(0,0,0,0.1)]` : ``} [&_th_.cell]:font-compact`}
             size="small"
             rowClassName={() => `${props.expand ? 'cursor-pointer' : ''}`}
             onRow-click={props.expand ? expandRow : () => void 0}
