@@ -14,7 +14,7 @@ After you log in, you may mark the words you already know by clicking on the che
 
 ### overview
 
-<img width="576" alt="Screenshot" src="https://user-images.githubusercontent.com/50689806/225971604-1751ecb5-9887-45a2-90b2-29d5158eb857.png">
+<img width="576" alt="Screenshot" src="https://user-images.githubusercontent.com/50689806/229576826-ec3fecf6-fa98-4d07-a958-3deae8f5d531.png">
 
 ## Stack
 

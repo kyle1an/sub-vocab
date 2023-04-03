@@ -36,7 +36,7 @@ export const TextareaInput = defineComponent({
     return () => (
       <textarea
         value={props.value}
-        class="h-[260px] max-h-[360px] w-full resize-none rounded-none py-3 px-[30px] align-top outline-none ffs-[normal] md:h-full md:max-h-full"
+        class="h-[260px] max-h-[360px] w-full resize-none rounded-none px-[30px] py-3 align-top outline-none ffs-[normal] md:h-full md:max-h-full"
         placeholder={props.placeholder ?? ''}
         onInput={inputChanged}
         onDrop={dropFile}

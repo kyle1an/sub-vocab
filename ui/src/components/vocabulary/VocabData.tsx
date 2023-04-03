@@ -99,7 +99,7 @@ export const VocabDataTable = defineComponent({
           name={props.tableName}
           segments={segments()}
           value={segment.value}
-          class="pt-3 pb-2"
+          class="pb-2 pt-3"
           onChoose={(v: TableSegment) => segment.value = v}
         />
         <div class="h-px w-full grow">

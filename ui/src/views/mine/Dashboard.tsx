@@ -16,7 +16,7 @@ export const Dashboard = defineComponent({
       },
     ] as const
     return () => (
-      <div class="flex w-full max-w-screen-lg grow flex-col py-3 px-5 pb-9 md:px-8">
+      <div class="flex w-full max-w-screen-lg grow flex-col px-5 py-3 pb-9 md:px-8">
         <div class="flex w-full grow flex-col gap-4 md:flex-row md:gap-6">
           <div class="w-48 shrink-0">
             <div class="sticky top-20">
