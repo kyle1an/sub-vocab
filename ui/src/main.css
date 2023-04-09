@@ -3,15 +3,6 @@
 
 @tailwind base;
 @tailwind components;
-
-.\!overflow-scrolling-touch {
-  -webkit-overflow-scrolling: touch !important;
-}
-
-.text-precision {
-  text-rendering: geometricPrecision;
-}
-
 @tailwind utilities;
 
 :root {

@@ -1,5 +1,3 @@
-import { FormItemRule } from 'element-plus'
+import type { FormRules as FRs } from 'element-plus'
 
-type Arrayable<T> = T | T[];
-
-export type FormRules<T> = Partial<Record<keyof T, Arrayable<FormItemRule>>>;
+export type FormRules<T> = Partial<Record<keyof T, FRs[keyof FRs]>>;

@@ -1,16 +1,17 @@
 import crypto from 'crypto'
 import express from 'express'
 import type { OkPacket, ResultSetHeader } from 'mysql2'
+import type { Response } from 'express-serve-static-core'
 import { pool } from '../config/connection'
 import { daysIn, tokenChecker } from '../lib/timeUtil'
-import type { RequestBody, Status, TypedResponse } from '../types'
+import type { RequestBody, Status } from '../types'
 import type { Credential, NewCredential, NewUsername, Username } from '../../ui/src/api/user'
 
 const router = express.Router()
 
 export type LoginResponse = [boolean]
 
-router.post('/login', (req: RequestBody<Credential>, res: TypedResponse<LoginResponse>) => {
+router.post('/login', (req: RequestBody<Credential>, res: Response<LoginResponse>) => {
   const token = crypto.randomBytes(32).toString('hex')
   pool.getConnection((err, connection) => {
     const { username, password } = req.body
@@ -33,7 +34,7 @@ router.post('/login', (req: RequestBody<Credential>, res: TypedResponse<LoginRes
 
 export type RegisterResponse = [{ result: number }]
 
-router.post('/register', (req: RequestBody<Credential>, res: TypedResponse<RegisterResponse>) => {
+router.post('/register', (req: RequestBody<Credential>, res: Response<RegisterResponse>) => {
   pool.getConnection((err, connection) => {
     const { username, password } = req.body
     connection.query(
@@ -47,7 +48,7 @@ router.post('/register', (req: RequestBody<Credential>, res: TypedResponse<Regis
   })
 })
 
-router.post('/changeUsername', tokenChecker, (req: RequestBody<NewUsername>, res: TypedResponse<Status>) => {
+router.post('/changeUsername', tokenChecker, (req: RequestBody<NewUsername>, res: Response<Status>) => {
   pool.getConnection((err, connection) => {
     const { username, newUsername } = req.body
     connection.query(
@@ -63,7 +64,7 @@ router.post('/changeUsername', tokenChecker, (req: RequestBody<NewUsername>, res
   })
 })
 
-router.post('/changePassword', (req: RequestBody<NewCredential>, res: TypedResponse<Status>) => {
+router.post('/changePassword', (req: RequestBody<NewCredential>, res: Response<Status>) => {
   pool.getConnection((err, connection) => {
     const { username, newPassword, oldPassword } = req.body
     connection.query(
@@ -79,7 +80,7 @@ router.post('/changePassword', (req: RequestBody<NewCredential>, res: TypedRespo
   })
 })
 
-router.post('/logoutToken', (req: RequestBody<Username>, res: TypedResponse<Status>) => {
+router.post('/logoutToken', (req: RequestBody<Username>, res: Response<Status>) => {
   pool.getConnection((err, connection) => {
     const { username } = req.body
     if (!req.cookies.acct) {
@@ -105,7 +106,7 @@ export interface UsernameTaken {
   has: boolean
 }
 
-router.post('/existsUsername', (req: RequestBody<Username>, res: TypedResponse<UsernameTaken>) => {
+router.post('/existsUsername', (req: RequestBody<Username>, res: Response<UsernameTaken>) => {
   pool.getConnection((err, connection) => {
     const { username } = req.body
     connection.query(

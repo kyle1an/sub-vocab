@@ -2,14 +2,18 @@ import type { LabelSieveDisplay, MyVocabRow } from '@/types'
 import { useVocabStore } from '@/store/useVocab'
 
 function handleVocabToggle(vocab: LabelSieveDisplay) {
-  useVocabStore().toggleWordState(vocab)
+  if (vocab.acquainted) {
+    useVocabStore().revokeVocab(vocab)
+  } else {
+    useVocabStore().acquaintEveryVocab([{ vocab }])
+  }
 }
 
 export function VocabToggle({ row }: { row: MyVocabRow }) {
   return (
     <button
       disabled={row.vocab?.inUpdating}
-      class={`${row.vocab?.inUpdating ? '[.un&]:text-black' : ''} ${row.vocab?.acquainted ? 'border-[#facc15] bg-[#facc15] text-white hover:bg-[rgb(252,219,91)] focus:bg-[rgb(252,219,91)]' : 'un border-zinc-300 bg-transparent text-transparent hover:text-black'} box-border inline-flex h-6 max-h-full w-6 grow-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-[50%] border p-[5px] text-center align-middle text-xs leading-3 tracking-wide transition-colors`}
+      class={`${row.vocab?.inUpdating ? '[.un&]:text-black' : ''} ${row.vocab?.acquainted ? 'border-[#facc15] bg-[#facc15] text-white hover:bg-[rgb(252,219,91)] focus:bg-[rgb(252,219,91)]' : 'un border-zinc-300 bg-transparent text-transparent hover:text-black'} box-border inline-flex h-6 max-h-full w-6 grow-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-[50%] border p-[5px] text-center align-middle text-xs/3 tracking-wide transition-colors`}
       onClick={() => handleVocabToggle(row.vocab)}
     >
       <i class={`${row.vocab?.inUpdating ? '' : 'hidden'} relative inline-flex animate-[rotating_2s_linear_infinite] items-center justify-center fill-current leading-[1em] text-inherit`}>

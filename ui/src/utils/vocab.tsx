@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 import { ElNotification } from 'element-plus'
-import type { LabelSieveDisplay, LabelSubDisplay, LabelVocab, SrcRow } from '@/types'
+import type { LabelSieveDisplay, LabelVocab, SrcRow } from '@/types'
 import { t } from '@/i18n'
 import router from '@/router'
 import { useVocabStore } from '@/store/useVocab'
@@ -48,18 +48,6 @@ function formVocab($: LabelVocab) {
   }
 }
 
-export function formVocabList(vocabulary: Array<LabelVocab | null>) {
-  const all: SrcRow<LabelSubDisplay>[] = []
-
-  for (const v of vocabulary) {
-    if (!v || v.variant) continue
-
-    all.push(formVocab(v))
-  }
-
-  return all
-}
-
 export function loginNotify() {
   ElNotification({
     message: (
@@ -94,7 +82,7 @@ export const generatedVocabTrie = (inputText: string) => {
     .mergeDerivedWordIntoStem(store.irregularMaps)
   logEnd('%c  merge vocabulary')
   logTime('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
-  const list = formVocabList(trie.vocabulary)
+  const list = trie.vocabulary.filter(v => v && !v.variant).map(v => formVocab(v as LabelVocab))
   logEnd('%c  formLabel vocabulary')
   logEnd(['· categorize vocabulary', ' +  '])
   logEnd(['-- All took', '    '])

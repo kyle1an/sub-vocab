@@ -1,4 +1,4 @@
-import { RouterView } from 'vue-router'
+import type { RouterView } from 'vue-router'
 import { KeepAlive } from 'vue'
 
 type RouterViewSlotsDefault = Parameters<NonNullable<InstanceType<typeof RouterView>['$slots']['default']>>[0]

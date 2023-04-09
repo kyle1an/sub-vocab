@@ -20,6 +20,7 @@ module.exports = {
     plugin(function ({ addBase, addComponents, addUtilities, matchUtilities, theme }) {
       addUtilities({
         '.tap-transparent': { '-webkit-tap-highlight-color': 'transparent' },
+        '.overflow-scrolling-touch': { '-webkit-overflow-scrolling': 'touch' },
       })
       matchUtilities({
         'ffs': (value) => ({

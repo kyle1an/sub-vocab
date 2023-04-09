@@ -1,5 +1,6 @@
 import { get } from 'lodash-es'
-import type { MyVocabRow, Order } from '@/types'
+import type { TableColumnInstance } from 'element-plus'
+import type { MyVocabRow } from '@/types'
 
 export function sortByChar(a: string, b: string) {
   return a.localeCompare(b, 'en', { sensitivity: 'base' })
@@ -20,7 +21,7 @@ export function removeClass(className: string) {
 
 export const jsonClone = <T>(obj: T) => JSON.parse(JSON.stringify(obj))
 
-export const orderBy = (prop: string | null, order: Order) => {
+export const orderBy = (prop: string | null, order: NonNullable<TableColumnInstance['sortOrders']>[number]) => {
   return <T extends MyVocabRow>(rows: T[]) => {
     if (!prop || !order) {
       return rows

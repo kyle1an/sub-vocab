@@ -1,4 +1,4 @@
-import { LabelFromUser } from '../../../backend/routes/vocab'
+import type { LabelFromUser } from '../../../backend/routes/vocab'
 
 export interface LabelVocab extends Record<string, unknown> {
   w: string;
