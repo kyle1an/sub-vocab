@@ -1,27 +1,27 @@
 <script setup lang="ts">
 const props = withDefaults(defineProps<{
-  state?: boolean,
+  checked?: boolean,
   text?: [string, string],
-  onToggle: (state: boolean) => void,
+  onChange: (checked: boolean) => void,
 }>(), {
-  state: false,
-  text: () => ['off', 'on'],
+  checked: false,
+  text: () => ['', 'on'],
 })
 </script>
 
 <template>
   <div>
-    <label class="form-switch flex cursor-pointer justify-center tap-transparent">
+    <label class="group/label flex cursor-pointer justify-center tap-transparent">
       <span class="mx-2.5 flex flex-col-reverse justify-center text-base">
         {{ props.text[0] }}
       </span>
       <input
-        :checked="props.state"
+        :checked="props.checked"
         type="checkbox"
-        class="hidden"
-        @change="(ev)=>props.onToggle(ev.target.checked)"
+        class="peer hidden"
+        @change="(ev)=>props.onChange(ev.target.checked)"
       >
-      <i class="relative mr-2 inline-block h-[26px] w-[46px] select-none rounded-[23px] bg-[#e6e6e6] align-text-bottom transition-all duration-300 ease-linear" />
+      <i class="relative mr-2 inline-block h-[26px] w-[46px] select-none overflow-hidden rounded-[23px] bg-[#e6e6e6] align-text-bottom transition-all duration-300 ease-linear group-active/label:after:w-7 peer-checked:bg-[rgb(52,199,89)]" />
       <span class="mx-2.5 flex flex-col-reverse justify-center text-base">
         {{ props.text[1] }}
       </span>
@@ -34,9 +34,8 @@ const props = withDefaults(defineProps<{
   --switch-bg-color: #e6e6e6;
 }
 
-.form-switch:active {
+.group\/label:active {
   i::after {
-    width: 28px;
     transform: translate3d(2px, 2px, 0);
   }
 
@@ -72,8 +71,6 @@ i {
 }
 
 input:checked + i {
-  background-color: rgb(52, 199, 89);
-
   &::before {
     transform: translate3d(18px, 2px, 0) scale3d(0, 0, 0);
   }

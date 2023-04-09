@@ -1,6 +1,6 @@
 import { onMounted, shallowRef, triggerRef, watch } from 'vue'
 import { useElementHover } from '@vueuse/core'
-import produce, { Draft } from 'immer'
+import { type Draft, produce } from 'immer'
 
 export function useImmer<T>(baseState: T) {
   const state = shallowRef(baseState)

@@ -1,4 +1,4 @@
-import type { LoginResponse, RegisterResponse, UsernameTaken } from '../../../backend/routes/auth'
+import type { RegisterResponse, UsernameTaken } from '../../../backend/routes/auth'
 import type { Status } from '../../../backend/types'
 import { postRequest } from '@/api/request'
 
@@ -17,10 +17,6 @@ export interface NewUsername extends Username {
 export interface NewCredential extends Username {
   oldPassword: string
   newPassword: string
-}
-
-export async function login(info: Credential) {
-  return postRequest<LoginResponse>(`/api/login`, info)
 }
 
 export async function register(info: Credential) {

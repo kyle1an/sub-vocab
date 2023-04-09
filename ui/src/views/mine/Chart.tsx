@@ -1,17 +1,16 @@
 // eslint-disable-next-line import/no-named-as-default
-import Chart, { ChartData } from 'chart.js/auto'
+import Chart, { type ChartData } from 'chart.js/auto'
 import { computed, defineComponent, onBeforeUnmount, onMounted, watch } from 'vue'
 import { format } from 'date-fns'
-import { rangeRight } from 'lodash-es'
 import { t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
 import { createSignal } from '@/composables/utilities'
 import { SegmentedControl } from '@/components/SegmentedControl'
 
-function createWeekMap() {
+export const VChart = defineComponent(() => {
   const map = new Map<string, number>()
   const week: Record<string, string> = {}
-  ;(rangeRight(7) as number[]).forEach((i) => {
+  ;[6, 5, 4, 3, 2, 1, 0].forEach((i) => {
     const day = new Date()
     day.setDate(day.getDate() - i)
     const date = format(day, 'yyyy-MM-dd')
@@ -21,91 +20,83 @@ function createWeekMap() {
         : format(day, 'EEE')
   })
 
-  return { map, week }
-}
+  Chart.defaults.font.family = [
+    ...(navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome') ? [] : ['SF Pro Rounded']),
+    ...['SF Pro Text', '-apple-system', 'Inter', 'system-ui', 'sans-serif'],
+  ].join(', ')
+  Chart.defaults.font.weight = '500'
 
-export const VChart = defineComponent({
-  setup() {
-    Chart.defaults.font.family = [
-      ...(navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome') ? [] : ['SF Pro Rounded']),
-      ...['SF Pro Text', '-apple-system', 'Inter', 'system-ui', 'sans-serif'],
-    ].join(', ')
-    Chart.defaults.font.weight = '500'
+  const store = useVocabStore()
 
-    const store = useVocabStore()
-    const { map, week } = createWeekMap()
-
-    const groupedRows = computed(() => {
-      store.baseVocab.forEach((r) => {
-        if (r.acquainted) {
-          const date = r.time_modified?.split('T')[0]
-          if (date && week[date]) {
-            map.set(date, (map.get(date) || 0) + 1)
-          }
-        }
-      })
-      return map
+  const groupedRows = computed(() => {
+    store.baseVocab.filter(v => v.acquainted && v.time_modified).forEach((v) => {
+      const date = v.time_modified!.split('T')[0]
+      if (week[date]) {
+        map.set(date, (map.get(date) || 0) + 1)
+      }
     })
+    return map
+  })
 
-    const weekLabels = computed(() => [...groupedRows.value.keys()].map(k => week[k]))
-    const vocabCount = computed(() => [...groupedRows.value.values()])
-    let myChart: Chart<'bar', number[], string>
-    const chartData = computed(() => ({
-      labels: weekLabels.value,
-      datasets: [
-        {
-          borderRadius: { topRight: 3, topLeft: 3 },
-          label: 'Acquainted Vocabulary',
-          data: vocabCount.value,
-          backgroundColor: 'rgba(255, 99, 132, 0.05)',
-          borderColor: 'rgba(255, 99, 132, 1)',
-          borderWidth: 1,
-        }
-      ]
-    } satisfies ChartData<'bar', number[], string>))
-    watch(chartData, (v) => {
-      myChart.data = v
-      myChart.update()
-    })
+  const weekLabels = computed(() => [...groupedRows.value.keys()].map(k => week[k]))
+  const vocabCount = computed(() => [...groupedRows.value.values()])
+  let myChart: Chart<'bar', number[], string>
+  const chartData = computed(() => ({
+    labels: weekLabels.value,
+    datasets: [
+      {
+        borderRadius: { topRight: 3, topLeft: 3 },
+        label: 'Acquainted Vocabulary',
+        data: vocabCount.value,
+        backgroundColor: 'rgba(255, 99, 132, 0.05)',
+        borderColor: 'rgba(255, 99, 132, 1)',
+        borderWidth: 1,
+      }
+    ]
+  } satisfies ChartData<'bar', number[], string>))
+  watch(chartData, (v) => {
+    myChart.data = v
+    myChart.update()
+  })
 
-    onMounted(() => {
-      const canvas = document.createElement('canvas')
-      if (myChart) return
-      const root = document.getElementById('chart') as HTMLElement
-      root.innerHTML = ''
-      root.append(canvas)
-      myChart = new Chart(canvas, {
-        type: 'bar',
-        data: chartData.value,
-        options: { plugins: {} }
-      })
+  onMounted(() => {
+    const canvas = document.createElement('canvas')
+    if (myChart) return
+    const root = document.getElementById('chart') as HTMLElement
+    root.innerHTML = ''
+    root.append(canvas)
+    myChart = new Chart(canvas, {
+      type: 'bar',
+      data: chartData.value,
+      options: { plugins: {} }
     })
+  })
 
-    onBeforeUnmount(() => {
-      myChart.destroy()
-    })
-    const segments = () => [
-      { value: '6M', label: t('6M') },
-      { value: 'M', label: t('M') },
-      { value: 'W', label: t('W') },
-    ] as const
-    type ChartSegment = ReturnType<typeof segments>[number]['value']
-    const SEG = 'prev-chart-select' as const
-    const [seg, setSeg] = createSignal(sessionStorage.getItem(`${SEG}`) as ChartSegment | null || 'W')
-    watch(seg, (v) => sessionStorage.setItem(`${SEG}`, String(v)))
-    return () => (
-      <div class="h-[calc(100vh-160px)]">
-        <SegmentedControl
-          name={SEG}
-          segments={segments()}
-          value={seg()}
-          onChoose={setSeg}
-        />
-        <div
-          id="chart"
-          class="w-full tabular-nums tracking-wide ffs-[normal] md:pb-0"
-        />
-      </div>
-    )
-  }
+  onBeforeUnmount(() => {
+    myChart.destroy()
+  })
+  const segments = () => [
+    { value: '6M', label: t('6M') },
+    { value: 'M', label: t('M') },
+    { value: 'W', label: t('W') },
+  ] as const
+  const SEG = 'prev-chart-select'
+  const [seg, setSeg] = createSignal(sessionStorage.getItem(`${SEG}`) as ReturnType<typeof segments>[number]['value'] | null || 'W')
+  watch(seg, (v) => {
+    sessionStorage.setItem(`${SEG}`, String(v))
+  })
+  return () => (
+    <div class="h-[calc(100vh-160px)]">
+      <SegmentedControl
+        name={SEG}
+        segments={segments()}
+        value={seg()}
+        onChoose={setSeg}
+      />
+      <div
+        id="chart"
+        class="w-full tabular-nums tracking-wide ffs-[normal] md:pb-0"
+      />
+    </div>
+  )
 })

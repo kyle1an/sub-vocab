@@ -16,8 +16,8 @@ module.exports = {
     "extraFileExtensions": [".vue"],
     "ecmaVersion": "latest",
     "sourceType": "module",
-    project: true,
-    tsconfigRootDir: __dirname,
+    "project": true,
+    "tsconfigRootDir": __dirname,
   },
   "plugins": [
     "vue",
@@ -35,7 +35,7 @@ module.exports = {
       "exports": "only-multiline",
       "functions": "only-multiline",
     }],
-    "operator-linebreak": ["warn", "before", { overrides: { "=": "none" } }],
+    "operator-linebreak": ["warn", "before", { "overrides": { "=": "none" } }],
     "prefer-const": "off",
 
     "import/order": [1, { "groups": ["builtin", "external", "parent", "sibling", "index"] }],
@@ -48,6 +48,7 @@ module.exports = {
     }],
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/ban-types": [
       "error",
       {
