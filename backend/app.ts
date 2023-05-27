@@ -5,11 +5,32 @@ import cookieParser from 'cookie-parser'
 import logger from 'morgan'
 import cors from 'cors'
 import type { ErrorRequestHandler, NextFunction, Request, Response } from 'express'
-import indexRouter from './routes/index'
-import vocabRouter from './routes/vocab'
-import authRouter from './routes/auth'
+import * as Sentry from '@sentry/node'
+import routes from './routes'
 
 const app = express()
+Sentry.init({
+  dsn: 'https://9e87673145e44b74bd56ea896a7f1ce8@o4505257329098752.ingest.sentry.io/4505257478914048',
+  integrations: [
+    // enable HTTP calls tracing
+    new Sentry.Integrations.Http({ tracing: true }),
+    // enable Express.js middleware tracing
+    new Sentry.Integrations.Express({ app }),
+    // Automatically instrument Node.js libraries and frameworks
+    ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations(),
+  ],
+
+  // Set tracesSampleRate to 1.0 to capture 100%
+  // of transactions for performance monitoring.
+  // We recommend adjusting this value in production
+  tracesSampleRate: 0,
+})
+// RequestHandler creates a separate execution context, so that all
+// transactions/spans/breadcrumbs are isolated across requests
+app.use(Sentry.Handlers.requestHandler() as express.RequestHandler)
+// TracingHandler creates a trace for every incoming request
+app.use(Sentry.Handlers.tracingHandler())
+
 app.use(cors({
   origin: [
     /.*localhost.*$/,
@@ -37,9 +58,9 @@ app.use(cookieParser())
 // app.use(express.static(__dirname + '/public'));
 app.use(express.static(path.join(__dirname, 'public')))
 
-app.use('/', indexRouter)
-app.use('/api', vocabRouter)
-app.use('/', authRouter)
+app.use('/', routes)
+
+app.use(Sentry.Handlers.errorHandler() as express.ErrorRequestHandler)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
