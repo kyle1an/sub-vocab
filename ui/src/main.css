@@ -11,6 +11,7 @@
 
 html {
   font-family: var(--sys-font-stack);
+  overflow-y: scroll;
 }
 
 .ffs-pre {
