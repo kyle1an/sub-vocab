@@ -6,8 +6,8 @@ export const daysIn = (days: number) => new Date(Date.now() + days * 24 * 60 * 6
 
 export async function tokenInvalid(req: Request, res: Response) {
   if (!req.cookies._user) return true
-  const [rows]: [[{ result: number }, OkPacket | ResultSetHeader], FieldPacket[]] = await pool.promise()
-    .query(`SELECT token_check('${req.cookies.acct}', get_user_id_by_name('${req.cookies._user}')) as result;`)
+  const [rows] = await pool.promise()
+    .query(`SELECT token_check('${req.cookies.acct}', get_user_id_by_name('${req.cookies._user}')) as result;`) as [[{ result: number }, OkPacket | ResultSetHeader], FieldPacket[]]
   return !rows[0].result
 }
 

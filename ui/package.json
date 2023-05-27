@@ -11,7 +11,8 @@
     "lint:fix": "npm run lint -- --fix"
   },
   "dependencies": {
-    "@tanstack/vue-query": "^4.29.10",
+    "@sentry/vue": "^7.53.1",
+    "@tanstack/vue-query": "^4.29.11",
     "@vueuse/core": "^10.1.2",
     "axios": "^1.4.0",
     "chart.js": "^4.3.0",

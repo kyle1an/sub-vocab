@@ -1,14 +1,12 @@
 import type { LabelVocab } from '@/types'
 
-export function Examples(
-  {
-    sentences,
-    src = [],
-  }: {
-    sentences: string[],
-    src: LabelVocab['src'],
-  }
-) {
+export function Examples({
+  sentences,
+  src = [],
+}: {
+  sentences: string[],
+  src: LabelVocab['src'],
+}) {
   const vocabPositions: [number, [number, number][]][] = []
   src.sort((a, b) => a.sentenceId - b.sentenceId || a.startIndex - b.startIndex)
 

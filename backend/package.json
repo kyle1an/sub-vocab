@@ -8,6 +8,7 @@
     "lint:fix": "npm run lint -- --fix"
   },
   "dependencies": {
+    "@sentry/node": "^7.53.1",
     "cookie-parser": "~1.4.6",
     "cors": "^2.8.5",
     "debug": "~4.3.4",
@@ -16,7 +17,7 @@
     "hbs": "~4.2.0",
     "http-errors": "~2.0.0",
     "morgan": "~1.10.0",
-    "mysql2": "^3.3.2"
+    "mysql2": "^3.3.3"
   },
   "devDependencies": {
     "@total-typescript/ts-reset": "^0.4.2",

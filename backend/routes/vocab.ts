@@ -45,8 +45,8 @@ router.post('/queryWords', async (req: RequestBody<Username>, res: Response<Labe
 export type StemsMapping = string[][]
 router.post('/stemsMapping', async (req: RequestBody, res: Response<StemsMapping>) => {
   try {
-    const [rows]: [[Stems[], OkPacket | ResultSetHeader], FieldPacket[]] = await pool.promise()
-      .query(`CALL stem_derivation_link();`)
+    const [rows] = await pool.promise()
+      .query(`CALL stem_derivation_link();`) as [[Stems[], OkPacket | ResultSetHeader], FieldPacket[]]
     const map: Record<string, string[]> = {}
     rows[0].forEach((link) => {
       map[link.stem_word] ??= [link.stem_word]
