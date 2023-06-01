@@ -1,19 +1,16 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{
-  checked?: boolean,
-  text?: [string, string],
+const props = defineProps<{
+  checked: boolean,
+  text: [string, string],
   onChange: (checked: boolean) => void,
-}>(), {
-  checked: false,
-  text: () => ['', 'on'],
-})
+}>()
 </script>
 
 <template>
   <div>
     <label class="group/label flex cursor-pointer justify-center tap-transparent">
       <span class="mx-2.5 flex flex-col-reverse justify-center text-base">
-        {{ props.text[0] }}
+        {{ props.text?.[0] ?? '' }}
       </span>
       <input
         :checked="props.checked"
@@ -23,7 +20,7 @@ const props = withDefaults(defineProps<{
       >
       <i class="relative mr-2 inline-block h-[26px] w-[46px] select-none overflow-hidden rounded-[23px] bg-[#e6e6e6] align-text-bottom transition-all duration-300 ease-linear group-active/label:after:w-7 peer-checked:bg-[rgb(52,199,89)]" />
       <span class="mx-2.5 flex flex-col-reverse justify-center text-base">
-        {{ props.text[1] }}
+        {{ props.text?.[1] ?? '' }}
       </span>
     </label>
   </div>

@@ -16,7 +16,6 @@ export interface UserVocabs extends Username {
   words: string[];
 }
 
-const escapeSingleQuotes = (w: string) => w.replace(/'/g, `''`)
 export const useVocabStore = defineStore('SubVocabulary', () => {
   const baseVocab = ref<LabelSieveDisplay[]>([])
   const [user, setUser] = createSignal(Cookies.get('_user') ?? '')
@@ -71,12 +70,11 @@ export const useVocabStore = defineStore('SubVocabulary', () => {
       return
     }
 
-    const word = escapeSingleQuotes(vocab.w)
-    if (word.length > 32) return
+    if (vocab.w.length > 32) return
 
     vocab.inUpdating = true
     postRequest<ToggleWordResponse>(`/api/api/revokeWord`, {
-      words: [word],
+      words: [vocab.w],
       username: user(),
     } satisfies UserVocabs)
       .then((res) => {
@@ -96,7 +94,7 @@ export const useVocabStore = defineStore('SubVocabulary', () => {
       return
     }
 
-    const rows = tableDataOfVocab.filter(row => !row.vocab.acquainted && escapeSingleQuotes(row.vocab.w).length <= 32)
+    const rows = tableDataOfVocab.filter(row => !row.vocab.acquainted && row.vocab.w.length <= 32)
 
     if (rows.length === 0) {
       return
@@ -108,7 +106,7 @@ export const useVocabStore = defineStore('SubVocabulary', () => {
 
     postRequest<AcquaintWordsResponse>(`/api/api/acquaintWords`, {
       username: user(),
-      words: rows.map(row => escapeSingleQuotes(row.vocab.w)),
+      words: rows.map(row => row.vocab.w),
     } satisfies UserVocabs)
       .then((res) => {
         if (res === 'success') {
