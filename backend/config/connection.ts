@@ -3,7 +3,7 @@ import mysql from 'mysql2'
 
 dotenv.config()
 
-export const pool = mysql.createPool({
+const pool = mysql.createPool({
   connectionLimit: 10,
   host: process.env.HOST,
   user: process.env.DB_USER,
@@ -11,3 +11,14 @@ export const pool = mysql.createPool({
   database: process.env.DATABASE,
   multipleStatements: true,
 })
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- mysql2 escape function is not typed
+export function sql<T>(strings: TemplateStringsArray, ...values: any[]) {
+  const escapedQuery = strings
+    .map((s, index) => (index < values.length ? `${s}${mysql.escape(values[index])}` : s))
+    .join('')
+  console.log(escapedQuery)
+  return pool.promise().query(escapedQuery) as Promise<[T, mysql.FieldPacket[]]>
+}
+
+export type RSH<T> = [T, mysql.ResultSetHeader]

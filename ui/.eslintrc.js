@@ -1,9 +1,10 @@
 module.exports = {
   "env": {
+    "es2022": true,
     "browser": true,
-    "es2021": true,
   },
   "extends": [
+    "../.eslintrc.js",
     "plugin:vue/vue3-recommended",
     "plugin:tailwindcss/recommended",
     "plugin:@typescript-eslint/recommended",
@@ -26,38 +27,11 @@ module.exports = {
   "parser": "vue-eslint-parser",
   "ignorePatterns": ["**/*.json", ".eslintrc.js", "*.config.js", "*.config.ts", "/dist/"],
   "rules": {
-    "semi": [1, "never"],
-    "quotes": [1, "single", { "avoidEscape": true, "allowTemplateLiterals": true }],
-    "comma-dangle": ["warn", {
-      "arrays": "only-multiline",
-      "objects": "only-multiline",
-      "imports": "only-multiline",
-      "exports": "only-multiline",
-      "functions": "only-multiline",
-    }],
     "operator-linebreak": ["warn", "before", { "overrides": { "=": "none" } }],
     "prefer-const": "off",
-
-    "import/order": [1, { "groups": ["builtin", "external", "parent", "sibling", "index"] }],
-    "sort-imports": [1, {
-      "ignoreCase": false,
-      "ignoreDeclarationSort": true,
-      "ignoreMemberSort": false,
-      "memberSyntaxSortOrder": ["none", "all", "multiple", "single"],
-      "allowSeparatedGroups": false,
-    }],
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/ban-types": [
-      "error",
-      {
-        "types": {
-          "{}": false
-        },
-        "extendDefaults": true
-      }
-    ],
     // Note: you must disable the base rule as it can report incorrect errors
     "require-await": "off",
     "@typescript-eslint/require-await": "error",

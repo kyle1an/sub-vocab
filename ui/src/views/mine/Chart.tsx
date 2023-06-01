@@ -7,10 +7,11 @@ import { useVocabStore } from '@/store/useVocab'
 import { createSignal } from '@/composables/utilities'
 import { SegmentedControl } from '@/components/SegmentedControl'
 
+const SEG = 'prev-chart-select'
 export const VChart = defineComponent(() => {
   const map = new Map<string, number>()
   const week: Record<string, string> = {}
-  ;[6, 5, 4, 3, 2, 1, 0].forEach((i) => {
+  Array.from({ length: 7 }, (v, i) => 6 - i).forEach((i) => {
     const day = new Date()
     day.setDate(day.getDate() - i)
     const date = format(day, 'yyyy-MM-dd')
@@ -38,16 +39,14 @@ export const VChart = defineComponent(() => {
     return map
   })
 
-  const weekLabels = computed(() => [...groupedRows.value.keys()].map(k => week[k]))
-  const vocabCount = computed(() => [...groupedRows.value.values()])
   let myChart: Chart<'bar', number[], string>
   const chartData = computed(() => ({
-    labels: weekLabels.value,
+    labels: [...groupedRows.value.keys()].map(k => week[k]),
     datasets: [
       {
         borderRadius: { topRight: 3, topLeft: 3 },
         label: 'Acquainted Vocabulary',
-        data: vocabCount.value,
+        data: [...groupedRows.value.values()],
         backgroundColor: 'rgba(255, 99, 132, 0.05)',
         borderColor: 'rgba(255, 99, 132, 1)',
         borderWidth: 1,
@@ -80,7 +79,6 @@ export const VChart = defineComponent(() => {
     { value: 'M', label: t('M') },
     { value: 'W', label: t('W') },
   ] as const
-  const SEG = 'prev-chart-select'
   const [seg, setSeg] = createSignal(sessionStorage.getItem(`${SEG}`) as ReturnType<typeof segments>[number]['value'] | null || 'W')
   watch(seg, (v) => {
     sessionStorage.setItem(`${SEG}`, String(v))

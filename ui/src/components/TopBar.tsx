@@ -50,7 +50,7 @@ export const TopBar = defineComponent(() => {
               {store.user() ? t('mine') : t('common')}
             </RouterLink>
           )}
-          {(!!store.user()) ? (
+          {store.user() ? (
             <RouterLink
               to="/user"
               class="flex h-full items-center px-4 hover:bg-gray-100"

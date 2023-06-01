@@ -1,8 +1,8 @@
 import express from 'express'
-import type { FieldPacket, OkPacket, ResultSetHeader } from 'mysql2'
+import mysql from 'mysql2'
 import type { Response } from 'express-serve-static-core'
-import { pool } from '../config/connection'
-import { tokenChecker, tokenInvalid } from '../lib/timeUtil'
+import { type RSH, sql } from '../config/connection'
+import { tokenChecker, tokenInvalid } from '../utils/util'
 import type { RequestBody } from '../types'
 import type { UserVocabs } from '../../ui/src/store/useVocab'
 import type { Username } from '../../ui/src/api/user'
@@ -30,39 +30,36 @@ router.get('/', (req, res, next) => {
 
 router.post('/queryWords', async (req: RequestBody<Username>, res: Response<LabelFromUser[]>) => {
   const user = await tokenInvalid(req, res) ? '' : req.body.username
-  pool.getConnection((err, connection) => {
-    connection.query(
-      `CALL words_from_user(get_user_id_by_name('${user}'));`,
-      function (err, rows: [LabelFromUser[], OkPacket | ResultSetHeader], fields) {
-        connection.release()
-        if (err) throw err
-        res.json(rows[0])
-      }
-    )
-  })
+  sql<RSH<LabelFromUser[]>>`CALL words_from_user(get_user_id_by_name(${user}));`
+    .then(([rows]) => {
+      res.json(rows[0])
+    })
+    .catch((err) => {
+      throw new Error(err)
+    })
 })
 
 export type StemsMapping = string[][]
 router.post('/stemsMapping', async (req: RequestBody, res: Response<StemsMapping>) => {
-  try {
-    const [rows] = await pool.promise()
-      .query(`CALL stem_derivation_link();`) as [[Stems[], OkPacket | ResultSetHeader], FieldPacket[]]
-    const map: Record<string, string[]> = {}
-    rows[0].forEach((link) => {
-      map[link.stem_word] ??= [link.stem_word]
-      map[link.stem_word].push(link.derived_word)
-    })
+  sql<RSH<Stems[]>>`CALL stem_derivation_link();`
+    .then(([rows]) => {
+      const map: Record<string, string[]> = {}
+      rows[0].forEach((link) => {
+        map[link.stem_word] ??= [link.stem_word]
+        map[link.stem_word].push(link.derived_word)
+      })
 
-    res.json(Object.values(map))
-  } catch (err) {
-    throw new Error(err)
-  }
+      res.json(Object.values(map))
+    })
+    .catch((err) => {
+      throw new Error(err)
+    })
 })
 
 export type AcquaintWordsResponse = string
 router.post('/acquaintWords', tokenChecker, async (req: RequestBody<UserVocabs>, res: Response<AcquaintWordsResponse>) => {
   const { words, username } = req.body
-  Promise.all(words.map((word) => pool.promise().query(`CALL acquaint_vocab('${word}', get_user_id_by_name('${username}'));`)))
+  Promise.all(words.map((word) => sql<mysql.ResultSetHeader>`CALL acquaint_vocab(${word}, get_user_id_by_name(${username}));`))
     .then(() => {
       res.json('success')
     })
@@ -74,7 +71,7 @@ router.post('/acquaintWords', tokenChecker, async (req: RequestBody<UserVocabs>,
 export type ToggleWordResponse = string
 router.post('/revokeWord', tokenChecker, async (req: RequestBody<UserVocabs>, res: Response<ToggleWordResponse>) => {
   const { words, username } = req.body
-  Promise.all(words.map((word) => pool.promise().query(`CALL revoke_vocab_record('${word}', get_user_id_by_name('${username}'));`)))
+  Promise.all(words.map((word) => sql<mysql.ResultSetHeader>`CALL revoke_vocab_record(${word}, get_user_id_by_name(${username}));`))
     .then(() => {
       res.json('success')
     })
