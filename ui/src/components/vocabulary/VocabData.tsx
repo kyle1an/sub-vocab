@@ -1,6 +1,6 @@
 import { computed, defineComponent, ref, shallowRef, watch } from 'vue'
 import { TransitionPresets, useSessionStorage, useTransition } from '@vueuse/core'
-import { ElPagination, ElTable, ElTableColumn, type Sort, type TableInstance } from 'element-plus'
+import { ElPagination, ElTable, type Sort, type TableInstance } from 'element-plus'
 import { pipe } from 'fp-ts/function'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { t } from '@/i18n'
@@ -107,7 +107,7 @@ export const VocabDataTable = Object.assign(defineComponent((props: { tableName:
           onSort-change={onSortChange}
           v-slots={() => (
             <>
-              <ElTableColumn
+              <ElTable.TableColumn
                 label={t('rank')}
                 className="!text-center [&>.cell]:!font-pro [&>.cell]:stretch-[condensed] [th&>.cell]:!pr-0"
                 width={64}
@@ -115,7 +115,7 @@ export const VocabDataTable = Object.assign(defineComponent((props: { tableName:
                 sortable="custom"
                 v-slots={Rank}
               />
-              <ElTableColumn
+              <ElTable.TableColumn
                 label={t('Vocabulary')}
                 prop="vocab.w"
                 min-width={70}
@@ -133,7 +133,7 @@ export const VocabDataTable = Object.assign(defineComponent((props: { tableName:
                     </span>
                 }}
               />
-              <ElTableColumn
+              <ElTable.TableColumn
                 label={t('length')}
                 prop="vocab.w.length"
                 width={62}
@@ -141,12 +141,12 @@ export const VocabDataTable = Object.assign(defineComponent((props: { tableName:
                 className="!text-right [th&>.cell]:!p-0 [th&>.cell]:!font-pro [th&>.cell]:stretch-[condensed]"
                 v-slots={Length}
               />
-              <ElTableColumn
+              <ElTable.TableColumn
                 width="32"
                 className="overflow-visible !text-center [&_.cell]:!px-0"
                 v-slots={VocabToggle}
               />
-              <ElTableColumn
+              <ElTable.TableColumn
                 label={t('distance')}
                 className="[td&_.cell]:!pr-0 [th&>.cell]:!font-pro [th&>.cell]:stretch-[condensed]"
                 width={82}

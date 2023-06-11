@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import { createPersistedState } from 'pinia-plugin-persistedstate'
 import { VueQueryPlugin } from '@tanstack/vue-query'
 import * as Sentry from '@sentry/vue'
 import { App } from './App'
@@ -26,6 +27,9 @@ Sentry.init({
   replaysOnErrorSampleRate: 0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
 })
 app.use(VueQueryPlugin)
-app.use(createPinia())
+app.use(createPinia()
+  .use(createPersistedState({
+    storage: sessionStorage,
+  })))
 app.use(router)
 app.mount('#app')
