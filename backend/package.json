@@ -17,7 +17,7 @@
     "hbs": "~4.2.0",
     "http-errors": "~2.0.0",
     "morgan": "~1.10.0",
-    "mysql2": "^3.3.3"
+    "mysql2": "^3.3.4"
   },
   "devDependencies": {
     "@total-typescript/ts-reset": "^0.4.2",
@@ -27,7 +27,7 @@
     "@types/express-serve-static-core": "4.17.35",
     "@types/http-errors": "^2.0.1",
     "@types/morgan": "^1.9.4",
-    "@types/node": "^20.2.6",
+    "@types/node": "^20.3.0",
     "@typescript-eslint/eslint-plugin": "^5.59.9",
     "@typescript-eslint/parser": "^5.59.9",
     "eslint": "^8.42.0",

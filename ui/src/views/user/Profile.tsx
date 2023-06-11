@@ -1,5 +1,4 @@
-import type { FormInstance } from 'element-plus'
-import { ElButton, ElForm, ElFormItem, ElInput } from 'element-plus'
+import { ElForm, ElInput, type FormInstance } from 'element-plus'
 import { defineComponent, reactive, ref } from 'vue'
 import { z } from 'zod'
 import { t } from '@/i18n'
@@ -38,7 +37,8 @@ export const Profile = defineComponent(() => {
     ],
   } satisfies FormRules<typeof ruleForm>)
 
-  function submitForm() {
+  function submitForm(ev: Event) {
+    ev.preventDefault()
     const formEl = ruleFormRef.value
     if (!formEl) return
     formEl.validate()
@@ -68,50 +68,64 @@ export const Profile = defineComponent(() => {
 
   const { logout } = useVocabStore()
   return () => (
-    <div class="flex flex-col">
-      <div class="mb-3 border-b pb-1.5 text-xl">
-        {t('changeUsername')}
-      </div>
-      <div class="flex w-80">
-        <ElForm
-          ref={ruleFormRef}
-          model={ruleForm}
-          rules={rules}
-          label-position="top"
-          label-width="100px"
-          class="max-w-[460px] [&>.el-form-item_label]:font-bold"
-          status-icon
-        >
-          <ElFormItem
-            label={t('Name')}
-            prop="username"
-            error={errorMsg()}
+    <div class="flex flex-col gap-3">
+      <div>
+        <div class="mb-3 border-b pb-1.5 text-xl">
+          {t('changeUsername')}
+        </div>
+        <div class="flex w-80">
+          <ElForm
+            ref={ruleFormRef}
+            model={ruleForm}
+            rules={rules}
+            label-position="top"
+            label-width="100px"
+            class="max-w-[460px] [&>.el-form-item_label]:font-bold"
+            status-icon
           >
-            <ElInput
-              v-model={ruleForm.username}
-              class="!text-base md:!text-xs"
-            />
-          </ElFormItem>
-          <ElFormItem>
-            <ElButton
-              type="primary"
-              onClick={submitForm}
+            <ElForm.FormItem
+              label={t('Name')}
+              prop="username"
+              error={errorMsg()}
             >
-              {t('Confirm Changes')}
-            </ElButton>
-            <ElButton onClick={() => ruleFormRef.value?.resetFields()}>
-              {t('Reset')}
-            </ElButton>
-          </ElFormItem>
-        </ElForm>
+              <ElInput
+                v-model={ruleForm.username}
+                class="!text-base md:!text-xs"
+              />
+            </ElForm.FormItem>
+            <div class="flex flex-row gap-2">
+              <button
+                class="box-border flex cursor-pointer items-center rounded-md border border-solid border-transparent bg-[hsl(206,100%,52%)] px-3 py-2 text-sm/3 text-white hover:bg-[hsl(206,100%,40%)]"
+                style="box-shadow: inset 0 1px 0 0 hsl(0deg 0% 100% / 40%);"
+                onClick={submitForm}
+              >
+                {t('Confirm Changes')}
+              </button>
+              <button
+                class="box-border inline-flex h-8 max-h-full grow-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-md border bg-white px-3 py-2.5 text-center align-middle text-sm/3 tracking-wide text-neutral-800 transition-colors hover:border-sky-300 hover:bg-sky-100 hover:text-sky-600"
+                onClick={(ev) => {
+                  ev.preventDefault()
+                  ruleFormRef.value?.resetFields()
+                }}
+              >
+                {t('Reset')}
+              </button>
+            </div>
+          </ElForm>
+        </div>
       </div>
-      <div class="mb-3 border-b pb-1 text-xl">
-        {t('status')}
-      </div>
-      <div class="flex">
-        <ElButton onClick={logout}>
-          {t('log out')}
-        </ElButton>
+      <div>
+        <div class="mb-3 border-b pb-1 text-xl">
+          {t('status')}
+        </div>
+        <div>
+          <button
+            class="box-border inline-flex h-8 max-h-full grow-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-md border bg-white px-3 py-2.5 text-center align-middle text-sm/3 tracking-wide text-neutral-800 transition-colors hover:border-sky-300 hover:bg-sky-100 hover:text-sky-600"
+            onClick={logout}
+          >
+            {t('log out')}
+          </button>
+        </div>
       </div>
     </div>
   )

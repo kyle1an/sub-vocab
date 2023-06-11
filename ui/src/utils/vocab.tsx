@@ -3,7 +3,6 @@ import { ElNotification } from 'element-plus'
 import type { LabelSieveDisplay, LabelVocab, SrcRow } from '@/types'
 import { t } from '@/i18n'
 import router from '@/router'
-import { useVocabStore } from '@/store/useVocab'
 import { sortByChar } from '@/utils/utils'
 import LabeledTire from '@/utils/LabeledTire'
 import { useTimeStore } from '@/store/usePerf'
@@ -68,9 +67,8 @@ export function loginNotify() {
   })
 }
 
-export const generatedVocabTrie = (inputText: string) => {
+export const generatedVocabTrie = (inputText: string, baseVocab: LabelSieveDisplay[], irregularMaps: string[][]) => {
   const { logTime, logEnd, logPerf } = useTimeStore()
-  const store = useVocabStore()
   logTime(['-- All took', '    '])
   logTime('· init words')
   const trie = new LabeledTire()
@@ -78,8 +76,8 @@ export const generatedVocabTrie = (inputText: string) => {
   logEnd('· init words')
   logTime(['· categorize vocabulary', ' +  '])
   logTime('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
-  trie.mergedVocabulary(store.baseVocab)
-    .mergeDerivedWordIntoStem(store.irregularMaps)
+  trie.mergedVocabulary(baseVocab)
+    .mergeDerivedWordIntoStem(irregularMaps)
   logEnd('%c  merge vocabulary')
   logTime('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
   const list = trie.vocabulary.filter(v => v && !v.variant).map(v => formVocab(v as LabelVocab))

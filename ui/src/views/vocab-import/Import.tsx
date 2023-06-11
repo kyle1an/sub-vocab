@@ -26,7 +26,7 @@ export const Import = defineComponent(() => {
   const store = useVocabStore()
   const [inputText, setInputText] = createSignal('')
   watch([inputText, () => store.baseVocab, () => store.irregularMaps], useDebounceTimeout(function refreshVocab() {
-    const { list, count } = generatedVocabTrie(inputText())
+    const { list, count } = generatedVocabTrie(inputText(), store.baseVocab, store.irregularMaps)
     setCount(count)
     setTableDataOfVocab(list)
   }, 50))

@@ -15,9 +15,7 @@ export default ({ mode }) => {
       vueJsx({}),
       visualizer(),
     ],
-    define: {
-      __VUE_OPTIONS_API__: false,
-    },
+    define: {},
     server: {
       proxy: {
         '/api': {

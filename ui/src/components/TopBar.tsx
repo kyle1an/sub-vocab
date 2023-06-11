@@ -2,7 +2,7 @@ import Cookies from 'js-cookie'
 import en from 'element-plus/es/locale/lang/en'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import type { Language } from 'element-plus/es/locale'
-import { ElConfigProvider, ElDropdown, ElDropdownItem, ElDropdownMenu } from 'element-plus'
+import { ElConfigProvider, ElDropdown } from 'element-plus'
 import { defineComponent } from 'vue'
 import { RouterLink } from 'vue-router'
 import { i18n, t } from '@/i18n'
@@ -33,7 +33,7 @@ export const TopBar = defineComponent(() => {
           >
             {t('home')}
           </RouterLink>
-          {(!!store.user() || isWide) && (
+          {(store.user() || isWide) && (
             <RouterLink
               to="/about"
               class="flex items-center rounded-full px-4 py-1 hover:bg-gray-100"
@@ -42,7 +42,7 @@ export const TopBar = defineComponent(() => {
             </RouterLink>
           )}
           <div class="grow" />
-          {(!!store.user() || isWide) && (
+          {(store.user() || isWide) && (
             <RouterLink
               to="/mine"
               class="flex h-full items-center px-4 hover:bg-gray-100"
@@ -67,7 +67,7 @@ export const TopBar = defineComponent(() => {
               </RouterLink>
               <RouterLink
                 to="/register"
-                class="ml-2 box-border flex cursor-pointer items-center rounded border border-solid border-transparent bg-[hsl(206,100%,52%)] px-3 py-2 leading-[14px] text-white hover:bg-[hsl(206,100%,40%)]"
+                class="ml-2 box-border flex cursor-pointer items-center rounded-md border border-solid border-transparent bg-[hsl(206,100%,52%)] px-3 py-2 leading-[14px] text-white hover:bg-[hsl(206,100%,40%)]"
                 style="box-shadow: inset 0 1px 0 0 hsl(0deg 0% 100% / 40%);"
               >
                 {t('signup')}
@@ -94,14 +94,14 @@ export const TopBar = defineComponent(() => {
                   </i>
                 </div>,
               dropdown: () =>
-                <ElDropdownMenu class="outline-none">
-                  <ElDropdownItem command="zh">
+                <ElDropdown.DropdownMenu class="outline-none">
+                  <ElDropdown.DropdownItem command="zh">
                     中文
-                  </ElDropdownItem>
-                  <ElDropdownItem command="en">
+                  </ElDropdown.DropdownItem>
+                  <ElDropdown.DropdownItem command="en">
                     English
-                  </ElDropdownItem>
-                </ElDropdownMenu>
+                  </ElDropdown.DropdownItem>
+                </ElDropdown.DropdownMenu>
             }}
           />
           <ElConfigProvider locale={elLocale()} />

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import Cookies from 'js-cookie'
 import { useQuery } from '@tanstack/vue-query'
-import { ref, toRef } from 'vue'
+import { ref, toRef, watch } from 'vue'
 import type { LoginResponse } from '../../../backend/routes/auth'
 import type { AcquaintWordsResponse, LabelFromUser, StemsMapping, ToggleWordResponse } from '../../../backend/routes/vocab'
 import type { LabelSieveDisplay } from '@/types'
@@ -16,42 +16,17 @@ export interface UserVocabs extends Username {
   words: string[];
 }
 
-export const useVocabStore = defineStore('SubVocabulary', () => {
-  const baseVocab = ref<LabelSieveDisplay[]>([])
-  const [user, setUser] = createSignal(Cookies.get('_user') ?? '')
-  useQuery(['userWords', toRef(user)], () => postRequest<LabelFromUser[]>(`/api/api/queryWords`, { username: user() } satisfies Username, { timeout: 4000 }), {
+function useWords(user: () => string) {
+  const { data } = useQuery(['userWords', toRef(user)], () => postRequest<LabelFromUser[]>(`/api/api/queryWords`, { username: user() } satisfies Username, { timeout: 4000 }), {
     initialData: [], refetchOnWindowFocus: false, retry: 10,
-    onSuccess(data) {
-      baseVocab.value = data.map((sieve) => ({
-        ...sieve,
-        inUpdating: false,
-        inStore: true,
-      }))
-    }
   })
-
-  async function login(info: Credential) {
-    const resAuth = await postRequest<LoginResponse>(`/api/login`, info)
-    if (!resAuth[0]) return
-    setUser(info.username)
-    requestAnimationFrame(() => {
-      router.push('/').catch(console.error)
-    })
-    return true
-  }
-
-  async function logout() {
-    await logoutToken({ username: user() })
-    Cookies.remove('_user', { path: '' })
-    Cookies.remove('acct', { path: '' })
-    setUser('')
-    requestAnimationFrame(() => {
-      router.push('/').catch(console.error)
-    })
-  }
-
-  const { data: irregularMaps } = useQuery(['stems'], () => postRequest<StemsMapping>(`/api/api/stemsMapping`, {}, { timeout: 2000 }), {
-    initialData: [], refetchOnWindowFocus: false, retry: 10,
+  const baseVocab = ref<LabelSieveDisplay[]>([])
+  watch(data, (data) => {
+    baseVocab.value = data.map((sieve) => ({
+      ...sieve,
+      inUpdating: false,
+      inStore: true,
+    }))
   })
 
   function updateWord($: LabelSieveDisplay, got: boolean) {
@@ -123,14 +98,58 @@ export const useVocabStore = defineStore('SubVocabulary', () => {
       })
   }
 
-  return {
-    baseVocab,
-    acquaintEveryVocab,
-    revokeVocab,
-    irregularMaps,
-    user,
-    setUser,
-    login,
-    logout,
+  return { baseVocab, revokeVocab, acquaintEveryVocab }
+}
+
+function useIrregular() {
+  const { data } = useQuery(['irregularMaps'], () => postRequest<StemsMapping>(`/api/api/stemsMapping`, {}, { timeout: 2000 }), {
+    initialData: [], refetchOnWindowFocus: false, retry: 10,
+  })
+  const irregularMaps = ref<StemsMapping>([])
+  watch(data, (data) => {
+    irregularMaps.value = data
+  })
+  return { irregularMaps }
+}
+
+function useUser() {
+  const [user, setUser] = createSignal(Cookies.get('_user') ?? '')
+
+  async function login(info: Credential) {
+    const resAuth = await postRequest<LoginResponse>(`/api/login`, info)
+    if (!resAuth[0]) return
+    setUser(info.username)
+    requestAnimationFrame(() => {
+      router.push('/').catch(console.error)
+    })
+    return true
   }
+
+  function logout() {
+    logoutToken({ username: user() })
+      .then(() => {
+        Cookies.remove('_user', { path: '' })
+        Cookies.remove('acct', { path: '' })
+        setUser('')
+        requestAnimationFrame(() => {
+          router.push('/').catch(console.error)
+        })
+      })
+      .catch(console.error)
+  }
+
+  return { user, setUser, login, logout }
+}
+
+export const useVocabStore = defineStore('SubVocabulary', () => {
+  const user = useUser()
+
+  return {
+    inputText: ref(''),
+    ...user,
+    ...useWords(user.user),
+    ...useIrregular(),
+  }
+}, {
+  persist: true,
 })

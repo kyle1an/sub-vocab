@@ -1,6 +1,6 @@
 import { computed, defineComponent, ref, shallowRef, watch } from 'vue'
 import { TransitionPresets, useSessionStorage, useTransition } from '@vueuse/core'
-import { ElPagination, ElTable, ElTableColumn, type Sort, type TableInstance } from 'element-plus'
+import { ElPagination, ElTable, type Sort, type TableInstance } from 'element-plus'
 import { pipe } from 'fp-ts/function'
 import { t } from '@/i18n'
 import type { LabelSubDisplay, SrcRow } from '@/types'
@@ -123,7 +123,7 @@ export const VocabSourceTable = Object.assign(defineComponent((props: {
           v-slots={() => (
             <>
               {props.expand && (
-                <ElTableColumn
+                <ElTable.TableColumn
                   type="expand"
                   width={30}
                   className={String.raw`[&>.cell]:!p-0 [&_.el-table\_\_expand-icon]:float-right [&_i]:text-slate-500`}
@@ -136,7 +136,7 @@ export const VocabSourceTable = Object.assign(defineComponent((props: {
                   }
                 />
               )}
-              <ElTableColumn
+              <ElTable.TableColumn
                 label={t('frequency')}
                 className={String.raw`!text-right [&>.cell]:!font-pro [&>.cell]:stretch-[condensed] [th&>.cell]:!p-0`}
                 width={`${props.expand ? 58 : 68}`}
@@ -148,7 +148,7 @@ export const VocabSourceTable = Object.assign(defineComponent((props: {
                   </div>
                 }
               />
-              <ElTableColumn
+              <ElTable.TableColumn
                 label="Vocabulary"
                 prop="vocab.w"
                 min-width={16}
@@ -174,7 +174,7 @@ export const VocabSourceTable = Object.assign(defineComponent((props: {
                     )))
                 }}
               />
-              <ElTableColumn
+              <ElTable.TableColumn
                 label={t('length')}
                 prop="vocab.w.length"
                 width={62}
@@ -182,12 +182,12 @@ export const VocabSourceTable = Object.assign(defineComponent((props: {
                 className="!text-right [th&>.cell]:!p-0 [th&>.cell]:!font-pro [th&>.cell]:stretch-[condensed]"
                 v-slots={Length}
               />
-              <ElTableColumn
+              <ElTable.TableColumn
                 width={40}
                 className="overflow-visible !text-center"
                 v-slots={VocabToggle}
               />
-              <ElTableColumn
+              <ElTable.TableColumn
                 label={t('rank')}
                 className="!text-center [&>.cell]:!font-pro [&>.cell]:stretch-[condensed] [th&>.cell]:!p-0"
                 width={52}
