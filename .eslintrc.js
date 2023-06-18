@@ -21,11 +21,12 @@ module.exports = {
       "exports": "only-multiline",
       "functions": "only-multiline",
     }],
-    "operator-linebreak": ["warn", "before", { overrides: { "=": "none" } }],
+    "operator-linebreak": ["warn", "before", { "overrides": { "=": "none" } }],
     "prefer-const": [1, {
       "destructuring": "any",
       "ignoreReadBeforeAssign": false
     }],
+    "no-unused-vars": [0, { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
     "import/order": [1, { "groups": ["builtin", "external", "parent", "sibling", "index"] }],
     "sort-imports": [1, {
       "ignoreCase": false,
@@ -38,6 +39,8 @@ module.exports = {
       "error",
       { "ts-ignore": "allow-with-description" },
     ],
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/ban-types": [

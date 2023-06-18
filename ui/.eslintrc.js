@@ -4,13 +4,13 @@ module.exports = {
     "browser": true,
   },
   "extends": [
-    "../.eslintrc.js",
     "plugin:vue/vue3-recommended",
     "plugin:tailwindcss/recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "plugin:import/recommended",
     "plugin:import/typescript",
+    "../.eslintrc.js",
   ],
   "parserOptions": {
     "parser": "@typescript-eslint/parser",
@@ -27,11 +27,7 @@ module.exports = {
   "parser": "vue-eslint-parser",
   "ignorePatterns": ["**/*.json", ".eslintrc.js", "*.config.js", "*.config.ts", "/dist/"],
   "rules": {
-    "operator-linebreak": ["warn", "before", { "overrides": { "=": "none" } }],
     "prefer-const": "off",
-    "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/no-unused-vars": "off",
-    "@typescript-eslint/no-non-null-assertion": "off",
     // Note: you must disable the base rule as it can report incorrect errors
     "require-await": "off",
     "@typescript-eslint/require-await": "error",

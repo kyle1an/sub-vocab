@@ -4,10 +4,10 @@ module.exports = {
     "node": true
   },
   "extends": [
-    "../.eslintrc.js",
     "plugin:@typescript-eslint/recommended",
     "plugin:import/recommended",
     "plugin:import/typescript",
+    "../.eslintrc.js",
   ],
   "parser": "@typescript-eslint/parser",
   "ignorePatterns": ["**/*.json", ".eslintrc.js", "*.config.js"],

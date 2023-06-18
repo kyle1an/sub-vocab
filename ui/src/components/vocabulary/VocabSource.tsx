@@ -1,13 +1,12 @@
 import { computed, defineComponent, ref, shallowRef, watch } from 'vue'
 import { TransitionPresets, useSessionStorage, useTransition } from '@vueuse/core'
-import { ElPagination, ElTable, type Sort, type TableInstance } from 'element-plus'
+import { ElInput, ElPagination, ElTable, type Sort, type TableInstance } from 'element-plus'
 import { pipe } from 'fp-ts/function'
 import { t } from '@/i18n'
-import type { LabelSubDisplay, SrcRow } from '@/types'
+import type { LabelSubDisplay, MyVocabRow, SrcRow } from '@/types'
 import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
 import { Examples } from '@/components/vocabulary/Examples'
 import { SegmentedControl } from '@/components/SegmentedControl'
-import { Length, Rank, VocabSearch } from '@/components/vocabulary/VocabComponents'
 import { createSignal, useElHover } from '@/composables/utilities'
 import { VocabToggle } from '@/components/vocabulary/ToggleButton'
 
@@ -103,7 +102,8 @@ export const VocabSourceTable = Object.assign(defineComponent((props: {
   }
 
   return () => (
-    <div class="mx-5 flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-sm will-change-transform md:mx-0">
+    <div
+      class="mx-5 flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-sm will-change-transform md:mx-0">
       <SegmentedControl
         name={props.tableName}
         segments={segments()}
@@ -155,7 +155,16 @@ export const VocabSourceTable = Object.assign(defineComponent((props: {
                 sortable="custom"
                 className="select-none [td&>.cell]:!pr-0"
                 v-slots={{
-                  header: () => VocabSearch(search),
+                  header: () => (
+                    <div class={'inline'} onClick={(ev) => ev.stopPropagation()}>
+                      <ElInput
+                        v-model={search.value}
+                        class="!w-[calc(100%-26px)] !text-base md:!text-xs"
+                        size="small"
+                        placeholder={t('search')}
+                      />
+                    </div>
+                  ),
                   default: ({ row }: { row: RowData }) => (
                     row.vocab.wFamily.map((w, i) => (
                       <div
@@ -180,7 +189,11 @@ export const VocabSourceTable = Object.assign(defineComponent((props: {
                 width={62}
                 sortable="custom"
                 className="!text-right [th&>.cell]:!p-0 [th&>.cell]:!font-pro [th&>.cell]:stretch-[condensed]"
-                v-slots={Length}
+                v-slots={({ row }: { row: MyVocabRow }) => (
+                  <div class="tabular-nums">
+                    {row.vocab.w.length}
+                  </div>
+                )}
               />
               <ElTable.TableColumn
                 width={40}
@@ -193,7 +206,11 @@ export const VocabSourceTable = Object.assign(defineComponent((props: {
                 width={52}
                 prop="vocab.rank"
                 sortable="custom"
-                v-slots={Rank}
+                v-slots={({ row }: { row: MyVocabRow }) => (
+                  <div class="tabular-nums text-neutral-500">
+                    {row.vocab.rank}
+                  </div>
+                )}
               />
             </>
           )}

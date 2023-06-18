@@ -8,16 +8,16 @@
     "lint:fix": "npm run lint -- --fix"
   },
   "dependencies": {
-    "@sentry/node": "^7.54.0",
+    "@sentry/node": "^7.55.2",
     "cookie-parser": "~1.4.6",
     "cors": "^2.8.5",
     "debug": "~4.3.4",
-    "dotenv": "^16.1.4",
+    "dotenv": "^16.3.1",
     "express": "~4.18.2",
     "hbs": "~4.2.0",
     "http-errors": "~2.0.0",
     "morgan": "~1.10.0",
-    "mysql2": "^3.3.4"
+    "mysql2": "^3.3.5"
   },
   "devDependencies": {
     "@total-typescript/ts-reset": "^0.4.2",
@@ -27,10 +27,10 @@
     "@types/express-serve-static-core": "4.17.35",
     "@types/http-errors": "^2.0.1",
     "@types/morgan": "^1.9.4",
-    "@types/node": "^20.3.0",
-    "@typescript-eslint/eslint-plugin": "^5.59.9",
-    "@typescript-eslint/parser": "^5.59.9",
-    "eslint": "^8.42.0",
+    "@types/node": "^20.3.1",
+    "@typescript-eslint/eslint-plugin": "^5.59.11",
+    "@typescript-eslint/parser": "^5.59.11",
+    "eslint": "^8.43.0",
     "eslint-import-resolver-typescript": "^3.5.5",
     "eslint-plugin-import": "^2.27.5",
     "ts-node-dev": "^2.0.0",
