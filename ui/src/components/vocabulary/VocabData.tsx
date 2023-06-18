@@ -1,6 +1,6 @@
 import { computed, defineComponent, ref, shallowRef, watch } from 'vue'
 import { TransitionPresets, useSessionStorage, useTransition } from '@vueuse/core'
-import { ElPagination, ElTable, type Sort, type TableInstance } from 'element-plus'
+import { ElInput, ElPagination, ElTable, type Sort, type TableInstance } from 'element-plus'
 import { pipe } from 'fp-ts/function'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { t } from '@/i18n'
@@ -9,7 +9,6 @@ import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
 import type { MyVocabRow, SrcRow } from '@/types'
 import { VocabToggle } from '@/components/vocabulary/ToggleButton'
 import { createSignal, useElHover } from '@/composables/utilities'
-import { Length, Rank, VocabSearch } from '@/components/vocabulary/VocabComponents'
 import { useVocabStore } from '@/store/useVocab'
 
 export const VocabDataTable = Object.assign(defineComponent((props: { tableName: string }) => {
@@ -113,7 +112,11 @@ export const VocabDataTable = Object.assign(defineComponent((props: { tableName:
                 width={64}
                 prop="vocab.rank"
                 sortable="custom"
-                v-slots={Rank}
+                v-slots={({ row }: { row: MyVocabRow }) => (
+                  <div class="tabular-nums text-neutral-500">
+                    {row.vocab.rank}
+                  </div>
+                )}
               />
               <ElTable.TableColumn
                 label={t('Vocabulary')}
@@ -122,7 +125,16 @@ export const VocabDataTable = Object.assign(defineComponent((props: { tableName:
                 sortable="custom"
                 className="select-none [&>.cell]:!pr-0"
                 v-slots={{
-                  header: () => VocabSearch(search),
+                  header: () => (
+                    <div class={'inline'} onClick={(ev) => ev.stopPropagation()}>
+                      <ElInput
+                        v-model={search.value}
+                        class="!w-[calc(100%-26px)] !text-base md:!text-xs"
+                        size="small"
+                        placeholder={t('search')}
+                      />
+                    </div>
+                  ),
                   default: ({ row }: { row: RowData }) =>
                     <span
                       class="cursor-text select-text text-[16px] tracking-wide text-neutral-800"
@@ -139,7 +151,11 @@ export const VocabDataTable = Object.assign(defineComponent((props: { tableName:
                 width={62}
                 sortable="custom"
                 className="!text-right [th&>.cell]:!p-0 [th&>.cell]:!font-pro [th&>.cell]:stretch-[condensed]"
-                v-slots={Length}
+                v-slots={({ row }: { row: MyVocabRow }) => (
+                  <div class="tabular-nums">
+                    {row.vocab.w.length}
+                  </div>
+                )}
               />
               <ElTable.TableColumn
                 width="32"
@@ -153,7 +169,8 @@ export const VocabDataTable = Object.assign(defineComponent((props: { tableName:
                 prop="vocab.time_modified"
                 sortable="custom"
                 v-slots={({ row }: { row: RowData }) => row.vocab.time_modified && (
-                  <div class="flex flex-row gap-0.5 font-compact tabular-nums tracking-normal text-neutral-900 ffs-[normal]">
+                  <div
+                    class="flex flex-row gap-0.5 font-compact tabular-nums tracking-normal text-neutral-900 ffs-[normal]">
                     {formatDistanceToNowStrict(new Date(row.vocab.time_modified))}
                   </div>
                 )}
