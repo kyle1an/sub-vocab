@@ -1,22 +1,6 @@
 import { defineComponent } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
-
-async function readFiles(files: FileList) {
-  const fileList = []
-  for (let i = 0; i < files.length; i++) {
-    fileList.push(new Promise<{ result: FileReader['result'] }>((resolve, reject) => {
-      const fr = new FileReader()
-      fr.onload = () => {
-        const { result } = fr
-        resolve({ result })
-      }
-      fr.onerror = reject
-      fr.readAsText(files[i])
-    }))
-  }
-
-  return await Promise.all(fileList)
-}
+import { getFileContent } from '@/utils/filesHandler'
 
 export const FileInput = Object.assign(defineComponent((props: {
   onFileInput: (file: {
@@ -27,29 +11,15 @@ export const FileInput = Object.assign(defineComponent((props: {
   function onFileChange(ev: Event) {
     const fileList = (ev.target as HTMLInputElement).files
     if (fileList && fileList.length > 0) {
-      readFiles(fileList)
-        .then((fl) => {
-          props.onFileInput({
-            value: fl.reduce((pre, { result }) => pre + String(result), ''),
-            name: fileList.length === 1 ? fileList[0].name : `${fileList.length} files selected`
-          })
-        })
-        .catch(console.error)
+      getFileContent(fileList).then(props.onFileInput).catch(console.error)
     }
   }
 
   function dropFile(ev: DragEvent) {
     ev.preventDefault()
-    const file = ev.dataTransfer?.files[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        props.onFileInput({
-          value: e.target?.result as string,
-          name: file.name
-        })
-      }
-      reader.readAsText(file)
+    const files = ev.dataTransfer?.files
+    if (files && files.length > 0) {
+      getFileContent(files).then(props.onFileInput).catch(console.error)
     }
   }
 

@@ -1,4 +1,5 @@
 import { defineComponent } from 'vue'
+import { readDataTransferItemList, readEntryFiles } from '@/utils/filesHandler'
 
 export const TextareaInput = Object.assign(defineComponent((props: {
   value: string
@@ -14,19 +15,19 @@ export const TextareaInput = Object.assign(defineComponent((props: {
     })
   }
 
-  function dropFile(ev: DragEvent) {
-    ev.preventDefault()
-    const file = ev.dataTransfer?.files[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
+  function dropHandler(event: DragEvent): void {
+    event.preventDefault()
+    if (!event.dataTransfer?.items) return
+
+    Promise.all(readDataTransferItemList(event.dataTransfer.items))
+      .then(fileContents => {
+        const { title, content } = readEntryFiles(fileContents)
         props.onTextChange({
-          value: e.target?.result as string,
-          name: file.name
+          value: content,
+          name: title
         })
-      }
-      reader.readAsText(file)
-    }
+      })
+      .catch(console.error)
   }
 
   return () => (
@@ -35,7 +36,7 @@ export const TextareaInput = Object.assign(defineComponent((props: {
       class="h-[260px] max-h-[360px] w-full resize-none rounded-none px-[30px] py-3 align-top outline-none ffs-[normal] md:h-full md:max-h-full"
       placeholder={props.placeholder ?? ''}
       onInput={inputChanged}
-      onDrop={dropFile}
+      onDrop={dropHandler}
     />
   )
 }), { props: ['value', 'placeholder', 'onTextChange'] })
