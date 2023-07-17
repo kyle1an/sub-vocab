@@ -9,8 +9,23 @@ module.exports = {
     "plugin:import/typescript",
     "../.eslintrc.js",
   ],
+  "rules": {
+    "import/order": [1, { "groups": ["builtin", "external", "parent", "sibling", "index"] }],
+    "@typescript-eslint/ban-types": [
+      "error",
+      {
+        "types": {
+          "{}": false
+        },
+        "extendDefaults": true
+      }
+    ],
+    "@typescript-eslint/ban-ts-comment": [
+      "error",
+      { "ts-ignore": "allow-with-description" },
+    ],
+  },
   "parser": "@typescript-eslint/parser",
-  "ignorePatterns": ["**/*.json", ".eslintrc.js", "*.config.js"],
   "parserOptions": {
     "ecmaVersion": "latest",
     "sourceType": "module"
@@ -18,5 +33,4 @@ module.exports = {
   "plugins": [
     "@typescript-eslint"
   ],
-  "rules": {}
 }

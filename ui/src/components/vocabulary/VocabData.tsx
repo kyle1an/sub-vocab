@@ -11,7 +11,7 @@ import { VocabToggle } from '@/components/vocabulary/ToggleButton'
 import { createSignal, useElHover } from '@/composables/utilities'
 import { useVocabStore } from '@/store/useVocab'
 
-export const VocabDataTable = Object.assign(defineComponent((props: { tableName: string }) => {
+export const VocabDataTable = defineComponent((props: { tableName: string }) => {
   const store = useVocabStore()
   const segments = () => [
     { value: 'all', label: t('all') },
@@ -126,7 +126,10 @@ export const VocabDataTable = Object.assign(defineComponent((props: { tableName:
                 className="select-none [&>.cell]:!pr-0"
                 v-slots={{
                   header: () => (
-                    <div class={'inline'} onClick={(ev) => ev.stopPropagation()}>
+                    <div
+                      class={'inline'}
+                      onClick={(ev) => ev.stopPropagation()}
+                    >
                       <ElInput
                         v-model={search.value}
                         class="!w-[calc(100%-26px)] !text-base md:!text-xs"
@@ -169,8 +172,7 @@ export const VocabDataTable = Object.assign(defineComponent((props: { tableName:
                 prop="vocab.time_modified"
                 sortable="custom"
                 v-slots={({ row }: { row: RowData }) => row.vocab.time_modified && (
-                  <div
-                    class="flex flex-row gap-0.5 font-compact tabular-nums tracking-normal text-neutral-900 ffs-[normal]">
+                  <div class="flex flex-row gap-0.5 font-compact tabular-nums tracking-normal text-neutral-900 ffs-[normal]">
                     {formatDistanceToNowStrict(new Date(row.vocab.time_modified))}
                   </div>
                 )}
@@ -193,4 +195,4 @@ export const VocabDataTable = Object.assign(defineComponent((props: { tableName:
       </div>
     </div>
   )
-}), { props: ['tableName'] })
+})

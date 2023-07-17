@@ -19,19 +19,48 @@ module.exports = {
     "sourceType": "module",
     "project": true,
     "tsconfigRootDir": __dirname,
+    "ecmaFeatures": {
+      "jsx": true,
+      "modules": true
+    }
   },
   "plugins": [
+    "react",
     "vue",
     "@typescript-eslint",
   ],
   "parser": "vue-eslint-parser",
-  "ignorePatterns": ["**/*.json", ".eslintrc.js", "*.config.js", "*.config.ts", "/dist/"],
   "rules": {
     "prefer-const": "off",
     // Note: you must disable the base rule as it can report incorrect errors
     "require-await": "off",
+    "import/order": [1, { "groups": ["builtin", "external", "parent", "sibling", "index"] }],
+    "@typescript-eslint/ban-types": [
+      "error",
+      {
+        "types": {
+          "{}": false
+        },
+        "extendDefaults": true
+      }
+    ],
+    "@typescript-eslint/ban-ts-comment": [
+      "error",
+      { "ts-ignore": "allow-with-description" },
+    ],
     "@typescript-eslint/require-await": "error",
     "tailwindcss/no-custom-classname": "off",
+    "react/jsx-max-props-per-line": [1, { "maximum": 1 }],
+    "react/jsx-curly-spacing": [1, { "when": "never", "children": true }],
+    "react/jsx-closing-bracket-location": [1, "tag-aligned"],
+    "react/jsx-props-no-multi-spaces": "warn",
+    "react/jsx-space-before-closing": "warn",
+    "react/jsx-tag-spacing": ["warn", {
+      "closingSlash": "never",
+      "beforeSelfClosing": "always",
+      "afterOpening": "never",
+      "beforeClosing": "allow"
+    }],
     "vue/component-name-in-template-casing": ["warn", "PascalCase", {
       "registeredComponentsOnly": true,
       "ignores": ["component"],
