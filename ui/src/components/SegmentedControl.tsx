@@ -1,7 +1,7 @@
 import { defineComponent, ref, watch } from 'vue'
 import { useElementBounding, useSessionStorage } from '@vueuse/core'
 
-export const SegmentedControl = Object.assign(defineComponent(<T extends string>(props: {
+export const SegmentedControl = defineComponent(<T extends string>(props: {
   value: T
   name: string
   segments: Readonly<{ value: T, label: string }[]>
@@ -25,7 +25,8 @@ export const SegmentedControl = Object.assign(defineComponent(<T extends string>
           >
             <input
               id={`${props.name}-${item.value}`}
-              type="radio" value={item.value}
+              type="radio"
+              value={item.value}
               checked={item.value === props.value}
               class="group/i peer absolute inset-0 appearance-none opacity-0 outline-none"
               onInput={(ev) => props.onChoose((ev.target as HTMLInputElement).value as T)}
@@ -43,4 +44,4 @@ export const SegmentedControl = Object.assign(defineComponent(<T extends string>
       </div>
     </div>
   )
-}), { props: ['value', 'name', 'segments', 'onChoose'] })
+})

@@ -6,7 +6,7 @@ module.exports = {
   "extends": [
     "eslint:recommended",
   ],
-  "ignorePatterns": ["**/*.json", ".eslintrc.js", "*.config.js"],
+  "ignorePatterns": ["/dist/"],
   "parserOptions": {
     "ecmaVersion": "latest",
     "sourceType": "module"
@@ -14,6 +14,31 @@ module.exports = {
   "rules": {
     "semi": [1, "never"],
     "quotes": [1, "single", { "avoidEscape": true, "allowTemplateLiterals": true }],
+    "indent": ["warn", 2, {
+      "SwitchCase": 1,
+    }],
+
+    "no-multi-spaces": "warn",
+    "no-multiple-empty-lines": ["warn", { "max": 1, "maxEOF": 1 }],
+    "no-trailing-spaces": "warn",
+    "no-whitespace-before-property": "warn",
+    "arrow-spacing": "warn",
+    "array-bracket-spacing": ["warn", "never"],
+    "block-spacing": "warn",
+    "comma-spacing": "warn",
+    "computed-property-spacing": ["warn", "never"],
+    "key-spacing": "warn",
+    "object-curly-spacing": ["warn", "always"],
+    "rest-spread-spacing": ["warn", "never"],
+    "semi-spacing": "warn",
+    "switch-colon-spacing": "warn",
+    "space-before-blocks": "warn",
+    "space-before-function-paren": ["warn", { "anonymous": "always", "named": "never", "asyncArrow": "always" }],
+    "space-in-parens": ["warn", "never"],
+    "space-infix-ops": "warn",
+    "space-unary-ops": "warn",
+    "template-curly-spacing": "warn",
+
     "comma-dangle": ["warn", {
       "arrays": "only-multiline",
       "objects": "only-multiline",
@@ -27,7 +52,6 @@ module.exports = {
       "ignoreReadBeforeAssign": false
     }],
     "no-unused-vars": [0, { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
-    "import/order": [1, { "groups": ["builtin", "external", "parent", "sibling", "index"] }],
     "sort-imports": [1, {
       "ignoreCase": false,
       "ignoreDeclarationSort": true,
@@ -35,23 +59,18 @@ module.exports = {
       "memberSyntaxSortOrder": ["none", "all", "multiple", "single"],
       "allowSeparatedGroups": false,
     }],
-    "@typescript-eslint/ban-ts-comment": [
-      "error",
-      { "ts-ignore": "allow-with-description" },
-    ],
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-unused-vars": "off",
-    "@typescript-eslint/ban-types": [
-      "error",
-      {
-        "types": {
-          "{}": false
-        },
-        "extendDefaults": true
-      }
-    ],
     "@typescript-eslint/no-empty-interface": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": [".eslintrc.js"],
+      "rules": {
+        "quotes": [2, "double"]
+      }
+    }
+  ]
 }

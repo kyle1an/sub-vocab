@@ -2,7 +2,7 @@ import { defineComponent } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 import { getFileContent } from '@/utils/filesHandler'
 
-export const FileInput = Object.assign(defineComponent((props: {
+export const FileInput = defineComponent((props: {
   onFileInput: (file: {
     value: string,
     name: string
@@ -51,4 +51,4 @@ export const FileInput = Object.assign(defineComponent((props: {
       />
     </div>
   )
-}), { props: ['onFileInput'] })
+})

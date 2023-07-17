@@ -3,15 +3,17 @@ import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import { visualizer } from 'rollup-plugin-visualizer'
+import VueTsxAutoProps from 'unplugin-vue-tsx-auto-props/vite'
 
-export default ({ mode }) => {
+export default ({ mode }: { mode:string }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd()) }
 
   return defineConfig({
     plugins: [
       vue({
-        reactivityTransform: false
+        reactivityTransform: false,
       }),
+      VueTsxAutoProps({}),
       vueJsx({}),
       visualizer(),
     ],
@@ -27,7 +29,7 @@ export default ({ mode }) => {
       },
     },
     build: {
-      target: 'esnext'
+      target: 'esnext',
     },
     resolve: {
       alias: [
@@ -39,7 +41,7 @@ export default ({ mode }) => {
           find: '@',
           replacement: path.resolve(__dirname, './src'),
         },
-      ]
-    }
+      ],
+    },
   })
 }

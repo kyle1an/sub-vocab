@@ -10,7 +10,7 @@ import { SegmentedControl } from '@/components/SegmentedControl'
 import { createSignal, useElHover } from '@/composables/utilities'
 import { VocabToggle } from '@/components/vocabulary/ToggleButton'
 
-export const VocabSourceTable = Object.assign(defineComponent((props: {
+export const VocabSourceTable = defineComponent((props: {
   data: SrcRow<LabelSubDisplay>[]
   sentences: string[]
   expand?: boolean
@@ -102,8 +102,7 @@ export const VocabSourceTable = Object.assign(defineComponent((props: {
   }
 
   return () => (
-    <div
-      class="mx-5 flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-sm will-change-transform md:mx-0">
+    <div class="mx-5 flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-sm will-change-transform md:mx-0">
       <SegmentedControl
         name={props.tableName}
         segments={segments()}
@@ -156,7 +155,10 @@ export const VocabSourceTable = Object.assign(defineComponent((props: {
                 className="select-none [td&>.cell]:!pr-0"
                 v-slots={{
                   header: () => (
-                    <div class={'inline'} onClick={(ev) => ev.stopPropagation()}>
+                    <div
+                      class={'inline'}
+                      onClick={(ev) => ev.stopPropagation()}
+                    >
                       <ElInput
                         v-model={search.value}
                         class="!w-[calc(100%-26px)] !text-base md:!text-xs"
@@ -230,4 +232,4 @@ export const VocabSourceTable = Object.assign(defineComponent((props: {
       </div>
     </div>
   )
-}), { props: ['data', 'sentences', 'expand', 'tableName'] })
+})

@@ -10,24 +10,25 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
-    "lib": [
-      "esnext",
-      "dom"
-    ],
+    "lib": ["esnext", "dom"],
     "skipLibCheck": true,
     "allowJs": true,
+    "types": ["vite/client"],
+    "outDir": "./built",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"]
     }
   },
   "include": [
+    ".eslintrc.js",
+    "**/*.config.js",
+    "**/*.config.ts",
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.tsx",
     "src/**/*.vue"
   ],
+  "exclude": ["node_modules", "dist", "./built/**/*"],
   "references": [
     {
       "path": "./tsconfig.node.json"

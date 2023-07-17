@@ -1,7 +1,7 @@
 import { defineComponent } from 'vue'
 import { readDataTransferItemList, readEntryFiles } from '@/utils/filesHandler'
 
-export const TextareaInput = Object.assign(defineComponent((props: {
+export const TextareaInput = defineComponent((props: {
   value: string
   placeholder?: string
   onTextChange: (text: {
@@ -39,4 +39,4 @@ export const TextareaInput = Object.assign(defineComponent((props: {
       onDrop={dropHandler}
     />
   )
-}), { props: ['value', 'placeholder', 'onTextChange'] })
+})

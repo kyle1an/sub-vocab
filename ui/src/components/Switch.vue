@@ -16,7 +16,7 @@ const props = defineProps<{
         :checked="props.checked"
         type="checkbox"
         class="peer hidden"
-        @change="(ev)=>props.onChange(ev.target.checked)"
+        @change="(ev)=>props.onChange((ev.target as HTMLInputElement).checked)"
       >
       <i class="relative mr-2 inline-block h-[26px] w-[46px] select-none overflow-hidden rounded-[23px] bg-[#e6e6e6] align-text-bottom transition-all duration-300 ease-linear group-active/label:after:w-7 peer-checked:bg-[rgb(52,199,89)]" />
       <span class="mx-2.5 flex flex-col-reverse justify-center text-base">
