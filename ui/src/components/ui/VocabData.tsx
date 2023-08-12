@@ -4,11 +4,11 @@ import { ElInput, ElPagination, ElTable, type Sort, type TableInstance } from 'e
 import { pipe } from 'fp-ts/function'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { t } from '@/i18n'
-import { SegmentedControl } from '@/components/SegmentedControl'
-import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
+import { SegmentedControl } from '@/components/ui/SegmentedControl'
+import { isMobile, orderBy, paging, selectWord } from '@/lib/utils'
 import type { MyVocabRow, SrcRow } from '@/types'
-import { VocabToggle } from '@/components/vocabulary/ToggleButton'
-import { createSignal, useElHover } from '@/composables/utilities'
+import { VocabToggle } from '@/components/ui/ToggleButton'
+import { createSignal, useElHover } from '@/lib/composables'
 import { useVocabStore } from '@/store/useVocab'
 
 export const VocabDataTable = defineComponent((props: { tableName: string }) => {
@@ -93,7 +93,6 @@ export const VocabDataTable = defineComponent((props: { tableName: string }) => 
         name={props.tableName}
         segments={segments()}
         value={segment.value}
-        class="pb-2 pt-3"
         onChoose={(v) => segment.value = v}
       />
       <div class="h-px w-full grow">
@@ -181,7 +180,7 @@ export const VocabDataTable = defineComponent((props: { tableName: string }) => 
           )}
         />
       </div>
-      <div class="min-h-9 w-full">
+      <div class="w-full">
         <ElPagination
           v-model:currentPage={currPage.value}
           v-model:pageSize={pageSize.value}

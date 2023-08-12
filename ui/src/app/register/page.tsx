@@ -5,11 +5,11 @@ import { z } from 'zod'
 import { t } from '@/i18n'
 import router from '@/router'
 import { isUsernameTaken, register } from '@/api/user'
-import { inputPasswordSchema, usernameSchema } from '@/utils/validation'
-import { createSignal } from '@/composables/utilities'
+import { inputPasswordSchema, usernameSchema } from '@/lib/validation'
+import { createSignal } from '@/lib/composables'
 import type { FormRules } from '@/types/forms'
 
-export const Register = defineComponent(() => {
+export default defineComponent(() => {
   const ruleFormRef = ref<FormInstance>()
   const ruleForm = reactive({
     username: '',

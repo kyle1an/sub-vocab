@@ -1,5 +1,5 @@
 import { defineComponent } from 'vue'
-import { readDataTransferItemList, readEntryFiles } from '@/utils/filesHandler'
+import { readDataTransferItemList, readEntryFiles } from '@/lib/filesHandler'
 
 export const TextareaInput = defineComponent((props: {
   value: string

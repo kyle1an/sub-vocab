@@ -4,11 +4,11 @@ import { z } from 'zod'
 import { t } from '@/i18n'
 import { changeUsername, isUsernameTaken } from '@/api/user'
 import { useVocabStore } from '@/store/useVocab'
-import { usernameSchema } from '@/utils/validation'
-import { createSignal } from '@/composables/utilities'
+import { usernameSchema } from '@/lib/validation'
+import { createSignal } from '@/lib/composables'
 import type { FormRules } from '@/types/forms'
 
-export const Profile = defineComponent(() => {
+export default defineComponent(() => {
   const store = useVocabStore()
   const ruleFormRef = ref<FormInstance>()
   const ruleForm = reactive({

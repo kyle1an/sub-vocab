@@ -3,10 +3,10 @@ import { defineComponent, reactive, ref } from 'vue'
 import { t } from '@/i18n'
 import { changePassword } from '@/api/user'
 import { useVocabStore } from '@/store/useVocab'
-import { createSignal } from '@/composables/utilities'
+import { createSignal } from '@/lib/composables'
 import type { FormRules } from '@/types/forms'
 
-export const Password = defineComponent(() => {
+export default defineComponent(() => {
   const store = useVocabStore()
   const ruleFormRef = ref<FormInstance>()
   const ruleForm = reactive({

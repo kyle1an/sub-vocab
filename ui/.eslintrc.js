@@ -49,7 +49,12 @@ module.exports = {
       { "ts-ignore": "allow-with-description" },
     ],
     "@typescript-eslint/require-await": "error",
-    "tailwindcss/no-custom-classname": "off",
+
+    "tailwindcss/no-custom-classname": ["warn", {
+      "callees": ["classnames", "clsx", "ctl", "cva", "tv", "twMerge"],
+      "skipClassAttribute": true,
+    }],
+
     "react/jsx-max-props-per-line": [1, { "maximum": 1 }],
     "react/jsx-curly-spacing": [1, { "when": "never", "children": true }],
     "react/jsx-closing-bracket-location": [1, "tag-aligned"],

@@ -4,7 +4,7 @@ import { TopBar } from '@/components/TopBar'
 import { KeepViewAlive } from '@/components/common/KeepViewAlive'
 import '@/styles/index.scss'
 
-export const App = defineComponent(() => {
+export default defineComponent(() => {
   return () => (
     <div class="flex h-full min-h-full flex-col bg-white antialiased">
       <TopBar class="ffs-pre fixed h-12" />

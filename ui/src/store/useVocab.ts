@@ -7,9 +7,9 @@ import type { AcquaintWordsResponse, LabelFromUser, StemsMapping, ToggleWordResp
 import type { LabelSieveDisplay } from '@/types'
 import { type Credential, type Username, logoutToken } from '@/api/user'
 import router from '@/router'
-import { createSignal } from '@/composables/utilities'
-import { loginNotify } from '@/utils/vocab'
-import { postRequest } from '@/api/request'
+import { createSignal } from '@/lib/composables'
+import { loginNotify } from '@/components/vocab'
+import { postRequest } from '@/lib/request'
 
 export interface UserVocabs extends Username {
   username: string

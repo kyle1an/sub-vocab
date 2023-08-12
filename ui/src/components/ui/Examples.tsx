@@ -1,11 +1,14 @@
+import { twMerge } from 'tailwind-merge'
 import type { LabelVocab } from '@/types'
 
 export function Examples({
   sentences,
   src = [],
+  className = '',
 }: {
   sentences: string[],
   src: LabelVocab['src'],
+  className?: string,
 }) {
   const vocabPositions: [number, [number, number][]][] = []
   src.sort((a, b) => a.sentenceId - b.sentenceId || a.startIndex - b.startIndex)
@@ -27,7 +30,7 @@ export function Examples({
   }
 
   return (
-    <div class="mb-1 ml-5 mr-3">
+    <div class={twMerge('mb-1 ml-5 mr-3', className)}>
       {vocabPositions.map(([no, wordIndexes], index) => {
         let progress = 0
         const sentence = sentences[no]

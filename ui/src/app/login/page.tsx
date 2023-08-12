@@ -4,11 +4,11 @@ import { z } from 'zod'
 import { RouterLink } from 'vue-router'
 import { t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
-import { inputNameSchema, inputPasswordSchema } from '@/utils/validation'
-import { createSignal } from '@/composables/utilities'
+import { inputNameSchema, inputPasswordSchema } from '@/lib/validation'
+import { createSignal } from '@/lib/composables'
 import type { FormRules } from '@/types/forms'
 
-export const Login = defineComponent(() => {
+export default defineComponent(() => {
   const store = useVocabStore()
   const ruleFormRef = ref<FormInstance>()
   const ruleForm = reactive({

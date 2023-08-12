@@ -4,11 +4,11 @@ import { ElInput, ElPagination, ElTable, type Sort, type TableInstance } from 'e
 import { pipe } from 'fp-ts/function'
 import { t } from '@/i18n'
 import type { LabelSubDisplay, MyVocabRow, SrcRow } from '@/types'
-import { isMobile, orderBy, paging, selectWord } from '@/utils/utils'
-import { Examples } from '@/components/vocabulary/Examples'
-import { SegmentedControl } from '@/components/SegmentedControl'
-import { createSignal, useElHover } from '@/composables/utilities'
-import { VocabToggle } from '@/components/vocabulary/ToggleButton'
+import { isMobile, orderBy, paging, selectWord } from '@/lib/utils'
+import { Examples } from '@/components/ui/Examples'
+import { SegmentedControl } from '@/components/ui/SegmentedControl'
+import { createSignal, useElHover } from '@/lib/composables'
+import { VocabToggle } from '@/components/ui/ToggleButton'
 
 export const VocabSourceTable = defineComponent((props: {
   data: SrcRow<LabelSubDisplay>[]
@@ -130,7 +130,7 @@ export const VocabSourceTable = defineComponent((props: {
                     <Examples
                       sentences={props.sentences}
                       src={row.src}
-                      class="tracking-wide"
+                      className="tracking-wide"
                     />
                   }
                 />
@@ -218,7 +218,7 @@ export const VocabSourceTable = defineComponent((props: {
           )}
         />
       </div>
-      <div class="min-h-9 w-full">
+      <div class="w-full">
         <ElPagination
           v-model:currentPage={currPage.value}
           v-model:pageSize={pageSize.value}

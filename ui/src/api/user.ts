@@ -1,6 +1,6 @@
 import type { RegisterResponse, UsernameTaken } from '../../../backend/routes/auth'
 import type { Status } from '../../../backend/types'
-import { postRequest } from '@/api/request'
+import { postRequest } from '@/lib/request'
 
 export interface Username {
   username: string

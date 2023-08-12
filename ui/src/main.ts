@@ -3,12 +3,12 @@ import { createPinia } from 'pinia'
 import { createPersistedState } from 'pinia-plugin-persistedstate'
 import { VueQueryPlugin } from '@tanstack/vue-query'
 import * as Sentry from '@sentry/vue'
-import { App } from './App'
+import RootLayout from './app/layout'
 import '@/main.css'
 import 'element-plus/dist/index.css'
 import router from '@/router'
 
-const app = createApp(App)
+const app = createApp(RootLayout)
 Sentry.init({
   app,
   dsn: 'https://c85c12d1ecc241558e8aa3bc55dea61f@o4505257329098752.ingest.sentry.io/4505257332178944',
