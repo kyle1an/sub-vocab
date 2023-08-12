@@ -1,12 +1,14 @@
 import { defineComponent } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
-import { getFileContent } from '@/utils/filesHandler'
+import { twMerge } from 'tailwind-merge'
+import { getFileContent } from '@/lib/filesHandler'
 
 export const FileInput = defineComponent((props: {
   onFileInput: (file: {
     value: string,
     name: string
   }) => void
+  className?: string
 }, { slots, expose }) => {
   function onFileChange(ev: Event) {
     const fileList = (ev.target as HTMLInputElement).files
@@ -24,7 +26,7 @@ export const FileInput = defineComponent((props: {
   }
 
   function inputChanged() {
-    const input: NodeListOf<HTMLInputElement> = document.querySelectorAll('#browseFiles' + id)
+    const input = document.querySelectorAll<HTMLInputElement>('#browseFiles' + id)
     for (let i = 0; i < input.length; i++) {
       input[i].value = ''
     }
@@ -34,7 +36,10 @@ export const FileInput = defineComponent((props: {
 
   const id = uuidv4()
   return () => (
-    <div onDrop={dropFile}>
+    <div
+      onDrop={dropFile}
+      class={twMerge(props.className)}
+    >
       <label
         class="box-border inline-flex h-8 max-h-full grow-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-md border bg-white px-3 py-2.5 text-center align-middle text-sm/3 tracking-wide text-neutral-800 transition-colors hover:border-sky-300 hover:bg-sky-100 hover:text-sky-600"
         for={'browseFiles' + id}

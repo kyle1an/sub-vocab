@@ -3,8 +3,8 @@ import { ElNotification } from 'element-plus'
 import type { LabelSieveDisplay, LabelVocab, SrcRow } from '@/types'
 import { t } from '@/i18n'
 import router from '@/router'
-import { sortByChar } from '@/utils/utils'
-import LabeledTire from '@/utils/LabeledTire'
+import { sortByChar } from '@/lib/utils'
+import LabeledTire from '@/lib/LabeledTire'
 import { useTimeStore } from '@/store/usePerf'
 
 function formVocab($: LabelVocab) {

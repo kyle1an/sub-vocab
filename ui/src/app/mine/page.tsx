@@ -1,9 +1,9 @@
 import { defineComponent } from 'vue'
 import { RouterLink } from 'vue-router'
 import { t } from '@/i18n'
-import { VocabDataTable } from '@/components/vocabulary/VocabData'
+import { VocabDataTable } from '@/components/ui/VocabData'
 
-export const MineVocab = defineComponent(() => {
+export default defineComponent(() => {
   return () => (
     <div class="h-[calc(100vh-160px)] w-full md:h-full md:pb-0">
       <div class="m-auto flex h-full max-w-full flex-col overflow-visible">

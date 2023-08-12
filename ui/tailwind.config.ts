@@ -1,6 +1,7 @@
-const plugin = require('tailwindcss/plugin')
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+import type { Config } from 'tailwindcss'
+import plugin from 'tailwindcss/plugin'
+
+const config: Config = {
   content: [
     './index.html',
     './src/**/*.{vue,js,ts,jsx,tsx}',
@@ -33,3 +34,5 @@ module.exports = {
     })
   ],
 }
+
+export default config

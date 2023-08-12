@@ -2,6 +2,7 @@
 node_modules
 /dist
 stats.html
+built/
 
 # local env files
 .env

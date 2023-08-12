@@ -1,12 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { Sub } from '@/views/sub/Sub'
+import Page from '@/app/page'
 
 const router = createRouter({
   history: createWebHistory(''),
   routes: [
     {
       path: '/',
-      component: Sub,
+      component: Page,
       meta: { keepAlive: true },
     },
     {
@@ -15,41 +15,45 @@ const router = createRouter({
     },
     {
       path: '/mine',
-      component: () => import('@/views/mine/Dashboard').then(({ Dashboard }) => Dashboard),
+      component: () => import('@/app/mine/layout'),
       meta: { keepAlive: true },
       children: [
         {
           path: '',
-          component: () => import('@/views/mine/MineVocab').then(({ MineVocab }) => MineVocab),
+          component: () => import('@/app/mine/page'),
           meta: { keepAlive: true },
         },
         {
-          path: '/chart',
-          component: () => import('@/views/mine/Chart').then(({ VChart }) => VChart),
+          path: 'chart',
+          component: () => import('@/app/mine/chart/page'),
           meta: { keepAlive: true },
         },
       ],
     },
     {
       path: '/import',
-      component: () => import('@/views/vocab-import/Import').then(({ Import }) => Import),
+      component: () => import('@/app/import/page'),
       meta: { keepAlive: true },
     },
     {
-      path: '/login', component: () => import('@/views/Login').then(({ Login }) => Login)
+      path: '/login',
+      component: () => import('@/app/login/page'),
     },
-    { path: '/register', component: () => import('@/views/Register').then(({ Register }) => Register) },
+    {
+      path: '/register',
+      component: () => import('@/app/register/page'),
+    },
     {
       path: '/user',
-      component: () => import('@/views/user/Account').then(({ Account }) => Account),
+      component: () => import('@/app/user/layout'),
       children: [
         {
           path: '',
-          component: () => import('@/views/user/Profile').then(({ Profile }) => Profile),
+          component: () => import('@/app/user/page'),
         },
         {
           path: 'password',
-          component: () => import('@/views/user/Password').then(({ Password }) => Password),
+          component: () => import('@/app/user/password/page'),
         },
       ],
     },

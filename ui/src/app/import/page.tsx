@@ -1,14 +1,14 @@
 import { defineComponent, ref, watch } from 'vue'
 import { t } from '@/i18n'
-import { VocabSourceTable } from '@/components/vocabulary/VocabSource'
-import { FileInput } from '@/components/FileInput'
+import { VocabSourceTable } from '@/components/ui/VocabSource'
+import { FileInput } from '@/components/ui/FileInput'
 import type { LabelSubDisplay, SrcRow } from '@/types'
 import { useVocabStore } from '@/store/useVocab'
-import { createSignal, useDebounceTimeout } from '@/composables/utilities'
-import { generatedVocabTrie } from '@/utils/vocab'
-import { TextareaInput } from '@/components/TextareaInput'
+import { createSignal, useDebounceTimeout } from '@/lib/composables'
+import { generatedVocabTrie } from '@/components/vocab'
+import { TextareaInput } from '@/components/ui/TextareaInput'
 
-export const Import = defineComponent(() => {
+export default defineComponent(() => {
   const [fileInfo, setFileInfo] = createSignal('')
 
   function onFileChange({ name, value }: { name: string, value: string }) {
@@ -41,7 +41,7 @@ export const Import = defineComponent(() => {
     <div class="w-full max-w-screen-xl">
       <FileInput
         ref={importFileInput}
-        class="relative mx-3 flex h-14 items-center xl:mx-0"
+        className="relative mx-3 flex h-14 items-center xl:mx-0"
         onFileInput={onFileChange}
       >
         {t('browseVocabFile')}

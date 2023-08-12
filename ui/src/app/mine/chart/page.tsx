@@ -1,14 +1,13 @@
-// eslint-disable-next-line import/no-named-as-default
 import Chart, { type ChartData } from 'chart.js/auto'
 import { computed, defineComponent, onBeforeUnmount, onMounted, watch } from 'vue'
 import { format } from 'date-fns'
 import { t } from '@/i18n'
 import { useVocabStore } from '@/store/useVocab'
-import { createSignal } from '@/composables/utilities'
-import { SegmentedControl } from '@/components/SegmentedControl'
+import { createSignal } from '@/lib/composables'
+import { SegmentedControl } from '@/components/ui/SegmentedControl'
 
 const SEG = 'prev-chart-select'
-export const VChart = defineComponent(() => {
+export default defineComponent(() => {
   const map = new Map<string, number>()
   const week: Record<string, string> = {}
   Array.from({ length: 7 }, (v, i) => 6 - i).forEach((i) => {
