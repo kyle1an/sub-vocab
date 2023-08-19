@@ -4,12 +4,17 @@ import { useElementBounding, useSessionStorage } from '@vueuse/core'
 export const SegmentedControl = defineComponent(<T extends string>(props: {
   value: T
   name: string
-  segments: Readonly<{ value: T, label: string }[]>
+  segments: Readonly<{ value: T; label: string }[]>
   onChoose: (value: T) => void
 }) => {
   const pill = ref()
   const pillWidth = useSessionStorage(`${props.name}-width`, 0)
-  watch(useElementBounding(pill).width, (v) => v !== 0 && (pillWidth.value = v))
+  const { width } = useElementBounding(pill)
+  watch(width, (width) => {
+    if (width !== 0) {
+      pillWidth.value = width
+    }
+  })
   return () => (
     <div class="box-border flex w-full grow-0 !touch-manipulation px-5 pb-2 pt-3 tracking-wide antialiased tap-transparent !overflow-scrolling-touch ffs-['cv08'] [text-rendering:geometricPrecision] [&_*]:box-border">
       <div class="grid w-full select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-[9px] bg-[#EFEFF0] p-0.5 outline-none">

@@ -29,8 +29,8 @@ export default defineComponent(() => {
 
           callback()
         },
-        trigger: 'blur'
-      }
+        trigger: 'blur',
+      },
     ],
     checkPass: [
       {
@@ -45,8 +45,8 @@ export default defineComponent(() => {
 
           callback()
         },
-        trigger: 'blur'
-      }
+        trigger: 'blur',
+      },
     ],
   })
 

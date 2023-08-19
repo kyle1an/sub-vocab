@@ -11,7 +11,7 @@ const router = createRouter({
     },
     {
       path: '/about',
-      component: { template: '<div>About</div>' }
+      component: { template: '<div>About</div>' },
     },
     {
       path: '/mine',

@@ -7,18 +7,18 @@ import type { RequestBody } from '../types'
 import type { UserVocabs } from '../../ui/src/store/useVocab'
 import type { Username } from '../../ui/src/api/user'
 
-export interface LabelFromUser extends Record<string, unknown> {
-  w: string;
-  acquainted: number | boolean,
-  is_user: number | boolean,
-  original: number | boolean,
-  rank: number | null,
-  time_modified: string | null,
+export interface LabelDB extends Record<string, unknown> {
+  w: string
+  acquainted: number | boolean
+  is_user: number | boolean
+  original: number | boolean
+  rank: number | null
+  time_modified: string | null
 }
 
 interface Stems {
-  derived_word: string,
-  stem_word: string,
+  derived_word: string
+  stem_word: string
 }
 
 const router = express.Router()
@@ -28,9 +28,9 @@ router.get('/', (req, res, next) => {
   res.send('respond with a resource')
 })
 
-router.post('/queryWords', async (req: RequestBody<Username>, res: Response<LabelFromUser[]>) => {
+router.post('/queryWords', async (req: RequestBody<Username>, res: Response<LabelDB[]>) => {
   const user = await tokenInvalid(req, res) ? '' : req.body.username
-  sql<RSH<LabelFromUser[]>>`CALL words_from_user(get_user_id_by_name(${user}));`
+  sql<RSH<LabelDB[]>>`CALL words_from_user(get_user_id_by_name(${user}));`
     .then(([rows]) => {
       res.json(rows[0])
     })

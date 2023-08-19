@@ -7,7 +7,7 @@ const i18n = createI18n({
   legacy: false,
   locale: Cookies.get('_locale') || (navigator.languages[0].startsWith('zh') ? 'zh' : 'en'),
   fallbackLocale: 'en',
-  messages: { en, zh }
+  messages: { en, zh },
 })
 const t = i18n.global.t
 export { i18n, t }

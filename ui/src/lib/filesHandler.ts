@@ -1,9 +1,9 @@
 interface FileContent {
-  text: string;
-  name: string;
+  text: string
+  name: string
 }
 
-type RecursiveArray<T> = T | RecursiveArray<T>[];
+type RecursiveArray<T> = T | RecursiveArray<T>[]
 
 type EntryFiles = RecursiveArray<FileContent>
 
@@ -44,7 +44,7 @@ function readFile(file: File) {
     reader.onload = (e) => {
       resolve({
         text: e.target?.result as string,
-        name: file.name
+        name: file.name,
       })
     }
     reader.onerror = reject
@@ -61,7 +61,7 @@ function readDirectory(entry: FileSystemDirectoryEntry): Promise<EntryFiles> {
           return readDirectory(entry as FileSystemDirectoryEntry)
         } else {
           return new Promise<EntryFiles>((resolve, reject) => {
-            (entry as FileSystemFileEntry).file((file: File) => {
+            ;(entry as FileSystemFileEntry).file((file: File) => {
               readFile(file)
                 .then(resolve)
                 .catch(reject)
@@ -86,7 +86,7 @@ export function getFileContent(fileList: FileList) {
 
     return {
       value: combinedContent,
-      name: combinedName
+      name: combinedName,
     }
   })
 }
@@ -102,7 +102,7 @@ export function readDataTransferItemList(list: DataTransferItemList) {
         return readDirectory(entry as FileSystemDirectoryEntry)
       } else {
         return new Promise<FileContent>((resolve, reject) => {
-          (entry as FileSystemFileEntry).file((file: File) => {
+          ;(entry as FileSystemFileEntry).file((file: File) => {
             readFile(file).then(resolve).catch(reject)
           })
         })
@@ -129,6 +129,6 @@ export function readEntryFiles(entryFiles: EntryFiles, level = 0) {
 
   return {
     content,
-    title: `${foldersCount + level} folder(s), ${filesCount} file(s)`
+    title: `${foldersCount + level} folder(s), ${filesCount} file(s)`,
   }
 }

@@ -6,17 +6,18 @@ module.exports = {
   "extends": [
     "eslint:recommended",
   ],
-  "ignorePatterns": ["/dist/"],
+  "ignorePatterns": ["/dist/", "/built/"],
   "parserOptions": {
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
   "rules": {
-    "semi": [1, "never"],
     "quotes": [1, "single", { "avoidEscape": true, "allowTemplateLiterals": true }],
     "indent": ["warn", 2, {
       "SwitchCase": 1,
     }],
+
+    "no-extra-semi": "off",
 
     "no-multi-spaces": "warn",
     "no-multiple-empty-lines": ["warn", { "max": 1, "maxEOF": 1 }],
@@ -58,6 +59,21 @@ module.exports = {
       "ignoreMemberSort": false,
       "memberSyntaxSortOrder": ["none", "all", "multiple", "single"],
       "allowSeparatedGroups": false,
+    }],
+
+    "semi": "off",
+    "@typescript-eslint/semi": ["warn", "never"],
+    "@typescript-eslint/type-annotation-spacing": "warn",
+    "@typescript-eslint/member-delimiter-style": ["warn", {
+      "multiline": {
+        "delimiter": "none",
+        "requireLast": true
+      },
+      "singleline": {
+        "delimiter": "semi",
+        "requireLast": false
+      },
+      "multilineDetection": "brackets"
     }],
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-non-null-assertion": "off",

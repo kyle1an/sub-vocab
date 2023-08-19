@@ -5,7 +5,7 @@ import { getFileContent } from '@/lib/filesHandler'
 
 export const FileInput = defineComponent((props: {
   onFileInput: (file: {
-    value: string,
+    value: string
     name: string
   }) => void
   className?: string

@@ -11,7 +11,7 @@ export const TextareaInput = defineComponent((props: {
 }) => {
   function inputChanged(ev: Event) {
     props.onTextChange({
-      value: (ev.target as HTMLInputElement).value
+      value: (ev.target as HTMLInputElement).value,
     })
   }
 
@@ -24,7 +24,7 @@ export const TextareaInput = defineComponent((props: {
         const { title, content } = readEntryFiles(fileContents)
         props.onTextChange({
           value: content,
-          name: title
+          name: title,
         })
       })
       .catch(console.error)

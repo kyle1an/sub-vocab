@@ -1,8 +1,8 @@
 <script setup lang="ts">
 const props = defineProps<{
-  checked: boolean,
-  text: [string, string],
-  onChange: (checked: boolean) => void,
+  checked: boolean
+  text: [string, string]
+  onChange: (checked: boolean) => void
 }>()
 </script>
 

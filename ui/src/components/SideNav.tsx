@@ -3,8 +3,8 @@ import { RouterLink, useRoute } from 'vue-router'
 
 export const SideNav = defineComponent((props: {
   nav: Readonly<{
-    title: string,
-    path: string,
+    title: string
+    path: string
   }[]>
 }) => {
   return () => (

@@ -49,8 +49,8 @@ export default defineComponent(() => {
         backgroundColor: 'rgba(255, 99, 132, 0.05)',
         borderColor: 'rgba(255, 99, 132, 1)',
         borderWidth: 1,
-      }
-    ]
+      },
+    ],
   } satisfies ChartData<'bar', number[], string>))
   watch(chartData, (v) => {
     myChart.data = v
@@ -66,7 +66,7 @@ export default defineComponent(() => {
     myChart = new Chart(canvas, {
       type: 'bar',
       data: chartData.value,
-      options: { plugins: {} }
+      options: { plugins: {} },
     })
   })
 

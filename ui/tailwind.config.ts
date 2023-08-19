@@ -25,13 +25,13 @@ const config: Config = {
       })
       matchUtilities({
         'ffs': (value) => ({
-          fontFeatureSettings: value
+          fontFeatureSettings: value,
         }),
         'stretch': (value) => ({
-          fontStretch: value
+          fontStretch: value,
         }),
       })
-    })
+    }),
   ],
 }
 
