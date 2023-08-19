@@ -40,11 +40,11 @@ export const useTimeStore = defineStore('timeStore', () => {
     } = Array.isArray(des) ? {
       title: des[0],
       append: des[1],
-      desStr: des.join('')
+      desStr: des.join(''),
     } : {
       title: des,
       append: '',
-      desStr: des
+      desStr: des,
     }
 
     const space = ' '.repeat(Math.max(indent - desStr.replace(/%c/g, '').length - String(~~time).length, 1))

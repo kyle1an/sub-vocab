@@ -11,8 +11,8 @@ import { useVocabStore } from '@/store/useVocab'
 export const TopBar = defineComponent(() => {
   const { locale } = i18n.global
   const localeMap = {
-    'en': en,
-    'zh': zhCn,
+    en: en,
+    zh: zhCn,
   } as const satisfies Record<string, Language>
   const elLocale = () => localeMap[locale.value]
   const store = useVocabStore()
@@ -77,7 +77,7 @@ export const TopBar = defineComponent(() => {
           <ElDropdown
             onCommand={handleCommand}
             v-slots={{
-              default: () =>
+              default: () => (
                 <div class="flex px-4 outline-none">
                   文/Aa
                   <i class="el-icon el-icon--right">
@@ -92,8 +92,9 @@ export const TopBar = defineComponent(() => {
                       />
                     </svg>
                   </i>
-                </div>,
-              dropdown: () =>
+                </div>
+              ),
+              dropdown: () => (
                 <ElDropdown.DropdownMenu class="outline-none">
                   <ElDropdown.DropdownItem command="zh">
                     中文
@@ -102,6 +103,7 @@ export const TopBar = defineComponent(() => {
                     English
                   </ElDropdown.DropdownItem>
                 </ElDropdown.DropdownMenu>
+              ),
             }}
           />
           <ElConfigProvider locale={elLocale()} />

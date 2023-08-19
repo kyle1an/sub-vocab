@@ -6,12 +6,14 @@ import { formatDistanceToNowStrict } from 'date-fns'
 import { t } from '@/i18n'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { isMobile, orderBy, paging, selectWord } from '@/lib/utils'
-import type { MyVocabRow, SrcRow } from '@/types'
+import type { SrcWith } from '@/types'
 import { VocabToggle } from '@/components/ui/ToggleButton'
 import { createSignal, useElHover } from '@/lib/composables'
-import { useVocabStore } from '@/store/useVocab'
+import { type VocabState, useVocabStore } from '@/store/useVocab'
 
-export const VocabDataTable = defineComponent((props: { tableName: string }) => {
+export const VocabDataTable = defineComponent((props: {
+  tableName: string
+}) => {
   const store = useVocabStore()
   const segments = () => [
     { value: 'all', label: t('all') },
@@ -19,7 +21,6 @@ export const VocabDataTable = defineComponent((props: { tableName: string }) => 
     { value: 'top', label: t('top') },
     { value: 'recent', label: t('recent') },
   ] as const
-  type RowData = SrcRow<typeof store.baseVocab[number]>
   const cachedSeg = useSessionStorage(`${props.tableName}-segment`, 'all')
   const initialSegment = segments().find((s) => s.value === cachedSeg.value)?.value ?? 'all'
   const segment = shallowRef<ReturnType<typeof segments>[number]['value']>(initialSegment)
@@ -48,9 +49,13 @@ export const VocabDataTable = defineComponent((props: { tableName: string }) => 
   watch(currPage, () => {
     vocabTable.value?.setScrollTop(0)
   })
-  const [rowsDisplay, setRowsDisplay] = createSignal<MyVocabRow[]>([])
+  const [rowsDisplay, setRowsDisplay] = createSignal<{
+    vocab: VocabState
+  }[]>([])
   const disabledTotal = shallowRef(true)
-  const srcRows = shallowRef<MyVocabRow[]>([])
+  const srcRows = shallowRef<{
+    vocab: VocabState
+  }[]>([])
   watch([() => store.baseVocab, () => store.baseVocab.length], () => {
     srcRows.value = store.baseVocab.map((r) => ({ vocab: r }))
     disabledTotal.value = false
@@ -58,8 +63,8 @@ export const VocabDataTable = defineComponent((props: { tableName: string }) => 
   const rowsSegmented = computed(() => srcRows.value.filter(
     segment.value === 'mine' ? (r) => Boolean(r.vocab.acquainted && r.vocab.is_user)
       : segment.value === 'top' ? (r) => Boolean(r.vocab.acquainted && !r.vocab.is_user)
-        : segment.value === 'recent' ? (r) => !r.vocab.acquainted && r.vocab.is_user !== 2
-          : (r) => !!r.vocab.acquainted
+        : segment.value === 'recent' ? (r) => !r.vocab.acquainted
+          : (r) => r.vocab.acquainted,
   ))
   const searched = computed(() => {
     const searching = search.value.trim().toLowerCase()
@@ -67,7 +72,7 @@ export const VocabDataTable = defineComponent((props: { tableName: string }) => 
       return rowsSegmented.value
     }
 
-    return rowsSegmented.value.filter((r) => r.vocab.w.toLowerCase().includes(searching))
+    return rowsSegmented.value.filter((r) => r.vocab.word.toLowerCase().includes(searching))
   })
   const rows = computed(() => pipe(searched.value,
     orderBy(sortBy().prop, sortBy().order),
@@ -99,7 +104,7 @@ export const VocabDataTable = defineComponent((props: { tableName: string }) => 
         <ElTable
           ref={vocabTable}
           data={rowsDisplay()}
-          row-key={(row: RowData) => '_' + row.vocab.w}
+          row-key={(row: SrcWith<VocabState>) => '_' + row.vocab.word}
           class={String.raw`!h-full !w-full md:w-full [&_*]:overscroll-contain [&_.el-table\_\_inner-wrapper]:!h-full [&_th_.cell]:font-compact [&_th_.cell]:tracking-normal`}
           size="small"
           onSort-change={onSortChange}
@@ -111,7 +116,11 @@ export const VocabDataTable = defineComponent((props: { tableName: string }) => 
                 width={64}
                 prop="vocab.rank"
                 sortable="custom"
-                v-slots={({ row }: { row: MyVocabRow }) => (
+                v-slots={({ row }: {
+                  row: {
+                    vocab: VocabState
+                  }
+                }) => (
                   <div class="tabular-nums text-neutral-500">
                     {row.vocab.rank}
                   </div>
@@ -137,14 +146,17 @@ export const VocabDataTable = defineComponent((props: { tableName: string }) => 
                       />
                     </div>
                   ),
-                  default: ({ row }: { row: RowData }) =>
+                  default: ({ row }: {
+                    row: SrcWith<VocabState>
+                  }) => (
                     <span
                       class="cursor-text select-text text-[16px] tracking-wide text-neutral-800"
                       onMouseover={isMobile ? () => void 0 : selectWord}
                       onClick={(ev) => ev.stopPropagation()}
                     >
-                      {row.vocab.w}
+                      {row.vocab.word}
                     </span>
+                  ),
                 }}
               />
               <ElTable.TableColumn
@@ -153,9 +165,13 @@ export const VocabDataTable = defineComponent((props: { tableName: string }) => 
                 width={62}
                 sortable="custom"
                 className="!text-right [th&>.cell]:!p-0 [th&>.cell]:!font-pro [th&>.cell]:stretch-[condensed]"
-                v-slots={({ row }: { row: MyVocabRow }) => (
+                v-slots={({ row }: {
+                  row: {
+                    vocab: VocabState
+                  }
+                }) => (
                   <div class="tabular-nums">
-                    {row.vocab.w.length}
+                    {row.vocab.word.length}
                   </div>
                 )}
               />
@@ -170,7 +186,9 @@ export const VocabDataTable = defineComponent((props: { tableName: string }) => 
                 width={82}
                 prop="vocab.time_modified"
                 sortable="custom"
-                v-slots={({ row }: { row: RowData }) => row.vocab.time_modified && (
+                v-slots={({ row }: {
+                  row: SrcWith<VocabState>
+                }) => row.vocab.time_modified && (
                   <div class="flex flex-row gap-0.5 font-compact tabular-nums tracking-normal text-neutral-900 ffs-[normal]">
                     {formatDistanceToNowStrict(new Date(row.vocab.time_modified))}
                   </div>

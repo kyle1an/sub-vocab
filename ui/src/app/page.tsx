@@ -2,7 +2,8 @@ import { defineComponent, ref, watch } from 'vue'
 import { t } from '@/i18n'
 import { VocabSourceTable } from '@/components/ui/VocabSource'
 import { FileInput } from '@/components/ui/FileInput'
-import type { LabelSubDisplay, SrcRow } from '@/types'
+import type { SrcWith } from '@/types'
+import { type LabelDisplayTable } from '@/components/vocab'
 import { useVocabStore } from '@/store/useVocab'
 import { createSignal, useDebounceTimeout } from '@/lib/composables'
 import { generatedVocabTrie } from '@/components/vocab'
@@ -11,7 +12,7 @@ import { TextareaInput } from '@/components/ui/TextareaInput'
 export default defineComponent(() => {
   const [fileInfo, setFileInfo] = createSignal('')
 
-  function onFileChange({ name, value }: { name: string, value: string }) {
+  function onFileChange({ name, value }: { name: string; value: string }) {
     setFileInfo(name)
     store.inputText = value
   }
@@ -19,7 +20,7 @@ export default defineComponent(() => {
   const [count, setCount] = createSignal(0)
   const [sentences, setSentences] = createSignal<string[]>([])
   const store = useVocabStore()
-  const [tableDataOfVocab, setTableDataOfVocab] = createSignal<SrcRow<LabelSubDisplay>[]>([])
+  const [tableDataOfVocab, setTableDataOfVocab] = createSignal<SrcWith<LabelDisplayTable>[]>([])
   watch(() => [store.inputText, store.baseVocab, store.irregularMaps], useDebounceTimeout(() => {
     const { list, count, sentences } = generatedVocabTrie(store.inputText, store.baseVocab, store.irregularMaps)
     setCount(count)
@@ -28,7 +29,7 @@ export default defineComponent(() => {
   }, 50))
   const sourceFileInput = ref<typeof FileInput & { inputChanged: () => void } | null>(null)
 
-  function onTextChange({ name, value }: { name?: string, value: string }) {
+  function onTextChange({ name, value }: { name?: string; value: string }) {
     store.inputText = value
     if (name) setFileInfo(name)
     sourceFileInput.value?.inputChanged()

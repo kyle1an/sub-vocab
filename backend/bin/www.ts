@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 import app from '../app'
-import ErrnoException = NodeJS.ErrnoException;
+import ErrnoException = NodeJS.ErrnoException
 
 const http = require('http')
 const debug = require('debug')('subvocab-server:server')

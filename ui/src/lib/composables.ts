@@ -1,19 +1,11 @@
 import { onMounted, shallowRef, triggerRef, watch } from 'vue'
 import { useElementHover } from '@vueuse/core'
-import { type Draft, produce } from 'immer'
-
-export function useImmer<T>(baseState: T) {
-  const state = shallowRef(baseState)
-  const update = (updater: (arg: Draft<T>) => void) => {
-    state.value = produce(state.value, updater)
-  }
-
-  return [state, update] as const
-}
 
 type ValueOrFn<T> = T | ((arg: T) => T)
 
-export function createSignal<T>(initialValue: T, options?: { equals?: false | ((prev: T, next: T) => boolean) }) {
+export function createSignal<T>(initialValue: T, options?: {
+  equals?: false | ((prev: T, next: T) => boolean)
+}) {
   const r = shallowRef(initialValue)
   const getNewValue = (valueOrFn: ValueOrFn<T>) => valueOrFn instanceof Function ? valueOrFn(r.value) : valueOrFn
 

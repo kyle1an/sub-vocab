@@ -3,8 +3,7 @@ import Cookies from 'js-cookie'
 import { useQuery } from '@tanstack/vue-query'
 import { ref, toRef, watch } from 'vue'
 import type { LoginResponse } from '../../../backend/routes/auth'
-import type { AcquaintWordsResponse, LabelFromUser, StemsMapping, ToggleWordResponse } from '../../../backend/routes/vocab'
-import type { LabelSieveDisplay } from '@/types'
+import type { AcquaintWordsResponse, LabelDB, StemsMapping, ToggleWordResponse } from '../../../backend/routes/vocab'
 import { type Credential, type Username, logoutToken } from '@/api/user'
 import router from '@/router'
 import { createSignal } from '@/lib/composables'
@@ -13,23 +12,43 @@ import { postRequest } from '@/lib/request'
 
 export interface UserVocabs extends Username {
   username: string
-  words: string[];
+  words: string[]
+}
+
+export interface VocabState {
+  inStore: boolean
+  updating: boolean
+  word: string
+  acquainted: boolean
+  is_user: boolean
+  original: boolean
+  rank: number | null
+  time_modified: string | null
 }
 
 function useWords(user: () => string) {
-  const { data } = useQuery(['userWords', toRef(user)], () => postRequest<LabelFromUser[]>(`/api/api/queryWords`, { username: user() } satisfies Username, { timeout: 4000 }), {
+  const { data } = useQuery(['userWords', toRef(user)], () => postRequest<LabelDB[]>(`/api/api/queryWords`, { username: user() } satisfies Username, { timeout: 4000 }), {
     initialData: [], refetchOnWindowFocus: false, retry: 10,
   })
-  const baseVocab = ref<LabelSieveDisplay[]>([])
+  const baseVocab = ref<VocabState[]>([])
   watch(data, (data) => {
-    baseVocab.value = data.map((sieve) => ({
-      ...sieve,
-      inUpdating: false,
-      inStore: true,
-    }))
+    baseVocab.value = data.map((sieve) => {
+      const labelSieveDisplay: VocabState = {
+        word: sieve.w,
+        acquainted: Boolean(sieve.acquainted),
+        is_user: Boolean(sieve.is_user),
+        original: Boolean(sieve.original),
+        rank: sieve.rank,
+        time_modified: sieve.time_modified,
+        updating: false,
+        inStore: true,
+      }
+
+      return labelSieveDisplay
+    })
   })
 
-  function updateWord($: LabelSieveDisplay, got: boolean) {
+  function updateWord($: VocabState, got: boolean) {
     if (!$.inStore) {
       baseVocab.value.push($)
       $.inStore = true
@@ -39,17 +58,17 @@ function useWords(user: () => string) {
     $.time_modified = new Date().toISOString()
   }
 
-  function revokeVocab(vocab: LabelSieveDisplay) {
+  function revokeVocab(vocab: VocabState) {
     if (!user()) {
       loginNotify()
       return
     }
 
-    if (vocab.w.length > 32) return
+    if (vocab.word.length > 32) return
 
-    vocab.inUpdating = true
+    vocab.updating = true
     postRequest<ToggleWordResponse>(`/api/api/revokeWord`, {
-      words: [vocab.w],
+      words: [vocab.word],
       username: user(),
     } satisfies UserVocabs)
       .then((res) => {
@@ -59,29 +78,31 @@ function useWords(user: () => string) {
       })
       .catch(console.error)
       .finally(() => {
-        vocab.inUpdating = false
+        vocab.updating = false
       })
   }
 
-  function acquaintEveryVocab<T extends { vocab: LabelSieveDisplay }[]>(tableDataOfVocab: T) {
+  function acquaintEveryVocab<T extends {
+    vocab: VocabState
+  }[]>(tableDataOfVocab: T) {
     if (!user()) {
       loginNotify()
       return
     }
 
-    const rows = tableDataOfVocab.filter(row => !row.vocab.acquainted && row.vocab.w.length <= 32)
+    const rows = tableDataOfVocab.filter(row => !row.vocab.acquainted && row.vocab.word.length <= 32)
 
     if (rows.length === 0) {
       return
     }
 
     rows.forEach((row) => {
-      row.vocab.inUpdating = true
+      row.vocab.updating = true
     })
 
     postRequest<AcquaintWordsResponse>(`/api/api/acquaintWords`, {
       username: user(),
-      words: rows.map(row => row.vocab.w),
+      words: rows.map(row => row.vocab.word),
     } satisfies UserVocabs)
       .then((res) => {
         if (res === 'success') {
@@ -93,7 +114,7 @@ function useWords(user: () => string) {
       .catch(console.error)
       .finally(() => {
         rows.forEach((row) => {
-          row.vocab.inUpdating = false
+          row.vocab.updating = false
         })
       })
   }

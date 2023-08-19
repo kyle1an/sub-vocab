@@ -59,7 +59,6 @@ module.exports = {
     "react/jsx-curly-spacing": [1, { "when": "never", "children": true }],
     "react/jsx-closing-bracket-location": [1, "tag-aligned"],
     "react/jsx-props-no-multi-spaces": "warn",
-    "react/jsx-space-before-closing": "warn",
     "react/jsx-tag-spacing": ["warn", {
       "closingSlash": "never",
       "beforeSelfClosing": "always",

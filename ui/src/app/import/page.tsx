@@ -2,7 +2,8 @@ import { defineComponent, ref, watch } from 'vue'
 import { t } from '@/i18n'
 import { VocabSourceTable } from '@/components/ui/VocabSource'
 import { FileInput } from '@/components/ui/FileInput'
-import type { LabelSubDisplay, SrcRow } from '@/types'
+import type { SrcWith } from '@/types'
+import { type LabelDisplayTable } from '@/components/vocab'
 import { useVocabStore } from '@/store/useVocab'
 import { createSignal, useDebounceTimeout } from '@/lib/composables'
 import { generatedVocabTrie } from '@/components/vocab'
@@ -11,12 +12,12 @@ import { TextareaInput } from '@/components/ui/TextareaInput'
 export default defineComponent(() => {
   const [fileInfo, setFileInfo] = createSignal('')
 
-  function onFileChange({ name, value }: { name: string, value: string }) {
+  function onFileChange({ name, value }: { name: string; value: string }) {
     setFileInfo(name)
     setInputText(value)
   }
 
-  function onTextChange({ name, value }: { name?: string, value: string }) {
+  function onTextChange({ name, value }: { name?: string; value: string }) {
     setInputText(value)
     if (name) setFileInfo(name)
     importFileInput.value?.inputChanged()
@@ -30,7 +31,7 @@ export default defineComponent(() => {
     setCount(count)
     setTableDataOfVocab(list)
   }, 50))
-  const [tableDataOfVocab, setTableDataOfVocab] = createSignal<SrcRow<LabelSubDisplay>[]>([])
+  const [tableDataOfVocab, setTableDataOfVocab] = createSignal<SrcWith<LabelDisplayTable>[]>([])
   const importFileInput = ref<typeof FileInput & { inputChanged: () => void } | null>(null)
 
   function acquaintAllVocab() {

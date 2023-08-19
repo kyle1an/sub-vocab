@@ -3,7 +3,9 @@ import { TransitionPresets, useSessionStorage, useTransition } from '@vueuse/cor
 import { ElInput, ElPagination, ElTable, type Sort, type TableInstance } from 'element-plus'
 import { pipe } from 'fp-ts/function'
 import { t } from '@/i18n'
-import type { LabelSubDisplay, MyVocabRow, SrcRow } from '@/types'
+import type { SrcWith } from '@/types'
+import { type VocabState } from '@/store/useVocab'
+import { type LabelDisplayTable } from '@/components/vocab'
 import { isMobile, orderBy, paging, selectWord } from '@/lib/utils'
 import { Examples } from '@/components/ui/Examples'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
@@ -11,7 +13,7 @@ import { createSignal, useElHover } from '@/lib/composables'
 import { VocabToggle } from '@/components/ui/ToggleButton'
 
 export const VocabSourceTable = defineComponent((props: {
-  data: SrcRow<LabelSubDisplay>[]
+  data: SrcWith<LabelDisplayTable>[]
   sentences: string[]
   expand?: boolean
   tableName: string
@@ -21,7 +23,6 @@ export const VocabSourceTable = defineComponent((props: {
     { value: 'new', label: t('new') },
     { value: 'acquainted', label: t('acquainted') },
   ] as const
-  type RowData = typeof props.data[number]
   const cachedSeg = useSessionStorage(`${props.tableName}-segment`, 'all')
   const initialSegment = segments().find((s) => s.value === cachedSeg.value)?.value ?? 'all'
   const segment = shallowRef<ReturnType<typeof segments>[number]['value']>(initialSegment)
@@ -49,7 +50,7 @@ export const VocabSourceTable = defineComponent((props: {
   watch(currPage, () => {
     vocabTable.value?.setScrollTop(0)
   })
-  const [rowsDisplay, setRowsDisplay] = createSignal<RowData[]>([])
+  const [rowsDisplay, setRowsDisplay] = createSignal<SrcWith<LabelDisplayTable>[]>([])
   const disabledTotal = shallowRef(true)
   const [inputDirty, setInputDirty] = createSignal(false)
   watch(() => props.data, () => {
@@ -57,8 +58,8 @@ export const VocabSourceTable = defineComponent((props: {
     setInputDirty(true)
   })
   const rowsSegmented = computed(() =>
-    segment.value === 'new' ? props.data.filter((r) => !r.vocab.acquainted && r.vocab.w.length > 2)
-      : segment.value === 'acquainted' ? props.data.filter((r) => Boolean(r.vocab.acquainted || r.vocab.w.length <= 2))
+    segment.value === 'new' ? props.data.filter((r) => !r.vocab.acquainted)
+      : segment.value === 'acquainted' ? props.data.filter((r) => Boolean(r.vocab.acquainted))
         : props.data,
   )
   const searched = computed(() => {
@@ -88,7 +89,7 @@ export const VocabSourceTable = defineComponent((props: {
     transition: TransitionPresets.easeOutCirc,
   })
 
-  function expandRow(row: RowData, col: unknown, event: Event) {
+  function expandRow(row: SrcWith<LabelDisplayTable>, col: unknown, event: Event) {
     for (const el of event.composedPath()) {
       if ((el as HTMLElement).tagName.toLowerCase() === 'button') {
         return
@@ -113,7 +114,7 @@ export const VocabSourceTable = defineComponent((props: {
         <ElTable
           ref={vocabTable}
           data={rowsDisplay()}
-          rowKey={(row: RowData) => '_' + row.vocab.w}
+          rowKey={(row: SrcWith<LabelDisplayTable>) => '_' + row.vocab.word}
           class={String.raw`!h-full [&_*]:overscroll-contain [&_.el-icon]:pointer-events-none [&_.el-table\_\_expand-icon]:tap-transparent [&_.el-table\_\_inner-wrapper]:!h-full [&_.el-table\_\_row:has(+tr:not([class]))>td]:!border-white [&_.el-table\_\_row:has(+tr:not([class])):hover>td]:!bg-white ${props.expand ? String.raw`[&_.el-table\_\_row+.el-table\_\_row]:shadow-[0px_-4px_10px_-6px_rgba(0,0,0,0.1)]` : ``} [&_th_.cell]:font-compact`}
           size="small"
           rowClassName={() => `${props.expand ? 'cursor-pointer' : ''}`}
@@ -126,13 +127,15 @@ export const VocabSourceTable = defineComponent((props: {
                   type="expand"
                   width={30}
                   className={String.raw`[&>.cell]:!p-0 [&_.el-table\_\_expand-icon]:float-right [&_i]:text-slate-500`}
-                  v-slots={({ row }: { row: RowData }) =>
+                  v-slots={({ row }: {
+                    row: SrcWith<LabelDisplayTable>
+                  }) => (
                     <Examples
                       sentences={props.sentences}
                       src={row.src}
                       className="tracking-wide"
                     />
-                  }
+                  )}
                 />
               )}
               <ElTable.TableColumn
@@ -141,11 +144,13 @@ export const VocabSourceTable = defineComponent((props: {
                 width={`${props.expand ? 58 : 68}`}
                 prop="src.length"
                 sortable="custom"
-                v-slots={({ row }: { row: RowData }) =>
+                v-slots={({ row }: {
+                  row: SrcWith<LabelDisplayTable>
+                }) => (
                   <div class="tabular-nums text-slate-400">
                     {row.src.length}
                   </div>
-                }
+                )}
               />
               <ElTable.TableColumn
                 label="Vocabulary"
@@ -167,7 +172,9 @@ export const VocabSourceTable = defineComponent((props: {
                       />
                     </div>
                   ),
-                  default: ({ row }: { row: RowData }) => (
+                  default: ({ row }: {
+                    row: SrcWith<LabelDisplayTable>
+                  }) => (
                     row.vocab.wFamily.map((w, i) => (
                       <div
                         key={w}
@@ -182,7 +189,8 @@ export const VocabSourceTable = defineComponent((props: {
                         </span>
                         {i !== row.vocab.wFamily.length - 1 && <span class="pr-1 text-neutral-300">, </span>}
                       </div>
-                    )))
+                    ))
+                  ),
                 }}
               />
               <ElTable.TableColumn
@@ -191,9 +199,13 @@ export const VocabSourceTable = defineComponent((props: {
                 width={62}
                 sortable="custom"
                 className="!text-right [th&>.cell]:!p-0 [th&>.cell]:!font-pro [th&>.cell]:stretch-[condensed]"
-                v-slots={({ row }: { row: MyVocabRow }) => (
+                v-slots={({ row }: {
+                  row: {
+                    vocab: VocabState
+                  }
+                }) => (
                   <div class="tabular-nums">
-                    {row.vocab.w.length}
+                    {row.vocab.word.length}
                   </div>
                 )}
               />
@@ -208,7 +220,11 @@ export const VocabSourceTable = defineComponent((props: {
                 width={52}
                 prop="vocab.rank"
                 sortable="custom"
-                v-slots={({ row }: { row: MyVocabRow }) => (
+                v-slots={({ row }: {
+                  row: {
+                    vocab: VocabState
+                  }
+                }) => (
                   <div class="tabular-nums text-neutral-500">
                     {row.vocab.rank}
                   </div>

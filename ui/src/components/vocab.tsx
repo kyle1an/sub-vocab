@@ -1,39 +1,46 @@
 import { reactive } from 'vue'
 import { ElNotification } from 'element-plus'
-import type { LabelSieveDisplay, LabelVocab, SrcRow } from '@/types'
+import type { SrcWith } from '@/types'
+import { type VocabState } from '@/store/useVocab'
 import { t } from '@/i18n'
 import router from '@/router'
 import { sortByChar } from '@/lib/utils'
-import LabeledTire from '@/lib/LabeledTire'
+import LabeledTire, { type TrieWordLabel } from '@/lib/LabeledTire'
 import { useTimeStore } from '@/store/usePerf'
 
-function formVocab($: LabelVocab) {
+export interface LabelDisplayTable extends VocabState {
+  wFamily: string[]
+}
+
+function formVocab($: TrieWordLabel) {
   let src = [...$.src]
-  const wFamily = $.wFamily ?? [$.w]
+  const wFamily = $.wFamily ?? [$.path]
 
   if ($.derive?.length) {
-    (function collectNestedSource(derives: LabelVocab[]) {
+    ;(function collectNestedSource(derives: TrieWordLabel[]) {
       for (const d$ of derives) {
         if (d$.src.length) {
-          wFamily.push(d$.w)
+          wFamily.push(d$.path)
           if (src.length) {
-            src = d$.src[0].wordSequence < src[0].wordSequence ? d$.src.concat(src) : src.concat(d$.src)
+            src = d$.src[0].wordOrder < src[0].wordOrder ? d$.src.concat(src) : src.concat(d$.src)
           } else {
             src = d$.src
           }
         }
 
-        if (d$.derive?.length) collectNestedSource(d$.derive)
+        if (d$.derive?.length) {
+          collectNestedSource(d$.derive)
+        }
       }
     })($.derive)
   }
 
-  const vocab = Object.assign($.vocab ?? {
-    w: $.w,
+  const vocab: LabelDisplayTable = Object.assign($.vocab ?? {
+    word: $.path,
     acquainted: false,
-    is_user: 0,
+    is_user: false,
     inStore: false,
-    inUpdating: false,
+    updating: false,
     original: false,
     time_modified: null,
     rank: null,
@@ -43,7 +50,7 @@ function formVocab($: LabelVocab) {
 
   return {
     src,
-    vocab: reactive(vocab)
+    vocab: reactive(vocab),
   }
 }
 
@@ -67,7 +74,7 @@ export function loginNotify() {
   })
 }
 
-export const generatedVocabTrie = (inputText: string, baseVocab: LabelSieveDisplay[], irregularMaps: string[][]) => {
+export const generatedVocabTrie = (inputText: string, baseVocab: VocabState[], irregularMaps: string[][]) => {
   const { logTime, logEnd, logPerf } = useTimeStore()
   logTime(['-- All took', '    '])
   logTime('· init words')
@@ -80,7 +87,7 @@ export const generatedVocabTrie = (inputText: string, baseVocab: LabelSieveDispl
     .mergeDerivedWordIntoStem(irregularMaps)
   logEnd('%c  merge vocabulary')
   logTime('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
-  const list = trie.vocabulary.filter(v => v && !v.variant).map(v => formVocab(v as LabelVocab))
+  const list = trie.vocabulary.filter(v => v && !v.variant).map(v => formVocab(v as TrieWordLabel))
   logEnd('%c  formLabel vocabulary')
   logEnd(['· categorize vocabulary', ' +  '])
   logEnd(['-- All took', '    '])
@@ -96,7 +103,7 @@ export const generatedVocabTrie = (inputText: string, baseVocab: LabelSieveDispl
   }
 }
 
-export function logVocabInfo(listOfVocab: SrcRow<LabelSieveDisplay>[]) {
-  const untouchedVocabList = [...listOfVocab].sort((a, b) => sortByChar(a.vocab.w, b.vocab.w))
+export function logVocabInfo(listOfVocab: SrcWith<VocabState>[]) {
+  const untouchedVocabList = [...listOfVocab].sort((a, b) => sortByChar(a.vocab.word, b.vocab.word))
   console.log(`(${untouchedVocabList.length}) words`, { _: untouchedVocabList })
 }

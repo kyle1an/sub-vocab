@@ -28,7 +28,7 @@ export default defineComponent(() => {
           callback()
         },
         trigger: 'blur',
-      }
+      },
     ],
     password: [
       {
@@ -42,7 +42,7 @@ export default defineComponent(() => {
           callback()
         },
         trigger: 'blur',
-      }
+      },
     ],
   })
   const [errorMsg, setErrorMsg] = createSignal('')

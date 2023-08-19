@@ -1,21 +1,21 @@
 import { twMerge } from 'tailwind-merge'
-import type { LabelVocab } from '@/types'
+import { type WordLocator } from '@/lib/LabeledTire'
 
 export function Examples({
   sentences,
   src = [],
   className = '',
 }: {
-  sentences: string[],
-  src: LabelVocab['src'],
-  className?: string,
+  sentences: string[]
+  src: WordLocator[]
+  className?: string
 }) {
   const vocabPositions: [number, [number, number][]][] = []
-  src.sort((a, b) => a.sentenceId - b.sentenceId || a.startIndex - b.startIndex)
+  src.sort((a, b) => a.sentenceId - b.sentenceId || a.startOffset - b.startOffset)
 
-  for (const { sentenceId, startIndex, wordLength } of src) {
+  for (const { sentenceId, startOffset, wordLength } of src) {
     if (vocabPositions.length === 0) {
-      vocabPositions.push([sentenceId, [[startIndex, wordLength]]])
+      vocabPositions.push([sentenceId, [[startOffset, wordLength]]])
       continue
     }
 
@@ -23,9 +23,9 @@ export function Examples({
     const adjacentSentenceIndex = adjacentSentence[0]
     const areCurrentAndAdjacentInTheSameSentence = sentenceId === adjacentSentenceIndex
     if (areCurrentAndAdjacentInTheSameSentence) {
-      adjacentSentence[1].push([startIndex, wordLength])
+      adjacentSentence[1].push([startOffset, wordLength])
     } else {
-      vocabPositions.push([sentenceId, [[startIndex, wordLength]]])
+      vocabPositions.push([sentenceId, [[startOffset, wordLength]]])
     }
   }
 
