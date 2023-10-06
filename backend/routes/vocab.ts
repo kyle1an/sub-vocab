@@ -4,17 +4,9 @@ import type { Response } from 'express-serve-static-core'
 import { type RSH, sql } from '../config/connection'
 import { tokenChecker, tokenInvalid } from '../utils/util'
 import type { RequestBody } from '../types'
-import type { UserVocabs } from '../../ui/src/store/useVocab'
+import type { AcquaintWordsResponse, LabelDB, StemsMapping, ToggleWordResponse } from '../../ui/src/types/shared'
+import type { UserVocab } from '../../ui/src/lib/composables'
 import type { Username } from '../../ui/src/api/user'
-
-export interface LabelDB extends Record<string, unknown> {
-  w: string
-  acquainted: number | boolean
-  is_user: number | boolean
-  original: number | boolean
-  rank: number | null
-  time_modified: string | null
-}
 
 interface Stems {
   derived_word: string
@@ -39,7 +31,6 @@ router.post('/queryWords', async (req: RequestBody<Username>, res: Response<Labe
     })
 })
 
-export type StemsMapping = string[][]
 router.post('/stemsMapping', async (req: RequestBody, res: Response<StemsMapping>) => {
   sql<RSH<Stems[]>>`CALL stem_derivation_link();`
     .then(([rows]) => {
@@ -56,8 +47,7 @@ router.post('/stemsMapping', async (req: RequestBody, res: Response<StemsMapping
     })
 })
 
-export type AcquaintWordsResponse = string
-router.post('/acquaintWords', tokenChecker, async (req: RequestBody<UserVocabs>, res: Response<AcquaintWordsResponse>) => {
+router.post('/acquaintWords', tokenChecker, async (req: RequestBody<UserVocab>, res: Response<AcquaintWordsResponse>) => {
   const { words, username } = req.body
   Promise.all(words.map((word) => sql<mysql.ResultSetHeader>`CALL acquaint_vocab(${word}, get_user_id_by_name(${username}));`))
     .then(() => {
@@ -68,8 +58,7 @@ router.post('/acquaintWords', tokenChecker, async (req: RequestBody<UserVocabs>,
     })
 })
 
-export type ToggleWordResponse = string
-router.post('/revokeWord', tokenChecker, async (req: RequestBody<UserVocabs>, res: Response<ToggleWordResponse>) => {
+router.post('/revokeWord', tokenChecker, async (req: RequestBody<UserVocab>, res: Response<ToggleWordResponse>) => {
   const { words, username } = req.body
   Promise.all(words.map((word) => sql<mysql.ResultSetHeader>`CALL revoke_vocab_record(${word}, get_user_id_by_name(${username}));`))
     .then(() => {

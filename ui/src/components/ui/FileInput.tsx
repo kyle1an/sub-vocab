@@ -1,59 +1,59 @@
-import { defineComponent } from 'vue'
+import type React from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { twMerge } from 'tailwind-merge'
+import { cn } from '@/lib/utils.ts'
 import { getFileContent } from '@/lib/filesHandler'
 
-export const FileInput = defineComponent((props: {
-  onFileInput: (file: {
+export const FileInput = (props: {
+  onFileChange: (file: {
     value: string
     name: string
   }) => void
+  children: React.ReactNode
   className?: string
-}, { slots, expose }) => {
-  function onFileChange(ev: Event) {
+}) => {
+  function handleFileChange(ev: React.ChangeEvent<HTMLInputElement>) {
     const fileList = (ev.target as HTMLInputElement).files
     if (fileList && fileList.length > 0) {
-      getFileContent(fileList).then(props.onFileInput).catch(console.error)
+      getFileContent(fileList).then(props.onFileChange).catch(console.error)
     }
   }
 
-  function dropFile(ev: DragEvent) {
+  function dropFile(ev: React.DragEvent<HTMLDivElement>) {
     ev.preventDefault()
     const files = ev.dataTransfer?.files
     if (files && files.length > 0) {
-      getFileContent(files).then(props.onFileInput).catch(console.error)
+      getFileContent(files).then(props.onFileChange).catch(console.error)
     }
   }
+
+  const inputId = `browseFiles${uuidv4()}`
 
   function inputChanged() {
-    const input = document.querySelectorAll<HTMLInputElement>('#browseFiles' + id)
-    for (let i = 0; i < input.length; i++) {
-      input[i].value = ''
+    const input = document.getElementById(inputId)
+    if (input && 'value' in input) {
+      input.value = ''
     }
   }
 
-  expose({ inputChanged })
-
-  const id = uuidv4()
-  return () => (
+  return (
     <div
       onDrop={dropFile}
-      class={twMerge(props.className)}
+      className={cn(props.className)}
     >
       <label
-        class="box-border inline-flex h-8 max-h-full grow-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-md border bg-white px-3 py-2.5 text-center align-middle text-sm/3 tracking-wide text-neutral-800 transition-colors hover:border-sky-300 hover:bg-sky-100 hover:text-sky-600"
-        for={'browseFiles' + id}
+        className="box-border inline-flex h-8 max-h-full grow-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-md border bg-white px-3 py-2.5 text-center align-middle text-sm/3 tracking-wide text-neutral-800 transition-colors hover:border-sky-300 hover:bg-sky-100 hover:text-sky-600"
+        htmlFor={inputId}
       >
-        {slots.default?.()}
+        {props.children}
       </label>
       <input
-        id={'browseFiles' + id}
-        class="file-input"
+        id={inputId}
+        className="file-input"
         type="file"
         hidden
         multiple
-        onChange={onFileChange}
+        onChange={handleFileChange}
       />
     </div>
   )
-})
+}

@@ -1,9 +1,0 @@
-html {
-  .el-table--enable-row-hover .el-table__body tr:hover > td.el-table__cell {
-    background-color: transparent;
-  }
-
-  .el-table--enable-row-hover .el-table__body .el-table__row:hover {
-    background-color: var(--el-table-row-hover-bg-color);
-  }
-}

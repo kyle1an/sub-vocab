@@ -1,75 +1,130 @@
-import { defineComponent, ref, watch } from 'vue'
-import { t } from '@/i18n'
-import { VocabSourceTable } from '@/components/ui/VocabSource'
+import {
+  useCallback, useEffect, useState,
+} from 'react'
+import { produce } from 'immer'
+import { useDebounce } from 'usehooks-ts'
+import { useTranslation } from 'react-i18next'
 import { FileInput } from '@/components/ui/FileInput'
-import type { SrcWith } from '@/types'
-import { type LabelDisplayTable } from '@/components/vocab'
-import { useVocabStore } from '@/store/useVocab'
-import { createSignal, useDebounceTimeout } from '@/lib/composables'
-import { generatedVocabTrie } from '@/components/vocab'
 import { TextareaInput } from '@/components/ui/TextareaInput'
+import { useBearStore } from '@/store/useVocab.ts'
+import { type LabelDisplaySource, generatedVocabTrie } from '@/components/vocab'
+import { VocabSourceTable } from '@/components/ui/VocabSource.tsx'
+import {
+  useComponentWillUnmount, useIrregularMapsQuery, useVocabularyQuery,
+} from '@/lib/composables.ts'
 
-export default defineComponent(() => {
-  const [fileInfo, setFileInfo] = createSignal('')
+export default function Home() {
+  const { t } = useTranslation()
+  const [fileInfo, setFileInfo] = useState('')
+  const subSourceText = useBearStore((state) => state.subSourceText)
+  const setSubSourceText = useBearStore((state) => state.setSubSourceText)
+  const [sourceText, setSourceText] = useState('')
+  const [textInputContent, setTextInputContent] = useState('')
+  const [textInputContentDisplay, setTextInputContentDisplay] = useState('')
 
-  function onFileChange({ name, value }: { name: string; value: string }) {
+  function handleFileChange({ name, value }: { name: string; value: string }) {
     setFileInfo(name)
-    store.inputText = value
+    setTextInputContentDisplay(value)
+    setSourceText(value)
   }
 
-  const [count, setCount] = createSignal(0)
-  const [sentences, setSentences] = createSignal<string[]>([])
-  const store = useVocabStore()
-  const [tableDataOfVocab, setTableDataOfVocab] = createSignal<SrcWith<LabelDisplayTable>[]>([])
-  watch(() => [store.inputText, store.baseVocab, store.irregularMaps], useDebounceTimeout(() => {
-    const { list, count, sentences } = generatedVocabTrie(store.inputText, store.baseVocab, store.irregularMaps)
-    setCount(count)
-    setSentences(sentences)
-    setTableDataOfVocab(list)
-  }, 50))
-  const sourceFileInput = ref<typeof FileInput & { inputChanged: () => void } | null>(null)
+  const { data: baseVocab = [] } = useVocabularyQuery()
+  const { data: irregulars = [] } = useIrregularMapsQuery()
 
-  function onTextChange({ name, value }: { name?: string; value: string }) {
-    store.inputText = value
-    if (name) setFileInfo(name)
-    sourceFileInput.value?.inputChanged()
+  function handleTextareaChange({ name, value }: { name?: string; value: string }) {
+    setTextInputContentDisplay(value)
+    setTextInputContent(value)
+    if (name) {
+      setFileInfo(name)
+    }
   }
 
-  return () => (
-    <div class="w-full max-w-screen-xl">
-      <div class="relative z-10 mx-3 flex h-14 items-center xl:mx-0">
+  const [rows, setRows] = useState<LabelDisplaySource[]>([])
+  const [sentences, setSentences] = useState<string[]>([])
+  const [count, setCount] = useState(0)
+
+  const textInputContentDebounced = useDebounce(textInputContent, 300)
+  useEffect(() => {
+    setSourceText(textInputContentDebounced)
+  }, [setSourceText, textInputContentDebounced])
+
+  function statusRetainedList(oldRows: LabelDisplaySource[], newList: Omit<LabelDisplaySource, 'inertialPhase'>[]): LabelDisplaySource[] {
+    const vocabLabel = new Map<string, LabelDisplaySource>()
+    const listDisplay = newList.map((sieve) => {
+      const label: LabelDisplaySource = {
+        ...sieve,
+        inertialPhase: sieve.learningPhase,
+      }
+      vocabLabel.set(sieve.word, label)
+      return label
+    })
+    oldRows.forEach((row) => {
+      const label = vocabLabel.get(row.word)
+      if (label) {
+        label.inertialPhase = row.inertialPhase
+      }
+    })
+
+    return listDisplay
+  }
+
+  useEffect(() => {
+    const { list, count: c, sentences: s } = generatedVocabTrie(sourceText, baseVocab, irregulars)
+    setRows(statusRetainedList(rows, list))
+    setSentences(s)
+    setCount(c)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sourceText, baseVocab, irregulars])
+
+  const handlePurge = useCallback(() => {
+    setRows(produce((draft) => {
+      draft.filter((todo) => todo.learningPhase !== todo.inertialPhase).forEach((todo) => {
+        todo.inertialPhase = todo.learningPhase
+      })
+    }))
+  }, [])
+
+  useEffect(() => {
+    setTextInputContentDisplay(subSourceText)
+    setSourceText(subSourceText)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useComponentWillUnmount(() => {
+    setSubSourceText(sourceText)
+  })
+  return (
+    <main className="m-auto w-full max-w-screen-xl md:h-[calc(100vh-4px*11)]">
+      <div className="relative mx-3 flex h-14 items-center xl:mx-0">
         <FileInput
-          ref={sourceFileInput}
-          onFileInput={onFileChange}
+          onFileChange={handleFileChange}
         >
           {t('browseFiles')}
         </FileInput>
-        <div class="grow" />
+        <div className="grow" />
       </div>
-      <div class="flex flex-col gap-6 md:h-[calc(100vh-140px)] md:flex-row">
-        <div class="relative box-border flex flex-1 basis-auto flex-col overflow-hidden border md:rounded-[12px] md:shadow-sm">
-          <div class="flex h-10 shrink-0 items-center border-b bg-zinc-50 py-2 pl-4 pr-2 font-compact text-xs text-neutral-600">
-            <span class="grow truncate">{`${fileInfo()} `}</span>
-            <span class="mx-1 inline-block h-[18px] w-px border-l align-middle" />
-            <span class="shrink-0 text-right tabular-nums">{` ${count().toLocaleString('en-US')} ${t('words')}`}</span>
+      <div className="flex flex-col gap-6 md:h-[calc(100%-4px*14)] md:flex-row md:pb-8">
+        <div className="relative box-border flex grow flex-col overflow-hidden border-y md:w-[56%] md:rounded-[12px] md:border-x md:shadow-sm">
+          <div className="flex h-10 shrink-0 items-center border-b bg-zinc-50 py-2 pl-4 pr-2 text-xs text-neutral-600">
+            <span className="grow truncate">{`${fileInfo} `}</span>
+            <span className="mx-2 inline-block h-[18px] w-px border-l align-middle" />
+            <span className="shrink-0 text-right tabular-nums">{`${count.toLocaleString('en-US')} ${t('words')}`}</span>
           </div>
-          <div class="h-full w-full grow text-base text-zinc-700 md:text-sm">
+          <div className="h-full w-full grow text-base text-zinc-700 md:text-sm">
             <TextareaInput
-              value={store.inputText}
+              value={textInputContentDisplay}
               placeholder={t('inputArea')}
-              onTextChange={onTextChange}
+              onChange={handleTextareaChange}
             />
           </div>
         </div>
-        <div class="h-[86vh] overflow-visible pb-6 md:mt-0 md:h-full md:w-[44%] md:pb-0">
-          <VocabSourceTable
-            data={tableDataOfVocab()}
-            sentences={sentences()}
-            expand
-            tableName={'vocab-statistics'}
-          />
-        </div>
+        <VocabSourceTable
+          data={rows}
+          sentences={sentences}
+          onPurge={handlePurge}
+          className="mx-5 mb-6 h-[calc(100vh-4px*36)] md:m-0 md:h-full md:w-[44%]"
+        />
       </div>
-    </div>
+    </main>
   )
-})
+}

@@ -1,48 +1,42 @@
 module.exports = {
   "env": {
-    "es2022": true,
     "browser": true,
+    "es2020": true,
   },
   "extends": [
-    "plugin:vue/vue3-recommended",
-    "plugin:tailwindcss/recommended",
+    "eslint:recommended",
+    "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "plugin:import/recommended",
     "plugin:import/typescript",
+    "plugin:react-hooks/recommended",
+    "plugin:tailwindcss/recommended",
+    "airbnb",
+    "airbnb/hooks",
     "../.eslintrc.js",
   ],
+  "ignorePatterns": ["dist", "/built/"],
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "parser": "@typescript-eslint/parser",
-    "extraFileExtensions": [".vue"],
-    "ecmaVersion": "latest",
-    "sourceType": "module",
     "project": true,
-    "tsconfigRootDir": __dirname,
-    "ecmaFeatures": {
-      "jsx": true,
-      "modules": true
-    }
   },
-  "plugins": [
-    "react",
-    "vue",
-    "@typescript-eslint",
-  ],
-  "parser": "vue-eslint-parser",
+  "plugins": ["react-refresh"],
   "rules": {
     "prefer-const": "off",
     // Note: you must disable the base rule as it can report incorrect errors
     "require-await": "off",
     "import/order": [1, { "groups": ["builtin", "external", "parent", "sibling", "index"] }],
+    "arrow-body-style": ["off"],
+
     "@typescript-eslint/ban-types": [
       "error",
       {
         "types": {
-          "{}": false
+          "{}": false,
         },
-        "extendDefaults": true
-      }
+        "extendDefaults": true,
+      },
     ],
     "@typescript-eslint/ban-ts-comment": [
       "error",
@@ -55,6 +49,15 @@ module.exports = {
       "skipClassAttribute": true,
     }],
 
+    "import/no-relative-packages": "off",
+    "import/extensions": [
+      "off",
+    ],
+    "import/no-cycle": "off",
+    "import/prefer-default-export": "off",
+    "import/no-extraneous-dependencies": ["off"],
+
+    "react/react-in-jsx-scope": "off",
     "react/jsx-max-props-per-line": [1, { "maximum": 1 }],
     "react/jsx-curly-spacing": [1, { "when": "never", "children": true }],
     "react/jsx-closing-bracket-location": [1, "tag-aligned"],
@@ -63,15 +66,50 @@ module.exports = {
       "closingSlash": "never",
       "beforeSelfClosing": "always",
       "afterOpening": "never",
-      "beforeClosing": "allow"
+      "beforeClosing": "allow",
     }],
-    "vue/component-name-in-template-casing": ["warn", "PascalCase", {
-      "registeredComponentsOnly": true,
-      "ignores": ["component"],
+    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
+    "react/require-default-props": "off",
+    "react/no-array-index-key": "off",
+    "react/destructuring-assignment": "off",
+    "react/prop-types": "off",
+    "semi": "off",
+    "@typescript-eslint/semi": ["warn", "never"],
+    "@typescript-eslint/type-annotation-spacing": "warn",
+    "@typescript-eslint/member-delimiter-style": ["warn", {
+      "multiline": {
+        "delimiter": "none",
+        "requireLast": true,
+      },
+      "singleline": {
+        "delimiter": "semi",
+        "requireLast": false,
+      },
+      "multilineDetection": "brackets",
     }],
-    "vue/attribute-hyphenation": "off",
-    "vue/multi-word-component-names": "off",
-    "vue/no-setup-props-destructure": "off",
+
+    "react/jsx-no-bind": ["off"],
+    "react/jsx-props-no-spreading": ["off"],
+    "react/jsx-filename-extension": [1, {
+      "extensions": [".js", ".jsx", ".ts", ".tsx"],
+    }],
+    "react/function-component-definition": [0],
+    "react/jsx-no-useless-fragment": [0],
+    "react/no-unstable-nested-components": [0],
+    "react-refresh/only-export-components": ["warn", {
+      "allowConstantExport": true,
+    }],
+
+    "@typescript-eslint/no-misused-promises": ["warn", {
+      "checksVoidReturn": {
+        "attributes": false
+      }
+    }],
+
+    "no-param-reassign": ["error", { "props": false }],
+    "no-shadow": ["error", { "allow": ["className"] }],
+    "no-multi-assign": ["error", { "ignoreNonDeclaration": true }],
   },
   "settings": {
     "import/parsers": {
@@ -80,11 +118,15 @@ module.exports = {
     "import/resolver": {
       "typescript": {
         "alwaysTryTypes": true, // always try to resolve types under `<root>@types` directory even it doesn't contain any source code, like `@types/unist`
-        "project": ["tsconfig.json", "ui/tsconfig.json"]
+        "project": ["tsconfig.json"],
       },
       "node": {
-        "project": ["tsconfig.json", "ui/tsconfig.json"]
-      }
-    }
-  }
+        "project": ["tsconfig.json"],
+      },
+    },
+    "tailwindcss": {
+      "callees": ["classnames", "clsx", "cn", "ctl", "cva", "tv", "twMerge"],
+      "config": "tailwind.config.ts", // returned from `loadConfig()` utility if not provided
+    },
+  },
 }
