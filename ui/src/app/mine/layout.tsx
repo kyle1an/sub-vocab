@@ -1,34 +1,32 @@
-import { defineComponent } from 'vue'
-import { RouterLink, RouterView, useRoute } from 'vue-router'
-import { t } from '@/i18n'
-import { KeepViewAlive } from '@/components/common/KeepViewAlive'
+import { Outlet } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { SideNav } from '@/components/SideNav'
 
-export default defineComponent(() => {
+export function MineLayout() {
+  const { t } = useTranslation()
   const subNav = () => [
     {
       title: t('Vocabulary'),
-      path: '/mine',
+      to: '/mine',
     },
     {
-      title: 'Chart',
-      path: '/mine/chart',
+      title: t('Chart'),
+      to: '/mine/chart',
     },
   ] as const
-  return () => (
-    <div class="flex w-full max-w-screen-lg grow flex-col px-5 py-3 pb-9 md:px-8">
-      <div class="flex w-full grow flex-col gap-4 md:flex-row md:gap-6">
-        <div class="w-48 shrink-0">
-          <div class="sticky top-20">
-            <SideNav nav={subNav()} />
-          </div>
+  return (
+    <div className="mx-auto flex w-full max-w-screen-lg grow flex-col">
+      <div className="flex w-full grow flex-col px-6 pt-6 md:flex-row md:gap-6 md:pt-0">
+        <div>
+          <SideNav
+            nav={subNav()}
+            className="sticky top-20"
+          />
         </div>
-        <div class="w-full flex-1">
-          <RouterView>
-            {KeepViewAlive}
-          </RouterView>
-        </div>
+        <main className="w-full flex-1 md:h-[calc(100vh-4px*11)]">
+          <Outlet />
+        </main>
       </div>
     </div>
   )
-})
+}

@@ -4,12 +4,11 @@ import mysql from 'mysql2'
 import type { Response } from 'express-serve-static-core'
 import { type RSH, sql } from '../config/connection'
 import { daysIn, tokenChecker } from '../utils/util'
-import type { RequestBody, Status } from '../types'
+import type { RequestBody } from '../types'
+import type { LoginResponse, RegisterResponse, Status, UsernameTaken } from '../../ui/src/types/shared'
 import type { Credential, NewCredential, NewUsername, Username } from '../../ui/src/api/user'
 
 const router = express.Router()
-
-export type LoginResponse = [boolean]
 
 router.post('/login', (req: RequestBody<Credential>, res: Response<LoginResponse>) => {
   const token = crypto.randomBytes(32).toString('hex')
@@ -29,8 +28,6 @@ router.post('/login', (req: RequestBody<Credential>, res: Response<LoginResponse
     })
 })
 
-export type RegisterResponse = [{ result: number }]
-
 router.post('/register', (req: RequestBody<Credential>, res: Response<RegisterResponse>) => {
   const { username, password } = req.body
   sql<RegisterResponse>`SELECT user_register(${username}, ${password}) as result;`
@@ -48,7 +45,7 @@ router.post('/changeUsername', tokenChecker, (req: RequestBody<NewUsername>, res
     .then(([rows]) => {
       res.cookie('_user', newUsername, { expires: daysIn(30) })
       res.json({
-        success: !!rows[0].result
+        success: !!rows[0].result,
       })
     })
     .catch((err) => {
@@ -61,7 +58,7 @@ router.post('/changePassword', (req: RequestBody<NewCredential>, res: Response<S
   sql<mysql.ResultSetHeader>`CALL change_password(get_user_id_by_name(${username}), ${newPassword}, ${oldPassword});`
     .then(([rows]) => {
       res.json({
-        success: !!('affectedRows' in rows && rows.affectedRows)
+        success: !!('affectedRows' in rows && rows.affectedRows),
       })
     })
     .catch((err) => {
@@ -87,10 +84,6 @@ router.post('/logoutToken', (req: RequestBody<Username>, res: Response<Status>) 
       throw new Error(err)
     })
 })
-
-export interface UsernameTaken {
-  has: boolean
-}
 
 router.post('/existsUsername', (req: RequestBody<Username>, res: Response<UsernameTaken>) => {
   const { username } = req.body

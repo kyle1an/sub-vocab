@@ -1,4 +1,4 @@
-import { twMerge } from 'tailwind-merge'
+import { cn } from '@/lib/utils.ts'
 import { type WordLocator } from '@/lib/LabeledTire'
 
 export function Examples({
@@ -11,9 +11,9 @@ export function Examples({
   className?: string
 }) {
   const vocabPositions: [number, [number, number][]][] = []
-  src.sort((a, b) => a.sentenceId - b.sentenceId || a.startOffset - b.startOffset)
+  const srcSorted = [...src].sort((a, b) => a.sentenceId - b.sentenceId || a.startOffset - b.startOffset)
 
-  for (const { sentenceId, startOffset, wordLength } of src) {
+  for (const { sentenceId, startOffset, wordLength } of srcSorted) {
     if (vocabPositions.length === 0) {
       vocabPositions.push([sentenceId, [[startOffset, wordLength]]])
       continue
@@ -30,25 +30,25 @@ export function Examples({
   }
 
   return (
-    <div class={twMerge('mb-1 ml-5 mr-3', className)}>
+    <div className={cn('mb-1 ml-5 mr-3 text-sm text-neutral-600', className)}>
       {vocabPositions.map(([no, wordIndexes], index) => {
         let progress = 0
         const sentence = sentences[no]
         return (
           <div
             key={index}
-            class="break-words"
-            style="word-break: break-word;"
+            className="break-words transition-colors duration-150 hover:text-black"
+            style={{ wordBreak: 'break-word' }}
           >
-            {wordIndexes.map(([start, count]) => (
-              <>
+            {wordIndexes.map(([start, count], i) => (
+              <span key={i}>
                 <span>
                   {sentence.slice(progress, start)}
                 </span>
-                <span class="font-bold italic">
-                  {sentence.slice(start, progress = start + count)}
+                <span className="text-black underline underline-offset-[0.145em]">
+                  {sentence.slice(start, (progress = start + count))}
                 </span>
-              </>
+              </span>
             ))}
             <span>{sentence.slice(progress)}</span>
           </div>

@@ -1,28 +1,28 @@
-import { defineComponent } from 'vue'
+import type React from 'react'
 import { readDataTransferItemList, readEntryFiles } from '@/lib/filesHandler'
 
-export const TextareaInput = defineComponent((props: {
+export const TextareaInput = (props: {
   value: string
   placeholder?: string
-  onTextChange: (text: {
+  onChange: (text: {
     value: string
     name?: string
   }) => void
 }) => {
-  function inputChanged(ev: Event) {
-    props.onTextChange({
-      value: (ev.target as HTMLInputElement).value,
+  function textareaOnChange(ev: React.ChangeEvent<HTMLTextAreaElement>) {
+    props.onChange({
+      value: ev.target.value,
     })
   }
 
-  function dropHandler(event: DragEvent): void {
+  function dropHandler(event: React.DragEvent<HTMLTextAreaElement>) {
     event.preventDefault()
     if (!event.dataTransfer?.items) return
 
     Promise.all(readDataTransferItemList(event.dataTransfer.items))
-      .then(fileContents => {
+      .then((fileContents) => {
         const { title, content } = readEntryFiles(fileContents)
-        props.onTextChange({
+        props.onChange({
           value: content,
           name: title,
         })
@@ -30,13 +30,13 @@ export const TextareaInput = defineComponent((props: {
       .catch(console.error)
   }
 
-  return () => (
+  return (
     <textarea
       value={props.value}
-      class="h-[260px] max-h-[360px] w-full resize-none rounded-none px-[30px] py-3 align-top outline-none ffs-[normal] md:h-full md:max-h-full"
+      className="h-[calc(10*1.5em-2*3rem/4)] max-h-[350px] w-full resize-none rounded-none px-[30px] py-3 align-top outline-none ffs-[normal] md:h-full md:max-h-full"
       placeholder={props.placeholder ?? ''}
-      onInput={inputChanged}
+      onChange={textareaOnChange}
       onDrop={dropHandler}
     />
   )
-})
+}

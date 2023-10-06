@@ -1,132 +1,121 @@
-import { ElForm, ElInput, type FormInstance } from 'element-plus'
-import { defineComponent, reactive, ref } from 'vue'
-import { z } from 'zod'
-import { t } from '@/i18n'
+import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { changeUsername, isUsernameTaken } from '@/api/user'
-import { useVocabStore } from '@/store/useVocab'
-import { usernameSchema } from '@/lib/validation'
-import { createSignal } from '@/lib/composables'
-import type { FormRules } from '@/types/forms'
+import { useBearStore } from '@/store/useVocab'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 
-export default defineComponent(() => {
-  const store = useVocabStore()
-  const ruleFormRef = ref<FormInstance>()
-  const ruleForm = reactive({
-    username: '',
+type FormValues = {
+  newUsername: string
+}
+
+export const UserPage = () => {
+  const { t } = useTranslation()
+  const user = useBearStore((state) => state.username)
+  const setUsername = useBearStore((state) => state.setUsername)
+  const form = useForm<FormValues>({
+    defaultValues: {
+      newUsername: user,
+    },
+    reValidateMode: 'onSubmit',
   })
-  const rules = reactive({
-    username: [
-      {
-        async asyncValidator(rule, username: string, callback) {
-          try {
-            usernameSchema.parse(String(username))
-          } catch (err) {
-            if (err instanceof z.ZodError) return callback(new Error(err.issues[0].message))
-          }
 
-          if (username !== store.user()) {
-            if ((await isUsernameTaken({ username })).has) {
-              return callback(new Error(`${username} ${t('alreadyTaken')}`))
-            }
-          }
-
-          callback()
-        },
-        trigger: 'blur'
-      }
-    ],
-  } satisfies FormRules<typeof ruleForm>)
-
-  function submitForm(ev: Event) {
-    ev.preventDefault()
-    const formEl = ruleFormRef.value
-    if (!formEl) return
-    formEl.validate()
-      .then(() => {
-        alterInfo(ruleForm).catch(console.error)
+  const {
+    register, trigger, handleSubmit, formState: { errors }, setError,
+  } = form
+  async function submitForm(values: FormValues) {
+    if (values.newUsername === user) {
+      setError('newUsername', {
+        message: 'The new username is the same as the current username.',
       })
-      .catch(console.error)
-  }
+      return
+    }
 
-  const [errorMsg, setErrorMsg] = createSignal('')
+    try {
+      const usernameTaken = await isUsernameTaken({
+        username: values.newUsername,
+      })
+      if (usernameTaken.has) {
+        setError('newUsername', {
+          message: 'The username is taken.',
+        })
+        return
+      }
 
-  async function alterInfo(form: typeof ruleForm) {
-    if (form.username !== '' && form.username !== store.user()) {
-      form.username = form.username.trim()
       const res = await changeUsername({
-        username: store.user(),
-        newUsername: form.username,
+        username: user,
+        newUsername: values.newUsername,
       })
 
       if (res.success) {
-        store.setUser(form.username)
+        setUsername(values.newUsername)
       } else {
-        setErrorMsg(res.message || 'something went wrong')
+        setError('newUsername', {
+          message: 'Something went wrong',
+        })
       }
+    } catch (e) {
+      setError('root.serverError', {
+        message: 'Something went wrong, please try again later',
+      })
     }
   }
 
-  const { logout } = useVocabStore()
-  return () => (
-    <div class="flex flex-col gap-3">
+  return (
+    <div className="flex flex-col gap-3">
       <div>
-        <div class="mb-3 border-b pb-1.5 text-xl">
+        <div className="mb-3 border-b pb-1.5 text-xl">
           {t('changeUsername')}
         </div>
-        <div class="flex w-80">
-          <ElForm
-            ref={ruleFormRef}
-            model={ruleForm}
-            rules={rules}
-            label-position="top"
-            label-width="100px"
-            class="max-w-[460px] [&>.el-form-item_label]:font-bold"
-            status-icon
-          >
-            <ElForm.FormItem
-              label={t('Name')}
-              prop="username"
-              error={errorMsg()}
+        <div className="flex w-80" >
+          <Form {...form}>
+            <form
+              onSubmit={handleSubmit(submitForm)}
+              className="space-y-4"
             >
-              <ElInput
-                v-model={ruleForm.username}
-                class="!text-base md:!text-xs"
+              <FormField
+                control={form.control}
+                name="newUsername"
+                rules={{
+                  required: 'The Username is required.',
+                  minLength: { value: 3, message: 'The Username must be at least 3 characters.' },
+                }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('Name')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        placeholder=""
+                        autoComplete="off"
+                        {...field}
+                        {...register('newUsername')}
+                        className="text-base md:text-sm"
+                      />
+                    </FormControl>
+                    <FormMessage>{errors.newUsername?.message ?? ''}</FormMessage>
+                  </FormItem>
+                )}
               />
-            </ElForm.FormItem>
-            <div class="flex flex-row gap-2">
-              <button
-                class="box-border flex cursor-pointer items-center rounded-md border border-solid border-transparent bg-[hsl(206,100%,52%)] px-3 py-2 text-sm/3 text-white hover:bg-[hsl(206,100%,40%)]"
-                style="box-shadow: inset 0 1px 0 0 hsl(0deg 0% 100% / 40%);"
-                onClick={submitForm}
+              <FormMessage>{errors.root?.serverError.message}</FormMessage>
+              <Button
+                className="mt-8"
+                type="submit"
               >
                 {t('Confirm Changes')}
-              </button>
-              <button
-                class="box-border inline-flex h-8 max-h-full grow-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-md border bg-white px-3 py-2.5 text-center align-middle text-sm/3 tracking-wide text-neutral-800 transition-colors hover:border-sky-300 hover:bg-sky-100 hover:text-sky-600"
-                onClick={(ev) => {
-                  ev.preventDefault()
-                  ruleFormRef.value?.resetFields()
-                }}
-              >
-                {t('Reset')}
-              </button>
-            </div>
-          </ElForm>
-        </div>
-      </div>
-      <div>
-        <div class="mb-3 border-b pb-1 text-xl">
-          {t('status')}
-        </div>
-        <div>
-          <button
-            class="box-border inline-flex h-8 max-h-full grow-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-md border bg-white px-3 py-2.5 text-center align-middle text-sm/3 tracking-wide text-neutral-800 transition-colors hover:border-sky-300 hover:bg-sky-100 hover:text-sky-600"
-            onClick={logout}
-          >
-            {t('log out')}
-          </button>
+              </Button>
+            </form>
+          </Form>
         </div>
       </div>
     </div>
   )
-})
+}

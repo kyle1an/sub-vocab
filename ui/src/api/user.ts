@@ -1,5 +1,4 @@
-import type { RegisterResponse, UsernameTaken } from '../../../backend/routes/auth'
-import type { Status } from '../../../backend/types'
+import type { RegisterResponse, Status, UsernameTaken } from '../types/shared.ts'
 import { postRequest } from '@/lib/request'
 
 export interface Username {

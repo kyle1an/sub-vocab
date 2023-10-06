@@ -1,15 +1,21 @@
-import { reactive } from 'vue'
-import { ElNotification } from 'element-plus'
-import type { SrcWith } from '@/types'
-import { type VocabState } from '@/store/useVocab'
-import { t } from '@/i18n'
-import router from '@/router'
-import { sortByChar } from '@/lib/utils'
-import LabeledTire, { type TrieWordLabel } from '@/lib/LabeledTire'
-import { useTimeStore } from '@/store/usePerf'
+import { ToastAction } from '@radix-ui/react-toast'
+import { Link } from 'react-router-dom'
+import { Button } from './ui/button'
+import type { Toast } from './ui/use-toast'
+import { sortByChar } from '@/lib/utils.ts'
+import LabeledTire, {
+  LEARNING_PHASE, type LearningPhase, type TrieWordLabel, type VocabState, type WordLocator,
+} from '@/lib/LabeledTire.ts'
 
 export interface LabelDisplayTable extends VocabState {
+  inertialPhase: LearningPhase
   wFamily: string[]
+}
+
+export interface LabelDisplaySource extends VocabState {
+  inertialPhase: LearningPhase
+  wFamily: string[]
+  locations: WordLocator[]
 }
 
 function formVocab($: TrieWordLabel) {
@@ -32,70 +38,43 @@ function formVocab($: TrieWordLabel) {
           collectNestedSource(d$.derive)
         }
       }
-    })($.derive)
+    }($.derive))
   }
 
-  const vocab: LabelDisplayTable = Object.assign($.vocab ?? {
+  const vocab: VocabState = {
     word: $.path,
-    acquainted: false,
-    is_user: false,
-    inStore: false,
-    updating: false,
+    learningPhase: LEARNING_PHASE.NEW,
+    isUser: false,
     original: false,
-    time_modified: null,
+    timeModified: null,
     rank: null,
-  }, {
-    wFamily,
-  })
-
-  return {
-    src,
-    vocab: reactive(vocab),
+    ...$.vocab,
   }
+
+  const labelDisplaySource: Omit<LabelDisplaySource, 'inertialPhase'> = {
+    ...vocab,
+    wFamily,
+    locations: src,
+  }
+
+  return labelDisplaySource
 }
 
-export function loginNotify() {
-  ElNotification({
-    message: (
-      <span class="text-[teal]">
-        {`${t('please')} `}
-        <i
-          class="cursor-pointer"
-          onClick={() => {
-            router.push('/').catch(console.error)
-          }}
-        >
-          {t('login')}
-        </i>
-        {` ${t('to mark words')}`}
-      </span>
-    ),
-    offset: 40,
-  })
+export function logVocabInfo<T extends VocabState>(listOfVocab: T[]) {
+  const untouchedVocabList = [...listOfVocab].sort((a, b) => sortByChar(a.word, b.word))
+  console.log(`(${untouchedVocabList.length}) words`, { _: untouchedVocabList })
 }
 
 export const generatedVocabTrie = (inputText: string, baseVocab: VocabState[], irregularMaps: string[][]) => {
-  const { logTime, logEnd, logPerf } = useTimeStore()
-  logTime(['-- All took', '    '])
-  logTime('· init words')
   const trie = new LabeledTire()
   trie.add(inputText)
-  logEnd('· init words')
-  logTime(['· categorize vocabulary', ' +  '])
-  logTime('%c  merge vocabulary', 'color: gray; font-style: italic; padding: 1px')
   trie.mergedVocabulary(baseVocab)
     .mergeDerivedWordIntoStem(irregularMaps)
-  logEnd('%c  merge vocabulary')
-  logTime('%c  formLabel vocabulary', 'color: gray; font-style: italic; padding: 0.5px')
-  const list = trie.vocabulary.filter(v => v && !v.variant).map(v => formVocab(v as TrieWordLabel))
-  logEnd('%c  formLabel vocabulary')
-  logEnd(['· categorize vocabulary', ' +  '])
-  logEnd(['-- All took', '    '])
+  const list = trie.vocabulary.filter(Boolean).filter((v) => !v.variant).map(formVocab)
   if (import.meta.env.VITE_SUB_ENV === 'dev') {
     logVocabInfo(list)
     console.log('trie', trie)
   }
-  logPerf()
   return {
     list,
     count: trie.wordCount,
@@ -103,7 +82,21 @@ export const generatedVocabTrie = (inputText: string, baseVocab: VocabState[], i
   }
 }
 
-export function logVocabInfo(listOfVocab: SrcWith<VocabState>[]) {
-  const untouchedVocabList = [...listOfVocab].sort((a, b) => sortByChar(a.vocab.word, b.vocab.word))
-  console.log(`(${untouchedVocabList.length}) words`, { _: untouchedVocabList })
-}
+export const loginToast = () => ({
+  title: 'Login required',
+  description: 'Please log in to mark words as learned.',
+  action: (
+    <ToastAction altText="Sign in">
+      <Link
+        to="/login"
+      >
+        <Button
+          variant="outline"
+          className="whitespace-nowrap"
+        >
+          Sign in
+        </Button>
+      </Link>
+    </ToastAction>
+  ),
+} as const satisfies Toast)

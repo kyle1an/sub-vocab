@@ -1,154 +1,205 @@
-import { ElForm, ElInput, type FormInstance } from 'element-plus'
-import { defineComponent, reactive, ref } from 'vue'
-import { t } from '@/i18n'
-import { changePassword } from '@/api/user'
-import { useVocabStore } from '@/store/useVocab'
-import { createSignal } from '@/lib/composables'
-import type { FormRules } from '@/types/forms'
+import { useForm } from 'react-hook-form'
+import { Icon } from '@iconify/react'
+import { useState } from 'react'
+import Cookies from 'js-cookie'
+import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { router } from '@/router'
+import { useBearStore } from '@/store/useVocab.ts'
+import {
+  changePassword, logoutToken,
+} from '@/api/user'
 
-export default defineComponent(() => {
-  const store = useVocabStore()
-  const ruleFormRef = ref<FormInstance>()
-  const ruleForm = reactive({
-    oldPassword: '',
-    password: '',
-    checkPass: '',
-  })
-  const rules: FormRules<typeof ruleForm> = reactive({
-    password: [
-      {
-        validator(rule, value: string, callback) {
-          if (value === '') {
-            return callback()
-          }
+type FormValues = {
+  oldPassword: string
+  newPassword: string
+}
 
-          if (ruleForm.checkPass !== '') {
-            if (!ruleFormRef.value) return
-            ruleFormRef.value.validateField('checkPass', () => null).catch(console.error)
-          }
-
-          callback()
-        },
-        trigger: 'blur',
-      },
-    ],
-    checkPass: [
-      {
-        validator(rule, value: string, callback) {
-          if (value === '' && ruleForm.password === '') {
-            return callback()
-          }
-
-          if (value !== ruleForm.password) {
-            return callback(new Error(t('inputsNotMatch')))
-          }
-
-          callback()
-        },
-        trigger: 'blur',
-      },
-    ],
-  })
-
-  function submitForm(ev: Event) {
-    ev.preventDefault()
-    const formEl = ruleFormRef.value
-    if (!formEl) return
-    formEl.validate()
+export const Password = () => {
+  const { t } = useTranslation()
+  const user = useBearStore((state) => state.username)
+  const setUsername = useBearStore((state) => state.setUsername)
+  function logout() {
+    logoutToken({
+      username: user,
+    })
       .then(() => {
-        alterInfo(ruleForm).catch(console.error)
+        Cookies.remove('_user', { path: '' })
+        Cookies.remove('acct', { path: '' })
+        setUsername('')
+        requestAnimationFrame(() => {
+          router.navigate('/').catch(console.error)
+        })
       })
       .catch(console.error)
   }
 
-  const [errorMsg, setErrorMsg] = createSignal('')
+  const form = useForm<FormValues>({
+    defaultValues: {
+      oldPassword: '',
+      newPassword: '',
+    },
+    reValidateMode: 'onSubmit',
+  })
 
-  async function alterInfo(form: typeof ruleForm) {
-    if (form.password !== '') {
-      form.password = form.password.trim()
+  const {
+    register, trigger, handleSubmit, formState: { errors }, setError,
+  } = form
+
+  const [oldPasswordVisible, setOldPasswordVisible] = useState(false)
+  const [newPasswordVisible, setNewPasswordVisible] = useState(false)
+
+  async function onSubmit(values: FormValues) {
+    setOldPasswordVisible(false)
+    try {
       const res = await changePassword({
-        username: store.user(),
-        oldPassword: form.oldPassword,
-        newPassword: form.password,
+        username: user,
+        oldPassword: values.oldPassword,
+        newPassword: values.newPassword,
       })
 
       if (res.success) {
-        useVocabStore().logout()
+        logout()
       } else {
-        setErrorMsg(res.message || 'something went wrong')
+        setError('root.serverError', {
+          message: 'Something went wrong.',
+        })
       }
+    } catch (e) {
+      setError('root.serverError', {
+        message: 'Something went wrong, please try again later',
+      })
     }
   }
 
-  return () => (
-    <div class="flex flex-col">
-      <div class="mb-3 border-b pb-1.5 text-xl">
-        {t('changePassword')}
-      </div>
-      <div class="flex w-80">
-        <ElForm
-          ref={ruleFormRef}
-          model={ruleForm}
-          rules={rules}
-          label-position="top"
-          label-width="100px"
-          class="max-w-[460px] [&>.el-form-item_label]:font-bold"
-          status-icon
-        >
-          <ElForm.FormItem
-            label={t('Old Password')}
-            prop="oldPassword"
-            error={errorMsg()}
-          >
-            <ElInput
-              v-model={ruleForm.oldPassword}
-              type="password"
-              autocomplete="off"
-              class="!text-base md:!text-xs"
-            />
-          </ElForm.FormItem>
-          <ElForm.FormItem
-            label={t('New Password')}
-            prop="password"
-          >
-            <ElInput
-              v-model={ruleForm.password}
-              type="password"
-              autocomplete="off"
-              class="!text-base md:!text-xs"
-            />
-          </ElForm.FormItem>
-          <ElForm.FormItem
-            label={t('New Password Confirm')}
-            prop="checkPass"
-          >
-            <ElInput
-              v-model={ruleForm.checkPass}
-              type="password"
-              autocomplete="off"
-              class="!text-base md:!text-xs"
-            />
-          </ElForm.FormItem>
-          <div class="flex flex-row gap-2">
-            <button
-              class="box-border flex cursor-pointer items-center rounded-md border border-solid border-transparent bg-[hsl(206,100%,52%)] px-3 py-2 text-sm/3 text-white hover:bg-[hsl(206,100%,40%)]"
-              style="box-shadow: inset 0 1px 0 0 hsl(0deg 0% 100% / 40%);"
-              onClick={submitForm}
+  return (
+    <div className="flex flex-col gap-3">
+      <div>
+        <div className="mb-3 border-b pb-1.5 text-xl">
+          {t('changePassword')}
+        </div>
+        <div className="flex w-80" >
+          <Form {...form}>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-4"
             >
-              {t('Confirm Changes')}
-            </button>
-            <button
-              class="box-border inline-flex h-8 max-h-full grow-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-md border bg-white px-3 py-2.5 text-center align-middle text-sm/3 tracking-wide text-neutral-800 transition-colors hover:border-sky-300 hover:bg-sky-100 hover:text-sky-600"
-              onClick={(ev) => {
-                ev.preventDefault()
-                ruleFormRef.value?.resetFields()
-              }}
-            >
-              {t('Reset')}
-            </button>
-          </div>
-        </ElForm>
+              <FormField
+                control={form.control}
+                name="oldPassword"
+                rules={{
+                  required: 'The password is required.',
+                }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('Old Password')}</FormLabel>
+                    <FormControl>
+                      <div className="flex items-center gap-1">
+                        <Input
+                          type={oldPasswordVisible ? 'text' : 'password'}
+                          autoComplete="current-password"
+                          placeholder=""
+                          {...field}
+                          {...register('oldPassword')}
+                          className="text-base md:text-sm"
+                        />
+                        <Button
+                          variant="outline"
+                          className="bg-white px-2"
+                          aria-checked={oldPasswordVisible}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            setOldPasswordVisible(!oldPasswordVisible)
+                          }}
+                        >
+                          {oldPasswordVisible ? (
+                            <Icon
+                              icon="lucide:eye"
+                              width={18}
+                              className="text-neutral-600"
+                            />
+                          ) : (
+                            <Icon
+                              icon="lucide:eye-off"
+                              width={18}
+                              className="text-neutral-600"
+                            />
+                          )}
+                        </Button>
+                      </div>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="newPassword"
+                rules={{
+                  required: 'The password is required.',
+                  minLength: { value: 8, message: 'The password must be at least 8 characters.' },
+                }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('New Password')}</FormLabel>
+                    <FormControl>
+                      <div className="flex items-center gap-1">
+                        <Input
+                          type={newPasswordVisible ? 'text' : 'password'}
+                          autoComplete="new-password"
+                          placeholder=""
+                          {...field}
+                          {...register('newPassword')}
+                          className="text-base md:text-sm"
+                        />
+                        <Button
+                          variant="outline"
+                          className="bg-white px-2"
+                          aria-checked={newPasswordVisible}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            setNewPasswordVisible(!newPasswordVisible)
+                          }}
+                        >
+                          {newPasswordVisible ? (
+                            <Icon
+                              icon="lucide:eye"
+                              width={18}
+                              className="text-neutral-600"
+                            />
+                          ) : (
+                            <Icon
+                              icon="lucide:eye-off"
+                              width={18}
+                              className="text-neutral-600"
+                            />
+                          )}
+                        </Button>
+                      </div>
+                    </FormControl>
+                    <FormMessage>{errors.newPassword?.message ?? ''}</FormMessage>
+                  </FormItem>
+                )}
+              />
+              <FormMessage>{errors.root?.serverError.message}</FormMessage>
+              <Button
+                className="mt-8"
+                type="submit"
+              >
+                {t('Confirm Changes')}
+              </Button>
+            </form>
+          </Form>
+        </div>
       </div>
     </div>
   )
-})
+}

@@ -1,5 +1,24 @@
 import type { Prettify } from '@/types'
-import { type VocabState } from '@/store/useVocab'
+
+export type ObjectValues<T> = T[keyof T]
+
+export const LEARNING_PHASE = {
+  NEW: 0,
+  ACQUAINTED: 1,
+  REMOVING: 2,
+  ACQUAINTING: 3,
+} as const
+
+export type LearningPhase = ObjectValues<typeof LEARNING_PHASE>
+
+export interface VocabState {
+  word: string
+  learningPhase: LearningPhase
+  isUser: boolean
+  original: boolean
+  rank: number | null
+  timeModified: string | null
+}
 
 type Char = `'` | '’' | '-' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z'
 
@@ -41,9 +60,13 @@ const isVowel = (chars: string) => ['a', 'e', 'i', 'o', 'u'].includes(chars)
 
 export default class LabeledTire {
   root: NodeOf<TrieWordLabel> = {}
+
   #sequence = 0
+
   sentences: string[] = []
+
   wordCount = 0
+
   vocabulary: Array<TrieWordLabel | null> = []
 
   getNode(word: string) {
@@ -77,9 +100,8 @@ export default class LabeledTire {
       }
     } else {
       if (node.$.vocab) {
-        node.$.vocab.acquainted = sieve.acquainted
-        node.$.vocab.inStore = sieve.inStore
-        node.$.vocab.time_modified = sieve.time_modified
+        node.$.vocab.learningPhase = sieve.learningPhase
+        node.$.vocab.timeModified = sieve.timeModified
         node.$.vocab.rank = sieve.rank
         node.$.wFamily = [node.$.vocab.word, sieve.word]
       } else {
@@ -115,13 +137,11 @@ export default class LabeledTire {
         src: [],
         vocab: {
           word: stem,
-          acquainted: false,
-          is_user: false,
-          updating: false,
-          inStore: false,
+          learningPhase: LEARNING_PHASE.NEW,
+          isUser: false,
           original: true,
           rank: null,
-          time_modified: null,
+          timeModified: null,
         },
       }
       let i = irregulars.length
@@ -206,7 +226,6 @@ export default class LabeledTire {
     for (const k in layer) {
       const key = k as keyof typeof layer
       if (key === '$') continue
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const innerLayer = layer[key]!
       // deep first traverse eg: beings(being) vs bee
       this.#traverseMerge(innerLayer)
@@ -225,11 +244,11 @@ export default class LabeledTire {
     const curr_ing$ = curr_ing?.$
     const curr_ying$ = isTheLastCharConsonant ? curr.y?.i?.n?.g?.$ : undefined
 
-    function suffixLabels(curr: NodeOf<TrieWordLabel>) {
+    function labelOfSuffixes(node: NodeOf<TrieWordLabel>) {
       const labels = [
-        curr.e?.s?.$,
-        curr.e?.s?.[`'`]?.$,
-        curr.e?.d?.$,
+        node.e?.s?.$,
+        node.e?.s?.[`'`]?.$,
+        node.e?.d?.$,
       ]
 
       if (curr_in) {
@@ -263,7 +282,7 @@ export default class LabeledTire {
     }
 
     if (curr_$) {
-      this.#batchMergeTo(curr_e$ || curr_$, suffixLabels(curr))
+      this.#batchMergeTo(curr_e$ || curr_$, labelOfSuffixes(curr))
       const toBeMerged = [
         curr_s$,
         curr.e?.r?.$,
@@ -313,11 +332,16 @@ export default class LabeledTire {
       if (curr[`'`]) this.#batchMergeTo(curr_$, aposSuffixLabels(curr[`'`]))
       if (curr[`’`]) this.#batchMergeTo(curr_$, aposSuffixLabels(curr[`’`]))
     } else if (curr_e$) {
-      this.#batchMergeTo(curr_e$, suffixLabels(curr))
+      this.#batchMergeTo(curr_e$, labelOfSuffixes(curr))
     } else if (curr_s$) {
       const original = curr_s$.path.slice(0, -1)
-      const $ = { path: curr_s$.path.slice(0, -1), src: [], up: capitalIn(original), derive: [] } satisfies TrieWordLabel
-      this.#batchMergeTo($, suffixLabels(curr))
+      const $ = {
+        path: curr_s$.path.slice(0, -1),
+        src: [],
+        up: capitalIn(original),
+        derive: [],
+      } satisfies TrieWordLabel
+      this.#batchMergeTo($, labelOfSuffixes(curr))
 
       if (curr[`'`]) this.#batchMergeTo($, aposSuffixLabels(curr[`'`]))
       if (curr[`’`]) this.#batchMergeTo($, aposSuffixLabels(curr[`’`]))
@@ -329,7 +353,12 @@ export default class LabeledTire {
       }
     } else if (curr_ying$) {
       const original = curr_ying$.path.slice(0, -3)
-      const $ = { path: original, src: [], up: capitalIn(original), derive: [] } satisfies TrieWordLabel
+      const $ = {
+        path: original,
+        src: [],
+        up: capitalIn(original),
+        derive: [],
+      } satisfies TrieWordLabel
       this.#batchMergeTo($, [
         curr.i?.e?.s?.$,
         curr.i?.e?.d?.$,

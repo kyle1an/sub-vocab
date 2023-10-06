@@ -14,27 +14,7 @@ After you log in, you may mark the words you already know by clicking on the che
 
 ### overview
 
-<img width="576" alt="Screenshot" src="https://user-images.githubusercontent.com/50689806/229576826-ec3fecf6-fa98-4d07-a958-3deae8f5d531.png">
+<img width="1452" alt="Screenshot" src="https://github.com/kyle1an/sub-vocab/assets/50689806/21dded2f-5328-4e63-97e7-27fb22a47581">
 
-## Stack
 
-In addition to Vue 3 and Vite, the project's stack includes:
-
-- [Tailwind CSS](https://tailwindcss.com)
-- [TypeScript](https://typescriptlang.org)
-- [Element Plus](https://element-plus.org)
-- [Pinia](https://pinia.vuejs.org)
-- [VueUse](https://vueuse.org)
-- [Vue Router](https://router.vuejs.org)
-- [Vue I18n](https://kazupon.github.io/vue-i18n)
-- [TanStack Query](https://tanstack.com/query/v4/docs/adapters/vue-query)
-- [Axios](https://axios-http.com)
-- [Express](https://github.com/expressjs/express)
-
-## Visualization
-
-![Visualization of this repo](./diagram.svg)
-
-<div align="center">
-<a href="https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=kyle1an%2FSubVocab">Visualization of this repo</a>
-</div>
+[Visualization of this repo](https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=kyle1an%2FSubVocab)

@@ -1,3 +1,4 @@
+/*
 <script setup lang="ts">
 const props = defineProps<{
   checked: boolean
@@ -77,3 +78,4 @@ input:checked + i {
   }
 }
 </style>
+*/
