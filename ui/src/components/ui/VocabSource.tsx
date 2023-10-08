@@ -3,6 +3,7 @@ import {
   type ColumnDef,
   type ExpandedState,
   type SortingState,
+  type Table,
   flexRender,
   getCoreRowModel,
   getExpandedRowModel,
@@ -13,7 +14,7 @@ import {
 } from '@tanstack/react-table'
 import { Icon } from '@iconify/react'
 import { uniq } from 'lodash-es'
-import usePagination from '@mui/material/usePagination'
+import usePagination, { type UsePaginationItem } from '@mui/material/usePagination'
 import { type SortDirection } from '@mui/material'
 import { Trans, useTranslation } from 'react-i18next'
 import { useToast } from './use-toast'
@@ -568,100 +569,10 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
         </table>
       </div>
       <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 tabular-nums">
-        <div className="flex h-7 py-1">
-          {items.map(({
-            page, type, selected, ...item
-          }, index) => {
-            const size = 17
-            const Item = (props: {
-              className?: string
-            }) => {
-              if (type === 'previous') {
-                return (
-                  <button
-                    type="button"
-                    className={cn('text-zinc-500', props.className)}
-                    disabled={!table.getCanPreviousPage()}
-                    onClick={table.previousPage}
-                  >
-                    <Icon
-                      icon="lucide:chevron-left"
-                      width={size}
-                    />
-                  </button>
-                )
-              } if (type === 'start-ellipsis') {
-                return (
-                  <button
-                    className={cn('group', props.className)}
-                    type="button"
-                    onClick={() => {
-                      table.setPageIndex(Math.max(0, table.getState().pagination.pageIndex - 2))
-                    }}
-                  >
-                    <Icon
-                      icon="lucide:chevrons-left"
-                      className="hidden text-zinc-500 group-hover:inline-block"
-                      width={size}
-                    />
-                    <span className="group-hover:hidden">...</span>
-                  </button>
-                )
-              } if (type === 'first' || type === 'page' || type === 'last') {
-                return (
-                  <button
-                    className={cn(props.className, selected ? 'border-[color:hsl(var(--border))] font-bold' : '')}
-                    type="button"
-                    onClick={() => {
-                      table.setPageIndex(Number(page) - 1)
-                    }}
-                  >
-                    {page}
-                  </button>
-                )
-              } if (type === 'end-ellipsis') {
-                return (
-                  <button
-                    className={cn('group', props.className)}
-                    type="button"
-                    onClick={() => {
-                      table.setPageIndex(Math.min(table.getState().pagination.pageIndex + 2, table.getPageCount() - 1))
-                    }}
-                  >
-                    <Icon
-                      icon="lucide:chevrons-right"
-                      className="hidden text-zinc-500 group-hover:inline-block"
-                      width={size}
-                    />
-                    <span className="group-hover:hidden">...</span>
-                  </button>
-                )
-              } if (type === 'next') {
-                return (
-                  <button
-                    className={cn('text-zinc-500', props.className)}
-                    type="button"
-                    disabled={!table.getCanNextPage()}
-                    onClick={table.nextPage}
-                  >
-                    <Icon
-                      icon="lucide:chevron-right"
-                      width={size}
-                    />
-                  </button>
-                )
-              }
-              return null
-            }
-
-            return (
-              <Item
-                key={index}
-                className="flex min-w-[27px] items-center justify-center rounded border border-transparent px-1 text-xs tabular-nums disabled:text-zinc-300"
-              />
-            )
-          })}
-        </div>
+        <Pagination
+          items={items}
+          table={table}
+        />
         <div className="flex grow items-center justify-end">
           <div className="m-0.5 flex items-center text-neutral-600">
             <Select
@@ -698,6 +609,111 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
           rowsCountAcquainted={rowsCountAcquainted}
         />
       </div>
+    </div>
+  )
+}
+
+export function Pagination<T>({
+  items,
+  table,
+}: {
+  items: UsePaginationItem[]
+  table: Table<T>
+}) {
+  return (
+    <div className="flex h-7 py-1">
+      {items.map(({
+        page, type, selected, ...item
+      }, index) => {
+        const size = 17
+        const Item = (props: {
+              className?: string
+            }) => {
+          if (type === 'previous') {
+            return (
+              <button
+                type="button"
+                className={cn('text-zinc-500', props.className)}
+                disabled={!table.getCanPreviousPage()}
+                onClick={table.previousPage}
+              >
+                <Icon
+                  icon="lucide:chevron-left"
+                  width={size}
+                />
+              </button>
+            )
+          } if (type === 'start-ellipsis') {
+            return (
+              <button
+                className={cn('group', props.className)}
+                type="button"
+                onClick={() => {
+                  table.setPageIndex(Math.max(0, table.getState().pagination.pageIndex - 2))
+                }}
+              >
+                <Icon
+                  icon="lucide:chevrons-left"
+                  className="hidden text-zinc-500 group-hover:inline-block"
+                  width={size}
+                />
+                <span className="group-hover:hidden">...</span>
+              </button>
+            )
+          } if (type === 'first' || type === 'page' || type === 'last') {
+            return (
+              <button
+                className={cn(props.className, selected ? 'border-[color:hsl(var(--border))] font-bold' : '')}
+                type="button"
+                onClick={() => {
+                  table.setPageIndex(Number(page) - 1)
+                }}
+              >
+                {page}
+              </button>
+            )
+          } if (type === 'end-ellipsis') {
+            return (
+              <button
+                className={cn('group', props.className)}
+                type="button"
+                onClick={() => {
+                  table.setPageIndex(Math.min(table.getState().pagination.pageIndex + 2, table.getPageCount() - 1))
+                }}
+              >
+                <Icon
+                  icon="lucide:chevrons-right"
+                  className="hidden text-zinc-500 group-hover:inline-block"
+                  width={size}
+                />
+                <span className="group-hover:hidden">...</span>
+              </button>
+            )
+          } if (type === 'next') {
+            return (
+              <button
+                className={cn('text-zinc-500', props.className)}
+                type="button"
+                disabled={!table.getCanNextPage()}
+                onClick={table.nextPage}
+              >
+                <Icon
+                  icon="lucide:chevron-right"
+                  width={size}
+                />
+              </button>
+            )
+          }
+          return null
+        }
+
+        return (
+          <Item
+            key={index}
+            className="flex min-w-[27px] items-center justify-center rounded border border-transparent px-1 text-xs tabular-nums disabled:text-zinc-300"
+          />
+        )
+      })}
     </div>
   )
 }

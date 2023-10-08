@@ -2,11 +2,13 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import * as Sentry from '@sentry/react'
 import { RouterProvider } from 'react-router-dom'
+import { inject } from '@vercel/analytics'
 import { router } from '@/router'
 import './main.css'
 import '@/app/globals.css'
 import './i18n'
 
+inject()
 Sentry.init({
   dsn: 'https://c85c12d1ecc241558e8aa3bc55dea61f@o4505257329098752.ingest.sentry.io/4505257332178944',
   integrations: [

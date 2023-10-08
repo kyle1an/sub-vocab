@@ -76,18 +76,16 @@ function readDirectory(systemDirectoryEntry: FileSystemDirectoryEntry): Promise<
   })
 }
 
-export function getFileContent(fileList: FileList) {
+export async function getFileContent(fileList: FileList) {
   const promises = Array.from(fileList).map(readFile)
 
-  return Promise.all(promises).then((files) => {
-    const combinedContent = files.reduce((pre, { text }) => pre + text, '')
-    const combinedName = files.length === 1 ? files[0].name : `${files.length} files selected`
-
-    return {
-      value: combinedContent,
-      name: combinedName,
-    }
-  })
+  const files = await Promise.all(promises)
+  const combinedContent = files.reduce((pre, { text }) => pre + text, '')
+  const combinedName = files.length === 1 ? files[0].name : `${files.length} files selected`
+  return {
+    value: combinedContent,
+    name: combinedName,
+  }
 }
 
 export function readDataTransferItemList(list: DataTransferItemList) {

@@ -1,8 +1,7 @@
 import {
-  useCallback, useEffect, useState,
+  memo, useCallback, useDeferredValue, useEffect, useState,
 } from 'react'
 import { produce } from 'immer'
-import { useDebounce } from 'usehooks-ts'
 import { useTranslation } from 'react-i18next'
 import { FileInput } from '@/components/ui/FileInput'
 import { TextareaInput } from '@/components/ui/TextareaInput'
@@ -13,66 +12,44 @@ import {
   useComponentWillUnmount, useIrregularMapsQuery, useVocabularyQuery,
 } from '@/lib/composables.ts'
 
-export default function Home() {
-  const { t } = useTranslation()
-  const [fileInfo, setFileInfo] = useState('')
-  const subSourceText = useBearStore((state) => state.subSourceText)
-  const setSubSourceText = useBearStore((state) => state.setSubSourceText)
-  const [sourceText, setSourceText] = useState('')
-  const [textInputContent, setTextInputContent] = useState('')
-  const [textInputContentDisplay, setTextInputContentDisplay] = useState('')
+function statusRetainedList(oldRows: LabelDisplaySource[], newList: Omit<LabelDisplaySource, 'inertialPhase'>[]): LabelDisplaySource[] {
+  const vocabLabel = new Map<string, LabelDisplaySource>()
+  const listDisplay = newList.map((sieve) => {
+    const label: LabelDisplaySource = {
+      ...sieve,
+      inertialPhase: sieve.learningPhase,
+    }
+    vocabLabel.set(sieve.word, label)
+    return label
+  })
+  oldRows.forEach((row) => {
+    const label = vocabLabel.get(row.word)
+    if (label) {
+      label.inertialPhase = row.inertialPhase
+    }
+  })
 
-  function handleFileChange({ name, value }: { name: string; value: string }) {
-    setFileInfo(name)
-    setTextInputContentDisplay(value)
-    setSourceText(value)
-  }
+  return listDisplay
+}
 
+const SourceVocab = memo(function SourceVocab({
+  text: sourceText,
+  onNewCount,
+}: {
+  text: string
+  onNewCount: (arg: number) => void
+}) {
   const { data: baseVocab = [] } = useVocabularyQuery()
   const { data: irregulars = [] } = useIrregularMapsQuery()
 
-  function handleTextareaChange({ name, value }: { name?: string; value: string }) {
-    setTextInputContentDisplay(value)
-    setTextInputContent(value)
-    if (name) {
-      setFileInfo(name)
-    }
-  }
-
   const [rows, setRows] = useState<LabelDisplaySource[]>([])
   const [sentences, setSentences] = useState<string[]>([])
-  const [count, setCount] = useState(0)
-
-  const textInputContentDebounced = useDebounce(textInputContent, 300)
-  useEffect(() => {
-    setSourceText(textInputContentDebounced)
-  }, [setSourceText, textInputContentDebounced])
-
-  function statusRetainedList(oldRows: LabelDisplaySource[], newList: Omit<LabelDisplaySource, 'inertialPhase'>[]): LabelDisplaySource[] {
-    const vocabLabel = new Map<string, LabelDisplaySource>()
-    const listDisplay = newList.map((sieve) => {
-      const label: LabelDisplaySource = {
-        ...sieve,
-        inertialPhase: sieve.learningPhase,
-      }
-      vocabLabel.set(sieve.word, label)
-      return label
-    })
-    oldRows.forEach((row) => {
-      const label = vocabLabel.get(row.word)
-      if (label) {
-        label.inertialPhase = row.inertialPhase
-      }
-    })
-
-    return listDisplay
-  }
 
   useEffect(() => {
     const { list, count: c, sentences: s } = generatedVocabTrie(sourceText, baseVocab, irregulars)
     setRows(statusRetainedList(rows, list))
     setSentences(s)
-    setCount(c)
+    onNewCount(c)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sourceText, baseVocab, irregulars])
 
@@ -84,11 +61,37 @@ export default function Home() {
     }))
   }, [])
 
-  useEffect(() => {
-    setTextInputContentDisplay(subSourceText)
-    setSourceText(subSourceText)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  return (
+    <VocabSourceTable
+      data={rows}
+      sentences={sentences}
+      onPurge={handlePurge}
+      className="mx-5 mb-6 h-[calc(100vh-4px*36)] md:m-0 md:h-full md:w-[44%]"
+    />
+  )
+})
+
+export default function Home() {
+  const { t } = useTranslation()
+  const [fileInfo, setFileInfo] = useState('')
+  const subSourceText = useBearStore((state) => state.subSourceText)
+  const setSubSourceText = useBearStore((state) => state.setSubSourceText)
+  const [sourceText, setSourceText] = useState(subSourceText)
+  const deferredSourceText = useDeferredValue(sourceText)
+
+  function handleFileChange({ name, value }: { name: string; value: string }) {
+    setFileInfo(name)
+    setSourceText(value)
+  }
+
+  function handleTextareaChange({ name, value }: { name?: string; value: string }) {
+    setSourceText(value)
+    if (name) {
+      setFileInfo(name)
+    }
+  }
+
+  const [count, setCount] = useState(0)
 
   useComponentWillUnmount(() => {
     setSubSourceText(sourceText)
@@ -112,17 +115,15 @@ export default function Home() {
           </div>
           <div className="h-full w-full grow text-base text-zinc-700 md:text-sm">
             <TextareaInput
-              value={textInputContentDisplay}
+              value={sourceText}
               placeholder={t('inputArea')}
               onChange={handleTextareaChange}
             />
           </div>
         </div>
-        <VocabSourceTable
-          data={rows}
-          sentences={sentences}
-          onPurge={handlePurge}
-          className="mx-5 mb-6 h-[calc(100vh-4px*36)] md:m-0 md:h-full md:w-[44%]"
+        <SourceVocab
+          text={deferredSourceText}
+          onNewCount={setCount}
         />
       </div>
     </main>
