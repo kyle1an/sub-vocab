@@ -108,7 +108,11 @@ module.exports = {
     }],
 
     "no-param-reassign": ["error", { "props": false }],
-    "no-shadow": ["error", { "allow": ["className"] }],
+    "no-shadow": ["error", {
+      "allow": [
+        "className", "resolve", "reject"
+      ]
+    }],
     "no-multi-assign": ["error", { "ignoreNonDeclaration": true }],
   },
   "settings": {

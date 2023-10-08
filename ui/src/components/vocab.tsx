@@ -67,14 +67,17 @@ export function logVocabInfo<T extends VocabState>(listOfVocab: T[]) {
 
 export const generatedVocabTrie = (inputText: string, baseVocab: VocabState[], irregularMaps: string[][]) => {
   const trie = new LabeledTire()
-  trie.add(inputText)
-  trie.mergedVocabulary(baseVocab)
+  trie
+    .add(inputText)
+    .mergedVocabulary(baseVocab)
     .mergeDerivedWordIntoStem(irregularMaps)
   const list = trie.vocabulary.filter(Boolean).filter((v) => !v.variant).map(formVocab)
-  if (import.meta.env.VITE_SUB_ENV === 'dev') {
+
+  if (import.meta.env.DEV) {
     logVocabInfo(list)
     console.log('trie', trie)
   }
+
   return {
     list,
     count: trie.wordCount,
