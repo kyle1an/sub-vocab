@@ -13,7 +13,7 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useOnClickOutside } from 'usehooks-ts'
 import { Separator } from '@/components/ui/separator.tsx'
 import { cn } from '@/lib/utils.ts'
-import { useBearStore } from '@/store/useVocab'
+import { setUsername, store, useSnapshot } from '@/store/useVocab'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -68,8 +68,7 @@ function useExclusiveDisclosure<T extends HTMLElement>() {
 
 export function TopBar({ className }: { className?: string }) {
   const { t, i18n } = useTranslation()
-  const username = useBearStore((state) => state.username)
-  const setUsername = useBearStore((state) => state.setUsername)
+  const { username } = useSnapshot(store)
   const user = {
     name: username,
     email: 'tom@example.com',

@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { router } from '@/router'
-import { useBearStore } from '@/store/useVocab.ts'
 import { isUsernameTaken, register as signUp } from '@/api/user'
 
 type FormValues = {
@@ -32,7 +31,6 @@ export function SignUp() {
   const {
     register, trigger, handleSubmit, formState: { errors }, setError,
   } = form
-  const setUsername = useBearStore((state) => state.setUsername)
 
   const [passwordVisible, setPasswordVisible] = useState(false)
 

@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input'
 import { router } from '@/router'
 import { postRequest } from '@/lib/request.ts'
 import { type Credential } from '@/api/user.ts'
-import { useBearStore } from '@/store/useVocab.ts'
+import { setUsername } from '@/store/useVocab.ts'
 
 type FormValues = {
   username: string
@@ -35,7 +35,6 @@ export default function Login() {
   const {
     register, trigger, handleSubmit, formState: { errors }, setError,
   } = form
-  const setUsername = useBearStore((state) => state.setUsername)
   const [passwordVisible, setPasswordVisible] = useState(false)
   async function onSubmit(values: FormValues) {
     setPasswordVisible(false)

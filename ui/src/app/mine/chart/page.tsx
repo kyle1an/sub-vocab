@@ -26,7 +26,7 @@ const mapWeek = () => {
   return { map, week }
 }
 
-const SEG = 'prev-chart-select'
+const SEGMENT_NAME = 'prev-chart-select'
 export function Chart() {
   const { t } = useTranslation()
   const { data: userWords = [] } = useVocabularyQuery()
@@ -62,20 +62,21 @@ export function Chart() {
     ],
   } satisfies ChartData<'bar', number[], string>), [groupedRows, week])
 
-  const segments = () => [
+  const segments = [
     { value: '6M', label: t('6M') },
     { value: 'M', label: t('M') },
     { value: 'W', label: t('W') },
   ] as const
-  const [seg, setSeg] = useSessionStorage<ReturnType<typeof segments>[number]['value']>(`${SEG}`, 'W')
+  type Segment = typeof segments[number]['value']
+  const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'W')
 
   return (
     <div className="pt-8">
       <SegmentedControl
-        name={SEG}
-        segments={segments()}
-        value={seg}
-        onChoose={setSeg}
+        name={SEGMENT_NAME}
+        segments={segments}
+        value={segment}
+        onChoose={setSegment}
       />
       <Bar
         options={{ plugins: {} }}

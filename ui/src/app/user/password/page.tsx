@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { router } from '@/router'
-import { useBearStore } from '@/store/useVocab.ts'
+import { setUsername, store, useSnapshot } from '@/store/useVocab.ts'
 import {
   changePassword, logoutToken,
 } from '@/api/user'
@@ -26,11 +26,11 @@ type FormValues = {
 
 export const Password = () => {
   const { t } = useTranslation()
-  const user = useBearStore((state) => state.username)
-  const setUsername = useBearStore((state) => state.setUsername)
+  const { username } = useSnapshot(store)
+
   function logout() {
     logoutToken({
-      username: user,
+      username,
     })
       .then(() => {
         Cookies.remove('_user', { path: '' })
@@ -62,7 +62,7 @@ export const Password = () => {
     setOldPasswordVisible(false)
     try {
       const res = await changePassword({
-        username: user,
+        username,
         oldPassword: values.oldPassword,
         newPassword: values.newPassword,
       })

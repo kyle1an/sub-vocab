@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { changeUsername, isUsernameTaken } from '@/api/user'
-import { useBearStore } from '@/store/useVocab'
+import { setUsername, store, useSnapshot } from '@/store/useVocab'
 import {
   Form,
   FormControl,
@@ -19,20 +19,19 @@ type FormValues = {
 
 export const UserPage = () => {
   const { t } = useTranslation()
-  const user = useBearStore((state) => state.username)
-  const setUsername = useBearStore((state) => state.setUsername)
+  const { username } = useSnapshot(store)
   const form = useForm<FormValues>({
     defaultValues: {
-      newUsername: user,
+      newUsername: username,
     },
     reValidateMode: 'onSubmit',
   })
 
   const {
-    register, trigger, handleSubmit, formState: { errors }, setError,
+    register, handleSubmit, formState: { errors }, setError,
   } = form
   async function submitForm(values: FormValues) {
-    if (values.newUsername === user) {
+    if (values.newUsername === username) {
       setError('newUsername', {
         message: 'The new username is the same as the current username.',
       })
@@ -51,7 +50,7 @@ export const UserPage = () => {
       }
 
       const res = await changeUsername({
-        username: user,
+        username,
         newUsername: values.newUsername,
       })
 
