@@ -1,21 +1,30 @@
-import { create } from 'zustand'
+import { proxy, subscribe, useSnapshot } from 'valtio'
 import Cookies from 'js-cookie'
-import type { VocabState } from '@/lib/LabeledTire'
 
-interface BearState {
+type Store = {
   username: string
-  setUsername: (by: string) => void
   subSourceText: string
-  setSubSourceText: (by: string) => void
-  usersVocabulary: VocabState[]
-  setUsersVocabulary: (by: VocabState[]) => void
 }
 
-export const useBearStore = create<BearState>()((set) => ({
+const localStorageState = JSON.parse(localStorage.getItem('store') as string) as Store | undefined
+
+export const store = proxy<Store>(localStorageState || {
   username: Cookies.get('_user') ?? '',
-  setUsername: (by) => set((state) => ({ username: by })),
   subSourceText: '',
-  setSubSourceText: (by) => set((state) => ({ subSourceText: by })),
-  usersVocabulary: [],
-  setUsersVocabulary: (vocabStates) => set((state) => ({ usersVocabulary: vocabStates })),
-}))
+})
+
+export const useSnapshotStore = () => useSnapshot(store)
+
+export const setUsername = (name: string) => {
+  store.username = name
+}
+
+export const setSubSourceText = (text: string) => {
+  store.subSourceText = text
+}
+
+subscribe(store, () => {
+  localStorage.setItem('store', JSON.stringify(store))
+})
+
+export * from 'valtio'

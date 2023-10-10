@@ -1,22 +1,18 @@
 import { useForm } from 'react-hook-form'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
-import type { LoginResponse } from '@/types/shared.ts'
+import { useNavigate } from 'react-router-dom'
+import { useSignIn } from '@/api/user'
 import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { router } from '@/router'
-import { postRequest } from '@/lib/request.ts'
-import { type Credential } from '@/api/user.ts'
-import { useBearStore } from '@/store/useVocab.ts'
 
 type FormValues = {
   username: string
@@ -35,36 +31,39 @@ export default function Login() {
   const {
     register, trigger, handleSubmit, formState: { errors }, setError,
   } = form
-  const setUsername = useBearStore((state) => state.setUsername)
   const [passwordVisible, setPasswordVisible] = useState(false)
+  const { mutateAsync: signInAsync, isError } = useSignIn()
+  const navigate = useNavigate()
+
   async function onSubmit(values: FormValues) {
     setPasswordVisible(false)
-    try {
-      const resAuth = await postRequest<LoginResponse>(`/api/login`, {
-        username: values.username,
-        password: values.password,
-      } satisfies Credential)
+    const resAuth = await signInAsync({
+      username: values.username,
+      password: values.password,
+    })
 
-      if (resAuth[0]) {
-        setUsername(values.username)
-        router.navigate('/').catch(console.error)
-      } else {
-        setError('root.serverError', {
-          message: 'The username/password is incorrect.',
-        })
-        setError('username', {
-          message: '',
-        })
-        setError('password', {
-          message: '',
-        })
-      }
-    } catch (e) {
+    if (resAuth[0]) {
+      navigate('/')
+    } else {
+      setError('root.serverError', {
+        message: 'The username/password is incorrect.',
+      })
+      setError('username', {
+        message: '',
+      })
+      setError('password', {
+        message: '',
+      })
+    }
+  }
+
+  useEffect(() => {
+    if (isError) {
       setError('root.serverError', {
         message: 'Something went wrong, please try again later',
       })
     }
-  }
+  }, [isError, setError])
 
   return (
     <div className="flex flex-row">

@@ -23,7 +23,7 @@ export function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <div className="flex h-full min-h-full flex-col bg-white tracking-[.02em] antialiased">
         <TopBar className="fixed h-11" />
-        <div className="ffs-pre flex flex-col items-center pt-11 md:px-5 xl:px-0">
+        <div className="ffs-pre flex min-h-[100svh] flex-col items-center pt-11 md:px-5 xl:px-0">
           <Outlet />
         </div>
       </div>

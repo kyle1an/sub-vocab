@@ -1,5 +1,4 @@
-import Cookies from 'js-cookie'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Icon } from '@iconify/react'
 import { CheckIcon } from '@radix-ui/react-icons'
@@ -13,7 +12,7 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useOnClickOutside } from 'usehooks-ts'
 import { Separator } from '@/components/ui/separator.tsx'
 import { cn } from '@/lib/utils.ts'
-import { useBearStore } from '@/store/useVocab'
+import { useSnapshotStore } from '@/store/useVocab'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,8 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { logoutToken } from '@/api/user'
-import { router } from '@/router'
+import { useLogOut } from '@/api/user'
 import {
   Command,
   CommandGroup,
@@ -68,13 +66,9 @@ function useExclusiveDisclosure<T extends HTMLElement>() {
 
 export function TopBar({ className }: { className?: string }) {
   const { t, i18n } = useTranslation()
-  const username = useBearStore((state) => state.username)
-  const setUsername = useBearStore((state) => state.setUsername)
+  const { username } = useSnapshotStore()
   const user = {
     name: username,
-    email: 'tom@example.com',
-    imageUrl:
-      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
   }
   const navigation = [
     { name: t('mine'), href: '/mine', current: true },
@@ -175,18 +169,19 @@ export function TopBar({ className }: { className?: string }) {
       },
     ],
   ] as const
+  const navigate = useNavigate()
+  const { mutateAsync: logOut } = useLogOut()
 
   function logout() {
-    logoutToken({
+    logOut({
       username,
     })
-      .then(() => {
-        Cookies.remove('_user', { path: '' })
-        Cookies.remove('acct', { path: '' })
-        setUsername('')
-        requestAnimationFrame(() => {
-          router.navigate('/').catch(console.error)
-        })
+      .then((logOutRes) => {
+        if (logOutRes?.success) {
+          requestAnimationFrame(() => {
+            navigate('/')
+          })
+        }
       })
       .catch(console.error)
   }

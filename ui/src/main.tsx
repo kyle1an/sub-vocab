@@ -1,12 +1,7 @@
-import React from 'react'
 import { createRoot } from 'react-dom/client'
 import * as Sentry from '@sentry/react'
-import { RouterProvider } from 'react-router-dom'
 import { inject } from '@vercel/analytics'
-import { router } from '@/router'
-import './main.css'
-import '@/app/globals.css'
-import './i18n'
+import { App } from './app.tsx'
 
 inject()
 Sentry.init({
@@ -44,8 +39,4 @@ if (!root) {
   throw new Error('No root element')
 }
 
-createRoot(root).render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>,
-)
+createRoot(root).render(<App />)
