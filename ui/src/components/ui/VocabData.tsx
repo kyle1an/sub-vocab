@@ -16,6 +16,7 @@ import { uniq } from 'lodash-es'
 import usePagination from '@mui/material/usePagination'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { useTranslation } from 'react-i18next'
+import { useSessionStorage } from 'react-use'
 import {
   AcquaintAllDialog, ChevronSort, IconSort, Pagination, VocabStatics,
 } from './VocabSource'
@@ -45,7 +46,7 @@ import {
 import { LEARNING_PHASE, type LearningPhase } from '@/lib/LabeledTire'
 import type { LabelDisplayTable } from '@/components/vocab'
 import { useAcquaintWordsMutation, useRevokeWordMutation } from '@/lib/composables'
-import { useBearStore } from '@/store/useVocab'
+import { useSnapshotStore } from '@/store/useVocab'
 import { loginToast } from '@/components/vocab'
 
 export function VocabDataTable<TProp extends LabelDisplayTable>({
@@ -61,7 +62,7 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
   const { mutateAsync: mutateRevokeWordAsync } = useRevokeWordMutation()
   const { mutateAsync: mutateAcquaintWordsAsync } = useAcquaintWordsMutation()
   const { toast } = useToast()
-  const username = useBearStore((state) => state.username)
+  const { username } = useSnapshotStore()
 
   const columns = useMemo<ColumnDef<TProp>[]>(() => {
     function handleVocabToggle(vocab: TProp) {
@@ -303,7 +304,8 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
 
   const [expanded, setExpanded] = useState<ExpandedState>({})
   const [sorting, setSorting] = useState<SortingState>([])
-  const [segment, setSegment] = useState<Segment>('new')
+  const SEGMENT_NAME = 'data-table-segment'
+  const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'allAcquainted')
 
   const pageSize = 100
   const table = useReactTable({
@@ -433,7 +435,7 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
       <div className="w-full border-t border-solid border-zinc-200">
         <SegmentedControl
           value={segment}
-          name="data-table-segment"
+          name={SEGMENT_NAME}
           segments={segments}
           onChoose={handleSegmentChoose}
           variant="ghost"

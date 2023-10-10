@@ -1,8 +1,8 @@
 import { useForm } from 'react-hook-form'
 import { Icon } from '@iconify/react'
-import { useState } from 'react'
-import Cookies from 'js-cookie'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -13,11 +13,8 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { router } from '@/router'
-import { useBearStore } from '@/store/useVocab.ts'
-import {
-  changePassword, logoutToken,
-} from '@/api/user'
+import { useSnapshotStore } from '@/store/useVocab.ts'
+import { useChangePassword, useLogOut } from '@/api/user'
 
 type FormValues = {
   oldPassword: string
@@ -26,19 +23,20 @@ type FormValues = {
 
 export const Password = () => {
   const { t } = useTranslation()
-  const user = useBearStore((state) => state.username)
-  const setUsername = useBearStore((state) => state.setUsername)
+  const { username } = useSnapshotStore()
+  const navigate = useNavigate()
+  const { mutateAsync: logOut } = useLogOut()
+
   function logout() {
-    logoutToken({
-      username: user,
+    logOut({
+      username,
     })
-      .then(() => {
-        Cookies.remove('_user', { path: '' })
-        Cookies.remove('acct', { path: '' })
-        setUsername('')
-        requestAnimationFrame(() => {
-          router.navigate('/').catch(console.error)
-        })
+      .then((logOutRes) => {
+        if (logOutRes?.success) {
+          requestAnimationFrame(() => {
+            navigate('/')
+          })
+        }
       })
       .catch(console.error)
   }
@@ -52,34 +50,38 @@ export const Password = () => {
   })
 
   const {
-    register, trigger, handleSubmit, formState: { errors }, setError,
+    register, handleSubmit, formState: { errors }, setError,
   } = form
 
   const [oldPasswordVisible, setOldPasswordVisible] = useState(false)
   const [newPasswordVisible, setNewPasswordVisible] = useState(false)
+  const { mutateAsync: changePassword, isError } = useChangePassword()
 
   async function onSubmit(values: FormValues) {
     setOldPasswordVisible(false)
-    try {
-      const res = await changePassword({
-        username: user,
-        oldPassword: values.oldPassword,
-        newPassword: values.newPassword,
-      })
+    setNewPasswordVisible(false)
+    const res = await changePassword({
+      username,
+      oldPassword: values.oldPassword,
+      newPassword: values.newPassword,
+    })
 
-      if (res.success) {
-        logout()
-      } else {
-        setError('root.serverError', {
-          message: 'Something went wrong.',
-        })
-      }
-    } catch (e) {
+    if (res.success) {
+      logout()
+    } else {
+      setError('root.serverError', {
+        message: 'Something went wrong.',
+      })
+    }
+  }
+
+  useEffect(() => {
+    if (isError) {
       setError('root.serverError', {
         message: 'Something went wrong, please try again later',
       })
     }
-  }
+  }, [isError, setError])
 
   return (
     <div className="flex flex-col gap-3">
