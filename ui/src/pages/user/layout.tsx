@@ -1,12 +1,12 @@
 import { Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Footer } from '@/components/Footer'
-import { useBearStore } from '@/store/useVocab'
+import { useSnapshotStore } from '@/store/useVocab'
 import { SideNav } from '@/components/SideNav'
 
 export default function User() {
   const { t } = useTranslation()
-  const subNav = () => [
+  const subNav = [
     {
       title: t('Profile'),
       to: '/user',
@@ -16,19 +16,19 @@ export default function User() {
       to: '/user/password',
     },
   ] as const
-  const user = useBearStore((state) => state.username)
+  const { username } = useSnapshotStore()
   return (
     <>
       <div className="mx-auto flex h-full w-full max-w-screen-lg grow flex-col p-6">
         <div className="pb-5">
           <div className="text-2xl">
-            {user}
+            {username}
           </div>
         </div>
         <div className="flex w-full grow flex-col gap-6 sm:flex-row md:gap-0">
           <div>
             <SideNav
-              nav={subNav()}
+              nav={subNav}
               className="sticky top-28"
             />
           </div>

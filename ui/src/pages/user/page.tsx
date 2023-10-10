@@ -1,7 +1,8 @@
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { changeUsername, isUsernameTaken } from '@/api/user'
-import { useBearStore } from '@/store/useVocab'
+import { useEffect } from 'react'
+import { useChangeUsername, useIsUsernameTaken } from '@/api/user'
+import { useSnapshotStore } from '@/store/useVocab'
 import {
   Form,
   FormControl,
@@ -19,55 +20,58 @@ type FormValues = {
 
 export const UserPage = () => {
   const { t } = useTranslation()
-  const user = useBearStore((state) => state.username)
-  const setUsername = useBearStore((state) => state.setUsername)
+  const { username } = useSnapshotStore()
   const form = useForm<FormValues>({
     defaultValues: {
-      newUsername: user,
+      newUsername: username,
     },
     reValidateMode: 'onSubmit',
   })
 
   const {
-    register, trigger, handleSubmit, formState: { errors }, setError,
+    register, handleSubmit, formState: { errors }, setError,
   } = form
+  const { mutateAsync: changeUsername, isError: isChangeUsernameError } = useChangeUsername()
+  const { mutateAsync: isUsernameTaken, isError: isUsernameTakenError } = useIsUsernameTaken()
   async function submitForm(values: FormValues) {
-    if (values.newUsername === user) {
+    if (values.newUsername === username) {
       setError('newUsername', {
         message: 'The new username is the same as the current username.',
       })
       return
     }
 
-    try {
-      const usernameTaken = await isUsernameTaken({
-        username: values.newUsername,
+    const usernameTaken = await isUsernameTaken({
+      username: values.newUsername,
+    })
+    if (usernameTaken.has) {
+      setError('newUsername', {
+        message: 'The username is taken.',
       })
-      if (usernameTaken.has) {
-        setError('newUsername', {
-          message: 'The username is taken.',
-        })
-        return
-      }
+      return
+    }
 
-      const res = await changeUsername({
-        username: user,
-        newUsername: values.newUsername,
+    await changeUsername({
+      username,
+      newUsername: values.newUsername,
+    })
+  }
+
+  useEffect(() => {
+    if (isChangeUsernameError) {
+      setError('newUsername', {
+        message: 'Something went wrong',
       })
+    }
+  }, [isChangeUsernameError, setError])
 
-      if (res.success) {
-        setUsername(values.newUsername)
-      } else {
-        setError('newUsername', {
-          message: 'Something went wrong',
-        })
-      }
-    } catch (e) {
+  useEffect(() => {
+    if (isUsernameTakenError) {
       setError('root.serverError', {
         message: 'Something went wrong, please try again later',
       })
     }
-  }
+  }, [isUsernameTakenError, setError])
 
   return (
     <div className="flex flex-col gap-3">

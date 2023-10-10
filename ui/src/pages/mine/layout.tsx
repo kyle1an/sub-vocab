@@ -4,7 +4,7 @@ import { SideNav } from '@/components/SideNav'
 
 export function MineLayout() {
   const { t } = useTranslation()
-  const subNav = () => [
+  const subNav = [
     {
       title: t('Vocabulary'),
       to: '/mine',
@@ -19,7 +19,7 @@ export function MineLayout() {
       <div className="flex w-full grow flex-col px-6 pt-6 md:flex-row md:gap-6 md:pt-0">
         <div>
           <SideNav
-            nav={subNav()}
+            nav={subNav}
             className="sticky top-20"
           />
         </div>

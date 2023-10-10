@@ -5,11 +5,11 @@ import { produce } from 'immer'
 import { useTranslation } from 'react-i18next'
 import { FileInput } from '@/components/ui/FileInput'
 import { TextareaInput } from '@/components/ui/TextareaInput'
-import { useBearStore } from '@/store/useVocab.ts'
+import { setSubSourceText, useSnapshotStore } from '@/store/useVocab.ts'
 import { type LabelDisplaySource, generatedVocabTrie } from '@/components/vocab'
 import { VocabSourceTable } from '@/components/ui/VocabSource.tsx'
 import {
-  useComponentWillUnmount, useIrregularMapsQuery, useVocabularyQuery,
+  useIrregularMapsQuery, useVocabularyQuery,
 } from '@/lib/composables.ts'
 
 function statusRetainedList(oldRows: LabelDisplaySource[], newList: Omit<LabelDisplaySource, 'inertialPhase'>[]): LabelDisplaySource[] {
@@ -53,6 +53,10 @@ const SourceVocab = memo(function SourceVocab({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sourceText, baseVocab, irregulars])
 
+  useEffect(() => {
+    setSubSourceText(sourceText)
+  }, [sourceText])
+
   const handlePurge = useCallback(() => {
     setRows(produce((draft) => {
       draft.filter((todo) => todo.learningPhase !== todo.inertialPhase).forEach((todo) => {
@@ -74,8 +78,7 @@ const SourceVocab = memo(function SourceVocab({
 export default function Home() {
   const { t } = useTranslation()
   const [fileInfo, setFileInfo] = useState('')
-  const subSourceText = useBearStore((state) => state.subSourceText)
-  const setSubSourceText = useBearStore((state) => state.setSubSourceText)
+  const { subSourceText } = useSnapshotStore()
   const [sourceText, setSourceText] = useState(subSourceText)
   const deferredSourceText = useDeferredValue(sourceText)
 
@@ -93,9 +96,6 @@ export default function Home() {
 
   const [count, setCount] = useState(0)
 
-  useComponentWillUnmount(() => {
-    setSubSourceText(sourceText)
-  })
   return (
     <main className="m-auto w-full max-w-screen-xl md:h-[calc(100vh-4px*11)]">
       <div className="relative mx-3 flex h-14 items-center xl:mx-0">

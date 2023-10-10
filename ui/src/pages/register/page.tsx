@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { Icon } from '@iconify/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -11,9 +12,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { router } from '@/router'
-import { useBearStore } from '@/store/useVocab.ts'
-import { isUsernameTaken, register as signUp } from '@/api/user'
+import { useIsUsernameTaken, useRegister } from '@/api/user'
 
 type FormValues = {
   username: string
@@ -32,41 +31,53 @@ export function SignUp() {
   const {
     register, trigger, handleSubmit, formState: { errors }, setError,
   } = form
-  const setUsername = useBearStore((state) => state.setUsername)
 
   const [passwordVisible, setPasswordVisible] = useState(false)
+  const { mutateAsync: isUsernameTaken, isError: isUsernameTakenError } = useIsUsernameTaken()
+  const { mutateAsync: signUp, isError: isRegisterError } = useRegister()
+  const navigate = useNavigate()
 
   async function onSubmit(values: FormValues) {
     setPasswordVisible(false)
-    try {
-      const usernameTaken = await isUsernameTaken({
-        username: values.username,
+    const usernameTaken = await isUsernameTaken({
+      username: values.username,
+    })
+    if (usernameTaken.has) {
+      setError('username', {
+        message: 'The username is taken.',
       })
-      if (usernameTaken.has) {
-        setError('username', {
-          message: 'The username is taken.',
-        })
-        return
-      }
+      return
+    }
 
-      const resAuth = await signUp({
-        username: values.username,
-        password: values.password,
-      })
+    const resAuth = await signUp({
+      username: values.username,
+      password: values.password,
+    })
 
-      if (resAuth[0].result === 1) {
-        router.navigate('/login').catch(console.error)
-      } else {
-        setError('root.serverError', {
-          message: 'Something went wrong, please try again later',
-        })
-      }
-    } catch (e) {
+    if (resAuth[0].result === 1) {
+      navigate('/login')
+    } else {
       setError('root.serverError', {
         message: 'Something went wrong, please try again later',
       })
     }
   }
+
+  useEffect(() => {
+    if (isUsernameTakenError) {
+      setError('username', {
+        message: 'Something went wrong, please try again later',
+      })
+    }
+  }, [isUsernameTakenError, setError])
+
+  useEffect(() => {
+    if (isRegisterError) {
+      setError('root.serverError', {
+        message: 'Something went wrong, please try again later',
+      })
+    }
+  }, [isRegisterError, setError])
 
   return (
     <div className="flex flex-row">
