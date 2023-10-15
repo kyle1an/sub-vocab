@@ -16,17 +16,24 @@
     "isolatedModules": true,
     // "exactOptionalPropertyTypes": true,
     "noEmit": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,
     /* Linting */
     "strict": true,
     "noUnusedLocals": false,
+    "incremental": true,
     "noUnusedParameters": false,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    "plugins": [{ "name": "next" }],
     "noFallthroughCasesInSwitch": true
   },
   "include": [
+    "./dist/types/**/*.ts",
+    "./next-env.d.ts",
+    "**/*.config.mjs",
     ".eslintrc.js",
     "**/*.config.js",
     "**/*.config.ts",
@@ -34,9 +41,6 @@
     "src/**/*.d.ts",
     "src/**/*.tsx"
   ],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
+  "exclude": ["./node_modules"],
+  "references": []
 }

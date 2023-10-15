@@ -1,17 +1,17 @@
 import {
   createBrowserRouter,
 } from 'react-router-dom'
-import { RootLayout } from '@/app/layout.tsx'
-import Index from '@/app/page'
-import Login from '@/app/login/page'
-import User from '@/app/user/layout'
-import { Password } from '@/app/user/password/page'
-import { UserPage } from '@/app/user/page'
-import { MineLayout } from '@/app/mine/layout'
-import { MinePage } from '@/app/mine/page'
-import { SignUp } from '@/app/register/page'
-import { Chart } from '@/app/mine/chart/page'
-import { ImportPage } from '@/app/import/page'
+import { RootLayout } from '@/pages/layout'
+import Index from '@/pages/page'
+import Login from '@/pages/login/page'
+import User from '@/pages/user/layout'
+import { Password } from '@/pages/user/password/page'
+import { UserPage } from '@/pages/user/page'
+import { MineLayout } from '@/pages/mine/layout'
+import { MinePage } from '@/pages/mine/page'
+import { SignUp } from '@/pages/register/page'
+import { Chart } from '@/pages/mine/chart/page'
+import { ImportPage } from '@/pages/import/page'
 
 export const router = createBrowserRouter([
   {

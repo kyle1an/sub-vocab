@@ -1,4 +1,4 @@
-import { proxy, subscribe } from 'valtio'
+import { proxy, subscribe, useSnapshot } from 'valtio'
 import Cookies from 'js-cookie'
 
 type Store = {
@@ -6,12 +6,15 @@ type Store = {
   subSourceText: string
 }
 
-const localStorageState = JSON.parse(localStorage.getItem('store') as string) as Store | undefined
+// TODO
+// const localStorageState = JSON.parse(localStorage.getItem('store') as string) as Store | undefined
 
-export const store = proxy<Store>(localStorageState || {
+export const store = proxy<Store>({
   username: Cookies.get('_user') ?? '',
   subSourceText: '',
 })
+
+export const useSnapshotStore = () => useSnapshot(store)
 
 export const setUsername = (name: string) => {
   store.username = name

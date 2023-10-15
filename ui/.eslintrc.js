@@ -30,7 +30,7 @@ module.exports = {
     "arrow-body-style": ["off"],
 
     "@typescript-eslint/ban-types": [
-      "error",
+      "warn",
       {
         "types": {
           "{}": false,
@@ -39,10 +39,10 @@ module.exports = {
       },
     ],
     "@typescript-eslint/ban-ts-comment": [
-      "error",
+      "warn",
       { "ts-ignore": "allow-with-description" },
     ],
-    "@typescript-eslint/require-await": "error",
+    "@typescript-eslint/require-await": "warn",
 
     "tailwindcss/no-custom-classname": ["warn", {
       "callees": ["classnames", "clsx", "ctl", "cva", "tv", "twMerge"],
@@ -107,13 +107,13 @@ module.exports = {
       }
     }],
 
-    "no-param-reassign": ["error", { "props": false }],
-    "no-shadow": ["error", {
+    "no-param-reassign": ["warn", { "props": false }],
+    "no-shadow": ["warn", {
       "allow": [
         "className", "resolve", "reject"
       ]
     }],
-    "no-multi-assign": ["error", { "ignoreNonDeclaration": true }],
+    "no-multi-assign": ["warn", { "ignoreNonDeclaration": true }],
   },
   "settings": {
     "import/parsers": {

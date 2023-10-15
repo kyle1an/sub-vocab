@@ -73,7 +73,7 @@ export const generatedVocabTrie = (inputText: string, baseVocab: VocabState[], i
     .mergeDerivedWordIntoStem(irregularMaps)
   const list = trie.vocabulary.filter(Boolean).filter((v) => !v.variant).map(formVocab)
 
-  if (import.meta.env.DEV) {
+  if (process.env.NODE_ENV !== 'production') {
     logVocabInfo(list)
     console.log('trie', trie)
   }

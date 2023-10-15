@@ -1,6 +1,5 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
-import './globals.css'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { TopBar } from '@/components/TopBar.tsx'
