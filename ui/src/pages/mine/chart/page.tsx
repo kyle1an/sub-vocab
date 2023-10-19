@@ -9,7 +9,7 @@ import 'chart.js/auto'
 import { Bar, Chart as ReactChartJs } from 'react-chartjs-2'
 import { useTranslation } from 'react-i18next'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
-import { useVocabularyQuery } from '@/lib/composables'
+import { useVocabularyQuery } from '@/api/vocab-api'
 import { LEARNING_PHASE } from '@/lib/LabeledTire'
 
 const mapWeek = () => {

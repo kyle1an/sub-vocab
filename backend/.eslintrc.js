@@ -24,6 +24,13 @@ module.exports = {
       "error",
       { "ts-ignore": "allow-with-description" },
     ],
+
+    "no-use-before-define": "off",
+    "@typescript-eslint/no-use-before-define": ["error", {
+      "functions": false,
+      "allowNamedExports": false,
+      "ignoreTypeReferences": true,
+    }],
   },
   "parser": "@typescript-eslint/parser",
   "parserOptions": {

@@ -31,10 +31,7 @@ module.exports = {
     "no-multiple-empty-lines": ["warn", { "max": 1, "maxEOF": 1 }],
     "no-trailing-spaces": "warn",
     "no-whitespace-before-property": "warn",
-    "no-use-before-define": ["error", {
-      "functions": false,
-      "allowNamedExports": false
-    }],
+
     "guard-for-in": "off",
     "arrow-spacing": "warn",
     "array-bracket-spacing": ["warn", "never"],
@@ -80,7 +77,7 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/no-empty-interface": "off",
 
-    "line-break-style": "off",
+    "linebreak-style": "off",
     "prefer-arrow-callback": "off",
     "max-len": [0],
   },

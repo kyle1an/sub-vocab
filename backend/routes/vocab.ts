@@ -5,7 +5,7 @@ import { type RSH, sql } from '../config/connection'
 import { tokenChecker, tokenInvalid } from '../utils/util'
 import type { RequestBody } from '../types'
 import type { AcquaintWordsResponse, LabelDB, StemsMapping, ToggleWordResponse } from '../../ui/src/types/shared'
-import type { UserVocab } from '../../ui/src/lib/composables'
+import type { UserVocab } from '../../ui/src/api/vocab-api'
 import type { Username } from '../../ui/src/api/user'
 
 interface Stems {

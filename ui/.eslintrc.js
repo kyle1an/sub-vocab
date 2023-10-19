@@ -114,6 +114,13 @@ module.exports = {
       ]
     }],
     "no-multi-assign": ["error", { "ignoreNonDeclaration": true }],
+
+    "no-use-before-define": "off",
+    "@typescript-eslint/no-use-before-define": ["error", {
+      "functions": false,
+      "allowNamedExports": false,
+      "ignoreTypeReferences": true,
+    }],
   },
   "settings": {
     "import/parsers": {
