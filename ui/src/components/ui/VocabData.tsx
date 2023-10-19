@@ -45,7 +45,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { LEARNING_PHASE, type LearningPhase } from '@/lib/LabeledTire'
 import type { LabelDisplayTable } from '@/components/vocab'
-import { useAcquaintWordsMutation, useRevokeWordMutation } from '@/lib/composables'
+import { useAcquaintWordsMutation, useRevokeWordMutation } from '@/api/vocab-api'
 import { useSnapshotStore } from '@/store/useVocab'
 import { loginToast } from '@/components/vocab'
 
@@ -152,20 +152,23 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
             </div>
           )
         },
-        cell: ({ row }) => (
-          <>
-            {row.original.wFamily.map((w, i) => (
-              <div
-                key={w}
-                className="ml-2 inline-block cursor-text select-text font-compact text-[16px] text-black"
-                onClick={(ev) => ev.stopPropagation()}
-              >
-                <span className={`${i !== 0 ? 'text-neutral-500' : ''}`}>{w}</span>
-                {i !== row.original.wFamily.length - 1 && <span className="pr-1 text-neutral-300">, </span>}
-              </div>
-            ))}
-          </>
-        ),
+        cell: ({ row }) => {
+          const wFamily = [row.original.word]
+          return (
+            <>
+              {wFamily.map((w, i) => (
+                <div
+                  key={w}
+                  className="ml-2 inline-block cursor-text select-text font-compact text-[16px] text-black"
+                  onClick={(ev) => ev.stopPropagation()}
+                >
+                  <span className={`${i !== 0 ? 'text-neutral-500' : ''}`}>{w}</span>
+                  {i !== wFamily.length - 1 && <span className="pr-1 text-neutral-300">, </span>}
+                </div>
+              ))}
+            </>
+          )
+        },
         footer: ({ column }) => column.id,
       },
       {

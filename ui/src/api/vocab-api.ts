@@ -1,8 +1,7 @@
-import { useEffect, useRef } from 'react'
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
 import { pick } from 'lodash-es'
-import { postRequest } from './request'
-import { queryClient } from './utils'
+import { postRequest } from '@/lib/request'
+import { queryClient } from '@/lib/utils'
 import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
 import type { Username } from '@/api/user'
 import { useSnapshotStore } from '@/store/useVocab'
@@ -15,17 +14,9 @@ export interface UserVocab extends Username {
   words: string[]
 }
 
-export function useComponentWillUnmount(cleanupCallback = () => {}) {
-  const callbackRef = useRef(cleanupCallback)
-  callbackRef.current = cleanupCallback
-  useEffect(() => {
-    return () => callbackRef.current()
-  }, [])
-}
-
 const getVocabularyOptions = ({ username }: Username) => queryOptions({
   queryKey: ['userWords', username],
-  queryFn: async () => {
+  queryFn: async function getVocabulary() {
     const labelsDB = await postRequest<LabelDB[]>(
       `/api/api/queryWords`,
       { username },
@@ -53,11 +44,13 @@ export function useVocabularyQuery() {
 export function useIrregularMapsQuery() {
   return useQuery({
     queryKey: ['irregularMaps'],
-    queryFn: () => postRequest<StemsMapping>(
-      `/api/api/stemsMapping`,
-      {},
-      { timeout: 2000 },
-    ),
+    queryFn: function irregularMaps() {
+      return postRequest<StemsMapping>(
+        `/api/api/stemsMapping`,
+        {},
+        { timeout: 2000 },
+      )
+    },
     placeholderData: [],
     refetchOnWindowFocus: false,
     retry: 10,
@@ -97,10 +90,12 @@ export function useRevokeWordMutation() {
   const vocabularyOptions = getVocabularyOptions({ username })
   return useMutation({
     mutationKey: ['revokeWord'],
-    mutationFn: (vocab: VocabState[]) => postRequest<ToggleWordResponse>(`/api/api/revokeWord`, {
-      words: vocab.map((row) => row.word),
-      username,
-    } satisfies UserVocab),
+    mutationFn: function revokeWord(vocab: VocabState[]) {
+      return postRequest<ToggleWordResponse>(`/api/api/revokeWord`, {
+        words: vocab.map((row) => row.word),
+        username,
+      } satisfies UserVocab)
+    },
     onMutate: (variables) => {
       queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => mutatedVocabStates(oldData, variables, LEARNING_PHASE.REMOVING))
     },
@@ -122,10 +117,12 @@ export function useAcquaintWordsMutation() {
   const vocabularyOptions = getVocabularyOptions({ username })
   return useMutation({
     mutationKey: ['acquaintWords'],
-    mutationFn: (rows2Acquaint: VocabState[]) => postRequest<AcquaintWordsResponse>(`/api/api/acquaintWords`, {
-      words: rows2Acquaint.map((row) => row.word),
-      username,
-    } satisfies UserVocab),
+    mutationFn: function acquaintWords(rows2Acquaint: VocabState[]) {
+      return postRequest<AcquaintWordsResponse>(`/api/api/acquaintWords`, {
+        words: rows2Acquaint.map((row) => row.word),
+        username,
+      } satisfies UserVocab)
+    },
     onMutate: (variables) => {
       queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => mutatedVocabStates(oldData, variables, LEARNING_PHASE.ACQUAINTING))
     },

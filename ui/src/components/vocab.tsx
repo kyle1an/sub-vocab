@@ -7,15 +7,17 @@ import LabeledTire, {
   LEARNING_PHASE, type LearningPhase, type TrieWordLabel, type VocabState, type WordLocator,
 } from '@/lib/LabeledTire.ts'
 
-export interface LabelDisplayTable extends VocabState {
-  inertialPhase: LearningPhase
+export type LabelDisplayTable = VocabState & InertialPhase
+
+export type LabelSourceData = VocabState & {
+  locations: WordLocator[]
   wFamily: string[]
 }
 
-export interface LabelDisplaySource extends VocabState {
+export type LabelDisplaySource = LabelSourceData & InertialPhase
+
+export type InertialPhase = {
   inertialPhase: LearningPhase
-  wFamily: string[]
-  locations: WordLocator[]
 }
 
 function formVocab($: TrieWordLabel) {
@@ -51,7 +53,7 @@ function formVocab($: TrieWordLabel) {
     ...$.vocab,
   }
 
-  const labelDisplaySource: Omit<LabelDisplaySource, 'inertialPhase'> = {
+  const labelDisplaySource: LabelSourceData = {
     ...vocab,
     wFamily,
     locations: src,

@@ -1,69 +1,44 @@
 import {
-  memo, useCallback, useDeferredValue, useEffect, useState,
+  memo, useDeferredValue, useEffect, useState,
 } from 'react'
-import { produce } from 'immer'
 import { useTranslation } from 'react-i18next'
+import { atom, useAtom } from 'jotai'
 import { FileInput } from '@/components/ui/FileInput'
 import { TextareaInput } from '@/components/ui/TextareaInput'
-import { setSubSourceText, useSnapshotStore } from '@/store/useVocab.ts'
-import { type LabelDisplaySource, generatedVocabTrie } from '@/components/vocab'
+import {
+  type LabelDisplaySource, generatedVocabTrie,
+} from '@/components/vocab'
 import { VocabSourceTable } from '@/components/ui/VocabSource.tsx'
 import {
   useIrregularMapsQuery, useVocabularyQuery,
-} from '@/lib/composables.ts'
+} from '@/api/vocab-api'
+import { purgedRows, statusRetainedList } from '@/lib/vocab-utils'
 
-function statusRetainedList(oldRows: LabelDisplaySource[], newList: Omit<LabelDisplaySource, 'inertialPhase'>[]): LabelDisplaySource[] {
-  const vocabLabel = new Map<string, LabelDisplaySource>()
-  const listDisplay = newList.map((sieve) => {
-    const label: LabelDisplaySource = {
-      ...sieve,
-      inertialPhase: sieve.learningPhase,
-    }
-    vocabLabel.set(sieve.word, label)
-    return label
-  })
-  oldRows.forEach((row) => {
-    const label = vocabLabel.get(row.word)
-    if (label) {
-      label.inertialPhase = row.inertialPhase
-    }
-  })
-
-  return listDisplay
-}
+const sourceTextAtom = atom('')
+const textCountAtom = atom(0)
 
 const SourceVocab = memo(function SourceVocab({
   text: sourceText,
-  onNewCount,
 }: {
   text: string
-  onNewCount: (arg: number) => void
 }) {
   const { data: baseVocab = [] } = useVocabularyQuery()
   const { data: irregulars = [] } = useIrregularMapsQuery()
 
   const [rows, setRows] = useState<LabelDisplaySource[]>([])
   const [sentences, setSentences] = useState<string[]>([])
+  const [, setCount] = useAtom(textCountAtom)
 
   useEffect(() => {
     const { list, count: c, sentences: s } = generatedVocabTrie(sourceText, baseVocab, irregulars)
-    setRows(statusRetainedList(rows, list))
+    setRows((r) => statusRetainedList(r, list))
     setSentences(s)
-    onNewCount(c)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sourceText, baseVocab, irregulars])
+    setCount(c)
+  }, [sourceText, baseVocab, irregulars, setCount])
 
-  useEffect(() => {
-    setSubSourceText(sourceText)
-  }, [sourceText])
-
-  const handlePurge = useCallback(() => {
-    setRows(produce((draft) => {
-      draft.filter((todo) => todo.learningPhase !== todo.inertialPhase).forEach((todo) => {
-        todo.inertialPhase = todo.learningPhase
-      })
-    }))
-  }, [])
+  function handlePurge() {
+    setRows(purgedRows())
+  }
 
   return (
     <VocabSourceTable
@@ -78,8 +53,7 @@ const SourceVocab = memo(function SourceVocab({
 export default function Home() {
   const { t } = useTranslation()
   const [fileInfo, setFileInfo] = useState('')
-  const { subSourceText } = useSnapshotStore()
-  const [sourceText, setSourceText] = useState(subSourceText)
+  const [sourceText, setSourceText] = useAtom(sourceTextAtom)
   const deferredSourceText = useDeferredValue(sourceText)
 
   function handleFileChange({ name, value }: { name: string; value: string }) {
@@ -94,7 +68,7 @@ export default function Home() {
     }
   }
 
-  const [count, setCount] = useState(0)
+  const [count] = useAtom(textCountAtom)
 
   return (
     <main className="m-auto w-full max-w-screen-xl md:h-[calc(100vh-4px*11)]">
@@ -123,7 +97,6 @@ export default function Home() {
         </div>
         <SourceVocab
           text={deferredSourceText}
-          onNewCount={setCount}
         />
       </div>
     </main>

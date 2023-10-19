@@ -1,51 +1,22 @@
 import {
-  type ComponentProps, useCallback, useEffect, useState,
+  useEffect, useState,
 } from 'react'
-import { produce } from 'immer'
-import { VocabDataTable } from '@/components/ui/VocabData'
 import type { LabelDisplayTable } from '@/components/vocab'
-import { useVocabularyQuery } from '@/lib/composables.ts'
+import { purgedRows, statusRetainedList } from '@/lib/vocab-utils'
+import { VocabDataTable } from '@/components/ui/VocabData'
+import { useVocabularyQuery } from '@/api/vocab-api'
 
 export function MinePage() {
   const { data: userWords = [] } = useVocabularyQuery()
-
-  const [rows, setRows] = useState<ComponentProps<typeof VocabDataTable>['data']>([])
-
-  function statusRetainedList(oldRows: LabelDisplayTable[], newList: Omit<LabelDisplayTable, 'inertialPhase' | 'wFamily'>[]): LabelDisplayTable[] {
-    const vocabLabel = new Map<string, LabelDisplayTable>()
-    const listDisplay = newList.map((sieve) => {
-      const label: LabelDisplayTable = {
-        ...sieve,
-        inertialPhase: sieve.learningPhase,
-        wFamily: [sieve.word],
-      }
-      vocabLabel.set(sieve.word, label)
-      return label
-    })
-    oldRows.forEach((row) => {
-      const label = vocabLabel.get(row.word)
-      if (label) {
-        label.inertialPhase = row.inertialPhase
-      }
-    })
-
-    return listDisplay
-  }
+  const [rows, setRows] = useState<LabelDisplayTable[]>([])
 
   useEffect(() => {
-    setRows(statusRetainedList(rows, userWords))
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    setRows((r) => statusRetainedList(r, userWords))
   }, [userWords])
 
-  const handlePurge = useCallback(() => {
-    setRows(
-      produce((draft) => {
-        draft.filter((todo) => todo.learningPhase !== todo.inertialPhase).forEach((todo) => {
-          todo.inertialPhase = todo.learningPhase
-        })
-      }),
-    )
-  }, [])
+  function handlePurge() {
+    setRows(purgedRows())
+  }
 
   return (
     <div className="h-full">

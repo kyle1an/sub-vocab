@@ -191,13 +191,6 @@ export function TopBar({ className }: { className?: string }) {
   const [value, setValue] = useState(locale || lng)
 
   useEffect(() => {
-    if (locale && locale !== value) {
-      setValue(locale)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  useEffect(() => {
     updateLocale(value)
     i18n.changeLanguage(value).catch(console.error)
   }, [value, i18n, updateLocale])
