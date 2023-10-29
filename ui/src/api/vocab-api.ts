@@ -70,13 +70,7 @@ function mutatedVocabStates<T extends VocabState>(oldData: VocabState[] | undefi
       labelMutated.learningPhase = state
     } else {
       labelsCopy.push({
-        ...pick(variable, [
-          'word',
-          'rank',
-          'original',
-          'isUser',
-          'timeModified',
-        ]),
+        ...variable,
         learningPhase: state,
       })
     }

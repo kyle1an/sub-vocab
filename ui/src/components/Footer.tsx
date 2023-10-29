@@ -1,4 +1,4 @@
-import { Icon } from '@iconify/react'
+import { Icon } from '@/components/ui/icon'
 
 export const Footer = () => (
   <footer className="mt-6 w-full bg-zinc-100">

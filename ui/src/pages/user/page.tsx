@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Icon } from '@/components/ui/icon'
 
 type FormValues = {
   newUsername: string
@@ -31,8 +32,8 @@ export const UserPage = () => {
   const {
     register, handleSubmit, formState: { errors }, setError,
   } = form
-  const { mutateAsync: changeUsername, isError: isChangeUsernameError } = useChangeUsername()
-  const { mutateAsync: isUsernameTaken, isError: isUsernameTakenError } = useIsUsernameTaken()
+  const { mutateAsync: changeUsername, isError: isChangeUsernameError, isPending } = useChangeUsername()
+  const { mutateAsync: isUsernameTaken, isError: isUsernameTakenError, isPending: isUsernameTakenPending } = useIsUsernameTaken()
   async function submitForm(values: FormValues) {
     if (values.newUsername === username) {
       setError('newUsername', {
@@ -111,10 +112,17 @@ export const UserPage = () => {
               />
               <FormMessage>{errors.root?.serverError.message}</FormMessage>
               <Button
-                className="mt-8"
+                className="mt-8 gap-1.5"
                 type="submit"
+                disabled={isUsernameTakenPending || isPending}
               >
                 {t('Confirm Changes')}
+                {isUsernameTakenPending || isPending ? (
+                  <Icon
+                    icon="lucide:loader-2"
+                    className="animate-spin"
+                  />
+                ) : null}
               </Button>
             </form>
           </Form>

@@ -71,8 +71,8 @@ export default function Home() {
   const [count] = useAtom(textCountAtom)
 
   return (
-    <main className="m-auto w-full max-w-screen-xl md:h-[calc(100vh-4px*11)]">
-      <div className="relative mx-3 flex h-14 items-center xl:mx-0">
+    <main className="m-auto w-full max-w-screen-xl md:h-[calc(100vh-4px*11)] md:px-5">
+      <div className="relative mx-3 flex h-14 items-center md:mx-0">
         <FileInput
           onFileChange={handleFileChange}
         >

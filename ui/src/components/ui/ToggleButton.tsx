@@ -1,4 +1,4 @@
-import { Icon } from '@iconify/react'
+import { Icon } from '@/components/ui/icon'
 import { LEARNING_PHASE } from '@/lib/LabeledTire.ts'
 import { cn } from '@/lib/utils'
 import type { LabelDisplayTable } from '@/components/vocab'
