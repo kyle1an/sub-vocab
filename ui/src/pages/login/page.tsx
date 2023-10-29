@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { useEffect, useState } from 'react'
-import { Icon } from '@iconify/react'
 import { useNavigate } from 'react-router-dom'
+import { Icon } from '@/components/ui/icon'
 import { useSignIn } from '@/api/user'
 import { Button } from '@/components/ui/button'
 import {
@@ -32,7 +32,7 @@ export default function Login() {
     register, trigger, handleSubmit, formState: { errors }, setError,
   } = form
   const [passwordVisible, setPasswordVisible] = useState(false)
-  const { mutateAsync: signInAsync, isError } = useSignIn()
+  const { mutateAsync: signInAsync, isError, isPending } = useSignIn()
   const navigate = useNavigate()
 
   async function onSubmit(values: FormValues) {
@@ -158,10 +158,17 @@ export default function Login() {
                     />
                     <FormMessage>{errors.root?.serverError.message}</FormMessage>
                     <Button
-                      className="mt-8"
+                      className="mt-8 gap-1.5"
                       type="submit"
+                      disabled={isPending}
                     >
                       Sign in
+                      {isPending ? (
+                        <Icon
+                          icon="lucide:loader-2"
+                          className="animate-spin"
+                        />
+                      ) : null}
                     </Button>
                   </form>
                 </Form>

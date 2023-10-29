@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
-import { Icon } from '@iconify/react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Icon } from '@/components/ui/icon'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -33,8 +33,8 @@ export function SignUp() {
   } = form
 
   const [passwordVisible, setPasswordVisible] = useState(false)
-  const { mutateAsync: isUsernameTaken, isError: isUsernameTakenError } = useIsUsernameTaken()
-  const { mutateAsync: signUp, isError: isRegisterError } = useRegister()
+  const { mutateAsync: isUsernameTaken, isError: isUsernameTakenError, isPending: isUsernameTakenPending } = useIsUsernameTaken()
+  const { mutateAsync: signUp, isError: isRegisterError, isPending } = useRegister()
   const navigate = useNavigate()
 
   async function onSubmit(values: FormValues) {
@@ -174,10 +174,17 @@ export function SignUp() {
                     />
                     <FormMessage>{errors.root?.serverError.message}</FormMessage>
                     <Button
-                      className="mt-8"
+                      className="mt-8 gap-1.5"
                       type="submit"
+                      disabled={isUsernameTakenPending || isPending}
                     >
                       Create account
+                      {isUsernameTakenPending || isPending ? (
+                        <Icon
+                          icon="lucide:loader-2"
+                          className="animate-spin"
+                        />
+                      ) : null}
                     </Button>
                   </form>
                 </Form>

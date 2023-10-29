@@ -1,4 +1,6 @@
-import React, { useMemo, useState } from 'react'
+import {
+  type ChangeEvent, Fragment, useCallback, useMemo, useState,
+} from 'react'
 import {
   type ColumnDef,
   type ExpandedState,
@@ -11,16 +13,16 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { Icon } from '@iconify/react'
 import { uniq } from 'lodash-es'
 import usePagination from '@mui/material/usePagination'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
+import { toast } from 'sonner'
 import {
   AcquaintAllDialog, ChevronSort, IconSort, Pagination, VocabStatics,
 } from './VocabSource'
-import { useToast } from './use-toast'
+import { Icon } from '@/components/ui/icon'
 import { SegmentedControl } from '@/components/ui/SegmentedControl.tsx'
 import { VocabToggle } from '@/components/ui/ToggleButton.tsx'
 import { cn } from '@/lib/utils.ts'
@@ -47,7 +49,7 @@ import { LEARNING_PHASE, type LearningPhase } from '@/lib/LabeledTire'
 import type { LabelDisplayTable } from '@/components/vocab'
 import { useAcquaintWordsMutation, useRevokeWordMutation } from '@/api/vocab-api'
 import { useSnapshotStore } from '@/store/useVocab'
-import { loginToast } from '@/components/vocab'
+import { LoginToast } from '@/components/vocab'
 
 export function VocabDataTable<TProp extends LabelDisplayTable>({
   data,
@@ -61,30 +63,29 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
   const { t } = useTranslation()
   const { mutateAsync: mutateRevokeWordAsync } = useRevokeWordMutation()
   const { mutateAsync: mutateAcquaintWordsAsync } = useAcquaintWordsMutation()
-  const { toast } = useToast()
   const { username } = useSnapshotStore()
 
-  const columns = useMemo<ColumnDef<TProp>[]>(() => {
-    function handleVocabToggle(vocab: TProp) {
-      if (!username) {
-        toast(loginToast())
-        return
-      }
-
-      const rows2Mutate = [vocab].filter((row) => row.word.length <= 32)
-      if (rows2Mutate.length === 0) {
-        return
-      }
-
-      if (vocab.learningPhase === LEARNING_PHASE.ACQUAINTED) {
-        mutateRevokeWordAsync(rows2Mutate)
-          .catch(console.error)
-      } else {
-        mutateAcquaintWordsAsync(rows2Mutate)
-          .catch(console.error)
-      }
+  const handleVocabToggle = useCallback(function handleVocabToggle(vocab: TProp) {
+    if (!username) {
+      toast(<LoginToast />)
+      return
     }
 
+    const rows2Mutate = [vocab].filter((row) => row.word.length <= 32)
+    if (rows2Mutate.length === 0) {
+      return
+    }
+
+    if (vocab.learningPhase === LEARNING_PHASE.ACQUAINTED) {
+      mutateRevokeWordAsync(rows2Mutate)
+        .catch(console.error)
+    } else {
+      mutateAcquaintWordsAsync(rows2Mutate)
+        .catch(console.error)
+    }
+  }, [username, mutateAcquaintWordsAsync, mutateRevokeWordAsync])
+
+  const columns = useMemo<ColumnDef<TProp>[]>(() => {
     return [
       {
         id: 'timeModified',
@@ -295,7 +296,7 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
         footer: ({ column }) => column.id,
       },
     ]
-  }, [mutateAcquaintWordsAsync, mutateRevokeWordAsync, t, username, toast])
+  }, [handleVocabToggle, t])
 
   const segments = [
     { value: 'new', label: t('recent') },
@@ -330,12 +331,16 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
           id: 'acquaintedStatus',
           value: filterValueAcquaintedStatus(segment),
         },
+        {
+          id: 'vocabOwner',
+          value: filterValueVocabOwner(segment),
+        },
       ],
     },
     autoResetPageIndex: false,
     onExpandedChange: setExpanded,
     onSortingChange: setSorting,
-    getRowCanExpand: (row) => false,
+    getRowCanExpand: () => false,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -377,7 +382,7 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
 
   const columnWord = table.getColumn('word')
 
-  function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleSearchChange(e: ChangeEvent<HTMLInputElement>) {
     columnWord?.setFilterValue(e.target.value)
   }
 
@@ -476,7 +481,7 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
             {table.getRowModel().rows.map((row) => {
               const canExpand = row.getCanExpand()
               return (
-                <React.Fragment key={`_${row.original.word}`}>
+                <Fragment key={`_${row.original.word}`}>
                   <tr className={cn(
                     'group',
                     canExpand ? '[&:not(:has(+tr>td[colspan]))]:shadow-[inset_0px_-4px_10px_-6px_rgba(0,0,0,0.1)]' : '',
@@ -494,17 +499,7 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
                       </td>
                     ))}
                   </tr>
-                  {canExpand && row.getIsExpanded() && (
-                    <tr>
-                      <td
-                        colSpan={row.getVisibleCells().length}
-                        className="py-0"
-                      >
-                        <div />
-                      </td>
-                    </tr>
-                  )}
-                </React.Fragment>
+                </Fragment>
               )
             })}
           </tbody>

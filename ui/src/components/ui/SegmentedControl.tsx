@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { type HTMLAttributes, useEffect } from 'react'
 import { type VariantProps, cva } from 'class-variance-authority'
 import { useMeasure, useSessionStorage } from 'react-use'
 import { cn } from '@/lib/utils.ts'
@@ -25,7 +25,7 @@ const segmentedControlVariants = cva(
   },
 )
 
-export interface SegmentedControlProps<T extends string> extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof segmentedControlVariants> {
+export interface SegmentedControlProps<T extends string> extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof segmentedControlVariants> {
   value: T
   name: string
   segments: Readonly<{ value: T; label: string }[]>

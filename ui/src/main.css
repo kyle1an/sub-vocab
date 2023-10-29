@@ -27,3 +27,7 @@ table {
 html textarea {
   letter-spacing: 0.02em;
 }
+
+body[style] {
+  margin-right: 0 !important;
+}

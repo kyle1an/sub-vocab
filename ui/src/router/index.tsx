@@ -1,5 +1,6 @@
 import {
-  createBrowserRouter,
+  Route,
+  createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom'
 import { RootLayout } from '@/pages/layout'
 import Index from '@/pages/page'
@@ -13,55 +14,53 @@ import { SignUp } from '@/pages/register/page'
 import { Chart } from '@/pages/mine/chart/page'
 import { ImportPage } from '@/pages/import/page'
 
-export const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <RootLayout />,
-    children: [
-      {
-        path: '/',
-        element: <Index />,
-      },
-      {
-        path: '/mine',
-        element: <MineLayout />,
-        children: [
-          {
-            path: '/mine/',
-            element: <MinePage />,
-          },
-          {
-            path: '/mine/chart/',
-            element: <Chart />,
-          },
-        ],
-      },
-      {
-        path: '/import',
-        element: <ImportPage />,
-      },
-      {
-        path: '/login',
-        element: <Login />,
-      },
-      {
-        path: '/register',
-        element: <SignUp />,
-      },
-      {
-        path: '/user',
-        element: <User />,
-        children: [
-          {
-            path: '/user/',
-            element: <UserPage />,
-          },
-          {
-            path: '/user/password',
-            element: <Password />,
-          },
-        ],
-      },
-    ],
-  },
-])
+export const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route
+      element={<RootLayout />}
+    >
+      <Route
+        index
+        element={<Index />}
+      />
+      <Route
+        path="/mine"
+        element={<MineLayout />}
+      >
+        <Route
+          index
+          element={<MinePage />}
+        />
+        <Route
+          path="/mine/chart/"
+          element={<Chart />}
+        />
+      </Route>
+      <Route
+        path="/import"
+        element={<ImportPage />}
+      />
+      <Route
+        path="/login"
+        element={<Login />}
+      />
+      <Route
+        path="/register"
+        element={<SignUp />}
+      />
+      <Route
+        path="/user"
+        element={<User />}
+      >
+        <Route
+          index
+          element={<UserPage />}
+        />
+        <Route
+          path="/user/password"
+          element={<Password />}
+        />
+      </Route>
+    </Route>,
+  ),
+)

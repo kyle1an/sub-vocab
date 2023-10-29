@@ -1,6 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Icon } from '@iconify/react'
 import { CheckIcon } from '@radix-ui/react-icons'
 import type React from 'react'
 import {
@@ -10,6 +9,8 @@ import { useCookie, useLockBodyScroll } from 'react-use'
 import { Disclosure } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useOnClickOutside } from 'usehooks-ts'
+import { useSize } from 'ahooks'
+import { Icon } from '@/components/ui/icon'
 import { Separator } from '@/components/ui/separator.tsx'
 import { cn } from '@/lib/utils.ts'
 import { useSnapshotStore } from '@/store/useVocab'
@@ -79,6 +80,7 @@ export function TopBar({ className }: { className?: string }) {
   } = useExclusiveDisclosure()
 
   useLockBodyScroll(disclosureOpen)
+  const bodySize = useSize(document.body)
 
   const Account = ({ className, style, ...props }: React.HTMLAttributes<HTMLAnchorElement>) => (
     <Link
@@ -208,13 +210,16 @@ export function TopBar({ className }: { className?: string }) {
         as="nav"
         ref={disclosureRef}
         className={cn('ffs-pre fixed z-20 w-full bg-white tracking-wide shadow-sm [&_[href]]:tap-transparent')}
+        style={{
+          width: bodySize?.width,
+        }}
       >
         {({ open, close }) => {
           closeFnRef.current = close
           queueMicrotask(() => setDisclosureOpen(open))
           return (
             <>
-              <div className="mx-auto max-w-7xl px-4 md:px-6 xl:px-0">
+              <div className="mx-auto max-w-7xl px-4">
                 <div className="flex h-11 items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="shrink-0 pl-3 pr-2">
@@ -260,14 +265,7 @@ export function TopBar({ className }: { className?: string }) {
                         rel="noreferrer"
                       >
                         <span className="sr-only">SubVocab on GitHub</span>
-                        <svg
-                          viewBox="0 0 16 16"
-                          className="h-4 w-4"
-                          fill="currentColor"
-                          aria-hidden="true"
-                        >
-                          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
-                        </svg>
+                        <Icon icon="bi:github" />
                       </a>
                     </div>
                   </div>
@@ -342,7 +340,7 @@ export function TopBar({ className }: { className?: string }) {
                           )}
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
-                          className="w-[unset] [&_[role=menuitem]>*>svg]:text-neutral-600 [&_[role=menuitem]>*]:grow [&_[role=menuitem]>*]:px-2 [&_[role=menuitem]>*]:py-1.5 [&_[role=menuitem]]:p-0"
+                          className="w-[unset] [&_[role=menuitem]>*]:grow [&_[role=menuitem]>*]:px-2 [&_[role=menuitem]>*]:py-1.5 [&_[role=menuitem]]:p-0 [&_[role=menuitem]_svg]:text-neutral-600"
                           align="end"
                         >
                           {user.name ? (
@@ -427,13 +425,13 @@ export function TopBar({ className }: { className?: string }) {
                   <Separator className="bg-neutral-100" />
                 </div>
                 {user.name ? (
-                  <div className="flex items-center px-6 pt-5">
+                  <div className="flex h-11 items-center px-6 pt-5">
                     <div className="cursor-pointer">
                       <div className="select-none rounded-full border border-gray-50">
                         <img
                           src={avatarSource}
                           alt="avatar"
-                          className="rounded-full"
+                          className="h-6 w-6 rounded-full"
                         />
                       </div>
                     </div>

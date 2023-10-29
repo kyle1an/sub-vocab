@@ -1,8 +1,8 @@
 import { useForm } from 'react-hook-form'
-import { Icon } from '@iconify/react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { Icon } from '@/components/ui/icon'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -55,7 +55,7 @@ export const Password = () => {
 
   const [oldPasswordVisible, setOldPasswordVisible] = useState(false)
   const [newPasswordVisible, setNewPasswordVisible] = useState(false)
-  const { mutateAsync: changePassword, isError } = useChangePassword()
+  const { mutateAsync: changePassword, isError, isPending } = useChangePassword()
 
   async function onSubmit(values: FormValues) {
     setOldPasswordVisible(false)
@@ -193,10 +193,17 @@ export const Password = () => {
               />
               <FormMessage>{errors.root?.serverError.message}</FormMessage>
               <Button
-                className="mt-8"
+                className="mt-8 gap-1.5"
                 type="submit"
+                disabled={isPending}
               >
                 {t('Confirm Changes')}
+                {isPending ? (
+                  <Icon
+                    icon="lucide:loader-2"
+                    className="animate-spin"
+                  />
+                ) : null}
               </Button>
             </form>
           </Form>

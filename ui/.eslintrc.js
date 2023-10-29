@@ -115,6 +115,7 @@ module.exports = {
     }],
     "no-multi-assign": ["error", { "ignoreNonDeclaration": true }],
 
+    "no-nested-ternary": "off",
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": ["error", {
       "functions": false,

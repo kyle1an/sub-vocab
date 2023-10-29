@@ -16,7 +16,7 @@ export function MineLayout() {
   ] as const
   return (
     <div className="mx-auto flex w-full max-w-screen-lg grow flex-col">
-      <div className="flex w-full grow flex-col px-6 pt-6 md:flex-row md:gap-6 md:pt-0">
+      <div className="flex w-full grow flex-col px-5 pt-6 md:flex-row md:gap-6 md:pt-0">
         <div>
           <SideNav
             nav={subNav}

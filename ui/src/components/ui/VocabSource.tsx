@@ -1,4 +1,6 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import {
+  type ChangeEvent, Fragment, useCallback, useMemo, useState,
+} from 'react'
 import {
   type ColumnDef,
   type ExpandedState,
@@ -12,13 +14,13 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { Icon } from '@iconify/react'
 import { uniq } from 'lodash-es'
 import usePagination, { type UsePaginationItem } from '@mui/material/usePagination'
 import { type SortDirection } from '@mui/material'
 import { Trans, useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
-import { useToast } from './use-toast'
+import { toast } from 'sonner'
+import { Icon } from '@/components/ui/icon'
 import { Examples } from '@/components/ui/Examples.tsx'
 import { SegmentedControl } from '@/components/ui/SegmentedControl.tsx'
 import { VocabToggle } from '@/components/ui/ToggleButton.tsx'
@@ -58,42 +60,39 @@ import type { LabelDisplaySource } from '@/components/vocab'
 import { useAcquaintWordsMutation, useRevokeWordMutation } from '@/api/vocab-api'
 import { useSnapshotStore } from '@/store/useVocab'
 import type { TI } from '@/i18n'
-import { loginToast } from '@/components/vocab'
+import { LoginToast } from '@/components/vocab'
 
-export const ChevronSort = ({
+export function ChevronSort({
   isSorted,
   size = 16,
 }: {
   isSorted: Exclude<SortDirection, false>
   size?: number
-}) => {
+}) {
+  if (isSorted === 'asc') {
+    return (
+      <Icon
+        icon="lucide:chevron-up"
+        width={size}
+      />
+    )
+  }
+
   return (
-    <>
-      {{
-        asc: (
-          <Icon
-            icon="lucide:chevron-up"
-            width={size}
-          />
-        ),
-        desc: (
-          <Icon
-            icon="lucide:chevron-down"
-            width={size}
-          />
-        ),
-      }[isSorted]}
-    </>
+    <Icon
+      icon="lucide:chevron-down"
+      width={size}
+    />
   )
 }
 
-export const IconSort = ({
+export function IconSort({
   isSorted,
   className = '',
 }: {
   isSorted: SortDirection
   className?: string
-}) => {
+}) {
   return (
     <div className={cn('inline-block h-[16px] w-[16px] text-zinc-400', className)}>
       {isSorted ? (
@@ -117,12 +116,11 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
   const { t } = useTranslation()
   const { mutateAsync: mutateRevokeWordAsync } = useRevokeWordMutation()
   const { mutateAsync: mutateAcquaintWordsAsync } = useAcquaintWordsMutation()
-  const { toast } = useToast()
   const { username } = useSnapshotStore()
 
   const handleVocabToggle = useCallback(function handleVocabToggle(vocab: TProp) {
     if (!username) {
-      toast(loginToast())
+      toast(<LoginToast />)
       return
     }
 
@@ -138,7 +136,7 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
       mutateAcquaintWordsAsync(rows2Mutate)
         .catch(console.error)
     }
-  }, [username, mutateAcquaintWordsAsync, mutateRevokeWordAsync, toast])
+  }, [username, mutateAcquaintWordsAsync, mutateRevokeWordAsync])
 
   const columns = useMemo<ColumnDef<TProp>[]>(() => {
     return [
@@ -236,20 +234,23 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
             </div>
           )
         },
-        cell: ({ row }) => (
-          <>
-            {row.original.wFamily.map((w, i) => (
-              <div
-                key={w}
-                className="ml-1.5 inline-block cursor-text select-text font-compact text-[16px] text-black"
-                onClick={(ev) => ev.stopPropagation()}
-              >
-                <span className={`${i !== 0 ? 'text-neutral-500' : ''}`}>{w}</span>
-                {i !== row.original.wFamily.length - 1 && <span className="pr-1 text-neutral-300">, </span>}
-              </div>
-            ))}
-          </>
-        ),
+        cell: ({ row }) => {
+          const { wFamily } = row.original
+          return (
+            <>
+              {wFamily.map((w, i) => (
+                <div
+                  key={w}
+                  className="ml-1.5 inline-block cursor-text select-text font-compact text-[16px] text-black"
+                  onClick={(ev) => ev.stopPropagation()}
+                >
+                  <span className={`${i !== 0 ? 'text-neutral-500' : ''}`}>{w}</span>
+                  {i !== wFamily.length - 1 && <span className="pr-1 text-neutral-300">, </span>}
+                </div>
+              ))}
+            </>
+          )
+        },
         footer: ({ column }) => column.id,
       },
       {
@@ -300,22 +301,9 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
             >
               <div className="flex grow items-center justify-center text-zinc-400">
                 {isSorted ? (
-                  <>
-                    {{
-                      asc: (
-                        <Icon
-                          icon="lucide:chevron-up"
-                          width={16}
-                        />
-                      ),
-                      desc: (
-                        <Icon
-                          icon="lucide:chevron-down"
-                          width={16}
-                        />
-                      ),
-                    }[isSorted]}
-                  </>
+                  <ChevronSort
+                    isSorted={isSorted}
+                  />
                 ) : (
                   <Icon
                     icon="lucide:check-circle"
@@ -434,7 +422,7 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
 
   const columnWord = table.getColumn('word')
 
-  function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleSearchChange(e: ChangeEvent<HTMLInputElement>) {
     columnWord?.setFilterValue(e.target.value)
   }
 
@@ -532,7 +520,7 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
             {table.getRowModel().rows.map((row) => {
               const canExpand = row.getCanExpand()
               return (
-                <React.Fragment key={`_${row.original.word}`}>
+                <Fragment key={`_${row.original.word}`}>
                   <tr className={cn(
                     'group',
                     canExpand ? '[&:not(:has(+tr>td[colspan]))]:shadow-[inset_0px_-4px_10px_-6px_rgba(0,0,0,0.1)]' : '',
@@ -564,7 +552,7 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
                       </td>
                     </tr>
                   )}
-                </React.Fragment>
+                </Fragment>
               )
             })}
           </tbody>
@@ -626,95 +614,100 @@ export function Pagination<T>({
     <div className="flex h-7 py-1">
       {items.map(({
         page, type, selected, ...item
-      }, index) => {
+      }) => {
         const size = 17
-        const Item = (props: {
-              className?: string
-            }) => {
-          if (type === 'previous') {
-            return (
-              <button
-                type="button"
-                className={cn('text-zinc-500', props.className)}
-                disabled={!table.getCanPreviousPage()}
-                onClick={table.previousPage}
-              >
-                <Icon
-                  icon="lucide:chevron-left"
-                  width={size}
-                />
-              </button>
-            )
-          } if (type === 'start-ellipsis') {
-            return (
-              <button
-                className={cn('group', props.className)}
-                type="button"
-                onClick={() => {
-                  table.setPageIndex(Math.max(0, table.getState().pagination.pageIndex - 2))
-                }}
-              >
-                <Icon
-                  icon="lucide:chevrons-left"
-                  className="hidden text-zinc-500 group-hover:inline-block"
-                  width={size}
-                />
-                <span className="group-hover:hidden">...</span>
-              </button>
-            )
-          } if (type === 'first' || type === 'page' || type === 'last') {
-            return (
-              <button
-                className={cn(props.className, selected ? 'border-[color:hsl(var(--border))] font-bold' : '')}
-                type="button"
-                onClick={() => {
-                  table.setPageIndex(Number(page) - 1)
-                }}
-              >
-                {page}
-              </button>
-            )
-          } if (type === 'end-ellipsis') {
-            return (
-              <button
-                className={cn('group', props.className)}
-                type="button"
-                onClick={() => {
-                  table.setPageIndex(Math.min(table.getState().pagination.pageIndex + 2, table.getPageCount() - 1))
-                }}
-              >
-                <Icon
-                  icon="lucide:chevrons-right"
-                  className="hidden text-zinc-500 group-hover:inline-block"
-                  width={size}
-                />
-                <span className="group-hover:hidden">...</span>
-              </button>
-            )
-          } if (type === 'next') {
-            return (
-              <button
-                className={cn('text-zinc-500', props.className)}
-                type="button"
-                disabled={!table.getCanNextPage()}
-                onClick={table.nextPage}
-              >
-                <Icon
-                  icon="lucide:chevron-right"
-                  width={size}
-                />
-              </button>
-            )
-          }
-          return null
+        const className = 'flex min-w-[27px] items-center justify-center rounded border border-transparent px-1 text-xs tabular-nums disabled:text-zinc-300'
+
+        if (type === 'previous') {
+          return (
+            <button
+              type="button"
+              className={cn('text-zinc-500', className)}
+              disabled={!table.getCanPreviousPage()}
+              onClick={table.previousPage}
+              key={`${type}${page}`}
+            >
+              <Icon
+                icon="lucide:chevron-left"
+                width={size}
+              />
+            </button>
+          )
         }
 
-        return (
-          <Item
-            key={index}
-            className="flex min-w-[27px] items-center justify-center rounded border border-transparent px-1 text-xs tabular-nums disabled:text-zinc-300"
-          />
-        )
+        if (type === 'start-ellipsis') {
+          return (
+            <button
+              className={cn('group', className)}
+              type="button"
+              onClick={() => {
+                table.setPageIndex(Math.max(0, table.getState().pagination.pageIndex - 2))
+              }}
+              key={`${type}${page}`}
+            >
+              <Icon
+                icon="lucide:chevrons-left"
+                className="hidden text-zinc-500 group-hover:inline-block"
+                width={size}
+              />
+              <span className="group-hover:hidden">...</span>
+            </button>
+          )
+        }
+
+        if (type === 'first' || type === 'page' || type === 'last') {
+          return (
+            <button
+              className={cn(className, selected ? 'border-[color:hsl(var(--border))] font-bold' : '')}
+              type="button"
+              onClick={() => {
+                table.setPageIndex(Number(page) - 1)
+              }}
+              key={`${type}${page}`}
+            >
+              {page}
+            </button>
+          )
+        }
+
+        if (type === 'end-ellipsis') {
+          return (
+            <button
+              className={cn('group', className)}
+              type="button"
+              onClick={() => {
+                table.setPageIndex(Math.min(table.getState().pagination.pageIndex + 2, table.getPageCount() - 1))
+              }}
+              key={`${type}${page}`}
+            >
+              <Icon
+                icon="lucide:chevrons-right"
+                className="hidden text-zinc-500 group-hover:inline-block"
+                width={size}
+              />
+              <span className="group-hover:hidden">...</span>
+            </button>
+          )
+        }
+
+        if (type === 'next') {
+          return (
+            <button
+              className={cn('text-zinc-500', className)}
+              type="button"
+              disabled={!table.getCanNextPage()}
+              onClick={table.nextPage}
+              key={`${type}${page}`}
+            >
+              <Icon
+                icon="lucide:chevron-right"
+                width={size}
+              />
+            </button>
+          )
+        }
+
+        return null
       })}
     </div>
   )
@@ -766,11 +759,10 @@ export function VocabStatics(props: {rowsCountFiltered: number; rowsCountNew: nu
 export function AcquaintAllDialog<T extends VocabState>({ vocabulary }: {vocabulary: T[]}) {
   const { t } = useTranslation()
   const { mutateAsync: mutateAcquaintWordsAsync } = useAcquaintWordsMutation()
-  const { toast } = useToast()
   const { username } = useSnapshotStore()
   function acquaintAllVocab(rows: T[]) {
     if (!username) {
-      toast(loginToast())
+      toast(<LoginToast />)
       return
     }
 
