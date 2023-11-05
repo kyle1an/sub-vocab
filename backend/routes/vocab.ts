@@ -1,9 +1,8 @@
 import express from 'express'
 import mysql from 'mysql2'
-import type { Response } from 'express-serve-static-core'
+import type { ParamsDictionary, Request } from 'express-serve-static-core'
 import { type RSH, sql } from '../config/connection'
 import { tokenChecker, tokenInvalid } from '../utils/util'
-import type { RequestBody } from '../types'
 import type { AcquaintWordsResponse, LabelDB, StemsMapping, ToggleWordResponse } from '../../ui/src/types/shared'
 import type { UserVocab } from '../../ui/src/api/vocab-api'
 import type { Username } from '../../ui/src/api/user'
@@ -20,7 +19,7 @@ router.get('/', (req, res, next) => {
   res.send('respond with a resource')
 })
 
-router.post('/queryWords', async (req: RequestBody<Username>, res: Response<LabelDB[]>) => {
+router.post('/queryWords', async (req: Request<ParamsDictionary, LabelDB[], Username>, res) => {
   const user = await tokenInvalid(req, res) ? '' : req.body.username
   sql<RSH<LabelDB[]>>`CALL words_from_user(get_user_id_by_name(${user}));`
     .then(([rows]) => {
@@ -31,7 +30,7 @@ router.post('/queryWords', async (req: RequestBody<Username>, res: Response<Labe
     })
 })
 
-router.post('/stemsMapping', async (req: RequestBody, res: Response<StemsMapping>) => {
+router.post('/stemsMapping', async (req: Request<ParamsDictionary, StemsMapping>, res) => {
   sql<RSH<Stems[]>>`CALL stem_derivation_link();`
     .then(([rows]) => {
       const map: Record<string, string[]> = {}
@@ -47,7 +46,7 @@ router.post('/stemsMapping', async (req: RequestBody, res: Response<StemsMapping
     })
 })
 
-router.post('/acquaintWords', tokenChecker, async (req: RequestBody<UserVocab>, res: Response<AcquaintWordsResponse>) => {
+router.post('/acquaintWords', tokenChecker, async (req: Request<ParamsDictionary, AcquaintWordsResponse, UserVocab>, res) => {
   const { words, username } = req.body
   Promise.all(words.map((word) => sql<mysql.ResultSetHeader>`CALL acquaint_vocab(${word}, get_user_id_by_name(${username}));`))
     .then(() => {
@@ -58,7 +57,7 @@ router.post('/acquaintWords', tokenChecker, async (req: RequestBody<UserVocab>, 
     })
 })
 
-router.post('/revokeWord', tokenChecker, async (req: RequestBody<UserVocab>, res: Response<ToggleWordResponse>) => {
+router.post('/revokeWord', tokenChecker, async (req: Request<ParamsDictionary, ToggleWordResponse, UserVocab>, res) => {
   const { words, username } = req.body
   Promise.all(words.map((word) => sql<mysql.ResultSetHeader>`CALL revoke_vocab_record(${word}, get_user_id_by_name(${username}));`))
     .then(() => {

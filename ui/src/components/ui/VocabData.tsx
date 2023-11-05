@@ -46,10 +46,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { LEARNING_PHASE, type LearningPhase } from '@/lib/LabeledTire'
-import type { LabelDisplayTable } from '@/components/vocab'
+import type { LabelDisplayTable } from '@/lib/vocab'
 import { useAcquaintWordsMutation, useRevokeWordMutation } from '@/api/vocab-api'
 import { useSnapshotStore } from '@/store/useVocab'
-import { LoginToast } from '@/components/vocab'
+import { LoginToast } from '@/components/login-toast'
 
 export function VocabDataTable<TProp extends LabelDisplayTable>({
   data,
