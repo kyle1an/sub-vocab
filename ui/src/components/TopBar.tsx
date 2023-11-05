@@ -65,55 +65,40 @@ function useExclusiveDisclosure<T extends HTMLElement>() {
   }
 }
 
-export function TopBar({ className }: { className?: string }) {
-  const { t, i18n } = useTranslation()
-  const { username } = useSnapshotStore()
-  const user = {
-    name: username,
-  }
-  const navigation = [
-    { name: t('mine'), href: '/mine', current: true },
-    { name: 'About', href: '/', current: false },
-  ]
-  const {
-    ref: disclosureRef, closeFnRef, open: disclosureOpen, setOpen: setDisclosureOpen,
-  } = useExclusiveDisclosure()
+const Account = ({ className, style, ...props }: React.HTMLAttributes<HTMLAnchorElement>) => (
+  <Link
+    to="/register"
+    className={cn('inline-flex items-center gap-3', className)}
+    style={{ boxShadow: 'inset 0 1px 0 0 hsl(0deg 0% 100% / 40%)', ...style }}
+    {...props}
+  >
+    <Icon
+      icon="lucide:cog"
+      className=""
+      width={16}
+    />
+    <span>Account</span>
+  </Link>
+)
 
-  useLockBodyScroll(disclosureOpen)
-  const bodySize = useSize(document.body)
+const SignIn = ({ className, ...props }: React.HTMLAttributes<HTMLAnchorElement>) => (
+  <Link
+    to="/login"
+    className={cn('inline-flex items-center gap-3', className)}
+    {...props}
+  >
+    <Icon
+      icon="mingcute:user-4-fill"
+      className=""
+      width={16}
+    />
+    <span>Sign in</span>
+  </Link>
+)
 
-  const Account = ({ className, style, ...props }: React.HTMLAttributes<HTMLAnchorElement>) => (
-    <Link
-      to="/register"
-      className={cn('inline-flex items-center gap-3', className)}
-      style={{ boxShadow: 'inset 0 1px 0 0 hsl(0deg 0% 100% / 40%)', ...style }}
-      {...props}
-    >
-      <Icon
-        icon="lucide:cog"
-        className=""
-        width={16}
-      />
-      <span>Account</span>
-    </Link>
-  )
-
-  const SignIn = ({ className, ...props }: React.HTMLAttributes<HTMLAnchorElement>) => (
-    <Link
-      to="/login"
-      className={cn('inline-flex items-center gap-3', className)}
-      {...props}
-    >
-      <Icon
-        icon="mingcute:user-4-fill"
-        className=""
-        width={16}
-      />
-      <span>Sign in</span>
-    </Link>
-  )
-
-  const Settings = ({ className, ...props }: React.HTMLAttributes<HTMLAnchorElement>) => (
+const Settings = ({ className, ...props }: React.HTMLAttributes<HTMLAnchorElement>) => {
+  const { t } = useTranslation()
+  return (
     <Link
       to="/user"
       className={cn('inline-flex items-center gap-3', className)}
@@ -129,8 +114,29 @@ export function TopBar({ className }: { className?: string }) {
       </span>
     </Link>
   )
+}
 
-  const SignOut = ({ className, onClick, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+const SignOut = ({ className, onClick, ...props }: React.HTMLAttributes<HTMLDivElement>) => {
+  const { t } = useTranslation()
+  const { username } = useSnapshotStore()
+  const { mutateAsync: logOut } = useLogOut()
+  const navigate = useNavigate()
+
+  function logout() {
+    logOut({
+      username,
+    })
+      .then((logOutRes) => {
+        if (logOutRes?.success) {
+          requestAnimationFrame(() => {
+            navigate('/')
+          })
+        }
+      })
+      .catch(console.error)
+  }
+
+  return (
     <div
       className={cn('inline-flex items-center gap-3', className)}
       onClick={(e) => {
@@ -149,44 +155,46 @@ export function TopBar({ className }: { className?: string }) {
       </span>
     </div>
   )
+}
+
+export function TopBar({ className }: { className?: string }) {
+  const { t, i18n } = useTranslation()
+  const { username } = useSnapshotStore()
+  const user = {
+    name: username,
+  }
+  const navigation = [
+    { name: t('mine'), href: '/mine', current: true },
+    { name: 'About', href: '/', current: false },
+  ]
+  const {
+    ref: disclosureRef, closeFnRef, open: disclosureOpen, setOpen: setDisclosureOpen,
+  } = useExclusiveDisclosure()
+
+  useLockBodyScroll(disclosureOpen)
+  const bodySize = useSize(document.body)
 
   const userNavigation = [
     ...!user.name ? [
       {
         name: 'Sign up',
-        El: Account,
+        Component: Account,
       },
       {
         name: 'Sign in',
-        El: SignIn,
+        Component: SignIn,
       },
     ] : [
       {
         name: 'Settings',
-        El: Settings,
+        Component: Settings,
       },
       {
         name: 'Sign Out',
-        El: SignOut,
+        Component: SignOut,
       },
     ],
   ] as const
-  const navigate = useNavigate()
-  const { mutateAsync: logOut } = useLogOut()
-
-  function logout() {
-    logOut({
-      username,
-    })
-      .then((logOutRes) => {
-        if (logOutRes?.success) {
-          requestAnimationFrame(() => {
-            navigate('/')
-          })
-        }
-      })
-      .catch(console.error)
-  }
 
   const [openPopover, setOpenPopover] = useState(false)
   const [locale, updateLocale, deleteLocale] = useCookie('_locale')
@@ -293,6 +301,7 @@ export function TopBar({ className }: { className?: string }) {
                             {locales.map((language) => (
                               <CommandItem
                                 key={language.value}
+                                disabled={value === language.value}
                                 onSelect={() => {
                                   setValue(language.value)
                                   setOpenPopover(false)
@@ -441,12 +450,12 @@ export function TopBar({ className }: { className?: string }) {
                   </div>
                 ) : null}
                 <div className="flex flex-col gap-3.5 px-7 py-4">
-                  {userNavigation.map((Item) => (
+                  {userNavigation.map(({ Component, ...item }) => (
                     <div
-                      key={Item.name}
+                      key={item.name}
                       className="flex items-center"
                     >
-                      <Item.El
+                      <Component
                         className="inline-flex shrink-0 items-center gap-3 rounded-md [&>*]:text-neutral-600 [&>*]:transition-all [&>*]:hover:text-black [&>svg]:text-neutral-400"
                         onClick={() => closeFnRef.current()}
                       />

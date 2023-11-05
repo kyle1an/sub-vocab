@@ -1,16 +1,15 @@
 import crypto from 'crypto'
 import express from 'express'
 import mysql from 'mysql2'
-import type { Response } from 'express-serve-static-core'
+import type { ParamsDictionary, Request, Response } from 'express-serve-static-core'
 import { type RSH, sql } from '../config/connection'
 import { daysIn, tokenChecker } from '../utils/util'
-import type { RequestBody } from '../types'
 import type { LoginResponse, RegisterResponse, Status, UsernameTaken } from '../../ui/src/types/shared'
 import type { Credential, NewCredential, NewUsername, Username } from '../../ui/src/api/user'
 
 const router = express.Router()
 
-router.post('/login', (req: RequestBody<Credential>, res: Response<LoginResponse>) => {
+router.post('/login', (req: Request<ParamsDictionary, LoginResponse, Credential>, res) => {
   const token = crypto.randomBytes(32).toString('hex')
   const { username, password } = req.body
   sql<[{ output: number }]>`SELECT login_token(${username}, ${password}, ${token}) AS output;`
@@ -28,7 +27,7 @@ router.post('/login', (req: RequestBody<Credential>, res: Response<LoginResponse
     })
 })
 
-router.post('/register', (req: RequestBody<Credential>, res: Response<RegisterResponse>) => {
+router.post('/register', (req: Request<ParamsDictionary, RegisterResponse, Credential>, res) => {
   const { username, password } = req.body
   sql<RegisterResponse>`SELECT user_register(${username}, ${password}) as result;`
     .then(([rows]) => {
@@ -39,7 +38,7 @@ router.post('/register', (req: RequestBody<Credential>, res: Response<RegisterRe
     })
 })
 
-router.post('/changeUsername', tokenChecker, (req: RequestBody<NewUsername>, res: Response<Status>) => {
+router.post('/changeUsername', tokenChecker, (req: Request<ParamsDictionary, Status, NewUsername>, res: Response) => {
   const { username, newUsername } = req.body
   sql<RegisterResponse>`SELECT change_username(get_user_id_by_name(${username}), ${newUsername}) as result;`
     .then(([rows]) => {
@@ -53,7 +52,7 @@ router.post('/changeUsername', tokenChecker, (req: RequestBody<NewUsername>, res
     })
 })
 
-router.post('/changePassword', (req: RequestBody<NewCredential>, res: Response<Status>) => {
+router.post('/changePassword', (req: Request<ParamsDictionary, Status, NewCredential>, res) => {
   const { username, newPassword, oldPassword } = req.body
   sql<mysql.ResultSetHeader>`CALL change_password(get_user_id_by_name(${username}), ${newPassword}, ${oldPassword});`
     .then(([rows]) => {
@@ -66,7 +65,7 @@ router.post('/changePassword', (req: RequestBody<NewCredential>, res: Response<S
     })
 })
 
-router.post('/logoutToken', (req: RequestBody<Username>, res: Response<Status>) => {
+router.post('/logoutToken', (req: Request<ParamsDictionary, Status, Username>, res) => {
   const { username } = req.body
   if (!req.cookies.acct) {
     return res.json({ success: false })
@@ -85,7 +84,7 @@ router.post('/logoutToken', (req: RequestBody<Username>, res: Response<Status>) 
     })
 })
 
-router.post('/existsUsername', (req: RequestBody<Username>, res: Response<UsernameTaken>) => {
+router.post('/existsUsername', (req: Request<ParamsDictionary, UsernameTaken, Username>, res) => {
   const { username } = req.body
   sql<RSH<[{ does_exist: number }]>>`CALL username_exists(${username});`
     .then(([rows]) => {

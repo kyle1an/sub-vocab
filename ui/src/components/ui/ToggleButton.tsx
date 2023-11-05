@@ -1,7 +1,7 @@
 import { Icon } from '@/components/ui/icon'
 import { LEARNING_PHASE } from '@/lib/LabeledTire.ts'
 import { cn } from '@/lib/utils'
-import type { LabelDisplayTable } from '@/components/vocab'
+import type { LabelDisplayTable } from '@/lib/vocab'
 
 export function VocabToggle<T extends LabelDisplayTable>({
   row: {
@@ -19,6 +19,7 @@ export function VocabToggle<T extends LabelDisplayTable>({
   return (
     <button
       type="button"
+      aria-label="Toggle vocabulary state"
       disabled={updating}
       className={cn(
         'box-border inline-flex h-6 max-h-full w-6 grow-0 items-center justify-center whitespace-nowrap rounded-full border p-[5px] text-center align-middle text-xs/3 transition-colors active:scale-95 [&:not(:disabled)]:cursor-pointer',

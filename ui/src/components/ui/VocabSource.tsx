@@ -56,11 +56,11 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
-import type { LabelDisplaySource } from '@/components/vocab'
+import type { LabelDisplaySource } from '@/lib/vocab'
 import { useAcquaintWordsMutation, useRevokeWordMutation } from '@/api/vocab-api'
 import { useSnapshotStore } from '@/store/useVocab'
 import type { TI } from '@/i18n'
-import { LoginToast } from '@/components/vocab'
+import { LoginToast } from '@/components/login-toast'
 
 export function ChevronSort({
   isSorted,
@@ -542,6 +542,7 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
                     <tr>
                       <td
                         colSpan={row.getVisibleCells().length}
+                        aria-label="Examples"
                         className="py-0"
                       >
                         <Examples
@@ -622,6 +623,7 @@ export function Pagination<T>({
           return (
             <button
               type="button"
+              aria-label="Previous page"
               className={cn('text-zinc-500', className)}
               disabled={!table.getCanPreviousPage()}
               onClick={table.previousPage}
@@ -695,6 +697,7 @@ export function Pagination<T>({
             <button
               className={cn('text-zinc-500', className)}
               type="button"
+              aria-label="Next page"
               disabled={!table.getCanNextPage()}
               onClick={table.nextPage}
               key={`${type}${page}`}

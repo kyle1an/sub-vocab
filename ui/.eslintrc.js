@@ -12,6 +12,7 @@ module.exports = {
     "plugin:import/typescript",
     "plugin:react-hooks/recommended",
     "plugin:tailwindcss/recommended",
+    "plugin:@tanstack/eslint-plugin-query/recommended",
     "airbnb",
     "airbnb/hooks",
     "../.eslintrc.js",
@@ -21,7 +22,11 @@ module.exports = {
   "parserOptions": {
     "project": true,
   },
-  "plugins": ["react-refresh"],
+  "plugins": [
+    "react-refresh",
+    "@stylistic",
+    "@tanstack/query",
+  ],
   "rules": {
     "prefer-const": "off",
     // Note: you must disable the base rule as it can report incorrect errors
@@ -75,7 +80,7 @@ module.exports = {
     "react/destructuring-assignment": "off",
     "react/prop-types": "off",
     "semi": "off",
-    "@typescript-eslint/semi": ["warn", "never"],
+    "@stylistic/semi": ["warn", "never"],
     "@typescript-eslint/type-annotation-spacing": "warn",
     "@typescript-eslint/member-delimiter-style": ["warn", {
       "multiline": {

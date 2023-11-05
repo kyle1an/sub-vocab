@@ -1,7 +1,3 @@
-import { ToastAction } from '@radix-ui/react-toast'
-import { Link } from 'react-router-dom'
-import { Button } from './ui/button'
-import type { Toast } from './ui/use-toast'
 import { sortByChar } from '@/lib/utils.ts'
 import LabeledTire, {
   LEARNING_PHASE, type LearningPhase, type TrieWordLabel, type VocabState, type WordLocator,
@@ -62,7 +58,7 @@ function formVocab($: TrieWordLabel) {
   return labelDisplaySource
 }
 
-export function logVocabInfo<T extends VocabState>(listOfVocab: T[]) {
+function logVocabInfo<T extends VocabState>(listOfVocab: T[]) {
   const untouchedVocabList = [...listOfVocab].sort((a, b) => sortByChar(a.word, b.word))
   console.log(`(${untouchedVocabList.length}) words`, { _: untouchedVocabList })
 }
@@ -85,32 +81,4 @@ export const generatedVocabTrie = (inputText: string, baseVocab: VocabState[], i
     count: trie.wordCount,
     sentences: trie.sentences,
   }
-}
-
-export function LoginToast() {
-  return (
-    <div className="flex w-full flex-col gap-1">
-      <h2 className="font-bold">
-        Login required
-      </h2>
-      <div className="flex flex-row justify-between">
-        <div>
-          Please log in to mark words.
-        </div>
-        <div className="flex items-end">
-          <Link
-            to="/login"
-          >
-            <Button
-              variant="outline"
-              className="whitespace-nowrap"
-              size="sm"
-            >
-              Sign in
-            </Button>
-          </Link>
-        </div>
-      </div>
-    </div>
-  )
 }

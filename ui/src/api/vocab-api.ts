@@ -1,5 +1,4 @@
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import { pick } from 'lodash-es'
 import { postRequest } from '@/lib/request'
 import { queryClient } from '@/lib/utils'
 import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
@@ -14,23 +13,25 @@ export interface UserVocab extends Username {
   words: string[]
 }
 
+async function getVocabulary(username: string) {
+  const labelsDB = await postRequest<LabelDB[]>(
+    `/api/api/queryWords`,
+    { username },
+    { timeout: 4000 },
+  )
+  return labelsDB.map((sieve): VocabState => ({
+    word: sieve.w,
+    isUser: Boolean(sieve.is_user),
+    original: Boolean(sieve.original),
+    rank: sieve.rank,
+    timeModified: sieve.time_modified,
+    learningPhase: sieve.acquainted ? LEARNING_PHASE.ACQUAINTED : LEARNING_PHASE.NEW,
+  }))
+}
+
 const getVocabularyOptions = ({ username }: Username) => queryOptions({
-  queryKey: ['userWords', username],
-  queryFn: async function getVocabulary() {
-    const labelsDB = await postRequest<LabelDB[]>(
-      `/api/api/queryWords`,
-      { username },
-      { timeout: 4000 },
-    )
-    return labelsDB.map((sieve): VocabState => ({
-      word: sieve.w,
-      isUser: Boolean(sieve.is_user),
-      original: Boolean(sieve.original),
-      rank: sieve.rank,
-      timeModified: sieve.time_modified,
-      learningPhase: sieve.acquainted ? LEARNING_PHASE.ACQUAINTED : LEARNING_PHASE.NEW,
-    }))
-  },
+  queryKey: ['userWords', username] as const,
+  queryFn: () => getVocabulary(username),
   placeholderData: [],
   refetchOnWindowFocus: false,
   retry: 10,
@@ -41,16 +42,18 @@ export function useVocabularyQuery() {
   return useQuery(getVocabularyOptions({ username }))
 }
 
+function irregularMaps() {
+  return postRequest<StemsMapping>(
+    `/api/api/stemsMapping`,
+    {},
+    { timeout: 2000 },
+  )
+}
+
 export function useIrregularMapsQuery() {
   return useQuery({
-    queryKey: ['irregularMaps'],
-    queryFn: function irregularMaps() {
-      return postRequest<StemsMapping>(
-        `/api/api/stemsMapping`,
-        {},
-        { timeout: 2000 },
-      )
-    },
+    queryKey: ['irregularMaps'] as const,
+    queryFn: irregularMaps,
     placeholderData: [],
     refetchOnWindowFocus: false,
     retry: 10,

@@ -1,3 +1,5 @@
+import type { ObjectValues } from '@/lib/LabeledTire'
+
 export type RegisterResponse = [{ result: number} ]
 
 export interface UsernameTaken {
@@ -15,7 +17,7 @@ export type StemsMapping = string[][]
 export interface LabelDB extends Record<string, unknown> {
   w: string
   acquainted: number | boolean
-  is_user: number | boolean
+  is_user: Ownership
   original: number | boolean
   rank: number | null
   time_modified: string | null
@@ -25,3 +27,11 @@ export interface Status {
   success: boolean
   message?: string
 }
+
+type OWNERSHIP = {
+  GRANTED: 0
+  USER: 1
+  ANON_USER: 2
+}
+
+export type Ownership = ObjectValues<OWNERSHIP>

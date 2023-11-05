@@ -7,7 +7,7 @@ import { FileInput } from '@/components/ui/FileInput'
 import { TextareaInput } from '@/components/ui/TextareaInput'
 import {
   type LabelDisplaySource, generatedVocabTrie,
-} from '@/components/vocab'
+} from '@/lib/vocab'
 import { VocabSourceTable } from '@/components/ui/VocabSource.tsx'
 import {
   useIrregularMapsQuery, useVocabularyQuery,

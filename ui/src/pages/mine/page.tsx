@@ -1,7 +1,7 @@
 import {
   useEffect, useState,
 } from 'react'
-import type { LabelDisplayTable } from '@/components/vocab'
+import type { LabelDisplayTable } from '@/lib/vocab'
 import { purgedRows, statusRetainedList } from '@/lib/vocab-utils'
 import { VocabDataTable } from '@/components/ui/VocabData'
 import { useVocabularyQuery } from '@/api/vocab-api'
