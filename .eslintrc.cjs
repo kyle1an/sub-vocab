@@ -83,7 +83,7 @@ module.exports = {
   },
   "overrides": [
     {
-      "files": [".eslintrc.js"],
+      "files": [".eslintrc.cjs", ".eslintrc.js"],
       "rules": {
         "quotes": [2, "double"],
         "quote-props": [2, "always"],

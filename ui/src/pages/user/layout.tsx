@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Footer } from '@/components/Footer'
 import { useSnapshotStore } from '@/store/useVocab'
@@ -6,6 +6,11 @@ import { SideNav } from '@/components/SideNav'
 
 export default function User() {
   const { t } = useTranslation()
+  const { username } = useSnapshotStore()
+  if (!username) {
+    return <Navigate to="/login" />
+  }
+
   const subNav = [
     {
       title: t('Profile'),
@@ -16,7 +21,6 @@ export default function User() {
       to: '/user/password',
     },
   ] as const
-  const { username } = useSnapshotStore()
   return (
     <>
       <div className="mx-auto flex h-full w-full max-w-screen-lg grow flex-col p-6">

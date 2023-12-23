@@ -18,7 +18,7 @@ export const SideNav = ({
         {navList.map((nav) => (
           <li
             key={nav.to}
-            className={`${location.pathname === nav.to ? '[&>a]:bg-zinc-100' : ''}`}
+            className={cn(location.pathname === nav.to && '[&>a]:bg-zinc-100')}
           >
             <Link
               to={nav.to}

@@ -15,7 +15,7 @@ module.exports = {
     "plugin:@tanstack/eslint-plugin-query/recommended",
     "airbnb",
     "airbnb/hooks",
-    "../.eslintrc.js",
+    "../.eslintrc.cjs",
   ],
   "ignorePatterns": ["dist", "/built/"],
   "parser": "@typescript-eslint/parser",
@@ -120,6 +120,7 @@ module.exports = {
     }],
     "no-multi-assign": ["error", { "ignoreNonDeclaration": true }],
 
+    "react/jsx-no-leaked-render": ["warn"],
     "no-nested-ternary": "off",
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": ["error", {

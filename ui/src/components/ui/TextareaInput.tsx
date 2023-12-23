@@ -33,7 +33,7 @@ export const TextareaInput = (props: {
   return (
     <textarea
       value={props.value}
-      className="h-[calc(10*1.5em-2*3rem/4)] max-h-[350px] w-full resize-none rounded-none px-[30px] py-3 align-top outline-none ffs-[normal] md:h-full md:max-h-full"
+      className="h-full max-h-full w-full resize-none rounded-none px-[30px] py-3 align-top outline-none ffs-[normal]"
       placeholder={props.placeholder ?? ''}
       onChange={textareaOnChange}
       onDrop={dropHandler}

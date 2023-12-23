@@ -23,7 +23,7 @@ export function MinePage() {
       <div className="flex h-14">
         <div className="flex-auto grow" />
       </div>
-      <div className="m-auto flex max-w-full flex-col overflow-visible pb-6 md:h-[calc(100%-4px*14)] md:pb-8">
+      <div className="m-auto flex max-w-full flex-col overflow-visible pb-7 md:h-[calc(100%-4px*14)]">
         <VocabDataTable
           data={rows}
           onPurge={handlePurge}

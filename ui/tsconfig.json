@@ -28,7 +28,9 @@
   },
   "include": [
     ".eslintrc.js",
+    ".eslintrc.cjs",
     "**/*.config.js",
+    "**/*.config.cjs",
     "**/*.config.ts",
     "src/**/*.ts",
     "src/**/*.d.ts",

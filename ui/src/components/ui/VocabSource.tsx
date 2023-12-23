@@ -2,10 +2,10 @@ import {
   type ChangeEvent, Fragment, useCallback, useMemo, useState,
 } from 'react'
 import {
-  type ColumnDef,
   type ExpandedState,
   type SortingState,
   type Table,
+  createColumnHelper,
   flexRender,
   getCoreRowModel,
   getExpandedRowModel,
@@ -31,6 +31,7 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select.tsx'
@@ -102,17 +103,20 @@ export function IconSort({
   )
 }
 
-export function VocabSourceTable<TProp extends LabelDisplaySource>({
+const columnHelper = createColumnHelper<LabelDisplaySource>()
+
+export function VocabSourceTable({
   data,
   sentences,
   onPurge,
   className = '',
-}: Readonly<{
-  data: TProp[]
+}: {
+  data: LabelDisplaySource[]
   sentences: string[]
   onPurge: () => void
   className?: string
-}>) {
+}) {
+  type TProp = LabelDisplaySource
   const { t } = useTranslation()
   const { mutateAsync: mutateRevokeWordAsync } = useRevokeWordMutation()
   const { mutateAsync: mutateAcquaintWordsAsync } = useAcquaintWordsMutation()
@@ -138,11 +142,10 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
     }
   }, [username, mutateAcquaintWordsAsync, mutateRevokeWordAsync])
 
-  const columns = useMemo<ColumnDef<TProp>[]>(() => {
+  const columns = useMemo(() => {
     return [
-      {
+      columnHelper.accessor((row) => row.locations.length, {
         id: 'frequency',
-        accessorFn: (row) => row.locations.length,
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           return (
@@ -169,6 +172,7 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
           )
         },
         cell: ({ row, getValue }) => {
+          const frequency = getValue()
           return (
             <div className="flex h-full items-center text-sm tabular-nums text-zinc-400">
               {row.getCanExpand() ? (
@@ -191,13 +195,13 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
                     />
                   )}
                   <span className="float-right inline-block stretch-[condensed]">
-                    <>{getValue()}</>
+                    {frequency}
                   </span>
                 </button>
               ) : (
                 <div className="w-full justify-end px-3">
                   <span className="float-right inline-block stretch-[condensed]">
-                    <>{getValue()}</>
+                    {frequency}
                   </span>
                 </div>
               )}
@@ -205,10 +209,9 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
           )
         },
         footer: ({ column }) => column.id,
-      },
-      {
+      }),
+      columnHelper.accessor((row) => row.word, {
         id: 'word',
-        accessorFn: (row) => row.word,
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           return (
@@ -244,7 +247,7 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
                   className="ml-1.5 inline-block cursor-text select-text font-compact text-[16px] text-black"
                   onClick={(ev) => ev.stopPropagation()}
                 >
-                  <span className={`${i !== 0 ? 'text-neutral-500' : ''}`}>{w}</span>
+                  <span className={cn(i !== 0 && 'text-neutral-500')}>{w}</span>
                   {i !== wFamily.length - 1 && <span className="pr-1 text-neutral-300">, </span>}
                 </div>
               ))}
@@ -252,10 +255,9 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
           )
         },
         footer: ({ column }) => column.id,
-      },
-      {
+      }),
+      columnHelper.accessor((row) => row.word.length, {
         id: 'word.length',
-        accessorFn: (row) => row.word.length,
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           return (
@@ -281,16 +283,20 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
             </div>
           )
         },
-        cell: ({ getValue }) => (
-          <div className="float-right mr-2 text-xs tabular-nums text-neutral-700">
-            <span><>{getValue()}</></span>
-          </div>
-        ),
+        cell: ({ getValue }) => {
+          const wordLength = getValue()
+          return (
+            <div className="float-right mr-2 text-xs tabular-nums text-neutral-700">
+              <span>
+                {wordLength}
+              </span>
+            </div>
+          )
+        },
         footer: ({ column }) => column.id,
-      },
-      {
+      }),
+      columnHelper.accessor((row) => row.inertialPhase === LEARNING_PHASE.ACQUAINTED, {
         id: 'acquaintedStatus',
-        accessorFn: (row) => row.inertialPhase === LEARNING_PHASE.ACQUAINTED,
         filterFn: (row, columnId, filterValue: ReturnType<typeof filterValueAcquaintedStatus>) => filterValue.includes(row.original.inertialPhase),
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
@@ -327,10 +333,9 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
           </div>
         ),
         footer: ({ column }) => column.id,
-      },
-      {
+      }),
+      columnHelper.accessor((row) => row.rank, {
         id: 'rank',
-        accessorFn: (row) => row.rank,
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           return (
@@ -350,13 +355,16 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
             </div>
           )
         },
-        cell: ({ getValue }) => (
-          <div className="float-right w-full text-center text-sm tabular-nums text-neutral-600 stretch-[condensed]">
-            <>{getValue()}</>
-          </div>
-        ),
+        cell: ({ getValue }) => {
+          const rank = getValue()
+          return (
+            <div className="float-right w-full text-center text-sm tabular-nums text-neutral-600 stretch-[condensed]">
+              {rank}
+            </div>
+          )
+        },
         footer: ({ column }) => column.id,
-      },
+      }),
     ]
   }, [handleVocabToggle, t])
 
@@ -435,8 +443,11 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
   const rowsCountAcquainted = rowsFiltered.filter((row) => row.original.learningPhase === LEARNING_PHASE.ACQUAINTED).length
   const rowsCountNew = rowsFiltered.filter((row) => row.original.learningPhase === LEARNING_PHASE.NEW).length
 
+  const pages = [10, 20, 40, 50, 100, 200, 1000]
+  const itemsNum = uniq([table.getPaginationRowModel().rows.length, rowsFiltered.length]).filter(Boolean).filter((n) => !pages.includes(n))
+
   return (
-    <div className={cn('flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-sm will-change-transform', className)}>
+    <div className={cn('flex h-full flex-col items-center overflow-hidden bg-white shadow-sm will-change-transform', className)}>
       <div className="z-10 flex h-12 w-full justify-between bg-neutral-50 p-2 shadow-sm">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -538,7 +549,7 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
                       </td>
                     ))}
                   </tr>
-                  {canExpand && row.getIsExpanded() && (
+                  {canExpand && row.getIsExpanded() ? (
                     <tr>
                       <td
                         colSpan={row.getVisibleCells().length}
@@ -552,7 +563,7 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
                         />
                       </td>
                     </tr>
-                  )}
+                  ) : null}
                 </Fragment>
               )
             })}
@@ -572,14 +583,16 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
                 table.setPageSize(Number(e))
               }}
             >
-              <SelectTrigger className="h-5 px-2 py-0 text-xs">
+              <SelectTrigger className="h-5 px-2 py-0 text-xs tabular-nums">
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent
+                position="item-aligned"
+              >
                 <SelectGroup>
-                  {uniq([10, 20, 40, 50, 100, 200, 1000, table.getPaginationRowModel().rows.length, rowsFiltered.length]).filter(Boolean).map((size) => (
+                  {pages.map((size) => (
                     <SelectItem
-                      className="py-0.5 text-[.8125rem] tabular-nums"
+                      className="pr-4 text-xs tabular-nums"
                       key={size}
                       value={String(size)}
                     >
@@ -587,6 +600,22 @@ export function VocabSourceTable<TProp extends LabelDisplaySource>({
                     </SelectItem>
                   ))}
                 </SelectGroup>
+                {itemsNum.length > 0 ? (
+                  <>
+                    <SelectSeparator />
+                    <SelectGroup>
+                      {itemsNum.map((size) => (
+                        <SelectItem
+                          className="pr-4 text-xs tabular-nums"
+                          key={size}
+                          value={String(size)}
+                        >
+                          {size}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </>
+                ) : null}
               </SelectContent>
             </Select>
             <div className="whitespace-nowrap px-1 text-[.8125rem]">{`/${t('page')}`}</div>

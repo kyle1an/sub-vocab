@@ -8,7 +8,7 @@
     "lint:fix": "npm run lint -- --fix"
   },
   "dependencies": {
-    "@sentry/node": "^7.80.0",
+    "@sentry/node": "^7.91.0",
     "cookie-parser": "~1.4.6",
     "cors": "^2.8.5",
     "debug": "~4.3.4",
@@ -17,26 +17,27 @@
     "hbs": "~4.2.0",
     "http-errors": "~2.0.0",
     "morgan": "~1.10.0",
-    "mysql2": "^3.6.3"
+    "mysql2": "^3.6.5"
   },
   "devDependencies": {
-    "@stylistic/eslint-plugin": "^1.1.0",
+    "@stylistic/eslint-plugin": "^1.5.1",
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/cookie-parser": "^1.4.6",
-    "@types/cors": "^2.8.16",
+    "@types/cors": "^2.8.17",
+    "@types/debug": "^4.1.12",
     "@types/express": "^4.17.21",
     "@types/express-serve-static-core": "4.17.41",
     "@types/http-errors": "^2.0.4",
     "@types/morgan": "^1.9.9",
-    "@types/node": "^20.9.0",
-    "@typescript-eslint/eslint-plugin": "^6.10.0",
-    "@typescript-eslint/parser": "^6.10.0",
-    "eslint": "^8.53.0",
+    "@types/node": "^20.10.6",
+    "@typescript-eslint/eslint-plugin": "^6.16.0",
+    "@typescript-eslint/parser": "^6.16.0",
+    "eslint": "^8.56.0",
     "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-import": "npm:eslint-plugin-i@^2.29.0",
-    "nodemon": "^3.0.1",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "eslint-plugin-import": "npm:eslint-plugin-i@^2.29.1",
+    "nodemon": "^3.0.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   },
   "pnpm": {
     "overrides": {
@@ -44,6 +45,7 @@
       "array.prototype.flat": "npm:@nolyfill/array.prototype.flat@latest",
       "function-bind": "npm:@nolyfill/function-bind@latest",
       "has": "npm:@nolyfill/has@latest",
+      "hasown": "npm:@nolyfill/hasown@latest",
       "object.assign": "npm:@nolyfill/object.assign@latest",
       "object.values": "npm:@nolyfill/object.values@latest",
       "side-channel": "npm:@nolyfill/side-channel@latest"
