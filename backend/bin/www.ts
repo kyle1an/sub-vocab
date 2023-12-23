@@ -3,11 +3,11 @@
 /**
  * Module dependencies.
  */
+import http from 'http'
+import Debug from 'debug';
 import app from '../app'
-import ErrnoException = NodeJS.ErrnoException
 
-const http = require('http')
-const debug = require('debug')('subvocab-server:server')
+const debug = Debug('subvocab-server:server')
 
 /**
  * Get port from the environment and store in Express.
@@ -23,15 +23,14 @@ const server = http.createServer(app)
 /**
  * Listen on provided port, on all network interfaces.
  */
-
 server.listen(port)
+console.log(`Listening on port ${port}`);
 server.on('error', onError)
 server.on('listening', onListening)
 
 /**
  * Normalize a port into a number, string, or false.
  */
-
 function normalizePort(val: string) {
   const port = parseInt(val, 10)
 
@@ -51,7 +50,7 @@ function normalizePort(val: string) {
 /**
  * Event listener for HTTP server "error" event.
  */
-function onError(error: ErrnoException) {
+function onError(error: NodeJS.ErrnoException) {
   if (error.syscall !== 'listen') {
     throw error
   }

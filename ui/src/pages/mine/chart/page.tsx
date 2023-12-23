@@ -36,7 +36,7 @@ export function Chart() {
     ...(navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome') ? [] : ['SF Pro Rounded']),
     ...['SF Pro Text', '-apple-system', 'Inter', 'system-ui', 'sans-serif'],
   ].join(', ')
-  ChartJS.defaults.font.weight = '500'
+  ChartJS.defaults.font.weight = 500
 
   const groupedRows = useMemo(() => {
     userWords.filter((v) => v.learningPhase === LEARNING_PHASE.ACQUAINTED && v.timeModified).forEach((v) => {

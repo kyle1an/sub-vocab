@@ -3,11 +3,14 @@ module.exports = {
     "es2022": true,
     "node": true
   },
+  "globals": {
+    "NodeJS": true
+  },
   "extends": [
     "plugin:@typescript-eslint/recommended",
     "plugin:import/recommended",
     "plugin:import/typescript",
-    "../.eslintrc.js",
+    "../.eslintrc.cjs",
   ],
   "rules": {
     "import/order": [1, { "groups": ["builtin", "external", "parent", "sibling", "index"] }],

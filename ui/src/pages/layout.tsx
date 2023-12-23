@@ -5,7 +5,8 @@ import { Outlet } from 'react-router-dom'
 import './globals.css'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { Toaster } from 'sonner'
+import { SpeedInsights } from '@vercel/speed-insights/react'
+import { Toaster } from '@/components/ui/sonner'
 import { TopBar } from '@/components/TopBar.tsx'
 import { queryClient } from '@/lib/utils'
 
@@ -27,6 +28,7 @@ export function RootLayout() {
         <TopBar className="fixed h-11" />
         <div className="ffs-pre flex min-h-[100svh] flex-col items-center pt-11">
           <Outlet />
+          <SpeedInsights />
         </div>
       </div>
       <Toaster
@@ -34,11 +36,11 @@ export function RootLayout() {
         richColors
       />
       <ReactQueryDevtools initialIsOpen={false} />
-      {showDevtools && (
+      {showDevtools ? (
         <Suspense fallback={null}>
           <ReactQueryDevtoolsProduction />
         </Suspense>
-      )}
+      ) : null}
     </QueryClientProvider>
   )
 }

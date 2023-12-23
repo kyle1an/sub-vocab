@@ -1,6 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { CheckIcon } from '@radix-ui/react-icons'
 import type React from 'react'
 import {
   useEffect, useRef, useState,
@@ -25,15 +24,13 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useLogOut } from '@/api/user'
 import {
-  Command,
-  CommandGroup,
-  CommandItem,
-} from '@/components/ui/command'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
+  Menubar,
+  MenubarContent,
+  MenubarMenu,
+  MenubarRadioGroup,
+  MenubarRadioItem,
+  MenubarTrigger,
+} from '@/components/ui/menubar'
 import { lng } from '@/i18n'
 
 const locales = [
@@ -172,7 +169,10 @@ export function TopBar({ className }: { className?: string }) {
   } = useExclusiveDisclosure()
 
   useLockBodyScroll(disclosureOpen)
-  const bodySize = useSize(document.body)
+  const bodySize = useSize(document.body) ?? {
+    width: 0,
+    height: 0,
+  }
 
   const userNavigation = [
     ...!user.name ? [
@@ -196,7 +196,6 @@ export function TopBar({ className }: { className?: string }) {
     ],
   ] as const
 
-  const [openPopover, setOpenPopover] = useState(false)
   const [locale, updateLocale, deleteLocale] = useCookie('_locale')
   const [value, setValue] = useState(locale || lng)
 
@@ -219,7 +218,7 @@ export function TopBar({ className }: { className?: string }) {
         ref={disclosureRef}
         className={cn('ffs-pre fixed z-20 w-full bg-white tracking-wide shadow-sm [&_[href]]:tap-transparent')}
         style={{
-          width: bodySize?.width,
+          width: bodySize.width,
         }}
       >
         {({ open, close }) => {
@@ -229,7 +228,7 @@ export function TopBar({ className }: { className?: string }) {
             <>
               <div className="mx-auto max-w-7xl px-4">
                 <div className="flex h-11 items-center justify-between">
-                  <div className="flex items-center gap-4">
+                  <div className="flex h-full items-center gap-4">
                     <div className="shrink-0 pl-3 pr-2">
                       <Link
                         to="/"
@@ -269,7 +268,7 @@ export function TopBar({ className }: { className?: string }) {
                       <a
                         href="https://github.com/kyle1an/sub-vocab"
                         target="_blank"
-                        className="mr-3 block px-2 text-neutral-300 transition-all hover:text-neutral-400 dark:hover:text-neutral-300 xl:mr-0"
+                        className="mr-3 block px-2 text-neutral-300 transition-all hover:text-neutral-400 xl:mr-0 dark:hover:text-neutral-300"
                         rel="noreferrer"
                       >
                         <span className="sr-only">SubVocab on GitHub</span>
@@ -278,48 +277,39 @@ export function TopBar({ className }: { className?: string }) {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Popover
-                      open={openPopover}
-                      onOpenChange={setOpenPopover}
-                    >
-                      <PopoverTrigger asChild>
-                        <div className="flex h-full cursor-pointer items-center px-2">
-                          <Icon
-                            icon="fa:language"
-                            width={16}
-                            height={16}
-                            className="h-full text-neutral-500"
-                          />
-                        </div>
-                      </PopoverTrigger>
-                      <PopoverContent
-                        className="w-[100px] p-0"
-                        align="end"
-                      >
-                        <Command>
-                          <CommandGroup>
+                    <Menubar className="h-auto border-0 p-0 shadow-none">
+                      <MenubarMenu >
+                        <MenubarTrigger className="px-2.5 py-1">
+                          <div className="flex h-full items-center">
+                            <Icon
+                              icon="fa:language"
+                              width={16}
+                              height={16}
+                              className="h-full text-neutral-500"
+                            />
+                          </div>
+                        </MenubarTrigger>
+                        <MenubarContent
+                          className="min-w-0"
+                          align="end"
+                          sideOffset={3}
+                        >
+                          <MenubarRadioGroup value={value}>
                             {locales.map((language) => (
-                              <CommandItem
+                              <MenubarRadioItem
                                 key={language.value}
-                                disabled={value === language.value}
+                                value={language.value}
                                 onSelect={() => {
                                   setValue(language.value)
-                                  setOpenPopover(false)
                                 }}
                               >
                                 {language.label}
-                                <CheckIcon
-                                  className={cn(
-                                    'ml-auto h-4 w-4',
-                                    value === language.value ? 'opacity-100' : 'opacity-0',
-                                  )}
-                                />
-                              </CommandItem>
+                              </MenubarRadioItem>
                             ))}
-                          </CommandGroup>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
+                          </MenubarRadioGroup>
+                        </MenubarContent>
+                      </MenubarMenu>
+                    </Menubar>
 
                     {/* Profile dropdown */}
                     <div className="flex w-10 items-center justify-center">
@@ -395,12 +385,12 @@ export function TopBar({ className }: { className?: string }) {
                           <span className="sr-only">Open main menu</span>
                           {open ? (
                             <XMarkIcon
-                              className="block h-6 w-6"
+                              className="block size-6"
                               aria-hidden="true"
                             />
                           ) : (
                             <Bars3Icon
-                              className="block h-6 w-6"
+                              className="block size-6"
                               aria-hidden="true"
                             />
                           )}
@@ -440,7 +430,7 @@ export function TopBar({ className }: { className?: string }) {
                         <img
                           src={avatarSource}
                           alt="avatar"
-                          className="h-6 w-6 rounded-full"
+                          className="size-6 rounded-full"
                         />
                       </div>
                     </div>

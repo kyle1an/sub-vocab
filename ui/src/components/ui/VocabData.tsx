@@ -2,9 +2,9 @@ import {
   type ChangeEvent, Fragment, useCallback, useMemo, useState,
 } from 'react'
 import {
-  type ColumnDef,
   type ExpandedState,
   type SortingState,
+  createColumnHelper,
   flexRender,
   getCoreRowModel,
   getExpandedRowModel,
@@ -32,6 +32,7 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select.tsx'
@@ -51,15 +52,18 @@ import { useAcquaintWordsMutation, useRevokeWordMutation } from '@/api/vocab-api
 import { useSnapshotStore } from '@/store/useVocab'
 import { LoginToast } from '@/components/login-toast'
 
-export function VocabDataTable<TProp extends LabelDisplayTable>({
+const columnHelper = createColumnHelper<LabelDisplayTable>()
+
+export function VocabDataTable({
   data,
   onPurge,
   className = '',
-}: Readonly<{
-  data: TProp[]
+}: {
+  data: LabelDisplayTable[]
   onPurge: () => void
   className?: string
-}>) {
+}) {
+  type TProp = LabelDisplayTable
   const { t } = useTranslation()
   const { mutateAsync: mutateRevokeWordAsync } = useRevokeWordMutation()
   const { mutateAsync: mutateAcquaintWordsAsync } = useAcquaintWordsMutation()
@@ -85,11 +89,10 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
     }
   }, [username, mutateAcquaintWordsAsync, mutateRevokeWordAsync])
 
-  const columns = useMemo<ColumnDef<TProp>[]>(() => {
+  const columns = useMemo(() => {
     return [
-      {
+      columnHelper.accessor((row) => row.timeModified, {
         id: 'timeModified',
-        accessorFn: (row) => row.timeModified,
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           return (
@@ -115,18 +118,17 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
           )
         },
         cell: ({ getValue }) => {
-          const timeModified = getValue() as string | null
+          const timeModified = getValue()
           return (
             <div className="float-right w-full text-center text-sm tabular-nums text-neutral-600 stretch-[condensed]">
-              {timeModified && formatDistanceToNowStrict(new Date(timeModified))}
+              {timeModified ? formatDistanceToNowStrict(new Date(timeModified)) : null}
             </div>
           )
         },
         footer: ({ column }) => column.id,
-      },
-      {
+      }),
+      columnHelper.accessor((row) => row.word, {
         id: 'word',
-        accessorFn: (row) => row.word,
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           return (
@@ -163,7 +165,7 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
                   className="ml-2 inline-block cursor-text select-text font-compact text-[16px] text-black"
                   onClick={(ev) => ev.stopPropagation()}
                 >
-                  <span className={`${i !== 0 ? 'text-neutral-500' : ''}`}>{w}</span>
+                  <span className={cn(i !== 0 && 'text-neutral-500')}>{w}</span>
                   {i !== wFamily.length - 1 && <span className="pr-1 text-neutral-300">, </span>}
                 </div>
               ))}
@@ -171,10 +173,9 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
           )
         },
         footer: ({ column }) => column.id,
-      },
-      {
+      }),
+      columnHelper.accessor((row) => row.word.length, {
         id: 'word.length',
-        accessorFn: (row) => row.word.length,
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           return (
@@ -201,14 +202,15 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
         },
         cell: ({ getValue }) => (
           <div className="float-right mr-2 text-xs tabular-nums text-neutral-700">
-            <span><>{getValue()}</></span>
+            <span>
+              {getValue()}
+            </span>
           </div>
         ),
         footer: ({ column }) => column.id,
-      },
-      {
+      }),
+      columnHelper.accessor((row) => row.inertialPhase === LEARNING_PHASE.ACQUAINTED, {
         id: 'acquaintedStatus',
-        accessorFn: (row) => row.inertialPhase === LEARNING_PHASE.ACQUAINTED,
         filterFn: (row, columnId, filterValue: ReturnType<typeof filterValueAcquaintedStatus>) => filterValue.includes(row.original.inertialPhase),
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
@@ -245,10 +247,9 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
           </div>
         ),
         footer: ({ column }) => column.id,
-      },
-      {
+      }),
+      columnHelper.accessor((row) => row.isUser, {
         id: 'vocabOwner',
-        accessorFn: (row) => row.isUser,
         filterFn: (row, columnId, filterValue: ReturnType<typeof filterValueVocabOwner>) => filterValue.includes(row.original.isUser),
         header: ({ header }) => {
           return (
@@ -260,14 +261,13 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
         },
         cell: ({ getValue }) => (
           <div className="flex justify-center">
-            <>{getValue()}</>
+            {getValue()}
           </div>
         ),
         footer: ({ column }) => column.id,
-      },
-      {
+      }),
+      columnHelper.accessor((row) => row.rank, {
         id: 'rank',
-        accessorFn: (row) => row.rank,
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           return (
@@ -290,11 +290,11 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
         },
         cell: ({ getValue }) => (
           <div className="float-right w-full text-center text-sm tabular-nums text-neutral-600 stretch-[condensed]">
-            <>{getValue()}</>
+            {getValue()}
           </div>
         ),
         footer: ({ column }) => column.id,
-      },
+      }),
     ]
   }, [handleVocabToggle, t])
 
@@ -394,6 +394,9 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
   const rowsFiltered = table.getFilteredRowModel().rows
   const rowsCountAcquainted = rowsFiltered.filter((row) => row.original.learningPhase === LEARNING_PHASE.ACQUAINTED).length
   const rowsCountNew = rowsFiltered.filter((row) => row.original.learningPhase === LEARNING_PHASE.NEW).length
+
+  const pages = [10, 20, 40, 50, 100, 200, 1000]
+  const itemsNum = uniq([table.getPaginationRowModel().rows.length, rowsFiltered.length]).filter(Boolean).filter((n) => !pages.includes(n))
 
   return (
     <div className={cn('flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-sm will-change-transform md:grow', className)}>
@@ -518,14 +521,16 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
                 table.setPageSize(Number(e))
               }}
             >
-              <SelectTrigger className="h-5 px-2 py-0 text-xs">
+              <SelectTrigger className="h-5 px-2 py-0 text-xs tabular-nums">
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent
+                position="item-aligned"
+              >
                 <SelectGroup>
-                  {uniq([10, 20, 40, 50, 100, 200, 1000, table.getPaginationRowModel().rows.length, rowsFiltered.length]).filter(Boolean).map((size) => (
+                  {pages.map((size) => (
                     <SelectItem
-                      className="py-0.5 text-[.8125rem] tabular-nums"
+                      className="pr-4 text-xs tabular-nums"
                       key={size}
                       value={String(size)}
                     >
@@ -533,6 +538,22 @@ export function VocabDataTable<TProp extends LabelDisplayTable>({
                     </SelectItem>
                   ))}
                 </SelectGroup>
+                {itemsNum.length > 0 ? (
+                  <>
+                    <SelectSeparator />
+                    <SelectGroup>
+                      {itemsNum.map((size) => (
+                        <SelectItem
+                          className="pr-4 text-xs tabular-nums"
+                          key={size}
+                          value={String(size)}
+                        >
+                          {size}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </>
+                ) : null}
               </SelectContent>
             </Select>
             <div className="whitespace-nowrap px-1 text-[.8125rem]">{`/${t('page')}`}</div>
