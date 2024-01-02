@@ -13,6 +13,7 @@ const config: Config = {
   ],
   theme: {
     fontFamily: {
+      sans: ['-apple-system', 'SF Pro Text', 'BlinkMacSystemFont', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'],
       pro: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'Inter', 'system-ui', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'sans-serif'],
       compact: ['Karla', 'SF Compact Text', '-apple-system', 'sans-serif'],
     },

@@ -97,22 +97,17 @@ export function VocabDataTable({
           const isSorted = header.column.getIsSorted()
           return (
             <div
-              className="float-right flex w-full cursor-pointer select-none items-center pl-2 text-zinc-500"
+              className="float-right flex h-7 w-full cursor-pointer select-none items-center pl-2 pr-1 text-zinc-500 active:bg-stone-50"
               onClick={header.column.getToggleSortingHandler()}
             >
               <span
                 title={t('distance')}
-                className={cn('before:hidden-bold grow text-right stretch-[condensed] before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
+                className={cn('before:hidden-bold grow text-right text-xs stretch-[condensed] before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
               >
                 {t('distance')}
               </span>
               <IconSort
-                className="mr-1"
                 isSorted={isSorted}
-              />
-              <Separator
-                orientation="vertical"
-                className="h-5"
               />
             </div>
           )
@@ -132,26 +127,27 @@ export function VocabDataTable({
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           return (
-            <div className="ml-2 flex items-center">
+            <div
+              className="group flex h-7 cursor-pointer items-center gap-2 pr-1 active:bg-stone-50"
+              onClick={header.column.getToggleSortingHandler()}
+            >
+              <Separator
+                orientation="vertical"
+                className="h-5 group-active:h-full"
+              />
               <div
-                className="float-right flex grow cursor-pointer select-none items-center"
-                onClick={header.column.getToggleSortingHandler()}
+                className="float-right flex grow select-none items-center"
               >
                 <span
                   title={t('Word')}
-                  className={cn('before:hidden-bold grow text-left stretch-[condensed] before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : 'text-zinc-500')}
+                  className={cn('before:hidden-bold grow text-left text-xs stretch-[condensed] before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : 'text-zinc-500')}
                 >
                   {t('Word')}
                 </span>
                 <IconSort
-                  className="mr-1"
                   isSorted={isSorted}
                 />
               </div>
-              <Separator
-                orientation="vertical"
-                className="h-5"
-              />
             </div>
           )
         },
@@ -180,23 +176,24 @@ export function VocabDataTable({
           const isSorted = header.column.getIsSorted()
           return (
             <div
-              className="float-right flex w-full cursor-pointer select-none items-center pl-1.5 stretch-[condensed]"
+              className="group float-right flex h-7 w-full cursor-pointer select-none items-center gap-2 pr-1 stretch-[condensed] active:bg-stone-50"
               onClick={header.column.getToggleSortingHandler()}
             >
-              <span
-                title={t('length')}
-                className={cn('before:hidden-bold grow text-right before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : 'text-zinc-500')}
-              >
-                {t('length')}
-              </span>
-              <IconSort
-                className="mr-1"
-                isSorted={isSorted}
-              />
               <Separator
                 orientation="vertical"
-                className="h-5"
+                className="h-5 group-active:h-full"
               />
+              <div className="flex items-center">
+                <span
+                  title={t('length')}
+                  className={cn('before:hidden-bold grow text-right text-xs before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : 'text-zinc-500')}
+                >
+                  {t('length')}
+                </span>
+                <IconSort
+                  isSorted={isSorted}
+                />
+              </div>
             </div>
           )
         },
@@ -209,17 +206,23 @@ export function VocabDataTable({
         ),
         footer: ({ column }) => column.id,
       }),
-      columnHelper.accessor((row) => row.inertialPhase === LEARNING_PHASE.ACQUAINTED, {
+      columnHelper.accessor((row) => {
+        return row.learningPhase <= 1 ? row.learningPhase : row.inertialPhase
+      }, {
         id: 'acquaintedStatus',
         filterFn: (row, columnId, filterValue: ReturnType<typeof filterValueAcquaintedStatus>) => filterValue.includes(row.original.inertialPhase),
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           return (
             <div
-              className="flex min-w-[30px] cursor-pointer select-none items-center stretch-[condensed]"
+              className="group flex h-7 cursor-pointer select-none items-center stretch-[condensed] active:bg-stone-50"
               onClick={header.column.getToggleSortingHandler()}
             >
-              <div className="flex grow items-center justify-center text-zinc-400">
+              <Separator
+                orientation="vertical"
+                className="h-5 group-active:h-full"
+              />
+              <div className="flex min-w-[30px] grow items-center justify-center text-zinc-400">
                 {isSorted ? (
                   <ChevronSort
                     isSorted={isSorted}
@@ -231,10 +234,6 @@ export function VocabDataTable({
                   />
                 )}
               </div>
-              <Separator
-                orientation="vertical"
-                className="float-right h-5"
-              />
             </div>
           )
         },
@@ -272,19 +271,24 @@ export function VocabDataTable({
           const isSorted = header.column.getIsSorted()
           return (
             <div
-              className="float-right flex w-full cursor-pointer select-none items-center pl-2 text-zinc-500"
+              className="group float-right flex h-7 w-full cursor-pointer select-none items-center gap-2 pr-1 text-zinc-500 active:bg-stone-50"
               onClick={header.column.getToggleSortingHandler()}
             >
-              <span
-                title={t('rank')}
-                className={cn('before:hidden-bold grow text-right stretch-[condensed] before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
-              >
-                {t('rank')}
-              </span>
-              <IconSort
-                className="mr-1"
-                isSorted={isSorted}
+              <Separator
+                orientation="vertical"
+                className="h-5 group-active:h-full"
               />
+              <div className="flex items-center">
+                <span
+                  title={t('rank')}
+                  className={cn('before:hidden-bold grow text-right text-xs stretch-[condensed] before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
+                >
+                  {t('rank')}
+                </span>
+                <IconSort
+                  isSorted={isSorted}
+                />
+              </div>
             </div>
           )
         },
@@ -400,7 +404,7 @@ export function VocabDataTable({
 
   return (
     <div className={cn('flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-sm will-change-transform md:grow', className)}>
-      <div className="z-10 flex h-12 w-full justify-between bg-neutral-50 p-2 shadow-sm">
+      <div className="z-10 flex h-12 w-full justify-between border-b border-solid border-zinc-200 bg-neutral-50 p-2 shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)]">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -443,7 +447,7 @@ export function VocabDataTable({
           className="rounded-md border pl-1 leading-7"
         />
       </div>
-      <div className="w-full border-t border-solid border-zinc-200">
+      <div className="w-full">
         <SegmentedControl
           value={segment}
           name={SEGMENT_NAME}
@@ -462,7 +466,7 @@ export function VocabDataTable({
                     key={header.id}
                     colSpan={header.colSpan}
                     className={cn(
-                      'border-y border-solid border-y-zinc-200 px-0 py-1 text-sm font-normal',
+                      'border-y border-solid border-y-zinc-200 p-0 text-sm font-normal',
                       ['word.length', 'acquaintedStatus', 'rank'].includes(header.id) && 'w-[0.2%] whitespace-nowrap',
                       ['timeModified'].includes(header.id) && 'w-[12%] whitespace-nowrap',
                     )}
@@ -493,7 +497,7 @@ export function VocabDataTable({
                     {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
-                        className="h-8 border-t border-solid border-t-zinc-100 group-first-of-type:border-t-0 [tr:has(+tr>td[colspan])>&]:border-b-white"
+                        className="h-8 border-t border-solid border-t-zinc-100 pl-0.5 group-first-of-type:border-t-0 [tr:has(+tr>td[colspan])>&]:border-b-white"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,

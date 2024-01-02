@@ -20,7 +20,7 @@
     "mysql2": "^3.6.5"
   },
   "devDependencies": {
-    "@stylistic/eslint-plugin": "^1.5.1",
+    "@stylistic/eslint-plugin": "^1.5.3",
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/cookie-parser": "^1.4.6",
     "@types/cors": "^2.8.17",
@@ -30,8 +30,8 @@
     "@types/http-errors": "^2.0.4",
     "@types/morgan": "^1.9.9",
     "@types/node": "^20.10.6",
-    "@typescript-eslint/eslint-plugin": "^6.16.0",
-    "@typescript-eslint/parser": "^6.16.0",
+    "@typescript-eslint/eslint-plugin": "^6.17.0",
+    "@typescript-eslint/parser": "^6.17.0",
     "eslint": "^8.56.0",
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "npm:eslint-plugin-i@^2.29.1",
