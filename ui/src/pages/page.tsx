@@ -83,8 +83,8 @@ export default function Home() {
   let defaultSizes = [56, 44]
   if (direction === 'vertical') {
     defaultSizes = [
-      40,
-      60,
+      36,
+      64,
     ]
   }
 

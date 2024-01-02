@@ -3,6 +3,7 @@ import {
 } from 'react'
 import {
   type ExpandedState,
+  type SortDirection,
   type SortingState,
   type Table,
   createColumnHelper,
@@ -16,7 +17,6 @@ import {
 } from '@tanstack/react-table'
 import { uniq } from 'lodash-es'
 import usePagination, { type UsePaginationItem } from '@mui/material/usePagination'
-import { type SortDirection } from '@mui/material'
 import { Trans, useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
 import { toast } from 'sonner'
@@ -67,7 +67,7 @@ export function ChevronSort({
   isSorted,
   size = 16,
 }: {
-  isSorted: Exclude<SortDirection, false>
+  isSorted: SortDirection
   size?: number
 }) {
   if (isSorted === 'asc') {
@@ -91,7 +91,7 @@ export function IconSort({
   isSorted,
   className = '',
 }: {
-  isSorted: SortDirection
+  isSorted: SortDirection | false
   className?: string
 }) {
   return (
@@ -150,13 +150,13 @@ export function VocabSourceTable({
           const isSorted = header.column.getIsSorted()
           return (
             <div
-              className="flex min-w-[60px] grow cursor-pointer select-none items-center gap-1 pl-2 text-zinc-500"
+              className="flex h-7 min-w-[4.25rem] grow cursor-pointer select-none items-center gap-0.5 pl-2 pr-1 text-zinc-500 active:bg-stone-50"
               onClick={header.column.getToggleSortingHandler()}
             >
               <div className="flex grow items-center">
                 <span
                   title={t('frequency')}
-                  className={cn('before:hidden-bold grow text-right stretch-[condensed] before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
+                  className={cn('before:hidden-bold grow text-right text-xs stretch-[condensed] before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
                 >
                   {t('frequency')}
                 </span>
@@ -164,22 +164,18 @@ export function VocabSourceTable({
                   isSorted={isSorted}
                 />
               </div>
-              <Separator
-                orientation="vertical"
-                className="h-5"
-              />
             </div>
           )
         },
         cell: ({ row, getValue }) => {
           const frequency = getValue()
           return (
-            <div className="flex h-full items-center text-sm tabular-nums text-zinc-400">
+            <div className="flex h-full items-center text-sm text-zinc-400">
               {row.getCanExpand() ? (
                 <button
                   type="button"
                   onClick={row.getToggleExpandedHandler()}
-                  className="flex h-full grow cursor-pointer items-center justify-between px-3"
+                  className="flex h-full grow cursor-pointer items-center justify-between gap-1 px-3"
                 >
                   {row.getIsExpanded() ? (
                     <Icon
@@ -194,13 +190,13 @@ export function VocabSourceTable({
                       width={14}
                     />
                   )}
-                  <span className="float-right inline-block stretch-[condensed]">
+                  <span className="float-right inline-block tabular-nums stretch-[condensed]">
                     {frequency}
                   </span>
                 </button>
               ) : (
                 <div className="w-full justify-end px-3">
-                  <span className="float-right inline-block stretch-[condensed]">
+                  <span className="float-right inline-block tabular-nums stretch-[condensed]">
                     {frequency}
                   </span>
                 </div>
@@ -215,14 +211,20 @@ export function VocabSourceTable({
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           return (
-            <div className="ml-1.5 flex items-center gap-1">
+            <div
+              className="group flex h-7 cursor-pointer items-center gap-1.5 pr-1 active:bg-stone-50"
+              onClick={header.column.getToggleSortingHandler()}
+            >
+              <Separator
+                orientation="vertical"
+                className="h-5 group-active:h-full"
+              />
               <div
-                className="float-right flex grow cursor-pointer select-none items-center"
-                onClick={header.column.getToggleSortingHandler()}
+                className="float-right flex grow select-none items-center"
               >
                 <span
                   title={t('Word')}
-                  className={cn('before:hidden-bold grow text-left stretch-[condensed] before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : 'text-zinc-500')}
+                  className={cn('before:hidden-bold grow text-left text-xs stretch-[condensed] before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : 'text-zinc-500')}
                 >
                   {t('Word')}
                 </span>
@@ -230,10 +232,6 @@ export function VocabSourceTable({
                   isSorted={isSorted}
                 />
               </div>
-              <Separator
-                orientation="vertical"
-                className="h-5"
-              />
             </div>
           )
         },
@@ -262,13 +260,17 @@ export function VocabSourceTable({
           const isSorted = header.column.getIsSorted()
           return (
             <div
-              className="float-right flex w-full cursor-pointer select-none items-center gap-1 pl-1.5 stretch-[condensed]"
+              className="group float-right flex h-7 w-full cursor-pointer select-none items-center gap-1.5 pr-1 stretch-[condensed] active:bg-stone-50"
               onClick={header.column.getToggleSortingHandler()}
             >
+              <Separator
+                orientation="vertical"
+                className="h-5 group-active:h-full"
+              />
               <div className="flex select-none items-center">
                 <span
                   title={t('length')}
-                  className={cn('before:hidden-bold grow text-right before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : 'text-zinc-500')}
+                  className={cn('before:hidden-bold grow text-right text-xs before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : 'text-zinc-500')}
                 >
                   {t('length')}
                 </span>
@@ -276,10 +278,6 @@ export function VocabSourceTable({
                   isSorted={isSorted}
                 />
               </div>
-              <Separator
-                orientation="vertical"
-                className="h-5"
-              />
             </div>
           )
         },
@@ -295,17 +293,23 @@ export function VocabSourceTable({
         },
         footer: ({ column }) => column.id,
       }),
-      columnHelper.accessor((row) => row.inertialPhase === LEARNING_PHASE.ACQUAINTED, {
+      columnHelper.accessor((row) => {
+        return row.learningPhase <= 1 ? row.learningPhase : row.inertialPhase
+      }, {
         id: 'acquaintedStatus',
         filterFn: (row, columnId, filterValue: ReturnType<typeof filterValueAcquaintedStatus>) => filterValue.includes(row.original.inertialPhase),
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           return (
             <div
-              className="flex min-w-[30px] cursor-pointer select-none items-center stretch-[condensed]"
+              className="group flex h-7 cursor-pointer select-none items-center stretch-[condensed] active:bg-stone-50"
               onClick={header.column.getToggleSortingHandler()}
             >
-              <div className="flex grow items-center justify-center text-zinc-400">
+              <Separator
+                orientation="vertical"
+                className="h-5 group-active:h-full"
+              />
+              <div className="flex min-w-[30px] grow items-center justify-center text-zinc-400">
                 {isSorted ? (
                   <ChevronSort
                     isSorted={isSorted}
@@ -317,10 +321,6 @@ export function VocabSourceTable({
                   />
                 )}
               </div>
-              <Separator
-                orientation="vertical"
-                className="float-right h-5"
-              />
             </div>
           )
         },
@@ -340,18 +340,24 @@ export function VocabSourceTable({
           const isSorted = header.column.getIsSorted()
           return (
             <div
-              className="float-right flex w-full cursor-pointer select-none items-center pl-2 pr-1 text-zinc-500"
+              className="group float-right flex h-7 w-full cursor-pointer select-none items-center gap-2 pr-1 text-zinc-500 active:bg-stone-50"
               onClick={header.column.getToggleSortingHandler()}
             >
-              <span
-                title={t('rank')}
-                className={cn('before:hidden-bold grow text-right stretch-[condensed] before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
-              >
-                {t('rank')}
-              </span>
-              <IconSort
-                isSorted={isSorted}
+              <Separator
+                orientation="vertical"
+                className="h-5 group-active:h-full"
               />
+              <div className="flex h-5 items-center">
+                <span
+                  title={t('rank')}
+                  className={cn('before:hidden-bold grow text-right text-xs stretch-[condensed] before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
+                >
+                  {t('rank')}
+                </span>
+                <IconSort
+                  isSorted={isSorted}
+                />
+              </div>
             </div>
           )
         },
@@ -448,7 +454,7 @@ export function VocabSourceTable({
 
   return (
     <div className={cn('flex h-full flex-col items-center overflow-hidden bg-white shadow-sm will-change-transform', className)}>
-      <div className="z-10 flex h-12 w-full justify-between bg-neutral-50 p-2 shadow-sm">
+      <div className="z-10 flex h-12 w-full justify-between border-b border-solid border-zinc-200 bg-neutral-50 p-2 shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)]">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -491,7 +497,7 @@ export function VocabSourceTable({
           className="rounded-md border pl-1 leading-7"
         />
       </div>
-      <div className="w-full border-t border-solid border-zinc-200">
+      <div className="w-full">
         <SegmentedControl
           value={segment}
           name={SEGMENT_NAME}
@@ -510,7 +516,7 @@ export function VocabSourceTable({
                     key={header.id}
                     colSpan={header.colSpan}
                     className={cn(
-                      'border-y border-solid border-y-zinc-200 px-0 py-1 text-sm font-normal',
+                      'border-y border-solid border-y-zinc-200 p-0 text-sm font-normal',
                       header.id !== 'word' && 'w-[0.1%] whitespace-nowrap',
                     )}
                   >
@@ -540,7 +546,7 @@ export function VocabSourceTable({
                     {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
-                        className="h-8 border-t border-solid border-t-zinc-100 group-first-of-type:border-t-0 [tr:has(+tr>td[colspan])>&]:border-b-white"
+                        className="h-8 border-t border-solid border-t-zinc-100 pl-0.5 group-first-of-type:border-t-0 [tr:has(+tr>td[colspan])>&]:border-b-white"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
