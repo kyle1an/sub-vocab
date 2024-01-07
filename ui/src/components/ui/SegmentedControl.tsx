@@ -1,6 +1,7 @@
-import { type HTMLAttributes, useEffect } from 'react'
+import {
+  type ChangeEvent, type HTMLAttributes, type RefObject, createRef, useRef,
+} from 'react'
 import { type VariantProps, cva } from 'class-variance-authority'
-import { useMeasure, useSessionStorage } from 'react-use'
 import { cn } from '@/lib/utils.ts'
 
 const segmentedControlVariants = cva(
@@ -9,7 +10,7 @@ const segmentedControlVariants = cva(
     variants: {
       variant: {
         default: 'bg-[#EFEFF0] p-0.5',
-        ghost: 'bg-transparent px-1.5 py-1 [&>span]:border-0 [&>span]:bg-neutral-200 [&>span]:shadow-none [&_label>span]:leading-[1.375rem]',
+        ghost: 'bg-transparent px-1.5 py-1',
       },
       size: {
         default: '',
@@ -17,7 +18,16 @@ const segmentedControlVariants = cva(
         medium: '',
       },
     },
-    compoundVariants: [],
+    compoundVariants: [
+      {
+        variant: 'default',
+        className: 'group/default',
+      },
+      {
+        variant: 'ghost',
+        className: 'group/ghost',
+      },
+    ],
     defaultVariants: {
       variant: 'default',
       size: 'default',
@@ -42,22 +52,37 @@ export const SegmentedControl = <T extends string>({
   className,
   ...props
 }: SegmentedControlProps<T>) => {
-  const [pillWidth, setPillWidth] = useSessionStorage(`${name}-width`, 0)
-  const [pill, { width }] = useMeasure<HTMLSpanElement>()
-  useEffect(() => {
-    if (width !== 0) {
-      setPillWidth(width)
+  const pillRefs = useRef<RefObject<HTMLSpanElement>[]>([])
+  pillRefs.current = segments.map((_, i) => pillRefs.current[i] ?? createRef())
+
+  function handleOnChange(ev: ChangeEvent<HTMLInputElement>, index: number) {
+    const previousPillIndex = segments.findIndex((s) => s.value === value)
+    const previousPill = pillRefs.current[previousPillIndex]?.current
+    const previousPillClientRect = previousPill?.getBoundingClientRect()
+    const element = pillRefs.current[index].current
+
+    if (!previousPillClientRect || !element) {
+      return
     }
-  }, [width, setPillWidth])
+
+    // https://github.com/angular/components/blob/a7f87a80a18a62d75a8c5621fd89dbc2cf28a865/src/material/tabs/ink-bar.ts#L114
+    const currentClientRect = element.getBoundingClientRect()
+    const widthDelta = previousPillClientRect.width / currentClientRect.width
+    const xPosition = previousPillClientRect.left - currentClientRect.left
+    element.style.setProperty(
+      'transform',
+      `translateX(${xPosition}px) scaleX(${widthDelta})`,
+    )
+    element.getBoundingClientRect()
+    element.style.setProperty('transform', '')
+    onChoose(ev.target.value as T)
+  }
+
   return (
     <div
       className={cn(segmentedControlVariants({ variant, size, className }))}
       {...props}
     >
-      <span
-        style={{ transform: `translateX(${pillWidth * segments.findIndex((seg) => seg.value === value)}px)` }}
-        className={cn('ease-[ease] z-10 col-start-1 col-end-auto row-start-1 row-end-auto rounded-[7px] border-[.5px] border-black/[0.04] bg-white shadow transition-transform duration-300 will-change-transform', pillWidth === 0 && 'hidden')}
-      />
       {segments.map((item, index) => (
         <div
           key={index}
@@ -69,17 +94,31 @@ export const SegmentedControl = <T extends string>({
             value={item.value}
             checked={item.value === value}
             className="group/i peer absolute inset-0 appearance-none opacity-0 outline-none"
-            onChange={(ev) => onChoose((ev.target as HTMLInputElement).value as T)}
+            onChange={(ev) => handleOnChange(ev, index)}
           />
           <label
             htmlFor={`${name}-${item.value}`}
-            className="before:ease-[ease] relative block cursor-pointer bg-transparent text-center before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[10px] before:bg-neutral-300 before:transition-[background] before:duration-200 before:will-change-[background]  before:group-first-of-type:opacity-0  before:group-[&:has(input:checked)+div]:bg-opacity-0 peer-checked:cursor-default before:peer-checked:z-[1] before:peer-checked:bg-opacity-0 [&_span]:peer-checked:font-medium"
+            className="group/l before:ease-[ease] relative block cursor-pointer bg-transparent text-center before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[10px] before:bg-neutral-300 before:transition-[background] before:duration-200 before:will-change-[background] before:group-first-of-type:opacity-0 before:group-[&:has(input:checked)+div]:bg-opacity-0 peer-checked:cursor-default before:peer-checked:z-[1] before:peer-checked:bg-opacity-0 [&_span]:peer-checked:font-medium"
           >
-            <span
-              ref={pill}
-              className="ease-[ease] relative z-10 flex justify-center text-sm/6 text-black transition-all duration-200 will-change-transform group-hover:opacity-20 group-focus:opacity-20 group-active:opacity-20 group-[&:checked+label]/i:opacity-100 group-active:group-[&:not(:checked)+label]/i:scale-95"
-            >
-              {item.label}
+            <span className="flex flex-col justify-center text-sm/6 group-[]/ghost:leading-[1.375rem]">
+              <span
+                className="ease-[ease] relative z-10 flex justify-center text-black transition-all duration-200 will-change-transform group-hover:opacity-20 group-focus:opacity-20 group-active:opacity-20 group-active:delay-150 group-active:group-[&:not(:checked)+label]/i:scale-95 peer-checked:group-[]/l:opacity-100"
+              >
+                {item.label}
+              </span>
+              <span
+                title={item.label}
+                className="before:hidden-bold before:content-[attr(title)]"
+              />
+            </span>
+            <span className="absolute left-0 top-0 h-full w-full">
+              <span
+                ref={pillRefs.current[index]}
+                className={cn(
+                  'ease-[ease] flex h-full w-full rounded-[7px] will-change-transform group-[]/default:peer-checked:group-[]/l:border-[.5px] group-[]/default:peer-checked:group-[]/l:border-black/[0.04]  group-[]/ghost:peer-checked:group-[]/l:bg-neutral-200 peer-checked:group-[]/l:bg-white group-[]/default:peer-checked:group-[]/l:shadow',
+                  item.value === value && 'transition-transform duration-300',
+                )}
+              />
             </span>
           </label>
         </div>

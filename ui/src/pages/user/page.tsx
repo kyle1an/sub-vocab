@@ -80,7 +80,7 @@ export const UserPage = () => {
         <div className="mb-3 border-b pb-1.5 text-xl">
           {t('changeUsername')}
         </div>
-        <div className="flex w-80" >
+        <div className="flex w-80">
           <Form {...form}>
             <form
               onSubmit={handleSubmit(submitForm)}

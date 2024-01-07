@@ -3,7 +3,6 @@ import {
 } from 'react'
 import {
   type ExpandedState,
-  type SortDirection,
   type SortingState,
   type Table,
   createColumnHelper,
@@ -62,46 +61,7 @@ import { useAcquaintWordsMutation, useRevokeWordMutation } from '@/api/vocab-api
 import { useSnapshotStore } from '@/store/useVocab'
 import type { TI } from '@/i18n'
 import { LoginToast } from '@/components/login-toast'
-
-export function ChevronSort({
-  isSorted,
-  size = 16,
-}: {
-  isSorted: SortDirection
-  size?: number
-}) {
-  if (isSorted === 'asc') {
-    return (
-      <Icon
-        icon="lucide:chevron-up"
-        width={size}
-      />
-    )
-  }
-
-  return (
-    <Icon
-      icon="lucide:chevron-down"
-      width={size}
-    />
-  )
-}
-
-export function IconSort({
-  isSorted,
-  className = '',
-}: {
-  isSorted: SortDirection | false
-  className?: string
-}) {
-  return (
-    <div className={cn('inline-block h-[16px] w-[16px] text-zinc-400', className)}>
-      {isSorted ? (
-        <ChevronSort isSorted={isSorted} />
-      ) : null}
-    </div>
-  )
-}
+import { sortIcon } from '@/lib/icon-utils'
 
 const columnHelper = createColumnHelper<LabelDisplaySource>()
 
@@ -160,8 +120,10 @@ export function VocabSourceTable({
                 >
                   {t('frequency')}
                 </span>
-                <IconSort
-                  isSorted={isSorted}
+                <Icon
+                  icon={sortIcon(isSorted)}
+                  width={16}
+                  className="inline-block text-zinc-400"
                 />
               </div>
             </div>
@@ -228,8 +190,10 @@ export function VocabSourceTable({
                 >
                   {t('Word')}
                 </span>
-                <IconSort
-                  isSorted={isSorted}
+                <Icon
+                  icon={sortIcon(isSorted)}
+                  width={16}
+                  className="inline-block text-zinc-400"
                 />
               </div>
             </div>
@@ -274,8 +238,10 @@ export function VocabSourceTable({
                 >
                   {t('length')}
                 </span>
-                <IconSort
-                  isSorted={isSorted}
+                <Icon
+                  icon={sortIcon(isSorted)}
+                  width={16}
+                  className="inline-block text-zinc-400"
                 />
               </div>
             </div>
@@ -310,16 +276,12 @@ export function VocabSourceTable({
                 className="h-5 group-active:h-full"
               />
               <div className="flex min-w-[30px] grow items-center justify-center text-zinc-400">
-                {isSorted ? (
-                  <ChevronSort
-                    isSorted={isSorted}
-                  />
-                ) : (
+                <>
                   <Icon
-                    icon="lucide:check-circle"
+                    icon={sortIcon(isSorted) || 'lucide:check-circle'}
                     width={16}
                   />
-                )}
+                </>
               </div>
             </div>
           )
@@ -354,8 +316,10 @@ export function VocabSourceTable({
                 >
                   {t('rank')}
                 </span>
-                <IconSort
-                  isSorted={isSorted}
+                <Icon
+                  icon={sortIcon(isSorted)}
+                  width={16}
+                  className="inline-block text-zinc-400"
                 />
               </div>
             </div>
