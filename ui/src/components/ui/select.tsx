@@ -1,5 +1,7 @@
 import * as React from 'react'
-import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons'
+import {
+  CaretSortIcon, CheckIcon, ChevronDownIcon, ChevronUpIcon,
+} from '@radix-ui/react-icons'
 import * as SelectPrimitive from '@radix-ui/react-select'
 
 import { cn } from '@/lib/utils'
@@ -50,6 +52,9 @@ const SelectContent = React.forwardRef<
       position={position}
       {...props}
     >
+      <SelectPrimitive.ScrollUpButton className="flex h-[25px] cursor-default items-center justify-center bg-white text-violet11">
+        <ChevronUpIcon />
+      </SelectPrimitive.ScrollUpButton>
       <SelectPrimitive.Viewport
         className={cn(
           'p-1',
@@ -59,6 +64,9 @@ const SelectContent = React.forwardRef<
       >
         {children}
       </SelectPrimitive.Viewport>
+      <SelectPrimitive.ScrollDownButton className="flex h-[25px] cursor-default items-center justify-center bg-white text-violet11">
+        <ChevronDownIcon />
+      </SelectPrimitive.ScrollDownButton>
     </SelectPrimitive.Content>
   </SelectPrimitive.Portal>
 ))

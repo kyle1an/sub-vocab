@@ -20,8 +20,9 @@ import { useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
 import { toast } from 'sonner'
 import {
-  AcquaintAllDialog, ChevronSort, IconSort, Pagination, VocabStatics,
+  AcquaintAllDialog, Pagination, VocabStatics,
 } from './VocabSource'
+import { sortIcon } from '@/lib/icon-utils'
 import { Icon } from '@/components/ui/icon'
 import { SegmentedControl } from '@/components/ui/SegmentedControl.tsx'
 import { VocabToggle } from '@/components/ui/ToggleButton.tsx'
@@ -106,8 +107,10 @@ export function VocabDataTable({
               >
                 {t('distance')}
               </span>
-              <IconSort
-                isSorted={isSorted}
+              <Icon
+                icon={sortIcon(isSorted)}
+                width={16}
+                className="inline-block text-zinc-400"
               />
             </div>
           )
@@ -144,8 +147,10 @@ export function VocabDataTable({
                 >
                   {t('Word')}
                 </span>
-                <IconSort
-                  isSorted={isSorted}
+                <Icon
+                  icon={sortIcon(isSorted)}
+                  width={16}
+                  className="inline-block text-zinc-400"
                 />
               </div>
             </div>
@@ -190,8 +195,10 @@ export function VocabDataTable({
                 >
                   {t('length')}
                 </span>
-                <IconSort
-                  isSorted={isSorted}
+                <Icon
+                  icon={sortIcon(isSorted)}
+                  width={16}
+                  className="inline-block text-zinc-400"
                 />
               </div>
             </div>
@@ -223,16 +230,12 @@ export function VocabDataTable({
                 className="h-5 group-active:h-full"
               />
               <div className="flex min-w-[30px] grow items-center justify-center text-zinc-400">
-                {isSorted ? (
-                  <ChevronSort
-                    isSorted={isSorted}
-                  />
-                ) : (
+                <>
                   <Icon
-                    icon="lucide:check-circle"
+                    icon={sortIcon(isSorted) || 'lucide:check-circle'}
                     width={16}
                   />
-                )}
+                </>
               </div>
             </div>
           )
@@ -285,8 +288,10 @@ export function VocabDataTable({
                 >
                   {t('rank')}
                 </span>
-                <IconSort
-                  isSorted={isSorted}
+                <Icon
+                  icon={sortIcon(isSorted)}
+                  width={16}
+                  className="inline-block text-zinc-400"
                 />
               </div>
             </div>
