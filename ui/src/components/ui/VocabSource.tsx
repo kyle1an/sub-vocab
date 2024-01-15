@@ -116,7 +116,7 @@ export function VocabSourceTable({
               <div className="flex grow items-center">
                 <span
                   title={t('frequency')}
-                  className={cn('before:hidden-bold grow text-right text-xs stretch-[condensed] before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
+                  className={cn('grow text-right text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
                 >
                   {t('frequency')}
                 </span>
@@ -186,7 +186,7 @@ export function VocabSourceTable({
               >
                 <span
                   title={t('Word')}
-                  className={cn('before:hidden-bold grow text-left text-xs stretch-[condensed] before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : 'text-zinc-500')}
+                  className={cn('grow text-left text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : 'text-zinc-500')}
                 >
                   {t('Word')}
                 </span>
@@ -234,7 +234,7 @@ export function VocabSourceTable({
               <div className="flex select-none items-center">
                 <span
                   title={t('length')}
-                  className={cn('before:hidden-bold grow text-right text-xs before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : 'text-zinc-500')}
+                  className={cn('grow text-right text-xs before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : 'text-zinc-500')}
                 >
                   {t('length')}
                 </span>
@@ -312,7 +312,7 @@ export function VocabSourceTable({
               <div className="flex h-5 items-center">
                 <span
                   title={t('rank')}
-                  className={cn('before:hidden-bold grow text-right text-xs stretch-[condensed] before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
+                  className={cn('grow text-right text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
                 >
                   {t('rank')}
                 </span>
@@ -471,7 +471,7 @@ export function VocabSourceTable({
         />
       </div>
       <div className="w-full grow overflow-auto overflow-y-scroll overscroll-contain">
-        <table className="min-w-full">
+        <table className="min-w-full border-separate border-spacing-0">
           <thead className="sticky top-0 z-10 bg-white px-0">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
@@ -540,13 +540,13 @@ export function VocabSourceTable({
           </tbody>
         </table>
       </div>
-      <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 tabular-nums">
+      <div className="flex w-full flex-wrap items-center justify-between gap-1 border-t border-t-zinc-200 px-0.5 py-1 tabular-nums">
         <Pagination
           items={items}
           table={table}
         />
         <div className="flex grow items-center justify-end">
-          <div className="m-0.5 flex items-center text-neutral-600">
+          <div className="flex items-center text-neutral-600">
             <Select
               defaultValue={String(pageSize)}
               onValueChange={(e) => {
@@ -611,22 +611,23 @@ export function Pagination<T>({
   table: Table<T>
 }) {
   return (
-    <div className="flex h-7 py-1">
+    <div className="flex">
       {items.map(({
         page, type, selected, ...item
       }) => {
-        const size = 17
-        const className = 'flex min-w-[27px] items-center justify-center rounded border border-transparent px-1 text-xs tabular-nums disabled:text-zinc-300'
+        const size = 16
+        const className = 'flex items-center min-w-[1.625rem] justify-center rounded border border-transparent text-xs tabular-nums disabled:text-zinc-300'
+        const key = `${type}${page}`
 
         if (type === 'previous') {
           return (
             <button
               type="button"
               aria-label="Previous page"
-              className={cn('text-zinc-500', className)}
+              className={cn(className, 'px-0 text-zinc-500')}
               disabled={!table.getCanPreviousPage()}
               onClick={table.previousPage}
-              key={`${type}${page}`}
+              key={key}
             >
               <Icon
                 icon="lucide:chevron-left"
@@ -640,18 +641,23 @@ export function Pagination<T>({
           return (
             <button
               className={cn('group', className)}
+              aria-label="Start ellipsis"
               type="button"
               onClick={() => {
                 table.setPageIndex(Math.max(0, table.getState().pagination.pageIndex - 2))
               }}
-              key={`${type}${page}`}
+              key={key}
             >
               <Icon
                 icon="lucide:chevrons-left"
                 className="hidden text-zinc-500 group-hover:inline-block"
                 width={size}
               />
-              <span className="group-hover:hidden">...</span>
+              <Icon
+                icon="prime:ellipsis-h"
+                className="text-zinc-600 group-hover:hidden"
+                width={size}
+              />
             </button>
           )
         }
@@ -659,12 +665,12 @@ export function Pagination<T>({
         if (type === 'first' || type === 'page' || type === 'last') {
           return (
             <button
-              className={cn(className, selected ? 'border-[color:hsl(var(--border))] font-bold' : '')}
+              className={cn(className, selected && 'border-border font-bold')}
               type="button"
               onClick={() => {
                 table.setPageIndex(Number(page) - 1)
               }}
-              key={`${type}${page}`}
+              key={key}
             >
               {page}
             </button>
@@ -676,17 +682,22 @@ export function Pagination<T>({
             <button
               className={cn('group', className)}
               type="button"
+              aria-label="End ellipsis"
               onClick={() => {
                 table.setPageIndex(Math.min(table.getState().pagination.pageIndex + 2, table.getPageCount() - 1))
               }}
-              key={`${type}${page}`}
+              key={key}
             >
               <Icon
                 icon="lucide:chevrons-right"
                 className="hidden text-zinc-500 group-hover:inline-block"
                 width={size}
               />
-              <span className="group-hover:hidden">...</span>
+              <Icon
+                icon="prime:ellipsis-h"
+                className="text-zinc-600 group-hover:hidden"
+                width={size}
+              />
             </button>
           )
         }
@@ -699,7 +710,7 @@ export function Pagination<T>({
               aria-label="Next page"
               disabled={!table.getCanNextPage()}
               onClick={table.nextPage}
-              key={`${type}${page}`}
+              key={key}
             >
               <Icon
                 icon="lucide:chevron-right"

@@ -23,7 +23,7 @@ export default function User() {
   ] as const
   return (
     <>
-      <div className="mx-auto flex h-full w-full max-w-screen-lg grow flex-col p-6">
+      <div className="mx-auto flex size-full max-w-screen-lg grow flex-col p-6">
         <div className="pb-5">
           <div className="text-2xl">
             {username}

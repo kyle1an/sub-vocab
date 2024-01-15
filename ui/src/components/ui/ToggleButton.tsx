@@ -22,7 +22,7 @@ export function VocabToggle<T extends LabelDisplayTable>({
       aria-label="Toggle vocabulary state"
       disabled={updating}
       className={cn(
-        'box-border inline-flex h-6 max-h-full w-6 grow-0 items-center justify-center whitespace-nowrap rounded-full border p-[5px] text-center align-middle text-xs/3 transition-colors active:scale-95 [&:not(:disabled)]:cursor-pointer',
+        'box-border inline-flex size-6 max-h-full grow-0 items-center justify-center whitespace-nowrap rounded-full border p-[5px] text-center align-middle text-xs/3 transition-colors active:scale-95 [&:not(:disabled)]:cursor-pointer',
         learningPhase === LEARNING_PHASE.ACQUAINTED || learningPhase === LEARNING_PHASE.REMOVING ? 'border-amber-300 bg-amber-300 text-white' : 'border-zinc-300',
         learningPhase === LEARNING_PHASE.ACQUAINTED && 'hover:bg-yellow-300 focus:bg-yellow-300 active:bg-yellow-200',
         learningPhase === LEARNING_PHASE.NEW && 'bg-transparent text-transparent hover:text-black active:bg-yellow-100',

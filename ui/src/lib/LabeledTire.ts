@@ -1,6 +1,4 @@
-import type { Prettify } from '@/types'
-
-export type ObjectValues<T> = T[keyof T]
+import type { Simplify, ValueOf } from 'type-fest'
 
 export const LEARNING_PHASE = {
   NEW: 0,
@@ -9,7 +7,7 @@ export const LEARNING_PHASE = {
   ACQUAINTING: 3,
 } as const
 
-export type LearningPhase = ObjectValues<typeof LEARNING_PHASE>
+export type LearningPhase = ValueOf<typeof LEARNING_PHASE>
 
 export interface VocabState {
   word: string
@@ -22,7 +20,7 @@ export interface VocabState {
 
 type Char = `'` | '’' | '-' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z'
 
-type NodeOf<T> = Prettify<{
+type NodeOf<T> = Simplify<{
   [K in Char]?: K extends Char ? NodeOf<T> : never
 } & {
   '$'?: T
