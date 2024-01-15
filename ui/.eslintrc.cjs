@@ -1,7 +1,7 @@
 module.exports = {
   "env": {
     "browser": true,
-    "es2020": true,
+    "es2024": true,
   },
   "extends": [
     "eslint:recommended",
@@ -33,6 +33,7 @@ module.exports = {
     "require-await": "off",
     "import/order": [1, { "groups": ["builtin", "external", "parent", "sibling", "index"] }],
     "arrow-body-style": ["off"],
+    "@stylistic/space-before-blocks": ["warn", "always"],
 
     "@typescript-eslint/ban-types": [
       "error",

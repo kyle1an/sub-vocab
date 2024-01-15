@@ -136,10 +136,7 @@ const SignOut = ({ className, onClick, ...props }: React.HTMLAttributes<HTMLDivE
   return (
     <div
       className={cn('inline-flex items-center gap-3', className)}
-      onClick={(e) => {
-        logout()
-        onClick?.(e)
-      }}
+      onClick={logout}
       {...props}
     >
       <Icon
@@ -211,6 +208,7 @@ export function TopBar({ className }: { className?: string }) {
       className={cn(
         'fixed z-20 flex w-full flex-col',
         disclosureOpen && 'h-full backdrop-blur-sm transition-all duration-300 ease-in-out',
+        className,
       )}
     >
       <Disclosure
@@ -232,7 +230,7 @@ export function TopBar({ className }: { className?: string }) {
                     <div className="shrink-0 pl-3 pr-2">
                       <Link
                         to="/"
-                        onClick={() => closeFnRef.current()}
+                        onClick={closeFnRef.current}
                       >
                         <div className={cn('group flex items-center gap-2.5 rounded-md text-sm font-medium text-neutral-600 hover:text-black')}>
                           <Icon
@@ -268,7 +266,7 @@ export function TopBar({ className }: { className?: string }) {
                       <a
                         href="https://github.com/kyle1an/sub-vocab"
                         target="_blank"
-                        className="mr-3 block px-2 text-neutral-300 transition-all hover:text-neutral-400 xl:mr-0 dark:hover:text-neutral-300"
+                        className="mr-3 block px-2 text-neutral-300 transition-all hover:text-neutral-400 dark:hover:text-neutral-300 xl:mr-0"
                         rel="noreferrer"
                       >
                         <span className="sr-only">SubVocab on GitHub</span>
@@ -412,7 +410,7 @@ export function TopBar({ className }: { className?: string }) {
                         <Link
                           to={item.href}
                           className={cn('block rounded-md text-neutral-600 hover:text-black')}
-                          onClick={() => closeFnRef.current()}
+                          onClick={closeFnRef.current}
                         >
                           {item.name}
                         </Link>
@@ -443,12 +441,13 @@ export function TopBar({ className }: { className?: string }) {
                   {userNavigation.map(({ Component, ...item }) => (
                     <div
                       key={item.name}
-                      className="flex items-center"
+                      className="flex cursor-default items-center"
                     >
-                      <Component
-                        className="inline-flex shrink-0 items-center gap-3 rounded-md [&>*]:text-neutral-600 [&>*]:transition-all [&>*]:hover:text-black [&>svg]:text-neutral-400"
-                        onClick={() => closeFnRef.current()}
-                      />
+                      <div onClick={closeFnRef.current}>
+                        <Component
+                          className="inline-flex shrink-0 items-center gap-3 rounded-md [&>*]:text-neutral-600 [&>*]:transition-all [&>*]:hover:text-black [&>svg]:text-neutral-400"
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>

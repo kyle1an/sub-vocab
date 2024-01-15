@@ -1,4 +1,4 @@
-import type { ObjectValues } from '@/lib/LabeledTire'
+import type { ValueOf } from 'type-fest'
 
 export type RegisterResponse = [{ result: number} ]
 
@@ -34,4 +34,4 @@ type OWNERSHIP = {
   ANON_USER: 2
 }
 
-export type Ownership = ObjectValues<OWNERSHIP>
+export type Ownership = ValueOf<OWNERSHIP>

@@ -103,7 +103,7 @@ export function VocabDataTable({
             >
               <span
                 title={t('distance')}
-                className={cn('before:hidden-bold grow text-right text-xs stretch-[condensed] before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
+                className={cn('grow text-right text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
               >
                 {t('distance')}
               </span>
@@ -143,7 +143,7 @@ export function VocabDataTable({
               >
                 <span
                   title={t('Word')}
-                  className={cn('before:hidden-bold grow text-left text-xs stretch-[condensed] before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : 'text-zinc-500')}
+                  className={cn('grow text-left text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : 'text-zinc-500')}
                 >
                   {t('Word')}
                 </span>
@@ -191,7 +191,7 @@ export function VocabDataTable({
               <div className="flex items-center">
                 <span
                   title={t('length')}
-                  className={cn('before:hidden-bold grow text-right text-xs before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : 'text-zinc-500')}
+                  className={cn('grow text-right text-xs before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : 'text-zinc-500')}
                 >
                   {t('length')}
                 </span>
@@ -284,7 +284,7 @@ export function VocabDataTable({
               <div className="flex items-center">
                 <span
                   title={t('rank')}
-                  className={cn('before:hidden-bold grow text-right text-xs stretch-[condensed] before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
+                  className={cn('grow text-right text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
                 >
                   {t('rank')}
                 </span>
@@ -462,7 +462,7 @@ export function VocabDataTable({
         />
       </div>
       <div className="w-full grow overflow-auto overflow-y-scroll overscroll-contain">
-        <table className="min-w-full">
+        <table className="min-w-full border-separate border-spacing-0">
           <thead className="sticky top-0 z-10 bg-white px-0">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
@@ -517,13 +517,13 @@ export function VocabDataTable({
           </tbody>
         </table>
       </div>
-      <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 tabular-nums">
+      <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums">
         <Pagination
           items={items}
           table={table}
         />
         <div className="flex grow items-center justify-end">
-          <div className="m-0.5 flex items-center text-neutral-600">
+          <div className="flex items-center text-neutral-600">
             <Select
               defaultValue={String(pageSize)}
               onValueChange={(e) => {

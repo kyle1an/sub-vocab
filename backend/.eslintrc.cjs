@@ -1,6 +1,6 @@
 module.exports = {
   "env": {
-    "es2022": true,
+    "es2024": true,
     "node": true
   },
   "globals": {
@@ -13,6 +13,8 @@ module.exports = {
     "../.eslintrc.cjs",
   ],
   "rules": {
+    "@stylistic/space-before-blocks": ["warn", "always"],
+
     "import/order": [1, { "groups": ["builtin", "external", "parent", "sibling", "index"] }],
     "@typescript-eslint/ban-types": [
       "error",
@@ -41,6 +43,7 @@ module.exports = {
     "sourceType": "module"
   },
   "plugins": [
+    "@stylistic",
     "@typescript-eslint"
   ],
 }

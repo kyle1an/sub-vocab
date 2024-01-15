@@ -1,6 +1,6 @@
 module.exports = {
   "env": {
-    "es2022": true,
+    "es2024": true,
     "node": true,
   },
   "extends": [

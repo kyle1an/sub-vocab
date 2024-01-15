@@ -111,7 +111,7 @@ export default function Home() {
                   <span className="mx-2 inline-block h-[18px] w-px border-l align-middle" />
                   <span className="shrink-0 text-right tabular-nums">{`${count.toLocaleString('en-US')} ${t('words')}`}</span>
                 </div>
-                <div className="h-full w-full grow text-base text-zinc-700 md:text-sm">
+                <div className="size-full grow text-base text-zinc-700 md:text-sm">
                   <TextareaInput
                     value={sourceText}
                     placeholder={t('inputArea')}

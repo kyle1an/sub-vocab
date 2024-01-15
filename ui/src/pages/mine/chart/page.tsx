@@ -20,12 +20,8 @@ import { LEARNING_PHASE, type VocabState } from '@/lib/LabeledTire'
 const mapWeek = (userWords: VocabState[]) => {
   const today = new Date()
   const preset: Record<string, []> = {}
-  rangeRight(2, 7).forEach((i) => {
+  rangeRight(0, 7).forEach((i) => {
     preset[format(subDays(today, i), 'EEE')] = []
-  })
-  Object.assign(preset, {
-    Yesterday: [],
-    Today: [],
   })
 
   const inScope = userWords.filter((v) => v.learningPhase === LEARNING_PHASE.ACQUAINTED && v.timeModified)
