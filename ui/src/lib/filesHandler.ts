@@ -7,7 +7,7 @@ type RecursiveArray<T> = T | RecursiveArray<T>[]
 
 type EntryFiles = RecursiveArray<FileContent>
 
-const formatError = 'Unsupported file format'
+const FORMAT_ERROR = 'Unsupported file format'
 
 function readFile(file: File) {
   return new Promise<FileContent>((resolve, reject) => {
@@ -46,7 +46,7 @@ function readFile(file: File) {
     } else {
       resolve({
         text: '',
-        name: formatError,
+        name: FORMAT_ERROR,
       })
     }
   })
@@ -69,9 +69,11 @@ function readDirectory(systemDirectoryEntry: FileSystemDirectoryEntry): Promise<
         })
       })
 
-      Promise.all(promises).then((results) => {
-        resolve(results.filter((result) => result !== null))
-      }).catch(reject)
+      Promise.all(promises)
+        .then((results) => {
+          resolve(results.filter((result) => result !== null))
+        })
+        .catch(reject)
     })
   })
 }

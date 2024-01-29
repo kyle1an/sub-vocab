@@ -8,6 +8,7 @@ export const FileInput = (props: {
     value: string
     name: string
   }) => void
+  inputRef?: React.RefObject<HTMLInputElement>
   children: React.ReactNode
   className?: string
 }) => {
@@ -28,13 +29,6 @@ export const FileInput = (props: {
 
   const inputId = `browseFiles${uuidv4()}`
 
-  function inputChanged() {
-    const input = document.getElementById(inputId)
-    if (input && 'value' in input) {
-      input.value = ''
-    }
-  }
-
   return (
     <div
       onDrop={dropFile}
@@ -47,6 +41,7 @@ export const FileInput = (props: {
         {props.children}
       </label>
       <input
+        ref={props.inputRef}
         id={inputId}
         className="file-input"
         type="file"

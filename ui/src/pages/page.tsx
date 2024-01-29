@@ -1,5 +1,6 @@
 import {
-  memo, useDeferredValue, useEffect, useState,
+  type RefObject,
+  memo, useDeferredValue, useEffect, useRef, useState,
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import { atom, useAtom } from 'jotai'
@@ -56,6 +57,12 @@ const SourceVocab = memo(function SourceVocab({
   )
 })
 
+function clearInputValue(ref: RefObject<HTMLInputElement>) {
+  if (ref.current && 'value' in ref.current) {
+    ref.current.value = ''
+  }
+}
+
 export default function Home() {
   const { t } = useTranslation()
   const [fileInfo, setFileInfo] = useState('')
@@ -67,11 +74,14 @@ export default function Home() {
     setSourceText(value)
   }
 
+  const inputRef = useRef<HTMLInputElement>(null)
+
   function handleTextareaChange({ name, value }: { name?: string; value: string }) {
     setSourceText(value)
     if (name) {
       setFileInfo(name)
     }
+    clearInputValue(inputRef)
   }
 
   const [count] = useAtom(textCountAtom)
@@ -92,6 +102,7 @@ export default function Home() {
     <main className="m-auto h-[calc(100svh-4px*11)] w-full max-w-screen-xl px-5">
       <div className="relative flex h-14 items-center">
         <FileInput
+          inputRef={inputRef}
           onFileChange={handleFileChange}
         >
           {t('browseFiles')}
