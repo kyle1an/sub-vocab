@@ -1,89 +1,168 @@
 import { useMemo } from 'react'
 import { useSessionStorage } from 'react-use'
-import { groupBy, rangeRight } from 'lodash-es'
+import { merge, rangeRight } from 'lodash-es'
 import {
   type ChartData, Chart as ChartJS,
   type ChartOptions,
 } from 'chart.js'
 import {
-  differenceInCalendarMonths,
-  differenceInCalendarWeeks,
-  format, subDays, subMonths,
+  endOfWeek,
+  format, getMonth, isFirstDayOfMonth, isSunday, startOfMonth, startOfWeek, subDays, subMonths, subWeeks,
 } from 'date-fns'
 import 'chart.js/auto'
 import { Bar } from 'react-chartjs-2'
 import { useTranslation } from 'react-i18next'
+import colors from 'tailwindcss/colors'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { useVocabularyQuery } from '@/api/vocab-api'
 import { LEARNING_PHASE, type VocabState } from '@/lib/LabeledTire'
 
+type DataSet = {
+  groupName: string
+  groupKey: string
+  tooltipFooter: string
+  range: [Date, Date]
+  groupValue: VocabState[]
+}
+
 const mapWeek = (userWords: VocabState[]) => {
   const today = new Date()
-  const preset: Record<string, []> = {}
+  const preset: Record<string, VocabState[]> = {}
+  const dataPreset: DataSet[] = []
+  const getGroupKey = (date: Date) => date.toDateString()
   rangeRight(0, 7).forEach((i) => {
-    preset[format(subDays(today, i), 'EEE')] = []
+    const subDay = subDays(today, i)
+    const groupName = format(subDay, 'EEE')
+    const groupKey = getGroupKey(subDay)
+    const groupValue: VocabState[] = []
+    dataPreset.push({
+      groupName,
+      tooltipFooter: format(subDay, 'LLL d, yyyy'),
+      groupKey,
+      range: [subDay, subDay],
+      groupValue,
+    })
+    preset[groupKey] = groupValue
   })
 
-  const inScope = userWords.filter((v) => v.learningPhase === LEARNING_PHASE.ACQUAINTED && v.timeModified)
-  const { Earlier, ...groupedVocab } = groupBy(inScope, (v) => {
-    const label = format(new Date(v.timeModified!), 'EEE')
-    const differences = differenceInCalendarWeeks(today, new Date(v.timeModified!))
-    if (label in preset && differences <= 1) {
-      return label
+  userWords.forEach((v) => {
+    if (v.learningPhase === LEARNING_PHASE.ACQUAINTED && v.timeModified) {
+      const label = getGroupKey(new Date(v.timeModified))
+      if (label in preset) {
+        preset[label].push(v)
+      }
     }
-    return 'Earlier'
   })
 
-  return {
-    ...preset,
-    ...groupedVocab,
-  }
+  return dataPreset
 }
 
 const mapMonth = (userWords: VocabState[]) => {
   const today = new Date()
-  const preset: Record<string, []> = {}
-  rangeRight(0, 30).forEach((i) => {
-    preset[format(subDays(today, i), 'do')] = []
-  })
-
-  const inScope = userWords.filter((v) => v.learningPhase === LEARNING_PHASE.ACQUAINTED && v.timeModified)
-  const { Earlier, ...groupedVocab } = groupBy(inScope, (v) => {
-    const label = format(new Date(v.timeModified!), 'do')
-    const differences = differenceInCalendarMonths(today, new Date(v.timeModified!))
-    if (label in preset && differences <= 1) {
-      return label
+  const preset: Record<string, VocabState[]> = {}
+  const dataPreset: DataSet[] = []
+  const getGroupKey = (date: Date) => date.toDateString()
+  rangeRight(0, 31).forEach((i) => {
+    const subDay = subDays(today, i)
+    let groupName = ''
+    if (isSunday(subDay)) {
+      groupName = format(subDay, 'd')
     }
-    return 'Earlier'
+
+    const groupKey = getGroupKey(subDay)
+    const groupValue: VocabState[] = []
+    dataPreset.push({
+      groupName,
+      tooltipFooter: '',
+      groupKey,
+      range: [subDay, subDay],
+      groupValue,
+    })
+    preset[groupKey] = groupValue
   })
 
-  return {
-    ...preset,
-    ...groupedVocab,
-  }
+  userWords.forEach((v) => {
+    if (v.learningPhase === LEARNING_PHASE.ACQUAINTED && v.timeModified) {
+      const label = getGroupKey(new Date(v.timeModified))
+      if (label in preset) {
+        preset[label].push(v)
+      }
+    }
+  })
+
+  return dataPreset
 }
 
 const map6M = (userWords: VocabState[]) => {
   const today = new Date()
-  const preset: Record<string, []> = {}
-  rangeRight(0, 6).forEach((i) => {
-    preset[format(subMonths(today, i), 'LLL')] = []
-  })
-
-  const inScope = userWords.filter((v) => v.learningPhase === LEARNING_PHASE.ACQUAINTED && v.timeModified)
-  const { Earlier, ...groupedVocab } = groupBy(inScope, (v) => {
-    const label = format(new Date(v.timeModified!), 'LLL')
-    const differences = differenceInCalendarMonths(today, new Date(v.timeModified!))
-    if (label in preset && differences <= 6) {
-      return label
+  const preset: Record<string, VocabState[]> = {}
+  const dataPreset: DataSet[] = []
+  const getGroupKey = (date: Date) => format(date, 'w, yyyy')
+  rangeRight(0, 25).forEach((i) => {
+    const subWeek = subWeeks(today, i)
+    let groupName = ''
+    const weekStart = startOfWeek(subWeek)
+    const weekEnd = endOfWeek(subWeek)
+    const monthStart = startOfMonth(weekEnd)
+    if (monthStart >= weekStart && monthStart <= weekEnd) {
+      groupName = format(weekEnd, 'MMM')
     }
-    return 'Earlier'
+
+    const groupKey = getGroupKey(subWeek)
+    const groupValue: VocabState[] = []
+    dataPreset.push({
+      groupName,
+      groupKey,
+      tooltipFooter: `${format(weekStart, 'MMM d')} - ${format(weekEnd, 'MMM d')}, ${format(subWeek, 'yyyy')}`,
+      range: [weekStart, weekEnd],
+      groupValue,
+    })
+    preset[groupKey] = groupValue
   })
 
-  return {
-    ...preset,
-    ...groupedVocab,
-  }
+  userWords.forEach((v) => {
+    if (v.learningPhase === LEARNING_PHASE.ACQUAINTED && v.timeModified) {
+      const label = getGroupKey(new Date(v.timeModified))
+      if (label in preset) {
+        preset[label].push(v)
+      }
+    }
+  })
+
+  return dataPreset
+}
+
+const mapY = (userWords: VocabState[]) => {
+  const today = new Date()
+  const preset: Record<string, VocabState[]> = {}
+  const dataPreset: DataSet[] = []
+  const getGroupKey = (date: Date) => format(date, 'LLL')
+  rangeRight(0, 12).forEach((i) => {
+    const subMonth = subMonths(today, i)
+    const groupName = format(subMonth, 'LLLLL')
+
+    const groupKey = getGroupKey(subMonth)
+    const groupValue: VocabState[] = []
+    dataPreset.push({
+      groupName,
+      groupKey,
+      tooltipFooter: format(subMonth, 'MMM yyyy'),
+      range: [subMonth, subMonth],
+      groupValue,
+    })
+    preset[groupKey] = groupValue
+  })
+
+  userWords.forEach((v) => {
+    if (v.learningPhase === LEARNING_PHASE.ACQUAINTED && v.timeModified) {
+      const label = getGroupKey(new Date(v.timeModified))
+      if (label in preset) {
+        preset[label].push(v)
+      }
+    }
+  })
+
+  return dataPreset
 }
 
 const SEGMENT_NAME = 'prev-chart-select'
@@ -92,9 +171,10 @@ export function Chart() {
   const { data: userWords = [] } = useVocabularyQuery()
 
   const segments = [
-    { value: '6M', label: t('6M') },
-    { value: 'M', label: t('M') },
     { value: 'W', label: t('W') },
+    { value: 'M', label: t('M') },
+    { value: '6M', label: t('6M') },
+    { value: 'Y', label: t('Y') },
   ] as const
   type Segment = typeof segments[number]['value']
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'W')
@@ -105,57 +185,236 @@ export function Chart() {
   ].join(', ')
   ChartJS.defaults.font.weight = 500
 
-  const groupedRows = useMemo(() => {
+  const groupedRows = useMemo((): DataSet[] => {
     if (segment === 'W') {
       return mapWeek(userWords)
-    }
-    if (segment === 'M') {
+    } if (segment === 'M') {
       return mapMonth(userWords)
+    } if (segment === '6M') {
+      return map6M(userWords)
+    } if (segment === 'Y') {
+      return mapY(userWords)
     }
-    return map6M(userWords)
+
+    return []
   }, [userWords, segment])
 
-  const chartData = useMemo(() => ({
-    labels: Object.keys(groupedRows),
-    datasets: [
-      {
-        borderRadius: {
-          topRight: 3,
-          topLeft: 3,
-        },
-        label: 'Acquainted Vocabulary',
-        data: Object.values(groupedRows).map((v) => v.length),
-        backgroundColor: 'rgba(255, 99, 132, 0.05)',
-        borderColor: 'rgba(255, 99, 132, 1)',
-        borderWidth: 1,
-      },
-    ],
-  } satisfies ChartData<'bar', number[], string>), [groupedRows])
+  const chartData = useMemo(() => {
+    const barColor = colors.red[400]
 
-  const options = {
-    plugins: {},
+    let data: number[] = groupedRows.map((v) => v.groupValue.length)
+    if (segment === '6M') {
+      data = data.map((v) => {
+        const daily = v / 7
+        return daily
+      })
+    }
+
+    return {
+      labels: groupedRows.map((v) => v.groupName),
+      datasets: [
+        {
+          borderRadius: {
+            topRight: 3,
+            topLeft: 3,
+          },
+          label: 'Acquainted Vocabulary',
+          data,
+          backgroundColor: barColor,
+        },
+      ],
+    } satisfies ChartData<'bar', number[], string>
+  }, [groupedRows, segment])
+
+  let options = {
+    interaction: {
+      intersect: false,
+      mode: 'index',
+    },
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        displayColors: false,
+        yAlign: 'bottom',
+        callbacks: {
+          title() {
+            return 'TOTAL'
+          },
+          label(context) {
+            const value = context.parsed.y || 0
+            return `${value} Vocabulary`
+          },
+        },
+      },
+    },
     scales: {
+      x: {
+        border: {
+          dash(scaleContext) {
+            const label = scaleContext?.tick?.label
+            if (label === '1' || label === 'Sun') {
+              return [0, 0]
+            }
+            return [2, 2]
+          },
+        },
+        ticks: {
+          maxRotation: 0,
+          autoSkip: false,
+        },
+      },
       y: {
+        position: 'right',
         ticks: {
           precision: 0,
         },
+        border: {
+          display: false,
+        },
+      },
+    },
+    layout: {
+      padding: {
+        left: 24,
       },
     },
   } satisfies ChartOptions<'bar'>
 
+  if (segment === 'W') {
+    options = merge(options, {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            footer(context) {
+              const { dataIndex } = context[0]
+              const bar = groupedRows[dataIndex]
+              return bar.tooltipFooter
+            },
+          },
+        },
+      },
+    } satisfies ChartOptions<'bar'>)
+  } else if (segment === 'M') {
+    options = merge(options, {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            footer(context) {
+              const { dataIndex } = context[0]
+              const bar = groupedRows[dataIndex]
+              return format(new Date(bar.groupKey), 'MMM d, yyyy')
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          border: {
+            dash(scaleContext) {
+              const { index: dataIndex } = scaleContext
+              const bar = groupedRows[dataIndex]
+              const groupDate = new Date(bar?.range[0] ?? '')
+              if (isFirstDayOfMonth(groupDate)) {
+                return [0, 0]
+              }
+              if (isSunday(new Date(bar?.groupKey))) {
+                return [2, 2]
+              }
+              return [0, 1] // hide
+            },
+          },
+        },
+      },
+    } satisfies ChartOptions<'bar'>)
+  } else if (segment === '6M') {
+    options = merge(options, {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            title() {
+              return 'DAILY AVERAGE'
+            },
+            label(context) {
+              const value = context.parsed.y || 0
+              return `${value.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 0 })} Vocabulary`
+            },
+            footer(context) {
+              const { dataIndex } = context[0]
+              const bar = groupedRows[dataIndex]
+              return bar.tooltipFooter
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          border: {
+            dash(scaleContext) {
+              const { index: dataIndex } = scaleContext
+              const bar = groupedRows[dataIndex]
+              if (bar?.groupName) {
+                return [2, 2]
+              }
+
+              return [0, 1]
+            },
+          },
+        },
+      },
+    } satisfies ChartOptions<'bar'>)
+  } else if (segment === 'Y') {
+    options = merge(options, {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            footer(context) {
+              const { dataIndex } = context[0]
+              const bar = groupedRows[dataIndex]
+              return bar.tooltipFooter
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          border: {
+            dash(scaleContext) {
+              const { index: dataIndex } = scaleContext
+              const bar = groupedRows[dataIndex]
+              const groupDate = new Date(bar?.range[0] ?? '')
+              if (getMonth(groupDate) === 0) {
+                return [0, 0]
+              }
+              return [2, 2]
+            },
+          },
+        },
+      },
+    } satisfies ChartOptions<'bar'>)
+  }
+
   return (
-    <div className="pt-8">
-      <SegmentedControl
-        name={SEGMENT_NAME}
-        segments={segments}
-        value={segment}
-        onChoose={setSegment}
-      />
-      <Bar
-        options={options}
-        data={chartData}
-        className="w-full tabular-nums tracking-wide ffs-[normal] md:pb-0"
-      />
+    <div>
+      <div className="flex h-14">
+        <div className="flex flex-auto grow items-center justify-center font-bold text-neutral-700">
+          Acquainted Vocabulary
+        </div>
+      </div>
+      <div className="flex flex-col gap-3">
+        <SegmentedControl
+          name={SEGMENT_NAME}
+          segments={segments}
+          value={segment}
+          onChoose={setSegment}
+        />
+        <Bar
+          options={options}
+          data={chartData}
+          className="w-full tabular-nums tracking-wide ffs-[normal] md:pb-0"
+        />
+      </div>
     </div>
   )
 }
