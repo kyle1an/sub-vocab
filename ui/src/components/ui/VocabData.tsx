@@ -163,7 +163,7 @@ export function VocabDataTable({
               {wFamily.map((w, i) => (
                 <div
                   key={w}
-                  className="ml-2 inline-block cursor-text select-text font-compact text-[16px] text-black"
+                  className="ml-2 inline-block cursor-text select-text text-sm tracking-wider text-black ffs-['cv03','cv05','cv06']"
                   onClick={(ev) => ev.stopPropagation()}
                 >
                   <span className={cn(i !== 0 && 'text-neutral-500')}>{w}</span>

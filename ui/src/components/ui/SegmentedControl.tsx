@@ -1,12 +1,13 @@
 import {
   type ChangeEvent,
+  type ForwardedRef,
   type HTMLAttributes,
   type RefObject,
   createRef,
   useRef,
 } from 'react'
 import { type VariantProps, cva } from 'class-variance-authority'
-import { cn } from '@/lib/utils.ts'
+import { cn, fixedForwardRef } from '@/lib/utils.ts'
 import type { NoInfer } from '@/types'
 
 const segmentedControlVariants = cva(
@@ -47,7 +48,7 @@ export interface SegmentedControlProps<T extends string> extends HTMLAttributes<
   onChoose: (value: T) => void
 }
 
-export const SegmentedControl = <T extends string>({
+const SegmentedControl = <T extends string>({
   value,
   name,
   segments,
@@ -56,7 +57,9 @@ export const SegmentedControl = <T extends string>({
   size,
   className,
   ...props
-}: SegmentedControlProps<T>) => {
+}: SegmentedControlProps<T>,
+  ref: ForwardedRef<HTMLDivElement>,
+) => {
   const pillRefs = useRef<RefObject<HTMLSpanElement>[]>([])
   pillRefs.current = segments.map((_, i) => pillRefs.current[i] ?? createRef())
 
@@ -85,6 +88,7 @@ export const SegmentedControl = <T extends string>({
 
   return (
     <div
+      ref={ref}
       className={cn(segmentedControlVariants({ variant, size, className }))}
       {...props}
     >
@@ -131,3 +135,7 @@ export const SegmentedControl = <T extends string>({
     </div>
   )
 }
+
+const ForwardReffedSegmentedControl = fixedForwardRef(SegmentedControl)
+
+export { ForwardReffedSegmentedControl as SegmentedControl }

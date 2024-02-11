@@ -1,8 +1,6 @@
 import type { NextFunction, Request, Response } from 'express-serve-static-core'
 import { sql } from '../config/connection'
 
-export const daysIn = (days: number) => new Date(Date.now() + days * 24 * 60 * 60 * 1000)
-
 export async function tokenInvalid(req: Request, res: Response) {
   if (!req.cookies._user) return true
   const [rows] = await sql<[{ result: number }]>`SELECT token_check(${req.cookies.acct}, get_user_id_by_name(${req.cookies._user})) as result;`
