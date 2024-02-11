@@ -76,6 +76,11 @@ module.exports = {
     "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/no-empty-interface": "off",
+    // https://www.totaltypescript.com/method-shorthand-syntax-considered-harmful
+    "@typescript-eslint/method-signature-style": [
+      "error",
+      "property"
+    ],
 
     "linebreak-style": "off",
     "prefer-arrow-callback": "off",

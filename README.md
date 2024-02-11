@@ -14,7 +14,7 @@ After you log in, you may mark the words you already know by clicking on the che
 
 ### overview
 
-<img width="1452" alt="Screenshot" src="https://github.com/kyle1an/sub-vocab/assets/50689806/21dded2f-5328-4e63-97e7-27fb22a47581">
+<img width="1452" alt="Screenshot" src="https://github.com/kyle1an/sub-vocab/assets/50689806/18688d15-fa64-4aaa-ac34-0dc03e2864cd">
 
 
 [Visualization of this repo](https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=kyle1an%2FSubVocab)

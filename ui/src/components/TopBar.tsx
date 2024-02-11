@@ -113,7 +113,7 @@ const Settings = ({ className, ...props }: React.HTMLAttributes<HTMLAnchorElemen
   )
 }
 
-const SignOut = ({ className, onClick, ...props }: React.HTMLAttributes<HTMLDivElement>) => {
+const SignOut = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => {
   const { t } = useTranslation()
   const { username } = useSnapshotStore()
   const { mutateAsync: logOut } = useLogOut()
@@ -140,8 +140,8 @@ const SignOut = ({ className, onClick, ...props }: React.HTMLAttributes<HTMLDivE
       {...props}
     >
       <Icon
-        icon="humbleicons:logout"
-        className="text-neutral-600"
+        icon="solar:logout-2-outline"
+        className="scale-x-[-1]"
         width={16}
       />
       <span>

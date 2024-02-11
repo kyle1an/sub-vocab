@@ -2,8 +2,9 @@ import crypto from 'crypto'
 import express from 'express'
 import mysql from 'mysql2'
 import type { ParamsDictionary, Request, Response } from 'express-serve-static-core'
+import { addDays } from 'date-fns'
 import { type RSH, sql } from '../config/connection'
-import { daysIn, tokenChecker } from '../utils/util'
+import { tokenChecker } from '../utils/util'
 import type { LoginResponse, RegisterResponse, Status, UsernameTaken } from '../../ui/src/types/shared'
 import type { Credential, NewCredential, NewUsername, Username } from '../../ui/src/api/user'
 
@@ -16,8 +17,9 @@ router.post('/login', (req: Request<ParamsDictionary, LoginResponse, Credential>
     .then(([rows]) => {
       const response: [boolean] = [false]
       if (rows[0].output) {
-        res.cookie('_user', username, { expires: daysIn(30) })
-        res.cookie('acct', token, { expires: daysIn(30) })
+        const expires = addDays(Date.now(), 30)
+        res.cookie('_user', username, { expires })
+        res.cookie('acct', token, { expires })
         response[0] = true
       }
       res.json(response)
@@ -42,7 +44,8 @@ router.post('/changeUsername', tokenChecker, (req: Request<ParamsDictionary, Sta
   const { username, newUsername } = req.body
   sql<RegisterResponse>`SELECT change_username(get_user_id_by_name(${username}), ${newUsername}) as result;`
     .then(([rows]) => {
-      res.cookie('_user', newUsername, { expires: daysIn(30) })
+      const expires = addDays(Date.now(), 30)
+      res.cookie('_user', newUsername, { expires })
       res.json({
         success: !!rows[0].result,
       })

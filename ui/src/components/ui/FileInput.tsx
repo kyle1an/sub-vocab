@@ -13,7 +13,7 @@ export const FileInput = (props: {
   className?: string
 }) => {
   function handleFileChange(ev: React.ChangeEvent<HTMLInputElement>) {
-    const fileList = (ev.target as HTMLInputElement).files
+    const fileList = ev.target.files
     if (fileList && fileList.length > 0) {
       getFileContent(fileList).then(props.onFileChange).catch(console.error)
     }
