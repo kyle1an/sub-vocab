@@ -29,6 +29,12 @@ export default ({ mode }: { mode: string }) => {
     build: {
       target: 'esnext',
     },
+    optimizeDeps: {
+      esbuildOptions: {
+        // https://github.com/mozilla/pdf.js/issues/17245
+        target: 'esnext',
+      },
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),

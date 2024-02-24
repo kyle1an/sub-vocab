@@ -14,7 +14,7 @@ export const FileInput = (props: {
 }) => {
   function handleFileChange(ev: React.ChangeEvent<HTMLInputElement>) {
     const fileList = ev.target.files
-    if (fileList && fileList.length > 0) {
+    if (fileList) {
       getFileContent(fileList).then(props.onFileChange).catch(console.error)
     }
   }
@@ -22,7 +22,7 @@ export const FileInput = (props: {
   function dropFile(ev: React.DragEvent<HTMLDivElement>) {
     ev.preventDefault()
     const files = ev.dataTransfer?.files
-    if (files && files.length > 0) {
+    if (files) {
       getFileContent(files).then(props.onFileChange).catch(console.error)
     }
   }
@@ -43,6 +43,7 @@ export const FileInput = (props: {
       <input
         ref={props.inputRef}
         id={inputId}
+        aria-label="File input"
         className="file-input"
         type="file"
         hidden

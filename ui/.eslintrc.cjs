@@ -129,6 +129,18 @@ module.exports = {
       "allowNamedExports": false,
       "ignoreTypeReferences": true,
     }],
+
+    "jsx-a11y/control-has-associated-label": [2, {
+      "labelAttributes": ["label"],
+      "controlComponents": ["CustomComponent"],
+      "ignoreElements": [
+        "th",
+      ],
+      "ignoreRoles": [
+      ],
+      "depth": 3,
+    }],
+    "jsx-a11y/heading-has-content": "off"
   },
   "settings": {
     "import/parsers": {

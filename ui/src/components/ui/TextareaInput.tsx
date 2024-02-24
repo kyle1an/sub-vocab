@@ -32,6 +32,7 @@ export const TextareaInput = (props: {
 
   return (
     <textarea
+      aria-label="Text input"
       value={props.value}
       className="size-full max-h-full resize-none rounded-none px-[30px] py-3 align-top tracking-[.02em] outline-none ffs-[normal]"
       placeholder={props.placeholder ?? ''}

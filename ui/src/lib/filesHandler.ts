@@ -1,3 +1,8 @@
+// https://github.com/mozilla/pdf.js/issues/10478#issuecomment-1560704162
+import 'pdfjs-dist/build/pdf.worker.mjs'
+import { type PDFDocumentProxy, getDocument } from 'pdfjs-dist'
+import type { TextContent, TextItem } from 'pdfjs-dist/types/src/display/api'
+
 interface FileContent {
   text: string
   name: string
@@ -8,6 +13,44 @@ type RecursiveArray<T> = T | RecursiveArray<T>[]
 type EntryFiles = RecursiveArray<FileContent>
 
 const FORMAT_ERROR = 'Unsupported file format'
+
+function isTextItem(obj: TextContent['items'][number]): obj is TextItem {
+  // @ts-ignore TextItem/TextMarkedContent
+  return Boolean(obj?.transform)
+}
+
+function formatTextContent(textContent: TextContent) {
+  const lines = textContent.items.map((item) => {
+    let text = ''
+    if (isTextItem(item)) {
+      text = item.str
+      if (item.hasEOL) {
+        text += '\n'
+      }
+    }
+    return text
+  })
+  const bbb = lines.join(' ')
+  return bbb
+}
+
+async function getDocumentText(pdf: PDFDocumentProxy) {
+  const pdfTexts: string [] = []
+
+  for (let i = 1; i < pdf.numPages; i++) {
+    /* eslint-disable no-await-in-loop */
+    await pdf.getPage(i)
+      .then(async (page) => {
+        await page.getTextContent()
+          .then((textContent) => {
+            const text = formatTextContent(textContent)
+            pdfTexts.push(text)
+          })
+      })
+  }
+
+  return pdfTexts.join(' ')
+}
 
 function readFile(file: File) {
   return new Promise<FileContent>((resolve, reject) => {
@@ -32,23 +75,40 @@ function readFile(file: File) {
       '.ass', '.bat', '.log', '.nfo', '.patch', '.ps1', '.srt',
     ]
     const extension = file.name.substring(file.name.lastIndexOf('.'))
+    const reader = new FileReader()
 
-    if (file.type === 'text/plain' || humanReadableFileExtensions.includes(extension)) {
-      const reader = new FileReader()
+    if (file.type.startsWith('text/') || humanReadableFileExtensions.includes(extension)) {
       reader.onload = (e) => {
-        resolve({
-          text: e.target?.result as string,
-          name: file.name,
-        })
+        const result = e.target?.result
+        if (typeof result === 'string') {
+          resolve({
+            text: result,
+            name: file.name,
+          })
+        }
       }
-      reader.onerror = reject
       reader.readAsText(file)
+    } else if (file.type === 'application/pdf') {
+      reader.onload = async (e) => {
+        const document = e.target?.result
+        if (document instanceof ArrayBuffer) {
+          const pdf = await getDocument(document).promise
+          const text = await getDocumentText(pdf)
+          resolve({
+            text,
+            name: file.name,
+          })
+        }
+      }
+      reader.readAsArrayBuffer(file)
     } else {
       resolve({
         text: '',
         name: FORMAT_ERROR,
       })
     }
+
+    reader.onerror = reject
   })
 }
 

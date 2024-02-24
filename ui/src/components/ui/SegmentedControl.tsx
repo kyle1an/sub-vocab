@@ -99,6 +99,7 @@ const SegmentedControl = <T extends string>({
         >
           <input
             id={`${name}-${item.value}`}
+            aria-label="Segmented control"
             type="radio"
             value={item.value}
             checked={item.value === value}
