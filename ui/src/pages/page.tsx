@@ -21,6 +21,7 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 
+const fileInfoAtom = atom('')
 const sourceTextAtom = atom('')
 const textCountAtom = atom(0)
 
@@ -65,7 +66,7 @@ function clearInputValue(ref: RefObject<HTMLInputElement>) {
 
 export default function Home() {
   const { t } = useTranslation()
-  const [fileInfo, setFileInfo] = useState('')
+  const [fileInfo, setFileInfo] = useAtom(fileInfoAtom)
   const [sourceText, setSourceText] = useAtom(sourceTextAtom)
   const deferredSourceText = useDeferredValue(sourceText)
 
@@ -118,7 +119,7 @@ export default function Home() {
             <div className="flex h-full items-center justify-center">
               <div className="relative box-border flex h-full grow flex-col overflow-hidden">
                 <div className="flex h-10 shrink-0 items-center border-b bg-zinc-50 py-2 pl-4 pr-2 text-xs text-neutral-600">
-                  <span className="grow truncate">{`${fileInfo} `}</span>
+                  <span className="grow truncate">{fileInfo}</span>
                   <span className="mx-2 inline-block h-[18px] w-px border-l align-middle" />
                   <span className="shrink-0 text-right tabular-nums">{`${count.toLocaleString('en-US')} ${t('words')}`}</span>
                 </div>

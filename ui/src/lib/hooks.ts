@@ -1,4 +1,3 @@
-import { useEffect, useRef } from 'react'
 import { atom } from 'jotai'
 
 export function syncAtomWithStorage<T>(key: string, initialValue: T) {
@@ -13,12 +12,4 @@ export function syncAtomWithStorage<T>(key: string, initialValue: T) {
   )
 
   return strAtomWithPersistence
-}
-
-export function useComponentWillUnmount(cleanupCallback = () => { }) {
-  const callbackRef = useRef(cleanupCallback)
-  callbackRef.current = cleanupCallback
-  useEffect(() => {
-    return () => callbackRef.current()
-  }, [])
 }

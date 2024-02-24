@@ -5,6 +5,7 @@
     "target": "es2022",
     "types": ["node"],
     "noImplicitAny": true,
+    "noEmit": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
