@@ -3,7 +3,7 @@ import { postRequest } from '@/lib/request'
 import { queryClient } from '@/lib/utils'
 import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
 import type { Username } from '@/api/user'
-import { useSnapshotStore } from '@/store/useVocab'
+import { useVocabStore } from '@/store/useVocab'
 import type {
   AcquaintWordsResponse, LabelDB, StemsMapping, ToggleWordResponse,
 } from '@/types/shared'
@@ -38,7 +38,7 @@ const getVocabularyOptions = ({ username }: Username) => queryOptions({
 })
 
 export function useVocabularyQuery() {
-  const { username } = useSnapshotStore()
+  const username = useVocabStore((state) => state.username)
   return useQuery(getVocabularyOptions({ username }))
 }
 
@@ -83,7 +83,7 @@ function mutatedVocabStates<T extends VocabState>(oldData: VocabState[] | undefi
 }
 
 export function useRevokeWordMutation() {
-  const { username } = useSnapshotStore()
+  const username = useVocabStore((state) => state.username)
   const vocabularyOptions = getVocabularyOptions({ username })
   return useMutation({
     mutationKey: ['revokeWord'],
@@ -110,7 +110,7 @@ export function useRevokeWordMutation() {
 }
 
 export function useAcquaintWordsMutation() {
-  const { username } = useSnapshotStore()
+  const username = useVocabStore((state) => state.username)
   const vocabularyOptions = getVocabularyOptions({ username })
   return useMutation({
     mutationKey: ['acquaintWords'],

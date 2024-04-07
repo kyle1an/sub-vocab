@@ -34,7 +34,7 @@ export const TextareaInput = (props: {
     <textarea
       aria-label="Text input"
       value={props.value}
-      className="size-full max-h-full resize-none rounded-none px-[30px] py-3 align-top tracking-[.02em] outline-none ffs-[normal]"
+      className="size-full max-h-full resize-none rounded-none px-[30px] py-3 align-top tracking-[.02em] outline-none ffs-[normal] dark:bg-slate-900 dark:text-slate-400 dark:placeholder:text-slate-600"
       placeholder={props.placeholder ?? ''}
       onChange={textareaOnChange}
       onDrop={dropHandler}

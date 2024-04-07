@@ -7,12 +7,15 @@ import {
 import { useCookie, useLockBodyScroll } from 'react-use'
 import { Disclosure } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
-import { useOnClickOutside } from 'usehooks-ts'
+import { useDarkMode, useOnClickOutside } from 'usehooks-ts'
 import { useSize } from 'ahooks'
+import { atom, useAtom } from 'jotai'
+import { atomWithStorage } from 'jotai/utils'
+import { atomEffect } from 'jotai-effect'
 import { Icon } from '@/components/ui/icon'
 import { Separator } from '@/components/ui/separator.tsx'
 import { cn } from '@/lib/utils.ts'
-import { useSnapshotStore } from '@/store/useVocab'
+import { useVocabStore } from '@/store/useVocab'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,10 +47,55 @@ const locales = [
   },
 ] as const
 
+const defaultTheme = {
+  value: 'auto',
+  label: 'Auto',
+  icon: 'gg:dark-mode',
+} as const
+
+const themes = [
+  {
+    value: 'light',
+    label: 'Light',
+    icon: 'ph:sun',
+  },
+  {
+    value: 'dark',
+    label: 'Dark',
+    icon: 'akar-icons:moon-fill',
+  },
+  defaultTheme,
+] as const
+
+const themeAtom = atomWithStorage<typeof themes[number]['value']>('theme', defaultTheme.value)
+const systemIsDarkModeAtom = atom(window.matchMedia('(prefers-color-scheme: dark)').matches)
+const switchThemeEffectAtom = atomEffect((get, set) => {
+  let isDark: boolean
+  const themePreference = get(themeAtom)
+  if (themePreference === 'auto') {
+    const systemIsDark = get(systemIsDarkModeAtom)
+    isDark = systemIsDark
+  } else {
+    isDark = themePreference === 'dark'
+  }
+  const themeColorMeta = document.querySelector('meta[name="theme-color"]')
+  if (isDark) {
+    document.documentElement.classList.add('dark')
+    if (themeColorMeta) {
+      themeColorMeta.setAttribute('content', 'black')
+    }
+  } else {
+    document.documentElement.classList.remove('dark')
+    if (themeColorMeta) {
+      themeColorMeta.setAttribute('content', 'white')
+    }
+  }
+})
+
 function useExclusiveDisclosure<T extends HTMLElement>() {
   const ref = useRef<T>(null)
   const [open, setOpen] = useState(false)
-  const closeFnRef = useRef<() => void>(() => {})
+  const closeFnRef = useRef(() => {})
 
   function onClickOutside() {
     if (open && closeFnRef.current) {
@@ -66,7 +114,6 @@ const Account = ({ className, style, ...props }: React.HTMLAttributes<HTMLAnchor
   <Link
     to="/register"
     className={cn('inline-flex items-center gap-3', className)}
-    style={{ boxShadow: 'inset 0 1px 0 0 hsl(0deg 0% 100% / 40%)', ...style }}
     {...props}
   >
     <Icon
@@ -115,7 +162,7 @@ const Settings = ({ className, ...props }: React.HTMLAttributes<HTMLAnchorElemen
 
 const SignOut = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => {
   const { t } = useTranslation()
-  const { username } = useSnapshotStore()
+  const username = useVocabStore((state) => state.username)
   const { mutateAsync: logOut } = useLogOut()
   const navigate = useNavigate()
 
@@ -141,7 +188,7 @@ const SignOut = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) 
     >
       <Icon
         icon="solar:logout-2-outline"
-        className="scale-x-[-1]"
+        className="-scale-x-100"
         width={16}
       />
       <span>
@@ -152,8 +199,17 @@ const SignOut = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) 
 }
 
 export function TopBar({ className }: { className?: string }) {
+  useAtom(switchThemeEffectAtom)
+  const { isDarkMode } = useDarkMode()
+  const [systemIsDarkMode, setSystemIsDarkMode] = useAtom(systemIsDarkModeAtom)
+
+  useEffect(() => {
+    if (isDarkMode !== systemIsDarkMode) {
+      setSystemIsDarkMode(isDarkMode)
+    }
+  }, [isDarkMode, setSystemIsDarkMode, systemIsDarkMode])
   const { t, i18n } = useTranslation()
-  const { username } = useSnapshotStore()
+  const username = useVocabStore((state) => state.username)
   const user = {
     name: username,
   }
@@ -195,6 +251,7 @@ export function TopBar({ className }: { className?: string }) {
 
   const [locale, updateLocale, deleteLocale] = useCookie('_locale')
   const [value, setValue] = useState(locale || lng)
+  const [themePreference, setThemePreference] = useAtom(themeAtom)
 
   useEffect(() => {
     updateLocale(value)
@@ -214,7 +271,7 @@ export function TopBar({ className }: { className?: string }) {
       <Disclosure
         as="nav"
         ref={disclosureRef}
-        className={cn('ffs-pre fixed z-20 w-full bg-white tracking-wide shadow-sm [&_[href]]:tap-transparent')}
+        className={cn('ffs-pre fixed z-20 w-full bg-white tracking-wide shadow-sm dark:bg-slate-900 [&_[href]]:tap-transparent')}
         style={{
           width: bodySize.width,
         }}
@@ -232,11 +289,11 @@ export function TopBar({ className }: { className?: string }) {
                         to="/"
                         onClick={closeFnRef.current}
                       >
-                        <div className={cn('group flex items-center gap-2.5 rounded-md text-sm font-medium text-neutral-600 hover:text-black')}>
+                        <div className={cn('group flex items-center gap-2.5 rounded-md text-sm font-medium text-neutral-600 hover:text-black dark:text-neutral-400 dark:hover:text-slate-300')}>
                           <Icon
                             icon="mingcute:home-3-line"
                             width={18}
-                            className="text-neutral-400 transition-all duration-200 group-hover:text-black"
+                            className="text-neutral-400 transition-all duration-200 group-hover:text-black dark:group-hover:text-slate-300"
                           />
                           <span>
                             {t('home')}
@@ -251,7 +308,7 @@ export function TopBar({ className }: { className?: string }) {
                       >
                         <Link
                           to={item.href}
-                          className={cn('rounded-md px-3 py-2 text-sm font-medium text-neutral-600 hover:text-black')}
+                          className={cn('rounded-md px-3 py-2 text-sm font-medium text-neutral-600 hover:text-black dark:text-neutral-400 dark:hover:text-slate-300')}
                           aria-current={item.current ? 'page' : undefined}
                         >
                           {item.name}
@@ -260,7 +317,7 @@ export function TopBar({ className }: { className?: string }) {
                     ))}
                     <Separator
                       orientation="vertical"
-                      className="h-5 w-[1px]"
+                      className="h-5 w-px"
                     />
                     <div className="shrink-0">
                       <a
@@ -280,10 +337,44 @@ export function TopBar({ className }: { className?: string }) {
                         <MenubarTrigger className="px-2.5 py-1">
                           <div className="flex h-full items-center">
                             <Icon
+                              icon={themes.find((theme) => theme.value === themePreference)?.icon ?? defaultTheme.icon}
+                              width={16}
+                              height={16}
+                              className="h-full text-neutral-500 dark:text-neutral-400"
+                            />
+                          </div>
+                        </MenubarTrigger>
+                        <MenubarContent
+                          className="min-w-0"
+                          align="end"
+                          sideOffset={3}
+                        >
+                          <MenubarRadioGroup value={themePreference}>
+                            {themes.map((theme) => (
+                              <MenubarRadioItem
+                                key={theme.value}
+                                value={theme.value}
+                                onSelect={() => {
+                                  setThemePreference(theme.value)
+                                }}
+                              >
+                                {theme.label}
+                              </MenubarRadioItem>
+                            ))}
+                          </MenubarRadioGroup>
+                        </MenubarContent>
+                      </MenubarMenu>
+                    </Menubar>
+
+                    <Menubar className="h-auto border-0 p-0 shadow-none">
+                      <MenubarMenu >
+                        <MenubarTrigger className="px-2.5 py-1">
+                          <div className="flex h-full items-center">
+                            <Icon
                               icon="fa:language"
                               width={16}
                               height={16}
-                              className="h-full text-neutral-500"
+                              className="h-full text-neutral-500 dark:text-neutral-400"
                             />
                           </div>
                         </MenubarTrigger>
@@ -318,7 +409,7 @@ export function TopBar({ className }: { className?: string }) {
                         >
                           {user.name ? (
                             <div className="cursor-pointer">
-                              <div className="select-none rounded-full border border-gray-50">
+                              <div className="select-none rounded-full border">
                                 <img
                                   src={avatarSource}
                                   alt="avatar"
@@ -409,7 +500,7 @@ export function TopBar({ className }: { className?: string }) {
                       >
                         <Link
                           to={item.href}
-                          className={cn('block rounded-md text-neutral-600 hover:text-black')}
+                          className={cn('block rounded-md text-neutral-600 hover:text-black dark:text-neutral-400')}
                           onClick={closeFnRef.current}
                         >
                           {item.name}
@@ -419,12 +510,12 @@ export function TopBar({ className }: { className?: string }) {
                   })}
                 </div>
                 <div className="px-4">
-                  <Separator className="bg-neutral-100" />
+                  <Separator className="" />
                 </div>
                 {user.name ? (
                   <div className="flex h-11 items-center px-6 pt-5">
                     <div className="cursor-pointer">
-                      <div className="select-none rounded-full border border-gray-50">
+                      <div className="select-none rounded-full border">
                         <img
                           src={avatarSource}
                           alt="avatar"
@@ -445,7 +536,7 @@ export function TopBar({ className }: { className?: string }) {
                     >
                       <div onClick={closeFnRef.current}>
                         <Component
-                          className="inline-flex shrink-0 items-center gap-3 rounded-md [&>*]:text-neutral-600 [&>*]:transition-all [&>*]:hover:text-black [&>svg]:text-neutral-400"
+                          className="inline-flex shrink-0 items-center gap-3 rounded-md [&>*]:text-neutral-600 [&>*]:transition-all [&>*]:hover:text-black dark:[&>*]:text-neutral-400 [&>svg]:text-neutral-400"
                         />
                       </div>
                     </div>

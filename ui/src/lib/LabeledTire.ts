@@ -80,8 +80,6 @@ export default class LabeledTire {
     for (const sieve of vocab) {
       this.#createPath(sieve)
     }
-
-    return this
   }
 
   #createPath(sieve: VocabState) {
@@ -129,18 +127,20 @@ export default class LabeledTire {
       const hasCapital = capitalIn(stem)
       const stemNode = this.getNode(hasCapital ? stem.toLowerCase() : stem)
 
-      stemNode.$ ??= {
-        path: stem,
-        up: hasCapital,
-        src: [],
-        vocab: {
-          word: stem,
-          learningPhase: LEARNING_PHASE.NEW,
-          isUser: false,
-          original: true,
-          rank: null,
-          timeModified: null,
-        },
+      if (!stemNode.$) {
+        stemNode.$ = {
+          path: stem,
+          up: hasCapital,
+          src: [],
+          vocab: {
+            word: stem,
+            learningPhase: LEARNING_PHASE.NEW,
+            isUser: false,
+            original: true,
+            rank: null,
+            timeModified: null,
+          },
+        }
       }
       let i = irregulars.length
       while (--i) {
@@ -159,13 +159,20 @@ export default class LabeledTire {
   }
 
   add(input: string) {
-    for (const sentence of input.match(/["'@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|{[^}]*})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ])|\.{3} *)*["'@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/mg) || []) {
-      this.sentences.push(sentence)
-      for (const m of sentence.matchAll(/(?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þa-zß-ÿ]+[a-zß-ÿ]*)+(?:['’-]?[A-Za-zÀ-ÿ]'?)+/mg)) {
-        const matchedWord = m[0]
-        ++this.wordCount
-        if (m.index === undefined) continue
-        this.#update(matchedWord, m.index)
+    const sentencesMatched = input.match(/["'@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|{[^}]*})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ])|\.{3} *)*["'@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/mg)
+    if (sentencesMatched) {
+      for (const sentence of sentencesMatched) {
+        this.sentences.push(sentence)
+        const wordsMatched = sentence.matchAll(/(?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þa-zß-ÿ]+[a-zß-ÿ]*)+(?:['’-]?[A-Za-zÀ-ÿ]'?)+/mg)
+        for (let n = wordsMatched.next(); !n.done; n = wordsMatched.next()) {
+          const m = n.value
+          const matchedWord = m[0]
+          ++this.wordCount
+          if (m.index === undefined) {
+            continue
+          }
+          this.#update(matchedWord, m.index)
+        }
       }
     }
 
@@ -216,14 +223,16 @@ export default class LabeledTire {
 
   mergedVocabulary(baseVocab: VocabState[]) {
     this.#withPaths(baseVocab)
-      .#traverseMerge(this.root)
+    this.#traverseMerge(this.root)
     return this
   }
 
   #traverseMerge(layer: NodeOf<TrieWordLabel>) {
     for (const k in layer) {
       const key = k as keyof typeof layer
-      if (key === '$') continue
+      if (key === '$') {
+        continue
+      }
       const innerLayer = layer[key]!
       // deep first traverse eg: beings(being) vs bee
       this.#traverseMerge(innerLayer)
@@ -364,7 +373,9 @@ export default class LabeledTire {
 
       if ($.derive.length) {
         this.#mergeNodes($, curr_ying$)
-        curr.y ??= {}
+        if (!curr.y) {
+          curr.y = {}
+        }
         curr.y.$ = $
         this.vocabulary.push($)
       }
@@ -383,7 +394,9 @@ export default class LabeledTire {
     if (
       latterWord.vocab?.original
       || latterWord.variant
-    ) return
+    ) {
+      return
+    }
 
     this.#mergeTo(targetWord, latterWord)
   }

@@ -3,7 +3,7 @@ import Cookies from 'js-cookie'
 import type {
   LoginResponse, RegisterResponse, Status, UsernameTaken,
 } from '../types/shared.ts'
-import { setUsername } from '@/store/useVocab'
+import { useVocabStore } from '@/store/useVocab'
 import { postRequest } from '@/lib/request'
 
 export interface Username {
@@ -40,7 +40,7 @@ export function useChangeUsername() {
     },
     onSuccess: (res, variables, context) => {
       if (res.success) {
-        setUsername(variables.newUsername)
+        useVocabStore.getState().setUsername(variables.newUsername)
       }
     },
   })
@@ -64,7 +64,7 @@ export function useLogOut() {
     onSuccess: (resAuth, variables, context) => {
       Cookies.remove('_user', { path: '' })
       Cookies.remove('acct', { path: '' })
-      setUsername('')
+      useVocabStore.getState().setUsername('')
     },
   })
 }
@@ -84,7 +84,7 @@ export function useSignIn() {
     mutationFn: (credential: Credential) => postRequest<LoginResponse>(`/api/login`, credential),
     onSuccess: (resAuth, variables, context) => {
       if (resAuth[0]) {
-        setUsername(variables.username)
+        useVocabStore.getState().setUsername(variables.username)
       }
     },
   })

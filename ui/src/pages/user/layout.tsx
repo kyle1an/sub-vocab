@@ -1,12 +1,12 @@
 import { Navigate, Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Footer } from '@/components/Footer'
-import { useSnapshotStore } from '@/store/useVocab'
+import { useVocabStore } from '@/store/useVocab'
 import { SideNav } from '@/components/SideNav'
 
 export default function User() {
   const { t } = useTranslation()
-  const { username } = useSnapshotStore()
+  const username = useVocabStore((state) => state.username)
   if (!username) {
     return <Navigate to="/login" />
   }

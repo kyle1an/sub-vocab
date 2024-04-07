@@ -19,7 +19,7 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      'flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm text-violet11 shadow-sm ring-offset-background placeholder:text-muted-foreground hover:bg-mauve3 focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-violet9',
+      'flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm text-violet11 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-violet9',
       className,
     )}
     {...props}
@@ -52,7 +52,7 @@ const SelectContent = React.forwardRef<
       position={position}
       {...props}
     >
-      <SelectPrimitive.ScrollUpButton className="flex h-[25px] cursor-default items-center justify-center bg-white text-violet11">
+      <SelectPrimitive.ScrollUpButton className="flex h-[25px] cursor-default items-center justify-center bg-transparent text-violet11">
         <ChevronUpIcon />
       </SelectPrimitive.ScrollUpButton>
       <SelectPrimitive.Viewport
@@ -64,7 +64,7 @@ const SelectContent = React.forwardRef<
       >
         {children}
       </SelectPrimitive.Viewport>
-      <SelectPrimitive.ScrollDownButton className="flex h-[25px] cursor-default items-center justify-center bg-white text-violet11">
+      <SelectPrimitive.ScrollDownButton className="flex h-[25px] cursor-default items-center justify-center bg-transparent text-violet11">
         <ChevronDownIcon />
       </SelectPrimitive.ScrollDownButton>
     </SelectPrimitive.Content>

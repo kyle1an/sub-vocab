@@ -26,7 +26,7 @@ export function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <div className="flex h-full min-h-full flex-col bg-white tracking-[.02em] antialiased">
         <TopBar />
-        <div className="ffs-pre flex min-h-[100svh] flex-col items-center pt-11">
+        <div className="ffs-pre flex min-h-svh flex-col items-center pt-11 dark:bg-slate-900">
           <Outlet />
           <SpeedInsights />
         </div>

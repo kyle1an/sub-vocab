@@ -37,7 +37,7 @@ export function Examples({
         return (
           <div
             key={index}
-            className="break-words transition-colors duration-150 hover:text-black"
+            className="break-words transition-colors duration-150 hover:text-black dark:text-slate-500 dark:hover:text-slate-300"
             style={{ wordBreak: 'break-word' }}
           >
             {wordIndexes.map(([start, count], i) => (
@@ -45,7 +45,7 @@ export function Examples({
                 <span>
                   {sentence.slice(progress, start)}
                 </span>
-                <span className="text-black underline underline-offset-[0.145em]">
+                <span className="text-black underline underline-offset-[0.145em] dark:text-slate-300">
                   {sentence.slice(start, (progress = start + count))}
                 </span>
               </span>

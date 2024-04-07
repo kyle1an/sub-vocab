@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { useSnapshotStore } from '@/store/useVocab.ts'
+import { useVocabStore } from '@/store/useVocab.ts'
 import { useChangePassword, useLogOut } from '@/api/user'
 
 type FormValues = {
@@ -23,7 +23,7 @@ type FormValues = {
 
 export const Password = () => {
   const { t } = useTranslation()
-  const { username } = useSnapshotStore()
+  const username = useVocabStore((state) => state.username)
   const navigate = useNavigate()
   const { mutateAsync: logOut } = useLogOut()
 
@@ -116,7 +116,7 @@ export const Password = () => {
                         />
                         <Button
                           variant="outline"
-                          className="bg-white px-2"
+                          className="px-2"
                           aria-checked={oldPasswordVisible}
                           onClick={(e) => {
                             e.preventDefault()
@@ -164,7 +164,7 @@ export const Password = () => {
                         />
                         <Button
                           variant="outline"
-                          className="bg-white px-2"
+                          className="px-2"
                           aria-checked={newPasswordVisible}
                           onClick={(e) => {
                             e.preventDefault()
