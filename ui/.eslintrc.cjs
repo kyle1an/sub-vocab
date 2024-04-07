@@ -1,9 +1,9 @@
 module.exports = {
-  "env": {
-    "browser": true,
-    "es2024": true,
+  env: {
+    browser: true,
+    es2024: true,
   },
-  "extends": [
+  extends: [
     "eslint:recommended",
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
@@ -17,31 +17,31 @@ module.exports = {
     "airbnb/hooks",
     "../.eslintrc.cjs",
   ],
-  "ignorePatterns": ["dist", "/built/"],
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "project": true,
+  ignorePatterns: ["dist", "/built/"],
+  parser: "@typescript-eslint/parser",
+  parserOptions: {
+    project: true,
   },
-  "plugins": [
+  plugins: [
     "react-refresh",
     "@stylistic",
     "@tanstack/query",
   ],
-  "rules": {
+  rules: {
     "prefer-const": "off",
     // Note: you must disable the base rule as it can report incorrect errors
     "require-await": "off",
-    "import/order": [1, { "groups": ["builtin", "external", "parent", "sibling", "index"] }],
+    "import/order": [1, { groups: ["builtin", "external", "parent", "sibling", "index"] }],
     "arrow-body-style": ["off"],
     "@stylistic/space-before-blocks": ["warn", "always"],
 
     "@typescript-eslint/ban-types": [
       "error",
       {
-        "types": {
+        types: {
           "{}": false,
         },
-        "extendDefaults": true,
+        extendDefaults: true,
       },
     ],
     "@typescript-eslint/ban-ts-comment": [
@@ -51,8 +51,8 @@ module.exports = {
     "@typescript-eslint/require-await": "error",
 
     "tailwindcss/no-custom-classname": ["warn", {
-      "callees": ["classnames", "clsx", "ctl", "cva", "tv", "twMerge"],
-      "skipClassAttribute": true,
+      callees: ["classnames", "clsx", "ctl", "cva", "tv", "twMerge"],
+      skipClassAttribute: true,
     }],
 
     "import/no-relative-packages": "off",
@@ -64,15 +64,15 @@ module.exports = {
     "import/no-extraneous-dependencies": ["off"],
 
     "react/react-in-jsx-scope": "off",
-    "react/jsx-max-props-per-line": [1, { "maximum": 1 }],
-    "react/jsx-curly-spacing": [1, { "when": "never", "children": true }],
+    "react/jsx-max-props-per-line": [1, { maximum: 1 }],
+    "react/jsx-curly-spacing": [1, { when: "never", children: true }],
     "react/jsx-closing-bracket-location": [1, "tag-aligned"],
     "react/jsx-props-no-multi-spaces": "warn",
     "react/jsx-tag-spacing": ["warn", {
-      "closingSlash": "never",
-      "beforeSelfClosing": "always",
-      "afterOpening": "never",
-      "beforeClosing": "allow",
+      closingSlash: "never",
+      beforeSelfClosing: "always",
+      afterOpening: "never",
+      beforeClosing: "allow",
     }],
     "jsx-a11y/click-events-have-key-events": "off",
     "jsx-a11y/no-static-element-interactions": "off",
@@ -84,80 +84,85 @@ module.exports = {
     "@stylistic/semi": ["warn", "never"],
     "@typescript-eslint/type-annotation-spacing": "warn",
     "@typescript-eslint/member-delimiter-style": ["warn", {
-      "multiline": {
-        "delimiter": "none",
-        "requireLast": true,
+      multiline: {
+        delimiter: "none",
+        requireLast: true,
       },
-      "singleline": {
-        "delimiter": "semi",
-        "requireLast": false,
+      singleline: {
+        delimiter: "semi",
+        requireLast: false,
       },
-      "multilineDetection": "brackets",
+      multilineDetection: "brackets",
     }],
 
     "react/jsx-no-bind": ["off"],
     "react/jsx-props-no-spreading": ["off"],
     "react/jsx-filename-extension": [1, {
-      "extensions": [".js", ".jsx", ".ts", ".tsx"],
+      extensions: [".js", ".jsx", ".ts", ".tsx"],
     }],
     "react/function-component-definition": [0],
     "react/jsx-no-useless-fragment": [0],
     "react/no-unstable-nested-components": [0],
     "react-refresh/only-export-components": ["warn", {
-      "allowConstantExport": true,
+      allowConstantExport: true,
     }],
 
     "@typescript-eslint/no-misused-promises": ["warn", {
-      "checksVoidReturn": {
-        "attributes": false
+      checksVoidReturn: {
+        attributes: false
       }
     }],
 
-    "no-param-reassign": ["error", { "props": false }],
+    "no-param-reassign": ["error", { props: false }],
     "no-shadow": ["error", {
-      "allow": [
+      allow: [
         "className", "resolve", "reject"
       ]
     }],
-    "no-multi-assign": ["error", { "ignoreNonDeclaration": true }],
+    "no-multi-assign": ["error", { ignoreNonDeclaration: true }],
 
     "react/jsx-no-leaked-render": ["warn"],
     "no-nested-ternary": "off",
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": ["error", {
-      "functions": false,
-      "allowNamedExports": false,
-      "ignoreTypeReferences": true,
+      functions: false,
+      allowNamedExports: false,
+      ignoreTypeReferences: true,
     }],
+    // https://www.totaltypescript.com/method-shorthand-syntax-considered-harmful
+    "@typescript-eslint/method-signature-style": [
+      "error",
+      "property"
+    ],
 
     "jsx-a11y/control-has-associated-label": [2, {
-      "labelAttributes": ["label"],
-      "controlComponents": ["CustomComponent"],
-      "ignoreElements": [
+      labelAttributes: ["label"],
+      controlComponents: ["CustomComponent"],
+      ignoreElements: [
         "th",
       ],
-      "ignoreRoles": [
+      ignoreRoles: [
       ],
-      "depth": 3,
+      depth: 3,
     }],
     "jsx-a11y/heading-has-content": "off"
   },
-  "settings": {
+  settings: {
     "import/parsers": {
       "@typescript-eslint/parser": [".ts", ".tsx"],
     },
     "import/resolver": {
-      "typescript": {
-        "alwaysTryTypes": true, // always try to resolve types under `<root>@types` directory even it doesn't contain any source code, like `@types/unist`
-        "project": ["tsconfig.json"],
+      typescript: {
+        alwaysTryTypes: true, // always try to resolve types under `<root>@types` directory even it doesn't contain any source code, like `@types/unist`
+        project: ["tsconfig.json"],
       },
-      "node": {
-        "project": ["tsconfig.json"],
+      node: {
+        project: ["tsconfig.json"],
       },
     },
     "tailwindcss": {
-      "callees": ["classnames", "clsx", "cn", "ctl", "cva", "tv", "twMerge"],
-      "config": "tailwind.config.ts", // returned from `loadConfig()` utility if not provided
+      callees: ["classnames", "clsx", "cn", "ctl", "cva", "tv", "twMerge"],
+      config: "tailwind.config.ts", // returned from `loadConfig()` utility if not provided
     },
   },
 }

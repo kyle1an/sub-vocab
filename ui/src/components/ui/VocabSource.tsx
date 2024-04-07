@@ -58,7 +58,7 @@ import {
 import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
 import type { LabelDisplaySource } from '@/lib/vocab'
 import { useAcquaintWordsMutation, useRevokeWordMutation } from '@/api/vocab-api'
-import { useSnapshotStore } from '@/store/useVocab'
+import { useVocabStore } from '@/store/useVocab'
 import type { TI } from '@/i18n'
 import { LoginToast } from '@/components/login-toast'
 import { sortIcon } from '@/lib/icon-utils'
@@ -99,7 +99,7 @@ export function VocabSourceTable({
   const { t } = useTranslation()
   const { mutateAsync: mutateRevokeWordAsync } = useRevokeWordMutation()
   const { mutateAsync: mutateAcquaintWordsAsync } = useAcquaintWordsMutation()
-  const { username } = useSnapshotStore()
+  const username = useVocabStore((state) => state.username)
 
   const handleVocabToggle = useCallback(function handleVocabToggle(vocab: TProp) {
     if (!username) {
@@ -131,17 +131,17 @@ export function VocabSourceTable({
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[0.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal',
+                'group/th w-[0.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
               )}
             >
               <div
-                className="flex h-7 min-w-[4.5rem] grow cursor-pointer select-none items-center gap-0.5 pl-2 pr-1 text-zinc-500 active:bg-stone-50"
+                className="flex h-7 min-w-[4.5rem] grow cursor-pointer select-none items-center gap-0.5 pl-2 pr-1 text-zinc-500 dark:text-zinc-400"
                 onClick={header.column.getToggleSortingHandler()}
               >
                 <div className="flex grow items-center">
                   <span
                     title={t('frequency')}
-                    className={cn('grow text-right text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
+                    className={cn('grow text-right text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                   >
                     {t('frequency')}
                   </span>
@@ -165,19 +165,11 @@ export function VocabSourceTable({
                   onClick={row.getToggleExpandedHandler()}
                   className="flex h-full grow cursor-pointer items-center justify-between gap-1 px-3"
                 >
-                  {row.getIsExpanded() ? (
-                    <Icon
-                      icon="lucide:chevron-down"
-                      className="text-zinc-300"
-                      width={14}
-                    />
-                  ) : (
-                    <Icon
-                      icon="lucide:chevron-right"
-                      className="text-zinc-300"
-                      width={14}
-                    />
-                  )}
+                  <Icon
+                    icon="lucide:chevron-right"
+                    className={cn('text-zinc-300 transition-transform dark:text-zinc-600', row.getIsExpanded() ? 'rotate-90' : '')}
+                    width={14}
+                  />
                   <span className="float-right inline-block tabular-nums stretch-[condensed]">
                     {frequency}
                   </span>
@@ -202,11 +194,11 @@ export function VocabSourceTable({
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th border-y border-solid border-y-zinc-200 p-0 text-sm font-normal',
+                'group/th border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
               )}
             >
               <div
-                className="group flex h-7 cursor-pointer items-center gap-1.5 pr-1 active:bg-stone-50"
+                className="group flex h-7 cursor-pointer items-center gap-1.5 pr-1"
                 onClick={header.column.getToggleSortingHandler()}
               >
                 <Separator
@@ -218,7 +210,10 @@ export function VocabSourceTable({
                 >
                   <span
                     title={t('Word')}
-                    className={cn('grow text-left text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : 'text-zinc-500')}
+                    className={cn(
+                      'grow text-left text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]',
+                      isSorted ? 'font-semibold' : '',
+                    )}
                   >
                     {t('Word')}
                   </span>
@@ -239,10 +234,10 @@ export function VocabSourceTable({
               {wFamily.map((w, i) => (
                 <div
                   key={w}
-                  className="ml-1.5 inline-block cursor-text select-text text-sm tracking-wider text-black ffs-['cv03','cv05','cv06']"
+                  className="ml-1.5 inline-block cursor-text select-text text-sm tracking-wider text-black ffs-['cv03','cv05','cv06'] dark:text-slate-300"
                   onClick={(ev) => ev.stopPropagation()}
                 >
-                  <span className={cn(i !== 0 && 'text-neutral-500')}>{w}</span>
+                  <span className={cn(i !== 0 && 'text-neutral-500 dark:text-slate-600')}>{w}</span>
                   {i !== wFamily.length - 1 && <span className="pr-1 text-neutral-300">, </span>}
                 </div>
               ))}
@@ -259,11 +254,11 @@ export function VocabSourceTable({
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[0.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal',
+                'group/th w-[0.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
               )}
             >
               <div
-                className="group float-right flex h-7 w-full cursor-pointer select-none items-center gap-1.5 pr-1 stretch-[condensed] active:bg-stone-50"
+                className="group float-right flex h-7 w-full cursor-pointer select-none items-center gap-1.5 pr-1 stretch-[condensed]"
                 onClick={header.column.getToggleSortingHandler()}
               >
                 <Separator
@@ -273,7 +268,7 @@ export function VocabSourceTable({
                 <div className="flex select-none items-center">
                   <span
                     title={t('length')}
-                    className={cn('grow text-right text-xs before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : 'text-zinc-500')}
+                    className={cn('grow text-right text-xs before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                   >
                     {t('length')}
                   </span>
@@ -290,7 +285,7 @@ export function VocabSourceTable({
         cell: ({ getValue }) => {
           const wordLength = getValue()
           return (
-            <div className="float-right mr-2 text-xs tabular-nums text-neutral-700">
+            <div className="float-right mr-2 text-xs tabular-nums text-neutral-700 dark:text-neutral-500">
               <span>
                 {wordLength}
               </span>
@@ -310,11 +305,11 @@ export function VocabSourceTable({
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[0.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal',
+                'group/th w-[0.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
               )}
             >
               <div
-                className="group flex h-7 cursor-pointer select-none items-center stretch-[condensed] active:bg-stone-50"
+                className="group flex h-7 cursor-pointer select-none items-center stretch-[condensed]"
                 onClick={header.column.getToggleSortingHandler()}
               >
                 <Separator
@@ -349,11 +344,11 @@ export function VocabSourceTable({
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[0.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal',
+                'group/th w-[0.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
               )}
             >
               <div
-                className="group float-right flex h-7 w-full cursor-pointer select-none items-center gap-2 pr-1 text-zinc-500 active:bg-stone-50"
+                className="group float-right flex h-7 w-full cursor-pointer select-none items-center gap-2 pr-1 text-zinc-500 dark:text-zinc-400"
                 onClick={header.column.getToggleSortingHandler()}
               >
                 <Separator
@@ -363,7 +358,7 @@ export function VocabSourceTable({
                 <div className="flex h-5 items-center">
                   <span
                     title={t('rank')}
-                    className={cn('grow text-right text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
+                    className={cn('grow text-right text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                   >
                     {t('rank')}
                   </span>
@@ -380,7 +375,7 @@ export function VocabSourceTable({
         cell: ({ getValue }) => {
           const rank = getValue()
           return (
-            <div className="float-right w-full text-center text-sm tabular-nums text-neutral-600 stretch-[condensed]">
+            <div className="float-right w-full text-center text-sm tabular-nums text-neutral-600 stretch-[condensed] dark:text-neutral-500">
               {rank}
             </div>
           )
@@ -469,8 +464,8 @@ export function VocabSourceTable({
   const itemsNum = uniq([table.getPaginationRowModel().rows.length, rowsFiltered.length]).filter(Boolean).filter((n) => !pages.includes(n))
 
   return (
-    <div className={cn('flex h-full flex-col items-center overflow-hidden bg-white shadow-sm will-change-transform', className)}>
-      <div className="z-10 flex h-12 w-full justify-between border-b border-solid border-zinc-200 bg-neutral-50 p-2 shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)]">
+    <div className={cn('flex h-full flex-col items-center overflow-hidden bg-white shadow-sm will-change-transform dark:bg-slate-900', className)}>
+      <div className="z-10 flex h-12 w-full justify-between border-b border-solid border-zinc-200 bg-neutral-50 p-2 shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)] dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -511,7 +506,7 @@ export function VocabSourceTable({
           value={String(columnWord?.getFilterValue() ?? '')}
           onChange={handleSearchChange}
           placeholder={t('search')}
-          className="rounded-md border pl-1 leading-7"
+          className="rounded-md border pl-1 leading-7 dark:bg-slate-900 dark:text-slate-400"
         />
       </div>
       <div className="w-full">
@@ -550,7 +545,7 @@ export function VocabSourceTable({
                     {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
-                        className="h-8 border-t border-solid border-t-zinc-100 pl-0.5 group-first-of-type:border-t-0 [tr:has(+tr>td[colspan])>&]:border-b-white"
+                        className="h-8 border-t border-solid border-t-zinc-100 pl-0.5 group-first-of-type:border-t-0 dark:border-slate-800 [tr:has(+tr>td[colspan])>&]:border-b-white"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
@@ -580,7 +575,7 @@ export function VocabSourceTable({
           </tbody>
         </table>
       </div>
-      <div className="flex w-full flex-wrap items-center justify-between gap-1 border-t border-t-zinc-200 px-0.5 py-1 tabular-nums">
+      <div className="flex w-full flex-wrap items-center justify-between gap-1 border-t border-t-zinc-200 px-0.5 py-1 tabular-nums dark:border-slate-800">
         <Pagination
           items={items}
           table={table}
@@ -632,7 +627,7 @@ export function VocabSourceTable({
           </div>
         </div>
       </div>
-      <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-neutral-50">
+      <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-neutral-50 dark:border-slate-800 dark:bg-slate-900">
         <VocabStatics
           rowsCountFiltered={rowsFiltered.length}
           rowsCountNew={rowsCountNew}
@@ -656,7 +651,7 @@ export function Pagination<T>({
         page, type, selected, ...item
       }) => {
         const size = 16
-        const className = 'flex items-center min-w-[1.625rem] justify-center rounded border border-transparent text-xs tabular-nums disabled:text-zinc-300'
+        const className = 'flex items-center min-w-[1.625rem] justify-center rounded dark:text-slate-300 dark:disabled:text-zinc-700 border border-transparent text-xs tabular-nums disabled:text-zinc-300'
         const key = `${type}${page}`
 
         if (type === 'previous') {
@@ -769,7 +764,7 @@ export function Pagination<T>({
 export function VocabStatics(props: {rowsCountFiltered: number; rowsCountNew: number; rowsCountAcquainted: number}) {
   const { t } = useTranslation()
   return (
-    <div className="flex items-center py-1.5 text-xs tabular-nums text-neutral-600">
+    <div className="flex items-center py-1.5 text-xs tabular-nums text-neutral-600 dark:text-neutral-400">
       <span>
         {`${props.rowsCountFiltered.toLocaleString('en-US')} ${t('vocabulary')}`}
       </span>
@@ -812,7 +807,7 @@ export function VocabStatics(props: {rowsCountFiltered: number; rowsCountNew: nu
 export function AcquaintAllDialog<T extends VocabState>({ vocabulary }: {vocabulary: T[]}) {
   const { t } = useTranslation()
   const { mutateAsync: mutateAcquaintWordsAsync } = useAcquaintWordsMutation()
-  const { username } = useSnapshotStore()
+  const username = useVocabStore((state) => state.username)
   function acquaintAllVocab(rows: T[]) {
     if (!username) {
       toast(<LoginToast />)

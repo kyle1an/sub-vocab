@@ -1,28 +1,28 @@
 module.exports = {
-  "env": {
-    "es2024": true,
-    "node": true
+  env: {
+    es2024: true,
+    node: true
   },
-  "globals": {
-    "NodeJS": true
+  globals: {
+    NodeJS: true
   },
-  "extends": [
+  extends: [
     "plugin:@typescript-eslint/recommended",
     "plugin:import/recommended",
     "plugin:import/typescript",
     "../.eslintrc.cjs",
   ],
-  "rules": {
+  rules: {
     "@stylistic/space-before-blocks": ["warn", "always"],
 
-    "import/order": [1, { "groups": ["builtin", "external", "parent", "sibling", "index"] }],
+    "import/order": [1, { groups: ["builtin", "external", "parent", "sibling", "index"] }],
     "@typescript-eslint/ban-types": [
       "error",
       {
-        "types": {
+        types: {
           "{}": false
         },
-        "extendDefaults": true
+        extendDefaults: true
       }
     ],
     "@typescript-eslint/ban-ts-comment": [
@@ -32,17 +32,22 @@ module.exports = {
 
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": ["error", {
-      "functions": false,
-      "allowNamedExports": false,
-      "ignoreTypeReferences": true,
+      functions: false,
+      allowNamedExports: false,
+      ignoreTypeReferences: true,
     }],
+    // https://www.totaltypescript.com/method-shorthand-syntax-considered-harmful
+    "@typescript-eslint/method-signature-style": [
+      "error",
+      "property"
+    ],
   },
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaVersion": "latest",
-    "sourceType": "module"
+  parser: "@typescript-eslint/parser",
+  parserOptions: {
+    ecmaVersion: "latest",
+    sourceType: "module"
   },
-  "plugins": [
+  plugins: [
     "@stylistic",
     "@typescript-eslint"
   ],

@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { useEffect } from 'react'
 import { useChangeUsername, useIsUsernameTaken } from '@/api/user'
-import { useSnapshotStore } from '@/store/useVocab'
+import { useVocabStore } from '@/store/useVocab'
 import {
   Form,
   FormControl,
@@ -21,7 +21,7 @@ type FormValues = {
 
 export const UserPage = () => {
   const { t } = useTranslation()
-  const { username } = useSnapshotStore()
+  const username = useVocabStore((state) => state.username)
   const form = useForm<FormValues>({
     defaultValues: {
       newUsername: username,

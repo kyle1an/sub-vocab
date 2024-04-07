@@ -35,7 +35,7 @@ export const FileInput = (props: {
       className={cn(props.className)}
     >
       <label
-        className="box-border inline-flex h-8 max-h-full grow-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-md border bg-white px-3 py-2.5 text-center align-middle text-sm/3 tracking-wide text-neutral-800 transition-colors hover:border-sky-300 hover:bg-sky-100 hover:text-sky-600"
+        className="box-border inline-flex h-8 max-h-full grow-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-md border bg-white px-3 py-2.5 text-center align-middle text-sm/3 tracking-wide text-neutral-800 transition-colors hover:border-sky-300 hover:bg-sky-100 hover:text-sky-600 dark:bg-slate-900 dark:text-slate-400"
         htmlFor={inputId}
       >
         {props.children}
@@ -44,7 +44,6 @@ export const FileInput = (props: {
         ref={props.inputRef}
         id={inputId}
         aria-label="File input"
-        className="file-input"
         type="file"
         hidden
         multiple

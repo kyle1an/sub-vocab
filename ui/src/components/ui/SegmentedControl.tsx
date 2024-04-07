@@ -8,14 +8,13 @@ import {
 } from 'react'
 import { type VariantProps, cva } from 'class-variance-authority'
 import { cn, fixedForwardRef } from '@/lib/utils.ts'
-import type { NoInfer } from '@/types'
 
 const segmentedControlVariants = cva(
   `box-border grid w-full !touch-manipulation select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-[9px] tracking-wide antialiased outline-none tap-transparent !overflow-scrolling-touch ffs-['cv08'] [text-rendering:geometricPrecision] [&_*]:box-border`,
   {
     variants: {
       variant: {
-        default: 'bg-[#EFEFF0] p-0.5',
+        default: 'bg-[#EFEFF0] p-0.5 dark:bg-neutral-800/40',
         ghost: 'bg-transparent px-1.5 py-1',
       },
       size: {
@@ -95,7 +94,7 @@ const SegmentedControl = <T extends string>({
       {segments.map((item, index) => (
         <div
           key={index}
-          className="group relative first-of-type:col-[1] first-of-type:row-[1] first-of-type:shadow-[none]"
+          className="group/d relative first-of-type:col-[1] first-of-type:row-[1] first-of-type:shadow-none"
         >
           <input
             id={`${name}-${item.value}`}
@@ -108,11 +107,11 @@ const SegmentedControl = <T extends string>({
           />
           <label
             htmlFor={`${name}-${item.value}`}
-            className="group/l before:ease-[ease] relative block cursor-pointer bg-transparent text-center before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[10px] before:bg-neutral-300 before:transition-[background] before:duration-200 before:will-change-[background] before:group-first-of-type:opacity-0 before:group-[:has(:checked)+div]:bg-transparent peer-checked:cursor-default before:peer-checked:z-[1] before:peer-checked:bg-transparent"
+            className="group/l before:ease-[ease] relative block cursor-pointer bg-transparent text-center before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[10px] before:bg-neutral-300 before:transition-[background] before:duration-200 before:will-change-[background] before:group-first-of-type/d:opacity-0 before:group-[:has(:checked)+*]/d:bg-transparent peer-checked:cursor-default before:peer-checked:z-[1] before:peer-checked:bg-transparent dark:before:bg-slate-700"
           >
             <span className="flex flex-col justify-center text-sm/6 group-[]/ghost:leading-[1.375rem]">
               <span
-                className="ease-[ease] relative z-10 flex justify-center text-black transition-all duration-200 will-change-transform group-hover:opacity-20 group-focus:opacity-20 group-active:opacity-20 group-active:delay-150 group-active:group-[:not(:checked)+label]/i:scale-95 peer-checked:group-[]/l:font-medium peer-checked:group-[]/l:opacity-100"
+                className="ease-[ease] relative z-10 flex justify-center text-black transition-all duration-200 will-change-transform group-hover/d:opacity-20 group-focus/d:opacity-20 group-active/d:opacity-20 group-active/d:delay-150 group-active/d:group-[:not(:checked)+label]/i:scale-95 peer-checked:group-[]/l:font-medium peer-checked:group-[]/l:opacity-100 dark:text-white"
               >
                 {item.label}
               </span>
@@ -125,7 +124,7 @@ const SegmentedControl = <T extends string>({
               <span
                 ref={pillRefs.current[index]}
                 className={cn(
-                  'ease-[ease] flex size-full rounded-[7px] will-change-transform group-[]/default:peer-checked:group-[]/l:border-[.5px] group-[]/default:peer-checked:group-[]/l:border-black/[0.04] group-[]/ghost:peer-checked:group-[]/l:bg-neutral-200 peer-checked:group-[]/l:bg-white group-[]/default:peer-checked:group-[]/l:shadow',
+                  'ease-[ease] flex size-full rounded-[7px] will-change-transform group-[]/default:peer-checked:group-[]/l:border-[.5px] group-[]/default:peer-checked:group-[]/l:border-black/[0.04] group-[]/ghost:peer-checked:group-[]/l:bg-neutral-200 peer-checked:group-[]/l:bg-white group-[]/default:peer-checked:group-[]/l:shadow  group-[]/default:dark:peer-checked:group-[]/l:bg-neutral-600 group-[]/ghost:dark:peer-checked:group-[]/l:bg-slate-600',
                   item.value === value && 'transition-transform duration-300',
                 )}
               />

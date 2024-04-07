@@ -13,5 +13,3 @@ declare module 'react' {
     [key: `--${string}`]: string | number
   }
 }
-
-export type NoInfer<T> = T & {[K in keyof T]: T[K]}

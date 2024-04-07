@@ -85,9 +85,9 @@ export function SignUp() {
       <div className="mx-auto py-6">
         <section className="py-5">
           <div className="mx-auto flex flex-col items-center justify-center px-6 py-8 lg:py-0">
-            <div className="w-full rounded-lg bg-white shadow dark:border sm:max-w-md md:mt-0 xl:p-0">
+            <div className="w-full rounded-lg bg-white shadow dark:border dark:bg-zinc-900 sm:max-w-md md:mt-0 xl:p-0">
               <div className="max-w-80 space-y-4 p-6 sm:px-8 sm:py-7 md:w-80 md:space-y-6">
-                <h1 className="text-xl/tight font-bold text-gray-900 md:text-2xl">
+                <h1 className="text-xl/tight font-bold md:text-2xl">
                   Sign Up
                 </h1>
                 <Form {...form}>
@@ -146,7 +146,7 @@ export function SignUp() {
                               />
                               <Button
                                 variant="outline"
-                                className="bg-white px-2"
+                                className="px-2"
                                 aria-checked={passwordVisible}
                                 onClick={(e) => {
                                   e.preventDefault()
