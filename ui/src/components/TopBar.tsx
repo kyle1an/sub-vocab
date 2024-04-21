@@ -78,17 +78,17 @@ const switchThemeEffectAtom = atomEffect((get, set) => {
   } else {
     isDark = themePreference === 'dark'
   }
-  const themeColorMeta = document.querySelector('meta[name="theme-color"]')
+  let themeColorContentValue: string
   if (isDark) {
     document.documentElement.classList.add('dark')
-    if (themeColorMeta) {
-      themeColorMeta.setAttribute('content', 'black')
-    }
+    themeColorContentValue = 'black'
   } else {
     document.documentElement.classList.remove('dark')
-    if (themeColorMeta) {
-      themeColorMeta.setAttribute('content', 'white')
-    }
+    themeColorContentValue = 'white'
+  }
+  const themeColorMeta = document.querySelector('meta[name="theme-color"]')
+  if (themeColorMeta) {
+    themeColorMeta.setAttribute('content', themeColorContentValue)
   }
 })
 
@@ -249,7 +249,7 @@ export function TopBar({ className }: { className?: string }) {
     ],
   ] as const
 
-  const [locale, updateLocale, deleteLocale] = useCookie('_locale')
+  const [locale, updateLocale] = useCookie('_locale')
   const [value, setValue] = useState(locale || lng)
   const [themePreference, setThemePreference] = useAtom(themeAtom)
 

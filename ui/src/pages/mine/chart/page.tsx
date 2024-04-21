@@ -188,11 +188,14 @@ export function Chart() {
   const groupedRows = useMemo((): DataSet[] => {
     if (segment === 'W') {
       return mapWeek(userWords)
-    } if (segment === 'M') {
+    }
+    if (segment === 'M') {
       return mapMonth(userWords)
-    } if (segment === '6M') {
+    }
+    if (segment === '6M') {
       return map6M(userWords)
-    } if (segment === 'Y') {
+    }
+    if (segment === 'Y') {
       return mapY(userWords)
     }
 

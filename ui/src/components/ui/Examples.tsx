@@ -36,20 +36,24 @@ export function Examples({
         const sentence = sentences[no]
         return (
           <div
-            key={index}
+            key={no}
             className="break-words transition-colors duration-150 hover:text-black dark:text-slate-500 dark:hover:text-slate-300"
             style={{ wordBreak: 'break-word' }}
           >
-            {wordIndexes.map(([start, count], i) => (
-              <span key={i}>
-                <span>
-                  {sentence.slice(progress, start)}
+            {wordIndexes.map(([start, count], i) => {
+              const oldProgress = progress
+              progress = start + count
+              return (
+                <span key={start}>
+                  <span>
+                    {sentence.slice(oldProgress, start)}
+                  </span>
+                  <span className="text-black underline underline-offset-[0.145em] dark:text-slate-300">
+                    {sentence.slice(start, progress)}
+                  </span>
                 </span>
-                <span className="text-black underline underline-offset-[0.145em] dark:text-slate-300">
-                  {sentence.slice(start, (progress = start + count))}
-                </span>
-              </span>
-            ))}
+              )
+            })}
             <span>{sentence.slice(progress)}</span>
           </div>
         )
