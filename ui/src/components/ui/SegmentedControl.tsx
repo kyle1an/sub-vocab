@@ -10,7 +10,7 @@ import { type VariantProps, cva } from 'class-variance-authority'
 import { cn, fixedForwardRef } from '@/lib/utils.ts'
 
 const segmentedControlVariants = cva(
-  `box-border grid w-full !touch-manipulation select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-[9px] tracking-wide antialiased outline-none tap-transparent !overflow-scrolling-touch ffs-['cv08'] [text-rendering:geometricPrecision] [&_*]:box-border`,
+  `grid w-full !touch-manipulation select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-[9px] tracking-wide antialiased outline-none tap-transparent !overflow-scrolling-touch ffs-['cv08'] [text-rendering:geometricPrecision]`,
   {
     variants: {
       variant: {
@@ -93,7 +93,7 @@ const SegmentedControl = <T extends string>({
     >
       {segments.map((item, index) => (
         <div
-          key={index}
+          key={item.value}
           className="group/d relative first-of-type:col-[1] first-of-type:row-[1] first-of-type:shadow-none"
         >
           <input
@@ -107,7 +107,7 @@ const SegmentedControl = <T extends string>({
           />
           <label
             htmlFor={`${name}-${item.value}`}
-            className="group/l before:ease-[ease] relative block cursor-pointer bg-transparent text-center before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[10px] before:bg-neutral-300 before:transition-[background] before:duration-200 before:will-change-[background] before:group-first-of-type/d:opacity-0 before:group-[:has(:checked)+*]/d:bg-transparent peer-checked:cursor-default before:peer-checked:z-[1] before:peer-checked:bg-transparent dark:before:bg-slate-700"
+            className="group/l before:ease-[ease] relative block cursor-pointer bg-transparent text-center before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[10px] before:bg-neutral-300 before:transition-[background] before:duration-200 before:will-change-[background] group-first-of-type/d:before:opacity-0 group-[:has(:checked)+*]/d:before:bg-transparent peer-checked:cursor-default peer-checked:before:z-10 peer-checked:before:bg-transparent dark:before:bg-slate-700"
           >
             <span className="flex flex-col justify-center text-sm/6 group-[]/ghost:leading-[1.375rem]">
               <span

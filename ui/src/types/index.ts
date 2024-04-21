@@ -1,4 +1,5 @@
 import '@total-typescript/ts-reset'
+import 'typed-query-selector'
 
 // https://x.com/mattpocockuk/status/1758454430666506589?s=20
 declare global {

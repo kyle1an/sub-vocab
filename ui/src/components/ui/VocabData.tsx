@@ -1,5 +1,5 @@
 import {
-  type ChangeEvent, Fragment, useCallback, useMemo, useState,
+  Fragment, useCallback, useMemo, useState,
 } from 'react'
 import {
   type ExpandedState,
@@ -20,9 +20,11 @@ import { formatDistanceToNowStrict } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
 import { toast } from 'sonner'
+import { atom, useAtom } from 'jotai'
 import {
   AcquaintAllDialog, Pagination, VocabStatics,
 } from './VocabSource'
+import { SearchWidget } from './search-widget'
 import { sortIcon } from '@/lib/icon-utils'
 import { Icon } from '@/components/ui/icon'
 import { SegmentedControl } from '@/components/ui/SegmentedControl.tsx'
@@ -54,6 +56,7 @@ import { useAcquaintWordsMutation, useRevokeWordMutation } from '@/api/vocab-api
 import { useVocabStore } from '@/store/useVocab'
 import { LoginToast } from '@/components/login-toast'
 import type { GroupHeader } from '@/types/vocab'
+import { tryGetRegex } from '@/lib/regex'
 
 const columnHelper = createColumnHelper<LabelDisplayTable>()
 
@@ -77,6 +80,11 @@ function TableHeader<T extends Table<any>>({ header }: { header: GroupHeader<T> 
   )
 }
 
+type ColumnFilterFn = (rowValue: LabelDisplayTable) => boolean
+
+const useRegexAtom = atom(false)
+const searchValueAtom = atom('')
+
 export function VocabDataTable({
   data,
   onPurge,
@@ -91,6 +99,8 @@ export function VocabDataTable({
   const { mutateAsync: mutateRevokeWordAsync } = useRevokeWordMutation()
   const { mutateAsync: mutateAcquaintWordsAsync } = useAcquaintWordsMutation()
   const username = useVocabStore((state) => state.username)
+  const [searchValue, setSearchValue] = useAtom(searchValueAtom)
+  const [useRegex, setUseRegex] = useAtom(useRegexAtom)
 
   const handleVocabToggle = useCallback(function handleVocabToggle(vocab: TProp) {
     if (!username) {
@@ -156,6 +166,7 @@ export function VocabDataTable({
       }),
       columnHelper.accessor((row) => row.word, {
         id: 'word',
+        filterFn: (row, columnId, fn: ColumnFilterFn) => fn(row.original),
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           return (
@@ -260,7 +271,7 @@ export function VocabDataTable({
         return row.learningPhase <= 1 ? row.learningPhase : row.inertialPhase
       }, {
         id: 'acquaintedStatus',
-        filterFn: (row, columnId, filterValue: ReturnType<typeof filterValueAcquaintedStatus>) => filterValue.includes(row.original.inertialPhase),
+        filterFn: (row, columnId, fn: ColumnFilterFn) => fn(row.original),
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           return (
@@ -289,7 +300,7 @@ export function VocabDataTable({
           )
         },
         cell: ({ row }) => (
-          <div className="flex justify-center">
+          <div>
             <VocabToggle
               row={{ vocab: row.original }}
               onToggle={handleVocabToggle}
@@ -299,8 +310,8 @@ export function VocabDataTable({
         footer: ({ column }) => column.id,
       }),
       columnHelper.accessor((row) => row.isUser, {
-        id: 'vocabOwner',
-        filterFn: (row, columnId, filterValue: ReturnType<typeof filterValueVocabOwner>) => filterValue.includes(row.original.isUser),
+        id: 'userOwned',
+        filterFn: (row, columnId, fn: ColumnFilterFn) => fn(row.original),
         header: ({ header }) => {
           return (
             <th
@@ -390,7 +401,7 @@ export function VocabDataTable({
       expanded,
       sorting,
       columnVisibility: {
-        vocabOwner: false,
+        userOwned: false,
       },
     },
     initialState: {
@@ -400,11 +411,11 @@ export function VocabDataTable({
       columnFilters: [
         {
           id: 'acquaintedStatus',
-          value: filterValueAcquaintedStatus(segment),
+          value: getAcquaintedStatusFilter(segment),
         },
         {
-          id: 'vocabOwner',
-          value: filterValueVocabOwner(segment),
+          id: 'userOwned',
+          value: getUserOwnedFilter(segment),
         },
       ],
     },
@@ -423,38 +434,65 @@ export function VocabDataTable({
   function handleSegmentChoose(newSegment: typeof segment) {
     onPurge()
     setSegment(newSegment)
-    table.getColumn('acquaintedStatus')?.setFilterValue(filterValueAcquaintedStatus(newSegment))
-    table.getColumn('vocabOwner')?.setFilterValue(filterValueVocabOwner(newSegment))
+    table.getColumn('acquaintedStatus')?.setFilterValue(() => getAcquaintedStatusFilter(newSegment))
+    table.getColumn('userOwned')?.setFilterValue(() => getUserOwnedFilter(newSegment))
   }
 
-  function filterValueAcquaintedStatus(filterSegment: Segment): LearningPhase[] {
-    switch (filterSegment) {
-      case 'new':
-        return [LEARNING_PHASE.NEW, LEARNING_PHASE.ACQUAINTING]
-      case 'allAcquainted':
-      case 'mine':
-      case 'top':
-        return [LEARNING_PHASE.ACQUAINTED, LEARNING_PHASE.REMOVING]
-      default:
-        return Object.values(LEARNING_PHASE)
+  function getAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
+    let filteredValue: LearningPhase[] = []
+    if (filterSegment === 'new') {
+      filteredValue = [LEARNING_PHASE.NEW, LEARNING_PHASE.ACQUAINTING]
+    } else if (filterSegment === 'allAcquainted' || filterSegment === 'mine' || filterSegment === 'top') {
+      filteredValue = [LEARNING_PHASE.ACQUAINTED, LEARNING_PHASE.REMOVING]
+    } else {
+      return () => true
+    }
+
+    return (row) => {
+      return filteredValue.includes(row.inertialPhase)
     }
   }
 
-  function filterValueVocabOwner(filterSegment: Segment) {
-    switch (filterSegment) {
-      case 'top':
-        return [false]
-      case 'mine':
-        return [true]
-      default:
-        return [true, false]
+  function getUserOwnedFilter(filterSegment: Segment): ColumnFilterFn {
+    let filteredValue: boolean[] = []
+    if (filterSegment === 'top') {
+      filteredValue = [false]
+    } else if (filterSegment === 'mine') {
+      filteredValue = [true]
+    } else {
+      return () => true
+    }
+
+    return (row) => {
+      return filteredValue.includes(row.isUser)
     }
   }
 
   const columnWord = table.getColumn('word')
 
-  function handleSearchChange(e: ChangeEvent<HTMLInputElement>) {
-    columnWord?.setFilterValue(e.target.value)
+  function handleSearchChange(search: string) {
+    setSearchValue(search)
+    updateSearchFilter(search, useRegex)
+  }
+
+  function handleRegexChange(regex: boolean) {
+    setUseRegex(regex)
+    updateSearchFilter(searchValue, regex)
+  }
+
+  function updateSearchFilter(search: string, usingRegex: boolean) {
+    if (usingRegex) {
+      const newRegex = tryGetRegex(search)
+      if (newRegex) {
+        columnWord?.setFilterValue((): ColumnFilterFn => function regexFilterFn(row) {
+          return newRegex.test(row.word)
+        })
+      }
+    } else {
+      columnWord?.setFilterValue((): ColumnFilterFn => function searchFilterFn(row) {
+        return row.word.includes(search)
+      })
+    }
   }
 
   const { items } = usePagination({
@@ -471,7 +509,7 @@ export function VocabDataTable({
 
   return (
     <div className={cn('flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-sm will-change-transform dark:bg-slate-900 md:grow', className)}>
-      <div className="z-10 flex h-12 w-full justify-between border-b border-solid border-zinc-200 bg-neutral-50 p-2 shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)] dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
+      <div className="z-10 flex h-12 w-full justify-between bg-neutral-50 p-2 dark:bg-slate-900 dark:text-slate-400">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -506,15 +544,14 @@ export function VocabDataTable({
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
-        <input
-          type="text"
-          aria-label="Search"
-          value={String(columnWord?.getFilterValue() ?? '')}
-          onChange={handleSearchChange}
-          placeholder={t('search')}
-          className="rounded-md border pl-1 leading-7 dark:bg-slate-900 dark:text-slate-400"
+        <SearchWidget
+          value={searchValue}
+          useRegex={useRegex}
+          onSearch={handleSearchChange}
+          onRegex={handleRegexChange}
         />
       </div>
+      <div className="h-px w-full border-b border-solid border-zinc-200 shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)] dark:border-slate-800" />
       <div className="w-full">
         <SegmentedControl
           value={segment}
