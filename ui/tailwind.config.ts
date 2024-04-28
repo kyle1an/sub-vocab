@@ -87,7 +87,6 @@ const config: Config = {
     },
   },
   plugins: [
-    // eslint-disable-next-line global-require
     require('tailwindcss-animate'),
     plugin(({
       addBase, addComponents, addUtilities, matchUtilities, theme,

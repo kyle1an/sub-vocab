@@ -94,7 +94,7 @@ export function useRevokeWordMutation() {
       } satisfies UserVocab)
     },
     onMutate: (variables) => {
-      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => mutatedVocabStates(oldData, variables, LEARNING_PHASE.REMOVING))
+      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => mutatedVocabStates(oldData, variables, LEARNING_PHASE.FADING))
     },
     onSuccess: (data, variables, context) => {
       if (data === 'success') {
@@ -121,7 +121,7 @@ export function useAcquaintWordsMutation() {
       } satisfies UserVocab)
     },
     onMutate: (variables) => {
-      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => mutatedVocabStates(oldData, variables, LEARNING_PHASE.ACQUAINTING))
+      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => mutatedVocabStates(oldData, variables, LEARNING_PHASE.RETAINING))
     },
     onSuccess: (data, variables, context) => {
       if (data === 'success') {

@@ -20,6 +20,7 @@ export function Examples({
     }
 
     const adjacentSentence = vocabPositions[vocabPositions.length - 1]
+    if (!adjacentSentence) continue
     const adjacentSentenceIndex = adjacentSentence[0]
     const areCurrentAndAdjacentInTheSameSentence = sentenceId === adjacentSentenceIndex
     if (areCurrentAndAdjacentInTheSameSentence) {
@@ -33,7 +34,7 @@ export function Examples({
     <div className={cn('mb-1 ml-5 mr-3 text-sm text-neutral-600', className)}>
       {vocabPositions.map(([no, wordIndexes], index) => {
         let progress = 0
-        const sentence = sentences[no]
+        const sentence = sentences[no] ?? ''
         return (
           <div
             key={no}

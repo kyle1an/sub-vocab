@@ -58,7 +58,7 @@ const SourceVocab = memo(function SourceVocab({
   )
 })
 
-function clearInputValue(ref: RefObject<HTMLInputElement>) {
+function clearInputValue(ref: RefObject<HTMLInputElement | null>) {
   if (ref.current && 'value' in ref.current) {
     ref.current.value = ''
   }
@@ -70,14 +70,14 @@ export default function Home() {
   const [sourceText, setSourceText] = useAtom(sourceTextAtom)
   const deferredSourceText = useDeferredValue(sourceText)
 
-  function handleFileChange({ name, value }: { name: string; value: string }) {
+  function handleFileChange({ name, value }: { name: string, value: string }) {
     setFileInfo(name)
     setSourceText(value)
   }
 
   const inputRef = useRef<HTMLInputElement>(null)
 
-  function handleTextareaChange({ name, value }: { name?: string; value: string }) {
+  function handleTextareaChange({ name, value }: { name?: string, value: string }) {
     setSourceText(value)
     if (name) {
       setFileInfo(name)
@@ -103,6 +103,7 @@ export default function Home() {
     <main className="m-auto h-[calc(100svh-4px*11)] w-full max-w-screen-xl px-5">
       <div className="relative flex h-14 items-center">
         <FileInput
+          // @ts-ignore
           inputRef={inputRef}
           onFileChange={handleFileChange}
         >

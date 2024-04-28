@@ -1,13 +1,10 @@
 import {
-  type ChangeEvent,
-  type ForwardedRef,
   type HTMLAttributes,
-  type RefObject,
-  createRef,
+  type RefAttributes,
   useRef,
 } from 'react'
 import { type VariantProps, cva } from 'class-variance-authority'
-import { cn, fixedForwardRef } from '@/lib/utils.ts'
+import { cn } from '@/lib/utils.ts'
 
 const segmentedControlVariants = cva(
   `grid w-full !touch-manipulation select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-[9px] tracking-wide antialiased outline-none tap-transparent !overflow-scrolling-touch ffs-['cv08'] [text-rendering:geometricPrecision]`,
@@ -43,11 +40,11 @@ const segmentedControlVariants = cva(
 export interface SegmentedControlProps<T extends string> extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof segmentedControlVariants> {
   value: NoInfer<T>
   name: string
-  segments: Readonly<{ value: T; label: string }[]>
+  segments: Readonly<{ value: T, label: string }[]>
   onChoose: (value: T) => void
 }
 
-const SegmentedControl = <T extends string>({
+export const SegmentedControl = <T extends string>({
   value,
   name,
   segments,
@@ -55,34 +52,48 @@ const SegmentedControl = <T extends string>({
   variant,
   size,
   className,
+  ref,
   ...props
-}: SegmentedControlProps<T>,
-  ref: ForwardedRef<HTMLDivElement>,
+}: SegmentedControlProps<T> & RefAttributes<HTMLDivElement>,
 ) => {
-  const pillRefs = useRef<RefObject<HTMLSpanElement>[]>([])
-  pillRefs.current = segments.map((_, i) => pillRefs.current[i] ?? createRef())
+  const pillRefs = useRef<Partial<Record<T, HTMLSpanElement>>>({})
 
-  function handleOnChange(ev: ChangeEvent<HTMLInputElement>, pillRef: RefObject<HTMLSpanElement>) {
-    const previousPillIndex = segments.findIndex((s) => s.value === value)
-    const previousPill = pillRefs.current[previousPillIndex]?.current
-    const previousPillClientRect = previousPill?.getBoundingClientRect()
-    const element = pillRef.current
+  function handleOnChange(newValue: T) {
+    const pillRef = pillRefs.current[newValue]
+    if (pillRef) {
+      const previousPill = pillRefs.current[value]
+      const domRect = previousPill?.getBoundingClientRect()
+      activatePill(pillRef, domRect)
+      onChoose(newValue)
+    }
+  }
 
-    if (!previousPillClientRect || !element) {
+  function activatePill(pillRef: HTMLElement, previousIndicatorClientRect?: DOMRect) {
+    const element = pillRef
+
+    if (
+      !previousIndicatorClientRect
+      || !element.getBoundingClientRect
+    ) {
       return
     }
 
     // https://github.com/angular/components/blob/a7f87a80a18a62d75a8c5621fd89dbc2cf28a865/src/material/tabs/ink-bar.ts#L114
     const currentClientRect = element.getBoundingClientRect()
-    const widthDelta = previousPillClientRect.width / currentClientRect.width
-    const xPosition = previousPillClientRect.left - currentClientRect.left
+    const widthDelta = previousIndicatorClientRect.width / currentClientRect.width
+    const xPosition = previousIndicatorClientRect.left - currentClientRect.left
     element.style.setProperty(
       'transform',
       `translateX(${xPosition}px) scaleX(${widthDelta})`,
     )
     element.getBoundingClientRect()
     element.style.setProperty('transform', '')
-    onChoose(ev.target.value as T)
+  }
+
+  function addToRefs(key: T) {
+    return (el: HTMLSpanElement) => {
+      pillRefs.current[key] = el
+    }
   }
 
   return (
@@ -103,7 +114,9 @@ const SegmentedControl = <T extends string>({
             value={item.value}
             checked={item.value === value}
             className="group/i peer absolute inset-0 appearance-none opacity-0 outline-none"
-            onChange={(ev) => handleOnChange(ev, pillRefs.current[index])}
+            onChange={(ev) => {
+              handleOnChange(item.value)
+            }}
           />
           <label
             htmlFor={`${name}-${item.value}`}
@@ -122,7 +135,7 @@ const SegmentedControl = <T extends string>({
             </span>
             <span className="absolute left-0 top-0 size-full">
               <span
-                ref={pillRefs.current[index]}
+                ref={addToRefs(item.value)}
                 className={cn(
                   'ease-[ease] flex size-full rounded-[7px] will-change-transform group-[]/default:peer-checked:group-[]/l:border-[.5px] group-[]/default:peer-checked:group-[]/l:border-black/[0.04] group-[]/ghost:peer-checked:group-[]/l:bg-neutral-200 peer-checked:group-[]/l:bg-white group-[]/default:peer-checked:group-[]/l:shadow  group-[]/default:dark:peer-checked:group-[]/l:bg-neutral-600 group-[]/ghost:dark:peer-checked:group-[]/l:bg-slate-600',
                   item.value === value && 'transition-transform duration-300',
@@ -135,7 +148,3 @@ const SegmentedControl = <T extends string>({
     </div>
   )
 }
-
-const ForwardReffedSegmentedControl = fixedForwardRef(SegmentedControl)
-
-export { ForwardReffedSegmentedControl as SegmentedControl }

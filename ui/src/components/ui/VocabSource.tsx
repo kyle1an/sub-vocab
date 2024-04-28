@@ -448,9 +448,9 @@ export function VocabSourceTable({
   function getAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
     let filteredValue: LearningPhase[] = []
     if (filterSegment === 'new') {
-      filteredValue = [LEARNING_PHASE.NEW, LEARNING_PHASE.ACQUAINTING]
+      filteredValue = [LEARNING_PHASE.NEW, LEARNING_PHASE.RETAINING]
     } else if (filterSegment === 'acquainted') {
-      filteredValue = [LEARNING_PHASE.ACQUAINTED, LEARNING_PHASE.REMOVING]
+      filteredValue = [LEARNING_PHASE.ACQUAINTED, LEARNING_PHASE.FADING]
     } else {
       return () => true
     }
@@ -796,7 +796,7 @@ export function Pagination<T>({
   )
 }
 
-export function VocabStatics(props: {rowsCountFiltered: number; rowsCountNew: number; rowsCountAcquainted: number}) {
+export function VocabStatics(props: { rowsCountFiltered: number, rowsCountNew: number, rowsCountAcquainted: number }) {
   const { t } = useTranslation()
   return (
     <div className="flex items-center py-1.5 text-xs tabular-nums text-neutral-600 dark:text-neutral-400">
@@ -839,7 +839,7 @@ export function VocabStatics(props: {rowsCountFiltered: number; rowsCountNew: nu
   )
 }
 
-export function AcquaintAllDialog<T extends VocabState>({ vocabulary }: {vocabulary: T[]}) {
+export function AcquaintAllDialog<T extends VocabState>({ vocabulary }: { vocabulary: T[] }) {
   const { t } = useTranslation()
   const { mutateAsync: mutateAcquaintWordsAsync } = useAcquaintWordsMutation()
   const username = useVocabStore((state) => state.username)

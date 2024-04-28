@@ -3,8 +3,8 @@ import type { Simplify, ValueOf } from 'type-fest'
 export const LEARNING_PHASE = {
   NEW: 0,
   ACQUAINTED: 1,
-  REMOVING: 2,
-  ACQUAINTING: 3,
+  FADING: 2,
+  RETAINING: 3,
 } as const
 
 export type LearningPhase = ValueOf<typeof LEARNING_PHASE>
@@ -23,7 +23,7 @@ type Char = `'` | '’' | '-' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 
 type NodeOf<T> = Simplify<{
   [K in Char]?: K extends Char ? NodeOf<T> : never
 } & {
-  '$'?: T
+  $?: T
 }>
 
 export type WordLocator = {
@@ -56,7 +56,7 @@ function caseOr(a: string, b: string) {
 const capitalIn = (chars: string) => /[A-ZÀ-Þ]/.test(chars)
 const isVowel = (chars: string) => ['a', 'e', 'i', 'o', 'u'].includes(chars)
 
-export default class LabeledTire {
+export class LabeledTire {
   root: NodeOf<TrieWordLabel> = {}
 
   #sequence = 0
@@ -124,6 +124,7 @@ export default class LabeledTire {
   mergeDerivedWordIntoStem(irregularMaps: string[][]) {
     for (const irregulars of irregularMaps) {
       const stem = irregulars[0]
+      if (!stem) continue
       const hasCapital = capitalIn(stem)
       const stemNode = this.getNode(hasCapital ? stem.toLowerCase() : stem)
 
@@ -144,7 +145,9 @@ export default class LabeledTire {
       }
       let i = irregulars.length
       while (--i) {
-        const derive = this.getNode(irregulars[i]).$
+        const irregular = irregulars[i]
+        if (!irregular) continue
+        const derive = this.getNode(irregular).$
         if (
           derive
           && derive.src.length
@@ -154,8 +157,6 @@ export default class LabeledTire {
         }
       }
     }
-
-    return this
   }
 
   add(input: string) {
@@ -175,8 +176,6 @@ export default class LabeledTire {
         }
       }
     }
-
-    return this
   }
 
   #update(original: string, index: number) {
@@ -194,7 +193,10 @@ export default class LabeledTire {
           wordOrder: ++this.#sequence,
         }],
       }
-      this.vocabulary[branch.$.src[0].wordOrder] = branch.$
+      const wordLocator = branch.$.src[0]
+      if (wordLocator) {
+        this.vocabulary[wordLocator.wordOrder] = branch.$
+      }
     } else {
       branch.$.src.push(
         {
@@ -206,7 +208,10 @@ export default class LabeledTire {
       )
 
       if (branch.$.src.length === 1) {
-        this.vocabulary[branch.$.src[0].wordOrder] = branch.$
+        const wordLocator = branch.$.src[0]
+        if (wordLocator) {
+          this.vocabulary[wordLocator.wordOrder] = branch.$
+        }
       }
 
       if (branch.$.up && !branch.$.vocab) {
@@ -224,7 +229,6 @@ export default class LabeledTire {
   mergedVocabulary(baseVocab: VocabState[]) {
     this.#withPaths(baseVocab)
     this.#traverseMerge(this.root)
-    return this
   }
 
   #traverseMerge(layer: NodeOf<TrieWordLabel>) {
@@ -406,8 +410,9 @@ export default class LabeledTire {
       targetWord.derive = []
 
       if (!targetWord.src.length) {
-        if (latterWord.src.length) {
-          this.vocabulary[latterWord.src[0].wordOrder] = targetWord
+        const wordLocator = latterWord.src[0]
+        if (wordLocator) {
+          this.vocabulary[wordLocator.wordOrder] = targetWord
         }
       }
     }

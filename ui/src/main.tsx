@@ -9,7 +9,7 @@ if (import.meta.env.PROD) {
   Sentry.init({
     dsn: 'https://c85c12d1ecc241558e8aa3bc55dea61f@o4505257329098752.ingest.sentry.io/4505257332178944',
     integrations: [
-      new Sentry.BrowserTracing({
+      Sentry.browserTracingIntegration({
         // See docs for support of different versions of variation of react router
         // https://docs.sentry.io/platforms/javascript/guides/react/configuration/integrations/react-router/
         // routingInstrumentation: Sentry.reactRouterV6Instrumentation(
@@ -20,7 +20,7 @@ if (import.meta.env.PROD) {
         //   matchRoutes
         // ),
       }),
-      new Sentry.Replay(),
+      Sentry.replayIntegration(),
     ],
 
     // Set tracesSampleRate to 1.0 to capture 100%

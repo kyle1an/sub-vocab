@@ -24,9 +24,7 @@ router.post('/login', (req: Request<ParamsDictionary, LoginResponse, Credential>
       }
       res.json(response)
     })
-    .catch((err) => {
-      throw new Error(err)
-    })
+    .catch(console.error)
 })
 
 router.post('/register', (req: Request<ParamsDictionary, RegisterResponse, Credential>, res) => {
@@ -35,9 +33,7 @@ router.post('/register', (req: Request<ParamsDictionary, RegisterResponse, Crede
     .then(([rows]) => {
       res.json([rows[0]])
     })
-    .catch((err) => {
-      throw new Error(err)
-    })
+    .catch(console.error)
 })
 
 router.post('/changeUsername', tokenChecker, (req: Request<ParamsDictionary, Status, NewUsername>, res: Response) => {
@@ -50,9 +46,7 @@ router.post('/changeUsername', tokenChecker, (req: Request<ParamsDictionary, Sta
         success: !!rows[0].result,
       })
     })
-    .catch((err) => {
-      throw new Error(err)
-    })
+    .catch(console.error)
 })
 
 router.post('/changePassword', (req: Request<ParamsDictionary, Status, NewCredential>, res) => {
@@ -63,9 +57,7 @@ router.post('/changePassword', (req: Request<ParamsDictionary, Status, NewCreden
         success: !!('affectedRows' in rows && rows.affectedRows),
       })
     })
-    .catch((err) => {
-      throw new Error(err)
-    })
+    .catch(console.error)
 })
 
 router.post('/logoutToken', (req: Request<ParamsDictionary, Status, Username>, res) => {
@@ -82,9 +74,7 @@ router.post('/logoutToken', (req: Request<ParamsDictionary, Status, Username>, r
       }
       res.json({ success: !!rowCount })
     })
-    .catch((err) => {
-      throw new Error(err)
-    })
+    .catch(console.error)
 })
 
 router.post('/existsUsername', (req: Request<ParamsDictionary, UsernameTaken, Username>, res) => {
@@ -93,9 +83,7 @@ router.post('/existsUsername', (req: Request<ParamsDictionary, UsernameTaken, Us
     .then(([rows]) => {
       res.json({ has: !!rows[0][0].does_exist })
     })
-    .catch((err) => {
-      throw new Error(err)
-    })
+    .catch(console.error)
 })
 
 export default router

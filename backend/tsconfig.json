@@ -1,23 +1,37 @@
 {
   "compilerOptions": {
-    "lib": ["ESNext"],
-    "module": "commonjs",
-    "target": "es2022",
-    "types": ["node"],
     "noImplicitAny": true,
-    "noEmit": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Base Options: */
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "./built",
-    "moduleResolution": "node"
+    "target": "es2022",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+
+    /* Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+
+    "module": "commonjs",
+    "noEmit": true,
+
+    "lib": ["ESNext"]
   },
   "include": [
     ".eslintrc.js",
+    ".eslintrc.cjs",
+    "**/*.config.js",
+    "**/*.config.cjs",
+    "**/*.config.ts",
     "**/*.js",
     "**/*.ts",
+    "src/**/*.ts",
     "**/*.d.ts",
-    "**/*.tsx",
-    "**/*.vue"
+    "src/**/*.d.ts"
   ]
 }

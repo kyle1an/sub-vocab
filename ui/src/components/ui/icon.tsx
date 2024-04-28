@@ -1,7 +1,7 @@
 import { type IconProps, Icon as Iconify } from '@iconify/react'
 import { cn } from '@/lib/utils'
 
-export function Icon({ className, ...props }: IconProps) {
+export function Icon({ className, style, ...props }: IconProps) {
   let { width, height } = props
   if (width === undefined && height === undefined) {
     width = height = '1em'
@@ -17,6 +17,7 @@ export function Icon({ className, ...props }: IconProps) {
       style={{
         width,
         height,
+        ...style,
       }}
     >
       <Iconify
