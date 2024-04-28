@@ -12,7 +12,6 @@ const pool = mysql.createPool({
   multipleStatements: true,
 })
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- mysql2 escape function is not typed
 export function sql<T>(strings: TemplateStringsArray, ...values: any[]) {
   const escapedQuery = strings
     .map((s, index) => (index < values.length ? `${s}${mysql.escape(values[index])}` : s))

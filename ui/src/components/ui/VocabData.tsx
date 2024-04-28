@@ -441,9 +441,9 @@ export function VocabDataTable({
   function getAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
     let filteredValue: LearningPhase[] = []
     if (filterSegment === 'new') {
-      filteredValue = [LEARNING_PHASE.NEW, LEARNING_PHASE.ACQUAINTING]
+      filteredValue = [LEARNING_PHASE.NEW, LEARNING_PHASE.RETAINING]
     } else if (filterSegment === 'allAcquainted' || filterSegment === 'mine' || filterSegment === 'top') {
-      filteredValue = [LEARNING_PHASE.ACQUAINTED, LEARNING_PHASE.REMOVING]
+      filteredValue = [LEARNING_PHASE.ACQUAINTED, LEARNING_PHASE.FADING]
     } else {
       return () => true
     }

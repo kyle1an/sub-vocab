@@ -48,8 +48,9 @@ const mapWeek = (userWords: VocabState[]) => {
   userWords.forEach((v) => {
     if (v.learningPhase === LEARNING_PHASE.ACQUAINTED && v.timeModified) {
       const label = getGroupKey(new Date(v.timeModified))
-      if (label in preset) {
-        preset[label].push(v)
+      const group = preset[label]
+      if (group) {
+        group.push(v)
       }
     }
   })
@@ -84,8 +85,9 @@ const mapMonth = (userWords: VocabState[]) => {
   userWords.forEach((v) => {
     if (v.learningPhase === LEARNING_PHASE.ACQUAINTED && v.timeModified) {
       const label = getGroupKey(new Date(v.timeModified))
-      if (label in preset) {
-        preset[label].push(v)
+      const group = preset[label]
+      if (group) {
+        group.push(v)
       }
     }
   })
@@ -123,8 +125,9 @@ const map6M = (userWords: VocabState[]) => {
   userWords.forEach((v) => {
     if (v.learningPhase === LEARNING_PHASE.ACQUAINTED && v.timeModified) {
       const label = getGroupKey(new Date(v.timeModified))
-      if (label in preset) {
-        preset[label].push(v)
+      const group = preset[label]
+      if (group) {
+        group.push(v)
       }
     }
   })
@@ -156,8 +159,9 @@ const mapY = (userWords: VocabState[]) => {
   userWords.forEach((v) => {
     if (v.learningPhase === LEARNING_PHASE.ACQUAINTED && v.timeModified) {
       const label = getGroupKey(new Date(v.timeModified))
-      if (label in preset) {
-        preset[label].push(v)
+      const group = preset[label]
+      if (group) {
+        group.push(v)
       }
     }
   })
@@ -291,9 +295,13 @@ export function Chart() {
         tooltip: {
           callbacks: {
             footer(context) {
-              const { dataIndex } = context[0]
-              const bar = groupedRows[dataIndex]
-              return bar.tooltipFooter
+              if (context[0]) {
+                const { dataIndex } = context[0]
+                const bar = groupedRows[dataIndex]
+                if (bar) {
+                  return bar.tooltipFooter
+                }
+              }
             },
           },
         },
@@ -305,9 +313,13 @@ export function Chart() {
         tooltip: {
           callbacks: {
             footer(context) {
-              const { dataIndex } = context[0]
-              const bar = groupedRows[dataIndex]
-              return format(new Date(bar.groupKey), 'MMM d, yyyy')
+              if (context[0]) {
+                const { dataIndex } = context[0]
+                const bar = groupedRows[dataIndex]
+                if (bar) {
+                  return format(new Date(bar.groupKey), 'MMM d, yyyy')
+                }
+              }
             },
           },
         },
@@ -322,8 +334,10 @@ export function Chart() {
               if (isFirstDayOfMonth(groupDate)) {
                 return [0, 0]
               }
-              if (isSunday(new Date(bar?.groupKey))) {
-                return [2, 2]
+              if (bar) {
+                if (isSunday(new Date(bar.groupKey))) {
+                  return [2, 2]
+                }
               }
               return [0, 1] // hide
             },
@@ -344,9 +358,13 @@ export function Chart() {
               return `${value.toLocaleString('en-US', { maximumFractionDigits: 1, minimumFractionDigits: 0 })} Vocabulary`
             },
             footer(context) {
-              const { dataIndex } = context[0]
-              const bar = groupedRows[dataIndex]
-              return bar.tooltipFooter
+              if (context[0]) {
+                const { dataIndex } = context[0]
+                const bar = groupedRows[dataIndex]
+                if (bar) {
+                  return bar.tooltipFooter
+                }
+              }
             },
           },
         },
@@ -373,9 +391,13 @@ export function Chart() {
         tooltip: {
           callbacks: {
             footer(context) {
-              const { dataIndex } = context[0]
-              const bar = groupedRows[dataIndex]
-              return bar.tooltipFooter
+              if (context[0]) {
+                const { dataIndex } = context[0]
+                const bar = groupedRows[dataIndex]
+                if (bar) {
+                  return bar.tooltipFooter
+                }
+              }
             },
           },
         },

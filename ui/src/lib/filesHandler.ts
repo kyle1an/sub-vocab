@@ -38,7 +38,6 @@ async function getDocumentText(pdf: PDFDocumentProxy) {
   const pdfTexts: string [] = []
 
   for (let i = 1; i < pdf.numPages; i++) {
-    /* eslint-disable no-await-in-loop */
     await pdf.getPage(i)
       .then(async (page) => {
         await page.getTextContent()
@@ -143,7 +142,13 @@ export async function getFileContent(fileList: FileList) {
 
   const files = await Promise.all(promises)
   const combinedContent = files.reduce((pre, { text }) => pre + text, '')
-  const combinedName = files.length === 1 ? files[0].name : `${files.length} files selected`
+  let combinedName = `${files.length} files selected`
+  if (files.length === 1) {
+    const file = files[0]
+    if (file) {
+      combinedName = file.name
+    }
+  }
   return {
     value: combinedContent,
     name: combinedName,
@@ -178,7 +183,10 @@ export function readEntryFiles(entryFiles: EntryFiles, level = 0) {
       const result = readEntryFiles(entry, level + 1)
       content += result.content
       foldersCount += result.title.split(', ')[0] === '0 folders' ? 0 : 1
-      filesCount += Number(result.title.split(', ')[1].split(' ')[0])
+      const titles = result.title.split(', ')
+      if (titles[1]) {
+        filesCount += Number(titles[1].split(' ')[0])
+      }
     } else {
       content += entry.text
       filesCount += 1

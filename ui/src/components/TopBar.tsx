@@ -7,15 +7,13 @@ import {
 import { useCookie, useLockBodyScroll } from 'react-use'
 import { Disclosure } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
-import { useDarkMode, useOnClickOutside } from 'usehooks-ts'
+import { useOnClickOutside } from 'usehooks-ts'
 import { useSize } from 'ahooks'
-import { atom, useAtom } from 'jotai'
-import { atomWithStorage } from 'jotai/utils'
-import { atomEffect } from 'jotai-effect'
+import { useAtom } from 'jotai'
 import { Icon } from '@/components/ui/icon'
 import { Separator } from '@/components/ui/separator.tsx'
 import { cn } from '@/lib/utils.ts'
-import { useVocabStore } from '@/store/useVocab'
+import { DEFAULT_THEME, THEMES, themeAtom, useVocabStore } from '@/store/useVocab'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,7 +32,7 @@ import {
   MenubarRadioItem,
   MenubarTrigger,
 } from '@/components/ui/menubar'
-import { lng } from '@/i18n'
+import { getLanguage } from '@/i18n'
 
 const locales = [
   {
@@ -47,51 +45,6 @@ const locales = [
   },
 ] as const
 
-const defaultTheme = {
-  value: 'auto',
-  label: 'Auto',
-  icon: 'gg:dark-mode',
-} as const
-
-const themes = [
-  {
-    value: 'light',
-    label: 'Light',
-    icon: 'ph:sun',
-  },
-  {
-    value: 'dark',
-    label: 'Dark',
-    icon: 'akar-icons:moon-fill',
-  },
-  defaultTheme,
-] as const
-
-const themeAtom = atomWithStorage<typeof themes[number]['value']>('theme', defaultTheme.value)
-const systemIsDarkModeAtom = atom(window.matchMedia('(prefers-color-scheme: dark)').matches)
-const switchThemeEffectAtom = atomEffect((get, set) => {
-  let isDark: boolean
-  const themePreference = get(themeAtom)
-  if (themePreference === 'auto') {
-    const systemIsDark = get(systemIsDarkModeAtom)
-    isDark = systemIsDark
-  } else {
-    isDark = themePreference === 'dark'
-  }
-  let themeColorContentValue: string
-  if (isDark) {
-    document.documentElement.classList.add('dark')
-    themeColorContentValue = 'black'
-  } else {
-    document.documentElement.classList.remove('dark')
-    themeColorContentValue = 'white'
-  }
-  const themeColorMeta = document.querySelector('meta[name="theme-color"]')
-  if (themeColorMeta) {
-    themeColorMeta.setAttribute('content', themeColorContentValue)
-  }
-})
-
 function useExclusiveDisclosure<T extends HTMLElement>() {
   const ref = useRef<T>(null)
   const [open, setOpen] = useState(false)
@@ -103,6 +56,7 @@ function useExclusiveDisclosure<T extends HTMLElement>() {
     }
   }
 
+  // @ts-ignore
   useOnClickOutside(ref, onClickOutside, 'mouseup')
 
   return {
@@ -199,15 +153,6 @@ const SignOut = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) 
 }
 
 export function TopBar({ className }: { className?: string }) {
-  useAtom(switchThemeEffectAtom)
-  const { isDarkMode } = useDarkMode()
-  const [systemIsDarkMode, setSystemIsDarkMode] = useAtom(systemIsDarkModeAtom)
-
-  useEffect(() => {
-    if (isDarkMode !== systemIsDarkMode) {
-      setSystemIsDarkMode(isDarkMode)
-    }
-  }, [isDarkMode, setSystemIsDarkMode, systemIsDarkMode])
   const { t, i18n } = useTranslation()
   const username = useVocabStore((state) => state.username)
   const user = {
@@ -250,7 +195,7 @@ export function TopBar({ className }: { className?: string }) {
   ] as const
 
   const [locale, updateLocale] = useCookie('_locale')
-  const [value, setValue] = useState(locale || lng)
+  const [value, setValue] = useState(locale || getLanguage())
   const [themePreference, setThemePreference] = useAtom(themeAtom)
 
   useEffect(() => {
@@ -333,11 +278,11 @@ export function TopBar({ className }: { className?: string }) {
                   </div>
                   <div className="flex items-center gap-2">
                     <Menubar className="h-auto border-0 p-0 shadow-none">
-                      <MenubarMenu >
+                      <MenubarMenu>
                         <MenubarTrigger className="px-2.5 py-1">
                           <div className="flex h-full items-center">
                             <Icon
-                              icon={themes.find((theme) => theme.value === themePreference)?.icon ?? defaultTheme.icon}
+                              icon={THEMES.find((theme) => theme.value === themePreference)?.icon ?? DEFAULT_THEME.icon}
                               width={16}
                               height={16}
                               className="h-full text-neutral-500 dark:text-neutral-400"
@@ -350,7 +295,7 @@ export function TopBar({ className }: { className?: string }) {
                           sideOffset={3}
                         >
                           <MenubarRadioGroup value={themePreference}>
-                            {themes.map((theme) => (
+                            {THEMES.map((theme) => (
                               <MenubarRadioItem
                                 key={theme.value}
                                 value={theme.value}
@@ -367,7 +312,7 @@ export function TopBar({ className }: { className?: string }) {
                     </Menubar>
 
                     <Menubar className="h-auto border-0 p-0 shadow-none">
-                      <MenubarMenu >
+                      <MenubarMenu>
                         <MenubarTrigger className="px-2.5 py-1">
                           <div className="flex h-full items-center">
                             <Icon

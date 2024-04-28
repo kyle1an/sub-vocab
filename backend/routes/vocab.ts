@@ -43,19 +43,25 @@ async function getStemsMapping(key = 'mappings') {
 
 router.post('/stemsMapping', async (req: Request<ParamsDictionary, StemsMapping>, res) => {
   const derivation = await getStemsMapping()
-  res.json(derivation)
+  if (derivation) {
+    res.json(derivation)
+  }
 })
 
 router.post('/acquaintWords', tokenChecker, async (req: Request<ParamsDictionary, AcquaintWordsResponse, UserVocab>, res) => {
   const { words, username } = req.body
   const acquaintWordsResult = await acquaintWords(words, username)
-  res.json(acquaintWordsResult)
+  if (acquaintWordsResult) {
+    res.json(acquaintWordsResult)
+  }
 })
 
 router.post('/revokeWord', tokenChecker, async (req: Request<ParamsDictionary, ToggleWordResponse, UserVocab>, res) => {
   const { words, username } = req.body
   const revokeWordsResult = await revokeWords(words, username)
-  res.json(revokeWordsResult)
+  if (revokeWordsResult) {
+    res.json(revokeWordsResult)
+  }
 })
 
 export default router

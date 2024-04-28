@@ -1,4 +1,4 @@
-import i18n from 'i18next'
+import i18n, { use } from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import Cookies from 'js-cookie'
 import { en } from './en'
@@ -9,10 +9,20 @@ import { zh } from './zh'
  */
 export type TI = any
 
-export const lng = Cookies.get('_locale') || (navigator.languages[0].startsWith('zh') ? 'zh' : 'en')
+export function getLanguage() {
+  const cookieLang = Cookies.get('_locale')
+  if (cookieLang) {
+    return cookieLang
+  }
+  if (navigator.languages[0]) {
+    if (navigator.languages[0].startsWith('zh')) {
+      return 'zh'
+    }
+  }
+  return 'en'
+}
 
-i18n
-  .use(initReactI18next)
+use(initReactI18next)
   .init({
     resources: {
       en: {
@@ -22,7 +32,7 @@ i18n
         translation: zh,
       },
     },
-    lng,
+    lng: getLanguage(),
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false, // react already safes from xss => https://www.i18next.com/translation-function/interpolation#unescape

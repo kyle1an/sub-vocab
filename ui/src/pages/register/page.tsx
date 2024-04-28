@@ -173,7 +173,7 @@ export function SignUp() {
                         </FormItem>
                       )}
                     />
-                    <FormMessage>{errors.root?.serverError.message}</FormMessage>
+                    <FormMessage>{errors.root?.serverError?.message}</FormMessage>
                     <Button
                       className="mt-8 gap-1.5"
                       type="submit"

@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 import http from 'http'
-import Debug from 'debug';
+import Debug from 'debug'
 import app from '../app'
 
 const debug = Debug('subvocab-server:server')
@@ -24,7 +24,7 @@ const server = http.createServer(app)
  * Listen on provided port, on all network interfaces.
  */
 server.listen(port)
-console.log(`Listening on port ${port}`);
+console.log(`Listening on port ${port}`)
 server.on('error', onError)
 server.on('listening', onListening)
 
@@ -81,6 +81,6 @@ function onListening() {
   const addr = server.address()
   const bind = typeof addr === 'string'
     ? 'pipe ' + addr
-    : 'port ' + addr.port
+    : 'port ' + addr?.port
   debug('Listening on ' + bind)
 }

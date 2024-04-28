@@ -1,6 +1,6 @@
 import { sortByChar } from '@/lib/utils.ts'
-import LabeledTire, {
-  LEARNING_PHASE, type LearningPhase, type TrieWordLabel, type VocabState, type WordLocator,
+import {
+  LEARNING_PHASE, LabeledTire, type LearningPhase, type TrieWordLabel, type VocabState, type WordLocator,
 } from '@/lib/LabeledTire.ts'
 
 export type LabelDisplayTable = VocabState & InertialPhase
@@ -23,9 +23,9 @@ function formVocab($: TrieWordLabel) {
   if ($.derive?.length) {
     ;(function collectNestedSource(derives: TrieWordLabel[]) {
       for (const d$ of derives) {
-        if (d$.src.length) {
+        if (d$.src[0]) {
           wFamily.push(d$.path)
-          if (src.length) {
+          if (src[0]) {
             src = d$.src[0].wordOrder < src[0].wordOrder ? d$.src.concat(src) : src.concat(d$.src)
           } else {
             src = d$.src
@@ -65,10 +65,9 @@ function logVocabInfo<T extends VocabState>(listOfVocab: T[]) {
 
 export const generatedVocabTrie = (inputText: string, baseVocab: VocabState[], irregularMaps: string[][]) => {
   const trie = new LabeledTire()
-  trie
-    .add(inputText)
-    .mergedVocabulary(baseVocab)
-    .mergeDerivedWordIntoStem(irregularMaps)
+  trie.add(inputText)
+  trie.mergedVocabulary(baseVocab)
+  trie.mergeDerivedWordIntoStem(irregularMaps)
   const list = trie.vocabulary.filter(Boolean).filter((v) => !v.variant).map(formVocab)
 
   if (import.meta.env.DEV) {

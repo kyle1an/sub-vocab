@@ -1,6 +1,6 @@
 import type { ValueOf } from 'type-fest'
 
-export type RegisterResponse = [{ result: number} ]
+export type RegisterResponse = [{ result: number }]
 
 export interface UsernameTaken {
   has: boolean
