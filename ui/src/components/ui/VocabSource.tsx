@@ -1,10 +1,9 @@
 import {
-  Fragment, useCallback, useMemo, useState,
+  Fragment, useCallback, useMemo,
 } from 'react'
 import {
-  type ExpandedState,
-  type SortingState,
   type Table,
+  type TableState,
   createColumnHelper,
   flexRender,
   getCoreRowModel,
@@ -15,12 +14,17 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { uniq } from 'lodash-es'
-import usePagination, { type UsePaginationItem } from '@mui/material/usePagination'
-import { Trans, useTranslation } from 'react-i18next'
+import usePagination from '@mui/material/usePagination'
+import { useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
 import { toast } from 'sonner'
 import { atom, useAtom } from 'jotai'
+import type { PartialDeep } from 'type-fest'
+import { useUnmount } from 'usehooks-ts'
+import { Pagination } from './pagination'
 import { SearchWidget } from './search-widget'
+import { VocabStatics } from './vocab-statics-bar'
+import { AcquaintAllDialog } from './acquaint-all-dialog'
 import { Icon } from '@/components/ui/icon'
 import { Examples } from '@/components/ui/Examples.tsx'
 import { SegmentedControl } from '@/components/ui/SegmentedControl.tsx'
@@ -46,22 +50,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
+import { LEARNING_PHASE, type LearningPhase } from '@/lib/LabeledTire'
 import type { LabelDisplaySource } from '@/lib/vocab'
 import { useAcquaintWordsMutation, useRevokeWordMutation } from '@/api/vocab-api'
 import { useVocabStore } from '@/store/useVocab'
-import type { TI } from '@/i18n'
 import { LoginToast } from '@/components/login-toast'
 import { sortIcon } from '@/lib/icon-utils'
 import type { GroupHeader } from '@/types/vocab'
@@ -91,6 +83,36 @@ type ColumnFilterFn = (rowValue: LabelDisplaySource) => boolean
 
 const useRegexAtom = atom(false)
 const searchValueAtom = atom('')
+const tableStateAtom = atom<Partial<TableState>>({})
+
+function useSegments() {
+  const { t } = useTranslation()
+  return [
+    { value: 'all', label: t('all') },
+    { value: 'new', label: t('new') },
+    { value: 'acquainted', label: t('acquainted') },
+  ] as const
+}
+
+type Segment = ReturnType<typeof useSegments>[number]['value']
+const SEGMENT_NAME = 'source-table-segment'
+
+function getAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
+  let filteredValue: LearningPhase[] = []
+  if (filterSegment === 'new') {
+    filteredValue = [LEARNING_PHASE.NEW, LEARNING_PHASE.RETAINING]
+  } else if (filterSegment === 'acquainted') {
+    filteredValue = [LEARNING_PHASE.ACQUAINTED, LEARNING_PHASE.FADING]
+  } else {
+    return () => true
+  }
+
+  return (row) => {
+    return filteredValue.includes(row.inertialPhase)
+  }
+}
+
+const pages = [10, 20, 40, 50, 100, 200, 1000]
 
 export function VocabSourceTable({
   data,
@@ -110,6 +132,7 @@ export function VocabSourceTable({
   const username = useVocabStore((state) => state.username)
   const [searchValue, setSearchValue] = useAtom(searchValueAtom)
   const [useRegex, setUseRegex] = useAtom(useRegexAtom)
+  const [tableState, setTableState] = useAtom(tableStateAtom)
 
   const handleVocabToggle = useCallback(function handleVocabToggle(vocab: TProp) {
     if (!username) {
@@ -396,40 +419,27 @@ export function VocabSourceTable({
     ]
   }, [handleVocabToggle, t])
 
-  const segments = [
-    { value: 'all', label: t('all') },
-    { value: 'new', label: t('new') },
-    { value: 'acquainted', label: t('acquainted') },
-  ] as const
-  type Segment = typeof segments[number]['value']
-
-  const [expanded, setExpanded] = useState<ExpandedState>({})
-  const [sorting, setSorting] = useState<SortingState>([])
-  const SEGMENT_NAME = 'source-table-segment'
+  const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'all')
 
-  const pageSize = 100
+  const pagination = tableState.pagination ?? {
+    pageSize: 100,
+    pageIndex: 0,
+  }
   const table = useReactTable({
     data,
     columns,
-    state: {
-      expanded,
-      sorting,
-    },
     initialState: {
-      pagination: {
-        pageSize,
-      },
+      pagination,
       columnFilters: [
         {
           id: 'acquaintedStatus',
           value: getAcquaintedStatusFilter(segment),
         },
       ],
+      ...tableState,
     },
     autoResetPageIndex: false,
-    onExpandedChange: setExpanded,
-    onSortingChange: setSorting,
     getRowCanExpand: (row) => sentences.length > 0 && row.original.locations.length > 0,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -443,21 +453,6 @@ export function VocabSourceTable({
     onPurge()
     setSegment(newSegment)
     table.getColumn('acquaintedStatus')?.setFilterValue(() => getAcquaintedStatusFilter(newSegment))
-  }
-
-  function getAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
-    let filteredValue: LearningPhase[] = []
-    if (filterSegment === 'new') {
-      filteredValue = [LEARNING_PHASE.NEW, LEARNING_PHASE.RETAINING]
-    } else if (filterSegment === 'acquainted') {
-      filteredValue = [LEARNING_PHASE.ACQUAINTED, LEARNING_PHASE.FADING]
-    } else {
-      return () => true
-    }
-
-    return (row) => {
-      return filteredValue.includes(row.inertialPhase)
-    }
   }
 
   const columnWord = table.getColumn('word')
@@ -493,11 +488,21 @@ export function VocabSourceTable({
   })
 
   const rowsFiltered = table.getFilteredRowModel().rows
-  const rowsCountAcquainted = rowsFiltered.filter((row) => row.original.learningPhase === LEARNING_PHASE.ACQUAINTED).length
-  const rowsCountNew = rowsFiltered.filter((row) => row.original.learningPhase === LEARNING_PHASE.NEW).length
+  const rowsAcquainted = rowsFiltered.filter((row) => {
+    return row.original.learningPhase === LEARNING_PHASE.ACQUAINTED
+  })
+  const rowsNew = rowsFiltered.filter((row) => {
+    return row.original.learningPhase === LEARNING_PHASE.NEW
+  })
+  const rowsToRetain = rowsNew.filter((row) => {
+    return row.original.word.length <= 32
+  }).map((row) => row.original)
 
-  const pages = [10, 20, 40, 50, 100, 200, 1000]
   const itemsNum = uniq([table.getPaginationRowModel().rows.length, rowsFiltered.length]).filter(Boolean).filter((n) => !pages.includes(n))
+
+  useUnmount(() => {
+    setTableState(table.getState())
+  })
 
   return (
     <div className={cn('flex h-full flex-col items-center overflow-hidden bg-white shadow-sm will-change-transform dark:bg-slate-900', className)}>
@@ -530,7 +535,7 @@ export function VocabSourceTable({
                 className="p-0"
               >
                 <AcquaintAllDialog
-                  vocabulary={rowsFiltered.map((row) => row.original).filter((row) => row.learningPhase === LEARNING_PHASE.NEW && row.word.length <= 32)}
+                  vocabulary={rowsToRetain}
                 />
               </DropdownMenuItem>
             </DropdownMenuGroup>
@@ -618,7 +623,7 @@ export function VocabSourceTable({
         <div className="flex grow items-center justify-end">
           <div className="flex items-center text-neutral-600">
             <Select
-              defaultValue={String(pageSize)}
+              defaultValue={String(pagination.pageSize)}
               onValueChange={(e) => {
                 table.setPageSize(Number(e))
               }}
@@ -665,229 +670,10 @@ export function VocabSourceTable({
       <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-neutral-50 dark:border-slate-800 dark:bg-slate-900">
         <VocabStatics
           rowsCountFiltered={rowsFiltered.length}
-          rowsCountNew={rowsCountNew}
-          rowsCountAcquainted={rowsCountAcquainted}
+          rowsCountNew={rowsNew.length}
+          rowsCountAcquainted={rowsAcquainted.length}
         />
       </div>
     </div>
-  )
-}
-
-export function Pagination<T>({
-  items,
-  table,
-}: {
-  items: UsePaginationItem[]
-  table: Table<T>
-}) {
-  return (
-    <div className="flex">
-      {items.map(({
-        page, type, selected, ...item
-      }) => {
-        const size = 16
-        const className = 'flex items-center min-w-[1.625rem] justify-center rounded dark:text-slate-300 dark:disabled:text-zinc-700 border border-transparent text-xs tabular-nums disabled:text-zinc-300'
-        const key = `${type}${page}`
-
-        if (type === 'previous') {
-          return (
-            <button
-              type="button"
-              aria-label="Previous page"
-              className={cn(className, 'px-0 text-zinc-500')}
-              disabled={!table.getCanPreviousPage()}
-              onClick={table.previousPage}
-              key={key}
-            >
-              <Icon
-                icon="lucide:chevron-left"
-                width={size}
-              />
-            </button>
-          )
-        }
-
-        if (type === 'start-ellipsis') {
-          return (
-            <button
-              className={cn('group', className)}
-              aria-label="Start ellipsis"
-              type="button"
-              onClick={() => {
-                table.setPageIndex(Math.max(0, table.getState().pagination.pageIndex - 2))
-              }}
-              key={key}
-            >
-              <Icon
-                icon="lucide:chevrons-left"
-                className="hidden text-zinc-500 group-hover:inline-block"
-                width={size}
-              />
-              <Icon
-                icon="prime:ellipsis-h"
-                className="text-zinc-600 group-hover:hidden"
-                width={size}
-              />
-            </button>
-          )
-        }
-
-        if (type === 'first' || type === 'page' || type === 'last') {
-          return (
-            <button
-              className={cn(className, selected && 'border-border font-bold')}
-              type="button"
-              onClick={() => {
-                table.setPageIndex(Number(page) - 1)
-              }}
-              key={key}
-            >
-              {page}
-            </button>
-          )
-        }
-
-        if (type === 'end-ellipsis') {
-          return (
-            <button
-              className={cn('group', className)}
-              type="button"
-              aria-label="End ellipsis"
-              onClick={() => {
-                table.setPageIndex(Math.min(table.getState().pagination.pageIndex + 2, table.getPageCount() - 1))
-              }}
-              key={key}
-            >
-              <Icon
-                icon="lucide:chevrons-right"
-                className="hidden text-zinc-500 group-hover:inline-block"
-                width={size}
-              />
-              <Icon
-                icon="prime:ellipsis-h"
-                className="text-zinc-600 group-hover:hidden"
-                width={size}
-              />
-            </button>
-          )
-        }
-
-        if (type === 'next') {
-          return (
-            <button
-              className={cn('text-zinc-500', className)}
-              type="button"
-              aria-label="Next page"
-              disabled={!table.getCanNextPage()}
-              onClick={table.nextPage}
-              key={key}
-            >
-              <Icon
-                icon="lucide:chevron-right"
-                width={size}
-              />
-            </button>
-          )
-        }
-
-        return null
-      })}
-    </div>
-  )
-}
-
-export function VocabStatics(props: { rowsCountFiltered: number, rowsCountNew: number, rowsCountAcquainted: number }) {
-  const { t } = useTranslation()
-  return (
-    <div className="flex items-center py-1.5 text-xs tabular-nums text-neutral-600 dark:text-neutral-400">
-      <span>
-        {`${props.rowsCountFiltered.toLocaleString('en-US')} ${t('vocabulary')}`}
-      </span>
-      <div className="flex items-center gap-0.5">
-        {props.rowsCountNew > 0 ? (
-          <div className="flex items-center gap-2.5">
-            <span className="text-neutral-400">, </span>
-            <div className="flex items-center gap-1">
-              <span>
-                {props.rowsCountNew.toLocaleString('en-US')}
-              </span>
-              <Icon
-                icon="lucide:circle"
-                width={14}
-                className="text-neutral-400"
-              />
-            </div>
-          </div>
-        ) : null}
-        {props.rowsCountAcquainted > 0 ? (
-          <div className="flex items-center gap-2.5">
-            <span className="text-neutral-400">, </span>
-            <div className="flex items-center gap-1">
-              <span>
-                {props.rowsCountAcquainted.toLocaleString('en-US')}
-              </span>
-              <Icon
-                icon="lucide:check-circle"
-                width={14}
-                className="text-neutral-400"
-              />
-            </div>
-          </div>
-        ) : null}
-      </div>
-    </div>
-  )
-}
-
-export function AcquaintAllDialog<T extends VocabState>({ vocabulary }: { vocabulary: T[] }) {
-  const { t } = useTranslation()
-  const { mutateAsync: mutateAcquaintWordsAsync } = useAcquaintWordsMutation()
-  const username = useVocabStore((state) => state.username)
-  function acquaintAllVocab(rows: T[]) {
-    if (!username) {
-      toast(<LoginToast />)
-      return
-    }
-
-    mutateAcquaintWordsAsync(rows)
-      .catch(console.error)
-  }
-
-  return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <div className="flex w-full flex-row items-center gap-1.5 px-2 py-1.5">
-          <Icon icon="solar:list-check-bold" />
-          <div className="">{t('acquaintedAll')}</div>
-        </div>
-      </AlertDialogTrigger>
-      <AlertDialogContent className="sm:max-w-[425px]">
-        <AlertDialogHeader>
-          <AlertDialogTitle>{t('acquaintedAll')}</AlertDialogTitle>
-          <AlertDialogDescription>
-            <Trans
-              i18nKey="acquaintedAllConfirmText"
-              count={vocabulary.length}
-            >
-              Are you sure to mark all (
-              <span className="font-bold text-black">{{ count: vocabulary.length } as TI}</span>
-              ) vocabulary as acquainted?
-            </Trans>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter className="">
-          <AlertDialogCancel>{t('Cancel')}</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => {
-              if (vocabulary.length > 0) {
-                acquaintAllVocab(vocabulary)
-              }
-            }}
-          >
-            {t('Continue')}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
   )
 }

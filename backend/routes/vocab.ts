@@ -1,5 +1,5 @@
 import express from 'express'
-import type { ParamsDictionary, Request } from 'express-serve-static-core'
+import type { ParamsDictionary, Request, Response } from 'express-serve-static-core'
 import { LRUCache } from 'lru-cache'
 import { tokenChecker, tokenInvalid } from '../utils/util'
 import type { AcquaintWordsResponse, LabelDB, StemsMapping, ToggleWordResponse } from '../../ui/src/types/shared'
@@ -14,10 +14,17 @@ router.get('/', (req, res, next) => {
   res.send('respond with a resource')
 })
 
-router.post('/queryWords', async (req: Request<ParamsDictionary, LabelDB[], Username>, res) => {
-  const user = await tokenInvalid(req, res) ? '' : req.body.username
-  const words = await getUserWords(user)
-  res.json(words)
+router.post('/queryWords', (req: Request<ParamsDictionary, {}, Username>, res: Response<LabelDB[]>) => {
+  tokenInvalid(req, res)
+    .then(async (isInvalid) => {
+      let user = req.body.username
+      if (isInvalid) {
+        user = ''
+      }
+      const words = await getUserWords(user)
+      res.json(words)
+    })
+    .catch(console.error)
 })
 
 const cache = new LRUCache({
@@ -41,27 +48,36 @@ async function getStemsMapping(key = 'mappings') {
   return cache.get(key)
 }
 
-router.post('/stemsMapping', async (req: Request<ParamsDictionary, StemsMapping>, res) => {
-  const derivation = await getStemsMapping()
-  if (derivation) {
-    res.json(derivation)
-  }
+router.post('/stemsMapping', (req: Request<ParamsDictionary, StemsMapping>, res) => {
+  getStemsMapping()
+    .then((derivation) => {
+      if (derivation) {
+        res.json(derivation)
+      }
+    })
+    .catch(console.error)
 })
 
-router.post('/acquaintWords', tokenChecker, async (req: Request<ParamsDictionary, AcquaintWordsResponse, UserVocab>, res) => {
+router.post('/acquaintWords', tokenChecker, (req: Request<ParamsDictionary, {}, UserVocab>, res: Response<AcquaintWordsResponse>) => {
   const { words, username } = req.body
-  const acquaintWordsResult = await acquaintWords(words, username)
-  if (acquaintWordsResult) {
-    res.json(acquaintWordsResult)
-  }
+  acquaintWords(words, username)
+    .then((acquaintWordsResult) => {
+      if (acquaintWordsResult) {
+        res.json(acquaintWordsResult)
+      }
+    })
+    .catch(console.error)
 })
 
-router.post('/revokeWord', tokenChecker, async (req: Request<ParamsDictionary, ToggleWordResponse, UserVocab>, res) => {
+router.post('/revokeWord', tokenChecker, (req: Request<ParamsDictionary, {}, UserVocab>, res: Response<ToggleWordResponse>) => {
   const { words, username } = req.body
-  const revokeWordsResult = await revokeWords(words, username)
-  if (revokeWordsResult) {
-    res.json(revokeWordsResult)
-  }
+  revokeWords(words, username)
+    .then((revokeWordsResult) => {
+      if (revokeWordsResult) {
+        res.json(revokeWordsResult)
+      }
+    })
+    .catch(console.error)
 })
 
 export default router
