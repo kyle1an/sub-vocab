@@ -1,10 +1,9 @@
 import {
-  Fragment, useCallback, useMemo, useState,
+  Fragment, useCallback, useMemo,
 } from 'react'
 import {
-  type ExpandedState,
-  type SortingState,
   type Table,
+  type TableState,
   createColumnHelper,
   flexRender,
   getCoreRowModel,
@@ -21,11 +20,12 @@ import { useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
 import { toast } from 'sonner'
 import { atom, useAtom } from 'jotai'
-import {
-  AcquaintAllDialog, Pagination, VocabStatics,
-} from './VocabSource'
+import type { PartialDeep } from 'type-fest'
+import { useUnmount } from 'usehooks-ts'
+import { Pagination } from './pagination'
 import { SearchWidget } from './search-widget'
-import { sortIcon } from '@/lib/icon-utils'
+import { VocabStatics } from './vocab-statics-bar'
+import { AcquaintAllDialog } from './acquaint-all-dialog'
 import { Icon } from '@/components/ui/icon'
 import { SegmentedControl } from '@/components/ui/SegmentedControl.tsx'
 import { VocabToggle } from '@/components/ui/ToggleButton.tsx'
@@ -55,6 +55,7 @@ import type { LabelDisplayTable } from '@/lib/vocab'
 import { useAcquaintWordsMutation, useRevokeWordMutation } from '@/api/vocab-api'
 import { useVocabStore } from '@/store/useVocab'
 import { LoginToast } from '@/components/login-toast'
+import { sortIcon } from '@/lib/icon-utils'
 import type { GroupHeader } from '@/types/vocab'
 import { tryGetRegex } from '@/lib/regex'
 
@@ -65,9 +66,7 @@ function TableHeader<T extends Table<any>>({ header }: { header: GroupHeader<T> 
     header.isPlaceholder ? (
       <th
         colSpan={header.colSpan}
-        className={cn(
-          'border-y border-solid border-y-zinc-200 p-0 text-sm font-normal',
-        )}
+        className="border-y border-solid border-y-zinc-200 p-0 text-sm font-normal"
       />
     ) : (
       <>
@@ -84,6 +83,52 @@ type ColumnFilterFn = (rowValue: LabelDisplayTable) => boolean
 
 const useRegexAtom = atom(false)
 const searchValueAtom = atom('')
+const tableStateAtom = atom<Partial<TableState>>({})
+
+function useSegments() {
+  const { t } = useTranslation()
+  return [
+    { value: 'new', label: t('recent') },
+    { value: 'allAcquainted', label: t('all') },
+    { value: 'mine', label: t('mine') },
+    { value: 'top', label: t('top') },
+  ] as const
+}
+
+type Segment = ReturnType<typeof useSegments>[number]['value']
+const SEGMENT_NAME = 'data-table-segment'
+
+function getAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
+  let filteredValue: LearningPhase[] = []
+  if (filterSegment === 'new') {
+    filteredValue = [LEARNING_PHASE.NEW, LEARNING_PHASE.RETAINING]
+  } else if (filterSegment === 'allAcquainted' || filterSegment === 'mine' || filterSegment === 'top') {
+    filteredValue = [LEARNING_PHASE.ACQUAINTED, LEARNING_PHASE.FADING]
+  } else {
+    return () => true
+  }
+
+  return (row) => {
+    return filteredValue.includes(row.inertialPhase)
+  }
+}
+
+function getUserOwnedFilter(filterSegment: Segment): ColumnFilterFn {
+  let filteredValue: boolean[] = []
+  if (filterSegment === 'top') {
+    filteredValue = [false]
+  } else if (filterSegment === 'mine') {
+    filteredValue = [true]
+  } else {
+    return () => true
+  }
+
+  return (row) => {
+    return filteredValue.includes(row.isUser)
+  }
+}
+
+const pages = [10, 20, 40, 50, 100, 200, 1000]
 
 export function VocabDataTable({
   data,
@@ -101,6 +146,7 @@ export function VocabDataTable({
   const username = useVocabStore((state) => state.username)
   const [searchValue, setSearchValue] = useAtom(searchValueAtom)
   const [useRegex, setUseRegex] = useAtom(useRegexAtom)
+  const [tableState, setTableState] = useAtom(tableStateAtom)
 
   const handleVocabToggle = useCallback(function handleVocabToggle(vocab: TProp) {
     if (!username) {
@@ -189,7 +235,10 @@ export function VocabDataTable({
                 >
                   <span
                     title={t('Word')}
-                    className={cn('grow text-left text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
+                    className={cn(
+                      'grow text-left text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]',
+                      isSorted ? 'font-semibold' : '',
+                    )}
                   >
                     {t('Word')}
                   </span>
@@ -258,13 +307,16 @@ export function VocabDataTable({
             </th>
           )
         },
-        cell: ({ getValue }) => (
-          <div className="float-right mr-2 text-xs tabular-nums text-neutral-700 dark:text-neutral-500">
-            <span>
-              {getValue()}
-            </span>
-          </div>
-        ),
+        cell: ({ getValue }) => {
+          const wordLength = getValue()
+          return (
+            <div className="float-right mr-2 text-xs tabular-nums text-neutral-700 dark:text-neutral-500">
+              <span>
+                {wordLength}
+              </span>
+            </div>
+          )
+        },
         footer: ({ column }) => column.id,
       }),
       columnHelper.accessor((row) => {
@@ -370,44 +422,31 @@ export function VocabDataTable({
             </th>
           )
         },
-        cell: ({ getValue }) => (
-          <div className="float-right w-full text-center text-sm tabular-nums text-neutral-600 stretch-[condensed] dark:text-neutral-500">
-            {getValue()}
-          </div>
-        ),
+        cell: ({ getValue }) => {
+          const rank = getValue()
+          return (
+            <div className="float-right w-full text-center text-sm tabular-nums text-neutral-600 stretch-[condensed] dark:text-neutral-500">
+              {rank}
+            </div>
+          )
+        },
         footer: ({ column }) => column.id,
       }),
     ]
   }, [handleVocabToggle, t])
 
-  const segments = [
-    { value: 'new', label: t('recent') },
-    { value: 'allAcquainted', label: t('all') },
-    { value: 'mine', label: t('mine') },
-    { value: 'top', label: t('top') },
-  ] as const
-  type Segment = typeof segments[number]['value']
-
-  const [expanded, setExpanded] = useState<ExpandedState>({})
-  const [sorting, setSorting] = useState<SortingState>([])
-  const SEGMENT_NAME = 'data-table-segment'
+  const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'allAcquainted')
 
-  const pageSize = 100
+  const pagination = tableState.pagination ?? {
+    pageSize: 100,
+    pageIndex: 0,
+  }
   const table = useReactTable({
     data,
     columns,
-    state: {
-      expanded,
-      sorting,
-      columnVisibility: {
-        userOwned: false,
-      },
-    },
     initialState: {
-      pagination: {
-        pageSize,
-      },
+      pagination,
       columnFilters: [
         {
           id: 'acquaintedStatus',
@@ -418,10 +457,12 @@ export function VocabDataTable({
           value: getUserOwnedFilter(segment),
         },
       ],
+      columnVisibility: {
+        userOwned: false,
+      },
+      ...tableState,
     },
     autoResetPageIndex: false,
-    onExpandedChange: setExpanded,
-    onSortingChange: setSorting,
     getRowCanExpand: () => false,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -436,36 +477,6 @@ export function VocabDataTable({
     setSegment(newSegment)
     table.getColumn('acquaintedStatus')?.setFilterValue(() => getAcquaintedStatusFilter(newSegment))
     table.getColumn('userOwned')?.setFilterValue(() => getUserOwnedFilter(newSegment))
-  }
-
-  function getAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
-    let filteredValue: LearningPhase[] = []
-    if (filterSegment === 'new') {
-      filteredValue = [LEARNING_PHASE.NEW, LEARNING_PHASE.RETAINING]
-    } else if (filterSegment === 'allAcquainted' || filterSegment === 'mine' || filterSegment === 'top') {
-      filteredValue = [LEARNING_PHASE.ACQUAINTED, LEARNING_PHASE.FADING]
-    } else {
-      return () => true
-    }
-
-    return (row) => {
-      return filteredValue.includes(row.inertialPhase)
-    }
-  }
-
-  function getUserOwnedFilter(filterSegment: Segment): ColumnFilterFn {
-    let filteredValue: boolean[] = []
-    if (filterSegment === 'top') {
-      filteredValue = [false]
-    } else if (filterSegment === 'mine') {
-      filteredValue = [true]
-    } else {
-      return () => true
-    }
-
-    return (row) => {
-      return filteredValue.includes(row.isUser)
-    }
   }
 
   const columnWord = table.getColumn('word')
@@ -501,11 +512,21 @@ export function VocabDataTable({
   })
 
   const rowsFiltered = table.getFilteredRowModel().rows
-  const rowsCountAcquainted = rowsFiltered.filter((row) => row.original.learningPhase === LEARNING_PHASE.ACQUAINTED).length
-  const rowsCountNew = rowsFiltered.filter((row) => row.original.learningPhase === LEARNING_PHASE.NEW).length
+  const rowsAcquainted = rowsFiltered.filter((row) => {
+    return row.original.learningPhase === LEARNING_PHASE.ACQUAINTED
+  })
+  const rowsNew = rowsFiltered.filter((row) => {
+    return row.original.learningPhase === LEARNING_PHASE.NEW
+  })
+  const rowsToRetain = rowsNew.filter((row) => {
+    return row.original.word.length <= 32
+  }).map((row) => row.original)
 
-  const pages = [10, 20, 40, 50, 100, 200, 1000]
   const itemsNum = uniq([table.getPaginationRowModel().rows.length, rowsFiltered.length]).filter(Boolean).filter((n) => !pages.includes(n))
+
+  useUnmount(() => {
+    setTableState(table.getState())
+  })
 
   return (
     <div className={cn('flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-sm will-change-transform dark:bg-slate-900 md:grow', className)}>
@@ -538,7 +559,7 @@ export function VocabDataTable({
                 className="p-0"
               >
                 <AcquaintAllDialog
-                  vocabulary={rowsFiltered.map((row) => row.original).filter((row) => row.learningPhase === LEARNING_PHASE.NEW && row.word.length <= 32)}
+                  vocabulary={rowsToRetain}
                 />
               </DropdownMenuItem>
             </DropdownMenuGroup>
@@ -611,7 +632,7 @@ export function VocabDataTable({
         <div className="flex grow items-center justify-end">
           <div className="flex items-center text-neutral-600">
             <Select
-              defaultValue={String(pageSize)}
+              defaultValue={String(pagination.pageSize)}
               onValueChange={(e) => {
                 table.setPageSize(Number(e))
               }}
@@ -658,8 +679,8 @@ export function VocabDataTable({
       <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-neutral-50 dark:border-slate-800 dark:bg-slate-900">
         <VocabStatics
           rowsCountFiltered={rowsFiltered.length}
-          rowsCountNew={rowsCountNew}
-          rowsCountAcquainted={rowsCountAcquainted}
+          rowsCountNew={rowsNew.length}
+          rowsCountAcquainted={rowsAcquainted.length}
         />
       </div>
     </div>

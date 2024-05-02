@@ -20,6 +20,7 @@ export async function stemsMapping() {
         let wordGroup = map[link.stem_word]
         if (!wordGroup) {
           wordGroup = [link.stem_word]
+          map[link.stem_word] = wordGroup
         }
         wordGroup.push(link.derived_word)
       })
