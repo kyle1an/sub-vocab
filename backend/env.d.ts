@@ -1,5 +1,5 @@
-declare let process: {
-  env: {
+namespace NodeJS {
+  interface ProcessEnv {
     DATABASE: string
     DB_PASSWORD: string
     DB_USER: string

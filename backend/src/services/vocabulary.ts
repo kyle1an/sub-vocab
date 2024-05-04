@@ -1,6 +1,6 @@
 import mysql from 'mysql2'
 import { type RSH, sql } from '../config/connection'
-import type { LabelDB } from '../../ui/src/types/shared'
+import type { LabelDB } from '../types'
 
 interface Stems {
   derived_word: string

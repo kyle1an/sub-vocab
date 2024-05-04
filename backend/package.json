@@ -3,12 +3,17 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www",
+    "dev": "nodemon app",
+    "build": "tsc",
+    "copy-files": "cp -R views dist && cp -R public dist",
+    "start": "npm run build && npm run copy-files && node dist/app.js",
     "lint": "eslint . --ext .js,.ts --report-unused-disable-directives",
     "lint:fix": "npm run lint -- --fix"
   },
   "dependencies": {
-    "@sentry/node": "^7.112.2",
+    "@sentry/node": "^7.113.0",
+    "@types/cookie": "^0.6.0",
+    "cookie": "^0.6.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "date-fns": "^3.6.0",
@@ -19,9 +24,12 @@
     "http-errors": "^2.0.0",
     "lru-cache": "^10.2.2",
     "morgan": "^1.10.0",
-    "mysql2": "^3.9.7"
+    "mysql2": "^3.9.7",
+    "socket.io": "^4.7.5",
+    "type-fest": "^4.18.1"
   },
   "devDependencies": {
+    "@flydotio/dockerfile": "^0.5.7",
     "@stylistic/eslint-plugin": "^1.8.0",
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/cookie-parser": "^1.4.7",

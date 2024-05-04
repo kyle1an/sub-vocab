@@ -1,3 +1,4 @@
+import type { SetOptional } from 'type-fest'
 import { sortByChar } from '@/lib/utils.ts'
 import {
   LEARNING_PHASE, LabeledTire, type LearningPhase, type TrieWordLabel, type VocabState, type WordLocator,
@@ -80,4 +81,20 @@ export const generatedVocabTrie = (inputText: string, baseVocab: VocabState[], i
     count: trie.wordCount,
     sentences: trie.sentences,
   }
+}
+
+function getDefaultVocabState() {
+  return {
+    isUser: true,
+    original: true,
+    timeModified: new Date().toISOString(),
+    rank: null,
+  } satisfies Partial<VocabState>
+}
+
+export function newVocabState(state: SetOptional<VocabState, keyof ReturnType<typeof getDefaultVocabState>>) {
+  return {
+    ...getDefaultVocabState(),
+    ...state,
+  } satisfies VocabState
 }

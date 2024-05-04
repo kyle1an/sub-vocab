@@ -13,6 +13,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { TopBar } from '@/components/TopBar.tsx'
 import { queryClient } from '@/lib/utils'
 import { themeAtom } from '@/store/useVocab'
+import { useSyncWordState } from '@/api/vocab-api'
 
 const ReactQueryDevtoolsProduction = lazy(() => import('@tanstack/react-query-devtools/production').then((d) => ({
   default: d.ReactQueryDevtools,
@@ -46,15 +47,18 @@ const switchThemeEffectAtom = atomEffect((get, set) => {
   }
 })
 
-export function RootLayout() {
+function useQueryDevtools() {
   const [showDevtools, setShowDevtools] = useState(false)
 
   useEffect(() => {
-    // @ts-ignore ReactQueryDevtools is not typed
+    // @ts-ignore
     window.toggleDevtools = () => setShowDevtools((old) => !old)
   }, [])
 
-  useAtom(switchThemeEffectAtom)
+  return showDevtools
+}
+
+function useDarkModeSync() {
   const { isDarkMode } = useDarkMode()
   const [systemIsDarkMode, setSystemIsDarkMode] = useAtom(systemIsDarkModeAtom)
 
@@ -63,6 +67,13 @@ export function RootLayout() {
       setSystemIsDarkMode(isDarkMode)
     }
   }, [isDarkMode, setSystemIsDarkMode, systemIsDarkMode])
+}
+
+export function RootLayout() {
+  const showDevtools = useQueryDevtools()
+  useAtom(switchThemeEffectAtom)
+  useDarkModeSync()
+  useSyncWordState()
 
   return (
     <QueryClientProvider client={queryClient}>
