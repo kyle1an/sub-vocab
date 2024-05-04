@@ -5,10 +5,14 @@ import type { ParamsDictionary, Request, Response } from 'express-serve-static-c
 import { addDays } from 'date-fns'
 import { type RSH, sql } from '../config/connection'
 import { tokenChecker } from '../utils/util'
-import type { LoginResponse, RegisterResponse, Status, UsernameTaken } from '../../ui/src/types/shared'
-import type { Credential, NewCredential, NewUsername, Username } from '../../ui/src/api/user'
+import type { Credential, LoginResponse, NewCredential, NewUsername, RegisterResponse, Status, Username, UsernameTaken } from '../types'
 
 const router = express.Router()
+
+export type CookiesObj = Partial<{
+  _user: string
+  acct: string
+}>
 
 router.post('/login', (req: Request<ParamsDictionary, LoginResponse, Credential>, res) => {
   const token = crypto.randomBytes(32).toString('hex')
@@ -62,10 +66,11 @@ router.post('/changePassword', (req: Request<ParamsDictionary, Status, NewCreden
 
 router.post('/logoutToken', (req: Request<ParamsDictionary, Status, Username>, res) => {
   const { username } = req.body
-  if (!req.cookies.acct) {
+  const { acct } = req.cookies as CookiesObj
+  if (!acct) {
     return res.json({ success: false })
   }
-  sql<mysql.ResultSetHeader>`CALL logout_token(get_user_id_by_name(${username}), ${req.cookies.acct});`
+  sql<mysql.ResultSetHeader>`CALL logout_token(get_user_id_by_name(${username}), ${acct});`
     .then(([rows]) => {
       const rowCount = 'affectedRows' in rows ? rows.affectedRows : 0
       if (rowCount) {

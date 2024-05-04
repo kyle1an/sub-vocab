@@ -1,17 +1,15 @@
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import { type Socket, io } from 'socket.io-client'
+import { useEffect } from 'react'
+import type { ClientToServerEvents, ServerToClientEvents, UserVocab, Username } from '@/shared/api'
 import { postRequest } from '@/lib/request'
 import { queryClient } from '@/lib/utils'
 import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
-import type { Username } from '@/api/user'
 import { useVocabStore } from '@/store/useVocab'
 import type {
   AcquaintWordsResponse, LabelDB, StemsMapping, ToggleWordResponse,
-} from '@/types/shared'
-
-export interface UserVocab extends Username {
-  username: string
-  words: string[]
-}
+} from '@/shared/shared'
+import { newVocabState } from '@/lib/vocab'
 
 async function getVocabulary(username: string) {
   const labelsDB = await postRequest<LabelDB[]>(
@@ -134,4 +132,59 @@ export function useAcquaintWordsMutation() {
       queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => mutatedVocabStates(oldData, variables, LEARNING_PHASE.NEW))
     },
   })
+}
+
+export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io('', {
+  withCredentials: true,
+  retries: 1,
+  autoConnect: false,
+})
+
+export function useSyncWordState() {
+  const username = useVocabStore((state) => state.username)
+  const { queryKey } = getVocabularyOptions({ username })
+
+  useEffect(() => {
+    if (username) {
+      socket.connect()
+
+      return () => {
+        socket.disconnect()
+      }
+    }
+  }, [username])
+
+  useEffect(() => {
+    if (username) {
+      socket.on('acquaintWords', (v) => {
+        const vocab = v.words.map((word): VocabState => {
+          return newVocabState({
+            word,
+            learningPhase: LEARNING_PHASE.ACQUAINTED,
+          })
+        })
+        queryClient.setQueryData(queryKey, (oldData) => mutatedVocabStates(oldData, vocab, LEARNING_PHASE.ACQUAINTED))
+      })
+
+      socket.on('revokeWord', (v) => {
+        const vocab = v.words.map((word): VocabState => {
+          return newVocabState({
+            word,
+            learningPhase: LEARNING_PHASE.NEW,
+          })
+        })
+        queryClient.setQueryData(queryKey, (oldData) => mutatedVocabStates(oldData, vocab, LEARNING_PHASE.NEW))
+      })
+
+      socket.on('connect_error', (err) => {
+        console.error(`connect_error due to ${err.message}`)
+      })
+
+      return () => {
+        socket.off('acquaintWords')
+        socket.off('revokeWord')
+        socket.off('connect_error')
+      }
+    }
+  }, [username, queryKey])
 }

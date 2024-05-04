@@ -1,20 +1,20 @@
-[![Netlify Status](https://api.netlify.com/api/v1/badges/12600135-792f-460f-bdc7-4a03103fa982/deploy-status)](https://app.netlify.com/sites/subvocab/deploys)
+SubVocab transforms your preparation for watching movies or reading books in English. Just input any text, such as subtitles, articles, or books, and SubVocab will efficiently categorize words into familiar and new groups, enhancing both your understanding and enjoyment.
 
-Learn the vocabulary/sentences in English materials before watching/reading them.
+## How It Works
 
-You can enter English material, such as English subtitles or an article, and the program will output all the words in a list that will be divided into two categories: words you already know and words you need to learn.
+1. **Input Your Text**: Add any English material, such as subtitles or articles.
+2. **Discover New Vocabulary**: Get a list of all words, split into known and new categories, ready for you to learn.
+3. **Personalize Your Learning**: Log in to mark the words you know. Your progress updates and syncs in real time across all sessions.
 
-After you log in, you may mark the words you already know by clicking on the checkboxes, or click again to delete the words you don't know. You can find all the words you have marked as acquainted in the *Mine* section.
+## Features
 
-## Quick Features
+- **Rapid Analysis**: Processes up to 100k words in less than 0.2 seconds, ensuring a quick setup.
+- **Smart Merging**: Merges plural nouns and irregular verbs into their base forms, simplifying your learning process.
+- **Synchronized Learning**: Keeps your learning progress synchronized across all sessions.
+- **Vocabulary Tracking**: Manage your vocabulary effectively with batch imports and interactive tracking.
 
-- Merge plural nouns and irregular verbs to stem words
-- 100k words mering and analysis took less than 0.2s (on average PC or Mac)
-- Login to mark or batch import your own vocabulary
-
-### overview
+### Overview
 
 <img width="1452" alt="Screenshot" src="https://github.com/kyle1an/sub-vocab/assets/50689806/18688d15-fa64-4aaa-ac34-0dc03e2864cd">
-
 
 [Visualization of this repo](https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=kyle1an%2FSubVocab)

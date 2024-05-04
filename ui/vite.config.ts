@@ -17,12 +17,20 @@ export default ({ mode }: { mode: string }) => {
     ],
     define: {},
     server: {
+      host: true,
+      strictPort: true,
       proxy: {
         '/api': {
           target: env.VITE_SUB_PROD,
           changeOrigin: true,
           secure: false,
           rewrite: (p) => p.replace(/^\/api/, ''),
+        },
+        '/socket.io': {
+          target: env.VITE_SUB_PROD,
+          changeOrigin: true,
+          secure: false,
+          ws: true,
         },
       },
     },

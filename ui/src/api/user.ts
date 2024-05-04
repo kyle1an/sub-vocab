@@ -2,26 +2,11 @@ import { useMutation } from '@tanstack/react-query'
 import Cookies from 'js-cookie'
 import type {
   LoginResponse, RegisterResponse, Status, UsernameTaken,
-} from '../types/shared.ts'
+} from '../shared/shared.ts'
+import { socket } from './vocab-api'
 import { useVocabStore } from '@/store/useVocab'
 import { postRequest } from '@/lib/request'
-
-export interface Username {
-  username: string
-}
-
-export interface Credential extends Username {
-  password: string
-}
-
-export interface NewUsername extends Username {
-  newUsername: string
-}
-
-export interface NewCredential extends Username {
-  oldPassword: string
-  newPassword: string
-}
+import type { Credential, NewCredential, NewUsername, Username } from '@/shared/api.ts'
 
 export function useRegister() {
   return useMutation({
@@ -65,6 +50,7 @@ export function useLogOut() {
       Cookies.remove('_user', { path: '' })
       Cookies.remove('acct', { path: '' })
       useVocabStore.getState().setUsername('')
+      socket.disconnect()
     },
   })
 }
@@ -85,6 +71,7 @@ export function useSignIn() {
     onSuccess: (resAuth, variables, context) => {
       if (resAuth[0]) {
         useVocabStore.getState().setUsername(variables.username)
+        socket.connect()
       }
     },
   })
