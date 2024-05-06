@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "nodemon app",
-    "build": "tsc",
+    "build": "tsc && npm run copy-files",
     "copy-files": "cp -R views dist && cp -R public dist",
-    "start": "npm run build && npm run copy-files && node dist/app.js",
+    "start": "node dist/app.js",
     "lint": "eslint . --ext .js,.ts --report-unused-disable-directives",
     "lint:fix": "npm run lint -- --fix"
   },
@@ -69,5 +69,5 @@
     ],
     "delay": 1000
   },
-  "packageManager": "pnpm@9.0.6+sha512.f6d863130973207cb7a336d6b439a242a26ac8068077df530d6a86069419853dc1ffe64029ec594a9c505a3a410d19643c870aba6776330f5cfddcf10a9c1617"
+  "packageManager": "pnpm@9.1.0+sha512.67f5879916a9293e5cf059c23853d571beaf4f753c707f40cb22bed5fb1578c6aad3b6c4107ccb3ba0b35be003eb621a16471ac836c87beb53f9d54bb4612724"
 }
