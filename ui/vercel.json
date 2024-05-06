@@ -1,10 +1,6 @@
 {
   "rewrites": [
     {
-      "source": "/api/:match*",
-      "destination": "https://sub-vocab-server.vercel.app/:match*"
-    },
-    {
       "source": "/:path*",
       "destination": "/index.html"
     }

@@ -1,10 +1,1 @@
-[[redirects]]
-  from = "/api/*"
-  to = "https://sub-vocab-server.vercel.app/:splat"
-  status = 200
-  force = true
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
