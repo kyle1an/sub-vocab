@@ -2,16 +2,17 @@
   "name": "subvocab-server",
   "version": "0.0.0",
   "private": true,
+  "packageManager": "pnpm@9.1.0",
   "scripts": {
     "dev": "nodemon app",
     "build": "tsc && npm run copy-files",
     "copy-files": "cp -R views dist && cp -R public dist",
     "start": "node dist/app.js",
-    "lint": "eslint . --ext .js,.ts --report-unused-disable-directives",
-    "lint:fix": "npm run lint -- --fix"
+    "lint": "eslint . --report-unused-disable-directives",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "@sentry/node": "^7.113.0",
+    "@sentry/node": "^7.114.0",
     "@types/cookie": "^0.6.0",
     "cookie": "^0.6.0",
     "cookie-parser": "^1.4.6",
@@ -26,11 +27,11 @@
     "morgan": "^1.10.0",
     "mysql2": "^3.9.7",
     "socket.io": "^4.7.5",
-    "type-fest": "^4.18.1"
+    "type-fest": "^4.18.2"
   },
   "devDependencies": {
-    "@flydotio/dockerfile": "^0.5.7",
-    "@stylistic/eslint-plugin": "^1.8.0",
+    "@antfu/eslint-config": "^2.17.0",
+    "@stylistic/eslint-plugin": "^2.1.0",
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
@@ -39,25 +40,15 @@
     "@types/express-serve-static-core": "4.19.0",
     "@types/http-errors": "^2.0.4",
     "@types/morgan": "^1.9.9",
-    "@types/node": "^20.12.8",
-    "@typescript-eslint/eslint-plugin": "^7.8.0",
-    "@typescript-eslint/parser": "^7.8.0",
-    "eslint": "^8.57.0",
-    "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-import": "npm:eslint-plugin-i@^2.29.1",
+    "@types/node": "^20.12.11",
+    "eslint": "^9.2.0",
     "nodemon": "^3.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   },
   "pnpm": {
     "overrides": {
-      "array-includes": "npm:@nolyfill/array-includes@latest",
-      "array.prototype.flat": "npm:@nolyfill/array.prototype.flat@latest",
-      "function-bind": "npm:@nolyfill/function-bind@latest",
-      "has": "npm:@nolyfill/has@latest",
       "hasown": "npm:@nolyfill/hasown@latest",
-      "object.assign": "npm:@nolyfill/object.assign@latest",
-      "object.values": "npm:@nolyfill/object.values@latest",
       "side-channel": "npm:@nolyfill/side-channel@latest"
     }
   },
@@ -68,6 +59,5 @@
       "**/types/**"
     ],
     "delay": 1000
-  },
-  "packageManager": "pnpm@9.1.0+sha512.67f5879916a9293e5cf059c23853d571beaf4f753c707f40cb22bed5fb1578c6aad3b6c4107ccb3ba0b35be003eb621a16471ac836c87beb53f9d54bb4612724"
+  }
 }

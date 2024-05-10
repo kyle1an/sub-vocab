@@ -2,7 +2,9 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type React from 'react'
 import {
-  useEffect, useRef, useState,
+  useEffect,
+  useRef,
+  useState,
 } from 'react'
 import { useCookie, useLockBodyScroll } from 'react-use'
 import { Disclosure } from '@headlessui/react'
@@ -56,45 +58,52 @@ function useExclusiveDisclosure<T extends HTMLElement>() {
     }
   }
 
-  // @ts-ignore
+  // @ts-expect-error
   useOnClickOutside(ref, onClickOutside, 'mouseup')
 
   return {
-    ref, open, setOpen, closeFnRef,
+    ref,
+    open,
+    setOpen,
+    closeFnRef,
   }
 }
 
-const Account = ({ className, style, ...props }: React.HTMLAttributes<HTMLAnchorElement>) => (
-  <Link
-    to="/register"
-    className={cn('inline-flex items-center gap-3', className)}
-    {...props}
-  >
-    <Icon
-      icon="lucide:cog"
-      className=""
-      width={16}
-    />
-    <span>Account</span>
-  </Link>
-)
+function Account({ className, style, ...props }: React.HTMLAttributes<HTMLAnchorElement>) {
+  return (
+    <Link
+      to="/register"
+      className={cn('inline-flex items-center gap-3', className)}
+      {...props}
+    >
+      <Icon
+        icon="lucide:cog"
+        className=""
+        width={16}
+      />
+      <span>Account</span>
+    </Link>
+  )
+}
 
-const SignIn = ({ className, ...props }: React.HTMLAttributes<HTMLAnchorElement>) => (
-  <Link
-    to="/login"
-    className={cn('inline-flex items-center gap-3', className)}
-    {...props}
-  >
-    <Icon
-      icon="mingcute:user-4-fill"
-      className=""
-      width={16}
-    />
-    <span>Sign in</span>
-  </Link>
-)
+function SignIn({ className, ...props }: React.HTMLAttributes<HTMLAnchorElement>) {
+  return (
+    <Link
+      to="/login"
+      className={cn('inline-flex items-center gap-3', className)}
+      {...props}
+    >
+      <Icon
+        icon="mingcute:user-4-fill"
+        className=""
+        width={16}
+      />
+      <span>Sign in</span>
+    </Link>
+  )
+}
 
-const Settings = ({ className, ...props }: React.HTMLAttributes<HTMLAnchorElement>) => {
+function Settings({ className, ...props }: React.HTMLAttributes<HTMLAnchorElement>) {
   const { t } = useTranslation()
   return (
     <Link
@@ -114,7 +123,7 @@ const Settings = ({ className, ...props }: React.HTMLAttributes<HTMLAnchorElemen
   )
 }
 
-const SignOut = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => {
+function SignOut({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   const { t } = useTranslation()
   const username = useVocabStore((state) => state.username)
   const { mutateAsync: logOut } = useLogOut()
@@ -163,7 +172,10 @@ export function TopBar({ className }: { className?: string }) {
     { name: 'About', href: '/', current: false },
   ]
   const {
-    ref: disclosureRef, closeFnRef, open: disclosureOpen, setOpen: setDisclosureOpen,
+    ref: disclosureRef,
+    closeFnRef,
+    open: disclosureOpen,
+    setOpen: setDisclosureOpen,
   } = useExclusiveDisclosure()
 
   useLockBodyScroll(disclosureOpen)
@@ -269,7 +281,7 @@ export function TopBar({ className }: { className?: string }) {
                         href="https://github.com/kyle1an/sub-vocab"
                         target="_blank"
                         className="mr-3 block px-2 text-neutral-300 transition-all hover:text-neutral-400 dark:hover:text-neutral-300 xl:mr-0"
-                        rel="noreferrer"
+                        rel="noreferrer noopener"
                       >
                         <span className="sr-only">SubVocab on GitHub</span>
                         <Icon icon="bi:github" />

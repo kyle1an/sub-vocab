@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils.ts'
-import { type WordLocator } from '@/lib/LabeledTire'
+import type { WordLocator } from '@/lib/LabeledTire'
 
 export function Examples({
   sentences,
@@ -20,7 +20,9 @@ export function Examples({
     }
 
     const adjacentSentence = vocabPositions[vocabPositions.length - 1]
-    if (!adjacentSentence) continue
+    if (!adjacentSentence) {
+      continue
+    }
     const adjacentSentenceIndex = adjacentSentence[0]
     const areCurrentAndAdjacentInTheSameSentence = sentenceId === adjacentSentenceIndex
     if (areCurrentAndAdjacentInTheSameSentence) {

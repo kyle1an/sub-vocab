@@ -1,3 +1,4 @@
+/* eslint-disable node/prefer-global/process */
 import { rewrite } from '@vercel/edge'
 
 export default function middleware(request: Request) {

@@ -124,7 +124,9 @@ export class LabeledTire {
   mergeDerivedWordIntoStem(irregularMaps: string[][]) {
     for (const irregulars of irregularMaps) {
       const stem = irregulars[0]
-      if (!stem) continue
+      if (!stem) {
+        continue
+      }
       const hasCapital = capitalIn(stem)
       const stemNode = this.getNode(hasCapital ? stem.toLowerCase() : stem)
 
@@ -146,7 +148,9 @@ export class LabeledTire {
       let i = irregulars.length
       while (--i) {
         const irregular = irregulars[i]
-        if (!irregular) continue
+        if (!irregular) {
+          continue
+        }
         const derive = this.getNode(irregular).$
         if (
           derive
@@ -340,8 +344,12 @@ export class LabeledTire {
         )
       }
       this.#batchMergeTo(curr_$, toBeMerged)
-      if (curr[`'`]) this.#batchMergeTo(curr_$, aposSuffixLabels(curr[`'`]))
-      if (curr[`’`]) this.#batchMergeTo(curr_$, aposSuffixLabels(curr[`’`]))
+      if (curr[`'`]) {
+        this.#batchMergeTo(curr_$, aposSuffixLabels(curr[`'`]))
+      }
+      if (curr[`’`]) {
+        this.#batchMergeTo(curr_$, aposSuffixLabels(curr[`’`]))
+      }
     } else if (curr_e$) {
       this.#batchMergeTo(curr_e$, labelOfSuffixes(curr))
     } else if (curr_s$) {
@@ -354,8 +362,12 @@ export class LabeledTire {
       } satisfies TrieWordLabel
       this.#batchMergeTo($, labelOfSuffixes(curr))
 
-      if (curr[`'`]) this.#batchMergeTo($, aposSuffixLabels(curr[`'`]))
-      if (curr[`’`]) this.#batchMergeTo($, aposSuffixLabels(curr[`’`]))
+      if (curr[`'`]) {
+        this.#batchMergeTo($, aposSuffixLabels(curr[`'`]))
+      }
+      if (curr[`’`]) {
+        this.#batchMergeTo($, aposSuffixLabels(curr[`’`]))
+      }
 
       if ($.derive.length) {
         this.#mergeNodes($, curr_s$)

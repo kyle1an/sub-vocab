@@ -1,7 +1,12 @@
 import type { SetOptional } from 'type-fest'
 import { sortByChar } from '@/lib/utils.ts'
 import {
-  LEARNING_PHASE, LabeledTire, type LearningPhase, type TrieWordLabel, type VocabState, type WordLocator,
+  LEARNING_PHASE,
+  LabeledTire,
+  type LearningPhase,
+  type TrieWordLabel,
+  type VocabState,
+  type WordLocator,
 } from '@/lib/LabeledTire.ts'
 
 export type LabelDisplayTable = VocabState & InertialPhase
@@ -64,7 +69,7 @@ function logVocabInfo<T extends VocabState>(listOfVocab: T[]) {
   console.log(`(${untouchedVocabList.length}) words`, { _: untouchedVocabList })
 }
 
-export const generatedVocabTrie = (inputText: string, baseVocab: VocabState[], irregularMaps: string[][]) => {
+export function generatedVocabTrie(inputText: string, baseVocab: VocabState[], irregularMaps: string[][]) {
   const trie = new LabeledTire()
   trie.add(inputText)
   trie.mergedVocabulary(baseVocab)

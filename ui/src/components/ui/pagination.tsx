@@ -13,7 +13,10 @@ export function Pagination<T>({
   return (
     <div className="flex">
       {items.map(({
-        page, type, selected, ...item
+        page,
+        type,
+        selected,
+        ...item
       }) => {
         const size = 16
         const className = 'flex items-center min-w-[1.625rem] justify-center rounded dark:text-slate-300 dark:disabled:text-zinc-700 border border-transparent text-xs tabular-nums disabled:text-zinc-300'

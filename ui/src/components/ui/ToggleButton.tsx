@@ -18,7 +18,10 @@ export function VocabToggle<T extends LabelDisplayTable>({
 }) {
   const phase = vocab.learningPhase
   const {
-    NEW, RETAINING, ACQUAINTED, FADING,
+    NEW,
+    RETAINING,
+    ACQUAINTED,
+    FADING,
   } = LEARNING_PHASE
   return (
     <div className={cn('flex w-[calc(28px+.1px)] justify-center', className)}>

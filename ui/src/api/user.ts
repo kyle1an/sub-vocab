@@ -1,7 +1,10 @@
 import { useMutation } from '@tanstack/react-query'
 import Cookies from 'js-cookie'
 import type {
-  LoginResponse, RegisterResponse, Status, UsernameTaken,
+  LoginResponse,
+  RegisterResponse,
+  Status,
+  UsernameTaken,
 } from '../shared/shared.ts'
 import { socket } from './vocab-api'
 import { useVocabStore } from '@/store/useVocab'

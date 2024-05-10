@@ -29,7 +29,11 @@ export default function Login() {
   })
 
   const {
-    register, trigger, handleSubmit, formState: { errors }, setError,
+    register,
+    trigger,
+    handleSubmit,
+    formState: { errors },
+    setError,
   } = form
   const [passwordVisible, setPasswordVisible] = useState(false)
   const { mutateAsync: signInAsync, isError, isPending } = useSignIn()

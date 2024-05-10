@@ -21,7 +21,7 @@ type FormValues = {
   newPassword: string
 }
 
-export const Password = () => {
+export function Password() {
   const { t } = useTranslation()
   const username = useVocabStore((state) => state.username)
   const navigate = useNavigate()
@@ -50,7 +50,10 @@ export const Password = () => {
   })
 
   const {
-    register, handleSubmit, formState: { errors }, setError,
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
   } = form
 
   const [oldPasswordVisible, setOldPasswordVisible] = useState(false)
