@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { cn } from '@/lib/utils.ts'
 import { getFileContent } from '@/lib/filesHandler'
 
-export const FileInput = (props: {
+export function FileInput(props: {
   onFileChange: (file: {
     value: string
     name: string
@@ -11,7 +11,7 @@ export const FileInput = (props: {
   inputRef?: React.RefObject<HTMLInputElement>
   children: React.ReactNode
   className?: string
-}) => {
+}) {
   function handleFileChange(ev: React.ChangeEvent<HTMLInputElement>) {
     const fileList = ev.target.files
     if (fileList) {

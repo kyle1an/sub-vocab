@@ -1,6 +1,7 @@
 import {
   Route,
-  createBrowserRouter, createRoutesFromElements,
+  createBrowserRouter,
+  createRoutesFromElements,
 } from 'react-router-dom'
 import { RootLayout } from '@/pages/layout'
 import Index from '@/pages/page'

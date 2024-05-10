@@ -44,7 +44,7 @@ export interface SegmentedControlProps<T extends string> extends HTMLAttributes<
   onChoose: (value: T) => void
 }
 
-export const SegmentedControl = <T extends string>({
+export function SegmentedControl<T extends string>({
   value,
   name,
   segments,
@@ -54,8 +54,7 @@ export const SegmentedControl = <T extends string>({
   className,
   ref,
   ...props
-}: SegmentedControlProps<T> & RefAttributes<HTMLDivElement>,
-) => {
+}: SegmentedControlProps<T> & RefAttributes<HTMLDivElement>) {
   const pillRefs = useRef<Partial<Record<T, HTMLSpanElement>>>({})
 
   function handleOnChange(newValue: T) {

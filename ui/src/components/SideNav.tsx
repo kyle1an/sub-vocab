@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 
-export const SideNav = ({
+export function SideNav({
   nav: navList,
   className = '',
 }: {
@@ -10,7 +10,7 @@ export const SideNav = ({
     to: string
   }[]>
   className?: string
-}) => {
+}) {
   const location = useLocation()
   return (
     <aside className={cn('w-52 pr-4', className)}>

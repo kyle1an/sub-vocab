@@ -87,9 +87,14 @@ const config: Config = {
     },
   },
   plugins: [
+    // eslint-disable-next-line ts/no-require-imports
     require('tailwindcss-animate'),
     plugin(({
-      addBase, addComponents, addUtilities, matchUtilities, theme,
+      addBase,
+      addComponents,
+      addUtilities,
+      matchUtilities,
+      theme,
     }) => {
       addUtilities({
         '.tap-transparent': { '-webkit-tap-highlight-color': 'transparent' },

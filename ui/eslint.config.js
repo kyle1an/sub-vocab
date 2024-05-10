@@ -1,51 +1,31 @@
-const stylistic = require('@stylistic/eslint-plugin')
+import antfu from '@antfu/eslint-config'
+import { FlatCompat } from '@eslint/eslintrc'
+import { fixupConfigRules } from '@eslint/compat'
+import stylistic from '@stylistic/eslint-plugin'
+import * as tanstackQuery from '@tanstack/eslint-plugin-query'
 
-const customized = stylistic.configs.customize({
+const compat = new FlatCompat()
+
+export default antfu({
+  react: true,
+}, stylistic.configs.customize({
   arrowParens: true,
   braceStyle: '1tbs',
   quoteProps: 'as-needed',
-})
-
-module.exports = {
-  env: {
-    browser: true,
-    es2024: true,
-  },
-  globals: {
-    require: true,
-    module: true,
-  },
-  extends: [
-    'eslint:recommended',
-    'plugin:react/recommended',
-    'plugin:react/jsx-runtime',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:@typescript-eslint/recommended-requiring-type-checking',
-    'plugin:import/recommended',
-    'plugin:import/typescript',
-    'plugin:react-hooks/recommended',
-    'plugin:tailwindcss/recommended',
-    'plugin:@tanstack/eslint-plugin-query/recommended',
-  ],
-  ignorePatterns: ['dist', '/built/'],
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    ecmaVersion: 'latest',
-    project: true,
-  },
-  plugins: [
-    'react-refresh',
-    '@stylistic',
-    '@tanstack/query',
-  ],
+}), {
   rules: {
-    ...customized.rules,
     '@stylistic/multiline-ternary': ['off'],
     '@stylistic/no-extra-semi': 'off',
     'no-extra-semi': 'off',
     '@stylistic/switch-colon-spacing': 'warn',
     '@stylistic/quotes': [1, 'single', { avoidEscape: true, allowTemplateLiterals: true }],
-
+    '@stylistic/brace-style': ['error', '1tbs'],
+    curly: ['error', 'multi-line'],
+    'unused-imports/no-unused-vars': 'off',
+    'prefer-arrow-callback': 'off',
+  },
+}, {
+/*
     'no-unused-vars': [0, { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     'no-return-assign': ['warn', 'except-parens'],
 
@@ -89,49 +69,54 @@ module.exports = {
       ],
     }],
     'no-multi-assign': ['error', { ignoreNonDeclaration: true }],
-
+*/
+}, {
+  rules: {
+    'ts/ban-ts-comment': 'off',
+    'ts/consistent-type-definitions': 'off',
     // https://www.totaltypescript.com/method-shorthand-syntax-considered-harmful
-    '@typescript-eslint/method-signature-style': [
+    'ts/method-signature-style': [
       'error',
       'property',
     ],
-
+  },
+}, {
+  rules: {
+    'react/prefer-destructuring-assignment': 'off',
+    'react-hooks/exhaustive-deps': [
+      'warn',
+      {
+        additionalHooks: 'useIsomorphicLayoutEffect',
+      },
+    ],
+  },
+}, {
+  files: ['tsconfig.json', 'tsconfig.*.json'],
+  rules: {
+    'jsonc/sort-keys': 'off',
+  },
+}, ...fixupConfigRules({
+  name: '@tanstack/query',
+  files: ['src/**/*.{ts,tsx}'],
+  plugins: {
+    '@tanstack/query': {
+      rules: tanstackQuery.rules,
+    },
+  },
+  rules: tanstackQuery.configs.recommended.rules,
+}), ...fixupConfigRules(compat.config({
+  extends: ['plugin:tailwindcss/recommended'],
+  rules: {
     'tailwindcss/no-custom-classname': ['warn', {
       callees: ['classnames', 'clsx', 'ctl', 'cva', 'tv', 'twMerge'],
       skipClassAttribute: true,
     }],
-
-    'react/prop-types': 'off',
-    'react/jsx-filename-extension': [1, {
-      extensions: ['.js', '.jsx', '.ts', '.tsx'],
-    }],
-    'react/function-component-definition': [0],
-    'react/jsx-no-useless-fragment': [0],
-    'react/no-unstable-nested-components': [0],
-    'react-refresh/only-export-components': ['warn', {
-      allowConstantExport: true,
-    }],
-    'react/jsx-no-leaked-render': ['warn'],
+    'tailwindcss/migration-from-tailwind-2': 'off',
   },
   settings: {
-    'import/parsers': {
-      '@typescript-eslint/parser': ['.ts', '.tsx'],
-    },
-    'import/resolver': {
-      typescript: {
-        alwaysTryTypes: true, // always try to resolve types under `<root>@types` directory even it doesn't contain any source code, like `@types/unist`
-        project: ['tsconfig.json'],
-      },
-      node: {
-        project: ['tsconfig.json'],
-      },
-    },
     tailwindcss: {
       callees: ['classnames', 'clsx', 'cn', 'ctl', 'cva', 'tv', 'twMerge'],
       config: 'tailwind.config.ts', // returned from `loadConfig()` utility if not provided
     },
-    react: {
-      version: 'detect',
-    },
   },
-}
+})))

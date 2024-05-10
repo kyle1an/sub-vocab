@@ -3,7 +3,9 @@ import { sql } from '../config/connection'
 import type { CookiesObj } from '../routes/auth'
 
 export async function isTokenValid(_user: string, acct: string) {
-  if (!_user) return false
+  if (!_user) {
+    return false
+  }
   const [rows] = await sql<[{ result: number }]>`SELECT token_check(${acct}, get_user_id_by_name(${_user})) as result;`
   return Boolean(rows[0].result)
 }

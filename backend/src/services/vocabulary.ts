@@ -1,4 +1,4 @@
-import mysql from 'mysql2'
+import type mysql from 'mysql2'
 import { type RSH, sql } from '../config/connection'
 import type { LabelDB } from '../types'
 

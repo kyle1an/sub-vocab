@@ -1,6 +1,6 @@
-import crypto from 'crypto'
+import crypto from 'node:crypto'
 import express from 'express'
-import mysql from 'mysql2'
+import type mysql from 'mysql2'
 import type { ParamsDictionary, Request, Response } from 'express-serve-static-core'
 import { addDays } from 'date-fns'
 import { type RSH, sql } from '../config/connection'

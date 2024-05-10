@@ -1,6 +1,10 @@
 import {
   type RefObject,
-  memo, useDeferredValue, useEffect, useRef, useState,
+  memo,
+  useDeferredValue,
+  useEffect,
+  useRef,
+  useState,
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import { atom, useAtom } from 'jotai'
@@ -8,11 +12,13 @@ import { useSize } from 'ahooks'
 import { FileInput } from '@/components/ui/FileInput'
 import { TextareaInput } from '@/components/ui/TextareaInput'
 import {
-  type LabelDisplaySource, generatedVocabTrie,
+  type LabelDisplaySource,
+  generatedVocabTrie,
 } from '@/lib/vocab'
 import { VocabSourceTable } from '@/components/ui/VocabSource.tsx'
 import {
-  useIrregularMapsQuery, useVocabularyQuery,
+  useIrregularMapsQuery,
+  useVocabularyQuery,
 } from '@/api/vocab-api'
 import { purgedRows, statusRetainedList } from '@/lib/vocab-utils'
 import {
@@ -103,7 +109,7 @@ export default function Home() {
     <main className="m-auto h-[calc(100svh-4px*11)] w-full max-w-screen-xl px-5">
       <div className="relative flex h-14 items-center">
         <FileInput
-          // @ts-ignore
+          // @ts-expect-error
           inputRef={inputRef}
           onFileChange={handleFileChange}
         >

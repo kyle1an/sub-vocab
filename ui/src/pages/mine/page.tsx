@@ -1,5 +1,6 @@
 import {
-  useEffect, useState,
+  useEffect,
+  useState,
 } from 'react'
 import type { LabelDisplayTable } from '@/lib/vocab'
 import { purgedRows, statusRetainedList } from '@/lib/vocab-utils'

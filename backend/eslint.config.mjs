@@ -1,40 +1,37 @@
-const stylistic = require('@stylistic/eslint-plugin')
+import antfu from '@antfu/eslint-config'
+import stylistic from '@stylistic/eslint-plugin'
 
-const customized = stylistic.configs.customize({
+export default antfu(stylistic.configs.customize({
   arrowParens: true,
   braceStyle: '1tbs',
   quoteProps: 'as-needed',
-})
-
-module.exports = {
-  env: {
-    es2024: true,
-    node: true,
-  },
-  globals: {
-    require: true,
-    module: true,
-    NodeJS: true,
-  },
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:@typescript-eslint/recommended-requiring-type-checking',
-    'plugin:import/recommended',
-    'plugin:import/typescript',
-  ],
+}), {
   rules: {
-    ...customized.rules,
     '@stylistic/multiline-ternary': ['off'],
     '@stylistic/no-extra-semi': 'off',
     'no-extra-semi': 'off',
     '@stylistic/switch-colon-spacing': 'warn',
     '@stylistic/quotes': [1, 'single', { avoidEscape: true, allowTemplateLiterals: true }],
-
+    '@stylistic/brace-style': ['error', '1tbs'],
+    curly: ['error', 'multi-line'],
+    'unused-imports/no-unused-vars': 'off',
+    'prefer-arrow-callback': 'off',
     'no-unused-vars': [0, { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     'no-return-assign': ['warn', 'except-parens'],
-
-    '@typescript-eslint/ban-types': [
+    'no-param-reassign': ['error', { props: false }],
+    'no-shadow': ['error', {
+      allow: [
+        'className',
+        'resolve',
+        'reject',
+      ],
+    }],
+    'no-multi-assign': ['error', { ignoreNonDeclaration: true }],
+    'prefer-template': 'off',
+  },
+}, {
+  rules: {
+    'ts/ban-types': [
       'error',
       {
         types: {
@@ -43,6 +40,9 @@ module.exports = {
         extendDefaults: true,
       },
     ],
+    'ts/ban-ts-comment': 'off',
+    'ts/consistent-type-definitions': 'off',
+    /*
     '@typescript-eslint/ban-ts-comment': [
       'error',
       { 'ts-ignore': false },
@@ -74,20 +74,16 @@ module.exports = {
       ],
     }],
     'no-multi-assign': ['error', { ignoreNonDeclaration: true }],
-
+*/
     // https://www.totaltypescript.com/method-shorthand-syntax-considered-harmful
-    '@typescript-eslint/method-signature-style': [
+    'ts/method-signature-style': [
       'error',
       'property',
     ],
   },
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    ecmaVersion: 'latest',
-    project: true,
+}, {
+  files: ['tsconfig.json'],
+  rules: {
+    'jsonc/sort-keys': 'off',
   },
-  plugins: [
-    '@stylistic',
-    '@typescript-eslint',
-  ],
-}
+})

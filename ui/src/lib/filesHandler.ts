@@ -15,7 +15,7 @@ type EntryFiles = RecursiveArray<FileContent>
 const FORMAT_ERROR = 'Unsupported file format'
 
 function isTextItem(obj: TextContent['items'][number]): obj is TextItem {
-  // @ts-ignore TextItem/TextMarkedContent
+  // @ts-expect-error TextItem/TextMarkedContent
   return Boolean(obj?.transform)
 }
 
@@ -55,23 +55,83 @@ function readFile(file: File) {
   return new Promise<FileContent>((resolve, reject) => {
     const humanReadableFileExtensions: `.${string}`[] = [
       // General Text-Based Formats
-      '.csv', '.rtf', '.tsv', '.txt',
+      '.csv',
+      '.rtf',
+      '.tsv',
+      '.txt',
 
       // Markup, Web, Scripting, Programming, Template and View Languages
-      '.c', '.cjs', '.cpp', '.css', '.cxx', '.ejs', '.go', '.handlebars', '.hbs', '.hpp', '.htm', '.html', '.hxx', '.java', '.js', '.json', '.jsx', '.lua', '.md',
-      '.php', '.pl', '.pug', '.py', '.rb', '.sh', '.rs', '.rss', '.sass', '.scss', '.sql', '.svelte', '.swift', '.ts', '.tsx', '.vue', '.yaml', '.yml', '.xhtml', '.xml',
+      '.c',
+      '.cjs',
+      '.cpp',
+      '.css',
+      '.cxx',
+      '.ejs',
+      '.go',
+      '.handlebars',
+      '.hbs',
+      '.hpp',
+      '.htm',
+      '.html',
+      '.hxx',
+      '.java',
+      '.js',
+      '.json',
+      '.jsx',
+      '.lua',
+      '.md',
+      '.php',
+      '.pl',
+      '.pug',
+      '.py',
+      '.rb',
+      '.sh',
+      '.rs',
+      '.rss',
+      '.sass',
+      '.scss',
+      '.sql',
+      '.svelte',
+      '.swift',
+      '.ts',
+      '.tsx',
+      '.vue',
+      '.yaml',
+      '.yml',
+      '.xhtml',
+      '.xml',
 
       // Configuration and Data Files
-      '.ini', '.conf', '.cfg', '.toml', '.ovpn', '.properties', '.env',
+      '.ini',
+      '.conf',
+      '.cfg',
+      '.toml',
+      '.ovpn',
+      '.properties',
+      '.env',
 
       // Documentation and Publishing
-      '.tex', '.adoc', '.asciidoc', '.rst', '.bib',
+      '.tex',
+      '.adoc',
+      '.asciidoc',
+      '.rst',
+      '.bib',
 
       // Development and Build Related
-      '.dockerfile', '.gradle', '.gitignore', '.makefile', '.pom.xml',
+      '.dockerfile',
+      '.gradle',
+      '.gitignore',
+      '.makefile',
+      '.pom.xml',
 
       // Miscellaneous
-      '.ass', '.bat', '.log', '.nfo', '.patch', '.ps1', '.srt',
+      '.ass',
+      '.bat',
+      '.log',
+      '.nfo',
+      '.patch',
+      '.ps1',
+      '.srt',
     ]
     const extension = file.name.substring(file.name.lastIndexOf('.'))
     const reader = new FileReader()
@@ -161,7 +221,9 @@ export function readDataTransferItemList(list: DataTransferItemList) {
     .map((item) => {
       const entry = item.webkitGetAsEntry()
 
-      if (!entry) return Promise.reject(new Error('Entry is null'))
+      if (!entry) {
+        return Promise.reject(new Error('Entry is null'))
+      }
       if (entry.isDirectory) {
         return readDirectory(entry as FileSystemDirectoryEntry)
       }

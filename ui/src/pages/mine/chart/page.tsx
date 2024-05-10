@@ -2,12 +2,21 @@ import { useMemo } from 'react'
 import { useSessionStorage } from 'react-use'
 import { merge, rangeRight } from 'lodash-es'
 import {
-  type ChartData, Chart as ChartJS,
+  type ChartData,
+  Chart as ChartJS,
   type ChartOptions,
 } from 'chart.js'
 import {
   endOfWeek,
-  format, getMonth, isFirstDayOfMonth, isSunday, startOfMonth, startOfWeek, subDays, subMonths, subWeeks,
+  format,
+  getMonth,
+  isFirstDayOfMonth,
+  isSunday,
+  startOfMonth,
+  startOfWeek,
+  subDays,
+  subMonths,
+  subWeeks,
 } from 'date-fns'
 import 'chart.js/auto'
 import { Bar } from 'react-chartjs-2'
@@ -25,7 +34,7 @@ type DataSet = {
   groupValue: VocabState[]
 }
 
-const mapWeek = (userWords: VocabState[]) => {
+function mapWeek(userWords: VocabState[]) {
   const today = new Date()
   const preset: Record<string, VocabState[]> = {}
   const dataPreset: DataSet[] = []
@@ -58,7 +67,7 @@ const mapWeek = (userWords: VocabState[]) => {
   return dataPreset
 }
 
-const mapMonth = (userWords: VocabState[]) => {
+function mapMonth(userWords: VocabState[]) {
   const today = new Date()
   const preset: Record<string, VocabState[]> = {}
   const dataPreset: DataSet[] = []
@@ -95,7 +104,7 @@ const mapMonth = (userWords: VocabState[]) => {
   return dataPreset
 }
 
-const map6M = (userWords: VocabState[]) => {
+function map6M(userWords: VocabState[]) {
   const today = new Date()
   const preset: Record<string, VocabState[]> = {}
   const dataPreset: DataSet[] = []
@@ -135,7 +144,7 @@ const map6M = (userWords: VocabState[]) => {
   return dataPreset
 }
 
-const mapY = (userWords: VocabState[]) => {
+function mapY(userWords: VocabState[]) {
   const today = new Date()
   const preset: Record<string, VocabState[]> = {}
   const dataPreset: DataSet[] = []

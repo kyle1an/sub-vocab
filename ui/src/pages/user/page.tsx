@@ -19,7 +19,7 @@ type FormValues = {
   newUsername: string
 }
 
-export const UserPage = () => {
+export function UserPage() {
   const { t } = useTranslation()
   const username = useVocabStore((state) => state.username)
   const form = useForm<FormValues>({
@@ -30,7 +30,10 @@ export const UserPage = () => {
   })
 
   const {
-    register, handleSubmit, formState: { errors }, setError,
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
   } = form
   const { mutateAsync: changeUsername, isError: isChangeUsernameError, isPending } = useChangeUsername()
   const { mutateAsync: isUsernameTaken, isError: isUsernameTakenError, isPending: isUsernameTakenPending } = useIsUsernameTaken()

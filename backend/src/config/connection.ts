@@ -1,3 +1,4 @@
+import process from 'node:process'
 import dotenv from 'dotenv'
 import mysql from 'mysql2'
 

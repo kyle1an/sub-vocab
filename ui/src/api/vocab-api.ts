@@ -7,7 +7,10 @@ import { queryClient } from '@/lib/utils'
 import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
 import { useVocabStore } from '@/store/useVocab'
 import type {
-  AcquaintWordsResponse, LabelDB, StemsMapping, ToggleWordResponse,
+  AcquaintWordsResponse,
+  LabelDB,
+  StemsMapping,
+  ToggleWordResponse,
 } from '@/shared/shared'
 import { newVocabState } from '@/lib/vocab'
 
@@ -27,13 +30,15 @@ async function getVocabulary(username: string) {
   }))
 }
 
-const getVocabularyOptions = ({ username }: Username) => queryOptions({
-  queryKey: ['userWords', username] as const,
-  queryFn: () => getVocabulary(username),
-  placeholderData: [],
-  refetchOnWindowFocus: false,
-  retry: 10,
-})
+function getVocabularyOptions({ username }: Username) {
+  return queryOptions({
+    queryKey: ['userWords', username] as const,
+    queryFn: () => getVocabulary(username),
+    placeholderData: [],
+    refetchOnWindowFocus: false,
+    retry: 10,
+  })
+}
 
 export function useVocabularyQuery() {
   const username = useVocabStore((state) => state.username)
@@ -101,6 +106,7 @@ export function useRevokeWordMutation() {
         queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => mutatedVocabStates(oldData, variables, LEARNING_PHASE.ACQUAINTED))
       }
     },
+    // eslint-disable-next-line node/handle-callback-err
     onError: (error, variables, context) => {
       queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => mutatedVocabStates(oldData, variables, LEARNING_PHASE.ACQUAINTED))
     },
@@ -128,6 +134,7 @@ export function useAcquaintWordsMutation() {
         queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => mutatedVocabStates(oldData, variables, LEARNING_PHASE.NEW))
       }
     },
+    // eslint-disable-next-line node/handle-callback-err
     onError: (error, variables, context) => {
       queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => mutatedVocabStates(oldData, variables, LEARNING_PHASE.NEW))
     },
