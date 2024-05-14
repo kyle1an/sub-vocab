@@ -17,7 +17,8 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
 
-    "module": "commonjs",
+    "module": "ESNext",
+    "moduleResolution": "node",
     "outDir": "./dist",
 
     "lib": ["ESNext"]

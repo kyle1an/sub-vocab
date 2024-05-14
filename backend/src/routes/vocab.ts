@@ -1,11 +1,11 @@
 import express from 'express'
 import type { Request, Response } from 'express-serve-static-core'
 import { LRUCache } from 'lru-cache'
-import { isTokenValid, tokenChecker } from '../utils/util'
+import { isTokenValid, tokenChecker } from '../utils/util.js'
 import type { AcquaintWordsResponse, LabelDB, StemsMapping, ToggleWordResponse, UserVocab, Username } from '../types'
-import { acquaintWords, getUserWords, revokeWords, stemsMapping } from '../services/vocabulary'
-import { io } from '../../app'
-import type { CookiesObj } from './auth'
+import { acquaintWords, getUserWords, revokeWords, stemsMapping } from '../services/vocabulary.js'
+import { io } from '../../app.js'
+import type { CookiesObj } from './auth.js'
 
 const router = express.Router()
 /* GET user listing. */

@@ -1,10 +1,11 @@
 {
   "name": "subvocab-server",
+  "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@9.1.0",
+  "packageManager": "pnpm@9.1.1",
   "scripts": {
-    "dev": "nodemon app",
+    "dev": "tsx watch app",
     "build": "tsc && npm run copy-files",
     "copy-files": "cp -R views dist && cp -R public dist",
     "start": "node dist/app.js",
@@ -12,7 +13,6 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "@sentry/node": "^7.114.0",
     "@types/cookie": "^0.6.0",
     "cookie": "^0.6.0",
     "cookie-parser": "^1.4.6",
@@ -26,11 +26,13 @@
     "lru-cache": "^10.2.2",
     "morgan": "^1.10.0",
     "mysql2": "^3.9.7",
+    "postgres": "^3.4.4",
     "socket.io": "^4.7.5",
+    "sql-template-tag": "^5.2.1",
     "type-fest": "^4.18.2"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^2.17.0",
+    "@antfu/eslint-config": "^2.18.0",
     "@stylistic/eslint-plugin": "^2.1.0",
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/cookie-parser": "^1.4.7",
@@ -40,10 +42,9 @@
     "@types/express-serve-static-core": "4.19.0",
     "@types/http-errors": "^2.0.4",
     "@types/morgan": "^1.9.9",
-    "@types/node": "^20.12.11",
+    "@types/node": "^20.12.12",
     "eslint": "^9.2.0",
-    "nodemon": "^3.1.0",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.10.2",
     "typescript": "^5.4.5"
   },
   "pnpm": {
@@ -51,13 +52,5 @@
       "hasown": "npm:@nolyfill/hasown@latest",
       "side-channel": "npm:@nolyfill/side-channel@latest"
     }
-  },
-  "nodemonConfig": {
-    "ext": "ts",
-    "ignore": [
-      "*.test.ts",
-      "**/types/**"
-    ],
-    "delay": 1000
   }
 }

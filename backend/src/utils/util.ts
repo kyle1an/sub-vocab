@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express-serve-static-core'
-import { sql } from '../config/connection'
-import type { CookiesObj } from '../routes/auth'
+import { sql } from '../config/connection.js'
+import type { CookiesObj } from '../routes/auth.js'
 
 export async function isTokenValid(_user: string, acct: string) {
   if (!_user) {
