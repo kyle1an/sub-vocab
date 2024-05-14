@@ -1,5 +1,6 @@
 import type mysql from 'mysql2'
-import { type RSH, sql } from '../config/connection'
+import { sql } from '../config/connection.js'
+import { sql as pg } from '../utils/db.js'
 import type { LabelDB } from '../types'
 
 interface Stems {
@@ -8,15 +9,18 @@ interface Stems {
 }
 
 export async function getUserWords(user: string) {
-  const [rows] = await sql<RSH<LabelDB[]>>`CALL words_from_user(get_user_id_by_name(${user}));`
+  const [rows] = await sql<[LabelDB[]]>`CALL words_from_user(get_user_id_by_name(${user}));`
   return rows[0]
 }
 
 export async function stemsMapping() {
-  return sql<RSH<Stems[]>>`CALL stem_derivation_link();`
-    .then(([rows]) => {
+  return pg<Stems[]>`
+  SELECT stem_word, derived_word
+  FROM derivation
+  ORDER BY stem_word;`
+    .then((rows) => {
       const map: Record<string, string[]> = {}
-      rows[0].forEach((link) => {
+      rows.forEach((link) => {
         let wordGroup = map[link.stem_word]
         if (!wordGroup) {
           wordGroup = [link.stem_word]

@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { createServer } from 'node:http'
 import process from 'node:process'
 import createError from 'http-errors'
@@ -7,43 +8,24 @@ import cookieParser from 'cookie-parser'
 import logger from 'morgan'
 import cors from 'cors'
 import type { ErrorRequestHandler, NextFunction, Request, Response } from 'express'
-import * as Sentry from '@sentry/node'
 import { Server } from 'socket.io'
 import Debug from 'debug'
 import { parse } from 'cookie'
-import routes from './src/routes'
-import { isTokenValid } from './src/utils/util'
-import type { CookiesObj } from './src/routes/auth'
+import routes from './src/routes/index.js'
+import { isTokenValid } from './src/utils/util.js'
+import type { CookiesObj } from './src/routes/auth.js'
 import type { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from './src/types'
 
-const app = express()
-Sentry.init({
-  dsn: 'https://9e87673145e44b74bd56ea896a7f1ce8@o4505257329098752.ingest.sentry.io/4505257478914048',
-  integrations: [
-    // enable HTTP calls tracing
-    new Sentry.Integrations.Http({ tracing: true }),
-    // enable Express.js middleware tracing
-    new Sentry.Integrations.Express({ app }),
-    // Automatically instrument Node.js libraries and frameworks
-    ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations(),
-  ],
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
-  // Set tracesSampleRate to 1.0 to capture 100%
-  // of transactions for performance monitoring.
-  // We recommend adjusting this value in production
-  tracesSampleRate: 0,
-})
-// RequestHandler creates a separate execution context, so that all
-// transactions/spans/breadcrumbs are isolated across requests
-app.use(Sentry.Handlers.requestHandler() as express.RequestHandler)
-// TracingHandler creates a trace for every incoming request
-app.use(Sentry.Handlers.tracingHandler())
+const app = express()
 
 const corsOrigin = [
   /.*localhost.*$/,
   /.*127.0.0.1.*$/,
   /.*subvocab.netlify.app/,
-  /.*subvocab.*.vercel.app/,
+  /.*subvocab.+vercel.app/,
 ]
 app.use(cors({
   origin: corsOrigin,
@@ -63,8 +45,6 @@ app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 
 app.use('/', routes)
-
-app.use(Sentry.Handlers.errorHandler())
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

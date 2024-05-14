@@ -1,6 +1,6 @@
 import express from 'express'
-import vocabRouter from './vocab'
-import authRouter from './auth'
+import vocabRouter from './vocab.js'
+import authRouter from './auth.js'
 
 const router = express.Router()
 /* GET home page. */

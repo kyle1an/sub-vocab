@@ -3,8 +3,8 @@ import express from 'express'
 import type mysql from 'mysql2'
 import type { ParamsDictionary, Request, Response } from 'express-serve-static-core'
 import { addDays } from 'date-fns'
-import { type RSH, sql } from '../config/connection'
-import { tokenChecker } from '../utils/util'
+import { sql } from '../config/connection.js'
+import { tokenChecker } from '../utils/util.js'
 import type { Credential, LoginResponse, NewCredential, NewUsername, RegisterResponse, Status, Username, UsernameTaken } from '../types'
 
 const router = express.Router()
@@ -84,9 +84,10 @@ router.post('/logoutToken', (req: Request<ParamsDictionary, Status, Username>, r
 
 router.post('/existsUsername', (req: Request<ParamsDictionary, UsernameTaken, Username>, res) => {
   const { username } = req.body
-  sql<RSH<[{ does_exist: number }]>>`CALL username_exists(${username});`
+  sql<[{ does_exist: number }]>`
+  SELECT count(*) does_exist from users where username = ${username};`
     .then(([rows]) => {
-      res.json({ has: !!rows[0][0].does_exist })
+      res.json({ has: !!rows[0].does_exist })
     })
     .catch(console.error)
 })
