@@ -51,92 +51,99 @@ async function getDocumentText(pdf: PDFDocumentProxy) {
   return pdfTexts.join(' ')
 }
 
+const HUMAN_READABLE_FILE_EXTENSIONS: `.${string}`[] = [
+  // General Text-Based Formats
+  '.csv',
+  '.rtf',
+  '.tsv',
+  '.txt',
+
+  // Markup, Web, Scripting, Programming, Template and View Languages
+  '.c',
+  '.cjs',
+  '.cpp',
+  '.css',
+  '.cxx',
+  '.ejs',
+  '.go',
+  '.handlebars',
+  '.hbs',
+  '.hpp',
+  '.htm',
+  '.html',
+  '.hxx',
+  '.java',
+  '.js',
+  '.json',
+  '.jsx',
+  '.lua',
+  '.md',
+  '.php',
+  '.pl',
+  '.pug',
+  '.py',
+  '.rb',
+  '.sh',
+  '.rs',
+  '.rss',
+  '.sass',
+  '.scss',
+  '.sql',
+  '.svelte',
+  '.swift',
+  '.ts',
+  '.tsx',
+  '.vue',
+  '.yaml',
+  '.yml',
+  '.xhtml',
+  '.xml',
+
+  // Configuration and Data Files
+  '.ini',
+  '.conf',
+  '.cfg',
+  '.toml',
+  '.ovpn',
+  '.properties',
+  '.env',
+
+  // Documentation and Publishing
+  '.tex',
+  '.adoc',
+  '.asciidoc',
+  '.rst',
+  '.bib',
+
+  // Development and Build Related
+  '.dockerfile',
+  '.gradle',
+  '.gitignore',
+  '.makefile',
+  '.pom.xml',
+
+  // Miscellaneous
+  '.ass',
+  '.bat',
+  '.log',
+  '.nfo',
+  '.patch',
+  '.ps1',
+  '.srt',
+]
+
+export const SUPPORTED_FILE_TYPES = [
+  'text/*',
+  ...HUMAN_READABLE_FILE_EXTENSIONS,
+  'application/pdf',
+]
+
 function readFile(file: File) {
   return new Promise<FileContent>((resolve, reject) => {
-    const humanReadableFileExtensions: `.${string}`[] = [
-      // General Text-Based Formats
-      '.csv',
-      '.rtf',
-      '.tsv',
-      '.txt',
-
-      // Markup, Web, Scripting, Programming, Template and View Languages
-      '.c',
-      '.cjs',
-      '.cpp',
-      '.css',
-      '.cxx',
-      '.ejs',
-      '.go',
-      '.handlebars',
-      '.hbs',
-      '.hpp',
-      '.htm',
-      '.html',
-      '.hxx',
-      '.java',
-      '.js',
-      '.json',
-      '.jsx',
-      '.lua',
-      '.md',
-      '.php',
-      '.pl',
-      '.pug',
-      '.py',
-      '.rb',
-      '.sh',
-      '.rs',
-      '.rss',
-      '.sass',
-      '.scss',
-      '.sql',
-      '.svelte',
-      '.swift',
-      '.ts',
-      '.tsx',
-      '.vue',
-      '.yaml',
-      '.yml',
-      '.xhtml',
-      '.xml',
-
-      // Configuration and Data Files
-      '.ini',
-      '.conf',
-      '.cfg',
-      '.toml',
-      '.ovpn',
-      '.properties',
-      '.env',
-
-      // Documentation and Publishing
-      '.tex',
-      '.adoc',
-      '.asciidoc',
-      '.rst',
-      '.bib',
-
-      // Development and Build Related
-      '.dockerfile',
-      '.gradle',
-      '.gitignore',
-      '.makefile',
-      '.pom.xml',
-
-      // Miscellaneous
-      '.ass',
-      '.bat',
-      '.log',
-      '.nfo',
-      '.patch',
-      '.ps1',
-      '.srt',
-    ]
     const extension = file.name.substring(file.name.lastIndexOf('.'))
     const reader = new FileReader()
 
-    if (file.type.startsWith('text/') || humanReadableFileExtensions.includes(extension)) {
+    if (file.type.startsWith('text/') || HUMAN_READABLE_FILE_EXTENSIONS.includes(extension)) {
       reader.onload = (e) => {
         const result = e.target?.result
         if (typeof result === 'string') {

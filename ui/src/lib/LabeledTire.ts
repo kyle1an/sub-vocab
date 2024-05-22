@@ -164,11 +164,11 @@ export class LabeledTire {
   }
 
   add(input: string) {
-    const sentencesMatched = input.match(/["'@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|{[^}]*})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ])|\.{3} *)*["'@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/mg)
+    const sentencesMatched = input.match(/["'@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|\{[^}]*\})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ])|\.{3} *)*["'@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/g)
     if (sentencesMatched) {
       for (const sentence of sentencesMatched) {
         this.sentences.push(sentence)
-        const wordsMatched = sentence.matchAll(/(?:[A-Za-zÀ-ÿ]['-]?)*(?:[A-ZÀ-Þa-zß-ÿ]+[a-zß-ÿ]*)+(?:['’-]?[A-Za-zÀ-ÿ]'?)+/mg)
+        const wordsMatched = sentence.matchAll(/(?:[A-Za-zÀ-ÿ]['-]?)*[A-ZÀ-Þa-zß-ÿ][a-zß-ÿ]*(?:['’-]?[A-Za-zÀ-ÿ]'?)+/g)
         for (let n = wordsMatched.next(); !n.done; n = wordsMatched.next()) {
           const m = n.value
           const matchedWord = m[0]

@@ -5,12 +5,27 @@ import react from '@vitejs/plugin-react'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { checker } from 'vite-plugin-checker'
 
-export default ({ mode }: { mode: string }) => {
+const ReactCompilerConfig = {
+  sources: (filename: string) => {
+    return (
+      !filename.includes('src/components/ui/VocabSource')
+      && !filename.includes('ui/src/components/ui/VocabData')
+    )
+  },
+}
+
+export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
-  return defineConfig({
+  return {
     plugins: [
-      react(),
+      react({
+        babel: {
+          plugins: [
+            ['babel-plugin-react-compiler', ReactCompilerConfig],
+          ],
+        },
+      }),
       visualizer(),
       checker({
         typescript: true,
@@ -49,5 +64,5 @@ export default ({ mode }: { mode: string }) => {
         '@': path.resolve(__dirname, './src'),
       },
     },
-  })
-}
+  }
+})

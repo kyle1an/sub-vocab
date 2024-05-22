@@ -37,9 +37,6 @@ export default antfu(
       'ts/ban-types': [
         'error',
         {
-          types: {
-            '{}': false,
-          },
           extendDefaults: true,
         },
       ],

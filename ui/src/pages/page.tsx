@@ -1,9 +1,6 @@
 import {
-  type RefObject,
-  memo,
   useDeferredValue,
   useEffect,
-  useRef,
   useState,
 } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -31,7 +28,7 @@ const fileInfoAtom = atom('')
 const sourceTextAtom = atom('')
 const textCountAtom = atom(0)
 
-const SourceVocab = memo(function SourceVocab({
+function SourceVocab({
   text: sourceText,
 }: {
   text: string
@@ -62,12 +59,6 @@ const SourceVocab = memo(function SourceVocab({
       className="h-full"
     />
   )
-})
-
-function clearInputValue(ref: RefObject<HTMLInputElement | null>) {
-  if (ref.current && 'value' in ref.current) {
-    ref.current.value = ''
-  }
 }
 
 export default function Home() {
@@ -81,14 +72,11 @@ export default function Home() {
     setSourceText(value)
   }
 
-  const inputRef = useRef<HTMLInputElement>(null)
-
   function handleTextareaChange({ name, value }: { name?: string, value: string }) {
     setSourceText(value)
     if (name) {
       setFileInfo(name)
     }
-    clearInputValue(inputRef)
   }
 
   const [count] = useAtom(textCountAtom)
@@ -109,9 +97,7 @@ export default function Home() {
     <main className="m-auto h-[calc(100svh-4px*11)] w-full max-w-screen-xl px-5">
       <div className="relative flex h-14 items-center">
         <FileInput
-          // @ts-expect-error
-          inputRef={inputRef}
-          onFileChange={handleFileChange}
+          onFileSelect={handleFileChange}
         >
           {t('browseFiles')}
         </FileInput>

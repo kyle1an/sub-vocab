@@ -3,6 +3,7 @@ import { FlatCompat } from '@eslint/eslintrc'
 import { fixupConfigRules } from '@eslint/compat'
 import stylistic from '@stylistic/eslint-plugin'
 import * as tanstackQuery from '@tanstack/eslint-plugin-query'
+import eslintPluginTailwindCss from 'eslint-plugin-tailwindcss'
 
 const compat = new FlatCompat()
 
@@ -50,6 +51,23 @@ export default antfu(
       ],
     },
   },
+  ...fixupConfigRules(compat.config({
+    plugins: [
+      'eslint-plugin-react-compiler',
+    ],
+    rules: {
+      'react-compiler/react-compiler': 2,
+    },
+    // https://github.com/facebook/react/issues/29107#issue-2300739359
+    overrides: [
+      {
+        files: ['*.json', '*.graphql'],
+        rules: {
+          'react-compiler/react-compiler': 'off',
+        },
+      },
+    ],
+  })),
   {
     files: ['tsconfig.json', 'tsconfig.*.json'],
     rules: {
@@ -66,8 +84,8 @@ export default antfu(
     },
     rules: tanstackQuery.configs.recommended.rules,
   }),
-  ...fixupConfigRules(compat.config({
-    extends: ['plugin:tailwindcss/recommended'],
+  ...eslintPluginTailwindCss.configs['flat/recommended'],
+  {
     rules: {
       'tailwindcss/no-custom-classname': ['warn', {
         callees: ['classnames', 'clsx', 'ctl', 'cva', 'tv', 'twMerge'],
@@ -81,5 +99,5 @@ export default antfu(
         config: 'tailwind.config.ts', // returned from `loadConfig()` utility if not provided
       },
     },
-  })),
+  },
 )
