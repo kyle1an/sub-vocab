@@ -7,7 +7,7 @@ import {
   useState,
 } from 'react'
 import { useCookie, useLockBodyScroll } from 'react-use'
-import { Disclosure } from '@headlessui/react'
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useOnClickOutside } from 'usehooks-ts'
 import { useSize } from 'ahooks'
@@ -426,7 +426,7 @@ export function TopBar({ className }: { className?: string }) {
 
                       {/* Mobile menu button */}
                       <div className="flex md:hidden">
-                        <Disclosure.Button className="relative inline-flex items-center justify-center rounded-md p-1">
+                        <DisclosureButton className="relative inline-flex items-center justify-center rounded-md p-1">
                           <span className="absolute -inset-0.5" />
                           <span className="sr-only">Open main menu</span>
                           {open ? (
@@ -440,14 +440,14 @@ export function TopBar({ className }: { className?: string }) {
                               aria-hidden="true"
                             />
                           )}
-                        </Disclosure.Button>
+                        </DisclosureButton>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <Disclosure.Panel className="md:hidden">
+              <DisclosurePanel className="md:hidden">
                 <div className="flex flex-col gap-3.5 px-14 pb-4 pt-1.5">
                   {navigation.map((item) => {
                     return (
@@ -499,7 +499,7 @@ export function TopBar({ className }: { className?: string }) {
                     </div>
                   ))}
                 </div>
-              </Disclosure.Panel>
+              </DisclosurePanel>
             </>
           )
         }}

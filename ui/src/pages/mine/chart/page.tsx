@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import { useSessionStorage } from 'react-use'
 import { merge, rangeRight } from 'lodash-es'
 import {
@@ -198,49 +197,41 @@ export function Chart() {
   ].join(', ')
   ChartJS.defaults.font.weight = 500
 
-  const groupedRows = useMemo((): DataSet[] => {
-    if (segment === 'W') {
-      return mapWeek(userWords)
-    }
-    if (segment === 'M') {
-      return mapMonth(userWords)
-    }
-    if (segment === '6M') {
-      return map6M(userWords)
-    }
-    if (segment === 'Y') {
-      return mapY(userWords)
-    }
+  let groupedRows: DataSet[] = []
+  if (segment === 'W') {
+    groupedRows = mapWeek(userWords)
+  } else if (segment === 'M') {
+    groupedRows = mapMonth(userWords)
+  } else if (segment === '6M') {
+    groupedRows = map6M(userWords)
+  } else if (segment === 'Y') {
+    groupedRows = mapY(userWords)
+  }
 
-    return []
-  }, [userWords, segment])
+  const barColor = colors.red[400]
 
-  const chartData = useMemo(() => {
-    const barColor = colors.red[400]
+  let data = groupedRows.map((v) => v.groupValue.length)
+  if (segment === '6M') {
+    data = data.map((v) => {
+      const daily = v / 7
+      return daily
+    })
+  }
 
-    let data: number[] = groupedRows.map((v) => v.groupValue.length)
-    if (segment === '6M') {
-      data = data.map((v) => {
-        const daily = v / 7
-        return daily
-      })
-    }
-
-    return {
-      labels: groupedRows.map((v) => v.groupName),
-      datasets: [
-        {
-          borderRadius: {
-            topRight: 3,
-            topLeft: 3,
-          },
-          label: 'Acquainted Vocabulary',
-          data,
-          backgroundColor: barColor,
+  const chartData = {
+    labels: groupedRows.map((v) => v.groupName),
+    datasets: [
+      {
+        borderRadius: {
+          topRight: 3,
+          topLeft: 3,
         },
-      ],
-    } satisfies ChartData<'bar', number[], string>
-  }, [groupedRows, segment])
+        label: 'Acquainted Vocabulary',
+        data,
+        backgroundColor: barColor,
+      },
+    ],
+  } satisfies ChartData<'bar', number[], string>
 
   let options = {
     interaction: {

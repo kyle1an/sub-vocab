@@ -1,7 +1,11 @@
 import type React from 'react'
 import { readDataTransferItemList, readEntryFiles } from '@/lib/filesHandler'
 
-export function TextareaInput(props: {
+export function TextareaInput({
+  value,
+  placeholder,
+  onChange,
+}: {
   value: string
   placeholder?: string
   onChange: (text: {
@@ -10,7 +14,7 @@ export function TextareaInput(props: {
   }) => void
 }) {
   function textareaOnChange(ev: React.ChangeEvent<HTMLTextAreaElement>) {
-    props.onChange({
+    onChange({
       value: ev.target.value,
     })
   }
@@ -24,7 +28,7 @@ export function TextareaInput(props: {
     Promise.all(readDataTransferItemList(event.dataTransfer.items))
       .then((fileContents) => {
         const { title, content } = readEntryFiles(fileContents)
-        props.onChange({
+        onChange({
           value: content,
           name: title,
         })
@@ -35,9 +39,9 @@ export function TextareaInput(props: {
   return (
     <textarea
       aria-label="Text input"
-      value={props.value}
+      value={value}
       className="size-full max-h-full resize-none rounded-none px-[30px] py-3 align-top tracking-[.02em] outline-none ffs-[normal] dark:bg-slate-900 dark:text-slate-400 dark:placeholder:text-slate-600"
-      placeholder={props.placeholder ?? ''}
+      placeholder={placeholder ?? ''}
       onChange={textareaOnChange}
       onDrop={dropHandler}
     />

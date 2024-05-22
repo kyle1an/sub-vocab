@@ -1,6 +1,7 @@
 import express from 'express'
 import type { Request, Response } from 'express-serve-static-core'
 import { LRUCache } from 'lru-cache'
+import type { EmptyObject } from 'type-fest'
 import { isTokenValid, tokenChecker } from '../utils/util.js'
 import type { AcquaintWordsResponse, LabelDB, StemsMapping, ToggleWordResponse, UserVocab, Username } from '../types'
 import { acquaintWords, getUserWords, revokeWords, stemsMapping } from '../services/vocabulary.js'
@@ -14,7 +15,7 @@ router.get('/', (req, res, next) => {
   res.send('respond with a resource')
 })
 
-router.post('/queryWords', (req: Request<{}, {}, Username>, res: Response<LabelDB[]>) => {
+router.post('/queryWords', (req: Request<EmptyObject, unknown, Username>, res: Response<LabelDB[]>) => {
   const { _user = '', acct = '' } = req.cookies as CookiesObj
   isTokenValid(_user, acct)
     .then(async (isValid) => {
@@ -59,7 +60,7 @@ router.post('/stemsMapping', (req, res: Response<StemsMapping>) => {
     .catch(console.error)
 })
 
-router.post('/acquaintWords', tokenChecker, (req: Request<{}, {}, UserVocab>, res: Response<AcquaintWordsResponse>) => {
+router.post('/acquaintWords', tokenChecker, (req: Request<EmptyObject, unknown, UserVocab>, res: Response<AcquaintWordsResponse>) => {
   const { words, username } = req.body
   acquaintWords(words, username)
     .then((acquaintWordsResult) => {
@@ -71,7 +72,7 @@ router.post('/acquaintWords', tokenChecker, (req: Request<{}, {}, UserVocab>, re
     .catch(console.error)
 })
 
-router.post('/revokeWord', tokenChecker, (req: Request<{}, {}, UserVocab>, res: Response<ToggleWordResponse>) => {
+router.post('/revokeWord', tokenChecker, (req: Request<EmptyObject, unknown, UserVocab>, res: Response<ToggleWordResponse>) => {
   const { words, username } = req.body
   revokeWords(words, username)
     .then((revokeWordsResult) => {
