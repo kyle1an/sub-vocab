@@ -6,12 +6,6 @@ import { visualizer } from 'rollup-plugin-visualizer'
 import { checker } from 'vite-plugin-checker'
 
 const ReactCompilerConfig = {
-  sources: (filename: string) => {
-    return (
-      !filename.includes('src/components/ui/VocabSource')
-      && !filename.includes('ui/src/components/ui/VocabData')
-    )
-  },
 }
 
 export default defineConfig(({ mode }) => {

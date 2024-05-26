@@ -1,10 +1,7 @@
 import {
   Fragment,
-  useCallback,
-  useMemo,
 } from 'react'
 import {
-  type Table,
   type TableState,
   createColumnHelper,
   flexRender,
@@ -17,15 +14,28 @@ import {
 } from '@tanstack/react-table'
 import { uniq } from 'lodash-es'
 import usePagination from '@mui/material/usePagination'
-import { useTranslation } from 'react-i18next'
+import {
+  Trans,
+  useTranslation,
+} from 'react-i18next'
 import { useSessionStorage } from 'react-use'
-import { toast } from 'sonner'
 import { atom, useAtom } from 'jotai'
 import { useUnmount } from 'usehooks-ts'
 import { Pagination } from './pagination'
 import { SearchWidget } from './search-widget'
 import { VocabStatics } from './vocab-statics-bar'
-import { AcquaintAllDialog } from './acquaint-all-dialog'
+import { TableHeader } from './tableHeader'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from './alert-dialog'
 import { Icon } from '@/components/ui/icon'
 import { Examples } from '@/components/ui/Examples.tsx'
 import { SegmentedControl } from '@/components/ui/SegmentedControl.tsx'
@@ -51,34 +61,56 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { LEARNING_PHASE, type LearningPhase } from '@/lib/LabeledTire'
 import type { LabelDisplaySource } from '@/lib/vocab'
-import { useAcquaintWordsMutation, useRevokeWordMutation } from '@/api/vocab-api'
-import { useVocabStore } from '@/store/useVocab'
-import { LoginToast } from '@/components/login-toast'
 import { sortIcon } from '@/lib/icon-utils'
-import type { GroupHeader } from '@/types/vocab'
 import { tryGetRegex } from '@/lib/regex'
+import { useAcquaintAll, useVocabToggle } from '@/hooks/vocabToggle'
+import type { TI } from '@/i18n'
+import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
 
-const columnHelper = createColumnHelper<LabelDisplaySource>()
-
-function TableHeader<T extends Table<any>>({ header }: { header: GroupHeader<T> }) {
+export function AcquaintAllDialog<T extends VocabState>({ vocabulary }: { vocabulary: T[] }) {
+  const { t } = useTranslation()
+  const acquaintAllVocab = useAcquaintAll()
   return (
-    header.isPlaceholder ? (
-      <th
-        colSpan={header.colSpan}
-        className="border-y border-solid border-y-zinc-200 p-0 text-sm font-normal"
-      />
-    ) : (
-      <>
-        {flexRender(
-          header.column.columnDef.header,
-          header.getContext(),
-        )}
-      </>
-    )
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <div className="flex w-full flex-row items-center gap-1.5 px-2 py-1.5">
+          <Icon icon="solar:list-check-bold" />
+          <div className="">{t('acquaintedAll')}</div>
+        </div>
+      </AlertDialogTrigger>
+      <AlertDialogContent className="sm:max-w-[425px]">
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t('acquaintedAll')}</AlertDialogTitle>
+          <AlertDialogDescription>
+            <Trans
+              i18nKey="acquaintedAllConfirmText"
+              count={vocabulary.length}
+            >
+              Are you sure to mark all (
+              <span className="font-bold text-black">{{ count: vocabulary.length } as TI}</span>
+              ) vocabulary as acquainted?
+            </Trans>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="">
+          <AlertDialogCancel>{t('Cancel')}</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              if (vocabulary.length > 0) {
+                acquaintAllVocab(vocabulary)
+              }
+            }}
+          >
+            {t('Continue')}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }
+
+const columnHelper = createColumnHelper<LabelDisplaySource>()
 
 type ColumnFilterFn = (rowValue: LabelDisplaySource) => boolean
 
@@ -113,50 +145,13 @@ function getAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
   }
 }
 
-const pages = [10, 20, 40, 50, 100, 200, 1000]
+const PAGES = [10, 20, 40, 50, 100, 200, 1000] as const
 
-export function VocabSourceTable({
-  data,
-  sentences,
-  onPurge,
-  className = '',
-}: {
-  data: LabelDisplaySource[]
-  sentences: string[]
-  onPurge: () => void
-  className?: string
-}) {
-  type TProp = LabelDisplaySource
+function useColumns() {
   const { t } = useTranslation()
-  const { mutateAsync: mutateRevokeWordAsync } = useRevokeWordMutation()
-  const { mutateAsync: mutateAcquaintWordsAsync } = useAcquaintWordsMutation()
-  const username = useVocabStore((state) => state.username)
-  const [searchValue, setSearchValue] = useAtom(searchValueAtom)
-  const [useRegex, setUseRegex] = useAtom(useRegexAtom)
-  const [tableState, setTableState] = useAtom(tableStateAtom)
-
-  const handleVocabToggle = useCallback(function handleVocabToggle(vocab: TProp) {
-    if (!username) {
-      toast(<LoginToast />)
-      return
-    }
-
-    const rows2Mutate = [vocab].filter((row) => row.word.length <= 32)
-    if (rows2Mutate.length === 0) {
-      return
-    }
-
-    if (vocab.learningPhase === LEARNING_PHASE.ACQUAINTED) {
-      mutateRevokeWordAsync(rows2Mutate)
-        .catch(console.error)
-    } else {
-      mutateAcquaintWordsAsync(rows2Mutate)
-        .catch(console.error)
-    }
-  }, [username, mutateAcquaintWordsAsync, mutateRevokeWordAsync])
-
-  const columns = useMemo(() => {
-    return [
+  const handleVocabToggle = useVocabToggle()
+  return (
+    [
       columnHelper.accessor((row) => row.locations.length, {
         id: 'frequency',
         header: ({ header }) => {
@@ -418,8 +413,25 @@ export function VocabSourceTable({
         footer: ({ column }) => column.id,
       }),
     ]
-  }, [handleVocabToggle, t])
+  )
+}
 
+export function VocabSourceTable({
+  data,
+  sentences,
+  onPurge,
+  className = '',
+}: {
+  data: LabelDisplaySource[]
+  sentences: string[]
+  onPurge: () => void
+  className?: string
+}) {
+  const { t } = useTranslation()
+  const [searchValue, setSearchValue] = useAtom(searchValueAtom)
+  const [useRegex, setUseRegex] = useAtom(useRegexAtom)
+  const [tableState, setTableState] = useAtom(tableStateAtom)
+  const columns = useColumns()
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'all')
 
@@ -499,7 +511,7 @@ export function VocabSourceTable({
     return row.original.word.length <= 32
   }).map((row) => row.original)
 
-  const itemsNum = uniq([table.getPaginationRowModel().rows.length, rowsFiltered.length]).filter(Boolean).filter((n) => !pages.includes(n))
+  const itemsNum = uniq([table.getPaginationRowModel().rows.length, rowsFiltered.length]).filter(Boolean).filter((n) => !PAGES.includes(n))
 
   useUnmount(() => {
     setTableState(table.getState())
@@ -636,7 +648,7 @@ export function VocabSourceTable({
                 position="item-aligned"
               >
                 <SelectGroup>
-                  {pages.map((size) => (
+                  {PAGES.map((size) => (
                     <SelectItem
                       className="pr-4 text-xs tabular-nums"
                       key={size}
