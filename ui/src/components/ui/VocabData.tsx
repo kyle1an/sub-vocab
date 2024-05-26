@@ -1,10 +1,7 @@
 import {
   Fragment,
-  useCallback,
-  useMemo,
 } from 'react'
 import {
-  type Table,
   type TableState,
   createColumnHelper,
   flexRender,
@@ -20,13 +17,13 @@ import usePagination from '@mui/material/usePagination'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
-import { toast } from 'sonner'
 import { atom, useAtom } from 'jotai'
 import { useUnmount } from 'usehooks-ts'
 import { Pagination } from './pagination'
 import { SearchWidget } from './search-widget'
 import { VocabStatics } from './vocab-statics-bar'
-import { AcquaintAllDialog } from './acquaint-all-dialog'
+import { TableHeader } from './tableHeader'
+import { AcquaintAllDialog } from './VocabSource'
 import { Icon } from '@/components/ui/icon'
 import { SegmentedControl } from '@/components/ui/SegmentedControl.tsx'
 import { VocabToggle } from '@/components/ui/ToggleButton.tsx'
@@ -53,32 +50,11 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { LEARNING_PHASE, type LearningPhase } from '@/lib/LabeledTire'
 import type { LabelDisplayTable } from '@/lib/vocab'
-import { useAcquaintWordsMutation, useRevokeWordMutation } from '@/api/vocab-api'
-import { useVocabStore } from '@/store/useVocab'
-import { LoginToast } from '@/components/login-toast'
 import { sortIcon } from '@/lib/icon-utils'
-import type { GroupHeader } from '@/types/vocab'
 import { tryGetRegex } from '@/lib/regex'
+import { useVocabToggle } from '@/hooks/vocabToggle'
 
 const columnHelper = createColumnHelper<LabelDisplayTable>()
-
-function TableHeader<T extends Table<any>>({ header }: { header: GroupHeader<T> }) {
-  return (
-    header.isPlaceholder ? (
-      <th
-        colSpan={header.colSpan}
-        className="border-y border-solid border-y-zinc-200 p-0 text-sm font-normal"
-      />
-    ) : (
-      <>
-        {flexRender(
-          header.column.columnDef.header,
-          header.getContext(),
-        )}
-      </>
-    )
-  )
-}
 
 type ColumnFilterFn = (rowValue: LabelDisplayTable) => boolean
 
@@ -129,48 +105,13 @@ function getUserOwnedFilter(filterSegment: Segment): ColumnFilterFn {
   }
 }
 
-const pages = [10, 20, 40, 50, 100, 200, 1000]
+const PAGES = [10, 20, 40, 50, 100, 200, 1000] as const
 
-export function VocabDataTable({
-  data,
-  onPurge,
-  className = '',
-}: {
-  data: LabelDisplayTable[]
-  onPurge: () => void
-  className?: string
-}) {
-  type TProp = LabelDisplayTable
+function useColumns() {
   const { t } = useTranslation()
-  const { mutateAsync: mutateRevokeWordAsync } = useRevokeWordMutation()
-  const { mutateAsync: mutateAcquaintWordsAsync } = useAcquaintWordsMutation()
-  const username = useVocabStore((state) => state.username)
-  const [searchValue, setSearchValue] = useAtom(searchValueAtom)
-  const [useRegex, setUseRegex] = useAtom(useRegexAtom)
-  const [tableState, setTableState] = useAtom(tableStateAtom)
-
-  const handleVocabToggle = useCallback(function handleVocabToggle(vocab: TProp) {
-    if (!username) {
-      toast(<LoginToast />)
-      return
-    }
-
-    const rows2Mutate = [vocab].filter((row) => row.word.length <= 32)
-    if (rows2Mutate.length === 0) {
-      return
-    }
-
-    if (vocab.learningPhase === LEARNING_PHASE.ACQUAINTED) {
-      mutateRevokeWordAsync(rows2Mutate)
-        .catch(console.error)
-    } else {
-      mutateAcquaintWordsAsync(rows2Mutate)
-        .catch(console.error)
-    }
-  }, [username, mutateAcquaintWordsAsync, mutateRevokeWordAsync])
-
-  const columns = useMemo(() => {
-    return [
+  const handleVocabToggle = useVocabToggle()
+  return (
+    [
       columnHelper.accessor((row) => row.timeModified, {
         id: 'timeModified',
         header: ({ header }) => {
@@ -434,8 +375,23 @@ export function VocabDataTable({
         footer: ({ column }) => column.id,
       }),
     ]
-  }, [handleVocabToggle, t])
+  )
+}
 
+export function VocabDataTable({
+  data,
+  onPurge,
+  className = '',
+}: {
+  data: LabelDisplayTable[]
+  onPurge: () => void
+  className?: string
+}) {
+  const { t } = useTranslation()
+  const [searchValue, setSearchValue] = useAtom(searchValueAtom)
+  const [useRegex, setUseRegex] = useAtom(useRegexAtom)
+  const [tableState, setTableState] = useAtom(tableStateAtom)
+  const columns = useColumns()
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'allAcquainted')
 
@@ -523,7 +479,7 @@ export function VocabDataTable({
     return row.original.word.length <= 32
   }).map((row) => row.original)
 
-  const itemsNum = uniq([table.getPaginationRowModel().rows.length, rowsFiltered.length]).filter(Boolean).filter((n) => !pages.includes(n))
+  const itemsNum = uniq([table.getPaginationRowModel().rows.length, rowsFiltered.length]).filter(Boolean).filter((n) => !PAGES.includes(n))
 
   useUnmount(() => {
     setTableState(table.getState())
@@ -645,7 +601,7 @@ export function VocabDataTable({
                 position="item-aligned"
               >
                 <SelectGroup>
-                  {pages.map((size) => (
+                  {PAGES.map((size) => (
                     <SelectItem
                       className="pr-4 text-xs tabular-nums"
                       key={size}
