@@ -33,6 +33,8 @@
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
+
+    --internal-autofill: rgb(232, 240, 254);
   }
 
   .dark {

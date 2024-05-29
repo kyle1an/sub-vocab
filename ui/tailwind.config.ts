@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss'
+import flattenColorPalette from 'tailwindcss/lib/util/flattenColorPalette'
 import plugin from 'tailwindcss/plugin'
 import { mauve, violet } from '@radix-ui/colors'
 
@@ -64,6 +65,7 @@ const config: Config = {
         },
         ...mauve,
         ...violet,
+        'internal-autofill': 'var(--internal-autofill)',
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -89,17 +91,14 @@ const config: Config = {
   plugins: [
     // eslint-disable-next-line ts/no-require-imports
     require('tailwindcss-animate'),
+    // eslint-disable-next-line ts/no-require-imports
+    require('tailwindcss-signals'),
     plugin(({
-      addBase,
-      addComponents,
       addUtilities,
+      addVariant,
       matchUtilities,
       theme,
     }) => {
-      addUtilities({
-        '.tap-transparent': { '-webkit-tap-highlight-color': 'transparent' },
-        '.overflow-scrolling-touch': { '-webkit-overflow-scrolling': 'touch' },
-      })
       matchUtilities({
         ffs: (value) => ({
           fontFeatureSettings: value,
@@ -107,6 +106,96 @@ const config: Config = {
         stretch: (value) => ({
           fontStretch: value,
         }),
+      })
+
+      const sq_DEFINITION = '&:is(.sq *)'
+
+      addUtilities({
+        '.squircle': {
+          [sq_DEFINITION]: {
+            background: 'paint(squircle)',
+            borderRadius: '0',
+            '--squircle-outline': '0',
+          },
+        },
+      })
+
+      addVariant('sq', sq_DEFINITION)
+
+      matchUtilities({
+        mask: (value) => ({
+          [sq_DEFINITION]: {
+            maskImage: value,
+          },
+        }),
+      }, {
+        values: {
+          squircle: 'paint(squircle)',
+        },
+      })
+
+      matchUtilities({
+        'sq-smooth': (value) => ({
+          [sq_DEFINITION]: {
+            '--squircle-smooth': value,
+          },
+        }),
+      })
+
+      matchUtilities({
+        'sq-radius': (value) => ({
+          [sq_DEFINITION]: {
+            '--squircle-radius': value,
+          },
+        }),
+      }, {
+        values: theme('borderRadius'),
+      })
+
+      matchUtilities({
+        'sq-outline': (value) => ({
+          [sq_DEFINITION]: {
+            '--squircle-fill': 'transparent',
+            '--squircle-outline': value,
+          },
+        }),
+      }, {
+        values: theme('borderWidth'),
+      })
+
+      matchUtilities({
+        'sq-stroke': (value) => ({
+          [sq_DEFINITION]: {
+            '--squircle-stroke': value,
+          },
+        }),
+      }, {
+        values: flattenColorPalette(theme('colors')),
+        type: 'color',
+      })
+
+      matchUtilities({
+        'sq-fill': (value) => ({
+          [sq_DEFINITION]: {
+            '--squircle-fill': value,
+            '&.squircle': {
+              backgroundColor: 'transparent',
+            },
+          },
+        }),
+      }, {
+        values: flattenColorPalette(theme('colors')),
+        type: ['color', 'any'],
+      })
+
+      matchUtilities({
+        _bg: (value) => ({
+          '--bg-': value,
+          backgroundColor: 'var(--bg-)',
+        }),
+      }, {
+        values: flattenColorPalette(theme('colors')),
+        type: 'color',
       })
     }),
   ],

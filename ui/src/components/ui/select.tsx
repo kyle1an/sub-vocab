@@ -26,6 +26,8 @@ function SelectTrigger({
       ref={ref}
       className={cn(
         'flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm text-violet11 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-violet9',
+        'squircle sq-radius-[--sq-r] sq-outline-[--l-w] sq-stroke-input [--l-w:1px] [--sq-r:4px] sq:border-0 sq:shadow-none',
+        'relative [--offset:1px] focus:after:squircle focus:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus:after:sq-outline focus:after:sq-stroke-ring sq:focus:ring-0 sq:focus:after:absolute sq:focus:after:-left-[--offset] sq:focus:after:-top-[--offset] sq:focus:after:size-[calc(100%+2*var(--offset))]',
         className,
       )}
       {...props}
@@ -56,6 +58,7 @@ function SelectContent({
           'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
           position === 'popper'
           && 'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
+          'squircle sq-radius-[--sq-r] sq-outline-[--l-w] sq-stroke-border sq-fill-popover [--l-w:1px] [--sq-r:6px] sq:relative sq:border-0 sq:p-[calc(0px+var(--l-w))] sq:shadow-none sq:drop-shadow-md',
           className,
         )}
         position={position}
@@ -108,6 +111,7 @@ function SelectItem({
       ref={ref}
       className={cn(
         'relative flex h-6 w-full cursor-default select-none items-center rounded-sm px-6 py-1.5 text-sm text-violet11 outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[highlighted]:bg-violet9 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 data-[highlighted]:outline-none',
+        'sq-radius-[--sq-r] [--sq-r:3px] focus:squircle focus:sq-fill-accent data-[highlighted]:sq-fill-violet9',
         className,
       )}
       {...props}

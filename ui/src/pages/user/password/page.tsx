@@ -12,7 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { Input, InputWrapper } from '@/components/ui/input'
 import { useVocabStore } from '@/store/useVocab.ts'
 import { useChangePassword, useLogOut } from '@/api/user'
 
@@ -109,14 +109,16 @@ export function Password() {
                     <FormLabel>{t('Old Password')}</FormLabel>
                     <FormControl>
                       <div className="flex items-center gap-1">
-                        <Input
-                          type={oldPasswordVisible ? 'text' : 'password'}
-                          autoComplete="current-password"
-                          placeholder=""
-                          {...field}
-                          {...register('oldPassword')}
-                          className="text-base md:text-sm"
-                        />
+                        <InputWrapper>
+                          <Input
+                            type={oldPasswordVisible ? 'text' : 'password'}
+                            autoComplete="current-password"
+                            placeholder=""
+                            {...field}
+                            {...register('oldPassword')}
+                            className="text-base md:text-sm"
+                          />
+                        </InputWrapper>
                         <Button
                           variant="outline"
                           className="px-2"
@@ -157,14 +159,16 @@ export function Password() {
                     <FormLabel>{t('New Password')}</FormLabel>
                     <FormControl>
                       <div className="flex items-center gap-1">
-                        <Input
-                          type={newPasswordVisible ? 'text' : 'password'}
-                          autoComplete="new-password"
-                          placeholder=""
-                          {...field}
-                          {...register('newPassword')}
-                          className="text-base md:text-sm"
-                        />
+                        <InputWrapper>
+                          <Input
+                            type={newPasswordVisible ? 'text' : 'password'}
+                            autoComplete="new-password"
+                            placeholder=""
+                            {...field}
+                            {...register('newPassword')}
+                            className="text-base md:text-sm"
+                          />
+                        </InputWrapper>
                         <Button
                           variant="outline"
                           className="px-2"

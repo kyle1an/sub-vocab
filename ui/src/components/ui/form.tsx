@@ -143,7 +143,7 @@ function FormDescription({
     <p
       ref={ref}
       id={formDescriptionId}
-      className={cn('text-[0.8rem] text-muted-foreground', className)}
+      className={cn('text-[.8rem] text-muted-foreground', className)}
       {...props}
     />
   )
@@ -167,7 +167,7 @@ function FormMessage({
     <p
       ref={ref}
       id={formMessageId}
-      className={cn('text-[0.8rem] font-medium text-destructive', className)}
+      className={cn('text-[.8rem] font-medium text-destructive', className)}
       {...props}
     >
       {body}

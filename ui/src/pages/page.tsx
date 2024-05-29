@@ -94,7 +94,7 @@ export default function Home() {
   }
 
   return (
-    <main className="m-auto h-[calc(100svh-4px*11)] w-full max-w-screen-xl px-5">
+    <main className="m-auto h-[calc(100svh-4px*11)] w-full max-w-screen-xl px-5 pb-7">
       <div className="relative flex h-14 items-center">
         <FileInput
           onFileSelect={handleFileChange}
@@ -103,10 +103,10 @@ export default function Home() {
         </FileInput>
         <div className="grow" />
       </div>
-      <div className="flex h-[calc(100%-4px*14)] flex-row gap-6 pb-7">
+      <div className="flex h-[calc(100%-4px*14)] items-center justify-center overflow-hidden rounded-xl border drop-shadow-sm squircle sq-smooth-[.42] sq-radius-[--sq-r] sq-fill-border [--sq-r:9px] sq:rounded-none sq:border-0">
         <ResizablePanelGroup
           direction={direction}
-          className="rounded-[12px] border shadow-sm [body:has(&)]:overflow-hidden"
+          className="squircle mask-squircle sq-radius-[calc(var(--sq-r)-1px)] sq-fill-white sq:size-[calc(100%-2px)]"
         >
           <ResizablePanel defaultSize={defaultSizes[0]}>
             <div className="flex h-full items-center justify-center">
@@ -128,7 +128,7 @@ export default function Home() {
           </ResizablePanel>
           <ResizableHandle
             withHandle
-            className="focus-visible:ring-offset-0"
+            className="focus-visible:bg-ring focus-visible:ring-offset-[-1px]"
           />
           <ResizablePanel defaultSize={defaultSizes[1]}>
             <SourceVocab

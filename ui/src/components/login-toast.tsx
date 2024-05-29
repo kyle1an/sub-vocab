@@ -12,17 +12,18 @@ export function LoginToast() {
           Please log in to mark words.
         </div>
         <div className="flex items-end">
-          <Link
-            to="/login"
+          <Button
+            variant="outline"
+            className="whitespace-nowrap p-0"
+            size="sm"
           >
-            <Button
-              variant="outline"
-              className="whitespace-nowrap"
-              size="sm"
+            <Link
+              to="/login"
+              className="flex size-full items-center px-3"
             >
               Sign in
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </div>
     </div>

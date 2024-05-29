@@ -11,7 +11,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { Input, InputWrapper } from '@/components/ui/input'
+import { Card } from '@/components/ui/card'
 import { useIsUsernameTaken, useRegister } from '@/api/user'
 
 type FormValues = {
@@ -89,10 +90,10 @@ export function SignUp() {
       <div className="mx-auto py-6">
         <section className="py-5">
           <div className="mx-auto flex flex-col items-center justify-center px-6 py-8 lg:py-0">
-            <div className="w-full rounded-lg bg-white shadow dark:border dark:bg-zinc-900 sm:max-w-md md:mt-0 xl:p-0">
+            <Card className="w-full rounded-lg sm:max-w-md md:mt-0 xl:p-0">
               <div className="max-w-80 space-y-4 p-6 sm:px-8 sm:py-7 md:w-80 md:space-y-6">
                 <h1 className="text-xl/tight font-bold md:text-2xl">
-                  Sign Up
+                  Sign up
                 </h1>
                 <Form {...form}>
                   <form
@@ -110,19 +111,21 @@ export function SignUp() {
                         <FormItem>
                           <FormLabel>Username</FormLabel>
                           <FormControl>
-                            <Input
-                              type="text"
-                              placeholder=""
-                              autoComplete="username"
-                              {...field}
-                              {...register('username')}
-                              onBlur={() => {
-                                if (form.formState.isDirty) {
-                                  trigger('username').catch(console.error)
-                                }
-                              }}
-                              className="text-base md:text-sm"
-                            />
+                            <InputWrapper>
+                              <Input
+                                type="text"
+                                placeholder=""
+                                autoComplete="username"
+                                {...field}
+                                {...register('username')}
+                                onBlur={() => {
+                                  if (form.formState.isDirty) {
+                                    trigger('username').catch(console.error)
+                                  }
+                                }}
+                                className="text-base md:text-sm"
+                              />
+                            </InputWrapper>
                           </FormControl>
                           <FormMessage>{errors.username?.message ?? ''}</FormMessage>
                         </FormItem>
@@ -140,14 +143,16 @@ export function SignUp() {
                           <FormLabel>Password</FormLabel>
                           <FormControl>
                             <div className="flex items-center gap-1">
-                              <Input
-                                type={passwordVisible ? 'text' : 'password'}
-                                autoComplete="new-password"
-                                placeholder=""
-                                {...field}
-                                {...register('password')}
-                                className="text-base md:text-sm"
-                              />
+                              <InputWrapper className="grow">
+                                <Input
+                                  type={passwordVisible ? 'text' : 'password'}
+                                  autoComplete="new-password"
+                                  placeholder=""
+                                  {...field}
+                                  {...register('password')}
+                                  className="text-base md:text-sm"
+                                />
+                              </InputWrapper>
                               <Button
                                 variant="outline"
                                 className="px-2"
@@ -194,7 +199,7 @@ export function SignUp() {
                   </form>
                 </Form>
               </div>
-            </div>
+            </Card>
           </div>
         </section>
       </div>

@@ -1,9 +1,9 @@
 import type { UsePaginationItem } from '@mui/material/usePagination'
 import type { Table } from '@tanstack/react-table'
-import { Icon } from './icon'
+import { Icon } from '@/components/ui/icon'
 import { cn } from '@/lib/utils'
 
-export function Pagination<T>({
+export function TablePagination<T>({
   items,
   table,
 }: {
@@ -20,7 +20,6 @@ export function Pagination<T>({
       }) => {
         const size = 16
         const className = 'flex items-center min-w-[1.625rem] justify-center rounded dark:text-slate-300 dark:disabled:text-zinc-700 border border-transparent text-xs tabular-nums disabled:text-zinc-300'
-        const key = `${type}${page}`
 
         if (type === 'previous') {
           return (
@@ -30,7 +29,7 @@ export function Pagination<T>({
               className={cn(className, 'px-0 text-zinc-500')}
               disabled={!table.getCanPreviousPage()}
               onClick={table.previousPage}
-              key={key}
+              key={type}
             >
               <Icon
                 icon="lucide:chevron-left"
@@ -49,7 +48,7 @@ export function Pagination<T>({
               onClick={() => {
                 table.setPageIndex(Math.max(0, table.getState().pagination.pageIndex - 2))
               }}
-              key={key}
+              key={`${type}${page}`}
             >
               <Icon
                 icon="lucide:chevrons-left"
@@ -68,12 +67,13 @@ export function Pagination<T>({
         if (type === 'first' || type === 'page' || type === 'last') {
           return (
             <button
-              className={cn(className, selected && 'border-border font-bold')}
+              className={cn(className, selected && 'border-border font-bold squircle sq-radius-[--sq-r] sq-outline sq-stroke-border [--sq-r:3px] disabled:text-[unset] sq:border-0')}
               type="button"
+              disabled={selected}
               onClick={() => {
                 table.setPageIndex(Number(page) - 1)
               }}
-              key={key}
+              key={`${type}${page}`}
             >
               {page}
             </button>
@@ -89,7 +89,7 @@ export function Pagination<T>({
               onClick={() => {
                 table.setPageIndex(Math.min(table.getState().pagination.pageIndex + 2, table.getPageCount() - 1))
               }}
-              key={key}
+              key={`${type}${page}`}
             >
               <Icon
                 icon="lucide:chevrons-right"
@@ -113,7 +113,7 @@ export function Pagination<T>({
               aria-label="Next page"
               disabled={!table.getCanNextPage()}
               onClick={table.nextPage}
-              key={key}
+              key={type}
             >
               <Icon
                 icon="lucide:chevron-right"

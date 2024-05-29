@@ -21,7 +21,6 @@ import {
 import { useSessionStorage } from 'react-use'
 import { atom, useAtom } from 'jotai'
 import { useUnmount } from 'usehooks-ts'
-import { Pagination } from './pagination'
 import { SearchWidget } from './search-widget'
 import { VocabStatics } from './vocab-statics-bar'
 import { TableHeader } from './tableHeader'
@@ -36,6 +35,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from './alert-dialog'
+import { TablePagination } from '@/components/table-pagination'
 import { Icon } from '@/components/ui/icon'
 import { Examples } from '@/components/ui/Examples.tsx'
 import { SegmentedControl } from '@/components/ui/SegmentedControl.tsx'
@@ -88,7 +88,7 @@ export function AcquaintAllDialog<T extends VocabState>({ vocabulary }: { vocabu
               count={vocabulary.length}
             >
               Are you sure to mark all (
-              <span className="font-bold text-black">{{ count: vocabulary.length } as TI}</span>
+              <span className="font-bold text-foreground">{{ count: vocabulary.length } as TI}</span>
               ) vocabulary as acquainted?
             </Trans>
           </AlertDialogDescription>
@@ -160,7 +160,7 @@ function useColumns() {
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[0.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
+                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
               )}
             >
               <div
@@ -284,7 +284,7 @@ function useColumns() {
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[0.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
+                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
               )}
             >
               <div
@@ -335,7 +335,7 @@ function useColumns() {
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[0.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
+                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
               )}
             >
               <div
@@ -374,7 +374,7 @@ function useColumns() {
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[0.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
+                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
               )}
             >
               <div
@@ -490,7 +490,7 @@ export function VocabSourceTable({
       }
     } else {
       columnWord?.setFilterValue((): ColumnFilterFn => function searchFilterFn(row) {
-        return row.word.includes(search)
+        return row.wFamily.some((word) => word.includes(search))
       })
     }
   }
@@ -518,12 +518,12 @@ export function VocabSourceTable({
   })
 
   return (
-    <div className={cn('flex h-full flex-col items-center overflow-hidden bg-white shadow-sm will-change-transform dark:bg-slate-900', className)}>
+    <div className={cn('flex h-full flex-col items-center overflow-hidden bg-white will-change-transform dark:bg-slate-900', className)}>
       <div className="z-10 flex h-12 w-full justify-between bg-neutral-50 p-2 dark:bg-slate-900 dark:text-slate-400">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
-              className="flex max-h-full gap-1 p-2 text-neutral-500"
+              className="flex max-h-full gap-1 p-2 text-neutral-500 [--sq-r:5px]"
               variant="ghost"
             >
               <Icon
@@ -629,7 +629,7 @@ export function VocabSourceTable({
         </table>
       </div>
       <div className="flex w-full flex-wrap items-center justify-between gap-1 border-t border-t-zinc-200 px-0.5 py-1 tabular-nums dark:border-slate-800">
-        <Pagination
+        <TablePagination
           items={items}
           table={table}
         />

@@ -11,7 +11,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { Input, InputWrapper } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@/components/ui/icon'
 
@@ -100,14 +100,16 @@ export function UserPage() {
                   <FormItem>
                     <FormLabel>{t('Name')}</FormLabel>
                     <FormControl>
-                      <Input
-                        type="text"
-                        placeholder=""
-                        autoComplete="off"
-                        {...field}
-                        {...register('newUsername')}
-                        className="text-base md:text-sm"
-                      />
+                      <InputWrapper>
+                        <Input
+                          type="text"
+                          placeholder=""
+                          autoComplete="off"
+                          {...field}
+                          {...register('newUsername')}
+                          className="text-base md:text-sm"
+                        />
+                      </InputWrapper>
                     </FormControl>
                     <FormMessage>{errors.newUsername?.message ?? ''}</FormMessage>
                   </FormItem>

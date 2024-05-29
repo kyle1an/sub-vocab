@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 
 function ResizablePanelGroup({
   className,
+  style,
   ...props
 }: React.ComponentProps<typeof ResizablePrimitive.PanelGroup>) {
   return (
@@ -13,6 +14,11 @@ function ResizablePanelGroup({
         'flex size-full data-[panel-group-direction=vertical]:flex-col',
         className,
       )}
+      style={{
+        height: undefined,
+        width: undefined,
+        ...style,
+      }}
       {...props}
     />
   )
