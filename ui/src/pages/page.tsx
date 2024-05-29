@@ -94,7 +94,7 @@ export default function Home() {
   }
 
   return (
-    <main className="m-auto h-[calc(100svh-4px*11)] w-full max-w-screen-xl px-5">
+    <main className="m-auto h-[calc(100svh-4px*11)] w-full max-w-screen-xl px-5 pb-7">
       <div className="relative flex h-14 items-center">
         <FileInput
           onFileSelect={handleFileChange}
@@ -103,12 +103,21 @@ export default function Home() {
         </FileInput>
         <div className="grow" />
       </div>
-      <div className="flex h-[calc(100%-4px*14)] flex-row gap-6 pb-7">
+      <div className="relative flex h-[calc(100%-4px*14)] flex-row gap-6 drop-shadow-sm [--group-radius:9px] [--line-width:1px]">
         <ResizablePanelGroup
           direction={direction}
-          className="rounded-[12px] border shadow-sm [body:has(&)]:overflow-hidden"
+          className="group/p rounded-[12px] border squircle sq-rounded-[--group-radius] sq-outline-[--line-width] sq-fill-border [--subdued-radius:0] sq:border-0 sq:[--subdued-radius:18px] [body:has(&)]:overflow-hidden"
         >
-          <ResizablePanel defaultSize={defaultSizes[0]}>
+          <div className="absolute bottom-[--line-width] left-[--line-width] size-[calc(100%-var(--line-width)*2)] sq-rounded-[8px] sq-outline-0 *:absolute *:size-1/2 *:squircle dark:hidden">
+            <div className="sq-fill-zinc-50" />
+            <div className="right-0 top-0 sq-fill-neutral-50 group-data-[panel-group-direction=vertical]/p:sq-fill-zinc-50" />
+            <div className="bottom-0 right-0 sq-fill-neutral-50" />
+            <div className="bottom-0 left-0 sq-fill-white group-data-[panel-group-direction=vertical]/p:sq-fill-neutral-50" />
+          </div>
+          <ResizablePanel
+            defaultSize={defaultSizes[0]}
+            className="border-transparent group-data-[panel-group-direction=horizontal]/p:rounded-l-[--subdued-radius] group-data-[panel-group-direction=vertical]/p:rounded-t-[--subdued-radius] group-data-[panel-group-direction=horizontal]/p:border-r-0 group-data-[panel-group-direction=vertical]/p:border-b-0 sq:border-[length:--line-width]"
+          >
             <div className="flex h-full items-center justify-center">
               <div className="relative flex h-full grow flex-col overflow-hidden">
                 <div className="flex h-10 shrink-0 items-center border-b bg-zinc-50 py-2 pl-4 pr-2 text-xs text-neutral-600 dark:bg-slate-900 dark:text-slate-400">
@@ -128,9 +137,12 @@ export default function Home() {
           </ResizablePanel>
           <ResizableHandle
             withHandle
-            className="focus-visible:ring-offset-0"
+            className="focus-visible:bg-ring focus-visible:ring-offset-[-1px]"
           />
-          <ResizablePanel defaultSize={defaultSizes[1]}>
+          <ResizablePanel
+            defaultSize={defaultSizes[1]}
+            className="border-transparent group-data-[panel-group-direction=horizontal]/p:rounded-r-[--subdued-radius] group-data-[panel-group-direction=vertical]/p:rounded-b-[--subdued-radius] group-data-[panel-group-direction=horizontal]/p:border-l-0 group-data-[panel-group-direction=vertical]/p:border-t-0 sq:border-[length:--line-width]"
+          >
             <SourceVocab
               text={deferredSourceText}
             />

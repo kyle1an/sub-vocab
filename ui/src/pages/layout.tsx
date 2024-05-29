@@ -20,6 +20,15 @@ const ReactQueryDevtoolsProduction = lazy(() => import('@tanstack/react-query-de
   default: d.ReactQueryDevtools,
 })))
 
+// @ts-expect-error
+const isChromium = Boolean(window.chrome)
+if (
+  CSS.supports('background:paint(squircle)')
+  && isChromium
+) {
+  document.documentElement.classList.add('sq')
+}
+
 export function RootLayout() {
   const ref = useRef<HTMLDivElement>(null)
   const isDarkMode = useDarkMode()
@@ -66,17 +75,17 @@ export function RootLayout() {
           <Outlet />
           <SpeedInsights />
         </div>
+        <Toaster
+          closeButton
+          richColors
+        />
+        <ReactQueryDevtools initialIsOpen={false} />
+        {showDevtools ? (
+          <Suspense fallback={null}>
+            <ReactQueryDevtoolsProduction />
+          </Suspense>
+        ) : null}
       </div>
-      <Toaster
-        closeButton
-        richColors
-      />
-      <ReactQueryDevtools initialIsOpen={false} />
-      {showDevtools ? (
-        <Suspense fallback={null}>
-          <ReactQueryDevtoolsProduction />
-        </Suspense>
-      ) : null}
     </QueryClientProvider>
   )
 }

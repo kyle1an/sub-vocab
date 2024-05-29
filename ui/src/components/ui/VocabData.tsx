@@ -486,7 +486,7 @@ export function VocabDataTable({
   })
 
   return (
-    <div className={cn('flex h-full flex-col items-center overflow-hidden rounded-xl border border-inherit bg-white shadow-sm will-change-transform dark:bg-slate-900 md:grow', className)}>
+    <div className={cn('flex h-full flex-col items-center overflow-hidden bg-white will-change-transform dark:bg-slate-900', className)}>
       <div className="z-10 flex h-12 w-full justify-between bg-neutral-50 p-2 dark:bg-slate-900 dark:text-slate-400">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

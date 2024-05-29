@@ -10,6 +10,13 @@
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-GXR2MV6WDS"></script>
   <script>
+    if ("paintWorklet" in CSS) {
+      CSS.paintWorklet.addModule(
+        "https://www.unpkg.com/css-houdini-squircle@0.3.0/squircle.min.js"
+      );
+    }
+  </script>
+  <script>
     window.dataLayer = window.dataLayer || [];
 
     function gtag() {

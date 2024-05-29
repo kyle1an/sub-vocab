@@ -9,15 +9,20 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default:
+        default: cn(
           'bg-primary text-primary-foreground shadow hover:bg-primary/90',
+          'squircle sq-rounded-[6px] sq-outline-0 sq-fill-primary hover:sq-fill-primary/90 sq:bg-transparent sq:shadow-none sq:drop-shadow',
+        ),
         destructive:
           'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
-        outline:
+        outline: cn(
           'border border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground',
+          'squircle sq-rounded-[6px] sq-outline sq-fill-input sq:border-0 sq:shadow-none sq:drop-shadow-sm sq:hover:bg-transparent',
+          'before:squircle before:sq-rounded-[5px] before:sq-outline-0 before:sq-fill-transparent hover:before:sq-fill-accent sq:before:absolute sq:before:left-px sq:before:top-px sq:before:z-[-1] sq:before:size-[calc(100%-2px)]',
+        ),
         secondary:
           'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
+        ghost: 'sq-rounded-[5px] sq-outline-0 after:absolute after:[mask-image:paint(squircle)] hover:bg-accent hover:text-accent-foreground focus-visible:after:bg-ring focus-visible:after:sq-outline sq:relative sq:rounded-none sq:[mask-image:paint(squircle)] sq:after:size-full',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {

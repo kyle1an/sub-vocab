@@ -9,7 +9,7 @@ const props = defineProps<{
 
 <template>
   <div>
-    <label class="group/label flex cursor-pointer justify-center tap-transparent">
+    <label class="group/label flex cursor-pointer justify-center">
       <span class="mx-2.5 flex flex-col-reverse justify-center text-base">
         {{ props.text?.[0] ?? '' }}
       </span>

@@ -40,8 +40,7 @@ export function Examples({
         return (
           <div
             key={no}
-            className="break-words transition-colors duration-150 hover:text-black dark:text-slate-500 dark:hover:text-slate-300"
-            style={{ wordBreak: 'break-word' }}
+            className="break-words transition-colors duration-150 [word-break:break-word] hover:text-black dark:text-slate-500 dark:hover:text-slate-300"
           >
             {wordIndexes.map(([start, count], i) => {
               const oldProgress = progress

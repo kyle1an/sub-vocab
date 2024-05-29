@@ -88,7 +88,7 @@ export default antfu(
   {
     rules: {
       'tailwindcss/no-custom-classname': ['warn', {
-        callees: ['classnames', 'clsx', 'ctl', 'cva', 'tv', 'twMerge'],
+        callees: ['classnames', 'clsx', 'ctl', 'cva', 'tv', 'twMerge', 'add'],
         skipClassAttribute: true,
       }],
       'tailwindcss/migration-from-tailwind-2': 'off',

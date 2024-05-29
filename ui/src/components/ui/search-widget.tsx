@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { v4 as uuidv4 } from 'uuid'
-import { Icon } from './icon'
+import { Squircle } from '@/components/ui/squircle'
+import { Icon } from '@/components/ui/icon'
 import { cn } from '@/lib/utils'
 
 export function SearchWidget({
@@ -19,7 +20,11 @@ export function SearchWidget({
   const { t } = useTranslation()
 
   return (
-    <div className="flex w-48 flex-row items-center gap-1 overflow-hidden rounded-md border p-1.5 outline-1 focus-within:outline dark:bg-slate-900 dark:text-slate-400">
+    <Squircle
+      cornerRadius={6}
+      borderWidth={1}
+      className="flex w-48 flex-row items-center gap-1 overflow-hidden bg-gray-200 p-1.5 before:bg-white focus-within:!bg-ring dark:bg-gray-800 dark:text-slate-400 dark:before:bg-slate-900"
+    >
       <Icon
         icon="ion:search"
         width={16}
@@ -52,27 +57,28 @@ export function SearchWidget({
             type="checkbox"
             checked={useRegex}
             aria-label="Regular expression"
-            className="hidden"
+            className="peer hidden"
             onChange={() => {
               onRegex(!useRegex)
             }}
           />
-          <div
+          <Squircle
+            cornerRadius={4}
+            borderWidth={1}
             className={cn(
-              'overflow-hidden rounded-[3px] border border-transparent text-neutral-400 transition-colors hover:border-current dark:text-neutral-200',
-              useRegex ? 'border-current bg-current' : '',
+              'group overflow-hidden bg-transparent p-px text-neutral-400 transition-colors before:bg-white peer-checked:border-current peer-checked:before:bg-current dark:text-neutral-200 dark:before:bg-transparent',
             )}
           >
             <Icon
               icon="codicon:regex"
-              width={16}
+              width={18}
               className={cn(
-                useRegex ? 'text-white dark:text-neutral-600' : 'text-neutral-400 dark:text-neutral-500',
+                'text-neutral-400 peer-checked:group-[]:text-white dark:text-neutral-500 peer-checked:group-[]:dark:text-neutral-600',
               )}
             />
-          </div>
+          </Squircle>
         </label>
       </div>
-    </div>
+    </Squircle>
   )
 }

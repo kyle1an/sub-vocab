@@ -1,6 +1,6 @@
 import type { UsePaginationItem } from '@mui/material/usePagination'
 import type { Table } from '@tanstack/react-table'
-import { Icon } from './icon'
+import { Icon } from '@/components/ui/icon'
 import { cn } from '@/lib/utils'
 
 export function Pagination<T>({
@@ -68,7 +68,7 @@ export function Pagination<T>({
         if (type === 'first' || type === 'page' || type === 'last') {
           return (
             <button
-              className={cn(className, selected && 'border-border font-bold')}
+              className={cn(className, selected && 'border-border font-bold squircle sq-rounded-[3px] sq-outline sq:border-0')}
               type="button"
               onClick={() => {
                 table.setPageIndex(Number(page) - 1)

@@ -26,6 +26,8 @@ function SelectTrigger({
       ref={ref}
       className={cn(
         'flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm text-violet11 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-violet9',
+        'squircle sq-rounded-[4px] sq-outline sq-fill-input sq:rounded-none sq:border-0 sq:shadow-none',
+        'relative focus:after:squircle focus:after:sq-rounded-[5px] focus:after:sq-outline focus:after:sq-fill-ring sq:focus:ring-0 sq:focus:after:absolute sq:focus:after:-left-px sq:focus:after:-top-px sq:focus:after:size-[calc(100%+2px)]',
         className,
       )}
       {...props}
@@ -56,6 +58,8 @@ function SelectContent({
           'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
           position === 'popper'
           && 'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
+          'squircle sq-rounded-[6px] sq-outline sq-fill-border sq:relative sq:border-0 sq:p-[calc(0px+var(--squircle-outline))] sq:shadow-none sq:drop-shadow-md',
+          'before:squircle before:sq-rounded-[5px] before:sq-outline-0 before:sq-fill-popover sq:before:absolute sq:before:left-px sq:before:top-px sq:before:z-[-1] sq:before:size-[calc(100%-2px)]',
           className,
         )}
         position={position}
@@ -108,6 +112,7 @@ function SelectItem({
       ref={ref}
       className={cn(
         'relative flex h-6 w-full cursor-default select-none items-center rounded-sm px-6 py-1.5 text-sm text-violet11 outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[highlighted]:bg-violet9 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 data-[highlighted]:outline-none',
+        'sq-rounded-[3px] sq-outline-0 focus:sq-fill-accent sq:rounded-none sq:focus:squircle sq:data-[highlighted]:sq-fill-violet9',
         className,
       )}
       {...props}

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Icon } from './icon'
+import { Icon } from '@/components/ui/icon'
 
 export function VocabStatics(props: { rowsCountFiltered: number, rowsCountNew: number, rowsCountAcquainted: number }) {
   const { t } = useTranslation()

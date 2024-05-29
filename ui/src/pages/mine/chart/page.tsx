@@ -423,7 +423,7 @@ export function Chart() {
   return (
     <div>
       <div className="flex h-14">
-        <div className="flex flex-auto grow items-center justify-center font-bold text-neutral-700">
+        <div className="flex flex-auto grow items-center justify-center font-bold text-neutral-700 dark:text-stone-300">
           Acquainted Vocabulary
         </div>
       </div>

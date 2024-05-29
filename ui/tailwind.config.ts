@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss'
+import flattenColorPalette from 'tailwindcss/lib/util/flattenColorPalette'
 import plugin from 'tailwindcss/plugin'
 import { mauve, violet } from '@radix-ui/colors'
 
@@ -90,16 +91,11 @@ const config: Config = {
     // eslint-disable-next-line ts/no-require-imports
     require('tailwindcss-animate'),
     plugin(({
-      addBase,
-      addComponents,
       addUtilities,
+      addVariant,
       matchUtilities,
       theme,
     }) => {
-      addUtilities({
-        '.tap-transparent': { '-webkit-tap-highlight-color': 'transparent' },
-        '.overflow-scrolling-touch': { '-webkit-overflow-scrolling': 'touch' },
-      })
       matchUtilities({
         ffs: (value) => ({
           fontFeatureSettings: value,
@@ -107,6 +103,43 @@ const config: Config = {
         stretch: (value) => ({
           fontStretch: value,
         }),
+      })
+      const sq_DEFINITION = '&:is(.sq *)'
+      addUtilities({
+        '.squircle': {
+          [sq_DEFINITION]: {
+            background: 'paint(squircle)',
+          },
+        },
+      })
+      addVariant('sq', sq_DEFINITION)
+      matchUtilities({
+        'sq-rounded': (value) => ({
+          [sq_DEFINITION]: {
+            '--squircle-radius': value,
+          },
+        }),
+      }, {
+        values: theme('borderRadius'),
+      })
+      matchUtilities({
+        'sq-outline': (value) => ({
+          [sq_DEFINITION]: {
+            '--squircle-outline': value,
+          },
+        }),
+      }, {
+        values: theme('borderWidth'),
+      })
+      matchUtilities({
+        'sq-fill': (value) => ({
+          [sq_DEFINITION]: {
+            '--squircle-fill': value,
+          },
+        }),
+      }, {
+        values: flattenColorPalette(theme('colors')),
+        type: 'color',
       })
     }),
   ],

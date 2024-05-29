@@ -228,7 +228,7 @@ export function TopBar({ className }: { className?: string }) {
       <Disclosure
         as="nav"
         ref={disclosureRef}
-        className={cn('ffs-pre fixed z-20 w-full bg-white tracking-wide shadow-sm dark:bg-slate-900 [&_[href]]:tap-transparent')}
+        className={cn('ffs-pre fixed z-20 w-full bg-white tracking-wide shadow-sm dark:bg-slate-900')}
         style={{
           width: bodySize.width,
         }}
