@@ -3,6 +3,10 @@
     "composite": true,
     "skipLibCheck": true,
     "module": "ESNext",
+    /* Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true
   },

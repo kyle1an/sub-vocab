@@ -15,6 +15,6 @@ SubVocab transforms your preparation for watching movies or reading books in Eng
 
 ### Overview
 
-<img width="1452" alt="Screenshot" src="https://github.com/kyle1an/sub-vocab/assets/50689806/18688d15-fa64-4aaa-ac34-0dc03e2864cd">
+<img width="1446" alt="Screenshot" src="https://github.com/kyle1an/sub-vocab/assets/50689806/a075b7ed-735b-4bf8-a17a-2e263823e2b3">
 
 [Visualization of this repo](https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=kyle1an%2FSubVocab)

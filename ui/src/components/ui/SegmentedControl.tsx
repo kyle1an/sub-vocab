@@ -4,10 +4,11 @@ import {
   useRef,
 } from 'react'
 import { type VariantProps, cva } from 'class-variance-authority'
+import { Squircle } from '@/components/ui/squircle'
 import { cn } from '@/lib/utils.ts'
 
 const segmentedControlVariants = cva(
-  `grid w-full !touch-manipulation select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-[9px] tracking-wide antialiased outline-none tap-transparent !overflow-scrolling-touch ffs-['cv08'] [text-rendering:geometricPrecision]`,
+  `grid w-full !touch-manipulation select-none auto-cols-[1fr] grid-flow-col overflow-hidden tracking-wide antialiased outline-none ffs-['cv08'] [text-rendering:geometricPrecision]`,
   {
     variants: {
       variant: {
@@ -96,8 +97,10 @@ export function SegmentedControl<T extends string>({
   }
 
   return (
-    <div
+    <Squircle
       ref={ref}
+      cornerRadius={9}
+      borderWidth={1}
       className={cn(segmentedControlVariants({ variant, size, className }))}
       {...props}
     >
@@ -133,17 +136,23 @@ export function SegmentedControl<T extends string>({
               />
             </span>
             <span className="absolute left-0 top-0 size-full">
-              <span
+              <Squircle
                 ref={addToRefs(item.value)}
-                className={cn(
-                  'ease-[ease] flex size-full rounded-[7px] will-change-transform group-[]/default:peer-checked:group-[]/l:border-[.5px] group-[]/default:peer-checked:group-[]/l:border-black/[0.04] group-[]/ghost:peer-checked:group-[]/l:bg-neutral-200 peer-checked:group-[]/l:bg-white group-[]/default:peer-checked:group-[]/l:shadow  group-[]/default:dark:peer-checked:group-[]/l:bg-neutral-600 group-[]/ghost:dark:peer-checked:group-[]/l:bg-slate-600',
-                  item.value === value && 'transition-transform duration-300',
-                )}
-              />
+                cornerRadius={7}
+                borderWidth={0.5}
+                asChild
+              >
+                <span
+                  className={cn(
+                    'ease-[ease] flex size-full will-change-transform group-[]/default:peer-checked:group-[]/l:border-0 group-[]/default:peer-checked:group-[]/l:bg-black/[.04] group-[]/ghost:peer-checked:group-[]/l:bg-neutral-200 peer-checked:group-[]/l:bg-white group-[]/default:peer-checked:group-[]/l:shadow group-[]/default:peer-checked:group-[]/l:before:bg-white dark:group-[]/ghost:peer-checked:group-[]/l:bg-slate-600 dark:group-[]/default:peer-checked:group-[]/l:before:bg-neutral-600',
+                    item.value === value && 'transition-transform duration-300',
+                  )}
+                />
+              </Squircle>
             </span>
           </label>
         </div>
       ))}
-    </div>
+    </Squircle>
   )
 }

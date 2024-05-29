@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import { Squircle } from '@/components/ui/squircle'
 import { cn } from '@/lib/utils'
 
 export function SideNav({
@@ -18,16 +19,21 @@ export function SideNav({
         {navList.map((nav) => (
           <li
             key={nav.to}
-            className={cn(location.pathname === nav.to && '[&>a]:bg-zinc-100 dark:[&>a]:bg-zinc-600')}
+            className={cn(location.pathname === nav.to && '*:bg-zinc-100 dark:*:bg-zinc-600')}
           >
-            <Link
-              to={nav.to}
-              className="flex h-full items-center rounded-md px-3 py-1.5 text-stone-700 hover:bg-zinc-200 hover:text-black dark:text-stone-300 dark:hover:bg-zinc-600"
+            <Squircle
+              cornerRadius={8}
+              className="hover:bg-zinc-200 dark:hover:bg-zinc-600"
             >
-              <div className="text-sm">
-                {nav.title}
-              </div>
-            </Link>
+              <Link
+                to={nav.to}
+                className="flex h-full items-center px-3 py-1.5 text-stone-700 hover:text-black dark:text-stone-300"
+              >
+                <div className="text-sm">
+                  {nav.title}
+                </div>
+              </Link>
+            </Squircle>
           </li>
         ))}
       </ol>

@@ -1,5 +1,6 @@
 import { useTheme } from 'next-themes'
 import { Toaster as Sonner } from 'sonner'
+import { cn } from '@/lib/utils'
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
@@ -12,8 +13,10 @@ function Toaster({ ...props }: ToasterProps) {
       className="toaster group"
       toastOptions={{
         classNames: {
-          toast:
-            'group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg',
+          toast: cn(
+            'toast group group-[.toaster]:border-border group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:shadow-lg',
+            'squircle sq-outline sq-stroke-border [--l-w:1px] [--sq-r:8px] group-[.toaster]:sq-fill-popover sq:!border-0 sq:py-[17px] sq:group-[.toaster]:shadow-none sq:group-[.toaster]:drop-shadow-lg',
+          ),
           description: 'group-[.toast]:text-muted-foreground',
           actionButton:
             'group-[.toast]:bg-primary group-[.toast]:text-primary-foreground',
