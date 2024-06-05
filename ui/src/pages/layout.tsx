@@ -62,7 +62,7 @@ export function RootLayout() {
     window.toggleDevtools = () => setShowDevtools((old) => !old)
   }, [])
 
-  useSyncWordState()
+  // useSyncWordState()
 
   return (
     <QueryClientProvider client={queryClient}>

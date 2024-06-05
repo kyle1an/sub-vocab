@@ -1,4 +1,7 @@
-function drawSquircle(ctx, geom, radii, smooth, lineWidth, color) {
+// @ts-nocheck
+function drawSquircle(ctx, geom, radii: number[], smooth: number, lineWidth: number, color: string) {
+  // console.log('drawSquircle', ctx, geom, radii, smooth, lineWidth, color)
+
   const defaultFill = color
   const lineWidthOffset = lineWidth / 2
   // OPEN LEFT-TOP CORNER
@@ -93,7 +96,7 @@ class SquircleClass {
     let shorthand_R
 
     // Check if any of the individual radii are NaN, if so, process the shorthand
-    if (squircleRadii.some(isNaN)) {
+    if (squircleRadii.some(Number.isNaN)) {
       const radiusRegex = /(\d+[a-z%]*)/g // Units are ignored.
 
       const radius_shorthand = properties.get('--squircle-radius').toString()
@@ -126,7 +129,7 @@ class SquircleClass {
         }
       } else {
         // if no radii at all are provided, set default radius = 8, otherwise set undefined ones to 0
-        const defaultRadius = squircleRadii.every(isNaN)
+        const defaultRadius = squircleRadii.every(Number.isNaN)
           ? 8 * distanceRatio
           : 0
         shorthand_R = [
@@ -140,7 +143,7 @@ class SquircleClass {
 
     // Replace NaN values in radii with corresponding values from shorthand or default
     squircleRadii = squircleRadii.map((val, i) =>
-      isNaN(val) ? shorthand_R[i] : val,
+      Number.isNaN(val) ? shorthand_R[i] : val,
     )
 
     // @ts-expect-error

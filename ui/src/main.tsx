@@ -3,11 +3,12 @@ import * as Sentry from '@sentry/react'
 import { inject } from '@vercel/analytics'
 import { StrictMode } from 'react'
 import { App } from './app.tsx'
+import squircle from '@/lib/squircle.ts?worker&url'
 
 if ('paintWorklet' in CSS) {
   // @ts-expect-error
   CSS.paintWorklet.addModule(
-    '../src/lib/squircle.ts',
+    squircle,
   )
 }
 
