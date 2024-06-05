@@ -56,10 +56,6 @@ function drawSquircle(ctx, geom, radii, smooth, lineWidth, color) {
   }
 }
 
-/////////////////////////
-/// ////// CLASS /////////
-/////////////////////////
-
 class SquircleClass {
   static get contextOptions() {
     return { alpha: true }
@@ -148,8 +144,8 @@ class SquircleClass {
     )
 
     // @ts-expect-error
-    const squrcleOutline = Number.parseFloat(properties.get('--squircle-outline'), 10)
-    const squrcleColor = properties.get('--squircle-fill').toString()
+    const squircleOutline = Number.parseFloat(properties.get('--squircle-outline'), 10)
+    const squircleColor = properties.get('--squircle-fill').toString()
 
     const isSmooth = () => {
       if (typeof properties.get('--squircle-smooth')[0] !== 'undefined') {
@@ -163,16 +159,16 @@ class SquircleClass {
     }
 
     const isOutline = () => {
-      if (squrcleOutline) {
-        return squrcleOutline
+      if (squircleOutline) {
+        return squircleOutline
       } else {
         return 0
       }
     }
 
     const isColor = () => {
-      if (squrcleColor) {
-        return squrcleColor
+      if (squircleColor) {
+        return squircleColor || '#f45'
       } else {
         return '#f45'
       }

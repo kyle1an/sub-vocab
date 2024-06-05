@@ -4,6 +4,13 @@ import { inject } from '@vercel/analytics'
 import { StrictMode } from 'react'
 import { App } from './app.tsx'
 
+if ('paintWorklet' in CSS) {
+  // @ts-expect-error
+  CSS.paintWorklet.addModule(
+    '../src/lib/squircle.ts',
+  )
+}
+
 if (import.meta.env.PROD) {
   inject()
   Sentry.init({
