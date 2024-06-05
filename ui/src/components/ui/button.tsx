@@ -8,7 +8,7 @@ const a = (
   <div
     className={cn(
       'squircle sq-rounded-[6px] sq-outline sq-fill-input sq:border-0 sq:shadow-none sq:drop-shadow-sm sq:hover:bg-transparent',
-      'before:squircle before:sq-rounded-[5px] before:sq-outline-0 before:sq-fill-transparent hover:before:sq-fill-accent sq:before:absolute sq:before:left-px sq:before:top-px sq:before:z-[-1] sq:before:size-[calc(100%-2px)]',
+      'before:squircle before:sq-rounded-[5px] before:sq-outline-0 before:sq-fill-transparent hover:before:sq-fill-accent sq:before:absolute sq:before:left-[--l-w] sq:before:top-[--l-w] sq:before:z-[-1] sq:before:size-[calc(100%-2*var(--l-w))]',
     )}
   />
 )
@@ -26,8 +26,8 @@ const buttonVariants = cva(
           'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
         outline: cn(
           'border border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground',
-          'squircle sq-rounded-[6px] sq-outline sq-fill-input sq:border-0 sq:shadow-none sq:drop-shadow-sm sq:hover:bg-transparent',
-          'before:squircle before:sq-rounded-[5px] before:sq-outline-0 before:sq-fill-transparent hover:before:sq-fill-accent sq:before:absolute sq:before:left-px sq:before:top-px sq:before:z-[-1] sq:before:size-[calc(100%-2px)]',
+          'squircle sq-rounded-[6px] sq-outline-[--l-w] sq-fill-input [--l-w:1px] sq:border-0 sq:shadow-none sq:drop-shadow-sm sq:hover:bg-transparent',
+          'before:squircle before:sq-rounded-[5px] before:sq-outline-0 before:sq-fill-transparent hover:before:sq-fill-accent sq:before:absolute sq:before:left-[--l-w] sq:before:top-[--l-w] sq:before:z-[-1] sq:before:size-[calc(100%-2*var(--l-w))]',
         ),
         secondary:
           'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
