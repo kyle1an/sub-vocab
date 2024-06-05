@@ -4,6 +4,15 @@ import { type VariantProps, cva } from 'class-variance-authority'
 
 import { cn } from '@/lib/utils'
 
+const a = (
+  <div
+    className={cn(
+      'squircle sq-rounded-[6px] sq-outline sq-fill-input sq:border-0 sq:shadow-none sq:drop-shadow-sm sq:hover:bg-transparent',
+      'before:squircle before:sq-rounded-[5px] before:sq-outline-0 before:sq-fill-transparent hover:before:sq-fill-accent sq:before:absolute sq:before:left-px sq:before:top-px sq:before:z-[-1] sq:before:size-[calc(100%-2px)]',
+    )}
+  />
+)
+
 const buttonVariants = cva(
   'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
   {

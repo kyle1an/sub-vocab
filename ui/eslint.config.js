@@ -92,6 +92,7 @@ export default antfu(
         skipClassAttribute: true,
       }],
       'tailwindcss/migration-from-tailwind-2': 'off',
+      'tailwindcss/enforces-negative-arbitrary-values': 'off',
     },
     settings: {
       tailwindcss: {

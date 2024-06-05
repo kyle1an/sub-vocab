@@ -26,8 +26,8 @@ function SelectTrigger({
       ref={ref}
       className={cn(
         'flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm text-violet11 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-violet9',
-        'squircle sq-rounded-[4px] sq-outline sq-fill-input sq:rounded-none sq:border-0 sq:shadow-none',
-        'relative focus:after:squircle focus:after:sq-rounded-[5px] focus:after:sq-outline focus:after:sq-fill-ring sq:focus:ring-0 sq:focus:after:absolute sq:focus:after:-left-px sq:focus:after:-top-px sq:focus:after:size-[calc(100%+2px)]',
+        'squircle sq-rounded-[4px] sq-outline-[--l-w] sq-fill-input [--l-w:1px] sq:rounded-none sq:border-0 sq:shadow-none',
+        'relative [--offset:1px] focus:after:squircle focus:after:sq-rounded-[5px] focus:after:sq-outline focus:after:sq-fill-ring sq:focus:ring-0 sq:focus:after:absolute sq:focus:after:-left-[--offset] sq:focus:after:-top-[--offset] sq:focus:after:size-[calc(100%+2*var(--offset))]',
         className,
       )}
       {...props}
