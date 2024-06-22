@@ -147,7 +147,7 @@ const INPUT_PROPERTIES = [
 const SMOOTH_RATIO = 10
 const DISTANCE_RATIO = 1.8
 const DEFAULT_RADIUS = 8
-const radiusRegex = /(\d+[a-z%]*)/g // Units are ignored.
+const radiusRegex = /\d+(\.\d+)?/g // Units are ignored.
 
 function getSmoothValue(squircleSmooth: CSSUnitValue | CSSUnparsedValue) {
   let smooth: number
@@ -177,7 +177,7 @@ function getRadiiValue(size: Size, props: any) {
     const matches = radiusShorthand.match(radiusRegex)
 
     if (matches) {
-      const shorthandRadii = matches.map((val) => Number.parseInt(val, 10) * DISTANCE_RATIO) as Shorthand<number>
+      const shorthandRadii = matches.map((val) => Number.parseFloat(val) * DISTANCE_RATIO) as Shorthand<number>
       constituentRadii = shorthandToConstituent(shorthandRadii)
     } else {
       // if no radii at all are provided, set default radius = 8, otherwise set undefined ones to 0

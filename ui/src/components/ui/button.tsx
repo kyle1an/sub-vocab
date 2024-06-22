@@ -19,7 +19,7 @@ const buttonVariants = cva(
         outline: cn(
           'border border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground',
           'squircle sq-radius-[--sq-r] sq-outline-[--l-w] sq-stroke-input sq-fill-[--bg-] [--l-w:1px] hover:sq-fill-accent sq:border-0 sq:shadow-none sq:drop-shadow-sm',
-          'relative focus-visible:after:squircle focus-visible:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus-visible:after:sq-outline focus-visible:after:sq-stroke-ring sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))]',
+          'relative focus-visible:after:squircle focus-visible:after:sq-radius-[calc(var(--sq-r)+var(--offset)-0.5px)] focus-visible:after:sq-outline focus-visible:after:sq-stroke-ring sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))]',
         ),
         secondary:
           'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',

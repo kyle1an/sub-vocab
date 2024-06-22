@@ -5,7 +5,7 @@ import type { ParamsDictionary, Request, Response } from 'express-serve-static-c
 import { addDays } from 'date-fns'
 import { sql } from '../config/connection.js'
 import { tokenChecker } from '../utils/util.js'
-import type { Credential, LoginResponse, NewCredential, NewUsername, RegisterResponse, Status, Username, UsernameTaken } from '../types'
+import type { Credential, LoginResponse, NewCredential, NewUsername, RegisterResponse, Status, Username, UsernameTaken } from '../types/index.js'
 
 const router = express.Router()
 

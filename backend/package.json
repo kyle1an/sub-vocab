@@ -13,6 +13,7 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
+    "@t3-oss/env-core": "^0.10.1",
     "@types/cookie": "^0.6.0",
     "cookie": "^0.6.0",
     "cookie-parser": "^1.4.6",
@@ -29,11 +30,12 @@
     "postgres": "^3.4.4",
     "socket.io": "^4.7.5",
     "sql-template-tag": "^5.2.1",
-    "type-fest": "^4.20.1"
+    "type-fest": "^4.20.1",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.21.1",
-    "@stylistic/eslint-plugin": "^2.2.1",
+    "@stylistic/eslint-plugin": "^2.2.2",
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
@@ -45,7 +47,7 @@
     "@types/node": "^20.14.8",
     "eslint": "^9.5.0",
     "tsx": "^4.15.7",
-    "typescript": "^5.4.5"
+    "typescript": "^5.5.2"
   },
   "pnpm": {
     "overrides": {

@@ -1,7 +1,7 @@
 import type mysql from 'mysql2'
 import { sql } from '../config/connection.js'
 import { sql as pg } from '../utils/db.js'
-import type { LabelDB } from '../types'
+import type { LabelDB } from '../types/index.js'
 
 interface Stems {
   derived_word: string

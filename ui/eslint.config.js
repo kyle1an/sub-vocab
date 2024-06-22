@@ -30,6 +30,13 @@ export default antfu(
     },
   },
   {
+    settings: {
+      regexp: {
+        allowedCharacterRanges: ['alphanumeric', 'À-ÿ', 'À-Þ'],
+      },
+    },
+  },
+  {
     rules: {
       'ts/ban-ts-comment': 'off',
       'ts/consistent-type-definitions': 'off',
