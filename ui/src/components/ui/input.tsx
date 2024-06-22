@@ -17,7 +17,7 @@ function InputWrapper({
   return (
     <div
       className={cn(
-        'relative [--offset:1px] [--sq-r:6px] after:sq-smooth-[.45] focus-within:after:-z-10 focus-within:after:squircle focus-within:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus-within:after:sq-outline focus-within:after:sq-stroke-ring sq:focus-within:ring-0 sq:focus-within:after:absolute sq:focus-within:after:-left-[--offset] sq:focus-within:after:-top-[--offset] sq:focus-within:after:size-[calc(100%+2*var(--offset))]',
+        'relative [--offset:1px] [--sq-r:6px] focus-within:after:-z-10 focus-within:after:squircle focus-within:after:sq-radius-[calc(var(--sq-r)+var(--offset)-0.5px)] focus-within:after:sq-outline focus-within:after:sq-stroke-ring sq:focus-within:ring-0 sq:focus-within:after:absolute sq:focus-within:after:-left-[--offset] sq:focus-within:after:-top-[--offset] sq:focus-within:after:size-[calc(100%+2*var(--offset))]',
         'sq:[:has(>&_input:is(:autofill,[data-com-onepassword-filled]))]:signal/filled',
         '[--l-w:1px] signal/filled:border-0 signal/filled:shadow-none signal/filled:drop-shadow-sm signal/filled:squircle signal/filled:sq-radius-[--sq-r] signal/filled:sq-outline-[--l-w] signal/filled:sq-stroke-input signal/filled:sq-fill-internal-autofill',
         className,

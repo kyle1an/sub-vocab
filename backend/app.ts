@@ -14,7 +14,7 @@ import { parse } from 'cookie'
 import routes from './src/routes/index.js'
 import { isTokenValid } from './src/utils/util.js'
 import type { CookiesObj } from './src/routes/auth.js'
-import type { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from './src/types'
+import type { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from './src/types/index.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)

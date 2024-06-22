@@ -1,16 +1,13 @@
-import process from 'node:process'
-import dotenv from 'dotenv'
 import mysql from 'mysql2'
 import Sql from 'sql-template-tag'
-
-dotenv.config()
+import { env } from '../../env.js'
 
 const pool = mysql.createPool({
   connectionLimit: 10,
-  host: process.env.HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DATABASE,
+  host: env.HOST,
+  user: env.DB_USER,
+  password: env.DB_PASSWORD,
+  database: env.DATABASE,
   multipleStatements: true,
 })
 

@@ -23,6 +23,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
+import { cn } from '@/lib/utils'
 
 const fileInfoAtom = atom('')
 const sourceTextAtom = atom('')
@@ -103,10 +104,13 @@ export default function Home() {
         </FileInput>
         <div className="grow" />
       </div>
-      <div className="flex h-[calc(100%-4px*14)] items-center justify-center overflow-hidden rounded-xl border drop-shadow-sm squircle sq-smooth-[.42] sq-radius-[--sq-r] sq-fill-border [--sq-r:9px] sq:rounded-none sq:border-0">
+      <div className="flex h-[calc(100%-4px*14)] items-center justify-center overflow-hidden rounded-xl border drop-shadow-sm squircle sq-radius-[--sq-r] sq-fill-border [--sq-r:9px] sq:rounded-none sq:border-0">
         <ResizablePanelGroup
           direction={direction}
-          className="squircle mask-squircle sq-radius-[calc(var(--sq-r)-1px)] sq-fill-white sq:size-[calc(100%-2px)]"
+          className={cn(
+            'squircle mask-squircle sq-radius-[calc(var(--sq-r)-1px+0.5px)] sq-fill-white sq:size-[calc(100%-2px)]',
+            '[body:has(&)]:overflow-hidden', // prevent overscroll
+          )}
         >
           <ResizablePanel defaultSize={defaultSizes[0]}>
             <div className="flex h-full items-center justify-center">

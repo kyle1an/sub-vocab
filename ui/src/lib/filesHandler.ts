@@ -187,7 +187,7 @@ function readDirectory(systemDirectoryEntry: FileSystemDirectoryEntry): Promise<
           return readDirectory(systemEntry as FileSystemDirectoryEntry)
         }
         return new Promise<EntryFiles>((resolve, reject) => {
-          ;(systemEntry as FileSystemFileEntry).file((file: File) => {
+          ;(systemEntry as FileSystemFileEntry).file((file) => {
             readFile(file)
               .then(resolve)
               .catch(reject)
@@ -235,7 +235,7 @@ export function readDataTransferItemList(list: DataTransferItemList) {
         return readDirectory(entry as FileSystemDirectoryEntry)
       }
       return new Promise<FileContent>((resolve, reject) => {
-        ;(entry as FileSystemFileEntry).file((file: File) => {
+        ;(entry as FileSystemFileEntry).file((file) => {
           readFile(file).then(resolve).catch(reject)
         })
       })

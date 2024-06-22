@@ -166,23 +166,25 @@ export class LabeledTire {
   add(input: string) {
     const sentencesMatched = input.match(/["'@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|\{[^}]*\})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ])|\.{3} *)*["'@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/g)
     if (sentencesMatched) {
-      for (const sentence of sentencesMatched) {
-        this.sentences.push(sentence)
-        const wordsMatched = sentence.matchAll(/(?:[A-Za-zÀ-ÿ]['-]?)*[A-ZÀ-Þa-zß-ÿ][a-zß-ÿ]*(?:['’-]?[A-Za-zÀ-ÿ]'?)+/g)
+      const previousLength = this.sentences.length
+      const newLength = previousLength + sentencesMatched.length
+      Array.prototype.push.apply(this.sentences, sentencesMatched)
+      for (let len = previousLength; len < newLength; len++) {
+        const sentence = this.sentences[len]!
+        const wordsMatched = sentence.matchAll(/(?:[A-Za-zÀ-ÿ]['-]?)*[A-Za-zÀ-ÿ][a-zß-ÿ]*(?:['’-]?[A-Za-zÀ-ÿ]'?)+/g)
         for (let n = wordsMatched.next(); !n.done; n = wordsMatched.next()) {
           const m = n.value
           const matchedWord = m[0]
           ++this.wordCount
-          if (m.index === undefined) {
-            continue
+          if (m.index !== undefined) {
+            this.#update(matchedWord, m.index, len)
           }
-          this.#update(matchedWord, m.index)
         }
       }
     }
   }
 
-  #update(original: string, index: number) {
+  #update(original: string, index: number, sentenceId: number) {
     const hasCapital = capitalIn(original)
     const branch = this.getNode(hasCapital ? original.toLowerCase() : original)
 
@@ -191,7 +193,7 @@ export class LabeledTire {
         path: original,
         up: hasCapital,
         src: [{
-          sentenceId: this.sentences.length - 1,
+          sentenceId,
           startOffset: index,
           wordLength: original.length,
           wordOrder: ++this.#sequence,
@@ -204,7 +206,7 @@ export class LabeledTire {
     } else {
       branch.$.src.push(
         {
-          sentenceId: this.sentences.length - 1,
+          sentenceId,
           startOffset: index,
           wordLength: original.length,
           wordOrder: branch.$.src.length ? this.#sequence : ++this.#sequence,

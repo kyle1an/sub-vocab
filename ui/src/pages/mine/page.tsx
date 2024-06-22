@@ -24,8 +24,8 @@ export function MinePage() {
       <div className="flex h-14">
         <div className="flex-auto grow" />
       </div>
-      <div className="m-auto flex h-[calc(100vh-4px*36)] max-w-full items-center justify-center overflow-hidden rounded-xl border-[length:--l-w] squircle sq-smooth-[.42] sq-radius-[--sq-r] sq-outline-[--l-w] sq-stroke-border [--l-w:1px] [--sq-r:9px] sq:rounded-none sq:border-0 md:h-[calc(100%-4px*14)]">
-        <div className="flex size-full mask-squircle sq-radius-[calc(var(--sq-r)-var(--l-w))] sq-fill-white sq:size-[calc(100%-2px)]">
+      <div className="m-auto flex h-[calc(100vh-4px*36)] max-w-full items-center justify-center overflow-hidden rounded-xl border-[length:--l-w] squircle sq-radius-[--sq-r] sq-outline-[--l-w] sq-stroke-border [--l-w:1px] [--sq-r:9px] sq:rounded-none sq:border-0 md:h-[calc(100%-4px*14)]">
+        <div className="flex size-full mask-squircle sq-radius-[calc(var(--sq-r)-var(--l-w)+0.5px)] sq-fill-white sq:size-[calc(100%-2px)]">
           <VocabDataTable
             data={rows}
             onPurge={handlePurge}
