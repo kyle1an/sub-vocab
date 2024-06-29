@@ -295,7 +295,7 @@ function useColumns() {
                   orientation="vertical"
                   className="h-5 group-active:h-full group-[:has(:active)+th]/th:h-full"
                 />
-                <div className="flex select-none items-center">
+                <div className="flex items-center">
                   <span
                     title={t('length')}
                     className={cn('grow text-right text-xs before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
@@ -565,7 +565,6 @@ export function VocabSourceTable({
       <div className="w-full">
         <SegmentedControl
           value={segment}
-          name={SEGMENT_NAME}
           segments={segments}
           onChoose={handleSegmentChoose}
           variant="ghost"

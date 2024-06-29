@@ -5,12 +5,12 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import { atom, useAtom } from 'jotai'
-import { useSize } from 'ahooks'
+import { useWindowSize } from 'react-use'
 import { FileInput } from '@/components/ui/FileInput'
 import { TextareaInput } from '@/components/ui/TextareaInput'
 import {
   type LabelDisplaySource,
-  generatedVocabTrie,
+  generateVocabTrie,
 } from '@/lib/vocab'
 import { VocabSourceTable } from '@/components/ui/VocabSource.tsx'
 import {
@@ -24,6 +24,7 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { cn } from '@/lib/utils'
+import { SquircleBg, SquircleMask } from '@/components/ui/squircle'
 
 const fileInfoAtom = atom('')
 const sourceTextAtom = atom('')
@@ -42,7 +43,7 @@ function SourceVocab({
   const [, setCount] = useAtom(textCountAtom)
 
   useEffect(() => {
-    const { list, count: c, sentences: s } = generatedVocabTrie(sourceText, baseVocab, irregulars)
+    const { list, count: c, sentences: s } = generateVocabTrie(sourceText, baseVocab, irregulars)
     setRows((r) => statusRetainedList(r, list))
     setSentences(s)
     setCount(c)
@@ -62,7 +63,7 @@ function SourceVocab({
   )
 }
 
-export default function Home() {
+export function Home() {
   const { t } = useTranslation()
   const [fileInfo, setFileInfo] = useAtom(fileInfoAtom)
   const [sourceText, setSourceText] = useAtom(sourceTextAtom)
@@ -81,10 +82,7 @@ export default function Home() {
   }
 
   const [count] = useAtom(textCountAtom)
-  const bodySize = useSize(document.body) ?? {
-    width: 0,
-    height: 0,
-  }
+  const bodySize = useWindowSize()
   const direction = bodySize.width > 768 ? 'horizontal' : 'vertical'
   let defaultSizes = [56, 44]
   if (direction === 'vertical') {
@@ -104,43 +102,44 @@ export default function Home() {
         </FileInput>
         <div className="grow" />
       </div>
-      <div className="flex h-[calc(100%-4px*14)] items-center justify-center overflow-hidden rounded-xl border drop-shadow-sm squircle sq-radius-[--sq-r] sq-fill-border [--sq-r:9px] sq:rounded-none sq:border-0">
-        <ResizablePanelGroup
-          direction={direction}
-          className={cn(
-            'squircle mask-squircle sq-radius-[calc(var(--sq-r)-1px+0.5px)] sq-fill-white sq:size-[calc(100%-2px)]',
-            '[body:has(&)]:overflow-hidden', // prevent overscroll
-          )}
-        >
-          <ResizablePanel defaultSize={defaultSizes[0]}>
-            <div className="flex h-full items-center justify-center">
-              <div className="relative flex h-full grow flex-col overflow-hidden">
-                <div className="flex h-10 shrink-0 items-center border-b bg-zinc-50 py-2 pl-4 pr-2 text-xs text-neutral-600 dark:bg-slate-900 dark:text-slate-400">
-                  <span className="grow truncate">{fileInfo}</span>
-                  <span className="mx-2 inline-block h-[18px] w-px border-l align-middle" />
-                  <span className="shrink-0 text-right tabular-nums">{`${count.toLocaleString('en-US')} ${t('words')}`}</span>
-                </div>
-                <div className="size-full grow text-base text-zinc-700 md:text-sm">
-                  <TextareaInput
-                    value={sourceText}
-                    placeholder={t('inputArea')}
-                    onChange={handleTextareaChange}
-                  />
+      <SquircleBg className="flex h-[calc(100%-4px*14)] items-center justify-center overflow-hidden rounded-xl border">
+        <SquircleMask asChild>
+          <ResizablePanelGroup
+            direction={direction}
+            className={cn(
+              'ios:[body:has(&)]:overflow-hidden', // prevent overscroll
+            )}
+          >
+            <ResizablePanel defaultSize={defaultSizes[0]}>
+              <div className="flex h-full items-center justify-center">
+                <div className="relative flex h-full grow flex-col overflow-hidden">
+                  <div className="flex h-10 shrink-0 items-center border-b bg-zinc-50 py-2 pl-4 pr-2 text-xs text-neutral-600 dark:bg-slate-900 dark:text-slate-400">
+                    <span className="grow truncate">{fileInfo}</span>
+                    <span className="mx-2 inline-block h-[18px] w-px border-l align-middle" />
+                    <span className="shrink-0 text-right tabular-nums">{`${count.toLocaleString('en-US')} ${t('words')}`}</span>
+                  </div>
+                  <div className="size-full grow text-base text-zinc-700 md:text-sm">
+                    <TextareaInput
+                      value={sourceText}
+                      placeholder={t('inputArea')}
+                      onChange={handleTextareaChange}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          </ResizablePanel>
-          <ResizableHandle
-            withHandle
-            className="focus-visible:bg-ring focus-visible:ring-offset-[-1px]"
-          />
-          <ResizablePanel defaultSize={defaultSizes[1]}>
-            <SourceVocab
-              text={deferredSourceText}
+            </ResizablePanel>
+            <ResizableHandle
+              withHandle
+              className="focus-visible:bg-ring focus-visible:ring-offset-[-1px]"
             />
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </div>
+            <ResizablePanel defaultSize={defaultSizes[1]}>
+              <SourceVocab
+                text={deferredSourceText}
+              />
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </SquircleMask>
+      </SquircleBg>
     </main>
   )
 }

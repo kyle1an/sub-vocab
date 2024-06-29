@@ -429,7 +429,6 @@ export function Chart() {
       </div>
       <div className="flex flex-col gap-3">
         <SegmentedControl
-          name={SEGMENT_NAME}
           segments={segments}
           value={segment}
           onChoose={setSegment}

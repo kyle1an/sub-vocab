@@ -5,11 +5,17 @@ import react from '@vitejs/plugin-react'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { checker } from 'vite-plugin-checker'
 
-export function replaceLink(html: string, scriptFilename: string, scriptCode: string): string {
+function transformScriptTag(scriptString: string) {
+  scriptString = scriptString.replace(/(<script[^>]*?)\srel="modulepreload"([^>]*>)/g, '$1$2')
+  scriptString = scriptString.replace(/(<script[^>]*?)\scrossorigin([^>]*>)/g, '$1$2')
+  return scriptString
+}
+
+function replaceLink(html: string, scriptFilename: string, scriptCode: string): string {
   const reStyle = new RegExp(`<link([^>]*?) href="[./]*${scriptFilename}"([^>]*?)>`)
-  const legacyCharSetDeclaration = /@charset "UTF-8";/
-  const inlined = html.replace(reStyle, (_, beforeSrc, afterSrc) => `<script${beforeSrc}${afterSrc}>${scriptCode.replace(legacyCharSetDeclaration, '')}</script>`)
-  return inlined
+  return html.replace(reStyle, (_, beforeSrc, afterSrc) => {
+    return transformScriptTag(`<script${beforeSrc}${afterSrc}>${scriptCode.trim()}</script>`)
+  })
 }
 
 const ReactCompilerConfig = {
@@ -37,18 +43,14 @@ export default defineConfig(({ mode }) => {
         transformIndexHtml(html, ctx) {
           const { bundle } = ctx
           if (bundle) {
-            const workerFileName = Object.keys(bundle).find((i) => {
-              return /worker.+js$/.test(i)
-            })
-            if (workerFileName) {
-              const jsChunk = bundle[workerFileName]
-              if (jsChunk) {
-                if ('code' in jsChunk) {
-                  html = replaceLink(html, jsChunk.fileName, jsChunk.code)
-                  // delete bundle[jsChunk.fileName]
+            Object.entries(bundle).forEach(([fileName, output]) => {
+              if (/\/worker.*\.js$/.test(fileName)) {
+                if ('code' in output) {
+                  html = replaceLink(html, output.fileName, output.code)
+                  // delete bundle[output.fileName]
                 }
               }
-            }
+            })
           }
           return html
         },
@@ -78,28 +80,49 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks(id) {
-            if (id.includes('/lib/worker')) {
+            if (id.includes('/lib/worker'))
               return 'worker'
-            }
             if (id.includes('pdfjs-dist')) {
-              if (id.includes('pdf.worker')) {
-                return 'pdfjs-dist_pdf.worker'
-              } else {
-                return 'pdfjs-dist_pdf'
-              }
+              if (id.includes('pdf.worker'))
+                return 'pdfjs-dist.worker'
+              return 'pdfjs-dist'
             }
-            if (id.includes('_react@') || id.includes('_react-dom@')) {
-              return 'react'
-            }
-            if (id.includes('sentry')) {
+            if (id.includes('query-devtools'))
+              return 'tanstack-query-devtools'
+            if (id.includes('sentry'))
               return 'sentry'
-            }
-            if (id.includes('chart.js')) {
+            if (id.includes('chart.js'))
               return 'chart.js'
+            if (
+              id.includes('commonjsHelpers.js')
+              || id.includes('/react@')
+              || id.includes('/react-dom@')
+            ) {
+              return 'vendors-react'
             }
-            if (id.includes('tanstack')) {
-              return 'tanstack'
+            if (
+              id.includes('radix-ui')
+              || id.includes('sonner')
+              || id.includes('tailwind')
+              || id.includes('vaul')
+              || id.includes('/date-fns')
+              || id.includes('/lodash')
+              || id.includes('iconify')
+            ) {
+              return 'vendors-chunk_1'
             }
+            if (
+              id.includes('tanstack')
+              || id.includes('remix-run')
+              || id.includes('react-router')
+              || id.includes('i18next')
+            ) {
+              return 'vendors-chunk_2'
+            }
+            if (id.includes('react'))
+              return 'vendors-react-chunk'
+            if (id.includes('node_modules'))
+              return 'vendors-node_modules'
           },
         },
       },

@@ -1,6 +1,8 @@
 import {
   type HTMLAttributes,
+  type Ref,
   type RefAttributes,
+  useId,
   useRef,
 } from 'react'
 import { type VariantProps, cva } from 'class-variance-authority'
@@ -40,14 +42,12 @@ const segmentedControlVariants = cva(
 
 export interface SegmentedControlProps<T extends string> extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof segmentedControlVariants> {
   value: NoInfer<T>
-  name: string
   segments: Readonly<{ value: T, label: string }[]>
   onChoose: (value: T) => void
 }
 
 export function SegmentedControl<T extends string>({
   value,
-  name,
   segments,
   onChoose,
   variant,
@@ -104,55 +104,79 @@ export function SegmentedControl<T extends string>({
       className={cn(segmentedControlVariants({ variant, size, className }))}
       {...props}
     >
-      {segments.map((item, index) => (
-        <div
+      {segments.map((item) => (
+        <Segment
           key={item.value}
-          className="group/d relative first-of-type:col-[1] first-of-type:row-[1] first-of-type:shadow-none"
-        >
-          <input
-            id={`${name}-${item.value}`}
-            aria-label="Segmented control"
-            type="radio"
-            value={item.value}
-            checked={item.value === value}
-            className="group/i peer absolute inset-0 appearance-none opacity-0 outline-none"
-            onChange={(ev) => {
-              handleOnChange(item.value)
-            }}
-          />
-          <label
-            htmlFor={`${name}-${item.value}`}
-            className="group/l before:ease-[ease] relative block cursor-pointer bg-transparent text-center before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[10px] before:bg-neutral-300 before:transition-[background] before:duration-200 before:will-change-[background] group-first-of-type/d:before:opacity-0 group-[:has(:checked)+*]/d:before:bg-transparent peer-checked:cursor-default peer-checked:before:z-10 peer-checked:before:bg-transparent dark:before:bg-slate-700"
-          >
-            <span className="flex flex-col justify-center text-sm/6 group-[]/ghost:leading-[1.375rem]">
-              <span
-                className="ease-[ease] relative z-10 flex justify-center text-black transition-all duration-200 will-change-transform group-hover/d:opacity-20 group-focus/d:opacity-20 group-active/d:opacity-20 group-active/d:delay-150 group-active/d:group-[:not(:checked)+label]/i:scale-95 peer-checked:group-[]/l:font-medium peer-checked:group-[]/l:opacity-100 dark:text-white"
-              >
-                {item.label}
-              </span>
-              <span
-                title={item.label}
-                className="before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]"
-              />
-            </span>
-            <span className="absolute left-0 top-0 size-full">
-              <Squircle
-                ref={addToRefs(item.value)}
-                cornerRadius={7}
-                borderWidth={0.5}
-                asChild
-              >
-                <span
-                  className={cn(
-                    'ease-[ease] flex size-full will-change-transform group-[]/default:peer-checked:group-[]/l:border-0 group-[]/default:peer-checked:group-[]/l:bg-black/[.04] group-[]/ghost:peer-checked:group-[]/l:bg-neutral-200 peer-checked:group-[]/l:bg-white group-[]/default:peer-checked:group-[]/l:shadow group-[]/default:peer-checked:group-[]/l:before:bg-white dark:group-[]/ghost:peer-checked:group-[]/l:bg-slate-600 dark:group-[]/default:peer-checked:group-[]/l:before:bg-neutral-600',
-                    item.value === value && 'transition-transform duration-300',
-                  )}
-                />
-              </Squircle>
-            </span>
-          </label>
-        </div>
+          value={item.value}
+          sqRef={addToRefs(item.value)}
+          checked={item.value === value}
+          label={item.label}
+          onValueChange={handleOnChange}
+        />
       ))}
     </Squircle>
+  )
+}
+
+function Segment<T extends string>({
+  value,
+  label,
+  checked,
+  onValueChange,
+  sqRef,
+  className,
+  ...props
+}: {
+  value: T
+  label: string
+  onValueChange: (value: T) => void
+  checked: boolean
+  sqRef: Ref<HTMLSpanElement>
+} & React.HTMLAttributes<HTMLDivElement> & RefAttributes<HTMLDivElement>) {
+  const id = useId()
+  return (
+    <div
+      className={cn('group/d relative first-of-type:col-[1] first-of-type:row-[1] first-of-type:shadow-none', className)}
+      {...props}
+    >
+      <input
+        id={id}
+        aria-label="Segmented control"
+        type="radio"
+        value={value}
+        checked={checked}
+        className="group/i peer absolute inset-0 appearance-none opacity-0 outline-none"
+        onChange={() => {
+          onValueChange(value)
+        }}
+      />
+      <label
+        htmlFor={id}
+        className="group/l before:ease-[ease] relative block cursor-pointer bg-transparent text-center before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[10px] before:bg-neutral-300 before:transition-[background] before:duration-200 before:will-change-[background] group-first-of-type/d:before:opacity-0 group-[:has(:checked)+*]/d:before:bg-transparent peer-checked:cursor-default peer-checked:before:z-10 peer-checked:before:bg-transparent dark:before:bg-slate-700"
+      >
+        <div className="flex flex-col justify-center text-sm/6 group-[]/ghost:leading-[1.375rem]">
+          <div
+            className="ease-[ease] relative z-10 flex justify-center text-black transition-all duration-200 will-change-transform group-hover/d:opacity-20 group-focus/d:opacity-20 group-active/d:opacity-20 group-active/d:delay-150 group-active/d:group-[:not(:checked)+label]/i:scale-95 peer-checked:group-[]/l:font-medium peer-checked:group-[]/l:opacity-100 dark:text-white"
+          >
+            {label}
+          </div>
+          <div
+            title={label}
+            className="before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]"
+          />
+        </div>
+        <div className="absolute left-0 top-0 size-full">
+          <Squircle
+            ref={sqRef}
+            cornerRadius={7}
+            borderWidth={0.5}
+            className={cn(
+              'ease-[ease] flex size-full will-change-transform group-[]/default:peer-checked:group-[]/l:border-0 group-[]/default:peer-checked:group-[]/l:bg-black/[.04] group-[]/ghost:peer-checked:group-[]/l:bg-neutral-200 peer-checked:group-[]/l:bg-white group-[]/default:peer-checked:group-[]/l:shadow group-[]/default:peer-checked:group-[]/l:before:bg-white dark:group-[]/ghost:peer-checked:group-[]/l:bg-slate-600 dark:group-[]/default:peer-checked:group-[]/l:before:bg-neutral-600',
+              checked && 'transition-transform duration-300',
+            )}
+          />
+        </div>
+      </label>
+    </div>
   )
 }

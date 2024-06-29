@@ -92,3 +92,37 @@ export function Squircle({
     </Component>
   )
 }
+
+export function SquircleBg({
+  className,
+  asChild = false,
+  children,
+  ...props
+}: DivProps & React.RefAttributes<HTMLDivElement>) {
+  const Component = asChild ? Slot : 'div'
+  return (
+    <Component
+      className={cn('drop-shadow-sm squircle sq-radius-[--sq-r] sq-fill-border [--sq-r:9px] sq:rounded-none sq:border-0', className)}
+      {...props}
+    >
+      {children}
+    </Component>
+  )
+}
+
+export function SquircleMask({
+  className,
+  asChild = false,
+  children,
+  ...props
+}: DivProps & React.RefAttributes<HTMLDivElement>) {
+  const Component = asChild ? Slot : 'div'
+  return (
+    <Component
+      className={cn('mask-squircle sq-radius-[calc(var(--sq-r)-1px+0.5px)] sq-fill-white sq:size-[calc(100%-2px)]', className)}
+      {...props}
+    >
+      {children}
+    </Component>
+  )
+}

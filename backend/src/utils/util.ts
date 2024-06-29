@@ -1,4 +1,4 @@
-import type { NextFunction, Request, Response } from 'express-serve-static-core'
+import type { NextFunction, Request, Response } from 'express'
 import { sql } from '../config/connection.js'
 import type { CookiesObj } from '../routes/auth.js'
 

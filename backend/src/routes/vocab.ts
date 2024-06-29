@@ -1,5 +1,5 @@
 import express from 'express'
-import type { Request, Response } from 'express-serve-static-core'
+import type { Request, Response } from 'express'
 import { LRUCache } from 'lru-cache'
 import type { EmptyObject } from 'type-fest'
 import { isTokenValid, tokenChecker } from '../utils/util.js'

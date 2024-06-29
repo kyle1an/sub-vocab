@@ -20,7 +20,7 @@ type FormValues = {
   password: string
 }
 
-export default function Login() {
+export function Login() {
   const form = useForm<FormValues>({
     defaultValues: {
       username: '',

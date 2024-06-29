@@ -9,7 +9,9 @@ import {
   type WordLocator,
 } from '@/lib/LabeledTire.ts'
 
-export type LabelDisplayTable = VocabState & InertialPhase
+export type LabelDisplayTable = VocabState & InertialPhase & {
+  wFamily: string[]
+}
 
 export type LabelSourceData = VocabState & {
   locations: WordLocator[]
@@ -27,7 +29,7 @@ function formVocab($: TrieWordLabel) {
   const wFamily = $.wFamily ?? [$.path]
 
   if ($.derive?.length) {
-    ;(function collectNestedSource(derives: TrieWordLabel[]) {
+    function collectNestedSource(derives: TrieWordLabel[]) {
       for (const d$ of derives) {
         if (d$.src[0]) {
           wFamily.push(d$.path)
@@ -42,7 +44,9 @@ function formVocab($: TrieWordLabel) {
           collectNestedSource(d$.derive)
         }
       }
-    }($.derive))
+    }
+
+    collectNestedSource($.derive)
   }
 
   const vocab: VocabState = {
@@ -69,7 +73,7 @@ function logVocabInfo<T extends VocabState>(listOfVocab: T[]) {
   console.log(`(${untouchedVocabList.length}) words`, { _: untouchedVocabList })
 }
 
-export function generatedVocabTrie(inputText: string, baseVocab: VocabState[], irregularMaps: string[][]) {
+export function generateVocabTrie(inputText: string, baseVocab: VocabState[], irregularMaps: string[][]) {
   const trie = new LabeledTire()
   trie.add(inputText)
   trie.mergedVocabulary(baseVocab)

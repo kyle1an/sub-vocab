@@ -3,14 +3,11 @@ import { useTranslation } from 'react-i18next'
 import type React from 'react'
 import {
   useEffect,
-  useRef,
   useState,
 } from 'react'
-import { useCookie, useLockBodyScroll } from 'react-use'
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
+import { useCookie } from 'react-use'
+import { CloseButton, Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
-import { useOnClickOutside } from 'usehooks-ts'
-import { useSize } from 'ahooks'
 import { useAtom } from 'jotai'
 import { Icon } from '@/components/ui/icon'
 import { Separator } from '@/components/ui/separator.tsx'
@@ -46,28 +43,6 @@ const locales = [
     label: '简体中文',
   },
 ] as const
-
-function useExclusiveDisclosure<T extends HTMLElement>() {
-  const ref = useRef<T>(null)
-  const [open, setOpen] = useState(false)
-  const closeFnRef = useRef(() => {})
-
-  function onClickOutside() {
-    if (open && closeFnRef.current) {
-      closeFnRef.current()
-    }
-  }
-
-  // @ts-expect-error
-  useOnClickOutside(ref, onClickOutside, 'mouseup')
-
-  return {
-    ref,
-    open,
-    setOpen,
-    closeFnRef,
-  }
-}
 
 function Account({ className, style, ...props }: React.HTMLAttributes<HTMLAnchorElement>) {
   return (
@@ -171,18 +146,6 @@ export function TopBar({ className }: { className?: string }) {
     { name: t('mine'), href: '/mine', current: true },
     { name: 'About', href: '/', current: false },
   ]
-  const {
-    ref: disclosureRef,
-    closeFnRef,
-    open: disclosureOpen,
-    setOpen: setDisclosureOpen,
-  } = useExclusiveDisclosure()
-
-  useLockBodyScroll(disclosureOpen)
-  const bodySize = useSize(document.body) ?? {
-    width: 0,
-    height: 0,
-  }
 
   const userNavigation = [
     ...!user.name ? [
@@ -209,6 +172,7 @@ export function TopBar({ className }: { className?: string }) {
   const [locale, updateLocale] = useCookie('_locale')
   const [value, setValue] = useState(locale || getLanguage())
   const [themePreference, setThemePreference] = useAtom(themeAtom)
+  const [isThemeTransitioning, setIsThemeTransitioning] = useState(false)
 
   useEffect(() => {
     updateLocale(value)
@@ -221,30 +185,27 @@ export function TopBar({ className }: { className?: string }) {
     <div
       className={cn(
         'fixed z-20 flex w-full flex-col',
-        disclosureOpen && 'h-full backdrop-blur-sm transition-all duration-300 ease-in-out',
+        'has-[>[data-open]]:h-full has-[>[data-open]]:backdrop-blur-sm has-[>[data-open]]:transition-all has-[>[data-open]]:duration-300 has-[>[data-open]]:ease-in-out',
         className,
       )}
     >
-      <Disclosure
+      <Popover
         as="nav"
-        ref={disclosureRef}
-        className={cn('ffs-pre fixed z-20 w-full bg-white tracking-wide shadow-sm dark:bg-slate-900')}
-        style={{
-          width: bodySize.width,
-        }}
+        className={cn(
+          'group/nav ffs-pre fixed z-20 w-full bg-white tracking-wide shadow-sm group-has-[[vaul-drawer]]/body:bg-[unset] dark:bg-slate-900',
+          '[body:has(&[data-open])]:mr-[--scrollbar-width] [body:has(&[data-open])]:overflow-hidden',
+        )}
       >
-        {({ open, close }) => {
-          closeFnRef.current = close
-          queueMicrotask(() => setDisclosureOpen(open))
+        {() => {
           return (
-            <>
-              <div className="mx-auto max-w-7xl px-4">
+            <div className={cn('mr-[--removed-body-scroll-bar-size] group-has-[[vaul-drawer]]/body:mr-0')}>
+              <div className="mx-auto max-w-7xl px-4 group-data-[open]/nav:mr-[--scrollbar-width] md:group-data-[open]/nav:mr-auto">
                 <div className="flex h-11 items-center justify-between">
                   <div className="flex h-full items-center gap-4">
                     <div className="shrink-0 pl-3 pr-2">
-                      <Link
+                      <CloseButton
+                        as={Link}
                         to="/"
-                        onClick={closeFnRef.current}
                       >
                         <div className={cn('group flex items-center gap-2.5 rounded-md text-sm font-medium text-neutral-600 hover:text-black dark:text-neutral-400 dark:hover:text-slate-300')}>
                           <Icon
@@ -256,20 +217,21 @@ export function TopBar({ className }: { className?: string }) {
                             {t('home')}
                           </span>
                         </div>
-                      </Link>
+                      </CloseButton>
                     </div>
                     {navigation.map((item) => (
                       <div
                         key={item.name}
                         className="hidden items-baseline space-x-4 md:flex"
                       >
-                        <Link
+                        <CloseButton
+                          as={Link}
                           to={item.href}
                           className={cn('rounded-md px-3 py-2 text-sm font-medium text-neutral-600 hover:text-black dark:text-neutral-400 dark:hover:text-slate-300')}
                           aria-current={item.current ? 'page' : undefined}
                         >
                           {item.name}
-                        </Link>
+                        </CloseButton>
                       </div>
                     ))}
                     <Separator
@@ -289,7 +251,7 @@ export function TopBar({ className }: { className?: string }) {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Menubar className="h-auto border-0 p-0 shadow-none">
+                    <Menubar className="h-auto border-0 bg-transparent p-0 shadow-none">
                       <MenubarMenu>
                         <MenubarTrigger className="px-2.5 py-1">
                           <div className="flex h-full items-center">
@@ -306,13 +268,20 @@ export function TopBar({ className }: { className?: string }) {
                           align="end"
                           sideOffset={3}
                         >
-                          <MenubarRadioGroup value={themePreference}>
+                          <MenubarRadioGroup
+                            value={themePreference}
+                            className={cn(isThemeTransitioning && '[body:has(&)_*::after]:!transition-none [body:has(&)_*::before]:!transition-none [body:has(&)_*]:!transition-none')}
+                          >
                             {THEMES.map((theme) => (
                               <MenubarRadioItem
                                 key={theme.value}
                                 value={theme.value}
                                 onSelect={() => {
+                                  setIsThemeTransitioning(true)
                                   setThemePreference(theme.value)
+                                  requestAnimationFrame(() => {
+                                    setIsThemeTransitioning(false)
+                                  })
                                 }}
                               >
                                 {theme.label}
@@ -323,7 +292,7 @@ export function TopBar({ className }: { className?: string }) {
                       </MenubarMenu>
                     </Menubar>
 
-                    <Menubar className="h-auto border-0 p-0 shadow-none">
+                    <Menubar className="h-auto border-0 bg-transparent p-0 shadow-none">
                       <MenubarMenu>
                         <MenubarTrigger className="px-2.5 py-1">
                           <div className="flex h-full items-center">
@@ -426,28 +395,25 @@ export function TopBar({ className }: { className?: string }) {
 
                       {/* Mobile menu button */}
                       <div className="flex md:hidden">
-                        <DisclosureButton className="relative inline-flex items-center justify-center rounded-md p-1">
+                        <PopoverButton className="relative inline-flex items-center justify-center rounded-md p-1">
                           <span className="absolute -inset-0.5" />
                           <span className="sr-only">Open main menu</span>
-                          {open ? (
-                            <XMarkIcon
-                              className="block size-6"
-                              aria-hidden="true"
-                            />
-                          ) : (
-                            <Bars3Icon
-                              className="block size-6"
-                              aria-hidden="true"
-                            />
-                          )}
-                        </DisclosureButton>
+                          <XMarkIcon
+                            className="hidden size-6 group-data-[open]/nav:block"
+                            aria-hidden="true"
+                          />
+                          <Bars3Icon
+                            className="block size-6 group-data-[open]/nav:hidden"
+                            aria-hidden="true"
+                          />
+                        </PopoverButton>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <DisclosurePanel className="md:hidden">
+              <PopoverPanel className="md:hidden">
                 <div className="flex flex-col gap-3.5 px-14 pb-4 pt-1.5">
                   {navigation.map((item) => {
                     return (
@@ -455,13 +421,13 @@ export function TopBar({ className }: { className?: string }) {
                         key={item.name}
                         className="inline-flex"
                       >
-                        <Link
+                        <CloseButton
+                          as={Link}
                           to={item.href}
                           className={cn('block rounded-md text-neutral-600 hover:text-black dark:text-neutral-400')}
-                          onClick={closeFnRef.current}
                         >
                           {item.name}
-                        </Link>
+                        </CloseButton>
                       </div>
                     )
                   })}
@@ -491,19 +457,20 @@ export function TopBar({ className }: { className?: string }) {
                       key={item.name}
                       className="flex cursor-default items-center"
                     >
-                      <div onClick={closeFnRef.current}>
-                        <Component
+                      <div>
+                        <CloseButton
                           className="inline-flex shrink-0 items-center gap-3 rounded-md [&>*]:text-neutral-600 [&>*]:transition-all [&>*]:hover:text-black dark:[&>*]:text-neutral-400 [&>svg]:text-neutral-400"
+                          as={Component}
                         />
                       </div>
                     </div>
                   ))}
                 </div>
-              </DisclosurePanel>
-            </>
+              </PopoverPanel>
+            </div>
           )
         }}
-      </Disclosure>
+      </Popover>
       <div className="grow" />
     </div>
   )

@@ -533,7 +533,6 @@ export function VocabDataTable({
       <div className="w-full">
         <SegmentedControl
           value={segment}
-          name={SEGMENT_NAME}
           segments={segments}
           onChoose={handleSegmentChoose}
           variant="ghost"
