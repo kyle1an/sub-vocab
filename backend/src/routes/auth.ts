@@ -1,11 +1,13 @@
 import crypto from 'node:crypto'
 import express from 'express'
 import type mysql from 'mysql2'
-import type { ParamsDictionary, Request, Response } from 'express-serve-static-core'
+import type { Request, Response } from 'express'
 import { addDays } from 'date-fns'
 import { sql } from '../config/connection.js'
 import { tokenChecker } from '../utils/util.js'
 import type { Credential, LoginResponse, NewCredential, NewUsername, RegisterResponse, Status, Username, UsernameTaken } from '../types/index.js'
+
+type ParamsDictionary = Record<string, string>
 
 const router = express.Router()
 

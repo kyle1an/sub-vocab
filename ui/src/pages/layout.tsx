@@ -1,10 +1,10 @@
 import {
   Suspense,
-  lazy,
   useEffect,
   useRef,
   useState,
 } from 'react'
+import { lazily } from 'react-lazily'
 import { Outlet } from 'react-router-dom'
 import './globals.css'
 import { QueryClientProvider } from '@tanstack/react-query'
@@ -16,9 +16,7 @@ import { queryClient } from '@/lib/utils'
 import { useSyncWordState } from '@/api/vocab-api'
 import { useDarkMode } from '@/lib/hooks'
 
-const ReactQueryDevtoolsProduction = lazy(() => import('@tanstack/react-query-devtools/production').then((d) => ({
-  default: d.ReactQueryDevtools,
-})))
+const ReactQueryDevtoolsProduction = lazily(() => import('@tanstack/react-query-devtools/production')).ReactQueryDevtools
 
 // @ts-expect-error
 const isChromium = Boolean(window.chrome)
@@ -68,7 +66,7 @@ export function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <div
         ref={ref}
-        className="isolate flex h-full min-h-full flex-col bg-white tracking-[.02em] antialiased dark:bg-slate-900"
+        className="isolate flex h-full min-h-full flex-col tracking-[.02em] antialiased _bg-white dark:_bg-slate-900"
       >
         <TopBar />
         <div className="ffs-pre flex min-h-svh flex-col items-center pt-11">

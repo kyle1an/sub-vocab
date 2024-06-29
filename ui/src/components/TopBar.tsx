@@ -6,11 +6,10 @@ import {
   useRef,
   useState,
 } from 'react'
-import { useCookie, useLockBodyScroll } from 'react-use'
+import { useCookie, useLockBodyScroll, useWindowSize } from 'react-use'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useOnClickOutside } from 'usehooks-ts'
-import { useSize } from 'ahooks'
 import { useAtom } from 'jotai'
 import { Icon } from '@/components/ui/icon'
 import { Separator } from '@/components/ui/separator.tsx'
@@ -179,10 +178,7 @@ export function TopBar({ className }: { className?: string }) {
   } = useExclusiveDisclosure()
 
   useLockBodyScroll(disclosureOpen)
-  const bodySize = useSize(document.body) ?? {
-    width: 0,
-    height: 0,
-  }
+  const bodySize = useWindowSize()
 
   const userNavigation = [
     ...!user.name ? [
@@ -209,6 +205,7 @@ export function TopBar({ className }: { className?: string }) {
   const [locale, updateLocale] = useCookie('_locale')
   const [value, setValue] = useState(locale || getLanguage())
   const [themePreference, setThemePreference] = useAtom(themeAtom)
+  const [isThemeTransitioning, setIsThemeTransitioning] = useState(false)
 
   useEffect(() => {
     updateLocale(value)
@@ -306,13 +303,20 @@ export function TopBar({ className }: { className?: string }) {
                           align="end"
                           sideOffset={3}
                         >
-                          <MenubarRadioGroup value={themePreference}>
+                          <MenubarRadioGroup
+                            value={themePreference}
+                            className={cn(isThemeTransitioning && '[body:has(&)_*::after]:!transition-none [body:has(&)_*::before]:!transition-none [body:has(&)_*]:!transition-none')}
+                          >
                             {THEMES.map((theme) => (
                               <MenubarRadioItem
                                 key={theme.value}
                                 value={theme.value}
                                 onSelect={() => {
+                                  setIsThemeTransitioning(true)
                                   setThemePreference(theme.value)
+                                  requestAnimationFrame(() => {
+                                    setIsThemeTransitioning(false)
+                                  })
                                 }}
                               >
                                 {theme.label}

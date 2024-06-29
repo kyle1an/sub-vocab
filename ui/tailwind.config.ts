@@ -1,3 +1,4 @@
+/* eslint-disable ts/no-require-imports */
 import type { Config } from 'tailwindcss'
 import flattenColorPalette from 'tailwindcss/lib/util/flattenColorPalette'
 import plugin from 'tailwindcss/plugin'
@@ -89,9 +90,7 @@ const config: Config = {
     },
   },
   plugins: [
-    // eslint-disable-next-line ts/no-require-imports
     require('tailwindcss-animate'),
-    // eslint-disable-next-line ts/no-require-imports
     require('tailwindcss-signals'),
     plugin(({
       addUtilities,
@@ -191,7 +190,7 @@ const config: Config = {
       matchUtilities({
         _bg: (value) => ({
           '--bg-': value,
-          backgroundColor: 'var(--bg-)',
+          backgroundColor: value,
         }),
       }, {
         values: flattenColorPalette(theme('colors')),

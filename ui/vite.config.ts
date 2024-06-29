@@ -8,7 +8,7 @@ import { checker } from 'vite-plugin-checker'
 export function replaceLink(html: string, scriptFilename: string, scriptCode: string): string {
   const reStyle = new RegExp(`<link([^>]*?) href="[./]*${scriptFilename}"([^>]*?)>`)
   const legacyCharSetDeclaration = /@charset "UTF-8";/
-  const inlined = html.replace(reStyle, (_, beforeSrc, afterSrc) => `<script${beforeSrc}${afterSrc}>${scriptCode.replace(legacyCharSetDeclaration, '')}</script>`)
+  const inlined = html.replace(reStyle, (_, beforeSrc, afterSrc) => `<script${beforeSrc}${afterSrc}>${scriptCode.replace(legacyCharSetDeclaration, '').trim()}</script>`)
   return inlined
 }
 
@@ -78,27 +78,55 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks(id) {
-            if (id.includes('/lib/worker')) {
+            if (id.includes('/lib/worker'))
               return 'worker'
-            }
             if (id.includes('pdfjs-dist')) {
-              if (id.includes('pdf.worker')) {
+              if (id.includes('pdf.worker'))
                 return 'pdfjs-dist_pdf.worker'
-              } else {
-                return 'pdfjs-dist_pdf'
-              }
+              return 'pdfjs-dist_pdf'
             }
-            if (id.includes('_react@') || id.includes('_react-dom@')) {
+            if (id.includes('query-devtools'))
+              return 'tanstack-query-devtools'
+            if (id.includes('sentry'))
+              return 'sentry'
+            if (id.includes('chart.js'))
+              return 'chart.js'
+            if (
+              id.includes('/react@')
+              || id.includes('/react-dom@')
+            ) {
               return 'react'
             }
-            if (id.includes('sentry')) {
-              return 'sentry'
-            }
-            if (id.includes('chart.js')) {
-              return 'chart.js'
-            }
-            if (id.includes('tanstack')) {
-              return 'tanstack'
+            if (
+              id.includes('_react@')
+              || id.includes('_react-dom@')
+            ) {
+              if (
+                id.includes('tanstack')
+                || id.includes('jotai')
+                || id.includes('react-hook-form')
+                || id.includes('react-resizable-panels@')
+              ) {
+                return '_react-chunk'
+              }
+              if (
+                id.includes('radix')
+                || id.includes('sonner')
+                || id.includes('@headlessui')
+                || id.includes('iconify')
+              ) {
+                return '_react-chunk2'
+              }
+              if (
+                id.includes('router')
+                || id.includes('react-i18next')
+                || id.includes('react-use')
+                || id.includes('usehooks-ts')
+                || id.includes('react-remove-scroll')
+              ) {
+                return 'react'
+              }
+              return 'react'
             }
           },
         },

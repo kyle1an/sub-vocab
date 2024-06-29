@@ -5,7 +5,7 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import { atom, useAtom } from 'jotai'
-import { useSize } from 'ahooks'
+import { useWindowSize } from 'react-use'
 import { FileInput } from '@/components/ui/FileInput'
 import { TextareaInput } from '@/components/ui/TextareaInput'
 import {
@@ -81,10 +81,7 @@ export default function Home() {
   }
 
   const [count] = useAtom(textCountAtom)
-  const bodySize = useSize(document.body) ?? {
-    width: 0,
-    height: 0,
-  }
+  const bodySize = useWindowSize()
   const direction = bodySize.width > 768 ? 'horizontal' : 'vertical'
   let defaultSizes = [56, 44]
   if (direction === 'vertical') {

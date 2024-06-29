@@ -24,7 +24,6 @@ export default antfu(
       '@stylistic/switch-colon-spacing': 'warn',
       '@stylistic/quotes': [1, 'single', { avoidEscape: true, allowTemplateLiterals: true }],
       '@stylistic/brace-style': ['error', '1tbs'],
-      curly: ['error', 'multi-line'],
       'unused-imports/no-unused-vars': 'off',
       'prefer-arrow-callback': 'off',
     },
