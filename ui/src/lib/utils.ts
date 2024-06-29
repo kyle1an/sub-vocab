@@ -33,3 +33,62 @@ export const queryClient = new QueryClient({
     },
   },
 })
+
+export function setMetaThemeColorAttribute(newThemeColor: string) {
+  const metaThemeColorEl = document.querySelector('meta[name="theme-color"]')
+  if (
+    metaThemeColorEl
+    && (
+      newThemeColor === 'transparent'
+      || newThemeColor === 'black'
+      || !document.querySelector('[vaul-drawer][data-state="open"]')
+    )
+  ) {
+    if (metaThemeColorEl.getAttribute('content') !== newThemeColor) {
+      metaThemeColorEl.setAttribute('content', newThemeColor)
+    }
+  }
+}
+
+// https://stackoverflow.com/a/13382873/10903455
+export function getScrollbarWidth() {
+  // Creating invisible container
+  const outer = document.createElement('div')
+  outer.style.visibility = 'hidden'
+  outer.style.overflow = 'scroll' // forcing scrollbar to appear
+  // @ts-expect-error
+  outer.style.msOverflowStyle = 'scrollbar' // needed for WinJS apps
+  document.body.appendChild(outer)
+
+  // Creating inner element and placing it in the container
+  const inner = document.createElement('div')
+  outer.appendChild(inner)
+
+  // Calculating difference between container's full width and the child width
+  const scrollbarWidth = (outer.offsetWidth - inner.offsetWidth)
+
+  // Removing temporary elements from the DOM
+  outer.parentNode?.removeChild(outer)
+
+  return scrollbarWidth
+}
+
+export function getOS() {
+  if (iOS()) {
+    return 'ios'
+  }
+}
+
+// https://stackoverflow.com/a/9039885/10903455
+function iOS() {
+  return [
+    'iPad Simulator',
+    'iPhone Simulator',
+    'iPod Simulator',
+    'iPad',
+    'iPhone',
+    'iPod',
+  ].includes(navigator.platform)
+  // iPad on iOS 13 detection
+  || (navigator.userAgent.includes('Mac') && 'ontouchend' in document)
+}

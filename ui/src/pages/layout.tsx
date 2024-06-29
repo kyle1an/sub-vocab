@@ -1,26 +1,25 @@
 import {
   Suspense,
-  lazy,
   useEffect,
   useRef,
   useState,
 } from 'react'
+import { lazily } from 'react-lazily'
 import { Outlet } from 'react-router-dom'
 import './globals.css'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { SpeedInsights } from '@vercel/speed-insights/react'
+import { useAtom } from 'jotai'
 import { Toaster } from '@/components/ui/sonner'
 import { TopBar } from '@/components/TopBar.tsx'
-import { queryClient } from '@/lib/utils'
+import { getScrollbarWidth, queryClient, setMetaThemeColorAttribute } from '@/lib/utils'
 import { useSyncWordState } from '@/api/vocab-api'
 import { useDarkMode } from '@/lib/hooks'
+import { LIGHT_THEME_COLOR, metaThemeColorAtom } from '@/store/useVocab'
 
-const ReactQueryDevtoolsProduction = lazy(() => import('@tanstack/react-query-devtools/production').then((d) => ({
-  default: d.ReactQueryDevtools,
-})))
+const ReactQueryDevtoolsProduction = lazily(() => import('@tanstack/react-query-devtools/production')).ReactQueryDevtools
 
-// @ts-expect-error
 const isChromium = Boolean(window.chrome)
 if (
   CSS.supports('background:paint(squircle)')
@@ -29,36 +28,38 @@ if (
   document.documentElement.classList.add('sq')
 }
 
+const scrollbarWidth = getScrollbarWidth()
+document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`)
+
 export function RootLayout() {
   const ref = useRef<HTMLDivElement>(null)
-  const isDarkMode = useDarkMode()
+  const { isDarkMode } = useDarkMode()
+  const [, setMetaThemeColor] = useAtom(metaThemeColorAtom)
 
   useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDarkMode)
     let themeColorContentValue: string
     if (isDarkMode) {
-      document.documentElement.classList.add('dark')
       themeColorContentValue = 'black'
     } else {
-      document.documentElement.classList.remove('dark')
-      themeColorContentValue = 'white'
+      themeColorContentValue = LIGHT_THEME_COLOR
     }
-    const themeColorMeta = document.querySelector('meta[name="theme-color"]')
-    if (themeColorMeta) {
-      const syncElt = ref.current
+    const syncElt = ref.current
+    requestAnimationFrame(() => {
       if (syncElt) {
         themeColorContentValue = window.getComputedStyle(syncElt, null).getPropertyValue('background-color')
+        if (themeColorContentValue === 'rgb(255, 255, 255)') {
+          themeColorContentValue = LIGHT_THEME_COLOR
+        }
       }
-      const themeColorMetaValue = themeColorMeta.getAttribute('content')
-      if (themeColorMetaValue !== themeColorContentValue) {
-        themeColorMeta.setAttribute('content', themeColorContentValue)
-      }
-    }
-  }, [isDarkMode])
+      setMetaThemeColor(themeColorContentValue)
+      setMetaThemeColorAttribute(themeColorContentValue)
+    })
+  }, [isDarkMode, setMetaThemeColor])
 
   const [showDevtools, setShowDevtools] = useState(false)
 
   useEffect(() => {
-    // @ts-expect-error
     window.toggleDevtools = () => setShowDevtools((old) => !old)
   }, [])
 
@@ -68,7 +69,8 @@ export function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <div
         ref={ref}
-        className="isolate flex h-full min-h-full flex-col bg-white tracking-[.02em] antialiased dark:bg-slate-900"
+        className="isolate flex h-full min-h-full flex-col tracking-[.02em] antialiased sq-smooth-[0.6] sq-radius-[5_5_0_0] sq-fill-[red] _bg-[--theme-bg] [&[style*='border-radius:_8px;']]:mask-squircle"
+        vaul-drawer-wrapper=""
       >
         <TopBar />
         <div className="ffs-pre flex min-h-svh flex-col items-center pt-11">

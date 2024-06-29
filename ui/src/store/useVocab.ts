@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import Cookies from 'js-cookie'
 import { atomWithStorage } from 'jotai/utils'
 import type { ArrayValues } from 'type-fest'
+import { getOS } from '@/lib/utils'
 
 type Store = {
   username: string
@@ -44,3 +45,14 @@ export const THEMES = [
 ] as const
 
 export const themeAtom = atomWithStorage<ArrayValues<typeof THEMES>['value']>('theme', DEFAULT_THEME.value)
+
+export const LIGHT_THEME_COLOR = 'rgb(255,255,254)'
+
+export const metaThemeColorAtom = atomWithStorage('meta-theme-color', LIGHT_THEME_COLOR)
+
+const os = getOS()
+if (os) {
+  document.documentElement.classList.add(os)
+}
+
+export const osAtom = atomWithStorage('os', os)

@@ -2,7 +2,7 @@ import antfu from '@antfu/eslint-config'
 import { FlatCompat } from '@eslint/eslintrc'
 import { fixupConfigRules } from '@eslint/compat'
 import stylistic from '@stylistic/eslint-plugin'
-import * as tanstackQuery from '@tanstack/eslint-plugin-query'
+import pluginQuery from '@tanstack/eslint-plugin-query'
 import eslintPluginTailwindCss from 'eslint-plugin-tailwindcss'
 
 const compat = new FlatCompat()
@@ -10,6 +10,7 @@ const compat = new FlatCompat()
 export default antfu(
   {
     react: true,
+    stylistic: false,
   },
   stylistic.configs.customize({
     arrowParens: true,
@@ -24,7 +25,6 @@ export default antfu(
       '@stylistic/switch-colon-spacing': 'warn',
       '@stylistic/quotes': [1, 'single', { avoidEscape: true, allowTemplateLiterals: true }],
       '@stylistic/brace-style': ['error', '1tbs'],
-      curly: ['error', 'multi-line'],
       'unused-imports/no-unused-vars': 'off',
       'prefer-arrow-callback': 'off',
     },
@@ -81,16 +81,7 @@ export default antfu(
       'jsonc/sort-keys': 'off',
     },
   },
-  ...fixupConfigRules({
-    name: '@tanstack/query',
-    files: ['src/**/*.{ts,tsx}'],
-    plugins: {
-      '@tanstack/query': {
-        rules: tanstackQuery.rules,
-      },
-    },
-    rules: tanstackQuery.configs.recommended.rules,
-  }),
+  ...pluginQuery.configs['flat/recommended'],
   ...eslintPluginTailwindCss.configs['flat/recommended'],
   {
     rules: {

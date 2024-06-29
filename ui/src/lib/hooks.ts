@@ -1,6 +1,6 @@
 import { atom } from 'jotai'
 import { useAtom } from 'jotai/react'
-import { useIsomorphicLayoutEffect, useLocalStorage, useMediaQuery } from 'usehooks-ts'
+import { useMediaQuery } from 'usehooks-ts'
 import { themeAtom } from '@/store/useVocab'
 
 export function syncAtomWithStorage<T>(key: string, initialValue: T) {
@@ -22,23 +22,9 @@ const COLOR_SCHEME_QUERY = '(prefers-color-scheme: dark)'
 export function useDarkMode() {
   const [themePreference] = useAtom(themeAtom)
   const isDarkOS = useMediaQuery(COLOR_SCHEME_QUERY)
-  const [isDarkMode, setDarkMode] = useLocalStorage(
-    'isDarkMode',
-    isDarkOS ?? false,
-  )
-
-  useIsomorphicLayoutEffect(() => {
-    if (themePreference === 'auto') {
-      if (isDarkMode !== isDarkOS) {
-        setDarkMode(isDarkOS)
-      }
-    } else {
-      const preferDark = themePreference === 'dark'
-      if (isDarkMode !== preferDark) {
-        setDarkMode(preferDark)
-      }
-    }
-  }, [themePreference, isDarkOS, isDarkMode, setDarkMode])
-
-  return isDarkMode
+  let isDarkMode = false
+  if (themePreference === 'dark' || (themePreference === 'auto' && isDarkOS)) {
+    isDarkMode = true
+  }
+  return { isDarkMode }
 }

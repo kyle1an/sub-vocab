@@ -4,9 +4,9 @@ import {
   createRoutesFromElements,
 } from 'react-router-dom'
 import { RootLayout } from '@/pages/layout'
-import Index from '@/pages/page'
-import Login from '@/pages/login/page'
-import User from '@/pages/user/layout'
+import { Home } from '@/pages/page'
+import { Login } from '@/pages/login/page'
+import { User } from '@/pages/user/layout'
 import { Password } from '@/pages/user/password/page'
 import { UserPage } from '@/pages/user/page'
 import { MineLayout } from '@/pages/mine/layout'
@@ -22,7 +22,7 @@ export const router = createBrowserRouter(
     >
       <Route
         index
-        element={<Index />}
+        element={<Home />}
       />
       <Route
         path="/mine"

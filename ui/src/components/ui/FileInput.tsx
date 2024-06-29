@@ -1,8 +1,10 @@
 import type React from 'react'
 import { Button, FileTrigger } from 'react-aria-components'
+import { useAtom } from 'jotai'
 import { Squircle } from '@/components/ui/squircle'
 import { cn } from '@/lib/utils.ts'
 import { SUPPORTED_FILE_TYPES, getFileContent } from '@/lib/filesHandler'
+import { osAtom } from '@/store/useVocab'
 
 export function FileInput({
   onFileSelect,
@@ -16,6 +18,8 @@ export function FileInput({
   children: React.ReactNode
   className?: string
 }) {
+  const [os] = useAtom(osAtom)
+
   function handleFileSelect(fileList: FileList | null) {
     if (fileList) {
       getFileContent(fileList).then(onFileSelect).catch(console.error)
@@ -37,7 +41,11 @@ export function FileInput({
     >
       <FileTrigger
         allowsMultiple
-        acceptedFileTypes={SUPPORTED_FILE_TYPES}
+        // https://stackoverflow.com/a/47387521/10903455
+        // https://caniuse.com/input-file-accept
+        {...(os === 'ios' ? {} : {
+          acceptedFileTypes: SUPPORTED_FILE_TYPES,
+        })}
         onSelect={handleFileSelect}
       >
         <Squircle

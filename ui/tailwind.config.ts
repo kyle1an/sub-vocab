@@ -1,3 +1,4 @@
+/* eslint-disable ts/no-require-imports */
 import type { Config } from 'tailwindcss'
 import flattenColorPalette from 'tailwindcss/lib/util/flattenColorPalette'
 import plugin from 'tailwindcss/plugin'
@@ -89,9 +90,7 @@ const config: Config = {
     },
   },
   plugins: [
-    // eslint-disable-next-line ts/no-require-imports
     require('tailwindcss-animate'),
-    // eslint-disable-next-line ts/no-require-imports
     require('tailwindcss-signals'),
     plugin(({
       addUtilities,
@@ -121,6 +120,7 @@ const config: Config = {
       })
 
       addVariant('sq', sq_DEFINITION)
+      addVariant('ios', '&:is(.ios *)')
 
       matchUtilities({
         mask: (value) => ({
@@ -143,9 +143,57 @@ const config: Config = {
       })
 
       matchUtilities({
+        'sq-smooth-x': (value) => ({
+          [sq_DEFINITION]: {
+            '--squircle-right-top-smooth': value,
+            '--squircle-right-bottom-smooth': value,
+            '--squircle-left-bottom-smooth': value,
+            '--squircle-left-top-smooth': value,
+          },
+        }),
+      })
+
+      matchUtilities({
+        'sq-smooth-y': (value) => ({
+          [sq_DEFINITION]: {
+            '--squircle-top-left-smooth': value,
+            '--squircle-top-right-smooth': value,
+            '--squircle-bottom-right-smooth': value,
+            '--squircle-bottom-left-smooth': value,
+          },
+        }),
+      })
+
+      matchUtilities({
         'sq-radius': (value) => ({
           [sq_DEFINITION]: {
             '--squircle-radius': value,
+          },
+        }),
+      }, {
+        values: theme('borderRadius'),
+      })
+
+      matchUtilities({
+        'sq-radius-x': (value) => ({
+          [sq_DEFINITION]: {
+            '--squircle-right-top-radius': value,
+            '--squircle-right-bottom-radius': value,
+            '--squircle-left-bottom-radius': value,
+            '--squircle-left-top-radius': value,
+          },
+        }),
+      }, {
+        values: theme('borderRadius'),
+      })
+
+      matchUtilities({
+        'sq-radius-y': (value) => ({
+          [sq_DEFINITION]: {
+            '--squircle-top-left-radius': value,
+            '--squircle-top-right-radius': value,
+            '--squircle-bottom-right-radius': value,
+            '--squircle-bottom-left-radius': value,
           },
         }),
       }, {
@@ -191,11 +239,11 @@ const config: Config = {
       matchUtilities({
         _bg: (value) => ({
           '--bg-': value,
-          backgroundColor: 'var(--bg-)',
+          backgroundColor: value,
         }),
       }, {
         values: flattenColorPalette(theme('colors')),
-        type: 'color',
+        type: ['color', 'any'],
       })
     }),
   ],

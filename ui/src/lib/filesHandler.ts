@@ -1,7 +1,7 @@
 // https://github.com/mozilla/pdf.js/issues/10478#issuecomment-1560704162
 import 'pdfjs-dist/build/pdf.worker.mjs'
 import { type PDFDocumentProxy, getDocument } from 'pdfjs-dist'
-import type { TextContent, TextItem } from 'pdfjs-dist/types/src/display/api'
+import type { TextContent } from 'pdfjs-dist/types/src/display/api'
 
 interface FileContent {
   text: string
@@ -14,15 +14,10 @@ type EntryFiles = RecursiveArray<FileContent>
 
 const FORMAT_ERROR = 'Unsupported file format'
 
-function isTextItem(obj: TextContent['items'][number]): obj is TextItem {
-  // @ts-expect-error TextItem/TextMarkedContent
-  return Boolean(obj?.transform)
-}
-
 function formatTextContent(textContent: TextContent) {
   const lines = textContent.items.map((item) => {
     let text = ''
-    if (isTextItem(item)) {
+    if ('transform' in item) {
       text = item.str
       if (item.hasEOL) {
         text += '\n'
@@ -89,6 +84,7 @@ const HUMAN_READABLE_FILE_EXTENSIONS: `.${string}`[] = [
   '.sass',
   '.scss',
   '.sql',
+  '.styl',
   '.svelte',
   '.swift',
   '.ts',
@@ -130,6 +126,7 @@ const HUMAN_READABLE_FILE_EXTENSIONS: `.${string}`[] = [
   '.patch',
   '.ps1',
   '.srt',
+  '.m3u',
 ]
 
 export const SUPPORTED_FILE_TYPES = [

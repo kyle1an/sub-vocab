@@ -4,7 +4,7 @@ import { Footer } from '@/components/Footer'
 import { useVocabStore } from '@/store/useVocab'
 import { SideNav } from '@/components/SideNav'
 
-export default function User() {
+export function User() {
   const { t } = useTranslation()
   const username = useVocabStore((state) => state.username)
   if (!username) {

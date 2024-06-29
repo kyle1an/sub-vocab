@@ -2,6 +2,9 @@ import antfu from '@antfu/eslint-config'
 import stylistic from '@stylistic/eslint-plugin'
 
 export default antfu(
+  {
+    stylistic: false,
+  },
   stylistic.configs.customize({
     arrowParens: true,
     braceStyle: '1tbs',
@@ -34,12 +37,6 @@ export default antfu(
   },
   {
     rules: {
-      'ts/ban-types': [
-        'error',
-        {
-          extendDefaults: true,
-        },
-      ],
       'ts/ban-ts-comment': 'off',
       'ts/consistent-type-definitions': 'off',
       // https://www.totaltypescript.com/method-shorthand-syntax-considered-harmful

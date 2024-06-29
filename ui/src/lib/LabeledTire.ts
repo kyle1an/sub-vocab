@@ -58,13 +58,9 @@ const isVowel = (chars: string) => ['a', 'e', 'i', 'o', 'u'].includes(chars)
 
 export class LabeledTire {
   root: NodeOf<TrieWordLabel> = {}
-
   #sequence = 0
-
   sentences: string[] = []
-
   wordCount = 0
-
   vocabulary: Array<TrieWordLabel | null> = []
 
   getNode(word: string) {
@@ -284,11 +280,12 @@ export class LabeledTire {
       return labels
     }
 
-    const aposSuffixLabels = (curr_apos: NodeOf<TrieWordLabel>) => [
-      curr_apos.s?.$,
-      curr_apos.l?.l?.$,
-      curr_apos.v?.e?.$,
-      curr_apos.d?.$,
+    const getApostropheSuffixes = (apostrophe: NodeOf<TrieWordLabel>) => [
+      apostrophe.d?.$,
+      apostrophe.l?.l?.$,
+      apostrophe.r?.e?.$,
+      apostrophe.s?.$,
+      apostrophe.v?.e?.$,
     ]
 
     if (curr_ing$) {
@@ -347,10 +344,10 @@ export class LabeledTire {
       }
       this.#batchMergeTo(curr_$, toBeMerged)
       if (curr[`'`]) {
-        this.#batchMergeTo(curr_$, aposSuffixLabels(curr[`'`]))
+        this.#batchMergeTo(curr_$, getApostropheSuffixes(curr[`'`]))
       }
       if (curr[`’`]) {
-        this.#batchMergeTo(curr_$, aposSuffixLabels(curr[`’`]))
+        this.#batchMergeTo(curr_$, getApostropheSuffixes(curr[`’`]))
       }
     } else if (curr_e$) {
       this.#batchMergeTo(curr_e$, labelOfSuffixes(curr))
@@ -365,10 +362,10 @@ export class LabeledTire {
       this.#batchMergeTo($, labelOfSuffixes(curr))
 
       if (curr[`'`]) {
-        this.#batchMergeTo($, aposSuffixLabels(curr[`'`]))
+        this.#batchMergeTo($, getApostropheSuffixes(curr[`'`]))
       }
       if (curr[`’`]) {
-        this.#batchMergeTo($, aposSuffixLabels(curr[`’`]))
+        this.#batchMergeTo($, getApostropheSuffixes(curr[`’`]))
       }
 
       if ($.derive.length) {
