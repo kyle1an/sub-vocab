@@ -5,7 +5,3 @@ declare namespace CSS {
     export function addModule(url: URL | string): void
   }
 }
-
-interface Window {
-  toggleDevtools?: () => void
-}

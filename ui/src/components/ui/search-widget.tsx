@@ -19,7 +19,9 @@ export function SearchWidget({
 
   return (
     <Squircle
-      cornerRadius={6}
+      squircle={{
+        cornerRadius: 6,
+      }}
       borderWidth={1}
       className="flex w-48 flex-row items-center gap-1 overflow-hidden bg-gray-200 p-1.5 before:bg-white has-[>:focus]:!bg-ring dark:bg-gray-800 dark:text-slate-400 dark:before:bg-slate-900"
     >

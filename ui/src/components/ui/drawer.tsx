@@ -42,13 +42,13 @@ function DrawerContent({ className, children, ref, ...props }: React.ComponentPr
       <DrawerPrimitive.Content
         ref={ref}
         className={cn(
-          'fixed inset-x-0 bottom-0 z-50 mt-24 flex h-full max-h-[calc(100%-1.475rem)] flex-col outline-none after:!top-[calc(100%-1px)] after:!bg-[--theme-bg] dark:mx-[.5px] ios:dark:mx-0',
+          'fixed inset-x-0 bottom-0 z-50 mt-24 flex h-full max-h-[calc(100%-1.475rem)] flex-col outline-none after:!top-[calc(100%-.2px)] after:!bg-[--theme-bg] dark:mx-[.5px] iOS:dark:mx-0',
           className,
         )}
         {...props}
       >
-        <div className="h-full rounded-t-[10px] bg-[--theme-bg] mask-squircle sq-radius-[7_7_0_0] sq-fill-[red] sq:rounded-none">
-          <DrawerHandle className="mb-8 mt-4 bg-gray-300" />
+        <div className="flex h-full flex-col rounded-t-[10px] bg-[--theme-bg] mask-squircle sq-radius-[7_7_0_0] sq-fill-[red] sq:rounded-none">
+          <DrawerHandle className="mt-1.5 shrink-0 bg-gray-300" />
           {children}
         </div>
       </DrawerPrimitive.Content>
@@ -88,7 +88,7 @@ function DrawerTitle({ className, ref, ...props }: React.ComponentPropsWithRef<t
     <DrawerPrimitive.Title
       ref={ref}
       className={cn(
-        'text-lg font-semibold leading-none tracking-normal',
+        'text-lg font-semibold leading-none',
         className,
       )}
       {...props}

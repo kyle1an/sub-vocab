@@ -1,18 +1,23 @@
 import type React from 'react'
-import { readDataTransferItemList, readEntryFiles } from '@/lib/filesHandler'
+import { DataTransferItemListReader, readEntryFiles } from '@/lib/filesHandler'
+import type { FileType } from '@/store/useVocab'
 
 export function TextareaInput({
   value,
   placeholder,
+  fileTypes,
   onChange,
 }: {
   value: string
   placeholder?: string
+  fileTypes: FileType[]
   onChange: (text: {
     value: string
     name?: string
   }) => void
 }) {
+  const dataTransferItemListReader = new DataTransferItemListReader(fileTypes.filter((fileType) => fileType.checked).map((fileType) => fileType.type))
+
   function textareaOnChange(ev: React.ChangeEvent<HTMLTextAreaElement>) {
     onChange({
       value: ev.target.value,
@@ -21,11 +26,7 @@ export function TextareaInput({
 
   function dropHandler(event: React.DragEvent<HTMLTextAreaElement>) {
     event.preventDefault()
-    if (!event.dataTransfer?.items) {
-      return
-    }
-
-    Promise.all(readDataTransferItemList(event.dataTransfer.items))
+    Promise.all(dataTransferItemListReader.readDataTransferItemList(event.dataTransfer.items))
       .then((fileContents) => {
         const { title, content } = readEntryFiles(fileContents)
         onChange({
@@ -40,7 +41,7 @@ export function TextareaInput({
     <textarea
       aria-label="Text input"
       value={value}
-      className="size-full max-h-full resize-none rounded-none px-[30px] py-3 align-top tracking-[.02em] outline-none ffs-[normal] dark:bg-slate-900 dark:text-slate-400 dark:placeholder:text-slate-600"
+      className="size-full max-h-full resize-none rounded-none px-[30px] py-3 align-top tracking-normal outline-none ffs-[normal] placeholder:tracking-[.01em] dark:bg-slate-900 dark:text-slate-400 dark:placeholder:text-slate-600"
       placeholder={placeholder ?? ''}
       onChange={textareaOnChange}
       onDrop={dropHandler}

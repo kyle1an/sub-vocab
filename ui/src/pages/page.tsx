@@ -5,12 +5,13 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import { atom, useAtom } from 'jotai'
-import { useWindowSize } from 'react-use'
+import { useMediaQuery } from 'foxact/use-media-query'
+import { FileSettings } from './file-settings'
 import { FileInput } from '@/components/ui/FileInput'
 import { TextareaInput } from '@/components/ui/TextareaInput'
 import {
   type LabelDisplaySource,
-  generateVocabTrie,
+  formVocab,
 } from '@/lib/vocab'
 import { VocabSourceTable } from '@/components/ui/VocabSource.tsx'
 import {
@@ -25,6 +26,8 @@ import {
 } from '@/components/ui/resizable'
 import { cn } from '@/lib/utils'
 import { SquircleBg, SquircleMask } from '@/components/ui/squircle'
+import { LabeledTire } from '@/lib/LabeledTire'
+import { fileTypesAtom } from '@/store/useVocab'
 
 const fileInfoAtom = atom('')
 const sourceTextAtom = atom('')
@@ -43,10 +46,14 @@ function SourceVocab({
   const [, setCount] = useAtom(textCountAtom)
 
   useEffect(() => {
-    const { list, count: c, sentences: s } = generateVocabTrie(sourceText, baseVocab, irregulars)
+    const trie = new LabeledTire()
+    trie.add(sourceText)
+    trie.mergedVocabulary(baseVocab)
+    trie.mergeDerivedWordIntoStem(irregulars)
+    const list = trie.vocabulary.filter(Boolean).filter((v) => !v.variant).map(formVocab)
     setRows((r) => statusRetainedList(r, list))
-    setSentences(s)
-    setCount(c)
+    setSentences(trie.sentences)
+    setCount(trie.wordCount)
   }, [sourceText, baseVocab, irregulars, setCount])
 
   function handlePurge() {
@@ -82,8 +89,8 @@ export function Home() {
   }
 
   const [count] = useAtom(textCountAtom)
-  const bodySize = useWindowSize()
-  const direction = bodySize.width > 768 ? 'horizontal' : 'vertical'
+  const isMdScreen = useMediaQuery('(min-width: 768px)')
+  const direction = isMdScreen ? 'horizontal' : 'vertical'
   let defaultSizes = [56, 44]
   if (direction === 'vertical') {
     defaultSizes = [
@@ -91,15 +98,17 @@ export function Home() {
       64,
     ]
   }
+  const [fileTypes] = useAtom(fileTypesAtom)
 
   return (
     <main className="m-auto h-[calc(100svh-4px*11)] w-full max-w-screen-xl px-5 pb-7">
-      <div className="relative flex h-14 items-center">
+      <div className="relative flex h-14 items-center gap-2">
         <FileInput
           onFileSelect={handleFileChange}
         >
           {t('browseFiles')}
         </FileInput>
+        <FileSettings />
         <div className="grow" />
       </div>
       <SquircleBg className="flex h-[calc(100%-4px*14)] items-center justify-center overflow-hidden rounded-xl border">
@@ -107,7 +116,7 @@ export function Home() {
           <ResizablePanelGroup
             direction={direction}
             className={cn(
-              'ios:[body:has(&)]:overflow-hidden', // prevent overscroll
+              'iOS:[body:has(&)]:overflow-hidden', // prevent overscroll
             )}
           >
             <ResizablePanel defaultSize={defaultSizes[0]}>
@@ -122,6 +131,7 @@ export function Home() {
                     <TextareaInput
                       value={sourceText}
                       placeholder={t('inputArea')}
+                      fileTypes={fileTypes}
                       onChange={handleTextareaChange}
                     />
                   </div>

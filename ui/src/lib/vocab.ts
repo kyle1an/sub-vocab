@@ -1,8 +1,6 @@
 import type { SetOptional } from 'type-fest'
-import { sortByChar } from '@/lib/utils.ts'
 import {
   LEARNING_PHASE,
-  LabeledTire,
   type LearningPhase,
   type TrieWordLabel,
   type VocabState,
@@ -24,7 +22,7 @@ export type InertialPhase = {
   inertialPhase: LearningPhase
 }
 
-function formVocab($: TrieWordLabel) {
+export function formVocab($: TrieWordLabel) {
   let src = [...$.src]
   const wFamily = $.wFamily ?? [$.path]
 
@@ -66,30 +64,6 @@ function formVocab($: TrieWordLabel) {
   }
 
   return labelDisplaySource
-}
-
-function logVocabInfo<T extends VocabState>(listOfVocab: T[]) {
-  const untouchedVocabList = [...listOfVocab].sort((a, b) => sortByChar(a.word, b.word))
-  console.log(`(${untouchedVocabList.length}) words`, { _: untouchedVocabList })
-}
-
-export function generateVocabTrie(inputText: string, baseVocab: VocabState[], irregularMaps: string[][]) {
-  const trie = new LabeledTire()
-  trie.add(inputText)
-  trie.mergedVocabulary(baseVocab)
-  trie.mergeDerivedWordIntoStem(irregularMaps)
-  const list = trie.vocabulary.filter(Boolean).filter((v) => !v.variant).map(formVocab)
-
-  if (import.meta.env.DEV) {
-    logVocabInfo(list)
-    console.log('trie', trie)
-  }
-
-  return {
-    list,
-    count: trie.wordCount,
-    sentences: trie.sentences,
-  }
 }
 
 function getDefaultVocabState() {

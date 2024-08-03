@@ -26,7 +26,7 @@ function SelectTrigger({
       ref={ref}
       className={cn(
         'flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm text-violet11 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-violet9',
-        'squircle sq-radius-[--sq-r] sq-outline-[--l-w] sq-stroke-input [--l-w:1px] [--sq-r:4px] sq:border-0 sq:shadow-none',
+        'squircle sq-radius-[--sq-r] sq-outline-[--l-w] sq-stroke-input [--l-w:1px] [--sq-r:4px] sq:rounded-none sq:border-0 sq:shadow-none',
         'relative [--offset:1px] focus:after:squircle focus:after:sq-radius-[calc(var(--sq-r)+var(--offset)-0.3px)] focus:after:sq-outline focus:after:sq-stroke-ring sq:focus:ring-0 sq:focus:after:absolute sq:focus:after:-left-[--offset] sq:focus:after:-top-[--offset] sq:focus:after:size-[calc(100%+2*var(--offset))]',
         className,
       )}

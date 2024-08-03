@@ -173,14 +173,14 @@ export class LabeledTire {
           const matchedWord = m[0]
           ++this.wordCount
           if (m.index !== undefined) {
-            this.#update(matchedWord, m.index, len)
+            this.update(matchedWord, m.index, len)
           }
         }
       }
     }
   }
 
-  #update(original: string, index: number, sentenceId: number) {
+  update(original: string, index: number, sentenceId: number) {
     const hasCapital = capitalIn(original)
     const branch = this.getNode(hasCapital ? original.toLowerCase() : original)
 

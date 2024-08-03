@@ -11,7 +11,7 @@ import { Password } from '@/pages/user/password/page'
 import { UserPage } from '@/pages/user/page'
 import { MineLayout } from '@/pages/mine/layout'
 import { MinePage } from '@/pages/mine/page'
-import { SignUp } from '@/pages/register/page'
+import { Register } from '@/pages/register/page'
 import { Chart } from '@/pages/mine/chart/page'
 import { ImportPage } from '@/pages/import/page'
 
@@ -47,7 +47,7 @@ export const router = createBrowserRouter(
       />
       <Route
         path="/register"
-        element={<SignUp />}
+        element={<Register />}
       />
       <Route
         path="/user"
