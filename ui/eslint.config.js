@@ -65,15 +65,6 @@ export default antfu(
     rules: {
       'react-compiler/react-compiler': 2,
     },
-    // https://github.com/facebook/react/issues/29107#issue-2300739359
-    overrides: [
-      {
-        files: ['*.json', '*.graphql'],
-        rules: {
-          'react-compiler/react-compiler': 'off',
-        },
-      },
-    ],
   })),
   {
     files: ['tsconfig.json', 'tsconfig.*.json'],

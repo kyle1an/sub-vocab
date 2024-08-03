@@ -3,20 +3,24 @@ import {
   useRef,
   useState,
 } from 'react'
-import { useMeasure } from 'react-use'
 import { mergeRefs } from 'react-merge-refs'
 import { type FigmaSquircleParams, getSvgPath } from 'figma-squircle'
 import type { SetOptional } from 'type-fest'
 import { Slot } from '@radix-ui/react-slot'
 import { cn } from '@/lib/utils'
+import { useRect } from '@/lib/hooks'
+
+type SquircleParams = Omit<FigmaSquircleParams, 'width' | 'height'>
 
 const SQUIRCLE_PARAMS_DEFAULT = {
   preserveSmoothing: true,
   cornerSmoothing: 1,
-} as const satisfies Partial<FigmaSquircleParams>
+  cornerRadius: 0,
+} satisfies SquircleParams
 
-export interface DivProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface DivProps extends
+  React.HTMLAttributes<HTMLDivElement>,
+  React.RefAttributes<HTMLDivElement> {
   asChild?: boolean
 }
 
@@ -27,12 +31,13 @@ export function Squircle({
   className,
   style,
   borderWidth = 0,
-  cornerRadius = 0,
+  squircle,
   ...props
-}: SetOptional<Omit<FigmaSquircleParams, 'width' | 'height'>, keyof typeof SQUIRCLE_PARAMS_DEFAULT> & {
+}: React.HTMLAttributes<HTMLDivElement> & React.RefAttributes<HTMLElement> & {
+  asChild?: boolean
   borderWidth?: number
-} & DivProps & React.RefAttributes<HTMLElement>) {
-  const [refMeasure, { width, height }] = useMeasure()
+  squircle?: SetOptional<SquircleParams, keyof typeof SQUIRCLE_PARAMS_DEFAULT>
+}) {
   const elRef = useRef<HTMLElement>(null)
   function refCallback(el: HTMLElement | null) {
     elRef.current = el
@@ -40,18 +45,16 @@ export function Squircle({
 
   const [clipPath, setClipPath] = useState('')
   const [clipPathPseudo, setClipPathPseudo] = useState('')
+  const { width, height } = useRect(elRef)
 
   useEffect(() => {
     const element = elRef.current
     if (element) {
-      const { width, height } = element.getBoundingClientRect()
-
       const squircleParams = {
         ...SQUIRCLE_PARAMS_DEFAULT,
-        cornerRadius,
+        ...squircle,
         width,
         height,
-        ...props,
       } satisfies FigmaSquircleParams
       setClipPath(`path('${getSvgPath(squircleParams)}')`)
 
@@ -59,24 +62,23 @@ export function Squircle({
         ...squircleParams,
         width: width - borderWidth * 2,
         height: height - borderWidth * 2,
-        cornerRadius: cornerRadius - borderWidth,
+        cornerRadius: squircleParams.cornerRadius - borderWidth,
       })
       setClipPathPseudo(`path('${svgPathPseudo}')`)
     }
-  }, [width, height, props, borderWidth, cornerRadius])
+  }, [width, height, squircle, borderWidth])
 
-  const refs = [
+  const refs = mergeRefs([
     ref,
-    refMeasure,
-    refCallback as React.Ref<Element>,
-  ]
+    refCallback,
+  ])
 
   const Component = asChild ? Slot : 'div'
 
   return (
     <Component
       {...props}
-      ref={mergeRefs(refs)}
+      ref={refs}
       className={cn(
         'relative before:absolute before:inset-[var(--inset)] before:-z-10 before:block before:[clip-path:var(--clip-path)]',
         className,
@@ -98,7 +100,7 @@ export function SquircleBg({
   asChild = false,
   children,
   ...props
-}: DivProps & React.RefAttributes<HTMLDivElement>) {
+}: DivProps) {
   const Component = asChild ? Slot : 'div'
   return (
     <Component
@@ -115,7 +117,7 @@ export function SquircleMask({
   asChild = false,
   children,
   ...props
-}: DivProps & React.RefAttributes<HTMLDivElement>) {
+}: DivProps) {
   const Component = asChild ? Slot : 'div'
   return (
     <Component

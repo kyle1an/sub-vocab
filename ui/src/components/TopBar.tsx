@@ -6,7 +6,7 @@ import {
   useState,
 } from 'react'
 import { useCookie } from 'react-use'
-import { CloseButton, Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
+import { CloseButton, Popover, PopoverButton, PopoverPanel, useClose } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useAtom } from 'jotai'
 import { Icon } from '@/components/ui/icon'
@@ -98,11 +98,12 @@ function Settings({ className, ...props }: React.HTMLAttributes<HTMLAnchorElemen
   )
 }
 
-function SignOut({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+function SignOut({ className, ...props }: React.HTMLAttributes<HTMLButtonElement>) {
   const { t } = useTranslation()
   const username = useVocabStore((state) => state.username)
   const { mutateAsync: logOut } = useLogOut()
   const navigate = useNavigate()
+  const close = useClose()
 
   function logout() {
     logOut({
@@ -110,6 +111,7 @@ function SignOut({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) 
     })
       .then((logOutRes) => {
         if (logOutRes?.success) {
+          close()
           requestAnimationFrame(() => {
             navigate('/')
           })
@@ -119,10 +121,11 @@ function SignOut({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) 
   }
 
   return (
-    <div
+    <button
+      type="button"
       className={cn('inline-flex items-center gap-3', className)}
-      onClick={logout}
       {...props}
+      onClick={logout}
     >
       <Icon
         icon="solar:logout-2-outline"
@@ -132,7 +135,7 @@ function SignOut({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) 
       <span>
         {t('SignOut')}
       </span>
-    </div>
+    </button>
   )
 }
 
@@ -198,7 +201,7 @@ export function TopBar({ className }: { className?: string }) {
       >
         {() => {
           return (
-            <div className={cn('mr-[--removed-body-scroll-bar-size] group-has-[[vaul-drawer]]/body:mr-0')}>
+            <div className={cn('mr-[--removed-body-scroll-bar-size]')}>
               <div className="mx-auto max-w-7xl px-4 group-data-[open]/nav:mr-[--scrollbar-width] md:group-data-[open]/nav:mr-auto">
                 <div className="flex h-11 items-center justify-between">
                   <div className="flex h-full items-center gap-4">
@@ -459,8 +462,8 @@ export function TopBar({ className }: { className?: string }) {
                     >
                       <div>
                         <CloseButton
-                          className="inline-flex shrink-0 items-center gap-3 rounded-md [&>*]:text-neutral-600 [&>*]:transition-all [&>*]:hover:text-black dark:[&>*]:text-neutral-400 [&>svg]:text-neutral-400"
                           as={Component}
+                          className="inline-flex shrink-0 items-center gap-3 rounded-md [&>*]:text-neutral-600 [&>*]:transition-all [&>*]:hover:text-black dark:[&>*]:text-neutral-400 [&>svg]:text-neutral-400"
                         />
                       </div>
                     </div>

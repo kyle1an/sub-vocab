@@ -2,10 +2,11 @@
 import 'pdfjs-dist/build/pdf.worker.mjs'
 import { type PDFDocumentProxy, getDocument } from 'pdfjs-dist'
 import type { TextContent } from 'pdfjs-dist/types/src/display/api'
+import { type FileTypeResult, fileTypeFromBuffer } from 'file-type'
 
 interface FileContent {
   text: string
-  name: string
+  error?: string
 }
 
 type RecursiveArray<T> = T | RecursiveArray<T>[]
@@ -25,22 +26,17 @@ function formatTextContent(textContent: TextContent) {
     }
     return text
   })
-  const bbb = lines.join(' ')
-  return bbb
+  return lines.join(' ')
 }
 
 async function getDocumentText(pdf: PDFDocumentProxy) {
   const pdfTexts: string [] = []
 
   for (let i = 1; i < pdf.numPages; i++) {
-    await pdf.getPage(i)
-      .then(async (page) => {
-        await page.getTextContent()
-          .then((textContent) => {
-            const text = formatTextContent(textContent)
-            pdfTexts.push(text)
-          })
-      })
+    const page = await pdf.getPage(i)
+    const textContent = await page.getTextContent()
+    const text = formatTextContent(textContent)
+    pdfTexts.push(text)
   }
 
   return pdfTexts.join(' ')
@@ -110,13 +106,13 @@ const HUMAN_READABLE_FILE_EXTENSIONS: `.${string}`[] = [
   '.asciidoc',
   '.rst',
   '.bib',
+  '.feature',
 
   // Development and Build Related
   '.dockerfile',
   '.gradle',
   '.gitignore',
   '.makefile',
-  '.pom.xml',
 
   // Miscellaneous
   '.ass',
@@ -131,27 +127,35 @@ const HUMAN_READABLE_FILE_EXTENSIONS: `.${string}`[] = [
 
 export const SUPPORTED_FILE_TYPES = [
   'text/*',
-  ...HUMAN_READABLE_FILE_EXTENSIONS,
-  'application/pdf',
 ]
 
-function readFile(file: File) {
+export const SUPPORTED_FILE_EXTENSIONS = [
+  ...HUMAN_READABLE_FILE_EXTENSIONS,
+  '.pdf',
+]
+
+type MaybeFileTypeResult = FileTypeResult | undefined
+
+function getFileType(file: File) {
+  return new Promise<MaybeFileTypeResult>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = async (e) => {
+      let fileType: MaybeFileTypeResult
+      const document = e.target?.result
+      if (document instanceof ArrayBuffer) {
+        fileType = await fileTypeFromBuffer(document)
+      }
+      resolve(fileType)
+    }
+    reader.readAsArrayBuffer(file)
+  })
+}
+
+async function readFile(file: File, { name, type }: Pick<File, 'name' | 'type'> = { name: file.name, type: file.type }) {
   return new Promise<FileContent>((resolve, reject) => {
-    const extension = file.name.substring(file.name.lastIndexOf('.'))
     const reader = new FileReader()
 
-    if (file.type.startsWith('text/') || HUMAN_READABLE_FILE_EXTENSIONS.includes(extension)) {
-      reader.onload = (e) => {
-        const result = e.target?.result
-        if (typeof result === 'string') {
-          resolve({
-            text: result,
-            name: file.name,
-          })
-        }
-      }
-      reader.readAsText(file)
-    } else if (file.type === 'application/pdf') {
+    if (name.endsWith('.pdf')) {
       reader.onload = async (e) => {
         const document = e.target?.result
         if (document instanceof ArrayBuffer) {
@@ -159,15 +163,24 @@ function readFile(file: File) {
           const text = await getDocumentText(pdf)
           resolve({
             text,
-            name: file.name,
           })
         }
       }
       reader.readAsArrayBuffer(file)
+    } else if (type.startsWith('text/') || HUMAN_READABLE_FILE_EXTENSIONS.some((ext) => name.endsWith(ext))) {
+      reader.onload = (e) => {
+        const result = e.target?.result
+        if (typeof result === 'string') {
+          resolve({
+            text: result,
+          })
+        }
+      }
+      reader.readAsText(file)
     } else {
       resolve({
-        text: '',
-        name: FORMAT_ERROR,
+        text: 'test',
+        error: FORMAT_ERROR,
       })
     }
 
@@ -175,68 +188,99 @@ function readFile(file: File) {
   })
 }
 
-function readDirectory(systemDirectoryEntry: FileSystemDirectoryEntry): Promise<EntryFiles> {
-  return new Promise((resolve, reject) => {
-    const dirReader = systemDirectoryEntry.createReader()
-    dirReader.readEntries((entries) => {
-      const promises = entries.map((systemEntry) => {
-        if (systemEntry.isDirectory) {
-          return readDirectory(systemEntry as FileSystemDirectoryEntry)
-        }
-        return new Promise<EntryFiles>((resolve, reject) => {
-          ;(systemEntry as FileSystemFileEntry).file((file) => {
-            readFile(file)
-              .then(resolve)
-              .catch(reject)
-          })
-        })
-      })
+function isDirectoryEntry(entry: FileSystemEntry): entry is FileSystemDirectoryEntry {
+  return entry.isDirectory
+}
 
-      Promise.all(promises)
-        .then((results) => {
-          resolve(results.filter((result) => result !== null))
-        })
-        .catch(reject)
+function isFileEntry(entry: FileSystemEntry): entry is FileSystemFileEntry {
+  return entry.isFile
+}
+
+export class DataTransferItemListReader {
+  constructor(private fileTypes: string[] = []) {}
+
+  private readEntry(entry: FileSystemEntry) {
+    if (isDirectoryEntry(entry)) {
+      return this.readDirectory(entry)
+    } else if (isFileEntry(entry)) {
+      return this.readFile(entry)
+    }
+    return Promise.reject(new Error('Entry is neither a file nor a directory'))
+  }
+
+  private readFile(fileSystemEntry: FileSystemFileEntry) {
+    return new Promise<FileContent>((resolve) => {
+      fileSystemEntry.file(async (file) => {
+        let { type, name } = file
+        if (!type) {
+          const fileType = await getFileType(file)
+          if (fileType) {
+            const { ext, mime } = fileType
+            type = mime
+            if (ext) {
+              name = `${name}.${ext}`
+            }
+          }
+        }
+
+        if (this.fileTypes.some((fileType) => name.endsWith(fileType))) {
+          const res = await readFile(file, { type, name })
+          resolve(res)
+        } else {
+          resolve({
+            text: '',
+            error: FORMAT_ERROR,
+          })
+        }
+      })
     })
-  })
+  }
+
+  private readDirectory(systemDirectoryEntry: FileSystemDirectoryEntry) {
+    return new Promise<EntryFiles>((resolve) => {
+      const directoryReader = systemDirectoryEntry.createReader()
+      directoryReader.readEntries(async (entries) => {
+        const promises = entries.map((entry) => this.readEntry(entry))
+        const results = await Promise.all(promises)
+        resolve(results)
+      })
+    })
+  }
+
+  readDataTransferItemList(list: DataTransferItemList) {
+    return Array.from(list)
+      .filter((item) => item.kind === 'file')
+      .map((item) => {
+        const fileSystemEntry = item.webkitGetAsEntry()
+        if (fileSystemEntry) {
+          return this.readEntry(fileSystemEntry)
+        }
+        return Promise.reject(new Error('Entry is null'))
+      })
+  }
 }
 
 export async function getFileContent(fileList: FileList) {
-  const promises = Array.from(fileList).map(readFile)
+  if (fileList.length === 1) {
+    const file = fileList[0]
+    if (file) {
+      const fileContent = await readFile(file)
+      return {
+        value: fileContent.text,
+        name: file.name,
+      }
+    }
+  }
+
+  const promises = Array.from(fileList).map((file) => readFile(file))
 
   const files = await Promise.all(promises)
   const combinedContent = files.reduce((pre, { text }) => pre + text, '')
-  let combinedName = `${files.length} files selected`
-  if (files.length === 1) {
-    const file = files[0]
-    if (file) {
-      combinedName = file.name
-    }
-  }
+  const combinedName = `${files.length} files selected`
   return {
     value: combinedContent,
     name: combinedName,
   }
-}
-
-export function readDataTransferItemList(list: DataTransferItemList) {
-  return Array.from(list)
-    .filter((item) => item.kind === 'file')
-    .map((item) => {
-      const entry = item.webkitGetAsEntry()
-
-      if (!entry) {
-        return Promise.reject(new Error('Entry is null'))
-      }
-      if (entry.isDirectory) {
-        return readDirectory(entry as FileSystemDirectoryEntry)
-      }
-      return new Promise<FileContent>((resolve, reject) => {
-        ;(entry as FileSystemFileEntry).file((file) => {
-          readFile(file).then(resolve).catch(reject)
-        })
-      })
-    })
 }
 
 export function readEntryFiles(entryFiles: EntryFiles, level = 0) {

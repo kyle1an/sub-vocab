@@ -40,7 +40,10 @@ const segmentedControlVariants = cva(
   },
 )
 
-export interface SegmentedControlProps<T extends string> extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof segmentedControlVariants> {
+export interface SegmentedControlProps<T extends string> extends
+  HTMLAttributes<HTMLDivElement>,
+  RefAttributes<HTMLDivElement>,
+  VariantProps<typeof segmentedControlVariants> {
   value: NoInfer<T>
   segments: Readonly<{ value: T, label: string }[]>
   onChoose: (value: T) => void
@@ -55,7 +58,7 @@ export function SegmentedControl<T extends string>({
   className,
   ref,
   ...props
-}: SegmentedControlProps<T> & RefAttributes<HTMLDivElement>) {
+}: SegmentedControlProps<T>) {
   const pillRefs = useRef<Partial<Record<T, HTMLSpanElement>>>({})
 
   function handleOnChange(newValue: T) {
@@ -99,7 +102,9 @@ export function SegmentedControl<T extends string>({
   return (
     <Squircle
       ref={ref}
-      cornerRadius={9}
+      squircle={{
+        cornerRadius: 9,
+      }}
       borderWidth={1}
       className={cn(segmentedControlVariants({ variant, size, className }))}
       {...props}
@@ -168,7 +173,9 @@ function Segment<T extends string>({
         <div className="absolute left-0 top-0 size-full">
           <Squircle
             ref={sqRef}
-            cornerRadius={7}
+            squircle={{
+              cornerRadius: 7,
+            }}
             borderWidth={0.5}
             className={cn(
               'ease-[ease] flex size-full will-change-transform group-[]/default:peer-checked:group-[]/l:border-0 group-[]/default:peer-checked:group-[]/l:bg-black/[.04] group-[]/ghost:peer-checked:group-[]/l:bg-neutral-200 peer-checked:group-[]/l:bg-white group-[]/default:peer-checked:group-[]/l:shadow group-[]/default:peer-checked:group-[]/l:before:bg-white dark:group-[]/ghost:peer-checked:group-[]/l:bg-slate-600 dark:group-[]/default:peer-checked:group-[]/l:before:bg-neutral-600',

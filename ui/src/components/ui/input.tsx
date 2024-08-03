@@ -2,18 +2,20 @@ import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {}
+export interface InputProps extends
+  React.InputHTMLAttributes<HTMLInputElement>,
+  React.RefAttributes<HTMLInputElement> {}
 
-export interface DivProps
-  extends React.HTMLAttributes<HTMLDivElement> {}
+export interface DivProps extends
+  React.HTMLAttributes<HTMLDivElement>,
+  React.RefAttributes<HTMLDivElement> {}
 
 function InputWrapper({
   className,
   ref,
   children,
   ...props
-}: DivProps & React.RefAttributes<HTMLDivElement>) {
+}: DivProps) {
   return (
     <div
       className={cn(
@@ -35,7 +37,7 @@ function Input({
   type,
   ref,
   ...props
-}: InputProps & React.RefAttributes<HTMLInputElement>) {
+}: InputProps) {
   return (
     <input
       type={type}

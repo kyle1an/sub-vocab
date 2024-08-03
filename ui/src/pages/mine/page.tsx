@@ -2,24 +2,28 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { type LabelDisplayTable, generateVocabTrie } from '@/lib/vocab'
+import { type LabelDisplayTable, formVocab } from '@/lib/vocab'
 import { purgedRows, statusRetainedList } from '@/lib/vocab-utils'
 import { VocabDataTable } from '@/components/ui/VocabData'
-import { useVocabularyQuery } from '@/api/vocab-api'
+import { useIrregularMapsQuery, useVocabularyQuery } from '@/api/vocab-api'
 import { SquircleBg, SquircleMask } from '@/components/ui/squircle'
+import { LabeledTire } from '@/lib/LabeledTire'
 
 export function MinePage() {
   const { data: userWords = [] } = useVocabularyQuery()
   const [rows, setRows] = useState<LabelDisplayTable[]>([])
+  const { data: irregulars = [] } = useIrregularMapsQuery()
 
   useEffect(() => {
-    generateVocabTrie('', userWords, [])
-    const list = userWords.map((w) => ({
-      ...w,
-      wFamily: [w.word],
-    }))
+    const trie = new LabeledTire()
+    for (const word of userWords) {
+      trie.update(word.word, -1, -1)
+    }
+    trie.mergedVocabulary(userWords)
+    trie.mergeDerivedWordIntoStem(irregulars)
+    const list = trie.vocabulary.filter(Boolean).filter((v) => !v.variant).map(formVocab)
     setRows((r) => statusRetainedList(r, list))
-  }, [userWords])
+  }, [irregulars, userWords])
 
   function handlePurge() {
     setRows(purgedRows())

@@ -18,9 +18,8 @@ import {
   Trans,
   useTranslation,
 } from 'react-i18next'
-import { useSessionStorage } from 'react-use'
+import { useSessionStorage, useUnmount } from 'react-use'
 import { atom, useAtom } from 'jotai'
-import { useUnmount } from 'usehooks-ts'
 import { SearchWidget } from './search-widget'
 import { VocabStatics } from './vocab-statics-bar'
 import { TableHeader } from './tableHeader'
@@ -264,11 +263,11 @@ function useColumns() {
               {wFamily.map((w, i) => (
                 <div
                   key={w}
-                  className="ml-1.5 inline-block cursor-text select-text text-sm tracking-wider text-black ffs-['cv03','cv05','cv06'] dark:text-slate-300"
+                  className="ml-1.5 inline-block cursor-text select-text text-sm tracking-wider text-black ffs-['cv03','cv05','cv06'] first:ml-1.5 dark:text-slate-300"
                   onClick={(ev) => ev.stopPropagation()}
                 >
                   <span className={cn(i !== 0 && 'text-neutral-500 dark:text-slate-600')}>{w}</span>
-                  {i !== wFamily.length - 1 && <span className="pr-1 text-neutral-300">, </span>}
+                  {i !== wFamily.length - 1 && <span className="text-neutral-300">, </span>}
                 </div>
               ))}
             </>
@@ -288,7 +287,7 @@ function useColumns() {
               )}
             >
               <div
-                className="group float-right flex h-7 w-full cursor-pointer select-none items-center gap-1.5 pr-1 stretch-[condensed]"
+                className="group float-right flex h-7 w-full cursor-pointer select-none items-center gap-2 pr-1 stretch-[condensed]"
                 onClick={header.column.getToggleSortingHandler()}
               >
                 <Separator
@@ -374,18 +373,18 @@ function useColumns() {
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
+                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal text-zinc-500 active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
               )}
             >
               <div
-                className="group float-right flex h-7 w-full cursor-pointer select-none items-center gap-2 pr-1 text-zinc-500 dark:text-zinc-400"
+                className="group float-right flex h-7 w-full cursor-pointer select-none items-center gap-2 pr-1"
                 onClick={header.column.getToggleSortingHandler()}
               >
                 <Separator
                   orientation="vertical"
                   className="h-5 group-active:h-full group-[:has(:active)+th]/th:h-full"
                 />
-                <div className="flex h-5 items-center">
+                <div className="flex items-center">
                   <span
                     title={t('rank')}
                     className={cn('grow text-right text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
@@ -627,7 +626,7 @@ export function VocabSourceTable({
           </tbody>
         </table>
       </div>
-      <div className="flex w-full flex-wrap items-center justify-between gap-1 border-t border-t-zinc-200 px-0.5 py-1 tabular-nums dark:border-slate-800">
+      <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-slate-800">
         <TablePagination
           items={items}
           table={table}

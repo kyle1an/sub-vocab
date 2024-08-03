@@ -1,20 +1,21 @@
-import path from 'node:path'
 import process from 'node:process'
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { checker } from 'vite-plugin-checker'
+import tsconfigPaths from 'vite-tsconfig-paths'
+import { createHtmlPlugin } from 'vite-plugin-html'
 
-function transformScriptTag(scriptString: string) {
-  scriptString = scriptString.replace(/(<script[^>]*?)\srel="modulepreload"([^>]*>)/g, '$1$2')
-  scriptString = scriptString.replace(/(<script[^>]*?)\scrossorigin([^>]*>)/g, '$1$2')
-  return scriptString
+function removeScriptTagAttributes(scriptContent: string) {
+  scriptContent = scriptContent.replace(/(<script[^>]*?)\srel="modulepreload"([^>]*>)/g, '$1$2')
+  scriptContent = scriptContent.replace(/(<script[^>]*?)\scrossorigin([^>]*>)/g, '$1$2')
+  return scriptContent
 }
 
-function replaceLink(html: string, scriptFilename: string, scriptCode: string): string {
-  const reStyle = new RegExp(`<link([^>]*?) href="[./]*${scriptFilename}"([^>]*?)>`)
-  return html.replace(reStyle, (_, beforeSrc, afterSrc) => {
-    return transformScriptTag(`<script${beforeSrc}${afterSrc}>${scriptCode.trim()}</script>`)
+function replaceLinkTagWithScript(html: string, targetFilename: string, scriptCode: string) {
+  const linkTagRegex = new RegExp(`<link([^>]*?) href="[./]*${targetFilename}"([^>]*?)>`)
+  return html.replace(linkTagRegex, (_, beforeSrc, afterSrc) => {
+    return removeScriptTagAttributes(`<script${beforeSrc}${afterSrc}>${scriptCode.trim()}</script>`)
   })
 }
 
@@ -26,12 +27,16 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
+      tsconfigPaths(),
       react({
         babel: {
           plugins: [
             ['babel-plugin-react-compiler', ReactCompilerConfig],
           ],
         },
+      }),
+      createHtmlPlugin({
+        minify: true,
       }),
       visualizer(),
       checker({
@@ -46,7 +51,7 @@ export default defineConfig(({ mode }) => {
             Object.entries(bundle).forEach(([fileName, output]) => {
               if (/\/worker.*\.js$/.test(fileName)) {
                 if ('code' in output) {
-                  html = replaceLink(html, output.fileName, output.code)
+                  html = replaceLinkTagWithScript(html, output.fileName, output.code)
                   // delete bundle[output.fileName]
                 }
               }
@@ -87,8 +92,6 @@ export default defineConfig(({ mode }) => {
                 return 'pdfjs-dist.worker'
               return 'pdfjs-dist'
             }
-            if (id.includes('query-devtools'))
-              return 'tanstack-query-devtools'
             if (id.includes('sentry'))
               return 'sentry'
             if (id.includes('chart.js'))
@@ -131,11 +134,6 @@ export default defineConfig(({ mode }) => {
       esbuildOptions: {
         // https://github.com/mozilla/pdf.js/issues/17245
         target: 'esnext',
-      },
-    },
-    resolve: {
-      alias: {
-        '@': path.resolve(__dirname, './src'),
       },
     },
   }

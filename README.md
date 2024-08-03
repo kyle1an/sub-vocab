@@ -8,7 +8,7 @@ SubVocab transforms your preparation for watching movies or reading books in Eng
 
 ## Features
 
-- **Rapid Analysis**: Processes up to 100k words in less than 0.2 seconds, ensuring a quick setup.
+- **Rapid Analysis**: Processes up to 100k words in less than 0.2 seconds(on an M1 Mac), ensuring a quick setup.
 - **Smart Merging**: Merges plural nouns and irregular verbs into their base forms, simplifying your learning process.
 - **Synchronized Learning**: Keeps your learning progress synchronized across all sessions.
 - **Vocabulary Tracking**: Manage your vocabulary effectively with batch imports and interactive tracking.
