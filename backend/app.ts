@@ -21,14 +21,7 @@ const __dirname = path.dirname(__filename)
 
 const app = express()
 
-const corsOrigin = [
-  /.*localhost.*$/,
-  /.*127.0.0.1.*$/,
-  /.*subvocab.netlify.app/,
-  /.*subvocab.+vercel.app/,
-]
 app.use(cors({
-  origin: corsOrigin,
   credentials: true,
   exposedHeaders: ['set-cookie'],
 }))
@@ -68,7 +61,6 @@ const server = createServer(app)
 
 export const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(server, {
   cors: {
-    origin: corsOrigin,
     credentials: true,
   },
 })

@@ -72,23 +72,3 @@ export function getScrollbarWidth() {
 
   return scrollbarWidth
 }
-
-export function getOS() {
-  if (iOS()) {
-    return 'ios'
-  }
-}
-
-// https://stackoverflow.com/a/9039885/10903455
-function iOS() {
-  return [
-    'iPad Simulator',
-    'iPhone Simulator',
-    'iPod Simulator',
-    'iPad',
-    'iPhone',
-    'iPod',
-  ].includes(navigator.platform)
-  // iPad on iOS 13 detection
-  || (navigator.userAgent.includes('Mac') && 'ontouchend' in document)
-}

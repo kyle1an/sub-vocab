@@ -3,15 +3,15 @@ import type { WordLocator } from '@/lib/LabeledTire'
 
 export function Examples({
   sentences,
-  src = [],
+  src,
   className = '',
 }: {
   sentences: string[]
-  src: WordLocator[]
+  src?: WordLocator[]
   className?: string
 }) {
   const vocabPositions: [number, [number, number][]][] = []
-  const srcSorted = [...src].sort((a, b) => a.sentenceId - b.sentenceId || a.startOffset - b.startOffset)
+  const srcSorted = [...src ?? []].sort((a, b) => a.sentenceId - b.sentenceId || a.startOffset - b.startOffset)
 
   for (const { sentenceId, startOffset, wordLength } of srcSorted) {
     if (vocabPositions.length === 0) {

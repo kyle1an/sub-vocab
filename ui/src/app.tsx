@@ -1,10 +1,23 @@
 import { RouterProvider } from 'react-router-dom'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { ComposeContextProvider } from 'foxact/compose-context-provider'
 import { router } from './router'
 import './main.css'
 import './i18n'
+import { queryClient } from './lib/utils'
 
-export function App() {
+/* eslint-disable react/no-missing-key */
+const contexts = [
+  <QueryClientProvider client={queryClient} />,
+  <RouterProvider router={router} />,
+]
+/* eslint-enable react/no-missing-key */
+
+function App() {
   return (
-    <RouterProvider router={router} />
+    <ComposeContextProvider contexts={contexts}>
+    </ComposeContextProvider>
   )
 }
+
+export default App

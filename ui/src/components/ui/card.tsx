@@ -2,20 +2,23 @@ import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
-export interface DivProps
-  extends React.HTMLAttributes<HTMLDivElement> {}
+export interface DivProps extends
+  React.HTMLAttributes<HTMLDivElement>,
+  React.RefAttributes<HTMLDivElement> {}
 
-export interface HeadingProps
-  extends React.HTMLAttributes<HTMLHeadingElement> {}
+export interface HeadingProps extends
+  React.HTMLAttributes<HTMLHeadingElement>,
+  React.RefAttributes<HTMLHeadingElement> {}
 
-export interface ParagraphProps
-  extends React.HTMLAttributes<HTMLParagraphElement> {}
+export interface ParagraphProps extends
+  React.HTMLAttributes<HTMLParagraphElement>,
+  React.RefAttributes<HTMLParagraphElement> {}
 
 function Card({
   ref,
   className,
   ...props
-}: DivProps & React.RefAttributes<HTMLDivElement>) {
+}: DivProps) {
   return (
     <div
       ref={ref}
@@ -34,7 +37,7 @@ function CardHeader({
   ref,
   className,
   ...props
-}: DivProps & React.RefAttributes<HTMLDivElement>) {
+}: DivProps) {
   return (
     <div
       ref={ref}
@@ -49,11 +52,11 @@ function CardTitle({
   ref,
   className,
   ...props
-}: HeadingProps & React.RefAttributes<HTMLHeadingElement>) {
+}: HeadingProps) {
   return (
     <h3
       ref={ref}
-      className={cn('font-semibold leading-none tracking-tight', className)}
+      className={cn('font-semibold leading-none', className)}
       {...props}
     />
   )
@@ -64,7 +67,7 @@ function CardDescription({
   ref,
   className,
   ...props
-}: ParagraphProps & React.RefAttributes<HTMLParagraphElement>) {
+}: ParagraphProps) {
   return (
     <p
       ref={ref}
@@ -79,7 +82,7 @@ function CardContent({
   ref,
   className,
   ...props
-}: DivProps & React.RefAttributes<HTMLDivElement>) {
+}: DivProps) {
   return (
     <div
       ref={ref}
@@ -94,7 +97,7 @@ function CardFooter({
   ref,
   className,
   ...props
-}: DivProps & React.RefAttributes<HTMLDivElement>) {
+}: DivProps) {
   return (
     <div
       ref={ref}

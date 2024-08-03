@@ -113,14 +113,14 @@ const config: Config = {
         '.squircle': {
           [sq_DEFINITION]: {
             background: 'paint(squircle)',
-            borderRadius: '0',
             '--squircle-outline': '0',
           },
         },
       })
 
       addVariant('sq', sq_DEFINITION)
-      addVariant('ios', '&:is(.ios *)')
+      addVariant('iOS', '&:is(.iOS *)')
+      addVariant('webkit', '&:is(.webkit *)')
 
       matchUtilities({
         mask: (value) => ({

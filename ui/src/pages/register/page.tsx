@@ -20,7 +20,7 @@ type FormValues = {
   password: string
 }
 
-export function SignUp() {
+export function Register() {
   const form = useForm<FormValues>({
     defaultValues: {
       username: '',

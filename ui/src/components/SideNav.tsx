@@ -22,7 +22,9 @@ export function SideNav({
             className={cn(location.pathname === nav.to && '*:bg-zinc-100 dark:*:bg-zinc-600')}
           >
             <Squircle
-              cornerRadius={8}
+              squircle={{
+                cornerRadius: 8,
+              }}
               className="hover:bg-zinc-200 dark:hover:bg-zinc-600"
             >
               <Link

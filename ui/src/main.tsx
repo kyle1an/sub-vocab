@@ -2,7 +2,7 @@ import { createRoot } from 'react-dom/client'
 import * as Sentry from '@sentry/react'
 import { inject } from '@vercel/analytics'
 import { StrictMode } from 'react'
-import { App } from './app.tsx'
+import App from './app.tsx'
 
 if (import.meta.env.PROD) {
   inject()

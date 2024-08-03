@@ -15,7 +15,7 @@ function Toaster({ ...props }: ToasterProps) {
         classNames: {
           toast: cn(
             'toast group group-[.toaster]:border-border group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:shadow-lg',
-            'squircle sq-radius-[--sq-r] sq-outline sq-stroke-border [--l-w:1px] [--sq-r:10px] group-[.toaster]:sq-fill-popover sq:!border-0 sq:py-[17px] sq:group-[.toaster]:shadow-none sq:group-[.toaster]:drop-shadow-lg',
+            'squircle sq-radius-[--sq-r] sq-outline sq-stroke-border [--l-w:1px] [--sq-r:9px] group-[.toaster]:sq-fill-popover sq:!border-0 sq:py-[17px] sq:group-[.toaster]:shadow-none sq:group-[.toaster]:drop-shadow-lg',
           ),
           description: 'group-[.toast]:text-muted-foreground',
           actionButton:
@@ -24,6 +24,7 @@ function Toaster({ ...props }: ToasterProps) {
             'group-[.toast]:bg-muted group-[.toast]:text-muted-foreground',
         },
       }}
+      position="bottom-center"
       {...props}
     />
   )
