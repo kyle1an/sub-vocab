@@ -23,16 +23,5 @@
 
     "lib": ["ESNext"]
   },
-  "include": [
-    ".eslintrc.js",
-    ".eslintrc.cjs",
-    "**/*.config.js",
-    "**/*.config.cjs",
-    "**/*.config.ts",
-    "**/*.js",
-    "**/*.ts",
-    "src/**/*.ts",
-    "**/*.d.ts",
-    "src/**/*.d.ts"
-  ]
+  "include": [".eslintrc.js", ".eslintrc.cjs", "**/*.config.js", "**/*.config.cjs", "**/*.config.ts", "**/*.js", "**/*.ts", "src/**/*.ts", "**/*.d.ts", "src/**/*.d.ts"]
 }

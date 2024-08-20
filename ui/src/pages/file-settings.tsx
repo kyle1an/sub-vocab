@@ -108,7 +108,7 @@ export function FileSettings() {
   const Trigger = (
     <Button
       variant="outline"
-      className="size-8 rounded-[7px] shadow-none sq:drop-shadow-none"
+      className="size-8 rounded-[7px] p-0 shadow-none sq:drop-shadow-none"
     >
       <Icon
         icon="lucide:cog"

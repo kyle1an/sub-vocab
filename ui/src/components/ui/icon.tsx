@@ -1,7 +1,12 @@
-import { type IconProps, Icon as Iconify } from '@iconify/react'
+import { Icon as Iconify, type IconifyIconProps } from '@iconify-icon/react'
 import { cn } from '@/lib/utils'
 
-export function Icon({ className, style, ...props }: IconProps) {
+export function Icon({
+  className,
+  ref,
+  style,
+  ...props
+}: IconifyIconProps) {
   let { width, height } = props
   if (width === undefined && height === undefined) {
     width = height = '1em'
@@ -12,17 +17,18 @@ export function Icon({ className, style, ...props }: IconProps) {
   }
 
   return (
-    <div
-      className={cn(className)}
+    <Iconify
+      className={cn(
+        'inline-block',
+        !props.icon && 'invisible',
+        className,
+      )}
       style={{
         width,
         height,
         ...style,
       }}
-    >
-      <Iconify
-        {...props}
-      />
-    </div>
+      {...props}
+    />
   )
 }

@@ -40,11 +40,6 @@ export default antfu(
     rules: {
       'ts/ban-ts-comment': 'off',
       'ts/consistent-type-definitions': 'off',
-      // https://www.totaltypescript.com/method-shorthand-syntax-considered-harmful
-      'ts/method-signature-style': [
-        'error',
-        'property',
-      ],
     },
   },
   {

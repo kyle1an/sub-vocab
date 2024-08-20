@@ -1,4 +1,4 @@
-// https://github.com/mozilla/pdf.js/issues/10478#issuecomment-1560704162
+// https://github.com/mozilla/pdf.js/issues/10478
 import 'pdfjs-dist/build/pdf.worker.mjs'
 import { type PDFDocumentProxy, getDocument } from 'pdfjs-dist'
 import type { TextContent } from 'pdfjs-dist/types/src/display/api'
@@ -134,13 +134,11 @@ export const SUPPORTED_FILE_EXTENSIONS = [
   '.pdf',
 ]
 
-type MaybeFileTypeResult = FileTypeResult | undefined
-
 function getFileType(file: File) {
-  return new Promise<MaybeFileTypeResult>((resolve, reject) => {
+  return new Promise<FileTypeResult | undefined>((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = async (e) => {
-      let fileType: MaybeFileTypeResult
+      let fileType: FileTypeResult | undefined
       const document = e.target?.result
       if (document instanceof ArrayBuffer) {
         fileType = await fileTypeFromBuffer(document)
