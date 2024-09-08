@@ -1,8 +1,9 @@
 /* eslint-disable ts/no-require-imports */
 import type { Config } from 'tailwindcss'
+
+import { mauve, violet } from '@radix-ui/colors'
 import flattenColorPalette from 'tailwindcss/lib/util/flattenColorPalette'
 import plugin from 'tailwindcss/plugin'
-import { mauve, violet } from '@radix-ui/colors'
 
 const config: Config = {
   darkMode: ['class'],
@@ -92,6 +93,7 @@ const config: Config = {
   plugins: [
     require('tailwindcss-animate'),
     require('tailwindcss-signals'),
+    require('@tailwindcss/typography'),
     plugin(({
       addUtilities,
       addVariant,

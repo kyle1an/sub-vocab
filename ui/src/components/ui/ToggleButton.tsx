@@ -1,7 +1,8 @@
+import type { LabelDisplayTable } from '@/lib/vocab'
+
 import { Icon } from '@/components/ui/icon'
 import { LEARNING_PHASE } from '@/lib/LabeledTire.ts'
 import { cn } from '@/lib/utils'
-import type { LabelDisplayTable } from '@/lib/vocab'
 
 export function VocabToggle<T extends LabelDisplayTable>({
   row: {

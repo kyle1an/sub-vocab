@@ -1,5 +1,6 @@
 import type { UsePaginationItem } from '@mui/material/usePagination'
 import type { Table } from '@tanstack/react-table'
+
 import { Icon } from '@/components/ui/icon'
 import { cn } from '@/lib/utils'
 

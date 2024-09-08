@@ -1,10 +1,11 @@
-import { RouterProvider } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ComposeContextProvider } from 'foxact/compose-context-provider'
-import { router } from './router'
-import './main.css'
+import { RouterProvider } from 'react-router-dom'
+
 import './i18n'
-import { queryClient } from './lib/utils'
+import './main.css'
+import { router } from './router'
+import { queryClient } from './store/useVocab'
 
 /* eslint-disable react/no-missing-key */
 const contexts = [

@@ -1,7 +1,16 @@
-import process from 'node:process'
+import { createClient } from '@supabase/supabase-js'
 import postgres from 'postgres'
 
-const connectionString = process.env.DATABASE_URL ?? ''
+import type { Database } from '../../../ui/database.types.js'
+
+import { env } from '../../env.js'
+
+const connectionString = env.DATABASE_URL ?? ''
 const sql = postgres(connectionString)
 
-export { sql }
+const supabase = createClient<Database>(env.SUPABASE_URL, env.SUPABASE_KEY)
+
+export {
+  sql,
+  supabase,
+}

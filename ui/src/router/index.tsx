@@ -1,19 +1,20 @@
 import {
-  Route,
   createBrowserRouter,
   createRoutesFromElements,
+  Route,
 } from 'react-router-dom'
+
+import { ImportPage } from '@/pages/import/page'
 import { RootLayout } from '@/pages/layout'
-import { Home } from '@/pages/page'
 import { Login } from '@/pages/login/page'
-import { User } from '@/pages/user/layout'
-import { Password } from '@/pages/user/password/page'
-import { UserPage } from '@/pages/user/page'
+import { Chart } from '@/pages/mine/chart/page'
 import { MineLayout } from '@/pages/mine/layout'
 import { MinePage } from '@/pages/mine/page'
+import { Home } from '@/pages/page'
 import { Register } from '@/pages/register/page'
-import { Chart } from '@/pages/mine/chart/page'
-import { ImportPage } from '@/pages/import/page'
+import { User } from '@/pages/user/layout'
+import { UserPage } from '@/pages/user/page'
+import { Password } from '@/pages/user/password/page'
 
 export const router = createBrowserRouter(
   createRoutesFromElements(

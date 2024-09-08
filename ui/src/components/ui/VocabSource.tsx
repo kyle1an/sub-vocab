@@ -1,8 +1,5 @@
+import usePagination from '@mui/material/usePagination'
 import {
-  Fragment,
-} from 'react'
-import {
-  type TableState,
   createColumnHelper,
   flexRender,
   getCoreRowModel,
@@ -10,19 +7,54 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  type TableState,
   useReactTable,
 } from '@tanstack/react-table'
+import { atom, useAtom } from 'jotai'
 import { uniq } from 'lodash-es'
-import usePagination from '@mui/material/usePagination'
+import {
+  Fragment,
+} from 'react'
 import {
   Trans,
   useTranslation,
 } from 'react-i18next'
 import { useSessionStorage, useUnmount } from 'react-use'
-import { atom, useAtom } from 'jotai'
-import { SearchWidget } from './search-widget'
-import { VocabStatics } from './vocab-statics-bar'
-import { TableHeader } from './tableHeader'
+
+import type { TI } from '@/i18n'
+import type { LabelDisplaySource } from '@/lib/vocab'
+
+import { TablePagination } from '@/components/table-pagination'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Examples } from '@/components/ui/Examples.tsx'
+import { Icon } from '@/components/ui/icon'
+import { SegmentedControl } from '@/components/ui/SegmentedControl.tsx'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select.tsx'
+import { Separator } from '@/components/ui/separator.tsx'
+import { VocabToggle } from '@/components/ui/ToggleButton.tsx'
+import { useAcquaintAll, useVocabToggle } from '@/hooks/vocabToggle'
+import { sortIcon } from '@/lib/icon-utils'
+import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
+import { tryGetRegex } from '@/lib/regex'
+import { cn } from '@/lib/utils.ts'
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,38 +66,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from './alert-dialog'
-import { TablePagination } from '@/components/table-pagination'
-import { Icon } from '@/components/ui/icon'
-import { Examples } from '@/components/ui/Examples.tsx'
-import { SegmentedControl } from '@/components/ui/SegmentedControl.tsx'
-import { VocabToggle } from '@/components/ui/ToggleButton.tsx'
-import { cn } from '@/lib/utils.ts'
-import { Separator } from '@/components/ui/separator.tsx'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select.tsx'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import type { LabelDisplaySource } from '@/lib/vocab'
-import { sortIcon } from '@/lib/icon-utils'
-import { tryGetRegex } from '@/lib/regex'
-import { useAcquaintAll, useVocabToggle } from '@/hooks/vocabToggle'
-import type { TI } from '@/i18n'
-import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
+import { SearchWidget } from './search-widget'
+import { TableHeader } from './tableHeader'
+import { VocabStatics } from './vocab-statics-bar'
 
 export function AcquaintAllDialog<T extends VocabState>({ vocabulary }: { vocabulary: T[] }) {
   const { t } = useTranslation()

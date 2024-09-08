@@ -1,197 +1,246 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import { type Socket, io } from 'socket.io-client'
-import { useEffect } from 'react'
-import type { ClientToServerEvents, ServerToClientEvents, UserVocab, Username } from '@/shared/api'
-import { postRequest } from '@/lib/request'
-import { queryClient } from '@/lib/utils'
-import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
-import { useVocabStore } from '@/store/useVocab'
-import type {
-  AcquaintWordsResponse,
-  LabelDB,
-  StemsMapping,
-  ToggleWordResponse,
-} from '@/shared/shared'
-import { newVocabState } from '@/lib/vocab'
+import type { Session } from '@supabase/supabase-js'
+import type { MergeDeep } from 'type-fest'
 
-async function getVocabulary(username: string) {
-  const labelsDB = await postRequest<LabelDB[]>(
-    `/api/api/queryWords`,
-    { username },
-    { timeout: 4000 },
-  )
-  return labelsDB.map((sieve): VocabState => ({
-    word: sieve.w,
-    isUser: Boolean(sieve.is_user),
-    original: Boolean(sieve.original),
-    rank: sieve.rank,
-    timeModified: sieve.time_modified,
-    learningPhase: sieve.acquainted ? LEARNING_PHASE.ACQUAINTED : LEARNING_PHASE.NEW,
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import { toDate } from 'date-fns-tz'
+
+import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
+import { queryClient, supabase } from '@/store/useVocab'
+
+function parseUTCDate(utcDateString: string) {
+  return toDate(utcDateString, { timeZone: 'UTC' }).toISOString()
+}
+
+export function mergeUserVocabWithBaseVocab(userVocab: UserVocabulary[], baseVocab: BaseVocabulary[]) {
+  const map = new Map<string, VocabState>()
+  baseVocab.forEach((row) => {
+    map.set(row.w, {
+      word: row.w,
+      isUser: Boolean(row.is_user),
+      original: Boolean(row.original),
+      rank: row.rank,
+      timeModified: row.time_modified,
+      learningPhase: !row.is_user ? LEARNING_PHASE.ACQUAINTED : LEARNING_PHASE.NEW,
+    })
+  })
+  userVocab.forEach((row) => {
+    const existing = map.get(row.w)
+    if (existing) {
+      map.set(row.w, {
+        ...existing,
+        timeModified: row.time_modified,
+        learningPhase: row.learningPhase,
+      })
+    } else {
+      map.set(row.w, {
+        word: row.w,
+        original: false,
+        timeModified: row.time_modified,
+        learningPhase: row.learningPhase,
+        isUser: true,
+        rank: null,
+      })
+    }
+  })
+  return Array.from(map.values())
+}
+
+type UserMetadata = {
+  email: string
+  email_verified: boolean
+  phone_verified: boolean
+  sub: string
+  username?: string
+}
+
+type SessionWithUserMetadata = MergeDeep<Session, {
+  user: {
+    user_metadata: UserMetadata
+  }
+}>
+
+async function getSession() {
+  const { data: { session }, error } = await supabase.auth.getSession()
+  if (error) throw new Error(error.message)
+  return session as SessionWithUserMetadata | null
+}
+
+export function useSession() {
+  return useQuery({
+    queryKey: ['session'] as const,
+    queryFn: getSession,
+    refetchOnWindowFocus: false,
+    retry: 10,
+  })
+}
+
+async function getBaseVocabulary() {
+  const { data, error } = await supabase
+    .from('vocabulary_list')
+    .select('w:word, original, is_user, rank:word_rank')
+    .eq('share', true)
+    .throwOnError()
+  if (error) throw new Error(error.message)
+  return data.map((row) => Object.assign(row, {
+    time_modified: null,
   }))
 }
 
-function getVocabularyOptions({ username }: Username) {
-  return queryOptions({
-    queryKey: ['userWords', username] as const,
-    queryFn: () => getVocabulary(username),
+export type BaseVocabulary = Awaited<ReturnType<typeof getBaseVocabulary>>[number]
+
+export function useBaseVocabulary() {
+  return useQuery({
+    queryKey: ['baseVocabulary'] as const,
+    queryFn: getBaseVocabulary,
     placeholderData: [],
     refetchOnWindowFocus: false,
     retry: 10,
   })
 }
 
-export function useVocabularyQuery() {
-  const username = useVocabStore((state) => state.username)
-  return useQuery(getVocabularyOptions({ username }))
+async function getUserVocabularyRows(userId: string) {
+  const { data, error } = await supabase
+    .from('user_vocab_record')
+    .select('w:vocabulary, time_modified, acquainted')
+    .eq('user_id', userId)
+    .throwOnError()
+  if (error) throw new Error(error.message)
+  return data.map((row) => Object.assign(row, {
+    time_modified: parseUTCDate(row.time_modified),
+  }))
 }
 
-function irregularMaps() {
-  return postRequest<StemsMapping>(
-    `/api/api/stemsMapping`,
-    {},
-    { timeout: 2000 },
-  )
+export type UserVocabularyRow = Awaited<ReturnType<typeof getUserVocabularyRows>>[number]
+
+function rowToState(row: UserVocabularyRow) {
+  const learningPhase = row.acquainted ? LEARNING_PHASE.ACQUAINTED : LEARNING_PHASE.NEW as LearningPhase
+  return {
+    w: row.w,
+    time_modified: row.time_modified,
+    learningPhase,
+  }
+}
+
+export type UserVocabulary = Awaited<ReturnType<typeof rowToState>>
+
+function userVocabularyOptions(userId: string) {
+  return queryOptions({
+    queryKey: ['userVocabularyRows', userId] as const,
+    async queryFn() {
+      const userVocabularyRows = await getUserVocabularyRows(userId)
+      return userVocabularyRows.map(rowToState)
+    },
+    placeholderData: [],
+    refetchOnWindowFocus: false,
+    retry: 10,
+    enabled: Boolean(userId),
+  })
+}
+
+export function useUserVocabulary(userId = '') {
+  return useQuery(userVocabularyOptions(userId))
+}
+
+async function getStemsMapping() {
+  const { data, error } = await supabase
+    .from('derivation')
+    .select('stem_word, derived_word')
+    .order('stem_word')
+    .throwOnError()
+  if (error) throw new Error(error.message)
+  const map: Record<string, string[]> = {}
+  data.forEach((link) => {
+    let wordGroup = map[link.stem_word]
+    if (!wordGroup) {
+      wordGroup = [link.stem_word]
+      map[link.stem_word] = wordGroup
+    }
+    wordGroup.push(link.derived_word)
+  })
+  return Object.values(map)
 }
 
 export function useIrregularMapsQuery() {
   return useQuery({
-    queryKey: ['irregularMaps'] as const,
-    queryFn: irregularMaps,
+    queryKey: ['stemsMapping'] as const,
+    queryFn: getStemsMapping,
     placeholderData: [],
     refetchOnWindowFocus: false,
     retry: 10,
   })
 }
 
-function mutatedVocabStates<T extends VocabState>(oldData: VocabState[] | undefined, variables: T[], state: LearningPhase) {
-  if (!oldData) {
-    return []
-  }
-
+function pendingVocabStates(oldData: UserVocabulary[], variables: VocabState[]) {
   const labelsCopy = structuredClone(oldData)
   variables.forEach((variable) => {
-    const labelMutated = labelsCopy.find((label) => label.word === variable.word)
-
+    const labelMutated = labelsCopy.find((label) => label.w === variable.word)
+    const pendingPhase = variable.learningPhase === LEARNING_PHASE.ACQUAINTED ? LEARNING_PHASE.FADING : LEARNING_PHASE.RETAINING
     if (labelMutated) {
-      labelMutated.learningPhase = state
+      labelMutated.learningPhase = pendingPhase
     } else {
       labelsCopy.push({
-        ...variable,
-        learningPhase: state,
+        w: variable.word,
+        time_modified: '',
+        learningPhase: pendingPhase,
       })
     }
   })
-
   return labelsCopy
 }
 
-export function useRevokeWordMutation() {
-  const username = useVocabStore((state) => state.username)
-  const vocabularyOptions = getVocabularyOptions({ username })
+function revertVocabStates(oldData: UserVocabulary[], variables: VocabState[]) {
+  const labelsCopy = structuredClone(oldData)
+  variables.forEach((variable) => {
+    const labelMutated = labelsCopy.find((label) => label.w === variable.word)
+    if (labelMutated) {
+      labelMutated.learningPhase = variable.learningPhase
+    }
+  })
+  return labelsCopy
+}
+
+function newVocabStates(oldData: UserVocabulary[], variables: UserVocabulary[]) {
+  const labelsCopy = structuredClone(oldData)
+  variables.forEach((variable) => {
+    const labelMutated = labelsCopy.find((label) => label.w === variable.w)
+    if (labelMutated) {
+      variable.time_modified = parseUTCDate(variable.time_modified)
+      Object.assign(labelMutated, variable)
+    }
+  })
+  return labelsCopy
+}
+
+export function useUserWordPhaseMutation() {
+  const { data: session } = useSession()
+  const userId = session?.user?.id ?? ''
+  const vocabularyOptions = userVocabularyOptions(userId)
   return useMutation({
-    mutationKey: ['revokeWord'],
-    mutationFn: function revokeWord(vocab: VocabState[]) {
-      return postRequest<ToggleWordResponse>(`/api/api/revokeWord`, {
-        words: vocab.map((row) => row.word),
-        username,
-      } satisfies UserVocab)
+    mutationKey: ['upsertUserVocabulary'],
+    mutationFn: async function mutateUserWordPhase(vocab: VocabState[]): Promise<UserVocabulary[]> {
+      const values = vocab.map((row) => ({
+        user_id: userId,
+        vocabulary: row.word,
+        acquainted: row.learningPhase !== LEARNING_PHASE.ACQUAINTED,
+        time_modified: new Date().toISOString(),
+      }))
+      const { data, error } = await supabase
+        .from('user_vocab_record')
+        .upsert(values, { onConflict: 'user_id, vocabulary' })
+        .select('w:vocabulary, time_modified, acquainted')
+        .throwOnError()
+      if (error) throw new Error(error.message)
+      return data.map(rowToState)
     },
     onMutate: (variables) => {
-      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => mutatedVocabStates(oldData, variables, LEARNING_PHASE.FADING))
+      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData = []) => pendingVocabStates(oldData, variables))
     },
     onSuccess: (data, variables, context) => {
-      if (data === 'success') {
-        queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => mutatedVocabStates(oldData, variables, LEARNING_PHASE.NEW))
-      } else {
-        queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => mutatedVocabStates(oldData, variables, LEARNING_PHASE.ACQUAINTED))
-      }
+      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData = []) => newVocabStates(oldData, data))
     },
     // eslint-disable-next-line node/handle-callback-err
     onError: (error, variables, context) => {
-      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => mutatedVocabStates(oldData, variables, LEARNING_PHASE.ACQUAINTED))
+      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData = []) => revertVocabStates(oldData, variables))
     },
   })
-}
-
-export function useAcquaintWordsMutation() {
-  const username = useVocabStore((state) => state.username)
-  const vocabularyOptions = getVocabularyOptions({ username })
-  return useMutation({
-    mutationKey: ['acquaintWords'],
-    mutationFn: function acquaintWords(rows2Acquaint: VocabState[]) {
-      return postRequest<AcquaintWordsResponse>(`/api/api/acquaintWords`, {
-        words: rows2Acquaint.map((row) => row.word),
-        username,
-      } satisfies UserVocab)
-    },
-    onMutate: (variables) => {
-      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => mutatedVocabStates(oldData, variables, LEARNING_PHASE.RETAINING))
-    },
-    onSuccess: (data, variables, context) => {
-      if (data === 'success') {
-        queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => mutatedVocabStates(oldData, variables, LEARNING_PHASE.ACQUAINTED))
-      } else {
-        queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => mutatedVocabStates(oldData, variables, LEARNING_PHASE.NEW))
-      }
-    },
-    // eslint-disable-next-line node/handle-callback-err
-    onError: (error, variables, context) => {
-      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => mutatedVocabStates(oldData, variables, LEARNING_PHASE.NEW))
-    },
-  })
-}
-
-export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io('', {
-  withCredentials: true,
-  retries: 1,
-  autoConnect: false,
-})
-
-export function useSyncWordState() {
-  const username = useVocabStore((state) => state.username)
-  const { queryKey } = getVocabularyOptions({ username })
-
-  useEffect(() => {
-    if (username) {
-      socket.connect()
-
-      return () => {
-        socket.disconnect()
-      }
-    }
-  }, [username])
-
-  useEffect(() => {
-    if (username) {
-      socket.on('acquaintWords', (v) => {
-        const vocab = v.words.map((word): VocabState => {
-          return newVocabState({
-            word,
-            learningPhase: LEARNING_PHASE.ACQUAINTED,
-          })
-        })
-        queryClient.setQueryData(queryKey, (oldData) => mutatedVocabStates(oldData, vocab, LEARNING_PHASE.ACQUAINTED))
-      })
-
-      socket.on('revokeWord', (v) => {
-        const vocab = v.words.map((word): VocabState => {
-          return newVocabState({
-            word,
-            learningPhase: LEARNING_PHASE.NEW,
-          })
-        })
-        queryClient.setQueryData(queryKey, (oldData) => mutatedVocabStates(oldData, vocab, LEARNING_PHASE.NEW))
-      })
-
-      socket.on('connect_error', (err) => {
-        console.error(`connect_error due to ${err.message}`)
-      })
-
-      return () => {
-        socket.off('acquaintWords')
-        socket.off('revokeWord')
-        socket.off('connect_error')
-      }
-    }
-  }, [username, queryKey])
 }

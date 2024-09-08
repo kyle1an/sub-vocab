@@ -27,3 +27,9 @@ pnpm-debug.log*
 settings.json
 
 .turbo
+
+# Supabase
+.branches
+.temp
+
+.vercel

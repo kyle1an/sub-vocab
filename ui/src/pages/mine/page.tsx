@@ -2,15 +2,20 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { type LabelDisplayTable, formVocab } from '@/lib/vocab'
-import { purgedRows, statusRetainedList } from '@/lib/vocab-utils'
-import { VocabDataTable } from '@/components/ui/VocabData'
-import { useIrregularMapsQuery, useVocabularyQuery } from '@/api/vocab-api'
+
+import { mergeUserVocabWithBaseVocab, useBaseVocabulary, useIrregularMapsQuery, useSession, useUserVocabulary } from '@/api/vocab-api'
 import { SquircleBg, SquircleMask } from '@/components/ui/squircle'
+import { VocabDataTable } from '@/components/ui/VocabData'
 import { LabeledTire } from '@/lib/LabeledTire'
+import { formVocab, type LabelDisplayTable } from '@/lib/vocab'
+import { purgedRows, statusRetainedList } from '@/lib/vocab-utils'
 
 export function MinePage() {
-  const { data: userWords = [] } = useVocabularyQuery()
+  const { data: baseVocabulary = [] } = useBaseVocabulary()
+  const { data: session } = useSession()
+  const { data: userVocabulary = [] } = useUserVocabulary(session?.user.id)
+  const userWords = mergeUserVocabWithBaseVocab(userVocabulary, baseVocabulary)
+
   const [rows, setRows] = useState<LabelDisplayTable[]>([])
   const { data: irregulars = [] } = useIrregularMapsQuery()
 

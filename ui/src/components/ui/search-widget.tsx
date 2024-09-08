@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
-import { Squircle } from '@/components/ui/squircle'
+
 import { Icon } from '@/components/ui/icon'
+import { Squircle } from '@/components/ui/squircle'
 import { Toggle } from '@/components/ui/toggle'
 
 export function SearchWidget({

@@ -1,97 +1,51 @@
-import crypto from 'node:crypto'
-import express from 'express'
-import type mysql from 'mysql2'
+import type { AuthError, AuthTokenResponsePassword } from '@supabase/supabase-js'
 import type { Request, Response } from 'express'
-import { addDays } from 'date-fns'
-import { sql } from '../config/connection.js'
-import { tokenChecker } from '../utils/util.js'
-import type { Credential, LoginResponse, NewCredential, NewUsername, RegisterResponse, Status, Username, UsernameTaken } from '../types/index.js'
+
+import express from 'express'
+
+import type { Credential } from '../../../ui/src/shared/api.js'
+
+import { sql, supabase } from '../utils/db.js'
 
 type ParamsDictionary = Record<string, string>
 
 const router = express.Router()
 
-export type CookiesObj = Partial<{
-  _user: string
-  acct: string
-}>
-
-router.post('/login', (req: Request<ParamsDictionary, LoginResponse, Credential>, res) => {
-  const token = crypto.randomBytes(32).toString('hex')
+router.post('/sign-in', async (req: Request<ParamsDictionary, any, Credential>, res: Response<AuthTokenResponsePassword>) => {
   const { username, password } = req.body
-  sql<[{ output: number }]>`SELECT login_token(${username}, ${password}, ${token}) AS output;`
-    .then(([rows]) => {
-      const response: [boolean] = [false]
-      if (rows[0].output) {
-        const expires = addDays(Date.now(), 30)
-        res.cookie('_user', username, { expires })
-        res.cookie('acct', token, { expires })
-        response[0] = true
-      }
-      res.json(response)
-    })
-    .catch(console.error)
-})
+  const rows = await sql<[{ email: string }]>`
+SELECT
+  u.email
+FROM
+  public.profiles p
+  JOIN auth.users u ON u.id = p.id
+WHERE
+  p.username = ${username}
+LIMIT
+  1;
+`.catch((error) => {
+    console.error('Error in /sign-in:', error)
+  })
 
-router.post('/register', (req: Request<ParamsDictionary, RegisterResponse, Credential>, res) => {
-  const { username, password } = req.body
-  sql<RegisterResponse>`SELECT user_register(${username}, ${password}) as result;`
-    .then(([rows]) => {
-      res.json([rows[0]])
+  if (rows && rows.length >= 1) {
+    const [{ email }] = rows
+    const authResponse = await supabase.auth.signInWithPassword({
+      email,
+      password,
     })
-    .catch(console.error)
-})
-
-router.post('/changeUsername', tokenChecker, (req: Request<ParamsDictionary, Status, NewUsername>, res: Response) => {
-  const { username, newUsername } = req.body
-  sql<RegisterResponse>`SELECT change_username(get_user_id_by_name(${username}), ${newUsername}) as result;`
-    .then(([rows]) => {
-      const expires = addDays(Date.now(), 30)
-      res.cookie('_user', newUsername, { expires })
-      res.json({
-        success: !!rows[0].result,
-      })
-    })
-    .catch(console.error)
-})
-
-router.post('/changePassword', (req: Request<ParamsDictionary, Status, NewCredential>, res) => {
-  const { username, newPassword, oldPassword } = req.body
-  sql<mysql.ResultSetHeader>`CALL change_password(get_user_id_by_name(${username}), ${newPassword}, ${oldPassword});`
-    .then(([rows]) => {
-      res.json({
-        success: !!('affectedRows' in rows && rows.affectedRows),
-      })
-    })
-    .catch(console.error)
-})
-
-router.post('/logoutToken', (req: Request<ParamsDictionary, Status, Username>, res) => {
-  const { username } = req.body
-  const { acct } = req.cookies as CookiesObj
-  if (!acct) {
-    return res.json({ success: false })
+    res.json(authResponse)
+    return
   }
-  sql<mysql.ResultSetHeader>`CALL logout_token(get_user_id_by_name(${username}), ${acct});`
-    .then(([rows]) => {
-      const rowCount = 'affectedRows' in rows ? rows.affectedRows : 0
-      if (rowCount) {
-        res.clearCookie('acct', { path: '/' })
-        res.clearCookie('_user', { path: '/' })
-      }
-      res.json({ success: !!rowCount })
-    })
-    .catch(console.error)
-})
-
-router.post('/existsUsername', (req: Request<ParamsDictionary, UsernameTaken, Username>, res) => {
-  const { username } = req.body
-  sql<[{ does_exist: number }]>`
-  SELECT count(*) does_exist from users where username = ${username};`
-    .then(([rows]) => {
-      res.json({ has: !!rows[0].does_exist })
-    })
-    .catch(console.error)
+  res.json({
+    data: {
+      user: null,
+      session: null,
+      weakPassword: null,
+    },
+    error: {
+      message: 'Invalid username or password.',
+    } as AuthError,
+  })
 })
 
 export default router

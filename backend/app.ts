@@ -1,20 +1,17 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { createServer } from 'node:http'
-import process from 'node:process'
-import createError from 'http-errors'
-import express from 'express'
-import cookieParser from 'cookie-parser'
-import logger from 'morgan'
-import cors from 'cors'
 import type { ErrorRequestHandler, NextFunction, Request, Response } from 'express'
-import { Server } from 'socket.io'
+
+import cookieParser from 'cookie-parser'
+import cors from 'cors'
 import Debug from 'debug'
-import { parse } from 'cookie'
+import express from 'express'
+import createError from 'http-errors'
+import logger from 'morgan'
+import { createServer } from 'node:http'
+import path from 'node:path'
+import process from 'node:process'
+import { fileURLToPath } from 'node:url'
+
 import routes from './src/routes/index.js'
-import { isTokenValid } from './src/utils/util.js'
-import type { CookiesObj } from './src/routes/auth.js'
-import type { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from './src/types/index.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -58,21 +55,6 @@ const PORT = Number(process.env.PORT || '5001')
 app.set('port', PORT)
 
 const server = createServer(app)
-
-export const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(server, {
-  cors: {
-    credentials: true,
-  },
-})
-
-io.on('connection', (socket) => {
-  const { _user: username = '', acct = '' } = parse(socket.handshake.headers.cookie ?? '') as CookiesObj
-  isTokenValid(username, acct).then(async (isValid) => {
-    if (isValid) {
-      await socket.join(username)
-    }
-  }).catch(console.error)
-})
 
 server.listen(PORT, () => {
   console.log(`Socket server running at ${PORT}`)

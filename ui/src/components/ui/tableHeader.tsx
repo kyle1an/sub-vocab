@@ -1,4 +1,5 @@
-import { type Table, flexRender } from '@tanstack/react-table'
+import { flexRender, type Table } from '@tanstack/react-table'
+
 import type { GroupHeader } from '@/types/vocab'
 
 export function TableHeader<T extends Table<any>>({ header }: { header: GroupHeader<T> }) {
