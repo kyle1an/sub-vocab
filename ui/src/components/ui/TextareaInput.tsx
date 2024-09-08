@@ -1,6 +1,8 @@
 import type React from 'react'
-import { DataTransferItemListReader, readEntryFiles } from '@/lib/filesHandler'
+
 import type { FileType } from '@/store/useVocab'
+
+import { DataTransferItemListReader, readEntryFiles } from '@/lib/filesHandler'
 
 export function TextareaInput({
   value,

@@ -1,33 +1,38 @@
+import { useMediaQuery } from 'foxact/use-media-query'
+import { atom, useAtom } from 'jotai'
 import {
   useDeferredValue,
   useEffect,
   useState,
 } from 'react'
 import { useTranslation } from 'react-i18next'
-import { atom, useAtom } from 'jotai'
-import { useMediaQuery } from 'foxact/use-media-query'
-import { FileSettings } from './file-settings'
-import { FileInput } from '@/components/ui/FileInput'
-import { TextareaInput } from '@/components/ui/TextareaInput'
+
 import {
-  type LabelDisplaySource,
-  formVocab,
-} from '@/lib/vocab'
-import { VocabSourceTable } from '@/components/ui/VocabSource.tsx'
-import {
+  mergeUserVocabWithBaseVocab,
+  useBaseVocabulary,
   useIrregularMapsQuery,
-  useVocabularyQuery,
+  useSession,
+  useUserVocabulary,
 } from '@/api/vocab-api'
-import { purgedRows, statusRetainedList } from '@/lib/vocab-utils'
+import { FileInput } from '@/components/ui/FileInput'
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
-import { cn } from '@/lib/utils'
 import { SquircleBg, SquircleMask } from '@/components/ui/squircle'
+import { TextareaInput } from '@/components/ui/TextareaInput'
+import { VocabSourceTable } from '@/components/ui/VocabSource.tsx'
 import { LabeledTire } from '@/lib/LabeledTire'
+import { cn } from '@/lib/utils'
+import {
+  formVocab,
+  type LabelDisplaySource,
+} from '@/lib/vocab'
+import { purgedRows, statusRetainedList } from '@/lib/vocab-utils'
 import { fileTypesAtom } from '@/store/useVocab'
+
+import { FileSettings } from './file-settings'
 
 const fileInfoAtom = atom('')
 const sourceTextAtom = atom('')
@@ -38,9 +43,11 @@ function SourceVocab({
 }: {
   text: string
 }) {
-  const { data: baseVocab = [] } = useVocabularyQuery()
   const { data: irregulars = [] } = useIrregularMapsQuery()
-
+  const { data: baseVocabulary = [] } = useBaseVocabulary()
+  const { data: session } = useSession()
+  const { data: userVocabulary = [] } = useUserVocabulary(session?.user.id)
+  const baseVocab = mergeUserVocabWithBaseVocab(userVocabulary, baseVocabulary)
   const [rows, setRows] = useState<LabelDisplaySource[]>([])
   const [sentences, setSentences] = useState<string[]>([])
   const [, setCount] = useAtom(textCountAtom)

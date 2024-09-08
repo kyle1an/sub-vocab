@@ -1,8 +1,9 @@
 import antfu from '@antfu/eslint-config'
-import { FlatCompat } from '@eslint/eslintrc'
 import { fixupConfigRules } from '@eslint/compat'
+import { FlatCompat } from '@eslint/eslintrc'
 import stylistic from '@stylistic/eslint-plugin'
 import pluginQuery from '@tanstack/eslint-plugin-query'
+import perfectionist from 'eslint-plugin-perfectionist'
 import eslintPluginTailwindCss from 'eslint-plugin-tailwindcss'
 
 const compat = new FlatCompat()
@@ -18,6 +19,7 @@ export default antfu(
     quoteProps: 'as-needed',
   }),
   {
+    name: 'style',
     rules: {
       '@stylistic/multiline-ternary': ['off'],
       '@stylistic/no-extra-semi': 'off',
@@ -27,6 +29,60 @@ export default antfu(
       '@stylistic/brace-style': ['error', '1tbs'],
       'unused-imports/no-unused-vars': 'off',
       'prefer-arrow-callback': 'off',
+    },
+  },
+  {
+    name: 'perfectionist',
+    plugins: {
+      perfectionist,
+    },
+    rules: {
+      'perfectionist/sort-imports': [
+        'error',
+        {
+          type: 'natural',
+          order: 'asc',
+          ignoreCase: true,
+          internalPattern: ['~/**', '@/**'],
+          newlinesBetween: 'always',
+          maxLineLength: undefined,
+          groups: [
+            'type',
+            ['builtin', 'external'],
+            'internal-type',
+            'internal',
+            ['parent-type', 'sibling-type', 'index-type'],
+            ['parent', 'sibling', 'index'],
+            'object',
+            'unknown',
+          ],
+          customGroups: { type: {}, value: {} },
+          environment: 'node',
+        },
+      ],
+    },
+  },
+  {
+    rules: {
+      'style/jsx-wrap-multilines': ['warn',
+        {
+          arrow: 'parens',
+          assignment: 'parens',
+          condition: 'parens',
+          declaration: 'parens',
+          logical: 'parens',
+          prop: 'parens-new-line',
+          propertyValue: 'parens-new-line',
+          return: 'parens',
+        },
+      ],
+      'style/jsx-closing-tag-location': 'off',
+    },
+  },
+  {
+    files: ['**/*.toml', '**/*.y?(a)ml'],
+    rules: {
+      'style/spaced-comment': 'off',
     },
   },
   {
@@ -70,6 +126,7 @@ export default antfu(
   ...pluginQuery.configs['flat/recommended'],
   ...eslintPluginTailwindCss.configs['flat/recommended'],
   {
+    name: 'tailwindcss',
     rules: {
       'tailwindcss/no-custom-classname': ['warn', {
         callees: ['classnames', 'clsx', 'ctl', 'cva', 'tv', 'twMerge', 'add'],

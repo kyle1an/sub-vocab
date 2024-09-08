@@ -1,6 +1,6 @@
-import i18n, { use } from 'i18next'
+import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import Cookies from 'js-cookie'
+
 import { en } from './en'
 import { zh } from './zh'
 
@@ -10,10 +10,6 @@ import { zh } from './zh'
 export type TI = any
 
 export function getLanguage() {
-  const cookieLang = Cookies.get('_locale')
-  if (cookieLang) {
-    return cookieLang
-  }
   if (navigator.languages[0]) {
     if (navigator.languages[0].startsWith('zh')) {
       return 'zh'
@@ -22,7 +18,7 @@ export function getLanguage() {
   return 'en'
 }
 
-use(initReactI18next)
+i18n.use(initReactI18next)
   .init({
     resources: {
       en: {

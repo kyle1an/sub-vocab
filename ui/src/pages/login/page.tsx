@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Icon } from '@/components/ui/icon'
-import { useSignIn } from '@/api/user'
+import { z } from 'zod'
+
+import { useSignIn, useSignInWithUsername } from '@/api/user'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -12,20 +14,24 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { Icon } from '@/components/ui/icon'
 import { Input, InputWrapper } from '@/components/ui/input'
-import { Card } from '@/components/ui/card'
 
-type FormValues = {
-  username: string
-  password: string
+const emailSchema = z.string().email()
+
+function isValidEmail(username: string): boolean {
+  const result = emailSchema.safeParse(username)
+  return result.success
 }
 
 export function Login() {
+  const formDefaultValues = {
+    username: '',
+    password: '',
+  }
+  type FormValues = typeof formDefaultValues
   const form = useForm<FormValues>({
-    defaultValues: {
-      username: '',
-      password: '',
-    },
+    defaultValues: formDefaultValues,
     reValidateMode: 'onSubmit',
   })
 
@@ -37,21 +43,31 @@ export function Login() {
     setError,
   } = form
   const [passwordVisible, setPasswordVisible] = useState(false)
-  const { mutateAsync: signInAsync, isError, isPending } = useSignIn()
+  const { mutateAsync: signInAsync, isPending: isSignInPending } = useSignIn()
+  const { mutateAsync: signInWithUsernameAsync, isPending: isSignInWithUsernameAsyncPending } = useSignInWithUsername()
   const navigate = useNavigate()
+  const isPending = isSignInPending || isSignInWithUsernameAsyncPending
+
+  function signIn(values: FormValues) {
+    setPasswordVisible(false)
+    if (isValidEmail(values.username)) {
+      return signInAsync({
+        email: values.username,
+        password: values.password,
+      })
+    } else {
+      return signInWithUsernameAsync({
+        username: values.username,
+        password: values.password,
+      })
+    }
+  }
 
   async function onSubmit(values: FormValues) {
-    setPasswordVisible(false)
-    const resAuth = await signInAsync({
-      username: values.username,
-      password: values.password,
-    })
-
-    if (resAuth[0]) {
-      navigate('/')
-    } else {
+    const { error } = await signIn(values)
+    if (error) {
       setError('root.serverError', {
-        message: 'The username/password is incorrect.',
+        message: error.message,
       })
       setError('username', {
         message: '',
@@ -59,16 +75,10 @@ export function Login() {
       setError('password', {
         message: '',
       })
+      return
     }
+    navigate('/')
   }
-
-  useEffect(() => {
-    if (isError) {
-      setError('root.serverError', {
-        message: 'Something went wrong, please try again later',
-      })
-    }
-  }, [isError, setError])
 
   return (
     <div className="flex flex-row">
@@ -93,7 +103,7 @@ export function Login() {
                       }}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Username</FormLabel>
+                          <FormLabel>Email or username</FormLabel>
                           <FormControl>
                             <InputWrapper>
                               <Input

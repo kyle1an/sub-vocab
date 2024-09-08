@@ -1,3 +1,4 @@
+import { cva, type VariantProps } from 'class-variance-authority'
 import {
   type HTMLAttributes,
   type Ref,
@@ -5,7 +6,7 @@ import {
   useId,
   useRef,
 } from 'react'
-import { type VariantProps, cva } from 'class-variance-authority'
+
 import { Squircle } from '@/components/ui/squircle'
 import { cn } from '@/lib/utils.ts'
 

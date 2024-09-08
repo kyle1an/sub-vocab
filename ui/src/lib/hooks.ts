@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import useResizeObserver from '@react-hook/resize-observer'
+import { useMediaQuery } from 'foxact/use-media-query'
 import { atom } from 'jotai'
 import { useAtom } from 'jotai/react'
-import { useMediaQuery } from 'foxact/use-media-query'
-import useResizeObserver from '@react-hook/resize-observer'
-import { setMetaThemeColorAttribute } from './utils'
+import { useState } from 'react'
+
 import { metaThemeColorAtom, themeAtom } from '@/store/useVocab'
+
+import { setMetaThemeColorAttribute } from './utils'
 
 export function syncAtomWithStorage<T>(key: string, initialValue: T) {
   const stringAtom = atom(localStorage.getItem(key) ?? initialValue)

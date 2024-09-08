@@ -1,8 +1,9 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { Icon } from '@/components/ui/icon'
+
+import { useLogOut, useUpdateUser } from '@/api/user'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -12,27 +13,19 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { Icon } from '@/components/ui/icon'
 import { Input, InputWrapper } from '@/components/ui/input'
-import { useVocabStore } from '@/store/useVocab.ts'
-import { useChangePassword, useLogOut } from '@/api/user'
-
-type FormValues = {
-  oldPassword: string
-  newPassword: string
-}
 
 export function Password() {
   const { t } = useTranslation()
-  const username = useVocabStore((state) => state.username)
   const navigate = useNavigate()
   const { mutateAsync: logOut } = useLogOut()
 
   function logout() {
-    logOut({
-      username,
-    })
+    logOut()
       .then((logOutRes) => {
-        if (logOutRes?.success) {
+        const { error } = logOutRes
+        if (!error) {
           requestAnimationFrame(() => {
             navigate('/')
           })
@@ -41,11 +34,12 @@ export function Password() {
       .catch(console.error)
   }
 
+  const formDefaultValues = {
+    newPassword: '',
+  }
+  type FormValues = typeof formDefaultValues
   const form = useForm<FormValues>({
-    defaultValues: {
-      oldPassword: '',
-      newPassword: '',
-    },
+    defaultValues: formDefaultValues,
     reValidateMode: 'onSubmit',
   })
 
@@ -56,35 +50,22 @@ export function Password() {
     setError,
   } = form
 
-  const [oldPasswordVisible, setOldPasswordVisible] = useState(false)
   const [newPasswordVisible, setNewPasswordVisible] = useState(false)
-  const { mutateAsync: changePassword, isError, isPending } = useChangePassword()
+  const { mutateAsync: updateUser, isPending } = useUpdateUser()
 
   async function onSubmit(values: FormValues) {
-    setOldPasswordVisible(false)
     setNewPasswordVisible(false)
-    const res = await changePassword({
-      username,
-      oldPassword: values.oldPassword,
-      newPassword: values.newPassword,
+    const { error } = await updateUser({
+      password: values.newPassword,
     })
-
-    if (res.success) {
-      logout()
-    } else {
+    if (error) {
       setError('root.serverError', {
-        message: 'Something went wrong.',
+        message: error.message,
       })
+      return
     }
+    logout()
   }
-
-  useEffect(() => {
-    if (isError) {
-      setError('root.serverError', {
-        message: 'Something went wrong, please try again later',
-      })
-    }
-  }, [isError, setError])
 
   return (
     <div className="flex flex-col gap-3">
@@ -100,59 +81,9 @@ export function Password() {
             >
               <FormField
                 control={form.control}
-                name="oldPassword"
-                rules={{
-                  required: 'The password is required.',
-                }}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('Old Password')}</FormLabel>
-                    <FormControl>
-                      <div className="flex items-center gap-1">
-                        <InputWrapper>
-                          <Input
-                            type={oldPasswordVisible ? 'text' : 'password'}
-                            autoComplete="current-password"
-                            placeholder=""
-                            {...field}
-                            {...register('oldPassword')}
-                            className="text-base md:text-sm"
-                          />
-                        </InputWrapper>
-                        <Button
-                          variant="outline"
-                          className="px-2"
-                          aria-checked={oldPasswordVisible}
-                          onClick={(e) => {
-                            e.preventDefault()
-                            setOldPasswordVisible(!oldPasswordVisible)
-                          }}
-                        >
-                          {oldPasswordVisible ? (
-                            <Icon
-                              icon="lucide:eye"
-                              width={18}
-                              className="text-neutral-600"
-                            />
-                          ) : (
-                            <Icon
-                              icon="lucide:eye-off"
-                              width={18}
-                              className="text-neutral-600"
-                            />
-                          )}
-                        </Button>
-                      </div>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name="newPassword"
                 rules={{
                   required: 'The password is required.',
-                  minLength: { value: 8, message: 'The password must be at least 8 characters.' },
                 }}
                 render={({ field }) => (
                   <FormItem>
@@ -204,7 +135,7 @@ export function Password() {
                 type="submit"
                 disabled={isPending}
               >
-                {t('Confirm Changes')}
+                {t('confirm_changes')}
                 {isPending ? (
                   <Icon
                     icon="lucide:loader-2"

@@ -1,16 +1,19 @@
-import { Navigate, Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Navigate, Outlet } from 'react-router-dom'
+
+import { useSession } from '@/api/vocab-api'
 import { Footer } from '@/components/Footer'
-import { useVocabStore } from '@/store/useVocab'
 import { SideNav } from '@/components/SideNav'
 
 export function User() {
   const { t } = useTranslation()
-  const username = useVocabStore((state) => state.username)
-  if (!username) {
+  const { data: session } = useSession()
+  const user = session?.user
+  if (!user) {
     return <Navigate to="/login" />
   }
 
+  const account = user.user_metadata.username || user.email || ''
   const subNav = [
     {
       title: t('Profile'),
@@ -23,10 +26,10 @@ export function User() {
   ] as const
   return (
     <>
-      <div className="mx-auto flex size-full max-w-screen-lg grow flex-col p-6">
+      <main className="mx-auto flex size-full max-w-screen-lg grow flex-col p-6">
         <div className="pb-5">
           <div className="text-2xl">
-            {username}
+            {account}
           </div>
         </div>
         <div className="flex w-full grow flex-col gap-6 sm:flex-row md:gap-0">
@@ -40,7 +43,7 @@ export function User() {
             <Outlet />
           </main>
         </div>
-      </div>
+      </main>
       <Footer />
     </>
   )

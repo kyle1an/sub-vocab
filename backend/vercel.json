@@ -2,14 +2,22 @@
   "version": 2,
   "builds": [
     {
-      "src": "./app.ts",
+      "src": "/app.ts",
       "use": "@vercel/node"
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "/app.ts"
+      "source": "/(.*)",
+      "destination": "/app.ts"
+    },
+    {
+      "source": "/(.+\\.[a-z]+)$",
+      "destination": "/public/$1"
     }
   ]
 }

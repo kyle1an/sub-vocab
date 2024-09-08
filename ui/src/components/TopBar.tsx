@@ -1,18 +1,17 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
 import type React from 'react'
+
+import { CloseButton, Popover, PopoverButton, PopoverPanel, useClose } from '@headlessui/react'
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import { useAtom } from 'jotai'
 import {
   useEffect,
   useState,
 } from 'react'
-import { useCookie } from 'react-use'
-import { CloseButton, Popover, PopoverButton, PopoverPanel, useClose } from '@headlessui/react'
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
-import { useAtom } from 'jotai'
-import { Icon } from '@/components/ui/icon'
-import { Separator } from '@/components/ui/separator.tsx'
-import { cn } from '@/lib/utils.ts'
-import { DEFAULT_THEME, THEMES, themeAtom, useVocabStore } from '@/store/useVocab'
+import { useTranslation } from 'react-i18next'
+import { Link, useNavigate } from 'react-router-dom'
+
+import { useLogOut } from '@/api/user'
+import { useSession } from '@/api/vocab-api'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useLogOut } from '@/api/user'
+import { Icon } from '@/components/ui/icon'
 import {
   Menubar,
   MenubarContent,
@@ -31,7 +30,9 @@ import {
   MenubarRadioItem,
   MenubarTrigger,
 } from '@/components/ui/menubar'
-import { getLanguage } from '@/i18n'
+import { Separator } from '@/components/ui/separator.tsx'
+import { cn } from '@/lib/utils.ts'
+import { DEFAULT_THEME, localeAtom, themeAtom, THEMES } from '@/store/useVocab'
 
 const locales = [
   {
@@ -100,17 +101,15 @@ function Settings({ className, ...props }: React.HTMLAttributes<HTMLAnchorElemen
 
 function SignOut({ className, ...props }: React.HTMLAttributes<HTMLButtonElement>) {
   const { t } = useTranslation()
-  const username = useVocabStore((state) => state.username)
   const { mutateAsync: logOut } = useLogOut()
   const navigate = useNavigate()
   const close = useClose()
 
   function logout() {
-    logOut({
-      username,
-    })
+    logOut()
       .then((logOutRes) => {
-        if (logOutRes?.success) {
+        const { error } = logOutRes
+        if (!error) {
           close()
           requestAnimationFrame(() => {
             navigate('/')
@@ -141,17 +140,16 @@ function SignOut({ className, ...props }: React.HTMLAttributes<HTMLButtonElement
 
 export function TopBar({ className }: { className?: string }) {
   const { t, i18n } = useTranslation()
-  const username = useVocabStore((state) => state.username)
-  const user = {
-    name: username,
-  }
+  const { data: session } = useSession()
+  const user = session?.user
+  const account = user?.user_metadata.username || user?.email || ''
   const navigation = [
     { name: t('mine'), href: '/mine', current: true },
     { name: 'About', href: '/', current: false },
   ]
 
   const userNavigation = [
-    ...!user.name ? [
+    ...!user ? [
       {
         name: 'Sign up',
         Component: Account,
@@ -172,17 +170,15 @@ export function TopBar({ className }: { className?: string }) {
     ],
   ] as const
 
-  const [locale, updateLocale] = useCookie('_locale')
-  const [value, setValue] = useState(locale || getLanguage())
+  const [locale, updateLocale] = useAtom(localeAtom)
   const [themePreference, setThemePreference] = useAtom(themeAtom)
   const [isThemeTransitioning, setIsThemeTransitioning] = useState(false)
 
   useEffect(() => {
-    updateLocale(value)
-    i18n.changeLanguage(value).catch(console.error)
-  }, [value, i18n, updateLocale])
+    i18n.changeLanguage(locale).catch(console.error)
+  }, [locale, i18n, updateLocale])
 
-  const avatarSource = `https://avatar.vercel.sh/${user.name}?size=${22}`
+  const avatarSource = `https://avatar.vercel.sh/${account}?size=${22}`
 
   return (
     <div
@@ -312,13 +308,13 @@ export function TopBar({ className }: { className?: string }) {
                           align="end"
                           sideOffset={3}
                         >
-                          <MenubarRadioGroup value={value}>
+                          <MenubarRadioGroup value={locale}>
                             {locales.map((language) => (
                               <MenubarRadioItem
                                 key={language.value}
                                 value={language.value}
                                 onSelect={() => {
-                                  setValue(language.value)
+                                  updateLocale(language.value)
                                 }}
                               >
                                 {language.label}
@@ -336,7 +332,7 @@ export function TopBar({ className }: { className?: string }) {
                           asChild
                           className="hidden md:flex"
                         >
-                          {user.name ? (
+                          {user ? (
                             <div className="cursor-pointer">
                               <div className="select-none rounded-full border">
                                 <img
@@ -360,10 +356,10 @@ export function TopBar({ className }: { className?: string }) {
                           className="w-[unset] [&_[role=menuitem]>*]:grow [&_[role=menuitem]>*]:px-2 [&_[role=menuitem]>*]:py-1.5 [&_[role=menuitem]]:p-0 [&_[role=menuitem]_svg]:text-neutral-600"
                           align="end"
                         >
-                          {user.name ? (
+                          {user ? (
                             <>
                               <DropdownMenuLabel>
-                                {user.name}
+                                {account}
                               </DropdownMenuLabel>
                               <DropdownMenuSeparator />
                               <DropdownMenuGroup>
@@ -438,7 +434,7 @@ export function TopBar({ className }: { className?: string }) {
                 <div className="px-4">
                   <Separator className="" />
                 </div>
-                {user.name ? (
+                {user ? (
                   <div className="flex h-11 items-center px-6 pt-5">
                     <div className="cursor-pointer">
                       <div className="select-none rounded-full border">
@@ -450,7 +446,7 @@ export function TopBar({ className }: { className?: string }) {
                       </div>
                     </div>
                     <div className="pl-3">
-                      <div className="text-base font-medium leading-none">{user.name}</div>
+                      <div className="text-base font-medium leading-none">{account}</div>
                     </div>
                   </div>
                 ) : null}

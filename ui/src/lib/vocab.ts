@@ -1,4 +1,3 @@
-import type { SetOptional } from 'type-fest'
 import {
   LEARNING_PHASE,
   type LearningPhase,
@@ -64,20 +63,4 @@ export function formVocab($: TrieWordLabel) {
   }
 
   return labelDisplaySource
-}
-
-function getDefaultVocabState() {
-  return {
-    isUser: true,
-    original: true,
-    timeModified: new Date().toISOString(),
-    rank: null,
-  } satisfies Partial<VocabState>
-}
-
-export function newVocabState(state: SetOptional<VocabState, keyof ReturnType<typeof getDefaultVocabState>>) {
-  return {
-    ...getDefaultVocabState(),
-    ...state,
-  } satisfies VocabState
 }

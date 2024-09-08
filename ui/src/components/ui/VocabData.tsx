@@ -1,8 +1,5 @@
+import usePagination from '@mui/material/usePagination'
 import {
-  Fragment,
-} from 'react'
-import {
-  type TableState,
   createColumnHelper,
   flexRender,
   getCoreRowModel,
@@ -10,33 +7,21 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  type TableState,
   useReactTable,
 } from '@tanstack/react-table'
-import { uniq } from 'lodash-es'
-import usePagination from '@mui/material/usePagination'
 import { formatDistanceToNowStrict } from 'date-fns'
+import { atom, useAtom } from 'jotai'
+import { uniq } from 'lodash-es'
+import {
+  Fragment,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSessionStorage, useUnmount } from 'react-use'
-import { atom, useAtom } from 'jotai'
-import { SearchWidget } from './search-widget'
-import { VocabStatics } from './vocab-statics-bar'
-import { TableHeader } from './tableHeader'
-import { AcquaintAllDialog } from './VocabSource'
+
+import type { LabelDisplayTable } from '@/lib/vocab'
+
 import { TablePagination } from '@/components/table-pagination'
-import { Icon } from '@/components/ui/icon'
-import { SegmentedControl } from '@/components/ui/SegmentedControl.tsx'
-import { VocabToggle } from '@/components/ui/ToggleButton.tsx'
-import { cn } from '@/lib/utils.ts'
-import { Separator } from '@/components/ui/separator.tsx'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select.tsx'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -47,11 +32,29 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { LEARNING_PHASE, type LearningPhase } from '@/lib/LabeledTire'
-import type { LabelDisplayTable } from '@/lib/vocab'
-import { sortIcon } from '@/lib/icon-utils'
-import { tryGetRegex } from '@/lib/regex'
+import { Icon } from '@/components/ui/icon'
+import { SegmentedControl } from '@/components/ui/SegmentedControl.tsx'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select.tsx'
+import { Separator } from '@/components/ui/separator.tsx'
+import { VocabToggle } from '@/components/ui/ToggleButton.tsx'
 import { useVocabToggle } from '@/hooks/vocabToggle'
+import { sortIcon } from '@/lib/icon-utils'
+import { LEARNING_PHASE, type LearningPhase } from '@/lib/LabeledTire'
+import { tryGetRegex } from '@/lib/regex'
+import { cn } from '@/lib/utils.ts'
+
+import { SearchWidget } from './search-widget'
+import { TableHeader } from './tableHeader'
+import { VocabStatics } from './vocab-statics-bar'
+import { AcquaintAllDialog } from './VocabSource'
 
 const columnHelper = createColumnHelper<LabelDisplayTable>()
 

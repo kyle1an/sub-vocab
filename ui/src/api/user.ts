@@ -1,81 +1,71 @@
+import type { AuthTokenResponsePassword, SignInWithPasswordCredentials, SignUpWithPasswordCredentials, UserAttributes } from '@supabase/supabase-js'
+
 import { useMutation } from '@tanstack/react-query'
-import Cookies from 'js-cookie'
-import type {
-  LoginResponse,
-  RegisterResponse,
-  Status,
-  UsernameTaken,
-} from '../shared/shared.ts'
-import { socket } from './vocab-api'
-import { useVocabStore } from '@/store/useVocab'
+
+import type { Credential } from '@/shared/api.ts'
+
 import { postRequest } from '@/lib/request'
-import type { Credential, NewCredential, NewUsername, Username } from '@/shared/api.ts'
+import { supabase } from '@/store/useVocab'
 
 export function useRegister() {
   return useMutation({
-    mutationKey: ['SignIn'],
-    mutationFn: function register(info: Credential) {
-      return postRequest<RegisterResponse>(`/api/register`, info)
+    mutationKey: ['signUp'],
+    mutationFn: function signUp(credentials: SignUpWithPasswordCredentials) {
+      return supabase.auth.signUp(credentials)
     },
   })
 }
 
-export function useChangeUsername() {
+export function useUpdateUser() {
   return useMutation({
-    mutationKey: ['ChangeUsername'],
-    mutationFn: function changeUsername(info: NewUsername) {
-      return postRequest<Status>(`/api/changeUsername`, info)
-    },
-    onSuccess: (res, variables, context) => {
-      if (res.success) {
-        useVocabStore.getState().setUsername(variables.newUsername)
-      }
+    mutationKey: ['updateUser', 'username'],
+    mutationFn: async function updateUser(attributes: UserAttributes) {
+      return supabase.auth.updateUser(attributes)
     },
   })
 }
 
-export function useChangePassword() {
+export function useUpdateEmail() {
   return useMutation({
-    mutationKey: ['ChangePassword'],
-    mutationFn: function changePassword(info: NewCredential) {
-      return postRequest<Status>(`/api/changePassword`, info)
+    mutationKey: ['updateUser', 'email'],
+    mutationFn: async function updateUser(attributes: UserAttributes) {
+      return supabase.auth.updateUser(attributes)
     },
   })
 }
 
 export function useLogOut() {
   return useMutation({
-    mutationKey: ['LogOut'],
-    mutationFn: function logoutToken(info: Username) {
-      return postRequest<Status>(`/api/logoutToken`, info)
-    },
-    onSuccess: (resAuth, variables, context) => {
-      Cookies.remove('_user', { path: '' })
-      Cookies.remove('acct', { path: '' })
-      useVocabStore.getState().setUsername('')
-      socket.disconnect()
-    },
-  })
-}
-
-export function useIsUsernameTaken() {
-  return useMutation({
-    mutationKey: ['isUsernameTaken'],
-    mutationFn: function isUsernameTaken(info: Username) {
-      return postRequest<UsernameTaken>(`/api/existsUsername`, info)
+    mutationKey: ['signOut'],
+    mutationFn: function signOut() {
+      return supabase.auth.signOut()
     },
   })
 }
 
 export function useSignIn() {
   return useMutation({
-    mutationKey: ['SignIn'],
-    mutationFn: (credential: Credential) => postRequest<LoginResponse>(`/api/login`, credential),
-    onSuccess: (resAuth, variables, context) => {
-      if (resAuth[0]) {
-        useVocabStore.getState().setUsername(variables.username)
-        socket.connect()
+    mutationKey: ['signInWithPassword'],
+    mutationFn: function signInWithPassword(credentials: SignInWithPasswordCredentials) {
+      return supabase.auth.signInWithPassword(credentials)
+    },
+  })
+}
+
+export function useSignInWithUsername() {
+  return useMutation({
+    mutationKey: ['signInWithUsername'],
+    mutationFn: async (credential: Credential) => {
+      const authTokenResponse = await postRequest<AuthTokenResponsePassword>(`/api/sign-in`, credential)
+      const { session } = authTokenResponse.data
+      if (session) {
+        const authResponse = await supabase.auth.setSession({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+        })
+        return authResponse
       }
+      return authTokenResponse
     },
   })
 }

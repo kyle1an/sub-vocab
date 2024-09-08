@@ -1,18 +1,20 @@
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { SpeedInsights } from '@vercel/speed-insights/react'
+import { useAtom } from 'jotai'
 import {
   useEffect,
   useRef,
 } from 'react'
 import { Outlet } from 'react-router-dom'
-import './globals.css'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { SpeedInsights } from '@vercel/speed-insights/react'
-import { useAtom } from 'jotai'
-import { Toaster } from '@/components/ui/sonner'
+
+import { useSession } from '@/api/vocab-api'
 import { TopBar } from '@/components/TopBar.tsx'
-import { setMetaThemeColorAttribute } from '@/lib/utils'
-import { useSyncWordState } from '@/api/vocab-api'
+import { Toaster } from '@/components/ui/sonner'
 import { useDarkMode } from '@/lib/hooks'
-import { LIGHT_THEME_COLOR, metaThemeColorAtom } from '@/store/useVocab'
+import { setMetaThemeColorAttribute } from '@/lib/utils'
+import { LIGHT_THEME_COLOR, metaThemeColorAtom, supabase } from '@/store/useVocab'
+
+import './globals.css'
 
 export function RootLayout() {
   const ref = useRef<HTMLDivElement>(null)
@@ -40,7 +42,17 @@ export function RootLayout() {
     })
   }, [isDarkMode, setMetaThemeColor])
 
-  useSyncWordState()
+  const { refetch } = useSession()
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      refetch()
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [refetch])
 
   return (
     <div

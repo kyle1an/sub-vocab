@@ -1,23 +1,15 @@
+import type { CheckedState } from '@radix-ui/react-checkbox'
+
+import { useMediaQuery } from 'foxact/use-media-query'
+import { produce } from 'immer'
+import { useAtom } from 'jotai'
 import {
   useEffect,
   useState,
 } from 'react'
-import { useAtom } from 'jotai'
-import { produce } from 'immer'
-import { useMediaQuery } from 'foxact/use-media-query'
-import type { CheckedState } from '@radix-ui/react-checkbox'
-import { cn } from '@/lib/utils'
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTrigger,
-} from '@/components/ui/drawer'
+import { useSearchParams } from 'react-router-dom'
+
 import { Button } from '@/components/ui/button'
-import { useDrawerOpenChange } from '@/lib/hooks'
 import {
   Dialog,
   DialogContent,
@@ -27,9 +19,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTrigger,
+} from '@/components/ui/drawer'
 import { Icon } from '@/components/ui/icon'
-import { type FileType, fileTypesAtom } from '@/store/useVocab'
 import { Toggle } from '@/components/ui/toggle'
+import { useDrawerOpenChange } from '@/lib/hooks'
+import { cn } from '@/lib/utils'
+import { type FileType, fileTypesAtom } from '@/store/useVocab'
 
 function FileSettingsContent({
   className,
@@ -55,7 +58,7 @@ function FileSettingsContent({
                 variant="outline"
                 aria-label="Regular expression"
                 className={cn(
-                  'size-fit min-w-[35px] rounded-full px-1.5 py-1 text-muted-foreground [--sq-r:9]',
+                  'size-fit min-w-[35px] rounded-full px-1.5 py-1 text-muted-foreground [--sq-r:7] sq:rounded-none',
                 )}
                 onPressedChange={(pressed) => {
                   onFileTypesChange(fileType, pressed)
@@ -76,10 +79,43 @@ const FILE_SETTINGS_DESCRIPTION = `Choose the file types you want to include for
 
 export function FileSettings() {
   const isMdScreen = useMediaQuery('(min-width: 768px)')
-  const [open, setOpen] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [open, setOpen] = useState(searchParams.get('popup') === 'file-settings')
   const { updateMetaTheme } = useDrawerOpenChange()
   const [fileTypes, setFileTypes] = useAtom(fileTypesAtom)
   const [fileTypesInterim, setFileTypesInterim] = useState(fileTypes)
+
+  function isSearchParamPopupFileSettings() {
+    return searchParams.get('popup') === 'file-settings'
+  }
+
+  function removePopup() {
+    if (isSearchParamPopupFileSettings()) {
+      searchParams.delete('popup')
+      setSearchParams(searchParams)
+    }
+  }
+
+  function addPopup() {
+    if (!isSearchParamPopupFileSettings()) {
+      searchParams.set('popup', 'file-settings')
+      setSearchParams(searchParams)
+    }
+  }
+
+  function updatePopup(open: boolean) {
+    if (open) {
+      addPopup()
+    } else {
+      removePopup()
+    }
+  }
+
+  useEffect(() => {
+    const popup = searchParams.get('popup')
+    updatePopup(popup === 'file-settings')
+    setOpen(popup === 'file-settings')
+  }, [searchParams, updatePopup])
 
   useEffect(() => {
     setFileTypesInterim(fileTypes)
@@ -92,10 +128,6 @@ export function FileSettings() {
         a.checked = checkedState === true
       }
     }))
-  }
-
-  function cancel() {
-    setFileTypesInterim(fileTypes)
   }
 
   function save() {
@@ -121,8 +153,9 @@ export function FileSettings() {
   if (isMdScreen) {
     function handleDialogOpenChange(open: boolean) {
       if (!open) {
-        cancel()
+        setFileTypesInterim(fileTypes)
       }
+      updatePopup(open)
       setOpen(open)
     }
 
@@ -166,8 +199,9 @@ export function FileSettings() {
 
   function handleDrawerOpenChange(open: boolean) {
     if (!open) {
-      cancel()
+      setFileTypesInterim(fileTypes)
     }
+    updatePopup(open)
     updateMetaTheme(open)
     setOpen(open)
   }

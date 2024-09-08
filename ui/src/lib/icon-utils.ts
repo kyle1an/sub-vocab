@@ -1,5 +1,6 @@
 import type { SortDirection } from '@tanstack/react-table'
 import type { ComponentProps } from 'react'
+
 import type { Icon } from '@/components/ui/icon'
 
 export function sortIcon(isSorted: SortDirection | false): ComponentProps<typeof Icon>['icon'] {

@@ -1,15 +1,16 @@
 import { toast } from 'sonner'
-import { LEARNING_PHASE, type VocabState } from '../lib/LabeledTire'
-import { useAcquaintWordsMutation, useRevokeWordMutation } from '@/api/vocab-api'
+
+import { useSession, useUserWordPhaseMutation } from '@/api/vocab-api'
 import { LoginToast } from '@/components/login-toast'
-import { useVocabStore } from '@/store/useVocab'
+
+import type { VocabState } from '../lib/LabeledTire'
 
 export function useVocabToggle() {
-  const { mutateAsync: mutateRevokeWordAsync } = useRevokeWordMutation()
-  const { mutateAsync: mutateAcquaintWordsAsync } = useAcquaintWordsMutation()
-  const username = useVocabStore((state) => state.username)
+  const { mutateAsync: userWordPhaseMutation } = useUserWordPhaseMutation()
+  const { data: session } = useSession()
+  const user = session?.user
   return <T extends VocabState>(vocab: T) => {
-    if (!username) {
+    if (!user) {
       toast(<LoginToast />)
       return
     }
@@ -19,26 +20,22 @@ export function useVocabToggle() {
       return
     }
 
-    if (vocab.learningPhase === LEARNING_PHASE.ACQUAINTED) {
-      mutateRevokeWordAsync(rows2Mutate)
-        .catch(console.error)
-    } else {
-      mutateAcquaintWordsAsync(rows2Mutate)
-        .catch(console.error)
-    }
+    userWordPhaseMutation(rows2Mutate)
+      .catch(console.error)
   }
 }
 
 export function useAcquaintAll() {
-  const { mutateAsync: mutateAcquaintWordsAsync } = useAcquaintWordsMutation()
-  const username = useVocabStore((state) => state.username)
+  const { mutateAsync: userWordPhaseMutation } = useUserWordPhaseMutation()
+  const { data: session } = useSession()
+  const user = session?.user
   return <T extends VocabState>(rows: T[]) => {
-    if (!username) {
+    if (!user) {
       toast(<LoginToast />)
       return
     }
 
-    mutateAcquaintWordsAsync(rows)
+    userWordPhaseMutation(rows)
       .catch(console.error)
   }
 }

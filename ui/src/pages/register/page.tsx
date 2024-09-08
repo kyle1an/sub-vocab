@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Icon } from '@/components/ui/icon'
+
+import { useRegister } from '@/api/user'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -11,21 +13,17 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { Icon } from '@/components/ui/icon'
 import { Input, InputWrapper } from '@/components/ui/input'
-import { Card } from '@/components/ui/card'
-import { useIsUsernameTaken, useRegister } from '@/api/user'
-
-type FormValues = {
-  username: string
-  password: string
-}
 
 export function Register() {
+  const formDefaultValues = {
+    email: '',
+    password: '',
+  }
+  type FormValues = typeof formDefaultValues
   const form = useForm<FormValues>({
-    defaultValues: {
-      username: '',
-      password: '',
-    },
+    defaultValues: formDefaultValues,
     reValidateMode: 'onSubmit',
   })
 
@@ -38,52 +36,25 @@ export function Register() {
   } = form
 
   const [passwordVisible, setPasswordVisible] = useState(false)
-  const { mutateAsync: isUsernameTaken, isError: isUsernameTakenError, isPending: isUsernameTakenPending } = useIsUsernameTaken()
-  const { mutateAsync: signUp, isError: isRegisterError, isPending } = useRegister()
+  const { mutateAsync: signUp, isPending } = useRegister()
   const navigate = useNavigate()
 
   async function onSubmit(values: FormValues) {
-    const { username, password } = values
+    const { email, password } = values
     setPasswordVisible(false)
-    const usernameTaken = await isUsernameTaken({
-      username,
-    })
-    if (usernameTaken.has) {
-      setError('username', {
-        message: 'The username is taken.',
-      })
-      return
-    }
-
-    const resAuth = await signUp({
-      username,
+    const { error } = await signUp({
+      email,
       password,
     })
 
-    if (resAuth[0].result === 1) {
-      navigate('/login')
-    } else {
+    if (error) {
       setError('root.serverError', {
-        message: 'Something went wrong, please try again later',
+        message: error.message,
       })
+      return
     }
+    navigate('/')
   }
-
-  useEffect(() => {
-    if (isUsernameTakenError) {
-      setError('username', {
-        message: 'Something went wrong, please try again later',
-      })
-    }
-  }, [isUsernameTakenError, setError])
-
-  useEffect(() => {
-    if (isRegisterError) {
-      setError('root.serverError', {
-        message: 'Something went wrong, please try again later',
-      })
-    }
-  }, [isRegisterError, setError])
 
   return (
     <div className="flex flex-row">
@@ -102,14 +73,13 @@ export function Register() {
                   >
                     <FormField
                       control={form.control}
-                      name="username"
+                      name="email"
                       rules={{
-                        required: 'The Username is required.',
-                        minLength: { value: 3, message: 'The Username must be at least 3 characters.' },
+                        required: 'The email is required.',
                       }}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Username</FormLabel>
+                          <FormLabel>Email</FormLabel>
                           <FormControl>
                             <InputWrapper>
                               <Input
@@ -117,17 +87,17 @@ export function Register() {
                                 placeholder=""
                                 autoComplete="username"
                                 {...field}
-                                {...register('username')}
+                                {...register('email')}
                                 onBlur={() => {
                                   if (form.formState.isDirty) {
-                                    trigger('username').catch(console.error)
+                                    trigger('email').catch(console.error)
                                   }
                                 }}
                                 className="text-base md:text-sm"
                               />
                             </InputWrapper>
                           </FormControl>
-                          <FormMessage>{errors.username?.message ?? ''}</FormMessage>
+                          <FormMessage>{errors.email?.message ?? ''}</FormMessage>
                         </FormItem>
                       )}
                     />
@@ -136,7 +106,6 @@ export function Register() {
                       name="password"
                       rules={{
                         required: 'The password is required.',
-                        minLength: { value: 8, message: 'The password must be at least 8 characters.' },
                       }}
                       render={({ field }) => (
                         <FormItem>
@@ -186,10 +155,10 @@ export function Register() {
                     <Button
                       className="mt-8 gap-1.5"
                       type="submit"
-                      disabled={isUsernameTakenPending || isPending}
+                      disabled={isPending}
                     >
                       Create account
-                      {isUsernameTakenPending || isPending ? (
+                      { isPending ? (
                         <Icon
                           icon="lucide:loader-2"
                           className="animate-spin"

@@ -1,19 +1,9 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { QueryClient } from '@tanstack/react-query'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
-
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      gcTime: 60 * (60 * 1000),
-      staleTime: 45 * (60 * 1000),
-    },
-  },
-})
 
 export function setMetaThemeColorAttribute(newThemeColor: string) {
   const metaThemeColorEl = document.querySelector('meta[name="theme-color"]')

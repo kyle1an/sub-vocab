@@ -5,6 +5,9 @@ import 'typed-query-selector'
 declare global {
   interface ImportMetaEnv {
     VITE_SUB_PROD: string
+    VITE_SUPABASE_URL: string
+    VITE_SUPABASE_KEY: string
+    VITE_LEGACY_USER_EMAIL_SUFFIX: string
   }
 }
 

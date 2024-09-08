@@ -1,9 +1,11 @@
 import type React from 'react'
-import { Button, FileTrigger } from 'react-aria-components'
+
 import { useAtom } from 'jotai'
+import { Button, FileTrigger } from 'react-aria-components'
+
 import { Squircle } from '@/components/ui/squircle'
+import { getFileContent, SUPPORTED_FILE_TYPES } from '@/lib/filesHandler'
 import { cn } from '@/lib/utils.ts'
-import { SUPPORTED_FILE_TYPES, getFileContent } from '@/lib/filesHandler'
 import { fileTypesAtom, uapAtom } from '@/store/useVocab'
 
 export function FileInput({

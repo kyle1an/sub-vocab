@@ -1,30 +1,37 @@
-import { create } from 'zustand'
-import Cookies from 'js-cookie'
-import { atomWithStorage } from 'jotai/utils'
 import type { ArrayValues } from 'type-fest'
+
+import { createClient } from '@supabase/supabase-js'
+import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
+import { QueryClient } from '@tanstack/react-query'
+import { persistQueryClient } from '@tanstack/react-query-persist-client'
+import { atomWithStorage } from 'jotai/utils'
 import { UAParser } from 'ua-parser-js'
+
+import { getLanguage } from '@/i18n'
 import { SUPPORTED_FILE_EXTENSIONS } from '@/lib/filesHandler'
 import { getScrollbarWidth } from '@/lib/utils'
 
-type Store = {
-  username: string
-  setUsername: (name: string) => void
-}
+import type { Database } from '../../database.types'
 
-const initialState = {
-  username: Cookies.get('_user') ?? '',
-}
-
-export const useVocabStore = create<Store>()(
-  (set) => ({
-    ...initialState,
-    setUsername: (username) => {
-      set((state) => ({
-        username,
-      }))
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      gcTime: 60 * (60 * 1000),
+      staleTime: 45 * (60 * 1000),
     },
-  }),
-)
+  },
+})
+
+const localStoragePersister = createSyncStoragePersister({
+  storage: window.localStorage,
+})
+
+persistQueryClient({
+  queryClient,
+  persister: localStoragePersister,
+})
+
+export const supabase = createClient<Database>(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_KEY)
 
 export const DEFAULT_THEME = {
   value: 'auto',
@@ -46,13 +53,13 @@ export const THEMES = [
   DEFAULT_THEME,
 ] as const
 
-const getOnInit = true
-
-export const themeAtom = atomWithStorage<ArrayValues<typeof THEMES>['value']>('theme', DEFAULT_THEME.value, undefined, { getOnInit })
+export const themeAtom = atomWithStorage<ArrayValues<typeof THEMES>['value']>('theme', DEFAULT_THEME.value, undefined, { getOnInit: true })
 
 export const LIGHT_THEME_COLOR = 'rgb(255,255,254)'
 
-export const metaThemeColorAtom = atomWithStorage('meta-theme-color', LIGHT_THEME_COLOR, undefined, { getOnInit })
+export const metaThemeColorAtom = atomWithStorage('meta-theme-color', LIGHT_THEME_COLOR, undefined, { getOnInit: true })
+
+export const localeAtom = atomWithStorage('_locale', getLanguage())
 
 const uap = new UAParser()
 

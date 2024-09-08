@@ -1,6 +1,8 @@
 import { produce } from 'immer'
-import type { VocabState } from './LabeledTire'
+
 import type { InertialPhase, LabelDisplayTable } from '@/lib/vocab'
+
+import type { VocabState } from './LabeledTire'
 
 export function purgedRows<T extends LabelDisplayTable>() {
   return produce<T[]>((draft) => {

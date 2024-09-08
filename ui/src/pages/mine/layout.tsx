@@ -1,5 +1,6 @@
-import { Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Outlet } from 'react-router-dom'
+
 import { SideNav } from '@/components/SideNav'
 
 export function MineLayout() {
@@ -15,7 +16,7 @@ export function MineLayout() {
     },
   ] as const
   return (
-    <div className="mx-auto flex w-full max-w-screen-lg grow flex-col">
+    <main className="mx-auto flex w-full max-w-screen-lg grow flex-col">
       <div className="flex w-full grow flex-col px-5 pt-6 md:flex-row md:gap-6 md:pt-0">
         <div>
           <SideNav
@@ -27,6 +28,6 @@ export function MineLayout() {
           <Outlet />
         </main>
       </div>
-    </div>
+    </main>
   )
 }

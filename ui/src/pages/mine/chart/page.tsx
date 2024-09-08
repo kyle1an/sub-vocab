@@ -1,10 +1,9 @@
-import { useSessionStorage } from 'react-use'
-import { merge, rangeRight } from 'lodash-es'
 import {
   type ChartData,
   Chart as ChartJS,
   type ChartOptions,
 } from 'chart.js'
+import 'chart.js/auto'
 import {
   endOfWeek,
   format,
@@ -17,12 +16,14 @@ import {
   subMonths,
   subWeeks,
 } from 'date-fns'
-import 'chart.js/auto'
+import { merge, rangeRight } from 'lodash-es'
 import { Bar } from 'react-chartjs-2'
 import { useTranslation } from 'react-i18next'
+import { useSessionStorage } from 'react-use'
 import colors from 'tailwindcss/colors'
+
+import { mergeUserVocabWithBaseVocab, useBaseVocabulary, useSession, useUserVocabulary } from '@/api/vocab-api'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
-import { useVocabularyQuery } from '@/api/vocab-api'
 import { LEARNING_PHASE, type VocabState } from '@/lib/LabeledTire'
 
 type DataSet = {
@@ -180,7 +181,10 @@ function mapY(userWords: VocabState[]) {
 const SEGMENT_NAME = 'prev-chart-select'
 export function Chart() {
   const { t } = useTranslation()
-  const { data: userWords = [] } = useVocabularyQuery()
+  const { data: baseVocabulary = [] } = useBaseVocabulary()
+  const { data: session } = useSession()
+  const { data: userVocabulary = [] } = useUserVocabulary(session?.user.id)
+  const userWords = mergeUserVocabWithBaseVocab(userVocabulary, baseVocabulary)
 
   const segments = [
     { value: 'W', label: t('W') },
@@ -233,7 +237,7 @@ export function Chart() {
     ],
   } satisfies ChartData<'bar', number[], string>
 
-  let options = {
+  const sharedOptions = {
     interaction: {
       intersect: false,
       mode: 'index',
@@ -288,9 +292,10 @@ export function Chart() {
       },
     },
   } satisfies ChartOptions<'bar'>
+  let segmentOptions: ChartOptions<'bar'> = {}
 
   if (segment === 'W') {
-    options = merge(options, {
+    segmentOptions = {
       plugins: {
         tooltip: {
           callbacks: {
@@ -306,9 +311,9 @@ export function Chart() {
           },
         },
       },
-    } satisfies ChartOptions<'bar'>)
+    }
   } else if (segment === 'M') {
-    options = merge(options, {
+    segmentOptions = {
       plugins: {
         tooltip: {
           callbacks: {
@@ -344,9 +349,9 @@ export function Chart() {
           },
         },
       },
-    } satisfies ChartOptions<'bar'>)
+    }
   } else if (segment === '6M') {
-    options = merge(options, {
+    segmentOptions = {
       plugins: {
         tooltip: {
           callbacks: {
@@ -384,9 +389,9 @@ export function Chart() {
           },
         },
       },
-    } satisfies ChartOptions<'bar'>)
+    }
   } else if (segment === 'Y') {
-    options = merge(options, {
+    segmentOptions = {
       plugins: {
         tooltip: {
           callbacks: {
@@ -417,8 +422,9 @@ export function Chart() {
           },
         },
       },
-    } satisfies ChartOptions<'bar'>)
+    }
   }
+  const options = merge(sharedOptions, segmentOptions)
 
   return (
     <div>
