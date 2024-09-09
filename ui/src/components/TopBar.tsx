@@ -11,7 +11,6 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { useLogOut } from '@/api/user'
-import { useSession } from '@/api/vocab-api'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,7 +31,7 @@ import {
 } from '@/components/ui/menubar'
 import { Separator } from '@/components/ui/separator.tsx'
 import { cn } from '@/lib/utils.ts'
-import { DEFAULT_THEME, localeAtom, themeAtom, THEMES } from '@/store/useVocab'
+import { DEFAULT_THEME, localeAtom, sessionAtom, themeAtom, THEMES } from '@/store/useVocab'
 
 const locales = [
   {
@@ -140,7 +139,7 @@ function SignOut({ className, ...props }: React.HTMLAttributes<HTMLButtonElement
 
 export function TopBar({ className }: { className?: string }) {
   const { t, i18n } = useTranslation()
-  const { data: session } = useSession()
+  const [session] = useAtom(sessionAtom)
   const user = session?.user
   const account = user?.user_metadata.username || user?.email || ''
   const navigation = [
@@ -191,7 +190,7 @@ export function TopBar({ className }: { className?: string }) {
       <Popover
         as="nav"
         className={cn(
-          'group/nav ffs-pre fixed z-20 w-full bg-white tracking-wide shadow-sm group-has-[[vaul-drawer]]/body:bg-[unset] dark:bg-slate-900',
+          'group/nav ffs-pre fixed z-20 w-full rounded-t-3xl bg-white tracking-wide shadow-sm group-has-[[vaul-drawer]]/body:bg-[unset] dark:bg-slate-900',
           '[body:has(&[data-open])]:mr-[--scrollbar-width] [body:has(&[data-open])]:overflow-hidden',
         )}
       >
@@ -245,7 +244,7 @@ export function TopBar({ className }: { className?: string }) {
                         rel="noreferrer noopener"
                       >
                         <span className="sr-only">SubVocab on GitHub</span>
-                        <Icon icon="bi:github" />
+                        <Icon icon="bi:github" inline />
                       </a>
                     </div>
                   </div>

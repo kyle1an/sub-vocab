@@ -6,6 +6,7 @@ export function Icon({
   className,
   ref,
   style,
+  icon,
   ...props
 }: IconifyIconProps) {
   let { width, height } = props
@@ -19,9 +20,9 @@ export function Icon({
 
   return (
     <Iconify
+      icon={icon || 'codicon:blank'}
       className={cn(
         'inline-block',
-        !props.icon && 'invisible',
         className,
       )}
       style={{

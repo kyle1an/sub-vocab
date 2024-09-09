@@ -1,5 +1,6 @@
 import type { ErrorRequestHandler, NextFunction, Request, Response } from 'express'
 
+import * as trpcExpress from '@trpc/server/adapters/express'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import Debug from 'debug'
@@ -7,24 +8,46 @@ import express from 'express'
 import createError from 'http-errors'
 import logger from 'morgan'
 import { createServer } from 'node:http'
-import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'pathe'
 
+import { userRouter } from './src/routes/auth.js'
 import routes from './src/routes/index.js'
+import { router } from './src/routes/trpc.js'
 
 const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const __dirname = dirname(__filename)
+
+function createContext({
+  req,
+  res,
+}: trpcExpress.CreateExpressContextOptions) {
+  return {}
+}
+type Context = Awaited<ReturnType<typeof createContext>>
 
 const app = express()
 
 app.use(cors({
+  origin: true,
   credentials: true,
   exposedHeaders: ['set-cookie'],
 }))
 
-app.set('views', path.join(__dirname, 'views'))
-app.set('view engine', 'hbs')
+export const appRouter = router({
+  user: userRouter,
+})
+
+export type AppRouter = typeof appRouter
+
+app.use(
+  '/trpc',
+  trpcExpress.createExpressMiddleware({
+    router: appRouter,
+    createContext,
+  }),
+)
 
 app.use(logger('dev'))
 app.use(express.json())
@@ -32,9 +55,10 @@ app.use(express.urlencoded({ extended: false }))
 // need cookieParser middleware before we can do anything with cookies
 app.use(cookieParser())
 // let static middleware do its job
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(join(__dirname, 'public')))
 
 app.use('/', routes)
+app.get(/favicon.*/, (req, res) => res.status(204).end())
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -46,9 +70,8 @@ app.use(function (err: Parameters<ErrorRequestHandler>[0], req: Request, res: Re
   res.locals.message = err.message
   res.locals.error = req.app.get('env') === 'development' ? err : {}
 
-  // render the error page
   res.status(err.status || 500)
-  res.render('error')
+  res.send('error')
 })
 
 const PORT = Number(process.env.PORT || '5001')
@@ -70,12 +93,10 @@ server.on('error', function onError(error: NodeJS.ErrnoException) {
   switch (error.code) {
     case 'EACCES':
       console.error(bind + ' requires elevated privileges')
-      process.exit(1)
-      break
+      throw error
     case 'EADDRINUSE':
       console.error(bind + ' is already in use')
-      process.exit(1)
-      break
+      throw error
     default:
       throw error
   }

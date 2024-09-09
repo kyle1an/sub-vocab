@@ -3,6 +3,7 @@ import { flexRender, type Table } from '@tanstack/react-table'
 import type { GroupHeader } from '@/types/vocab'
 
 export function TableHeader<T extends Table<any>>({ header }: { header: GroupHeader<T> }) {
+  // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
   return (
     header.isPlaceholder ? (

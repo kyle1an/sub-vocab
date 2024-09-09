@@ -1,17 +1,16 @@
-import type { Session } from '@supabase/supabase-js'
+import type { Session, User } from '@supabase/supabase-js'
 import type { MergeDeep } from 'type-fest'
 
+import { UTCDateMini } from '@date-fns/utc'
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import { toDate } from 'date-fns-tz'
+import { atom } from 'jotai'
+import { useAtom } from 'jotai/react'
+import { atomWithQuery } from 'jotai-tanstack-query'
 
 import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
-import { queryClient, supabase } from '@/store/useVocab'
+import { queryClient, sessionAtom, supabase } from '@/store/useVocab'
 
-function parseUTCDate(utcDateString: string) {
-  return toDate(utcDateString, { timeZone: 'UTC' }).toISOString()
-}
-
-export function mergeUserVocabWithBaseVocab(userVocab: UserVocabulary[], baseVocab: BaseVocabulary[]) {
+function mergeUserVocabWithBaseVocab(userVocab: UserVocabulary[], baseVocab: BaseVocabulary[]) {
   const map = new Map<string, VocabState>()
   baseVocab.forEach((row) => {
     map.set(row.w, {
@@ -53,26 +52,13 @@ type UserMetadata = {
   username?: string
 }
 
-type SessionWithUserMetadata = MergeDeep<Session, {
-  user: {
-    user_metadata: UserMetadata
-  }
+export type UserWithUserMetadata = MergeDeep<User, {
+  user_metadata: UserMetadata
 }>
 
-async function getSession() {
-  const { data: { session }, error } = await supabase.auth.getSession()
-  if (error) throw new Error(error.message)
-  return session as SessionWithUserMetadata | null
-}
-
-export function useSession() {
-  return useQuery({
-    queryKey: ['session'] as const,
-    queryFn: getSession,
-    refetchOnWindowFocus: false,
-    retry: 10,
-  })
-}
+export type SessionWithUserMetadata = MergeDeep<Session, {
+  user: UserWithUserMetadata
+}>
 
 async function getBaseVocabulary() {
   const { data, error } = await supabase
@@ -88,15 +74,13 @@ async function getBaseVocabulary() {
 
 export type BaseVocabulary = Awaited<ReturnType<typeof getBaseVocabulary>>[number]
 
-export function useBaseVocabulary() {
-  return useQuery({
+export const baseVocabularyAtom = atomWithQuery(() => {
+  return {
     queryKey: ['baseVocabulary'] as const,
     queryFn: getBaseVocabulary,
     placeholderData: [],
-    refetchOnWindowFocus: false,
-    retry: 10,
-  })
-}
+  }
+})
 
 async function getUserVocabularyRows(userId: string) {
   const { data, error } = await supabase
@@ -106,7 +90,7 @@ async function getUserVocabularyRows(userId: string) {
     .throwOnError()
   if (error) throw new Error(error.message)
   return data.map((row) => Object.assign(row, {
-    time_modified: parseUTCDate(row.time_modified),
+    time_modified: new UTCDateMini(row.time_modified).toISOString(),
   }))
 }
 
@@ -131,15 +115,21 @@ function userVocabularyOptions(userId: string) {
       return userVocabularyRows.map(rowToState)
     },
     placeholderData: [],
-    refetchOnWindowFocus: false,
-    retry: 10,
     enabled: Boolean(userId),
   })
 }
 
-export function useUserVocabulary(userId = '') {
-  return useQuery(userVocabularyOptions(userId))
-}
+const userVocabularyAtom = atomWithQuery((get) => {
+  const session = get(sessionAtom)
+  const userId = session?.user.id ?? ''
+  return userVocabularyOptions(userId)
+})
+
+export const userVocabWithBaseVocabAtom = atom((get) => {
+  const { data: userVocabulary = [] } = get(userVocabularyAtom)
+  const { data: baseVocabulary = [] } = get(baseVocabularyAtom)
+  return mergeUserVocabWithBaseVocab(userVocabulary, baseVocabulary)
+})
 
 async function getStemsMapping() {
   const { data, error } = await supabase
@@ -165,8 +155,6 @@ export function useIrregularMapsQuery() {
     queryKey: ['stemsMapping'] as const,
     queryFn: getStemsMapping,
     placeholderData: [],
-    refetchOnWindowFocus: false,
-    retry: 10,
   })
 }
 
@@ -204,7 +192,7 @@ function newVocabStates(oldData: UserVocabulary[], variables: UserVocabulary[]) 
   variables.forEach((variable) => {
     const labelMutated = labelsCopy.find((label) => label.w === variable.w)
     if (labelMutated) {
-      variable.time_modified = parseUTCDate(variable.time_modified)
+      variable.time_modified = new UTCDateMini(variable.time_modified).toISOString()
       Object.assign(labelMutated, variable)
     }
   })
@@ -212,8 +200,8 @@ function newVocabStates(oldData: UserVocabulary[], variables: UserVocabulary[]) 
 }
 
 export function useUserWordPhaseMutation() {
-  const { data: session } = useSession()
-  const userId = session?.user?.id ?? ''
+  const [session] = useAtom(sessionAtom)
+  const userId = session?.user.id ?? ''
   const vocabularyOptions = userVocabularyOptions(userId)
   return useMutation({
     mutationKey: ['upsertUserVocabulary'],

@@ -1,13 +1,14 @@
+import { useAtom } from 'jotai/react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Outlet } from 'react-router-dom'
 
-import { useSession } from '@/api/vocab-api'
 import { Footer } from '@/components/Footer'
 import { SideNav } from '@/components/SideNav'
+import { sessionAtom } from '@/store/useVocab'
 
 export function User() {
   const { t } = useTranslation()
-  const { data: session } = useSession()
+  const [session] = useAtom(sessionAtom)
   const user = session?.user
   if (!user) {
     return <Navigate to="/login" />

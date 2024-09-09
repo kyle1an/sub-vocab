@@ -1,16 +1,19 @@
-import { createClient } from '@supabase/supabase-js'
-import postgres from 'postgres'
+import type { Database } from '@subvocab/ui/database.types.js'
 
-import type { Database } from '../../../ui/database.types.js'
+import { createClient } from '@supabase/supabase-js'
+import { drizzle } from 'drizzle-orm/postgres-js'
+import postgres from 'postgres'
 
 import { env } from '../../env.js'
 
-const connectionString = env.DATABASE_URL ?? ''
-const sql = postgres(connectionString)
+const connectionString = env.POSTGRES_URL
+// https://supabase.com/docs/guides/database/connecting-to-postgres#connection-pooler
+const client = postgres(connectionString, { prepare: false })
+const db = drizzle(client)
 
-const supabase = createClient<Database>(env.SUPABASE_URL, env.SUPABASE_KEY)
+const supabase = createClient<Database>(env.PUBLIC_SUPABASE_URL, env.SUPABASE_ANON_KEY)
 
 export {
-  sql,
+  db,
   supabase,
 }

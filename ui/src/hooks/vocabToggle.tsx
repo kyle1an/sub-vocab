@@ -1,13 +1,15 @@
+import { useAtom } from 'jotai/react'
 import { toast } from 'sonner'
 
-import { useSession, useUserWordPhaseMutation } from '@/api/vocab-api'
+import { useUserWordPhaseMutation } from '@/api/vocab-api'
 import { LoginToast } from '@/components/login-toast'
+import { sessionAtom } from '@/store/useVocab'
 
 import type { VocabState } from '../lib/LabeledTire'
 
 export function useVocabToggle() {
   const { mutateAsync: userWordPhaseMutation } = useUserWordPhaseMutation()
-  const { data: session } = useSession()
+  const [session] = useAtom(sessionAtom)
   const user = session?.user
   return <T extends VocabState>(vocab: T) => {
     if (!user) {
@@ -27,7 +29,7 @@ export function useVocabToggle() {
 
 export function useAcquaintAll() {
   const { mutateAsync: userWordPhaseMutation } = useUserWordPhaseMutation()
-  const { data: session } = useSession()
+  const [session] = useAtom(sessionAtom)
   const user = session?.user
   return <T extends VocabState>(rows: T[]) => {
     if (!user) {

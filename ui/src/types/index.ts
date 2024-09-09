@@ -4,9 +4,9 @@ import 'typed-query-selector'
 // https://x.com/mattpocockuk/status/1758454430666506589?s=20
 declare global {
   interface ImportMetaEnv {
-    VITE_SUB_PROD: string
-    VITE_SUPABASE_URL: string
-    VITE_SUPABASE_KEY: string
+    VITE_SUB_API_URL: string
+    VITE_PUBLIC_SUPABASE_URL: string
+    VITE_PUBLIC_SUPABASE_ANON_KEY: string
     VITE_LEGACY_USER_EMAIL_SUFFIX: string
   }
 }

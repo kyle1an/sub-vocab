@@ -1,31 +1,18 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     "useDefineForClassFields": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
+    // // for shadcn component.json
+    // "baseUrl": ".",
+    // "paths": {
+    //   "@/*": ["./src/*"]
+    // },
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
-
-    /* Base Options: */
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "target": "es2022",
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "moduleDetection": "force",
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true,
-
-    /* Strictness */
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitOverride": true,
 
     "module": "ESNext",
     "noEmit": true,

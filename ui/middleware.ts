@@ -3,7 +3,7 @@ import { rewrite } from '@vercel/edge'
 
 export default function middleware(request: Request) {
   const url = new URL(request.url)
-  const target = new URL(process.env.VITE_SUB_PROD ?? '')
+  const target = new URL(process.env.VITE_SUB_API_URL ?? '')
 
   if (url.pathname.startsWith('/api')) {
     return rewrite(new URL(url.pathname.replace(/^\/api/, '') + url.search, target))

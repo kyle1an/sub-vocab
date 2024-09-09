@@ -22,8 +22,6 @@ const DrawerPortal = DrawerPrimitive.Portal
 
 const DrawerClose = DrawerPrimitive.Close
 
-const DrawerHandle = DrawerPrimitive.Handle
-
 function DrawerOverlay({ className, ref, ...props }: React.ComponentPropsWithRef<typeof DrawerPrimitive.Overlay>) {
   return (
     <DrawerPrimitive.Overlay
@@ -48,7 +46,7 @@ function DrawerContent({ className, children, ref, ...props }: React.ComponentPr
         {...props}
       >
         <div className="flex h-full flex-col rounded-t-[10px] bg-[--theme-bg] mask-squircle sq-radius-[7_7_0_0] sq-fill-[red] sq:rounded-none">
-          <DrawerHandle className="mt-1.5 shrink-0 bg-gray-300" />
+          <div className="mx-auto mt-1.5 h-[5px] w-12 flex-shrink-0 rounded-full bg-gray-300" />
           {children}
         </div>
       </DrawerPrimitive.Content>
@@ -114,7 +112,6 @@ export {
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
-  DrawerHandle,
   DrawerHeader,
   DrawerOverlay,
   DrawerPortal,

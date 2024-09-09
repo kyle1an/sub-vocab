@@ -1,13 +1,9 @@
 import express from 'express'
 
-import authRouter from './auth.js'
-
 const router = express.Router()
 
 router.get('/', function (req, res, next) {
-  res.render('index', { title: 'Express' })
+  res.send('API is running')
 })
-
-router.use('/', authRouter)
 
 export default router

@@ -1,6 +1,7 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 
+import { localeAtom, store } from '../store/useVocab'
 import { en } from './en'
 import { zh } from './zh'
 
@@ -28,7 +29,7 @@ i18n.use(initReactI18next)
         translation: zh,
       },
     },
-    lng: getLanguage(),
+    lng: store.get(localeAtom),
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false, // react already safes from xss => https://www.i18next.com/translation-function/interpolation#unescape

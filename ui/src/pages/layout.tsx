@@ -1,25 +1,34 @@
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { SpeedInsights } from '@vercel/speed-insights/react'
+import { useMediaQuery } from 'foxact/use-media-query'
 import { useAtom } from 'jotai'
+import { DevTools } from 'jotai-devtools'
 import {
   useEffect,
   useRef,
 } from 'react'
 import { Outlet } from 'react-router-dom'
 
-import { useSession } from '@/api/vocab-api'
+import type { SessionWithUserMetadata } from '@/api/vocab-api'
+
 import { TopBar } from '@/components/TopBar.tsx'
 import { Toaster } from '@/components/ui/sonner'
-import { useDarkMode } from '@/lib/hooks'
-import { setMetaThemeColorAttribute } from '@/lib/utils'
-import { LIGHT_THEME_COLOR, metaThemeColorAtom, supabase } from '@/store/useVocab'
+import { COLOR_SCHEME_QUERY, isDarkModeAtom, metaThemeColorEffect } from '@/lib/hooks'
+import { LIGHT_THEME_COLOR, metaThemeColorAtom, prefersDarkAtom, sessionAtom, supabase } from '@/store/useVocab'
 
 import './globals.css'
 
 export function RootLayout() {
   const ref = useRef<HTMLDivElement>(null)
-  const { isDarkMode } = useDarkMode()
+  const isDarkOS = useMediaQuery(COLOR_SCHEME_QUERY)
+  const [prefersDark, setPrefersDark] = useAtom(prefersDarkAtom)
+  const [isDarkMode] = useAtom(isDarkModeAtom)
+  useEffect(() => {
+    if (prefersDark !== isDarkOS) setPrefersDark(isDarkOS)
+  }, [prefersDark, isDarkOS, setPrefersDark])
+  useAtom(metaThemeColorEffect)
   const [, setMetaThemeColor] = useAtom(metaThemeColorAtom)
+  const [, setUser] = useAtom(sessionAtom)
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode)
@@ -38,27 +47,24 @@ export function RootLayout() {
         }
       }
       setMetaThemeColor(themeColorContentValue)
-      setMetaThemeColorAttribute(themeColorContentValue)
     })
   }, [isDarkMode, setMetaThemeColor])
 
-  const { refetch } = useSession()
-
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      refetch()
+      setUser(session as SessionWithUserMetadata | null)
     })
 
     return () => {
       subscription.unsubscribe()
     }
-  }, [refetch])
+  }, [setUser])
 
   return (
     <div
       ref={ref}
       className="isolate flex h-full min-h-full flex-col pr-[--pr] tracking-[.02em] antialiased sq-smooth-[0.6] sq-radius-[5_5_0_0] sq-fill-[red] _bg-[--theme-bg] [&[style*='border-radius:_8px;']]:mask-squircle"
-      vaul-drawer-wrapper=""
+      data-vaul-drawer-wrapper=""
     >
       <TopBar />
       <div className="ffs-pre flex min-h-svh flex-col items-center pt-11">
@@ -69,6 +75,7 @@ export function RootLayout() {
         closeButton
         richColors
       />
+      <DevTools />
       <ReactQueryDevtools initialIsOpen={false} />
     </div>
   )

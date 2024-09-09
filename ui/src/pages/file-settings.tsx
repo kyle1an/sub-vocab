@@ -30,9 +30,8 @@ import {
 } from '@/components/ui/drawer'
 import { Icon } from '@/components/ui/icon'
 import { Toggle } from '@/components/ui/toggle'
-import { useDrawerOpenChange } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
-import { type FileType, fileTypesAtom } from '@/store/useVocab'
+import { type FileType, fileTypesAtom, isBackgroundScaledAtom } from '@/store/useVocab'
 
 function FileSettingsContent({
   className,
@@ -81,23 +80,19 @@ export function FileSettings() {
   const isMdScreen = useMediaQuery('(min-width: 768px)')
   const [searchParams, setSearchParams] = useSearchParams()
   const [open, setOpen] = useState(searchParams.get('popup') === 'file-settings')
-  const { updateMetaTheme } = useDrawerOpenChange()
+  const [, setIsBackgroundScaled] = useAtom(isBackgroundScaledAtom)
   const [fileTypes, setFileTypes] = useAtom(fileTypesAtom)
   const [fileTypesInterim, setFileTypesInterim] = useState(fileTypes)
 
-  function isSearchParamPopupFileSettings() {
-    return searchParams.get('popup') === 'file-settings'
-  }
-
   function removePopup() {
-    if (isSearchParamPopupFileSettings()) {
+    if (searchParams.get('popup') === 'file-settings') {
       searchParams.delete('popup')
       setSearchParams(searchParams)
     }
   }
 
   function addPopup() {
-    if (!isSearchParamPopupFileSettings()) {
+    if (searchParams.get('popup') !== 'file-settings') {
       searchParams.set('popup', 'file-settings')
       setSearchParams(searchParams)
     }
@@ -150,19 +145,19 @@ export function FileSettings() {
     </Button>
   )
 
-  if (isMdScreen) {
-    function handleDialogOpenChange(open: boolean) {
-      if (!open) {
-        setFileTypesInterim(fileTypes)
-      }
-      updatePopup(open)
-      setOpen(open)
+  function handleOpenChange(open: boolean) {
+    if (!open) {
+      setFileTypesInterim(fileTypes)
     }
+    updatePopup(open)
+    setOpen(open)
+  }
 
+  if (isMdScreen) {
     return (
       <Dialog
         open={open}
-        onOpenChange={handleDialogOpenChange}
+        onOpenChange={handleOpenChange}
       >
         <DialogTrigger asChild>
           {Trigger}
@@ -198,12 +193,8 @@ export function FileSettings() {
   }
 
   function handleDrawerOpenChange(open: boolean) {
-    if (!open) {
-      setFileTypesInterim(fileTypes)
-    }
-    updatePopup(open)
-    updateMetaTheme(open)
-    setOpen(open)
+    handleOpenChange(open)
+    setIsBackgroundScaled(open)
   }
 
   return (
