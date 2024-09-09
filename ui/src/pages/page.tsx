@@ -8,11 +8,8 @@ import {
 import { useTranslation } from 'react-i18next'
 
 import {
-  mergeUserVocabWithBaseVocab,
-  useBaseVocabulary,
   useIrregularMapsQuery,
-  useSession,
-  useUserVocabulary,
+  userVocabWithBaseVocabAtom,
 } from '@/api/vocab-api'
 import { FileInput } from '@/components/ui/FileInput'
 import {
@@ -44,10 +41,7 @@ function SourceVocab({
   text: string
 }) {
   const { data: irregulars = [] } = useIrregularMapsQuery()
-  const { data: baseVocabulary = [] } = useBaseVocabulary()
-  const { data: session } = useSession()
-  const { data: userVocabulary = [] } = useUserVocabulary(session?.user.id)
-  const baseVocab = mergeUserVocabWithBaseVocab(userVocabulary, baseVocabulary)
+  const [baseVocab] = useAtom(userVocabWithBaseVocabAtom)
   const [rows, setRows] = useState<LabelDisplaySource[]>([])
   const [sentences, setSentences] = useState<string[]>([])
   const [, setCount] = useAtom(textCountAtom)
@@ -98,7 +92,7 @@ export function Home() {
   const [count] = useAtom(textCountAtom)
   const isMdScreen = useMediaQuery('(min-width: 768px)')
   const direction = isMdScreen ? 'horizontal' : 'vertical'
-  let defaultSizes = [56, 44]
+  let defaultSizes = [54, 46]
   if (direction === 'vertical') {
     defaultSizes = [
       36,

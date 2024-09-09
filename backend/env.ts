@@ -6,9 +6,9 @@ import { z } from 'zod'
 
 export const env = createEnv({
   server: {
-    DATABASE_URL: z.string().url(),
-    SUPABASE_URL: z.string().url(),
-    SUPABASE_KEY: z.string().min(1),
+    PUBLIC_SUPABASE_URL: z.string().url(),
+    SUPABASE_ANON_KEY: z.string().min(1),
+    POSTGRES_URL: z.string().url(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

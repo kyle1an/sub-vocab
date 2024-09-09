@@ -1,11 +1,10 @@
-import type { AuthTokenResponsePassword, SignInWithPasswordCredentials, SignUpWithPasswordCredentials, UserAttributes } from '@supabase/supabase-js'
+import type { AppRouter } from '@subvocab/backend/app'
+import type { SignInWithPasswordCredentials, SignUpWithPasswordCredentials, UserAttributes } from '@supabase/supabase-js'
+import type { inferRouterClient } from '@trpc/client'
 
 import { useMutation } from '@tanstack/react-query'
 
-import type { Credential } from '@/shared/api.ts'
-
-import { postRequest } from '@/lib/request'
-import { supabase } from '@/store/useVocab'
+import { supabase, trpc } from '@/store/useVocab'
 
 export function useRegister() {
   return useMutation({
@@ -38,7 +37,7 @@ export function useLogOut() {
   return useMutation({
     mutationKey: ['signOut'],
     mutationFn: function signOut() {
-      return supabase.auth.signOut()
+      return supabase.auth.signOut({ scope: 'local' })
     },
   })
 }
@@ -52,20 +51,27 @@ export function useSignIn() {
   })
 }
 
+type SignInResponse = Awaited<ReturnType<inferRouterClient<AppRouter>['user']['signIn']['mutate']>>
+
 export function useSignInWithUsername() {
-  return useMutation({
-    mutationKey: ['signInWithUsername'],
-    mutationFn: async (credential: Credential) => {
-      const authTokenResponse = await postRequest<AuthTokenResponsePassword>(`/api/sign-in`, credential)
-      const { session } = authTokenResponse.data
+  const { mutateAsync } = useMutation({
+    mutationKey: ['setSession'],
+    mutationFn: async function setSession(result: SignInResponse) {
+      if (!result) throw new Error('No session')
+      const { session } = result.data
       if (session) {
-        const authResponse = await supabase.auth.setSession({
-          access_token: session.access_token,
-          refresh_token: session.refresh_token,
-        })
-        return authResponse
+        return await supabase.auth.setSession(session)
       }
-      return authTokenResponse
+      return result.data
     },
+  })
+
+  // https://stackoverflow.com/a/74898111/10903455
+  return trpc.user.signIn.useMutation({
+    mutationKey: ['signInWithUsername'],
+    onSuccess: (credential) => {
+      return mutateAsync(credential)
+    },
+    retry: 2,
   })
 }

@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+
+    /* Base Options: */
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "ESNext",
+    "allowJs": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "paths": {
+      "@subvocab/backend/*": ["./backend/*"],
+      "@subvocab/ui/*": ["./ui/*"],
+      "@/*": ["./ui/src/*"]
+    },
+    /* Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true
+  },
+  "exclude": ["**/dist/*"],
+  "include": [".eslintrc.js", ".eslintrc.cjs", "*.config.ts"]
+}

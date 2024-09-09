@@ -1,10 +1,12 @@
 import react from '@vitejs/plugin-react'
+import jotaiDebugLabel from 'jotai/babel/plugin-debug-label'
+import jotaiReactRefresh from 'jotai/babel/plugin-react-refresh'
 import process from 'node:process'
+import { resolve } from 'pathe'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { defineConfig, loadEnv } from 'vite'
 import { checker } from 'vite-plugin-checker'
 import { createHtmlPlugin } from 'vite-plugin-html'
-import tsconfigPaths from 'vite-tsconfig-paths'
 
 function removeScriptTagAttributes(scriptContent: string) {
   scriptContent = scriptContent.replace(/(<script[^>]*?)\srel="modulepreload"([^>]*>)/g, '$1$2')
@@ -27,12 +29,14 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
-      tsconfigPaths(),
       react({
         babel: {
           plugins: [
+            jotaiDebugLabel,
+            jotaiReactRefresh,
             ['babel-plugin-react-compiler', ReactCompilerConfig],
           ],
+          presets: ['jotai/babel/preset'],
         },
       }),
       createHtmlPlugin({
@@ -45,8 +49,7 @@ export default defineConfig(({ mode }) => {
       {
         name: 'html-inline-transform',
         // https://github.com/vitejs/vite/issues/621#issuecomment-756890673
-        transformIndexHtml(html, ctx) {
-          const { bundle } = ctx
+        transformIndexHtml(html, { bundle }) {
           if (bundle) {
             Object.entries(bundle).forEach(([fileName, output]) => {
               if (/\/worker.*\.js$/.test(fileName)) {
@@ -63,23 +66,19 @@ export default defineConfig(({ mode }) => {
     ],
     resolve: {
       dedupe: ['react', 'react-dom'],
+      alias: {
+        '@/': `${resolve(__dirname, 'src')}/`,
+      },
     },
     define: {},
     server: {
       host: true,
       strictPort: true,
       proxy: {
-        '/api': {
-          target: env.VITE_SUB_PROD,
+        '/trpc': {
+          target: env.VITE_SUB_API_URL,
           changeOrigin: true,
           secure: false,
-          rewrite: (p) => p.replace(/^\/api/, ''),
-        },
-        '/socket.io': {
-          target: env.VITE_SUB_PROD,
-          changeOrigin: true,
-          secure: false,
-          ws: true,
         },
       },
     },

@@ -1,51 +1,47 @@
-import type { AuthError, AuthTokenResponsePassword } from '@supabase/supabase-js'
-import type { Request, Response } from 'express'
+import { eq } from 'drizzle-orm'
+import { z } from 'zod'
 
-import express from 'express'
+import { profiles, usersInAuth } from '../../drizzle/schema.js'
+import { db, supabase } from '../utils/db.js'
+import { publicProcedure, router } from './trpc.js'
 
-import type { Credential } from '../../../ui/src/shared/api.js'
+export const userRouter = router({
+  signIn: publicProcedure
+    .input(z.object({
+      username: z.string().min(1),
+      password: z.string().min(1),
+    }))
+    .mutation(async (opts) => {
+      const { username, password } = opts.input
+      const rows = await db
+        .select({
+          email: usersInAuth.email,
+        })
+        .from(profiles)
+        .innerJoin(usersInAuth, eq(profiles.id, usersInAuth.id))
+        .where(eq(profiles.username, username))
+        .limit(1)
 
-import { sql, supabase } from '../utils/db.js'
-
-type ParamsDictionary = Record<string, string>
-
-const router = express.Router()
-
-router.post('/sign-in', async (req: Request<ParamsDictionary, any, Credential>, res: Response<AuthTokenResponsePassword>) => {
-  const { username, password } = req.body
-  const rows = await sql<[{ email: string }]>`
-SELECT
-  u.email
-FROM
-  public.profiles p
-  JOIN auth.users u ON u.id = p.id
-WHERE
-  p.username = ${username}
-LIMIT
-  1;
-`.catch((error) => {
-    console.error('Error in /sign-in:', error)
-  })
-
-  if (rows && rows.length >= 1) {
-    const [{ email }] = rows
-    const authResponse = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    res.json(authResponse)
-    return
-  }
-  res.json({
-    data: {
-      user: null,
-      session: null,
-      weakPassword: null,
-    },
-    error: {
-      message: 'Invalid username or password.',
-    } as AuthError,
-  })
+      const [row] = rows
+      const email = row?.email
+      if (email) {
+        const authResponse = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
+        if (!authResponse.error) {
+          return authResponse
+        }
+      }
+      return {
+        data: {
+          user: null,
+          session: null,
+          weakPassword: null,
+        },
+        error: {
+          message: 'Invalid username or password.',
+        },
+      }
+    }),
 })
-
-export default router

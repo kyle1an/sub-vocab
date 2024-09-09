@@ -7,14 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function setMetaThemeColorAttribute(newThemeColor: string) {
   const metaThemeColorEl = document.querySelector('meta[name="theme-color"]')
-  if (
-    metaThemeColorEl
-    && (
-      newThemeColor === 'transparent'
-      || newThemeColor === 'black'
-      || !document.querySelector('[vaul-drawer][data-state="open"]')
-    )
-  ) {
+  if (metaThemeColorEl) {
     if (metaThemeColorEl.getAttribute('content') !== newThemeColor) {
       metaThemeColorEl.setAttribute('content', newThemeColor)
     }

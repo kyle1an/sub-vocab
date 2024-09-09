@@ -1,9 +1,10 @@
+import { useAtom } from 'jotai/react'
 import {
   useEffect,
   useState,
 } from 'react'
 
-import { mergeUserVocabWithBaseVocab, useBaseVocabulary, useIrregularMapsQuery, useSession, useUserVocabulary } from '@/api/vocab-api'
+import { useIrregularMapsQuery, userVocabWithBaseVocabAtom } from '@/api/vocab-api'
 import { SquircleBg, SquircleMask } from '@/components/ui/squircle'
 import { VocabDataTable } from '@/components/ui/VocabData'
 import { LabeledTire } from '@/lib/LabeledTire'
@@ -11,10 +12,7 @@ import { formVocab, type LabelDisplayTable } from '@/lib/vocab'
 import { purgedRows, statusRetainedList } from '@/lib/vocab-utils'
 
 export function MinePage() {
-  const { data: baseVocabulary = [] } = useBaseVocabulary()
-  const { data: session } = useSession()
-  const { data: userVocabulary = [] } = useUserVocabulary(session?.user.id)
-  const userWords = mergeUserVocabWithBaseVocab(userVocabulary, baseVocabulary)
+  const [userWords] = useAtom(userVocabWithBaseVocabAtom)
 
   const [rows, setRows] = useState<LabelDisplayTable[]>([])
   const { data: irregulars = [] } = useIrregularMapsQuery()

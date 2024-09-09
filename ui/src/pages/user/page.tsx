@@ -1,8 +1,8 @@
+import { useAtom } from 'jotai/react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
 import { useUpdateEmail, useUpdateUser } from '@/api/user'
-import { useSession } from '@/api/vocab-api'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -14,10 +14,11 @@ import {
 } from '@/components/ui/form'
 import { Icon } from '@/components/ui/icon'
 import { Input, InputWrapper } from '@/components/ui/input'
+import { sessionAtom } from '@/store/useVocab'
 
 export function UserPage() {
   const { t } = useTranslation()
-  const { data: session } = useSession()
+  const [session] = useAtom(sessionAtom)
   const username = session?.user.user_metadata.username || ''
   const email = session?.user.email || ''
   const formDefaultValues = {

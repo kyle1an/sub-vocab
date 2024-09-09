@@ -16,13 +16,14 @@ import {
   subMonths,
   subWeeks,
 } from 'date-fns'
+import { useAtom } from 'jotai/react'
 import { merge, rangeRight } from 'lodash-es'
 import { Bar } from 'react-chartjs-2'
 import { useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
 import colors from 'tailwindcss/colors'
 
-import { mergeUserVocabWithBaseVocab, useBaseVocabulary, useSession, useUserVocabulary } from '@/api/vocab-api'
+import { userVocabWithBaseVocabAtom } from '@/api/vocab-api'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { LEARNING_PHASE, type VocabState } from '@/lib/LabeledTire'
 
@@ -181,10 +182,7 @@ function mapY(userWords: VocabState[]) {
 const SEGMENT_NAME = 'prev-chart-select'
 export function Chart() {
   const { t } = useTranslation()
-  const { data: baseVocabulary = [] } = useBaseVocabulary()
-  const { data: session } = useSession()
-  const { data: userVocabulary = [] } = useUserVocabulary(session?.user.id)
-  const userWords = mergeUserVocabWithBaseVocab(userVocabulary, baseVocabulary)
+  const [userWords] = useAtom(userVocabWithBaseVocabAtom)
 
   const segments = [
     { value: 'W', label: t('W') },
