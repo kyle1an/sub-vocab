@@ -3,8 +3,6 @@ import type { MergeDeep } from 'type-fest'
 
 import { UTCDateMini } from '@date-fns/utc'
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import { atom } from 'jotai'
-import { useAtom } from 'jotai/react'
 import { atomWithQuery } from 'jotai-tanstack-query'
 
 import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
@@ -158,47 +156,6 @@ export function useIrregularMapsQuery() {
   })
 }
 
-function pendingVocabStates(oldData: UserVocabulary[], variables: VocabState[]) {
-  const labelsCopy = structuredClone(oldData)
-  variables.forEach((variable) => {
-    const labelMutated = labelsCopy.find((label) => label.w === variable.word)
-    const pendingPhase = variable.learningPhase === LEARNING_PHASE.ACQUAINTED ? LEARNING_PHASE.FADING : LEARNING_PHASE.RETAINING
-    if (labelMutated) {
-      labelMutated.learningPhase = pendingPhase
-    } else {
-      labelsCopy.push({
-        w: variable.word,
-        time_modified: '',
-        learningPhase: pendingPhase,
-      })
-    }
-  })
-  return labelsCopy
-}
-
-function revertVocabStates(oldData: UserVocabulary[], variables: VocabState[]) {
-  const labelsCopy = structuredClone(oldData)
-  variables.forEach((variable) => {
-    const labelMutated = labelsCopy.find((label) => label.w === variable.word)
-    if (labelMutated) {
-      labelMutated.learningPhase = variable.learningPhase
-    }
-  })
-  return labelsCopy
-}
-
-function newVocabStates(oldData: UserVocabulary[], variables: UserVocabulary[]) {
-  const labelsCopy = structuredClone(oldData)
-  variables.forEach((variable) => {
-    const labelMutated = labelsCopy.find((label) => label.w === variable.w)
-    if (labelMutated) {
-      variable.time_modified = new UTCDateMini(variable.time_modified).toISOString()
-      Object.assign(labelMutated, variable)
-    }
-  })
-  return labelsCopy
-}
-
 export function useUserWordPhaseMutation() {
   const [session] = useAtom(sessionAtom)
   const userId = session?.user.id ?? ''
@@ -221,14 +178,42 @@ export function useUserWordPhaseMutation() {
       return data.map(rowToState)
     },
     onMutate: (variables) => {
-      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData = []) => pendingVocabStates(oldData, variables))
+      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData = []) => produce(oldData, (draft) => {
+        variables.forEach((variable) => {
+          const labelMutated = draft.find((label) => label.w === variable.word)
+          const pendingPhase = variable.learningPhase === LEARNING_PHASE.ACQUAINTED ? LEARNING_PHASE.FADING : LEARNING_PHASE.RETAINING
+          if (labelMutated) {
+            labelMutated.learningPhase = pendingPhase
+          } else {
+            draft.push({
+              w: variable.word,
+              time_modified: '',
+              learningPhase: pendingPhase,
+            })
+          }
+        })
+      }))
     },
     onSuccess: (data, variables, context) => {
-      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData = []) => newVocabStates(oldData, data))
+      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData = []) => produce(oldData, (draft) => {
+        data.forEach((variable) => {
+          const labelMutated = draft.find((label) => label.w === variable.w)
+          if (labelMutated) {
+            Object.assign(labelMutated, variable)
+          }
+        })
+      }))
     },
     // eslint-disable-next-line node/handle-callback-err
     onError: (error, variables, context) => {
-      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData = []) => revertVocabStates(oldData, variables))
+      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData = []) => produce(oldData, (draft) => {
+        variables.forEach((variable) => {
+          const labelMutated = draft.find((label) => label.w === variable.word)
+          if (labelMutated) {
+            labelMutated.learningPhase = variable.learningPhase
+          }
+        })
+      }))
     },
   })
 }

@@ -3,18 +3,18 @@
   "type": "module",
   "version": "0.3.0",
   "private": true,
-  "packageManager": "pnpm@9.10.0",
+  "packageManager": "pnpm@9.11.0",
   "scripts": {
     "backend": "pnpm --filter @sub-vocab/backend",
     "ui": "pnpm --filter @sub-vocab/ui",
-    "bump": "ncu react, react-dom, eslint-plugin-react-hooks --target @next --deep -u && taze -r",
+    "bump": "ncu react, react-dom, eslint-plugin-react-hooks --target @next --deep -u && taze -r && pnpm up && pnpm i",
     "lint:pkg": "eslint --fix package.json **/package.json",
     "introspect": "pnpm --recursive run introspect",
     "lint:fix": "pnpm --recursive run lint:fix"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
-    "date-fns": "^4.0.0",
+    "date-fns": "^4.1.0",
     "type-fest": "^4.26.1"
   },
   "devDependencies": {

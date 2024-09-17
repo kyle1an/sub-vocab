@@ -1,37 +1,10 @@
 import type React from 'react'
 
 import { CloseButton, Popover, PopoverButton, PopoverPanel, useClose } from '@headlessui/react'
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
-import { useAtom } from 'jotai'
-import {
-  useEffect,
-  useState,
-} from 'react'
-import { useTranslation } from 'react-i18next'
-import { Link, useNavigate } from 'react-router-dom'
 
 import { useLogOut } from '@/api/user'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Icon } from '@/components/ui/icon'
-import {
-  Menubar,
-  MenubarContent,
-  MenubarMenu,
-  MenubarRadioGroup,
-  MenubarRadioItem,
-  MenubarTrigger,
-} from '@/components/ui/menubar'
-import { Separator } from '@/components/ui/separator.tsx'
-import { cn } from '@/lib/utils.ts'
-import { DEFAULT_THEME, localeAtom, sessionAtom, themeAtom, THEMES } from '@/store/useVocab'
+import { DEFAULT_THEME, THEMES } from '@/components/themes'
+import { localeAtom, sessionAtom, themeAtom } from '@/store/useVocab'
 
 const locales = [
   {
@@ -51,10 +24,8 @@ function Account({ className, style, ...props }: React.HTMLAttributes<HTMLAnchor
       className={cn('inline-flex items-center gap-3', className)}
       {...props}
     >
-      <Icon
-        icon="lucide:cog"
-        className=""
-        width={16}
+      <IconLucideCog
+        className="size-4"
       />
       <span>Account</span>
     </Link>
@@ -68,10 +39,8 @@ function SignIn({ className, ...props }: React.HTMLAttributes<HTMLAnchorElement>
       className={cn('inline-flex items-center gap-3', className)}
       {...props}
     >
-      <Icon
-        icon="mingcute:user-4-fill"
-        className=""
-        width={16}
+      <IconMingcuteUser4Fill
+        className="size-4"
       />
       <span>Sign in</span>
     </Link>
@@ -86,10 +55,8 @@ function Settings({ className, ...props }: React.HTMLAttributes<HTMLAnchorElemen
       className={cn('inline-flex items-center gap-3', className)}
       {...props}
     >
-      <Icon
-        icon="lucide:cog"
-        className="text-neutral-600"
-        width={16}
+      <IconLucideCog
+        className="size-4 text-neutral-600"
       />
       <span>
         {t('Settings')}
@@ -125,10 +92,8 @@ function SignOut({ className, ...props }: React.HTMLAttributes<HTMLButtonElement
       {...props}
       onClick={logout}
     >
-      <Icon
-        icon="solar:logout-2-outline"
-        className="-scale-x-100"
-        width={16}
+      <IconSolarLogout2Outline
+        className="size-4 -scale-x-100"
       />
       <span>
         {t('SignOut')}
@@ -144,7 +109,7 @@ export function TopBar({ className }: { className?: string }) {
   const account = user?.user_metadata.username || user?.email || ''
   const navigation = [
     { name: t('mine'), href: '/mine', current: true },
-    { name: 'About', href: '/', current: false },
+    // { name: 'About', href: '/', current: false },
   ]
 
   const userNavigation = [
@@ -206,10 +171,8 @@ export function TopBar({ className }: { className?: string }) {
                         to="/"
                       >
                         <div className={cn('group flex items-center gap-2.5 rounded-md text-sm font-medium text-neutral-600 hover:text-black dark:text-neutral-400 dark:hover:text-slate-300')}>
-                          <Icon
-                            icon="mingcute:home-3-line"
-                            width={18}
-                            className="text-neutral-400 transition-all duration-200 group-hover:text-black dark:group-hover:text-slate-300"
+                          <IconMingcuteHome3Line
+                            className="size-[18px] text-neutral-400 transition-all duration-200 group-hover:text-black dark:group-hover:text-slate-300"
                           />
                           <span>
                             {t('home')}
@@ -240,11 +203,11 @@ export function TopBar({ className }: { className?: string }) {
                       <a
                         href="https://github.com/kyle1an/sub-vocab"
                         target="_blank"
-                        className="mr-3 block px-2 text-neutral-300 transition-all hover:text-neutral-400 dark:hover:text-neutral-300 xl:mr-0"
+                        className="mr-3 block px-2 text-neutral-400 transition-all hover:text-neutral-500 dark:hover:text-neutral-200 xl:mr-0"
                         rel="noreferrer noopener"
                       >
                         <span className="sr-only">SubVocab on GitHub</span>
-                        <Icon icon="bi:github" inline />
+                        <IconBiGithub />
                       </a>
                     </div>
                   </div>
@@ -253,12 +216,11 @@ export function TopBar({ className }: { className?: string }) {
                       <MenubarMenu>
                         <MenubarTrigger className="px-2.5 py-1">
                           <div className="flex h-full items-center">
-                            <Icon
-                              icon={THEMES.find((theme) => theme.value === themePreference)?.icon ?? DEFAULT_THEME.icon}
-                              width={16}
-                              height={16}
-                              className="h-full text-neutral-500 dark:text-neutral-400"
-                            />
+                            <SVGSlot
+                              className="size-4 text-neutral-500 dark:text-neutral-400"
+                            >
+                              {THEMES.find((theme) => theme.value === themePreference)?.icon ?? DEFAULT_THEME.icon}
+                            </SVGSlot>
                           </div>
                         </MenubarTrigger>
                         <MenubarContent
@@ -294,11 +256,8 @@ export function TopBar({ className }: { className?: string }) {
                       <MenubarMenu>
                         <MenubarTrigger className="px-2.5 py-1">
                           <div className="flex h-full items-center">
-                            <Icon
-                              icon="fa:language"
-                              width={16}
-                              height={16}
-                              className="h-full text-neutral-500 dark:text-neutral-400"
+                            <IconFaLanguage
+                              className="size-4 text-neutral-500 dark:text-neutral-400"
                             />
                           </div>
                         </MenubarTrigger>
@@ -343,10 +302,8 @@ export function TopBar({ className }: { className?: string }) {
                             </div>
                           ) : (
                             <div className="">
-                              <Icon
-                                icon="mingcute:user-4-fill"
-                                className="text-neutral-500"
-                                width={22}
+                              <IconMingcuteUser4Fill
+                                className="size-[22px] text-neutral-500"
                               />
                             </div>
                           )}
@@ -396,11 +353,11 @@ export function TopBar({ className }: { className?: string }) {
                         <PopoverButton className="relative inline-flex items-center justify-center rounded-md p-1">
                           <span className="absolute -inset-0.5" />
                           <span className="sr-only">Open main menu</span>
-                          <XMarkIcon
+                          <IconHeroiconsXMark
                             className="hidden size-6 group-data-[open]/nav:block"
                             aria-hidden="true"
                           />
-                          <Bars3Icon
+                          <IconHeroiconsBars3
                             className="block size-6 group-data-[open]/nav:hidden"
                             aria-hidden="true"
                           />

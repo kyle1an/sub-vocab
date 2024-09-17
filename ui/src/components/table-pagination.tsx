@@ -1,9 +1,6 @@
 import type { UsePaginationItem } from '@mui/material/usePagination'
 import type { Table } from '@tanstack/react-table'
 
-import { Icon } from '@/components/ui/icon'
-import { cn } from '@/lib/utils'
-
 export function TablePagination<T>({
   items,
   table,
@@ -19,7 +16,6 @@ export function TablePagination<T>({
         selected,
         ...item
       }) => {
-        const size = 16
         const className = 'flex items-center min-w-[1.625rem] justify-center rounded dark:text-slate-300 dark:disabled:text-zinc-700 border border-transparent text-xs tabular-nums disabled:text-zinc-300'
 
         if (type === 'previous') {
@@ -32,9 +28,8 @@ export function TablePagination<T>({
               onClick={table.previousPage}
               key={type}
             >
-              <Icon
-                icon="lucide:chevron-left"
-                width={size}
+              <IconLucideChevronLeft
+                className="size-4"
               />
             </button>
           )
@@ -51,15 +46,11 @@ export function TablePagination<T>({
               }}
               key={`${type}${page}`}
             >
-              <Icon
-                icon="lucide:chevrons-left"
-                className="hidden text-zinc-500 group-hover:inline-block"
-                width={size}
+              <IconLucideChevronsLeft
+                className="hidden size-4 text-zinc-500 group-hover:inline-block"
               />
-              <Icon
-                icon="prime:ellipsis-h"
-                className="text-zinc-600 group-hover:hidden"
-                width={size}
+              <IconPrimeEllipsisH
+                className="size-4 text-zinc-600 group-hover:hidden"
               />
             </button>
           )
@@ -92,15 +83,11 @@ export function TablePagination<T>({
               }}
               key={`${type}${page}`}
             >
-              <Icon
-                icon="lucide:chevrons-right"
-                className="hidden text-zinc-500 group-hover:inline-block"
-                width={size}
+              <IconLucideChevronsRight
+                className="hidden size-4 text-zinc-500 group-hover:inline-block"
               />
-              <Icon
-                icon="prime:ellipsis-h"
-                className="text-zinc-600 group-hover:hidden"
-                width={size}
+              <IconPrimeEllipsisH
+                className="size-4 text-zinc-600 group-hover:hidden"
               />
             </button>
           )
@@ -116,9 +103,8 @@ export function TablePagination<T>({
               onClick={table.nextPage}
               key={type}
             >
-              <Icon
-                icon="lucide:chevron-right"
-                width={size}
+              <IconLucideChevronRight
+                className="size-4"
               />
             </button>
           )

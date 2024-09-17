@@ -1,7 +1,3 @@
-import { useAtom } from 'jotai/react'
-import { useTranslation } from 'react-i18next'
-import { Navigate, Outlet } from 'react-router-dom'
-
 import { Footer } from '@/components/Footer'
 import { SideNav } from '@/components/SideNav'
 import { sessionAtom } from '@/store/useVocab'

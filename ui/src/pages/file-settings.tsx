@@ -1,36 +1,7 @@
 import type { CheckedState } from '@radix-ui/react-checkbox'
 
 import { useMediaQuery } from 'foxact/use-media-query'
-import { produce } from 'immer'
-import { useAtom } from 'jotai'
-import {
-  useEffect,
-  useState,
-} from 'react'
-import { useSearchParams } from 'react-router-dom'
 
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTrigger,
-} from '@/components/ui/drawer'
-import { Icon } from '@/components/ui/icon'
-import { Toggle } from '@/components/ui/toggle'
-import { cn } from '@/lib/utils'
 import { type FileType, fileTypesAtom, isBackgroundScaledAtom } from '@/store/useVocab'
 
 function FileSettingsContent({
@@ -137,10 +108,8 @@ export function FileSettings() {
       variant="outline"
       className="size-8 rounded-[7px] p-0 shadow-none sq:drop-shadow-none"
     >
-      <Icon
-        icon="lucide:cog"
-        className=""
-        width={14}
+      <IconLucideCog
+        className="size-[14px]"
       />
     </Button>
   )
@@ -174,11 +143,11 @@ export function FileSettings() {
             onFileTypesChange={handleFileTypesChange}
           />
           <DialogFooter>
-            <DrawerClose asChild>
+            <DialogClose asChild>
               <Button variant="outline">
                 Cancel
               </Button>
-            </DrawerClose>
+            </DialogClose>
             <Button
               type="submit"
               disabled={settingsUnchanged}
@@ -206,8 +175,8 @@ export function FileSettings() {
         {Trigger}
       </DrawerTrigger>
       <DrawerContent>
-        <div className="w-full border-b pb-3 pt-1 text-lg font-semibold">
-          <DialogTitle className="m-auto w-fit">
+        <div className="w-full border-b pb-3 pt-1 text-lg">
+          <DialogTitle className="m-auto w-fit font-semibold">
             {FILE_SETTINGS_TITLE}
           </DialogTitle>
         </div>

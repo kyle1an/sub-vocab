@@ -1,7 +1,3 @@
-import { useTranslation } from 'react-i18next'
-
-import { Icon } from '@/components/ui/icon'
-
 export function VocabStatics(props: { rowsCountFiltered: number, rowsCountNew: number, rowsCountAcquainted: number }) {
   const { t } = useTranslation()
   return (
@@ -17,10 +13,8 @@ export function VocabStatics(props: { rowsCountFiltered: number, rowsCountNew: n
               <span>
                 {props.rowsCountNew.toLocaleString('en-US')}
               </span>
-              <Icon
-                icon="lucide:circle"
-                width={14}
-                className="text-neutral-400"
+              <IconLucideCircle
+                className="size-[14px] text-neutral-400"
               />
             </div>
           </div>
@@ -32,10 +26,8 @@ export function VocabStatics(props: { rowsCountFiltered: number, rowsCountNew: n
               <span>
                 {props.rowsCountAcquainted.toLocaleString('en-US')}
               </span>
-              <Icon
-                icon="lucide:check-circle"
-                width={14}
-                className="text-neutral-400"
+              <IconLucideCheckCircle
+                className="size-[14px] text-neutral-400"
               />
             </div>
           </div>

@@ -1,7 +1,4 @@
-import * as React from 'react'
 import { Drawer as DrawerPrimitive } from 'vaul'
-
-import { cn } from '@/lib/utils'
 
 function Drawer({
   shouldScaleBackground = true,
@@ -21,6 +18,8 @@ const DrawerTrigger = DrawerPrimitive.Trigger
 const DrawerPortal = DrawerPrimitive.Portal
 
 const DrawerClose = DrawerPrimitive.Close
+
+const DrawerHandle = DrawerPrimitive.Handle
 
 function DrawerOverlay({ className, ref, ...props }: React.ComponentPropsWithRef<typeof DrawerPrimitive.Overlay>) {
   return (
@@ -46,7 +45,7 @@ function DrawerContent({ className, children, ref, ...props }: React.ComponentPr
         {...props}
       >
         <div className="flex h-full flex-col rounded-t-[10px] bg-[--theme-bg] mask-squircle sq-radius-[7_7_0_0] sq-fill-[red] sq:rounded-none">
-          <div className="mx-auto mt-1.5 h-[5px] w-12 flex-shrink-0 rounded-full bg-gray-300" />
+          <DrawerHandle className="mt-1.5 shrink-0" />
           {children}
         </div>
       </DrawerPrimitive.Content>
@@ -112,6 +111,7 @@ export {
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
+  DrawerHandle,
   DrawerHeader,
   DrawerOverlay,
   DrawerPortal,

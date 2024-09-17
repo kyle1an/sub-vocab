@@ -2,15 +2,9 @@ import type { SetOptional } from 'type-fest'
 
 import { Slot } from '@radix-ui/react-slot'
 import { type FigmaSquircleParams, getSvgPath } from 'figma-squircle'
-import {
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
 import { mergeRefs } from 'react-merge-refs'
 
 import { useRect } from '@/lib/hooks'
-import { cn } from '@/lib/utils'
 
 type SquircleParams = Omit<FigmaSquircleParams, 'width' | 'height'>
 

@@ -1,32 +1,15 @@
 import { useMediaQuery } from 'foxact/use-media-query'
-import { atom, useAtom } from 'jotai'
-import {
-  useDeferredValue,
-  useEffect,
-  useState,
-} from 'react'
-import { useTranslation } from 'react-i18next'
 
 import {
   useIrregularMapsQuery,
   userVocabWithBaseVocabAtom,
 } from '@/api/vocab-api'
-import { FileInput } from '@/components/ui/FileInput'
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from '@/components/ui/resizable'
-import { SquircleBg, SquircleMask } from '@/components/ui/squircle'
-import { TextareaInput } from '@/components/ui/TextareaInput'
-import { VocabSourceTable } from '@/components/ui/VocabSource.tsx'
 import { LabeledTire } from '@/lib/LabeledTire'
-import { cn } from '@/lib/utils'
 import {
   formVocab,
   type LabelDisplaySource,
 } from '@/lib/vocab'
-import { purgedRows, statusRetainedList } from '@/lib/vocab-utils'
+import { statusRetainedList } from '@/lib/vocab-utils'
 import { fileTypesAtom } from '@/store/useVocab'
 
 import { FileSettings } from './file-settings'
@@ -58,7 +41,11 @@ function SourceVocab({
   }, [sourceText, baseVocab, irregulars, setCount])
 
   function handlePurge() {
-    setRows(purgedRows())
+    setRows(produce((draft) => {
+      draft.forEach((todo) => {
+        todo.inertialPhase = todo.learningPhase
+      })
+    }))
   }
 
   return (

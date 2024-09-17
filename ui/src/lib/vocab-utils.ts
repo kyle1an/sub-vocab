@@ -1,16 +1,6 @@
-import { produce } from 'immer'
-
-import type { InertialPhase, LabelDisplayTable } from '@/lib/vocab'
+import type { InertialPhase } from '@/lib/vocab'
 
 import type { VocabState } from './LabeledTire'
-
-export function purgedRows<T extends LabelDisplayTable>() {
-  return produce<T[]>((draft) => {
-    draft.forEach((todo) => {
-      todo.inertialPhase = todo.learningPhase
-    })
-  })
-}
 
 export function statusRetainedList<T extends VocabState>(oldRows: (T & InertialPhase)[], newList: T[]) {
   const vocabLabel = new Map<string, T & InertialPhase>()

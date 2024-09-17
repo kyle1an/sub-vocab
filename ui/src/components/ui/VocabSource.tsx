@@ -10,74 +10,31 @@ import {
   type TableState,
   useReactTable,
 } from '@tanstack/react-table'
-import { atom, useAtom } from 'jotai'
 import { uniq } from 'lodash-es'
-import {
-  Fragment,
-} from 'react'
 import {
   Trans,
   useTranslation,
 } from 'react-i18next'
 import { useSessionStorage, useUnmount } from 'react-use'
 
-import type { TI } from '@/i18n'
 import type { LabelDisplaySource } from '@/lib/vocab'
 
 import { TablePagination } from '@/components/table-pagination'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Examples } from '@/components/ui/Examples.tsx'
-import { Icon } from '@/components/ui/icon'
-import { SegmentedControl } from '@/components/ui/SegmentedControl.tsx'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select.tsx'
-import { Separator } from '@/components/ui/separator.tsx'
-import { VocabToggle } from '@/components/ui/ToggleButton.tsx'
 import { useAcquaintAll, useVocabToggle } from '@/hooks/vocabToggle'
-import { sortIcon } from '@/lib/icon-utils'
+import { transParams } from '@/i18n'
+import { SortIcon } from '@/lib/icon-utils'
 import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
 import { tryGetRegex } from '@/lib/regex'
-import { cn } from '@/lib/utils.ts'
-
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from './alert-dialog'
-import { SearchWidget } from './search-widget'
-import { TableHeader } from './tableHeader'
-import { VocabStatics } from './vocab-statics-bar'
 
 export function AcquaintAllDialog<T extends VocabState>({ vocabulary }: { vocabulary: T[] }) {
   const { t } = useTranslation()
   const acquaintAllVocab = useAcquaintAll()
+  const count = vocabulary.length
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <div className="flex w-full flex-row items-center gap-1.5 px-2 py-1.5">
-          <Icon icon="solar:list-check-bold" />
+          <IconSolarListCheckBold />
           <div className="">{t('acquaintedAll')}</div>
         </div>
       </AlertDialogTrigger>
@@ -87,10 +44,10 @@ export function AcquaintAllDialog<T extends VocabState>({ vocabulary }: { vocabu
           <AlertDialogDescription>
             <Trans
               i18nKey="acquaintedAllConfirmText"
-              count={vocabulary.length}
+              values={{ count }}
             >
               Are you sure to mark all (
-              <span className="font-bold text-foreground">{{ count: vocabulary.length } as TI}</span>
+              <span className="font-bold text-foreground">{transParams({ count })}</span>
               ) vocabulary as acquainted?
             </Trans>
           </AlertDialogDescription>
@@ -176,10 +133,8 @@ function useColumns() {
                   >
                     {t('frequency')}
                   </span>
-                  <Icon
-                    icon={sortIcon(isSorted)}
-                    width={16}
-                    className="inline-block text-zinc-400"
+                  <SortIcon
+                    isSorted={isSorted}
                   />
                 </div>
               </div>
@@ -196,10 +151,8 @@ function useColumns() {
                   onClick={row.getToggleExpandedHandler()}
                   className="flex h-full grow cursor-pointer items-center justify-between gap-1 px-3"
                 >
-                  <Icon
-                    icon="lucide:chevron-right"
-                    className={cn('text-zinc-300 transition-transform dark:text-zinc-600', row.getIsExpanded() ? 'rotate-90' : '')}
-                    width={14}
+                  <IconLucideChevronRight
+                    className={cn('size-[14px] text-zinc-300 transition-transform dark:text-zinc-600', row.getIsExpanded() ? 'rotate-90' : '')}
                   />
                   <span className="float-right inline-block tabular-nums stretch-[condensed]">
                     {frequency}
@@ -249,10 +202,8 @@ function useColumns() {
                   >
                     {t('Word')}
                   </span>
-                  <Icon
-                    icon={sortIcon(isSorted)}
-                    width={16}
-                    className="inline-block text-zinc-400"
+                  <SortIcon
+                    isSorted={isSorted}
                   />
                 </div>
               </div>
@@ -304,10 +255,8 @@ function useColumns() {
                   >
                     {t('length')}
                   </span>
-                  <Icon
-                    icon={sortIcon(isSorted)}
-                    width={16}
-                    className="inline-block text-zinc-400"
+                  <SortIcon
+                    isSorted={isSorted}
                   />
                 </div>
               </div>
@@ -348,10 +297,11 @@ function useColumns() {
                   orientation="vertical"
                   className="h-5 group-active:h-full group-[:has(:active)+th]/th:h-full"
                 />
-                <div className="flex min-w-[30px] grow items-center justify-center text-zinc-400">
-                  <Icon
-                    icon={sortIcon(isSorted) || 'lucide:check-circle'}
-                    width={16}
+                <div className="flex min-w-[30px] grow items-center justify-center">
+                  <SortIcon
+                    isSorted={isSorted}
+                    className="text-zinc-400"
+                    fallback={<IconLucideCheckCircle />}
                   />
                 </div>
               </div>
@@ -394,10 +344,8 @@ function useColumns() {
                   >
                     {t('rank')}
                   </span>
-                  <Icon
-                    icon={sortIcon(isSorted)}
-                    width={16}
-                    className="inline-block text-zinc-400"
+                  <SortIcon
+                    isSorted={isSorted}
                   />
                 </div>
               </div>
@@ -528,13 +476,11 @@ export function VocabSourceTable({
               className="flex max-h-full gap-1 p-2 text-neutral-500 [--sq-r:5px]"
               variant="ghost"
             >
-              <Icon
-                icon="ion:ellipsis-horizontal-circle-outline"
-                width={19}
+              <IconIonEllipsisHorizontalCircleOutline
+                className="size-[19px]"
               />
-              <Icon
-                icon="lucide:chevron-down"
-                width={14}
+              <IconLucideChevronDown
+                className="size-[14px]"
               />
             </Button>
           </DropdownMenuTrigger>

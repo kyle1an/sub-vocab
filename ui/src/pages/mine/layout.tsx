@@ -1,6 +1,3 @@
-import { useTranslation } from 'react-i18next'
-import { Outlet } from 'react-router-dom'
-
 import { SideNav } from '@/components/SideNav'
 
 export function MineLayout() {

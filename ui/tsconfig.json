@@ -1,12 +1,8 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
+    "types": ["unplugin-icons/types/react"],
     "useDefineForClassFields": true,
-    // // for shadcn component.json
-    // "baseUrl": ".",
-    // "paths": {
-    //   "@/*": ["./src/*"]
-    // },
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
@@ -19,8 +15,8 @@
 
     "lib": ["ESNext", "DOM", "DOM.Iterable"]
   },
-  "include": [".eslintrc.js", ".eslintrc.cjs", "**/*.config.js", "**/*.config.cjs", "**/*.config.ts", "/**/*.ts", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx"],
-  "exclude": ["vite.config.ts"],
+  "include": [".eslintrc.js", ".eslintrc.cjs", "**/*.config.js", "**/*.config.cjs", "**/*.config.ts", "/**/*.ts", "src/**/*.ts", "/**/*.d.ts", "src/**/*.tsx"],
+  "exclude": ["vite.config.ts", "./vite/**/*"],
   "references": [
     {
       "path": "./tsconfig.node.json"

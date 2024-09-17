@@ -248,14 +248,14 @@ export class LabeledTire {
 
   #mergeVocabOfDifferentSuffixes(curr: NodeOf<TrieWordLabel>, previousChar: Char, parentLayer: NodeOf<TrieWordLabel>) {
     const isPreviousCharS = previousChar === 's'
-    const curr_$ = curr.$
-    const curr_e$ = curr.e?.$
-    const curr_s$ = isPreviousCharS ? undefined : curr.s?.$
+    const _$ = curr.$
+    const _e$ = curr.e?.$
+    const _s$ = isPreviousCharS ? undefined : curr.s?.$
     const isTheLastCharConsonant = !isVowel(previousChar)
-    const curr_in = curr.i?.n
-    const curr_ing = curr_in?.g
-    const curr_ing$ = curr_ing?.$
-    const curr_ying$ = isTheLastCharConsonant ? curr.y?.i?.n?.g?.$ : undefined
+    const _in = curr.i?.n
+    const _ing = _in?.g
+    const _ing$ = _ing?.$
+    const _ying$ = isTheLastCharConsonant ? curr.y?.i?.n?.g?.$ : undefined
 
     function labelOfSuffixes(node: NodeOf<TrieWordLabel>) {
       const labels = [
@@ -264,15 +264,15 @@ export class LabeledTire {
         node.e?.d?.$,
       ]
 
-      if (curr_in) {
+      if (_in) {
         labels.push(
-          curr_in[`'`]?.$,
-          curr_in[`’`]?.$,
+          _in[`'`]?.$,
+          _in[`’`]?.$,
         )
-        if (curr_ing) {
+        if (_ing) {
           labels.push(
-            curr_ing$,
-            curr_ing.s?.$,
+            _ing$,
+            _ing.s?.$,
           )
         }
       }
@@ -288,17 +288,17 @@ export class LabeledTire {
       apostrophe.v?.e?.$,
     ]
 
-    if (curr_ing$) {
-      this.#batchMergeTo(curr_ing$, [
-        curr_in?.[`'`]?.$,
-        curr_in?.[`’`]?.$,
+    if (_ing$) {
+      this.#batchMergeTo(_ing$, [
+        _in?.[`'`]?.$,
+        _in?.[`’`]?.$,
       ])
     }
 
-    if (curr_$) {
-      this.#batchMergeTo(curr_e$ || curr_$, labelOfSuffixes(curr))
+    if (_$) {
+      this.#batchMergeTo(_e$ || _$, labelOfSuffixes(curr))
       const toBeMerged = [
-        curr_s$,
+        _s$,
         curr.e?.r?.$,
         curr.e?.s?.t?.$,
         curr.l?.y?.$,
@@ -311,7 +311,7 @@ export class LabeledTire {
           parentLayer.d?.e?.n?.$,
         )
       } else if (isTheLastCharConsonant) {
-        const wordEndsWithVowelAndConsonant = isVowel(curr_$.path.slice(-2, -1))
+        const wordEndsWithVowelAndConsonant = isVowel(_$.path.slice(-2, -1))
         if (wordEndsWithVowelAndConsonant) {
           toBeMerged.push(
             curr[previousChar]?.i?.n?.g?.$,
@@ -342,19 +342,19 @@ export class LabeledTire {
           curr.s?.[`’`]?.$,
         )
       }
-      this.#batchMergeTo(curr_$, toBeMerged)
+      this.#batchMergeTo(_$, toBeMerged)
       if (curr[`'`]) {
-        this.#batchMergeTo(curr_$, getApostropheSuffixes(curr[`'`]))
+        this.#batchMergeTo(_$, getApostropheSuffixes(curr[`'`]))
       }
       if (curr[`’`]) {
-        this.#batchMergeTo(curr_$, getApostropheSuffixes(curr[`’`]))
+        this.#batchMergeTo(_$, getApostropheSuffixes(curr[`’`]))
       }
-    } else if (curr_e$) {
-      this.#batchMergeTo(curr_e$, labelOfSuffixes(curr))
-    } else if (curr_s$) {
-      const original = curr_s$.path.slice(0, -1)
+    } else if (_e$) {
+      this.#batchMergeTo(_e$, labelOfSuffixes(curr))
+    } else if (_s$) {
+      const original = _s$.path.slice(0, -1)
       const $ = {
-        path: curr_s$.path.slice(0, -1),
+        path: _s$.path.slice(0, -1),
         src: [],
         up: capitalIn(original),
         derive: [],
@@ -369,12 +369,12 @@ export class LabeledTire {
       }
 
       if ($.derive.length) {
-        this.#mergeNodes($, curr_s$)
+        this.#mergeNodes($, _s$)
         curr.$ = $
         this.vocabulary.push($)
       }
-    } else if (curr_ying$) {
-      const original = curr_ying$.path.slice(0, -3)
+    } else if (_ying$) {
+      const original = _ying$.path.slice(0, -3)
       const $ = {
         path: original,
         src: [],
@@ -387,7 +387,7 @@ export class LabeledTire {
       ])
 
       if ($.derive.length) {
-        this.#mergeNodes($, curr_ying$)
+        this.#mergeNodes($, _ying$)
         if (!curr.y) {
           curr.y = {}
         }
