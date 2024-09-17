@@ -1,7 +1,5 @@
 import type { WordLocator } from '@/lib/LabeledTire'
 
-import { cn } from '@/lib/utils.ts'
-
 export function Examples({
   sentences,
   src,

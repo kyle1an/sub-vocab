@@ -8,7 +8,6 @@ import { persistQueryClient } from '@tanstack/react-query-persist-client'
 import { httpBatchLink } from '@trpc/client'
 import { createTRPCReact } from '@trpc/react-query'
 import { createStore } from 'jotai'
-import { atomWithStorage } from 'jotai/utils'
 import { UAParser } from 'ua-parser-js'
 
 import type { SessionWithUserMetadata } from '@/api/vocab-api'
@@ -18,6 +17,8 @@ import { SUPPORTED_FILE_EXTENSIONS } from '@/lib/filesHandler'
 import { getScrollbarWidth } from '@/lib/utils'
 
 import type { Database } from '../../database.types'
+
+import { DEFAULT_THEME, type THEMES } from '../components/themes'
 
 const MS_PER_MINUTE = 60 * 1000
 
@@ -60,26 +61,6 @@ persistQueryClient({
 })
 
 export const supabase = createClient<Database>(import.meta.env.VITE_PUBLIC_SUPABASE_URL, import.meta.env.VITE_PUBLIC_SUPABASE_ANON_KEY)
-
-export const DEFAULT_THEME = {
-  value: 'auto',
-  label: 'Auto',
-  icon: 'gg:dark-mode',
-} as const
-
-export const THEMES = [
-  {
-    value: 'light',
-    label: 'Light',
-    icon: 'ph:sun',
-  },
-  {
-    value: 'dark',
-    label: 'Dark',
-    icon: 'akar-icons:moon-fill',
-  },
-  DEFAULT_THEME,
-] as const
 
 const getOnInit = true
 

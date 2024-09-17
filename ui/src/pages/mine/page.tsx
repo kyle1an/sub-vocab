@@ -1,15 +1,7 @@
-import { useAtom } from 'jotai/react'
-import {
-  useEffect,
-  useState,
-} from 'react'
-
 import { useIrregularMapsQuery, userVocabWithBaseVocabAtom } from '@/api/vocab-api'
-import { SquircleBg, SquircleMask } from '@/components/ui/squircle'
-import { VocabDataTable } from '@/components/ui/VocabData'
 import { LabeledTire } from '@/lib/LabeledTire'
 import { formVocab, type LabelDisplayTable } from '@/lib/vocab'
-import { purgedRows, statusRetainedList } from '@/lib/vocab-utils'
+import { statusRetainedList } from '@/lib/vocab-utils'
 
 export function MinePage() {
   const [userWords] = useAtom(userVocabWithBaseVocabAtom)
@@ -29,7 +21,11 @@ export function MinePage() {
   }, [irregulars, userWords])
 
   function handlePurge() {
-    setRows(purgedRows())
+    setRows(produce ((draft) => {
+      draft.forEach((todo) => {
+        todo.inertialPhase = todo.learningPhase
+      })
+    }))
   }
 
   return (

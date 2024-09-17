@@ -1,18 +1,11 @@
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import { useMediaQuery } from 'foxact/use-media-query'
-import { useAtom } from 'jotai'
 import { DevTools } from 'jotai-devtools'
-import {
-  useEffect,
-  useRef,
-} from 'react'
-import { Outlet } from 'react-router-dom'
 
 import type { SessionWithUserMetadata } from '@/api/vocab-api'
 
 import { TopBar } from '@/components/TopBar.tsx'
-import { Toaster } from '@/components/ui/sonner'
 import { COLOR_SCHEME_QUERY, isDarkModeAtom, metaThemeColorEffect } from '@/lib/hooks'
 import { LIGHT_THEME_COLOR, metaThemeColorAtom, prefersDarkAtom, sessionAtom, supabase } from '@/store/useVocab'
 

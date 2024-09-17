@@ -37,4 +37,7 @@ i18n.use(initReactI18next)
   })
   .catch(console.error)
 
+// https://github.com/i18next/react-i18next/issues/1483#issuecomment-2351003452
+export const transParams = (s: Record<string, unknown>) => s as unknown as React.ReactNode
+
 export default i18n

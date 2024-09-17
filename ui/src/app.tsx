@@ -1,6 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ComposeContextProvider } from 'foxact/compose-context-provider'
-import { useHydrateAtoms } from 'jotai/utils'
 import { queryClientAtom } from 'jotai-tanstack-query'
 import { RouterProvider } from 'react-router-dom'
 

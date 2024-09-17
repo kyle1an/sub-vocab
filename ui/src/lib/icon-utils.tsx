@@ -1,14 +1,34 @@
 import type { SortDirection } from '@tanstack/react-table'
-import type { ComponentProps } from 'react'
 
-import type { Icon } from '@/components/ui/icon'
-
-export function sortIcon(isSorted: SortDirection | false): ComponentProps<typeof Icon>['icon'] {
-  if (isSorted === 'asc') {
-    return 'lucide:chevron-up'
-  }
-  if (isSorted === 'desc') {
-    return 'lucide:chevron-down'
-  }
-  return ''
+export function SortIcon({
+  isSorted,
+  className = '',
+  fallback,
+}: {
+  isSorted: SortDirection | false
+  className?: string
+  fallback?: React.ReactNode
+}) {
+  const iconClassName = cn('inline-block size-4 text-zinc-400 transition-all duration-200', className)
+  fallback = fallback ?? <IconCodiconBlank />
+  return (
+    <>
+      <IconLucideChevronUp
+        className={cn(
+          iconClassName,
+          !isSorted && 'hidden',
+          '[transform-style:preserve-3d]',
+          isSorted === 'desc' && '[transform:rotateX(180deg)]',
+        )}
+      />
+      <SVGSlot
+        className={cn(
+          iconClassName,
+          isSorted && 'hidden',
+        )}
+      >
+        {fallback}
+      </SVGSlot>
+    </>
+  )
 }

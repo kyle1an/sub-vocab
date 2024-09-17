@@ -1,36 +1,12 @@
-import { Icon as Iconify, type IconifyIconProps } from '@iconify-icon/react'
+import { Slot } from '@radix-ui/react-slot'
 
-import { cn } from '@/lib/utils'
+export interface SlotProps extends React.AllHTMLAttributes<SVGSVGElement> {
+  children?: React.ReactNode
+}
 
-export function Icon({
-  className,
-  ref,
-  style,
-  icon,
-  ...props
-}: IconifyIconProps) {
-  let { width, height } = props
-  if (width === undefined && height === undefined) {
-    width = height = '1em'
-  } else if (width === undefined) {
-    width = height
-  } else if (height === undefined) {
-    height = width
-  }
+export const SVGSlot = Slot as React.ForwardRefExoticComponent<SlotProps & React.RefAttributes<SVGSVGElement>>
 
-  return (
-    <Iconify
-      icon={icon || 'codicon:blank'}
-      className={cn(
-        'inline-block',
-        className,
-      )}
-      style={{
-        width,
-        height,
-        ...style,
-      }}
-      {...props}
-    />
-  )
+export interface SVGProps extends
+  React.SVGAttributes<SVGSVGElement>,
+  React.RefAttributes<SVGSVGElement> {
 }

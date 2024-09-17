@@ -1,7 +1,5 @@
 import useResizeObserver from '@react-hook/resize-observer'
-import { atom } from 'jotai'
 import { atomEffect } from 'jotai-effect'
-import { useState } from 'react'
 
 import { isBackgroundScaledAtom, metaThemeColorAtom, prefersDarkAtom, themeAtom } from '@/store/useVocab'
 

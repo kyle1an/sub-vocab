@@ -1,8 +1,6 @@
 import type { LabelDisplayTable } from '@/lib/vocab'
 
-import { Icon } from '@/components/ui/icon'
 import { LEARNING_PHASE } from '@/lib/LabeledTire.ts'
-import { cn } from '@/lib/utils'
 
 export function VocabToggle<T extends LabelDisplayTable>({
   row: {
@@ -42,15 +40,13 @@ export function VocabToggle<T extends LabelDisplayTable>({
           onToggle(vocab)
         }}
       >
-        <Icon
-          icon="lucide:loader"
+        <IconLucideLoader
           className={cn(
             'inline-flex w-full animate-spin items-center justify-center transition-colors duration-1000 [animation-duration:2s]',
             (phase === RETAINING || phase === FADING) ? '' : 'hidden',
           )}
         />
-        <Icon
-          icon="lucide:check"
+        <IconLucideCheck
           className={cn(
             'inline-flex w-full items-center justify-center',
             (phase === NEW || phase === ACQUAINTED) ? '' : 'hidden',

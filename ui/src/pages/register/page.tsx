@@ -1,20 +1,6 @@
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
 
 import { useRegister } from '@/api/user'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Icon } from '@/components/ui/icon'
-import { Input, InputWrapper } from '@/components/ui/input'
 
 export function Register() {
   const formDefaultValues = {
@@ -132,16 +118,12 @@ export function Register() {
                                 }}
                               >
                                 {passwordVisible ? (
-                                  <Icon
-                                    icon="lucide:eye"
-                                    width={18}
-                                    className="text-neutral-600"
+                                  <IconLucideEye
+                                    className="size-[18px] text-neutral-600"
                                   />
                                 ) : (
-                                  <Icon
-                                    icon="lucide:eye-off"
-                                    width={18}
-                                    className="text-neutral-600"
+                                  <IconLucideEyeOff
+                                    className="size-[18px] text-neutral-600"
                                   />
                                 )}
                               </Button>
@@ -159,8 +141,7 @@ export function Register() {
                     >
                       Create account
                       { isPending ? (
-                        <Icon
-                          icon="lucide:loader-2"
+                        <IconLucideLoader2
                           className="animate-spin"
                         />
                       ) : null}

@@ -10,51 +10,16 @@ import {
   type TableState,
   useReactTable,
 } from '@tanstack/react-table'
-import { formatDistanceToNowStrict } from 'date-fns'
-import { atom, useAtom } from 'jotai'
 import { uniq } from 'lodash-es'
-import {
-  Fragment,
-} from 'react'
-import { useTranslation } from 'react-i18next'
 import { useSessionStorage, useUnmount } from 'react-use'
 
 import type { LabelDisplayTable } from '@/lib/vocab'
 
 import { TablePagination } from '@/components/table-pagination'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Icon } from '@/components/ui/icon'
-import { SegmentedControl } from '@/components/ui/SegmentedControl.tsx'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select.tsx'
-import { Separator } from '@/components/ui/separator.tsx'
-import { VocabToggle } from '@/components/ui/ToggleButton.tsx'
 import { useVocabToggle } from '@/hooks/vocabToggle'
-import { sortIcon } from '@/lib/icon-utils'
+import { SortIcon } from '@/lib/icon-utils'
 import { LEARNING_PHASE, type LearningPhase } from '@/lib/LabeledTire'
 import { tryGetRegex } from '@/lib/regex'
-import { cn } from '@/lib/utils.ts'
-
-import { SearchWidget } from './search-widget'
-import { TableHeader } from './tableHeader'
-import { VocabStatics } from './vocab-statics-bar'
-import { AcquaintAllDialog } from './VocabSource'
 
 const columnHelper = createColumnHelper<LabelDisplayTable>()
 
@@ -135,10 +100,8 @@ function useColumns() {
                 >
                   {t('distance')}
                 </span>
-                <Icon
-                  icon={sortIcon(isSorted)}
-                  width={16}
-                  className="inline-block text-zinc-400"
+                <SortIcon
+                  isSorted={isSorted}
                 />
               </div>
             </th>
@@ -186,10 +149,8 @@ function useColumns() {
                   >
                     {t('Word')}
                   </span>
-                  <Icon
-                    icon={sortIcon(isSorted)}
-                    width={16}
-                    className="inline-block text-zinc-400"
+                  <SortIcon
+                    isSorted={isSorted}
                   />
                 </div>
               </div>
@@ -241,10 +202,8 @@ function useColumns() {
                   >
                     {t('length')}
                   </span>
-                  <Icon
-                    icon={sortIcon(isSorted)}
-                    width={16}
-                    className="inline-block text-zinc-400"
+                  <SortIcon
+                    isSorted={isSorted}
                   />
                 </div>
               </div>
@@ -285,10 +244,11 @@ function useColumns() {
                   orientation="vertical"
                   className="h-5 group-active:h-full group-[:has(:active)+th]/th:h-full"
                 />
-                <div className="flex min-w-[30px] grow items-center justify-center text-zinc-400">
-                  <Icon
-                    icon={sortIcon(isSorted) || 'lucide:check-circle'}
-                    width={16}
+                <div className="flex min-w-[30px] grow items-center justify-center">
+                  <SortIcon
+                    isSorted={isSorted}
+                    className="text-zinc-400"
+                    fallback={<IconLucideCheckCircle />}
                   />
                 </div>
               </div>
@@ -316,9 +276,8 @@ function useColumns() {
                 'group/th border-y border-solid border-y-zinc-200 p-0 text-sm font-normal',
               )}
             >
-              <Icon
-                icon="lucide:check-circle"
-                width={16}
+              <IconLucideCheckCircle
+                className="size-4"
               />
             </th>
           )
@@ -356,10 +315,8 @@ function useColumns() {
                   >
                     {t('rank')}
                   </span>
-                  <Icon
-                    icon={sortIcon(isSorted)}
-                    width={16}
-                    className="inline-block text-zinc-400"
+                  <SortIcon
+                    isSorted={isSorted}
                   />
                 </div>
               </div>
@@ -496,13 +453,11 @@ export function VocabDataTable({
               className="flex max-h-full gap-1 p-2 text-neutral-500 [--sq-r:5px]"
               variant="ghost"
             >
-              <Icon
-                icon="ion:ellipsis-horizontal-circle-outline"
-                width={19}
+              <IconIonEllipsisHorizontalCircleOutline
+                className="size-[19px]"
               />
-              <Icon
-                icon="lucide:chevron-down"
-                width={14}
+              <IconLucideChevronDown
+                className="size-[14px]"
               />
             </Button>
           </DropdownMenuTrigger>

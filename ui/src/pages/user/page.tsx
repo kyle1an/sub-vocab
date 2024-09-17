@@ -1,19 +1,6 @@
-import { useAtom } from 'jotai/react'
 import { useForm } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
 
 import { useUpdateEmail, useUpdateUser } from '@/api/user'
-import { Button } from '@/components/ui/button'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Icon } from '@/components/ui/icon'
-import { Input, InputWrapper } from '@/components/ui/input'
 import { sessionAtom } from '@/store/useVocab'
 
 export function UserPage() {
@@ -99,7 +86,7 @@ export function UserPage() {
                         <Input
                           type="text"
                           placeholder=""
-                          autoComplete="off"
+                          autoComplete="username"
                           {...field}
                           {...register('newUsername')}
                           className="text-base md:text-sm"
@@ -112,17 +99,16 @@ export function UserPage() {
               />
               <FormMessage>{errors.root?.serverError?.message}</FormMessage>
               <Button
-                className="mt-8 gap-1.5"
+                className="group mt-8 gap-1.5"
                 type="submit"
                 disabled={isUsernameUpdatePending}
               >
                 {t('confirm_changes')}
-                { isUsernameUpdatePending ? (
-                  <Icon
-                    icon="lucide:loader-2"
-                    className="animate-spin"
-                  />
-                ) : null}
+                <IconLucideLoader2
+                  className={cn(
+                    'animate-spin group-[:not(disabled)]:hidden',
+                  )}
+                />
               </Button>
             </form>
           </Form>
@@ -154,7 +140,7 @@ export function UserPage() {
                         <Input
                           type="text"
                           placeholder=""
-                          autoComplete="off"
+                          autoComplete="email"
                           {...field}
                           {...register('email')}
                           className="text-base md:text-sm"
@@ -174,17 +160,16 @@ export function UserPage() {
               />
               <FormMessage>{errors.root?.serverError?.message}</FormMessage>
               <Button
-                className="mt-8 gap-1.5"
+                className="group mt-8 gap-1.5"
                 type="submit"
                 disabled={isEmailUpdatePending}
               >
                 {t('confirm_changes')}
-                { isEmailUpdatePending ? (
-                  <Icon
-                    icon="lucide:loader-2"
-                    className="animate-spin"
-                  />
-                ) : null}
+                <IconLucideLoader2
+                  className={cn(
+                    'animate-spin group-[:not(disabled)]:hidden',
+                  )}
+                />
               </Button>
             </form>
           </Form>
