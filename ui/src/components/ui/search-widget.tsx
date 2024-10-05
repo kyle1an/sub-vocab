@@ -1,11 +1,11 @@
 export function SearchWidget({
   value,
-  useRegex = false,
+  isUsingRegex = false,
   onSearch,
   onRegex,
 }: {
   name?: string
-  useRegex: boolean
+  isUsingRegex: boolean
   value: string
   onSearch: (arg: string) => void
   onRegex: (arg: boolean) => void
@@ -43,11 +43,11 @@ export function SearchWidget({
       ) : null}
       <div className="inline-flex items-center">
         <Toggle
-          pressed={useRegex}
+          pressed={isUsingRegex}
           aria-label="Regular expression"
           className="size-fit rounded-[3px] p-px text-muted-foreground"
           onPressedChange={() => {
-            onRegex(!useRegex)
+            onRegex(!isUsingRegex)
           }}
         >
           <IconCodiconRegex

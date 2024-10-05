@@ -11,42 +11,89 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { uniq } from 'lodash-es'
+import {
+  Trans,
+  useTranslation,
+} from 'react-i18next'
 import { useSessionStorage, useUnmount } from 'react-use'
 
-import type { LabelDisplayTable } from '@/lib/vocab'
+import type { LabelDisplaySource } from '@/lib/vocab'
 
 import { TablePagination } from '@/components/table-pagination'
-import { useVocabToggle } from '@/hooks/vocabToggle'
+import { useAcquaintAll, useVocabToggle } from '@/hooks/vocabToggle'
+import { transParams } from '@/i18n'
 import { SortIcon } from '@/lib/icon-utils'
-import { LEARNING_PHASE, type LearningPhase } from '@/lib/LabeledTire'
+import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
 import { tryGetRegex } from '@/lib/regex'
 
-const columnHelper = createColumnHelper<LabelDisplayTable>()
+export function AcquaintAllDialog<T extends VocabState>({ vocabulary }: { vocabulary: T[] }) {
+  const { t } = useTranslation()
+  const acquaintAllVocab = useAcquaintAll()
+  const count = vocabulary.length
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <div className="flex w-full flex-row items-center gap-1.5 px-2 py-1.5">
+          <IconSolarListCheckBold />
+          <div className="">{t('acquaintedAll')}</div>
+        </div>
+      </AlertDialogTrigger>
+      <AlertDialogContent className="sm:max-w-[425px]">
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t('acquaintedAll')}</AlertDialogTitle>
+          <AlertDialogDescription>
+            <Trans
+              i18nKey="acquaintedAllConfirmText"
+              values={{ count }}
+            >
+              Are you sure to mark all (
+              <span className="font-bold text-foreground">{transParams({ count })}</span>
+              ) vocabulary as acquainted?
+            </Trans>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="">
+          <AlertDialogCancel>{t('Cancel')}</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              if (vocabulary.length > 0) {
+                acquaintAllVocab(vocabulary)
+              }
+            }}
+          >
+            {t('Continue')}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
 
-type ColumnFilterFn = (rowValue: LabelDisplayTable) => boolean
+const columnHelper = createColumnHelper<LabelDisplaySource>()
 
-const useRegexAtom = atom(false)
+type ColumnFilterFn = (rowValue: LabelDisplaySource) => boolean
+
+const isUsingRegexAtom = atom(false)
 const searchValueAtom = atom('')
 const tableStateAtom = atom<Partial<TableState>>({})
 
 function useSegments() {
   const { t } = useTranslation()
   return [
-    { value: 'new', label: t('recent') },
-    { value: 'allAcquainted', label: t('all') },
-    { value: 'mine', label: t('mine') },
-    { value: 'top', label: t('top') },
+    { value: 'all', label: t('all') },
+    { value: 'new', label: t('new') },
+    { value: 'acquainted', label: t('acquainted') },
   ] as const
 }
 
 type Segment = ReturnType<typeof useSegments>[number]['value']
-const SEGMENT_NAME = 'data-table-segment'
+const SEGMENT_NAME = 'source-table-segment'
 
 function getAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
   let filteredValue: LearningPhase[] = []
   if (filterSegment === 'new') {
     filteredValue = [LEARNING_PHASE.NEW, LEARNING_PHASE.RETAINING]
-  } else if (filterSegment === 'allAcquainted' || filterSegment === 'mine' || filterSegment === 'top') {
+  } else if (filterSegment === 'acquainted') {
     filteredValue = [LEARNING_PHASE.ACQUAINTED, LEARNING_PHASE.FADING]
   } else {
     return () => true
@@ -57,21 +104,6 @@ function getAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
   }
 }
 
-function getUserOwnedFilter(filterSegment: Segment): ColumnFilterFn {
-  let filteredValue: boolean[] = []
-  if (filterSegment === 'top') {
-    filteredValue = [false]
-  } else if (filterSegment === 'mine') {
-    filteredValue = [true]
-  } else {
-    return () => true
-  }
-
-  return (row) => {
-    return filteredValue.includes(row.isUser)
-  }
-}
-
 const PAGES = [10, 20, 40, 50, 100, 200, 1000] as const
 
 function useColumns() {
@@ -79,39 +111,60 @@ function useColumns() {
   const handleVocabToggle = useVocabToggle()
   return (
     [
-      columnHelper.accessor((row) => row.timeModified, {
-        id: 'timeModified',
+      columnHelper.accessor((row) => row.locations.length, {
+        id: 'frequency',
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           return (
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[12%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal text-zinc-500 active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
+                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
               )}
             >
               <div
-                className="float-right flex h-7 w-full cursor-pointer select-none items-center pl-2 pr-1"
+                className="flex h-7 min-w-[4.5rem] grow cursor-pointer select-none items-center gap-0.5 pl-2 pr-1 text-zinc-500 dark:text-zinc-400"
                 onClick={header.column.getToggleSortingHandler()}
               >
-                <span
-                  title={t('distance')}
-                  className={cn('grow text-right text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
-                >
-                  {t('distance')}
-                </span>
-                <SortIcon
-                  isSorted={isSorted}
-                />
+                <div className="flex grow items-center">
+                  <span
+                    title={t('frequency')}
+                    className={cn('grow text-right text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
+                  >
+                    {t('frequency')}
+                  </span>
+                  <SortIcon
+                    isSorted={isSorted}
+                  />
+                </div>
               </div>
             </th>
           )
         },
-        cell: ({ getValue }) => {
-          const timeModified = getValue()
+        cell: ({ row, getValue }) => {
+          const frequency = getValue()
           return (
-            <div className="float-right w-full text-center text-sm tabular-nums text-neutral-600 stretch-[condensed] dark:text-neutral-500">
-              {timeModified ? formatDistanceToNowStrict(new Date(timeModified)) : null}
+            <div className="flex h-full items-center text-sm text-zinc-400">
+              {row.getCanExpand() ? (
+                <button
+                  type="button"
+                  onClick={row.getToggleExpandedHandler()}
+                  className="flex h-full grow cursor-pointer items-center justify-between gap-1 px-3"
+                >
+                  <IconLucideChevronRight
+                    className={cn('size-[14px] text-zinc-300 transition-transform dark:text-zinc-600', row.getIsExpanded() ? 'rotate-90' : '')}
+                  />
+                  <span className="float-right inline-block tabular-nums stretch-[condensed]">
+                    {frequency}
+                  </span>
+                </button>
+              ) : (
+                <div className="w-full justify-end px-3">
+                  <span className="float-right inline-block tabular-nums stretch-[condensed]">
+                    {frequency}
+                  </span>
+                </div>
+              )}
             </div>
           )
         },
@@ -130,7 +183,7 @@ function useColumns() {
               )}
             >
               <div
-                className="group flex h-7 cursor-pointer items-center gap-2 pr-1"
+                className="group flex h-7 cursor-pointer items-center gap-1.5 pr-1"
                 onClick={header.column.getToggleSortingHandler()}
               >
                 <Separator
@@ -164,7 +217,7 @@ function useColumns() {
               {wFamily.map((w, i) => (
                 <div
                   key={w}
-                  className="ml-1.5 inline-block cursor-text select-text text-sm tracking-wider text-black ffs-['cv03','cv05','cv06'] first:ml-2 dark:text-slate-300"
+                  className="ml-1.5 inline-block cursor-text select-text text-sm tracking-wider text-black ffs-['cv03','cv05','cv06'] first:ml-1.5 dark:text-slate-300"
                   onClick={(ev) => ev.stopPropagation()}
                 >
                   <span className={cn(i !== 0 && 'text-neutral-500 dark:text-slate-600')}>{w}</span>
@@ -265,30 +318,6 @@ function useColumns() {
         ),
         footer: ({ column }) => column.id,
       }),
-      columnHelper.accessor((row) => row.isUser, {
-        id: 'userOwned',
-        filterFn: (row, columnId, fn: ColumnFilterFn) => fn(row.original),
-        header: ({ header }) => {
-          return (
-            <th
-              colSpan={header.colSpan}
-              className={cn(
-                'group/th border-y border-solid border-y-zinc-200 p-0 text-sm font-normal',
-              )}
-            >
-              <IconLucideCheckCircle
-                className="size-4"
-              />
-            </th>
-          )
-        },
-        cell: ({ getValue }) => (
-          <div className="flex justify-center">
-            {getValue()}
-          </div>
-        ),
-        footer: ({ column }) => column.id,
-      }),
       columnHelper.accessor((row) => row.rank, {
         id: 'rank',
         header: ({ header }) => {
@@ -337,22 +366,26 @@ function useColumns() {
   )
 }
 
-export function VocabDataTable({
+export function VocabSourceTable({
   data,
+  sentences,
   onPurge,
   className = '',
 }: {
-  data: LabelDisplayTable[]
+  data: LabelDisplaySource[]
+  sentences: string[]
   onPurge: () => void
   className?: string
 }) {
+  // eslint-disable-next-line react-compiler/react-compiler
+  'use no memo'
   const { t } = useTranslation()
   const [searchValue, setSearchValue] = useAtom(searchValueAtom)
-  const [useRegex, setUseRegex] = useAtom(useRegexAtom)
+  const [isUsingRegex, setIsUsingRegex] = useAtom(isUsingRegexAtom)
   const [tableState, setTableState] = useAtom(tableStateAtom)
   const columns = useColumns()
   const segments = useSegments()
-  const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'allAcquainted')
+  const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'all')
 
   const pagination = tableState.pagination ?? {
     pageSize: 100,
@@ -368,18 +401,11 @@ export function VocabDataTable({
           id: 'acquaintedStatus',
           value: getAcquaintedStatusFilter(segment),
         },
-        {
-          id: 'userOwned',
-          value: getUserOwnedFilter(segment),
-        },
       ],
-      columnVisibility: {
-        userOwned: false,
-      },
       ...tableState,
     },
     autoResetPageIndex: false,
-    getRowCanExpand: () => false,
+    getRowCanExpand: (row) => sentences.length > 0 && row.original.locations.length > 0,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -392,18 +418,17 @@ export function VocabDataTable({
     onPurge()
     setSegment(newSegment)
     table.getColumn('acquaintedStatus')?.setFilterValue(() => getAcquaintedStatusFilter(newSegment))
-    table.getColumn('userOwned')?.setFilterValue(() => getUserOwnedFilter(newSegment))
   }
 
   const columnWord = table.getColumn('word')
 
   function handleSearchChange(search: string) {
     setSearchValue(search)
-    updateSearchFilter(search, useRegex)
+    updateSearchFilter(search, isUsingRegex)
   }
 
   function handleRegexChange(regex: boolean) {
-    setUseRegex(regex)
+    setIsUsingRegex(regex)
     updateSearchFilter(searchValue, regex)
   }
 
@@ -481,7 +506,7 @@ export function VocabDataTable({
         </DropdownMenu>
         <SearchWidget
           value={searchValue}
-          useRegex={useRegex}
+          isUsingRegex={isUsingRegex}
           onSearch={handleSearchChange}
           onRegex={handleRegexChange}
         />
@@ -531,6 +556,21 @@ export function VocabDataTable({
                       </td>
                     ))}
                   </tr>
+                  {canExpand && row.getIsExpanded() ? (
+                    <tr>
+                      <td
+                        colSpan={row.getVisibleCells().length}
+                        aria-label="Examples"
+                        className="py-0"
+                      >
+                        <Examples
+                          sentences={sentences}
+                          src={row.original.locations}
+                          className="text-xs tracking-wide"
+                        />
+                      </td>
+                    </tr>
+                  ) : null}
                 </Fragment>
               )
             })}

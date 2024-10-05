@@ -1,3 +1,5 @@
+import { Link } from 'react-router'
+
 export function LoginToast() {
   return (
     <div className="flex w-full flex-col gap-1">

@@ -1,9 +1,10 @@
 import { useForm } from 'react-hook-form'
 
 import { useUpdateEmail, useUpdateUser } from '@/api/user'
+import { env } from '@/env'
 import { sessionAtom } from '@/store/useVocab'
 
-export function UserPage() {
+export function ProfilePage() {
   const { t } = useTranslation()
   const [session] = useAtom(sessionAtom)
   const username = session?.user.user_metadata.username || ''
@@ -148,7 +149,7 @@ export function UserPage() {
                       </InputWrapper>
                     </FormControl>
                     <FormMessage>{errors.email?.message ?? ''}</FormMessage>
-                    {email.endsWith(import.meta.env.VITE_LEGACY_USER_EMAIL_SUFFIX) ? (
+                    {email.endsWith(env.VITE_LEGACY_USER_EMAIL_SUFFIX) ? (
                       <article className="prose-sm">
                         <span className="text-neutral-700">
                           * This is an auto-generated placeholder email address.

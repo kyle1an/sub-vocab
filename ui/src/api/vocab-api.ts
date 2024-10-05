@@ -1,4 +1,5 @@
-import type { Session, User } from '@supabase/supabase-js'
+import type { Database } from '@subvocab/ui/database.types'
+import type { RealtimePostgresInsertPayload, RealtimePostgresUpdatePayload, Session, User } from '@supabase/supabase-js'
 import type { MergeDeep } from 'type-fest'
 
 import { UTCDateMini } from '@date-fns/utc'
@@ -144,6 +145,12 @@ async function getStemsMapping() {
       map[link.stem_word] = wordGroup
     }
     wordGroup.push(link.derived_word)
+    if (link.derived_word.includes(`'`)) {
+      const variant = link.derived_word.replace(`'`, `’`)
+      if (!wordGroup.includes(variant)) {
+        wordGroup.push(variant)
+      }
+    }
   })
   return Object.values(map)
 }
@@ -204,8 +211,8 @@ export function useUserWordPhaseMutation() {
         })
       }))
     },
-    // eslint-disable-next-line node/handle-callback-err
     onError: (error, variables, context) => {
+      console.error(error)
       queryClient.setQueryData(vocabularyOptions.queryKey, (oldData = []) => produce(oldData, (draft) => {
         variables.forEach((variable) => {
           const labelMutated = draft.find((label) => label.w === variable.word)
@@ -216,4 +223,65 @@ export function useUserWordPhaseMutation() {
       }))
     },
   })
+}
+
+type Row_user_vocab_record = Database['public']['Tables']['user_vocab_record']['Row']
+
+function useRealtimeVocabUpsert<T extends Row_user_vocab_record>() {
+  const [session] = useAtom(sessionAtom)
+  const userId = session?.user.id ?? ''
+  const vocabularyOptions = userVocabularyOptions(userId)
+
+  function upsertCallback(payload: RealtimePostgresInsertPayload<T> | RealtimePostgresUpdatePayload<T>) {
+    const newRow = payload.new
+    const data = {
+      w: newRow.vocabulary,
+      time_modified: newRow.time_modified,
+      learningPhase: newRow.acquainted ? LEARNING_PHASE.ACQUAINTED : LEARNING_PHASE.NEW,
+    }
+    queryClient.setQueryData(vocabularyOptions.queryKey, (oldData = []) => produce(oldData, (draft) => {
+      const labelMutated = draft.find((label) => label.w === data.w)
+      if (labelMutated) {
+        Object.assign(labelMutated, data)
+      } else {
+        draft.push(data)
+      }
+    }))
+  }
+
+  return upsertCallback
+}
+
+export function useVocabRealtimeSync() {
+  const upsertCallback = useRealtimeVocabUpsert()
+  const [session] = useAtom(sessionAtom)
+  const userId = session?.user.id ?? ''
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`user_${userId}_user_vocab_record`)
+      .on(
+        'postgres_changes',
+        {
+          schema: 'public',
+          table: 'user_vocab_record',
+          event: 'INSERT',
+        },
+        upsertCallback,
+      )
+      .on(
+        'postgres_changes',
+        {
+          schema: 'public',
+          table: 'user_vocab_record',
+          event: 'UPDATE',
+        },
+        upsertCallback,
+      )
+      .subscribe()
+
+    return () => {
+      channel.unsubscribe()
+    }
+  }, [upsertCallback, userId])
 }

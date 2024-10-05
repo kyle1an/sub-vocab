@@ -1,7 +1,7 @@
 export function VocabStatics(props: { rowsCountFiltered: number, rowsCountNew: number, rowsCountAcquainted: number }) {
   const { t } = useTranslation()
   return (
-    <div className="flex items-center py-1.5 text-xs tabular-nums text-neutral-600 dark:text-neutral-400">
+    <div className="flex h-7 items-center text-xs tabular-nums text-neutral-600 dark:text-neutral-400">
       <span>
         {`${props.rowsCountFiltered.toLocaleString('en-US')} ${t('vocabulary')}`}
       </span>

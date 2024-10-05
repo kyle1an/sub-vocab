@@ -1,3 +1,5 @@
+import { NavLink } from 'react-router'
+
 export function SideNav({
   nav: navList,
   className = '',
@@ -8,14 +10,16 @@ export function SideNav({
   }[]>
   className?: string
 }) {
-  const location = useLocation()
   return (
     <aside className={cn('w-52 pr-4', className)}>
-      <ol className="flex flex-col gap-0.5">
+      <nav className="flex flex-col gap-0.5">
         {navList.map((nav) => (
-          <li
+          <NavLink
             key={nav.to}
-            className={cn(location.pathname === nav.to && '*:bg-zinc-100 dark:*:bg-zinc-600')}
+            to={nav.to}
+            className={(l) => cn(
+              l.isActive && '*:bg-zinc-100 dark:*:bg-zinc-600',
+            )}
           >
             <Squircle
               squircle={{
@@ -23,18 +27,17 @@ export function SideNav({
               }}
               className="hover:bg-zinc-200 dark:hover:bg-zinc-600"
             >
-              <Link
-                to={nav.to}
+              <div
                 className="flex h-full items-center px-3 py-1.5 text-stone-700 hover:text-black dark:text-stone-300"
               >
                 <div className="text-sm">
                   {nav.title}
                 </div>
-              </Link>
+              </div>
             </Squircle>
-          </li>
+          </NavLink>
         ))}
-      </ol>
+      </nav>
     </aside>
   )
 }

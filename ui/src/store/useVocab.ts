@@ -12,6 +12,7 @@ import { UAParser } from 'ua-parser-js'
 
 import type { SessionWithUserMetadata } from '@/api/vocab-api'
 
+import { env } from '@/env'
 import { getLanguage } from '@/i18n'
 import { SUPPORTED_FILE_EXTENSIONS } from '@/lib/filesHandler'
 import { getScrollbarWidth } from '@/lib/utils'
@@ -60,7 +61,7 @@ persistQueryClient({
   persister: localStoragePersister,
 })
 
-export const supabase = createClient<Database>(import.meta.env.VITE_PUBLIC_SUPABASE_URL, import.meta.env.VITE_PUBLIC_SUPABASE_ANON_KEY)
+export const supabase = createClient<Database>(env.VITE_PUBLIC_SUPABASE_URL, env.VITE_PUBLIC_SUPABASE_ANON_KEY)
 
 const getOnInit = true
 
@@ -73,8 +74,9 @@ export const sessionAtom = atomWithStorage<SessionWithUserMetadata | null>('sess
 export const LIGHT_THEME_COLOR = 'rgb(255,255,254)'
 
 export const metaThemeColorAtom = atomWithStorage('metaThemeColorAtom', LIGHT_THEME_COLOR, undefined, { getOnInit })
-export const isBackgroundScaledAtom = atomWithStorage('isBackgroundScaledAtom', false, undefined, { getOnInit })
+export const isDrawerOpenAtom = atomWithStorage('isBackgroundScaledAtom', false, undefined, { getOnInit })
 export const prefersDarkAtom = atomWithStorage('prefersDarkAtom', false, undefined, { getOnInit })
+export const isMdScreenAtom = atom(false)
 
 export const localeAtom = atomWithStorage('localeAtom', getLanguage(), undefined, { getOnInit })
 

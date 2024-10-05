@@ -1,9 +1,10 @@
 import { useIrregularMapsQuery, userVocabWithBaseVocabAtom } from '@/api/vocab-api'
+import { VocabDataTable } from '@/components/VocabData'
 import { LabeledTire } from '@/lib/LabeledTire'
 import { formVocab, type LabelDisplayTable } from '@/lib/vocab'
 import { statusRetainedList } from '@/lib/vocab-utils'
 
-export function MinePage() {
+export function VocabularyPage() {
   const [userWords] = useAtom(userVocabWithBaseVocabAtom)
 
   const [rows, setRows] = useState<LabelDisplayTable[]>([])
