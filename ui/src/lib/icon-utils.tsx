@@ -1,5 +1,7 @@
 import type { SortDirection } from '@tanstack/react-table'
 
+import { Slot } from '@radix-ui/react-slot'
+
 export function SortIcon({
   isSorted,
   className = '',
@@ -9,26 +11,38 @@ export function SortIcon({
   className?: string
   fallback?: React.ReactNode
 }) {
-  const iconClassName = cn('inline-block size-4 text-zinc-400 transition-all duration-200', className)
+  const iconClassName = cn('absolute inset-0 inline-block size-4 text-zinc-400', className)
   fallback = fallback ?? <IconCodiconBlank />
   return (
-    <>
-      <IconLucideChevronUp
+    <div className="relative size-4">
+      <div
         className={cn(
-          iconClassName,
-          !isSorted && 'hidden',
-          '[transform-style:preserve-3d]',
+          'absolute inset-0 transition-all duration-300 [transform-style:preserve-3d]',
+          isSorted === 'asc' && '[transform:rotateX(0deg)]',
           isSorted === 'desc' && '[transform:rotateX(180deg)]',
-        )}
-      />
-      <SVGSlot
-        className={cn(
-          iconClassName,
-          isSorted && 'hidden',
+          !isSorted && 'opacity-0',
         )}
       >
-        {fallback}
-      </SVGSlot>
-    </>
+        <IconLucideChevronUp
+          className={cn(
+            iconClassName,
+          )}
+        />
+      </div>
+      <div
+        className={cn(
+          'absolute inset-0 transition-all duration-300 [transform-style:preserve-3d]',
+          isSorted && 'opacity-0',
+        )}
+      >
+        <Slot
+          className={cn(
+            iconClassName,
+          )}
+        >
+          {fallback}
+        </Slot>
+      </div>
+    </div>
   )
 }

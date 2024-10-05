@@ -2,14 +2,35 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import { useMediaQuery } from 'foxact/use-media-query'
 import { DevTools } from 'jotai-devtools'
+import { Outlet } from 'react-router'
 
-import type { SessionWithUserMetadata } from '@/api/vocab-api'
-
+import { type SessionWithUserMetadata, useVocabRealtimeSync } from '@/api/vocab-api'
 import { TopBar } from '@/components/TopBar.tsx'
 import { COLOR_SCHEME_QUERY, isDarkModeAtom, metaThemeColorEffect } from '@/lib/hooks'
-import { LIGHT_THEME_COLOR, metaThemeColorAtom, prefersDarkAtom, sessionAtom, supabase } from '@/store/useVocab'
+import { isMdScreenAtom, LIGHT_THEME_COLOR, metaThemeColorAtom, prefersDarkAtom, sessionAtom, supabase } from '@/store/useVocab'
 
 import './globals.css'
+
+function useSyncAtomWithHooks() {
+  const isMdScreen = useMediaQuery('(min-width: 768px)')
+  const [,setIsMdScreen] = useAtom(isMdScreenAtom)
+  useEffect(() => {
+    setIsMdScreen(isMdScreen)
+  }, [isMdScreen, setIsMdScreen])
+}
+
+function useSyncAtomWithUser() {
+  const [, setUser] = useAtom(sessionAtom)
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session as SessionWithUserMetadata | null)
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [setUser])
+}
 
 export function RootLayout() {
   const ref = useRef<HTMLDivElement>(null)
@@ -20,8 +41,8 @@ export function RootLayout() {
     if (prefersDark !== isDarkOS) setPrefersDark(isDarkOS)
   }, [prefersDark, isDarkOS, setPrefersDark])
   useAtom(metaThemeColorEffect)
+  useSyncAtomWithHooks()
   const [, setMetaThemeColor] = useAtom(metaThemeColorAtom)
-  const [, setUser] = useAtom(sessionAtom)
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode)
@@ -43,15 +64,8 @@ export function RootLayout() {
     })
   }, [isDarkMode, setMetaThemeColor])
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session as SessionWithUserMetadata | null)
-    })
-
-    return () => {
-      subscription.unsubscribe()
-    }
-  }, [setUser])
+  useSyncAtomWithUser()
+  useVocabRealtimeSync()
 
   return (
     <div

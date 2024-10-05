@@ -1,7 +1,7 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "types": ["unplugin-icons/types/react"],
+    "types": ["unplugin-icons/types/react", "vite/client"],
     "useDefineForClassFields": true,
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,

@@ -1,3 +1,5 @@
+import { Navigate, Outlet } from 'react-router'
+
 import { Footer } from '@/components/Footer'
 import { SideNav } from '@/components/SideNav'
 import { sessionAtom } from '@/store/useVocab'
@@ -14,7 +16,7 @@ export function User() {
   const subNav = [
     {
       title: t('Profile'),
-      to: '/user',
+      to: '/user/profile',
     },
     {
       title: t('Password'),

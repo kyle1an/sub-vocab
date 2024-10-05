@@ -30,10 +30,10 @@ export default defineConfig(({ mode }) => {
         ],
         imports: [
           'react',
-          'react-router-dom',
           'date-fns',
           'jotai',
           'jotai/utils',
+          'vitest',
           {
             imports: ['HTMLAttributes', 'Ref', 'RefAttributes', ['default', 'React']],
             from: 'react',
@@ -68,14 +68,14 @@ export default defineConfig(({ mode }) => {
           presets: ['jotai/babel/preset'],
         },
       }),
-      createHtmlPlugin({
+      ...mode === 'test' ? [] : [createHtmlPlugin({
         minify: true,
-      }),
+      })],
       visualizer(),
       checker({
         typescript: true,
       }),
-      htmlInlineTransform(),
+      ...mode === 'production' ? [htmlInlineTransform()] : [],
     ],
     resolve: {
       dedupe: ['react', 'react-dom'],

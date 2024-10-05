@@ -1,7 +1,7 @@
 import useResizeObserver from '@react-hook/resize-observer'
 import { atomEffect } from 'jotai-effect'
 
-import { isBackgroundScaledAtom, metaThemeColorAtom, prefersDarkAtom, themeAtom } from '@/store/useVocab'
+import { isDrawerOpenAtom, isMdScreenAtom, metaThemeColorAtom, prefersDarkAtom, themeAtom } from '@/store/useVocab'
 
 import { setMetaThemeColorAttribute } from './utils'
 
@@ -35,9 +35,10 @@ export const metaThemeColorEffect = atomEffect((get) => {
   const themeColor = get(metaThemeColorAtom)
   const isDarkMode = get(isDarkModeAtom)
 
-  const open = get(isBackgroundScaledAtom)
+  const open = get(isDrawerOpenAtom)
+  const isMdScreen = get(isMdScreenAtom)
   let newThemeColor = themeColor
-  if (open) {
+  if (open && !isMdScreen) {
     if (isDarkMode) {
       newThemeColor = 'black'
     } else {

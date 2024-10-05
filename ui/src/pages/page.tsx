@@ -4,6 +4,7 @@ import {
   useIrregularMapsQuery,
   userVocabWithBaseVocabAtom,
 } from '@/api/vocab-api'
+import { VocabSourceTable } from '@/components/VocabSource'
 import { LabeledTire } from '@/lib/LabeledTire'
 import {
   formVocab,

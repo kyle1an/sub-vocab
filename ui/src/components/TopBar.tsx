@@ -1,12 +1,14 @@
 import type React from 'react'
 
 import { CloseButton, Popover, PopoverButton, PopoverPanel, useClose } from '@headlessui/react'
+import { Slot } from '@radix-ui/react-slot'
+import { Link, useNavigate } from 'react-router'
 
 import { useLogOut } from '@/api/user'
 import { DEFAULT_THEME, THEMES } from '@/components/themes'
 import { localeAtom, sessionAtom, themeAtom } from '@/store/useVocab'
 
-const locales = [
+const LOCALES = [
   {
     value: 'en',
     label: 'English',
@@ -51,7 +53,7 @@ function Settings({ className, ...props }: React.HTMLAttributes<HTMLAnchorElemen
   const { t } = useTranslation()
   return (
     <Link
-      to="/user"
+      to="/user/profile"
       className={cn('inline-flex items-center gap-3', className)}
       {...props}
     >
@@ -108,7 +110,7 @@ export function TopBar({ className }: { className?: string }) {
   const user = session?.user
   const account = user?.user_metadata.username || user?.email || ''
   const navigation = [
-    { name: t('mine'), href: '/mine', current: true },
+    { name: t('mine'), href: '/mine/vocabulary', current: true },
     // { name: 'About', href: '/', current: false },
   ]
 
@@ -211,16 +213,16 @@ export function TopBar({ className }: { className?: string }) {
                       </a>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Menubar className="h-auto border-0 bg-transparent p-0 shadow-none">
+                  <div className="flex h-full items-center gap-2">
+                    <Menubar className="h-full border-0 bg-transparent p-0 shadow-none">
                       <MenubarMenu>
-                        <MenubarTrigger className="px-2.5 py-1">
+                        <MenubarTrigger className="size-8 justify-center p-0">
                           <div className="flex h-full items-center">
-                            <SVGSlot
-                              className="size-4 text-neutral-500 dark:text-neutral-400"
+                            <Slot
+                              className="size-[1.0625rem] text-neutral-500 dark:text-neutral-400"
                             >
                               {THEMES.find((theme) => theme.value === themePreference)?.icon ?? DEFAULT_THEME.icon}
-                            </SVGSlot>
+                            </Slot>
                           </div>
                         </MenubarTrigger>
                         <MenubarContent
@@ -252,9 +254,9 @@ export function TopBar({ className }: { className?: string }) {
                       </MenubarMenu>
                     </Menubar>
 
-                    <Menubar className="h-auto border-0 bg-transparent p-0 shadow-none">
+                    <Menubar className="h-full border-0 bg-transparent p-0 shadow-none">
                       <MenubarMenu>
-                        <MenubarTrigger className="px-2.5 py-1">
+                        <MenubarTrigger className="size-8 justify-center p-0">
                           <div className="flex h-full items-center">
                             <IconFaLanguage
                               className="size-4 text-neutral-500 dark:text-neutral-400"
@@ -267,7 +269,7 @@ export function TopBar({ className }: { className?: string }) {
                           sideOffset={3}
                         >
                           <MenubarRadioGroup value={locale}>
-                            {locales.map((language) => (
+                            {LOCALES.map((language) => (
                               <MenubarRadioItem
                                 key={language.value}
                                 value={language.value}
@@ -284,7 +286,7 @@ export function TopBar({ className }: { className?: string }) {
                     </Menubar>
 
                     {/* Profile dropdown */}
-                    <div className="flex w-10 items-center justify-center">
+                    <div className="flex size-8 items-center justify-center">
                       <DropdownMenu>
                         <DropdownMenuTrigger
                           asChild
@@ -350,7 +352,11 @@ export function TopBar({ className }: { className?: string }) {
 
                       {/* Mobile menu button */}
                       <div className="flex md:hidden">
-                        <PopoverButton className="relative inline-flex items-center justify-center rounded-md p-1">
+                        <PopoverButton
+                          as={Button}
+                          variant="ghost"
+                          className="relative inline-flex size-8 items-center justify-center p-0"
+                        >
                           <span className="absolute -inset-0.5" />
                           <span className="sr-only">Open main menu</span>
                           <IconHeroiconsXMark

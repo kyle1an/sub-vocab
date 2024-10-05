@@ -1,5 +1,4 @@
 import antfu from '@antfu/eslint-config'
-import { fixupConfigRules } from '@eslint/compat'
 import { FlatCompat } from '@eslint/eslintrc'
 import pluginQuery from '@tanstack/eslint-plugin-query'
 import eslintPluginTailwindCss from 'eslint-plugin-tailwindcss'
@@ -42,14 +41,14 @@ export default antfu(
       ],
     },
   },
-  ...fixupConfigRules(compat.config({
+  compat.config({
     plugins: [
       'eslint-plugin-react-compiler',
     ],
     rules: {
       'react-compiler/react-compiler': 2,
     },
-  })),
+  }),
   ...pluginQuery.configs['flat/recommended'],
   ...eslintPluginTailwindCss.configs['flat/recommended'],
   {

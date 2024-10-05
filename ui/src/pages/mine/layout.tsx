@@ -1,3 +1,5 @@
+import { Outlet } from 'react-router'
+
 import { SideNav } from '@/components/SideNav'
 
 export function MineLayout() {
@@ -5,7 +7,7 @@ export function MineLayout() {
   const subNav = [
     {
       title: t('Vocabulary'),
-      to: '/mine',
+      to: '/mine/vocabulary',
     },
     {
       title: t('Chart'),

@@ -1,8 +1,9 @@
 import type { CheckedState } from '@radix-ui/react-checkbox'
 
 import { useMediaQuery } from 'foxact/use-media-query'
+import { useSearchParams } from 'react-router'
 
-import { type FileType, fileTypesAtom, isBackgroundScaledAtom } from '@/store/useVocab'
+import { type FileType, fileTypesAtom, isDrawerOpenAtom } from '@/store/useVocab'
 
 function FileSettingsContent({
   className,
@@ -51,37 +52,18 @@ export function FileSettings() {
   const isMdScreen = useMediaQuery('(min-width: 768px)')
   const [searchParams, setSearchParams] = useSearchParams()
   const [open, setOpen] = useState(searchParams.get('popup') === 'file-settings')
-  const [, setIsBackgroundScaled] = useAtom(isBackgroundScaledAtom)
+  const [, setIsDrawerOpen] = useAtom(isDrawerOpenAtom)
   const [fileTypes, setFileTypes] = useAtom(fileTypesAtom)
   const [fileTypesInterim, setFileTypesInterim] = useState(fileTypes)
 
-  function removePopup() {
-    if (searchParams.get('popup') === 'file-settings') {
-      searchParams.delete('popup')
-      setSearchParams(searchParams)
-    }
-  }
-
-  function addPopup() {
-    if (searchParams.get('popup') !== 'file-settings') {
-      searchParams.set('popup', 'file-settings')
-      setSearchParams(searchParams)
-    }
-  }
-
-  function updatePopup(open: boolean) {
-    if (open) {
-      addPopup()
-    } else {
-      removePopup()
-    }
-  }
+  useEffect(() => {
+    setIsDrawerOpen(open)
+  }, [open, setIsDrawerOpen])
 
   useEffect(() => {
     const popup = searchParams.get('popup')
-    updatePopup(popup === 'file-settings')
     setOpen(popup === 'file-settings')
-  }, [searchParams, updatePopup])
+  }, [searchParams])
 
   useEffect(() => {
     setFileTypesInterim(fileTypes)
@@ -89,9 +71,9 @@ export function FileSettings() {
 
   function handleFileTypesChange({ type }: FileType, checkedState: CheckedState) {
     setFileTypesInterim(produce((draft) => {
-      const a = draft.find((ft) => ft.type === type)
-      if (a) {
-        a.checked = checkedState === true
+      const fileType = draft.find((ft) => ft.type === type)
+      if (fileType) {
+        fileType.checked = checkedState === true
       }
     }))
   }
@@ -115,10 +97,13 @@ export function FileSettings() {
   )
 
   function handleOpenChange(open: boolean) {
-    if (!open) {
+    if (open) {
+      searchParams.set('popup', 'file-settings')
+    } else {
+      searchParams.delete('popup')
       setFileTypesInterim(fileTypes)
     }
-    updatePopup(open)
+    setSearchParams(searchParams)
     setOpen(open)
   }
 
@@ -161,15 +146,10 @@ export function FileSettings() {
     )
   }
 
-  function handleDrawerOpenChange(open: boolean) {
-    handleOpenChange(open)
-    setIsBackgroundScaled(open)
-  }
-
   return (
     <Drawer
       open={open}
-      onOpenChange={handleDrawerOpenChange}
+      onOpenChange={handleOpenChange}
     >
       <DrawerTrigger asChild>
         {Trigger}

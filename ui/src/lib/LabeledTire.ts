@@ -160,14 +160,14 @@ export class LabeledTire {
   }
 
   add(input: string) {
-    const sentencesMatched = input.match(/["'@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|\{[^}]*\})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ])|\.{3} *)*["'@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/g)
+    const sentencesMatched = input.match(/["'“‘@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|\{[^}]*\})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ])|\.{3} *)*["'”’@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/g)
     if (sentencesMatched) {
       const previousLength = this.sentences.length
       const newLength = previousLength + sentencesMatched.length
       Array.prototype.push.apply(this.sentences, sentencesMatched)
       for (let len = previousLength; len < newLength; len++) {
         const sentence = this.sentences[len]!
-        const wordsMatched = sentence.matchAll(/(?:[A-Za-zÀ-ÿ]['-]?)*[A-Za-zÀ-ÿ][a-zß-ÿ]*(?:['’-]?[A-Za-zÀ-ÿ]'?)+/g)
+        const wordsMatched = sentence.matchAll(/(?:[A-Za-zÀ-ÿ]['’-]?)*[A-Za-zÀ-ÿ][a-zß-ÿ]*(?:['’-]?[A-Za-zÀ-ÿ]['’]?)+/g)
         for (let n = wordsMatched.next(); !n.done; n = wordsMatched.next()) {
           const m = n.value
           const matchedWord = m[0]
