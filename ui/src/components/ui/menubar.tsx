@@ -5,6 +5,8 @@ import {
 } from '@radix-ui/react-icons'
 import * as MenubarPrimitive from '@radix-ui/react-menubar'
 
+import { omitUndefined } from '@/lib/utilities'
+
 const MenubarMenu = MenubarPrimitive.Menu
 
 const MenubarGroup = MenubarPrimitive.Group
@@ -159,7 +161,7 @@ function MenubarCheckboxItem({
         'relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
         className,
       )}
-      checked={checked}
+      {...omitUndefined({ checked })}
       {...props}
     >
       <span className="absolute left-2 flex size-3.5 items-center justify-center">

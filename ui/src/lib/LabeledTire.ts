@@ -38,7 +38,9 @@ export interface TrieWordLabel extends Record<string, unknown> {
   up: boolean
   src: WordLocator[]
   vocab?: VocabState
+  // inflectionRecords
   derive?: TrieWordLabel[]
+  // isInflected
   variant?: boolean
   wFamily?: string[]
 }
@@ -61,7 +63,7 @@ export class LabeledTire {
   #sequence = 0
   sentences: string[] = []
   wordCount = 0
-  vocabulary: Array<TrieWordLabel | null> = []
+  #vocabulary = new Set<TrieWordLabel>()
 
   getNode(word: string) {
     let node = this.root
@@ -94,6 +96,7 @@ export class LabeledTire {
       if (node.$.vocab) {
         node.$.vocab.learningPhase = sieve.learningPhase
         node.$.vocab.timeModified = sieve.timeModified
+        node.$.vocab.isUser = sieve.isUser
         node.$.vocab.rank = sieve.rank
         node.$.wFamily = [node.$.vocab.word, sieve.word]
       } else {
@@ -147,13 +150,27 @@ export class LabeledTire {
         if (!irregular) {
           continue
         }
-        const derive = this.getNode(irregular).$
+        const hasCapital = capitalIn(irregular)
+        const deriveNode = this.getNode(hasCapital ? irregular.toLowerCase() : irregular)
+        if (!deriveNode.$) {
+          deriveNode.$ = {
+            path: irregular,
+            up: hasCapital,
+            src: [],
+            vocab: {
+              word: stem,
+              learningPhase: LEARNING_PHASE.NEW,
+              isUser: false,
+              original: false,
+              rank: null,
+              timeModified: null,
+            },
+          }
+        }
         if (
-          derive
-          && derive.src.length
-          && !derive.variant
+          !deriveNode.$.variant
         ) {
-          this.#mergeTo(stemNode.$, derive)
+          this.#mergeTo(stemNode.$, deriveNode.$)
         }
       }
     }
@@ -195,10 +212,6 @@ export class LabeledTire {
           wordOrder: ++this.#sequence,
         }],
       }
-      const wordLocator = branch.$.src[0]
-      if (wordLocator) {
-        this.vocabulary[wordLocator.wordOrder] = branch.$
-      }
     } else {
       branch.$.src.push(
         {
@@ -208,13 +221,6 @@ export class LabeledTire {
           wordOrder: branch.$.src.length ? this.#sequence : ++this.#sequence,
         },
       )
-
-      if (branch.$.src.length === 1) {
-        const wordLocator = branch.$.src[0]
-        if (wordLocator) {
-          this.vocabulary[wordLocator.wordOrder] = branch.$
-        }
-      }
 
       if (branch.$.up && !branch.$.vocab) {
         if (hasCapital) {
@@ -234,8 +240,8 @@ export class LabeledTire {
   }
 
   #traverseMerge(layer: NodeOf<TrieWordLabel>) {
-    for (const k in layer) {
-      const key = k as keyof typeof layer
+    let key: keyof typeof layer
+    for (key in layer) {
       if (key === '$') {
         continue
       }
@@ -371,7 +377,6 @@ export class LabeledTire {
       if ($.derive.length) {
         this.#mergeNodes($, _s$)
         curr.$ = $
-        this.vocabulary.push($)
       }
     } else if (_ying$) {
       const original = _ying$.path.slice(0, -3)
@@ -392,7 +397,6 @@ export class LabeledTire {
           curr.y = {}
         }
         curr.y.$ = $
-        this.vocabulary.push($)
       }
     }
   }
@@ -419,16 +423,27 @@ export class LabeledTire {
   #mergeTo(targetWord: TrieWordLabel, latterWord: TrieWordLabel) {
     if (!targetWord.derive) {
       targetWord.derive = []
-
-      if (!targetWord.src.length) {
-        const wordLocator = latterWord.src[0]
-        if (wordLocator) {
-          this.vocabulary[wordLocator.wordOrder] = targetWord
-        }
-      }
     }
 
     targetWord.derive.push(latterWord)
     latterWord.variant = true
+  }
+
+  getVocabulary() {
+    const vocabulary = this.#vocabulary = new Set()
+    this.#traverseCollect(this.root)
+    this.#vocabulary = new Set()
+    return Array.from(vocabulary)
+  }
+
+  #traverseCollect(layer: NodeOf<TrieWordLabel>) {
+    let key: keyof typeof layer
+    for (key in layer) {
+      if (key === '$') {
+        this.#vocabulary.add(layer.$!)
+      } else {
+        this.#traverseCollect(layer[key]!)
+      }
+    }
   }
 }

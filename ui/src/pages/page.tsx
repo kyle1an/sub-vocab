@@ -35,7 +35,12 @@ function SourceVocab({
     trie.add(sourceText)
     trie.mergedVocabulary(baseVocab)
     trie.mergeDerivedWordIntoStem(irregulars)
-    const list = trie.vocabulary.filter(Boolean).filter((v) => !v.variant).map(formVocab)
+    const vocabulary = trie.getVocabulary()
+    const list = vocabulary
+      .filter((v) => !v.variant)
+      .map(formVocab)
+      .filter((v) => v.locations.length >= 1)
+      .sort((a, b) => (a.locations[0]?.wordOrder ?? 0) - (b.locations[0]?.wordOrder ?? 0))
     setRows((r) => statusRetainedList(r, list))
     setSentences(trie.sentences)
     setCount(trie.wordCount)
@@ -44,7 +49,7 @@ function SourceVocab({
   function handlePurge() {
     setRows(produce((draft) => {
       draft.forEach((todo) => {
-        todo.inertialPhase = todo.learningPhase
+        todo.inertialPhase = todo.vocab.learningPhase
       })
     }))
   }

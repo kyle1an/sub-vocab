@@ -1,47 +1,20 @@
 import { relations } from "drizzle-orm/relations";
-import { flowStateInAuth, samlRelayStatesInAuth, ssoProvidersInAuth, ssoDomainsInAuth, mfaFactorsInAuth, mfaChallengesInAuth, sessionsInAuth, mfaAmrClaimsInAuth, samlProvidersInAuth, usersInAuth, oneTimeTokensInAuth, refreshTokensInAuth, identitiesInAuth, userVocabRecord, profiles } from "./schema";
+import { usersInAuth, identitiesInAuth, sessionsInAuth, mfaAmrClaimsInAuth, oneTimeTokensInAuth, mfaFactorsInAuth, refreshTokensInAuth, mfaChallengesInAuth, ssoProvidersInAuth, samlProvidersInAuth, flowStateInAuth, samlRelayStatesInAuth, ssoDomainsInAuth, profiles, userVocabRecord } from "./schema";
 
-export const samlRelayStatesInAuthRelations = relations(samlRelayStatesInAuth, ({one}) => ({
-	flowStateInAuth: one(flowStateInAuth, {
-		fields: [samlRelayStatesInAuth.flowStateId],
-		references: [flowStateInAuth.id]
-	}),
-	ssoProvidersInAuth: one(ssoProvidersInAuth, {
-		fields: [samlRelayStatesInAuth.ssoProviderId],
-		references: [ssoProvidersInAuth.id]
-	}),
-}));
-
-export const flowStateInAuthRelations = relations(flowStateInAuth, ({many}) => ({
-	samlRelayStatesInAuths: many(samlRelayStatesInAuth),
-}));
-
-export const ssoProvidersInAuthRelations = relations(ssoProvidersInAuth, ({many}) => ({
-	samlRelayStatesInAuths: many(samlRelayStatesInAuth),
-	ssoDomainsInAuths: many(ssoDomainsInAuth),
-	samlProvidersInAuths: many(samlProvidersInAuth),
-}));
-
-export const ssoDomainsInAuthRelations = relations(ssoDomainsInAuth, ({one}) => ({
-	ssoProvidersInAuth: one(ssoProvidersInAuth, {
-		fields: [ssoDomainsInAuth.ssoProviderId],
-		references: [ssoProvidersInAuth.id]
-	}),
-}));
-
-export const mfaChallengesInAuthRelations = relations(mfaChallengesInAuth, ({one}) => ({
-	mfaFactorsInAuth: one(mfaFactorsInAuth, {
-		fields: [mfaChallengesInAuth.factorId],
-		references: [mfaFactorsInAuth.id]
-	}),
-}));
-
-export const mfaFactorsInAuthRelations = relations(mfaFactorsInAuth, ({one, many}) => ({
-	mfaChallengesInAuths: many(mfaChallengesInAuth),
+export const identitiesInAuthRelations = relations(identitiesInAuth, ({one}) => ({
 	usersInAuth: one(usersInAuth, {
-		fields: [mfaFactorsInAuth.userId],
+		fields: [identitiesInAuth.userId],
 		references: [usersInAuth.id]
 	}),
+}));
+
+export const usersInAuthRelations = relations(usersInAuth, ({many}) => ({
+	identitiesInAuths: many(identitiesInAuth),
+	oneTimeTokensInAuths: many(oneTimeTokensInAuth),
+	mfaFactorsInAuths: many(mfaFactorsInAuth),
+	sessionsInAuths: many(sessionsInAuth),
+	profiles: many(profiles),
+	userVocabRecords: many(userVocabRecord),
 }));
 
 export const mfaAmrClaimsInAuthRelations = relations(mfaAmrClaimsInAuth, ({one}) => ({
@@ -60,13 +33,6 @@ export const sessionsInAuthRelations = relations(sessionsInAuth, ({one, many}) =
 	}),
 }));
 
-export const samlProvidersInAuthRelations = relations(samlProvidersInAuth, ({one}) => ({
-	ssoProvidersInAuth: one(ssoProvidersInAuth, {
-		fields: [samlProvidersInAuth.ssoProviderId],
-		references: [ssoProvidersInAuth.id]
-	}),
-}));
-
 export const oneTimeTokensInAuthRelations = relations(oneTimeTokensInAuth, ({one}) => ({
 	usersInAuth: one(usersInAuth, {
 		fields: [oneTimeTokensInAuth.userId],
@@ -74,13 +40,12 @@ export const oneTimeTokensInAuthRelations = relations(oneTimeTokensInAuth, ({one
 	}),
 }));
 
-export const usersInAuthRelations = relations(usersInAuth, ({many}) => ({
-	oneTimeTokensInAuths: many(oneTimeTokensInAuth),
-	identitiesInAuths: many(identitiesInAuth),
-	sessionsInAuths: many(sessionsInAuth),
-	mfaFactorsInAuths: many(mfaFactorsInAuth),
-	userVocabRecords: many(userVocabRecord),
-	profiles: many(profiles),
+export const mfaFactorsInAuthRelations = relations(mfaFactorsInAuth, ({one, many}) => ({
+	usersInAuth: one(usersInAuth, {
+		fields: [mfaFactorsInAuth.userId],
+		references: [usersInAuth.id]
+	}),
+	mfaChallengesInAuths: many(mfaChallengesInAuth),
 }));
 
 export const refreshTokensInAuthRelations = relations(refreshTokensInAuth, ({one}) => ({
@@ -90,9 +55,51 @@ export const refreshTokensInAuthRelations = relations(refreshTokensInAuth, ({one
 	}),
 }));
 
-export const identitiesInAuthRelations = relations(identitiesInAuth, ({one}) => ({
+export const mfaChallengesInAuthRelations = relations(mfaChallengesInAuth, ({one}) => ({
+	mfaFactorsInAuth: one(mfaFactorsInAuth, {
+		fields: [mfaChallengesInAuth.factorId],
+		references: [mfaFactorsInAuth.id]
+	}),
+}));
+
+export const samlProvidersInAuthRelations = relations(samlProvidersInAuth, ({one}) => ({
+	ssoProvidersInAuth: one(ssoProvidersInAuth, {
+		fields: [samlProvidersInAuth.ssoProviderId],
+		references: [ssoProvidersInAuth.id]
+	}),
+}));
+
+export const ssoProvidersInAuthRelations = relations(ssoProvidersInAuth, ({many}) => ({
+	samlProvidersInAuths: many(samlProvidersInAuth),
+	samlRelayStatesInAuths: many(samlRelayStatesInAuth),
+	ssoDomainsInAuths: many(ssoDomainsInAuth),
+}));
+
+export const samlRelayStatesInAuthRelations = relations(samlRelayStatesInAuth, ({one}) => ({
+	flowStateInAuth: one(flowStateInAuth, {
+		fields: [samlRelayStatesInAuth.flowStateId],
+		references: [flowStateInAuth.id]
+	}),
+	ssoProvidersInAuth: one(ssoProvidersInAuth, {
+		fields: [samlRelayStatesInAuth.ssoProviderId],
+		references: [ssoProvidersInAuth.id]
+	}),
+}));
+
+export const flowStateInAuthRelations = relations(flowStateInAuth, ({many}) => ({
+	samlRelayStatesInAuths: many(samlRelayStatesInAuth),
+}));
+
+export const ssoDomainsInAuthRelations = relations(ssoDomainsInAuth, ({one}) => ({
+	ssoProvidersInAuth: one(ssoProvidersInAuth, {
+		fields: [ssoDomainsInAuth.ssoProviderId],
+		references: [ssoProvidersInAuth.id]
+	}),
+}));
+
+export const profilesRelations = relations(profiles, ({one}) => ({
 	usersInAuth: one(usersInAuth, {
-		fields: [identitiesInAuth.userId],
+		fields: [profiles.id],
 		references: [usersInAuth.id]
 	}),
 }));
@@ -100,13 +107,6 @@ export const identitiesInAuthRelations = relations(identitiesInAuth, ({one}) => 
 export const userVocabRecordRelations = relations(userVocabRecord, ({one}) => ({
 	usersInAuth: one(usersInAuth, {
 		fields: [userVocabRecord.userId],
-		references: [usersInAuth.id]
-	}),
-}));
-
-export const profilesRelations = relations(profiles, ({one}) => ({
-	usersInAuth: one(usersInAuth, {
-		fields: [profiles.id],
 		references: [usersInAuth.id]
 	}),
 }));
