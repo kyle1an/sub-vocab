@@ -3,6 +3,8 @@ import type {
   ToastProps,
 } from '@/components/ui/toast'
 
+import { omitUndefined } from '@/lib/utilities'
+
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 1000000
 
@@ -182,7 +184,7 @@ function useToast() {
   return {
     ...state,
     toast,
-    dismiss: (toastId?: string) => dispatch({ type: 'DISMISS_TOAST', toastId }),
+    dismiss: (toastId?: string) => dispatch(omitUndefined({ type: 'DISMISS_TOAST', toastId })),
   }
 }
 

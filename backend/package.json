@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@9.12.0",
+  "packageManager": "pnpm@9.12.1",
   "scripts": {
     "dev": "tsx watch app",
     "introspect": "drizzle-kit introspect",
@@ -14,16 +14,16 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "@trpc/react-query": "11.0.0-rc.502",
-    "@trpc/server": "11.0.0-rc.502",
+    "@trpc/react-query": "11.0.0-rc.566",
+    "@trpc/server": "11.0.0-rc.566",
     "@types/cookie": "^0.6.0",
-    "cookie": "^0.6.0",
-    "cookie-parser": "^1.4.6",
+    "cookie": "^1.0.1",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "debug": "^4.3.7",
     "dotenv": "^16.4.5",
-    "drizzle-orm": "^0.33.0",
-    "express": "^5.0.0",
+    "drizzle-orm": "^0.35.1",
+    "express": "^5.0.1",
     "http-errors": "^2.0.0",
     "morgan": "^1.10.0",
     "postgres": "^3.4.4"
@@ -32,10 +32,10 @@
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
     "@types/debug": "^4.1.12",
-    "@types/express": "^4.17.21",
+    "@types/express": "^5.0.0",
     "@types/http-errors": "^2.0.4",
     "@types/morgan": "^1.9.9",
-    "drizzle-kit": "^0.24.2",
+    "drizzle-kit": "^0.26.2",
     "tsx": "^4.19.1"
   }
 }

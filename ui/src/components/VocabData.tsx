@@ -53,9 +53,7 @@ function getAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
     return () => true
   }
 
-  return (row) => {
-    return filteredValue.includes(row.inertialPhase)
-  }
+  return (row) => filteredValue.includes(row.inertialPhase)
 }
 
 function getUserOwnedFilter(filterSegment: Segment): ColumnFilterFn {
@@ -68,9 +66,7 @@ function getUserOwnedFilter(filterSegment: Segment): ColumnFilterFn {
     return () => true
   }
 
-  return (row) => {
-    return filteredValue.includes(row.isUser)
-  }
+  return (row) => filteredValue.includes(row.vocab.isUser)
 }
 
 const PAGES = [10, 20, 40, 50, 100, 200, 1000] as const
@@ -80,7 +76,7 @@ function useColumns() {
   const handleVocabToggle = useVocabToggle()
   return (
     [
-      columnHelper.accessor((row) => row.timeModified, {
+      columnHelper.accessor((row) => row.vocab.timeModified, {
         id: 'timeModified',
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
@@ -118,7 +114,7 @@ function useColumns() {
         },
         footer: ({ column }) => column.id,
       }),
-      columnHelper.accessor((row) => row.word, {
+      columnHelper.accessor((row) => row.vocab.word, {
         id: 'word',
         filterFn: (row, columnId, fn: ColumnFilterFn) => fn(row.original),
         header: ({ header }) => {
@@ -177,7 +173,7 @@ function useColumns() {
         },
         footer: ({ column }) => column.id,
       }),
-      columnHelper.accessor((row) => row.word.length, {
+      columnHelper.accessor((row) => row.vocab.word.length, {
         id: 'word.length',
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
@@ -224,7 +220,7 @@ function useColumns() {
         footer: ({ column }) => column.id,
       }),
       columnHelper.accessor((row) => {
-        return row.learningPhase <= 1 ? row.learningPhase : row.inertialPhase
+        return row.vocab.learningPhase <= 1 ? row.vocab.learningPhase : row.inertialPhase
       }, {
         id: 'acquaintedStatus',
         filterFn: (row, columnId, fn: ColumnFilterFn) => fn(row.original),
@@ -259,14 +255,14 @@ function useColumns() {
         cell: ({ row }) => (
           <div className="flex justify-center">
             <VocabToggle
-              row={{ vocab: row.original }}
+              vocab={row.original.vocab}
               onToggle={handleVocabToggle}
             />
           </div>
         ),
         footer: ({ column }) => column.id,
       }),
-      columnHelper.accessor((row) => row.isUser, {
+      columnHelper.accessor((row) => row.vocab.isUser, {
         id: 'userOwned',
         filterFn: (row, columnId, fn: ColumnFilterFn) => fn(row.original),
         header: ({ header }) => {
@@ -290,7 +286,7 @@ function useColumns() {
         ),
         footer: ({ column }) => column.id,
       }),
-      columnHelper.accessor((row) => row.rank, {
+      columnHelper.accessor((row) => row.vocab.rank, {
         id: 'rank',
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
@@ -411,17 +407,16 @@ export function VocabDataTable({
   }
 
   function updateSearchFilter(search: string, usingRegex: boolean) {
+    search = search.toLowerCase()
     if (usingRegex) {
       const newRegex = tryGetRegex(search)
       if (newRegex) {
-        columnWord?.setFilterValue((): ColumnFilterFn => function regexFilterFn(row) {
-          return newRegex.test(row.word)
-        })
+        const regexFilterFn: ColumnFilterFn = (row) => newRegex.test(row.vocab.word)
+        columnWord?.setFilterValue(() => regexFilterFn)
       }
     } else {
-      columnWord?.setFilterValue((): ColumnFilterFn => function searchFilterFn(row) {
-        return row.wFamily.some((word) => word.includes(search))
-      })
+      const searchFilterFn: ColumnFilterFn = (row) => row.wFamily.some((word) => word.toLowerCase().includes(search))
+      columnWord?.setFilterValue(() => searchFilterFn)
     }
   }
 
@@ -431,15 +426,13 @@ export function VocabDataTable({
   })
 
   const rowsFiltered = table.getFilteredRowModel().rows
-  const rowsAcquainted = rowsFiltered.filter((row) => {
-    return row.original.learningPhase === LEARNING_PHASE.ACQUAINTED
-  })
-  const rowsNew = rowsFiltered.filter((row) => {
-    return row.original.learningPhase === LEARNING_PHASE.NEW
-  })
-  const rowsToRetain = rowsNew.filter((row) => {
-    return row.original.word.length <= 32
-  }).map((row) => row.original)
+  const rowsAcquainted = rowsFiltered
+    .filter((row) => row.original.vocab.learningPhase === LEARNING_PHASE.ACQUAINTED)
+  const rowsNew = rowsFiltered
+    .filter((row) => row.original.vocab.learningPhase === LEARNING_PHASE.NEW)
+  const rowsToRetain = rowsNew
+    .filter((row) => row.original.vocab.word.length <= 32)
+    .map((row) => row.original.vocab)
 
   const itemsNum = uniq([table.getPaginationRowModel().rows.length, rowsFiltered.length]).filter(Boolean).filter((n) => !PAGES.includes(n))
 
@@ -515,7 +508,7 @@ export function VocabDataTable({
           <tbody>
             {table.getRowModel().rows.map((row) => {
               return (
-                <Fragment key={`_${row.original.word}`}>
+                <Fragment key={`_${row.original.vocab.word}`}>
                   <tr
                     data-expand={row.getCanExpand()}
                     className={cn(

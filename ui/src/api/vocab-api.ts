@@ -7,6 +7,7 @@ import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
 import { atomWithQuery } from 'jotai-tanstack-query'
 
 import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
+import { omitUndefined } from '@/lib/utilities'
 import { queryClient, sessionAtom, supabase } from '@/store/useVocab'
 
 function mergeUserVocabWithBaseVocab(userVocab: UserVocabulary[], baseVocab: BaseVocabulary[]) {
@@ -107,7 +108,7 @@ function rowToState(row: UserVocabularyRow) {
 export type UserVocabulary = Awaited<ReturnType<typeof rowToState>>
 
 function userVocabularyOptions(userId: string) {
-  return queryOptions({
+  return omitUndefined(queryOptions({
     queryKey: ['userVocabularyRows', userId] as const,
     async queryFn() {
       const userVocabularyRows = await getUserVocabularyRows(userId)
@@ -115,7 +116,7 @@ function userVocabularyOptions(userId: string) {
     },
     placeholderData: [],
     enabled: Boolean(userId),
-  })
+  }))
 }
 
 const userVocabularyAtom = atomWithQuery((get) => {
@@ -146,7 +147,7 @@ async function getStemsMapping() {
     }
     wordGroup.push(link.derived_word)
     if (link.derived_word.includes(`'`)) {
-      const variant = link.derived_word.replace(`'`, `’`)
+      const variant = link.derived_word.replace(/'/g, `’`)
       if (!wordGroup.includes(variant)) {
         wordGroup.push(variant)
       }
@@ -266,6 +267,7 @@ export function useVocabRealtimeSync() {
           schema: 'public',
           table: 'user_vocab_record',
           event: 'INSERT',
+          filter: `user_id=eq.${userId}`,
         },
         upsertCallback,
       )
@@ -275,6 +277,7 @@ export function useVocabRealtimeSync() {
           schema: 'public',
           table: 'user_vocab_record',
           event: 'UPDATE',
+          filter: `user_id=eq.${userId}`,
         },
         upsertCallback,
       )

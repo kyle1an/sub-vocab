@@ -1,19 +1,17 @@
-import type { InertialPhase } from '@/lib/vocab'
+import type { InertialPhase, LabelData } from '@/lib/vocab'
 
-import type { VocabState } from './LabeledTire'
-
-export function statusRetainedList<T extends VocabState>(oldRows: (T & InertialPhase)[], newList: T[]) {
+export function statusRetainedList<T extends LabelData>(oldRows: (T & InertialPhase)[], newList: T[]) {
   const vocabLabel = new Map<string, T & InertialPhase>()
   const listDisplay = newList.map((sieve) => {
-    const label: T & InertialPhase = {
+    const label: (typeof oldRows)[number] = {
       ...sieve,
-      inertialPhase: sieve.learningPhase,
+      inertialPhase: sieve.vocab.learningPhase,
     }
-    vocabLabel.set(sieve.word, label)
+    vocabLabel.set(sieve.vocab.word, label)
     return label
   })
   oldRows.forEach((row) => {
-    const label = vocabLabel.get(row.word)
+    const label = vocabLabel.get(row.vocab.word)
     if (label) {
       label.inertialPhase = row.inertialPhase
     }

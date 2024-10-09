@@ -3,11 +3,11 @@
   "type": "module",
   "version": "0.3.0",
   "private": true,
-  "packageManager": "pnpm@9.12.0",
+  "packageManager": "pnpm@9.12.1",
   "scripts": {
     "backend": "pnpm --filter @sub-vocab/backend",
     "ui": "pnpm --filter @sub-vocab/ui",
-    "bump": "ncu react, react-dom, eslint-plugin-react-hooks --target @next --deep -u && ncu react-router --target @pre --deep -u && taze -r && pnpm up && pnpm i",
+    "bump": "ncu react, react-dom, eslint-plugin-react-hooks --target @next --deep -u && ncu --deep -u && taze -r && pnpm up && pnpm i",
     "lint:pkg": "eslint --fix package.json **/package.json",
     "introspect": "pnpm --recursive run introspect",
     "lint:fix": "pnpm --recursive run lint:fix"
@@ -22,12 +22,12 @@
     "@stylistic/eslint-plugin": "^2.9.0",
     "@t3-oss/env-core": "^0.11.1",
     "@total-typescript/ts-reset": "^0.6.1",
-    "@types/node": "^22.7.4",
+    "@types/node": "^22.7.5",
     "eslint": "^9.12.0",
     "pathe": "^1.1.2",
     "prettier": "^3.3.3",
-    "taze": "^0.16.9",
-    "typescript": "^5.6.2",
+    "taze": "^0.17.2",
+    "typescript": "^5.6.3",
     "zod": "^3.23.8"
   },
   "pnpm": {
