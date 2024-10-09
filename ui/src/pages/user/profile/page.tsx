@@ -11,7 +11,7 @@ export function ProfilePage() {
   const email = session?.user.email || ''
   const formDefaultValues = {
     newUsername: username,
-    email,
+    newEmail: email,
   }
   type FormValues = typeof formDefaultValues
   const form = useForm<FormValues>({
@@ -48,11 +48,17 @@ export function ProfilePage() {
   }
 
   async function submitEmailForm(values: FormValues) {
+    if (values.newEmail === email) {
+      setError('newEmail', {
+        message: 'The new email is the same as the current email.',
+      })
+      return
+    }
     const { error } = await updateEmail({
-      email: values.email,
+      email: values.newEmail,
     })
     if (error) {
-      setError('email', {
+      setError('newEmail', {
         message: error.message,
       })
     }
@@ -64,11 +70,11 @@ export function ProfilePage() {
         <div className="mb-3 border-b pb-1.5 text-xl">
           {t('change_username')}
         </div>
-        <div className="flex w-full">
+        <div className="flex">
           <Form {...form}>
             <form
               onSubmit={handleSubmit(submitForm)}
-              className="w-full space-y-4"
+              className="space-y-4"
             >
               <FormField
                 control={form.control}
@@ -78,21 +84,21 @@ export function ProfilePage() {
                   minLength: { value: 3, message: 'The Username must be at least 3 characters.' },
                 }}
                 render={({ field }) => (
-                  <FormItem
-                    className="max-w-48"
-                  >
+                  <FormItem>
                     <FormLabel>{t('Name')}</FormLabel>
                     <FormControl>
-                      <InputWrapper>
-                        <Input
-                          type="text"
-                          placeholder=""
-                          autoComplete="username"
-                          {...field}
-                          {...register('newUsername')}
-                          className="text-base md:text-sm"
-                        />
-                      </InputWrapper>
+                      <div className="flex">
+                        <InputWrapper>
+                          <Input
+                            type="text"
+                            placeholder=""
+                            autoComplete="username"
+                            {...field}
+                            {...register('newUsername')}
+                            className="text-base md:text-sm"
+                          />
+                        </InputWrapper>
+                      </div>
                     </FormControl>
                     <FormMessage>{errors.newUsername?.message ?? ''}</FormMessage>
                   </FormItem>
@@ -119,36 +125,36 @@ export function ProfilePage() {
         <div className="mb-3 border-b pb-1.5 text-xl">
           {t('Change email')}
         </div>
-        <div className="flex w-full">
+        <div className="flex">
           <Form {...form}>
             <form
               onSubmit={handleSubmit(submitEmailForm)}
-              className="w-full space-y-4"
+              className="space-y-4"
             >
               <FormField
                 control={form.control}
-                name="email"
+                name="newEmail"
                 rules={{
                   required: 'The email is required.',
                 }}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t('Email')}</FormLabel>
-                    <FormControl
-                      className="max-w-48"
-                    >
-                      <InputWrapper>
-                        <Input
-                          type="text"
-                          placeholder=""
-                          autoComplete="email"
-                          {...field}
-                          {...register('email')}
-                          className="text-base md:text-sm"
-                        />
-                      </InputWrapper>
+                    <FormControl>
+                      <div className="flex">
+                        <InputWrapper>
+                          <Input
+                            type="text"
+                            placeholder=""
+                            autoComplete="email"
+                            {...field}
+                            {...register('newEmail')}
+                            className="text-base md:text-sm"
+                          />
+                        </InputWrapper>
+                      </div>
                     </FormControl>
-                    <FormMessage>{errors.email?.message ?? ''}</FormMessage>
+                    <FormMessage>{errors.newEmail?.message ?? ''}</FormMessage>
                     {email.endsWith(env.VITE_LEGACY_USER_EMAIL_SUFFIX) ? (
                       <article className="prose-sm">
                         <span className="text-neutral-700">

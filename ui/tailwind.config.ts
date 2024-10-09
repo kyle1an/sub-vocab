@@ -5,6 +5,8 @@ import { mauve, violet } from '@radix-ui/colors'
 import flattenColorPalette from 'tailwindcss/lib/util/flattenColorPalette'
 import plugin from 'tailwindcss/plugin'
 
+import { omitUndefined } from './src/lib/utilities'
+
 const config: Config = {
   darkMode: ['class'],
   content: [
@@ -162,9 +164,9 @@ const config: Config = {
             '--squircle-radius': value,
           },
         }),
-      }, {
+      }, omitUndefined({
         values: theme('borderRadius'),
-      })
+      }))
 
       matchUtilities({
         'sq-radius-x': (value) => ({
@@ -175,9 +177,9 @@ const config: Config = {
             '--squircle-left-top-radius': value,
           },
         }),
-      }, {
+      }, omitUndefined({
         values: theme('borderRadius'),
-      })
+      }))
 
       matchUtilities({
         'sq-radius-y': (value) => ({
@@ -188,9 +190,9 @@ const config: Config = {
             '--squircle-bottom-left-radius': value,
           },
         }),
-      }, {
+      }, omitUndefined({
         values: theme('borderRadius'),
-      })
+      }))
 
       matchUtilities({
         'sq-outline': (value) => ({
@@ -199,9 +201,9 @@ const config: Config = {
             '--squircle-outline': value,
           },
         }),
-      }, {
+      }, omitUndefined({
         values: theme('borderWidth'),
-      })
+      }))
 
       matchUtilities({
         'sq-stroke': (value) => ({

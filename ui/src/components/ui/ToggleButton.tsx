@@ -1,17 +1,11 @@
-import type { LabelDisplayTable } from '@/lib/vocab'
+import { LEARNING_PHASE, type VocabState } from '@/lib/LabeledTire.ts'
 
-import { LEARNING_PHASE } from '@/lib/LabeledTire.ts'
-
-export function VocabToggle<T extends LabelDisplayTable>({
-  row: {
-    vocab,
-  },
+export function VocabToggle<T extends VocabState>({
+  vocab,
   onToggle,
   className = '',
 }: {
-  row: {
-    vocab: T
-  }
+  vocab: T
   onToggle: (arg: T) => void
   className?: string
 }) {

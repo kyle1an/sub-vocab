@@ -6,14 +6,16 @@ import {
   type WordLocator,
 } from '@/lib/LabeledTire.ts'
 
-export type LabelDisplayTable = VocabState & InertialPhase & {
+export type LabelData = {
+  vocab: VocabState
   wFamily: string[]
 }
 
-export type LabelSourceData = VocabState & {
+export type LabelSourceData = LabelData & {
   locations: WordLocator[]
-  wFamily: string[]
 }
+
+export type LabelDisplayTable = LabelData & InertialPhase
 
 export type LabelDisplaySource = LabelSourceData & InertialPhase
 
@@ -21,45 +23,47 @@ export type InertialPhase = {
   inertialPhase: LearningPhase
 }
 
-export function formVocab($: TrieWordLabel) {
-  let src = [...$.src]
-  const wFamily = $.wFamily ?? [$.path]
+export function formVocab(lemma: TrieWordLabel) {
+  let locations = [...lemma.src]
+  const wFamily = [lemma.path]
 
-  if ($.derive?.length) {
-    function collectNestedSource(derives: TrieWordLabel[]) {
-      for (const d$ of derives) {
-        if (d$.src[0]) {
-          wFamily.push(d$.path)
-          if (src[0]) {
-            src = d$.src[0].wordOrder < src[0].wordOrder ? d$.src.concat(src) : src.concat(d$.src)
+  if (lemma.derive?.length) {
+    function collectNestedSource(lexicalEntries: TrieWordLabel[]) {
+      for (const lexicalEntry of lexicalEntries) {
+        if (lexicalEntry.src[0]) {
+          wFamily.push(lexicalEntry.path)
+          if (locations[0]) {
+            locations = lexicalEntry.src[0].wordOrder < locations[0].wordOrder
+              ? lexicalEntry.src.concat(locations)
+              : locations.concat(lexicalEntry.src)
           } else {
-            src = d$.src
+            locations = lexicalEntry.src
           }
         }
 
-        if (d$.derive?.length) {
-          collectNestedSource(d$.derive)
+        if (lexicalEntry.derive?.length) {
+          collectNestedSource(lexicalEntry.derive)
         }
       }
     }
 
-    collectNestedSource($.derive)
+    collectNestedSource(lemma.derive)
   }
 
   const vocab: VocabState = {
-    word: $.path,
+    word: lemma.path,
     learningPhase: LEARNING_PHASE.NEW,
     isUser: false,
     original: false,
     timeModified: null,
     rank: null,
-    ...$.vocab,
+    ...lemma.vocab,
   }
 
   const labelDisplaySource: LabelSourceData = {
-    ...vocab,
+    vocab,
     wFamily,
-    locations: src,
+    locations,
   }
 
   return labelDisplaySource
