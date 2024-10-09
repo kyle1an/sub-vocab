@@ -146,7 +146,7 @@ async function getStemsMapping() {
     }
     wordGroup.push(link.derived_word)
     if (link.derived_word.includes(`'`)) {
-      const variant = link.derived_word.replace(`'`, `’`)
+      const variant = link.derived_word.replace(/'/g, `’`)
       if (!wordGroup.includes(variant)) {
         wordGroup.push(variant)
       }

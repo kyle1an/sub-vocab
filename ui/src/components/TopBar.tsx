@@ -138,7 +138,7 @@ export function TopBar({ className }: { className?: string }) {
 
   const [locale, updateLocale] = useAtom(localeAtom)
   const [themePreference, setThemePreference] = useAtom(themeAtom)
-  const [isThemeTransitioning, setIsThemeTransitioning] = useState(false)
+  const [isThemeTransitioning, startThemeTransition] = useTransition()
 
   useEffect(() => {
     i18n.changeLanguage(locale).catch(console.error)
@@ -239,11 +239,8 @@ export function TopBar({ className }: { className?: string }) {
                                 key={theme.value}
                                 value={theme.value}
                                 onSelect={() => {
-                                  setIsThemeTransitioning(true)
                                   setThemePreference(theme.value)
-                                  requestAnimationFrame(() => {
-                                    setIsThemeTransitioning(false)
-                                  })
+                                  startThemeTransition(() => {})
                                 }}
                               >
                                 {theme.label}

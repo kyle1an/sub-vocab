@@ -94,6 +94,7 @@ export class LabeledTire {
       if (node.$.vocab) {
         node.$.vocab.learningPhase = sieve.learningPhase
         node.$.vocab.timeModified = sieve.timeModified
+        node.$.vocab.isUser = sieve.isUser
         node.$.vocab.rank = sieve.rank
         node.$.wFamily = [node.$.vocab.word, sieve.word]
       } else {
@@ -147,13 +148,27 @@ export class LabeledTire {
         if (!irregular) {
           continue
         }
-        const derive = this.getNode(irregular).$
+        const hasCapital = capitalIn(irregular)
+        const deriveNode = this.getNode(hasCapital ? irregular.toLowerCase() : irregular)
+        if (!deriveNode.$) {
+          deriveNode.$ = {
+            path: irregular,
+            up: hasCapital,
+            src: [],
+            vocab: {
+              word: stem,
+              learningPhase: LEARNING_PHASE.NEW,
+              isUser: false,
+              original: false,
+              rank: null,
+              timeModified: null,
+            },
+          }
+        }
         if (
-          derive
-          && derive.src.length
-          && !derive.variant
+          !deriveNode.$.variant
         ) {
-          this.#mergeTo(stemNode.$, derive)
+          this.#mergeTo(stemNode.$, deriveNode.$)
         }
       }
     }
