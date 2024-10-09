@@ -58,7 +58,9 @@ app.use(cookieParser())
 app.use(express.static(join(__dirname, 'public')))
 
 app.use('/', routes)
-app.get(/favicon.*/, (req, res) => res.status(204).end())
+app.get(/favicon.*/, (req, res) => {
+  res.status(204).end()
+})
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

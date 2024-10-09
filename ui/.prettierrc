@@ -8,6 +8,14 @@
   "bracketSameLine": false,
   "jsxSingleQuote": true,
   "printWidth": 180,
+  "overrides": [
+    {
+      "files": ["*.json"],
+      "options": {
+        "printWidth": 40
+      }
+    }
+  ],
   "proseWrap": "preserve",
   "quoteProps": "as-needed",
   "requirePragma": false,

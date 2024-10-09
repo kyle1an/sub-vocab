@@ -60,7 +60,7 @@ export function Password() {
         <div className="mb-3 border-b pb-1.5 text-xl">
           {t('changePassword')}
         </div>
-        <div className="flex w-80">
+        <div className="flex">
           <Form {...form}>
             <form
               onSubmit={handleSubmit(onSubmit)}
@@ -76,7 +76,7 @@ export function Password() {
                   <FormItem>
                     <FormLabel>{t('New Password')}</FormLabel>
                     <FormControl>
-                      <div className="flex items-center gap-1">
+                      <div className="flex gap-1">
                         <InputWrapper>
                           <Input
                             type={newPasswordVisible ? 'text' : 'password'}

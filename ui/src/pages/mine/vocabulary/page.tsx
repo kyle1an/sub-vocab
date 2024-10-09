@@ -17,14 +17,14 @@ export function VocabularyPage() {
     }
     trie.mergedVocabulary(userWords)
     trie.mergeDerivedWordIntoStem(irregulars)
-    const list = trie.vocabulary.filter(Boolean).filter((v) => !v.variant).map(formVocab)
+    const list = trie.getVocabulary().filter((v) => !v.variant).map(formVocab)
     setRows((r) => statusRetainedList(r, list))
   }, [irregulars, userWords])
 
   function handlePurge() {
     setRows(produce ((draft) => {
       draft.forEach((todo) => {
-        todo.inertialPhase = todo.learningPhase
+        todo.inertialPhase = todo.vocab.learningPhase
       })
     }))
   }

@@ -15,6 +15,7 @@ import type { SessionWithUserMetadata } from '@/api/vocab-api'
 import { env } from '@/env'
 import { getLanguage } from '@/i18n'
 import { SUPPORTED_FILE_EXTENSIONS } from '@/lib/filesHandler'
+import { omitUndefined } from '@/lib/utilities'
 import { getScrollbarWidth } from '@/lib/utils'
 
 import type { Database } from '../../database.types'
@@ -43,10 +44,10 @@ export const trpcClient = trpc.createClient({
     httpBatchLink({
       url: `${baseUrl}/trpc`,
       fetch(url, options) {
-        return fetch(url, {
+        return fetch(url, omitUndefined({
           ...options,
           credentials: 'include',
-        })
+        }))
       },
     }),
   ],

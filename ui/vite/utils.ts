@@ -1,5 +1,5 @@
 import type { ManualChunksOption } from 'rollup'
-import type { IndexHtmlTransform, PluginOption } from 'vite'
+import type { PluginOption } from 'vite'
 
 function removeScriptTagAttributes(scriptContent: string) {
   scriptContent = scriptContent.replace(/(<script[^>]*?)\srel="modulepreload"([^>]*>)/g, '$1$2')
@@ -14,25 +14,23 @@ function replaceLinkTagWithScript(html: string, targetFilename: string, scriptCo
   })
 }
 
-const transformIndexHtml: IndexHtmlTransform = (html, { bundle }) => {
-  if (bundle) {
-    Object.entries(bundle).forEach(([fileName, output]) => {
-      if (/\/worker.*\.js$/.test(fileName)) {
-        if ('code' in output) {
-          html = replaceLinkTagWithScript(html, output.fileName, output.code)
-          // delete bundle[output.fileName]
-        }
-      }
-    })
-  }
-  return html
-}
-
 export const htmlInlineTransform = (): PluginOption => {
   return {
     name: 'html-inline-transform',
     // https://github.com/vitejs/vite/issues/621#issuecomment-756890673
-    transformIndexHtml,
+    transformIndexHtml(html, { bundle }) {
+      if (bundle) {
+        Object.entries(bundle).forEach(([fileName, output]) => {
+          if (/\/worker.*\.js$/.test(fileName)) {
+            if ('code' in output) {
+              html = replaceLinkTagWithScript(html, output.fileName, output.code)
+              // delete bundle[output.fileName]
+            }
+          }
+        })
+      }
+      return html
+    },
   }
 }
 
