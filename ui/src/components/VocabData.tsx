@@ -352,6 +352,7 @@ export function VocabDataTable({
   const columns = useColumns()
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'allAcquainted')
+  const [isSegmentTransitioning, startSegmentTransition] = useTransition()
 
   const pagination = tableState.pagination ?? {
     pageSize: 100,
@@ -390,6 +391,9 @@ export function VocabDataTable({
   function handleSegmentChoose(newSegment: typeof segment) {
     onPurge()
     setSegment(newSegment)
+    requestAnimationFrame(() => {
+      startSegmentTransition(() => {})
+    })
     table.getColumn('acquaintedStatus')?.setFilterValue(() => getAcquaintedStatusFilter(newSegment))
     table.getColumn('userOwned')?.setFilterValue(() => getUserOwnedFilter(newSegment))
   }
@@ -591,6 +595,7 @@ export function VocabDataTable({
           rowsCountFiltered={rowsFiltered.length}
           rowsCountNew={rowsNew.length}
           rowsCountAcquainted={rowsAcquainted.length}
+          animated={!isSegmentTransitioning}
         />
       </div>
     </div>

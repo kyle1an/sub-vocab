@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@9.12.1",
+  "packageManager": "pnpm@9.12.2",
   "scripts": {
     "dev": "tsx watch app",
     "introspect": "drizzle-kit introspect",
@@ -22,7 +22,7 @@
     "cors": "^2.8.5",
     "debug": "^4.3.7",
     "dotenv": "^16.4.5",
-    "drizzle-orm": "^0.35.1",
+    "drizzle-orm": "^0.35.2",
     "express": "^5.0.1",
     "http-errors": "^2.0.0",
     "morgan": "^1.10.0",

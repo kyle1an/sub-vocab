@@ -384,6 +384,7 @@ export function VocabSourceTable({
   const columns = useColumns()
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'all')
+  const [isSegmentTransitioning, startSegmentTransition] = useTransition()
 
   const pagination = tableState.pagination ?? {
     pageSize: 100,
@@ -415,6 +416,9 @@ export function VocabSourceTable({
   function handleSegmentChoose(newSegment: typeof segment) {
     onPurge()
     setSegment(newSegment)
+    requestAnimationFrame(() => {
+      startSegmentTransition(() => {})
+    })
     table.getColumn('acquaintedStatus')?.setFilterValue(() => getAcquaintedStatusFilter(newSegment))
   }
 
@@ -629,6 +633,7 @@ export function VocabSourceTable({
           rowsCountFiltered={rowsFiltered.length}
           rowsCountNew={rowsNew.length}
           rowsCountAcquainted={rowsAcquainted.length}
+          animated={!isSegmentTransitioning}
         />
       </div>
     </div>

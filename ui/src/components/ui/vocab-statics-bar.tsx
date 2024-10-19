@@ -1,9 +1,25 @@
-export function VocabStatics(props: { rowsCountFiltered: number, rowsCountNew: number, rowsCountAcquainted: number }) {
+import NumberFlow from '@number-flow/react'
+
+export function VocabStatics(props: {
+  rowsCountFiltered: number
+  rowsCountNew: number
+  rowsCountAcquainted: number
+  animated?: boolean
+}) {
   const { t } = useTranslation()
+  const animated = props.animated ?? true
   return (
     <div className="flex h-7 items-center text-xs tabular-nums text-neutral-600 dark:text-neutral-400">
       <span>
-        {`${props.rowsCountFiltered.toLocaleString('en-US')} ${t('vocabulary')}`}
+        <NumberFlow
+          value={props.rowsCountFiltered}
+          locales="en-US"
+          animated={animated}
+          isolate
+        />
+        <span>
+          {` ${t('vocabulary')}`}
+        </span>
       </span>
       <div className="flex items-center gap-0.5">
         {props.rowsCountNew > 0 ? (
@@ -11,7 +27,12 @@ export function VocabStatics(props: { rowsCountFiltered: number, rowsCountNew: n
             <span className="text-neutral-400">, </span>
             <div className="flex items-center gap-1">
               <span>
-                {props.rowsCountNew.toLocaleString('en-US')}
+                <NumberFlow
+                  value={props.rowsCountNew}
+                  locales="en-US"
+                  animated={animated}
+                  isolate
+                />
               </span>
               <IconLucideCircle
                 className="size-[14px] text-neutral-400"
@@ -24,7 +45,12 @@ export function VocabStatics(props: { rowsCountFiltered: number, rowsCountNew: n
             <span className="text-neutral-400">, </span>
             <div className="flex items-center gap-1">
               <span>
-                {props.rowsCountAcquainted.toLocaleString('en-US')}
+                <NumberFlow
+                  value={props.rowsCountAcquainted}
+                  locales="en-US"
+                  animated={animated}
+                  isolate
+                />
               </span>
               <IconLucideCheckCircle
                 className="size-[14px] text-neutral-400"
