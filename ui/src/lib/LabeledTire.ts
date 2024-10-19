@@ -175,7 +175,7 @@ export class LabeledTire {
   }
 
   add(input: string) {
-    const sentencesMatched = input.match(/["'“‘@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|\{[^}]*\})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ])|\.{3} *)*["'”’@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/g)
+    const sentencesMatched = input.match(/["'“‘[@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|\{[^}]*\})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ])|\.{3} *)*["'”’\]@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/g)
     if (sentencesMatched) {
       const previousLength = this.sentences.length
       const newLength = previousLength + sentencesMatched.length
