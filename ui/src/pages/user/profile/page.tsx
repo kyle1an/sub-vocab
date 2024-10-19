@@ -123,7 +123,7 @@ export function ProfilePage() {
       </div>) : null}
       <div>
         <div className="mb-3 border-b pb-1.5 text-xl">
-          {t('Change email')}
+          Change email
         </div>
         <div className="flex">
           <Form {...form}>
@@ -139,7 +139,7 @@ export function ProfilePage() {
                 }}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('Email')}</FormLabel>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
                       <div className="flex">
                         <InputWrapper>
