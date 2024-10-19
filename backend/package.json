@@ -3,13 +3,13 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@9.12.1",
+  "packageManager": "pnpm@9.12.2",
   "scripts": {
-    "dev": "tsx watch app",
+    "dev": "tsx watch --env-file=.env app",
     "introspect": "drizzle-kit introspect",
     "build": "tsc && npm run copy-files",
     "copy-files": "cp -R public dist/backend",
-    "start": "node dist/backend/app.js",
+    "start": "node --env-file=.env dist/backend/app.js",
     "lint": "eslint . --report-unused-disable-directives",
     "lint:fix": "eslint . --fix"
   },
@@ -21,12 +21,11 @@
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "debug": "^4.3.7",
-    "dotenv": "^16.4.5",
-    "drizzle-orm": "^0.35.1",
+    "drizzle-orm": "^0.35.3",
     "express": "^5.0.1",
     "http-errors": "^2.0.0",
     "morgan": "^1.10.0",
-    "postgres": "^3.4.4"
+    "postgres": "^3.4.5"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.7",

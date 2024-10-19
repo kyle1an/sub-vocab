@@ -46,14 +46,13 @@ export function AcquaintAllDialog<T extends VocabState>({ vocabulary }: { vocabu
               i18nKey="acquaintedAllConfirmText"
               values={{ count }}
             >
-              Are you sure to mark all (
+              ()
               <span className="font-bold text-foreground">{transParams({ count })}</span>
-              ) vocabulary as acquainted?
             </Trans>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="">
-          <AlertDialogCancel>{t('Cancel')}</AlertDialogCancel>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
               if (vocabulary.length > 0) {
@@ -61,7 +60,7 @@ export function AcquaintAllDialog<T extends VocabState>({ vocabulary }: { vocabu
               }
             }}
           >
-            {t('Continue')}
+            Continue
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -384,6 +383,7 @@ export function VocabSourceTable({
   const columns = useColumns()
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'all')
+  const [isSegmentTransitioning, startSegmentTransition] = useTransition()
 
   const pagination = tableState.pagination ?? {
     pageSize: 100,
@@ -415,6 +415,9 @@ export function VocabSourceTable({
   function handleSegmentChoose(newSegment: typeof segment) {
     onPurge()
     setSegment(newSegment)
+    requestAnimationFrame(() => {
+      startSegmentTransition(() => {})
+    })
     table.getColumn('acquaintedStatus')?.setFilterValue(() => getAcquaintedStatusFilter(newSegment))
   }
 
@@ -585,7 +588,7 @@ export function VocabSourceTable({
                 table.setPageSize(Number(e))
               }}
             >
-              <SelectTrigger className="h-5 px-2 py-0 text-xs tabular-nums">
+              <SelectTrigger className="h-5 w-[unset] px-2 py-0 text-xs tabular-nums">
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent
@@ -629,6 +632,7 @@ export function VocabSourceTable({
           rowsCountFiltered={rowsFiltered.length}
           rowsCountNew={rowsNew.length}
           rowsCountAcquainted={rowsAcquainted.length}
+          animated={!isSegmentTransitioning}
         />
       </div>
     </div>

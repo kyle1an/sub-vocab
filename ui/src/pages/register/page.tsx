@@ -1,9 +1,17 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router'
+import { Navigate, useNavigate } from 'react-router'
+import { z } from 'zod'
+
+import type { ZodObj } from '@/types/utils'
 
 import { useRegister } from '@/api/user'
+import { PASSWORD_MIN_LENGTH } from '@/constants/constraints'
+import { sessionAtom } from '@/store/useVocab'
 
 export function Register() {
+  const [session] = useAtom(sessionAtom)
+  const user = session?.user
   const formDefaultValues = {
     email: '',
     password: '',
@@ -11,12 +19,29 @@ export function Register() {
   type FormValues = typeof formDefaultValues
   const form = useForm<FormValues>({
     defaultValues: formDefaultValues,
-    reValidateMode: 'onSubmit',
+    mode: 'onBlur',
+    resolver: zodResolver(
+      z
+        .object<ZodObj<FormValues>>({
+          email: z
+            .string()
+            .min(1, {
+              message: 'Email is required',
+            })
+            .email(),
+          password: z
+            .string()
+            .min(1, {
+              message: 'Password is required',
+            })
+            .min(PASSWORD_MIN_LENGTH, {
+              message: `Password should be at least ${PASSWORD_MIN_LENGTH} characters.`,
+            }),
+        }),
+    ),
   })
 
   const {
-    register,
-    trigger,
     handleSubmit,
     formState: { errors },
     setError,
@@ -25,6 +50,10 @@ export function Register() {
   const [passwordVisible, setPasswordVisible] = useState(false)
   const { mutateAsync: signUp, isPending } = useRegister()
   const navigate = useNavigate()
+
+  if (user) {
+    return <Navigate to="/" />
+  }
 
   async function onSubmit(values: FormValues) {
     const { email, password } = values
@@ -61,9 +90,6 @@ export function Register() {
                     <FormField
                       control={form.control}
                       name="email"
-                      rules={{
-                        required: 'The email is required.',
-                      }}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Email</FormLabel>
@@ -71,15 +97,8 @@ export function Register() {
                             <InputWrapper>
                               <Input
                                 type="text"
-                                placeholder=""
                                 autoComplete="username"
                                 {...field}
-                                {...register('email')}
-                                onBlur={() => {
-                                  if (form.formState.isDirty) {
-                                    trigger('email').catch(console.error)
-                                  }
-                                }}
                                 className="text-base md:text-sm"
                               />
                             </InputWrapper>
@@ -91,9 +110,6 @@ export function Register() {
                     <FormField
                       control={form.control}
                       name="password"
-                      rules={{
-                        required: 'The password is required.',
-                      }}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Password</FormLabel>
@@ -103,9 +119,7 @@ export function Register() {
                                 <Input
                                   type={passwordVisible ? 'text' : 'password'}
                                   autoComplete="new-password"
-                                  placeholder=""
                                   {...field}
-                                  {...register('password')}
                                   className="text-base md:text-sm"
                                 />
                               </InputWrapper>

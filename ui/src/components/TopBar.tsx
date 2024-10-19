@@ -2,7 +2,7 @@ import type React from 'react'
 
 import { CloseButton, Popover, PopoverButton, PopoverPanel, useClose } from '@headlessui/react'
 import { Slot } from '@radix-ui/react-slot'
-import { Link, useNavigate } from 'react-router'
+import { Link } from 'react-router'
 
 import { useLogOut } from '@/api/user'
 import { DEFAULT_THEME, THEMES } from '@/components/themes'
@@ -70,7 +70,6 @@ function Settings({ className, ...props }: React.HTMLAttributes<HTMLAnchorElemen
 function SignOut({ className, ...props }: React.HTMLAttributes<HTMLButtonElement>) {
   const { t } = useTranslation()
   const { mutateAsync: logOut } = useLogOut()
-  const navigate = useNavigate()
   const close = useClose()
 
   function logout() {
@@ -79,9 +78,6 @@ function SignOut({ className, ...props }: React.HTMLAttributes<HTMLButtonElement
         const { error } = logOutRes
         if (!error) {
           close()
-          requestAnimationFrame(() => {
-            navigate('/')
-          })
         }
       })
       .catch(console.error)

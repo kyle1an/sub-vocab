@@ -1,4 +1,4 @@
-import type { Database } from '@subvocab/ui/database.types'
+import type { Tables } from '@subvocab/ui/database.types'
 import type { RealtimePostgresInsertPayload, RealtimePostgresUpdatePayload, Session, User } from '@supabase/supabase-js'
 import type { MergeDeep } from 'type-fest'
 
@@ -226,7 +226,7 @@ export function useUserWordPhaseMutation() {
   })
 }
 
-type Row_user_vocab_record = Database['public']['Tables']['user_vocab_record']['Row']
+type Row_user_vocab_record = Tables<'user_vocab_record'>
 
 function useRealtimeVocabUpsert<T extends Row_user_vocab_record>() {
   const [session] = useAtom(sessionAtom)
@@ -259,32 +259,34 @@ export function useVocabRealtimeSync() {
   const userId = session?.user.id ?? ''
 
   useEffect(() => {
-    const channel = supabase
-      .channel(`user_${userId}_user_vocab_record`)
-      .on(
-        'postgres_changes',
-        {
-          schema: 'public',
-          table: 'user_vocab_record',
-          event: 'INSERT',
-          filter: `user_id=eq.${userId}`,
-        },
-        upsertCallback,
-      )
-      .on(
-        'postgres_changes',
-        {
-          schema: 'public',
-          table: 'user_vocab_record',
-          event: 'UPDATE',
-          filter: `user_id=eq.${userId}`,
-        },
-        upsertCallback,
-      )
-      .subscribe()
+    if (userId) {
+      const channel = supabase
+        .channel(`user_${userId}_user_vocab_record`)
+        .on(
+          'postgres_changes',
+          {
+            schema: 'public',
+            table: 'user_vocab_record',
+            event: 'INSERT',
+            filter: `user_id=eq.${userId}`,
+          },
+          upsertCallback,
+        )
+        .on(
+          'postgres_changes',
+          {
+            schema: 'public',
+            table: 'user_vocab_record',
+            event: 'UPDATE',
+            filter: `user_id=eq.${userId}`,
+          },
+          upsertCallback,
+        )
+        .subscribe()
 
-    return () => {
-      channel.unsubscribe()
+      return () => {
+        channel.unsubscribe()
+      }
     }
   }, [upsertCallback, userId])
 }

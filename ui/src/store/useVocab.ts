@@ -1,4 +1,5 @@
 import type { AppRouter } from '@subvocab/backend/app'
+import type { Database } from '@subvocab/ui/database.types'
 import type { ArrayValues } from 'type-fest'
 
 import { createClient } from '@supabase/supabase-js'
@@ -17,8 +18,6 @@ import { getLanguage } from '@/i18n'
 import { SUPPORTED_FILE_EXTENSIONS } from '@/lib/filesHandler'
 import { omitUndefined } from '@/lib/utilities'
 import { getScrollbarWidth } from '@/lib/utils'
-
-import type { Database } from '../../database.types'
 
 import { DEFAULT_THEME, type THEMES } from '../components/themes'
 

@@ -1,4 +1,4 @@
-import { pgTable, pgSchema, index, foreignKey, unique, text, uuid, jsonb, timestamp, uniqueIndex, check, bigserial, varchar, boolean, json, serial, integer, smallint, inet, primaryKey } from "drizzle-orm/pg-core"
+import { pgTable, pgSchema, index, uniqueIndex, foreignKey, unique, uuid, text, timestamp, jsonb, check, bigserial, varchar, boolean, json, serial, integer, smallint, inet, primaryKey } from "drizzle-orm/pg-core"
   import { sql } from "drizzle-orm"
 
 export const auth = pgSchema("auth");
@@ -9,6 +9,35 @@ export const factorTypeInAuth = auth.enum("factor_type", ['totp', 'webauthn', 'p
 export const oneTimeTokenTypeInAuth = auth.enum("one_time_token_type", ['confirmation_token', 'reauthentication_token', 'recovery_token', 'email_change_token_new', 'email_change_token_current', 'phone_change_token'])
 
 
+
+export const mfaFactorsInAuth = auth.table("mfa_factors", {
+	id: uuid().primaryKey().notNull(),
+	userId: uuid("user_id").notNull(),
+	friendlyName: text("friendly_name"),
+	factorType: factorTypeInAuth("factor_type").notNull(),
+	status: factorStatusInAuth().notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).notNull(),
+	secret: text(),
+	phone: text(),
+	lastChallengedAt: timestamp("last_challenged_at", { withTimezone: true, mode: 'string' }),
+	webAuthnCredential: jsonb("web_authn_credential"),
+	webAuthnAaguid: uuid("web_authn_aaguid"),
+},
+(table) => {
+	return {
+		factorIdCreatedAtIdx: index("factor_id_created_at_idx").using("btree", table.userId.asc().nullsLast(), table.createdAt.asc().nullsLast()),
+		userFriendlyNameUnique: uniqueIndex("mfa_factors_user_friendly_name_unique").using("btree", table.friendlyName.asc().nullsLast(), table.userId.asc().nullsLast()).where(sql`(TRIM(BOTH FROM friendly_name) <> ''::text)`),
+		userIdIdx: index("mfa_factors_user_id_idx").using("btree", table.userId.asc().nullsLast()),
+		uniquePhoneFactorPerUser: uniqueIndex("unique_phone_factor_per_user").using("btree", table.userId.asc().nullsLast(), table.phone.asc().nullsLast()),
+		mfaFactorsUserIdFkey: foreignKey({
+			columns: [table.userId],
+			foreignColumns: [usersInAuth.id],
+			name: "mfa_factors_user_id_fkey"
+		}).onDelete("cascade"),
+		mfaFactorsLastChallengedAtKey: unique("mfa_factors_last_challenged_at_key").on(table.lastChallengedAt),
+	}
+});
 
 export const identitiesInAuth = auth.table("identities", {
 	providerId: text("provider_id").notNull(),
@@ -31,33 +60,6 @@ export const identitiesInAuth = auth.table("identities", {
 			name: "identities_user_id_fkey"
 		}).onDelete("cascade"),
 		identitiesProviderIdProviderUnique: unique("identities_provider_id_provider_unique").on(table.providerId, table.provider),
-	}
-});
-
-export const mfaFactorsInAuth = auth.table("mfa_factors", {
-	id: uuid().primaryKey().notNull(),
-	userId: uuid("user_id").notNull(),
-	friendlyName: text("friendly_name"),
-	factorType: factorTypeInAuth("factor_type").notNull(),
-	status: factorStatusInAuth().notNull(),
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).notNull(),
-	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).notNull(),
-	secret: text(),
-	phone: text(),
-	lastChallengedAt: timestamp("last_challenged_at", { withTimezone: true, mode: 'string' }),
-},
-(table) => {
-	return {
-		factorIdCreatedAtIdx: index("factor_id_created_at_idx").using("btree", table.userId.asc().nullsLast(), table.createdAt.asc().nullsLast()),
-		userFriendlyNameUnique: uniqueIndex("mfa_factors_user_friendly_name_unique").using("btree", table.friendlyName.asc().nullsLast(), table.userId.asc().nullsLast()).where(sql`(TRIM(BOTH FROM friendly_name) <> ''::text)`),
-		userIdIdx: index("mfa_factors_user_id_idx").using("btree", table.userId.asc().nullsLast()),
-		uniquePhoneFactorPerUser: uniqueIndex("unique_phone_factor_per_user").using("btree", table.userId.asc().nullsLast(), table.phone.asc().nullsLast()),
-		mfaFactorsUserIdFkey: foreignKey({
-			columns: [table.userId],
-			foreignColumns: [usersInAuth.id],
-			name: "mfa_factors_user_id_fkey"
-		}).onDelete("cascade"),
-		mfaFactorsLastChallengedAtKey: unique("mfa_factors_last_challenged_at_key").on(table.lastChallengedAt),
 	}
 });
 
@@ -320,25 +322,6 @@ export const flowStateInAuth = auth.table("flow_state", {
 	}
 });
 
-export const mfaChallengesInAuth = auth.table("mfa_challenges", {
-	id: uuid().primaryKey().notNull(),
-	factorId: uuid("factor_id").notNull(),
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).notNull(),
-	verifiedAt: timestamp("verified_at", { withTimezone: true, mode: 'string' }),
-	ipAddress: inet("ip_address").notNull(),
-	otpCode: text("otp_code"),
-},
-(table) => {
-	return {
-		mfaChallengeCreatedAtIdx: index("mfa_challenge_created_at_idx").using("btree", table.createdAt.desc().nullsFirst()),
-		mfaChallengesAuthFactorIdFkey: foreignKey({
-			columns: [table.factorId],
-			foreignColumns: [mfaFactorsInAuth.id],
-			name: "mfa_challenges_auth_factor_id_fkey"
-		}).onDelete("cascade"),
-	}
-});
-
 export const samlProvidersInAuth = auth.table("saml_providers", {
 	id: uuid().primaryKey().notNull(),
 	ssoProviderId: uuid("sso_provider_id").notNull(),
@@ -411,6 +394,26 @@ export const ssoDomainsInAuth = auth.table("sso_domains", {
 			name: "sso_domains_sso_provider_id_fkey"
 		}).onDelete("cascade"),
 		domainNotEmpty: check("domain not empty", sql`char_length(domain) > 0`),
+	}
+});
+
+export const mfaChallengesInAuth = auth.table("mfa_challenges", {
+	id: uuid().primaryKey().notNull(),
+	factorId: uuid("factor_id").notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).notNull(),
+	verifiedAt: timestamp("verified_at", { withTimezone: true, mode: 'string' }),
+	ipAddress: inet("ip_address").notNull(),
+	otpCode: text("otp_code"),
+	webAuthnSessionData: jsonb("web_authn_session_data"),
+},
+(table) => {
+	return {
+		mfaChallengeCreatedAtIdx: index("mfa_challenge_created_at_idx").using("btree", table.createdAt.desc().nullsFirst()),
+		mfaChallengesAuthFactorIdFkey: foreignKey({
+			columns: [table.factorId],
+			foreignColumns: [mfaFactorsInAuth.id],
+			name: "mfa_challenges_auth_factor_id_fkey"
+		}).onDelete("cascade"),
 	}
 });
 

@@ -40,7 +40,12 @@ function ResizableHandle({
       {...props}
     >
       {withHandle ? (
-        <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm border bg-border">
+        <div
+          className={cn(
+            'z-10 flex h-4 min-w-3 items-center justify-center rounded-sm border bg-border',
+            'squircle sq-radius-[3] sq-fill-border sq:rounded-none sq:border-0',
+          )}
+        >
           <DragHandleDots2Icon className="size-2.5" />
         </div>
       ) : null}
