@@ -1,6 +1,11 @@
+import type { ZodObj } from '@subvocab/ui/src/types/utils'
+
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 import { useUpdateEmail, useUpdateUser } from '@/api/user'
+import { USERNAME_MIN_LENGTH } from '@/constants/constraints'
 import { env } from '@/env'
 import { sessionAtom } from '@/store/useVocab'
 
@@ -9,56 +14,93 @@ export function ProfilePage() {
   const [session] = useAtom(sessionAtom)
   const username = session?.user.user_metadata.username || ''
   const email = session?.user.email || ''
-  const formDefaultValues = {
+  const usernameFormDefaultValues = {
     newUsername: username,
+  }
+  const emailFormDefaultValues = {
     newEmail: email,
   }
-  type FormValues = typeof formDefaultValues
-  const form = useForm<FormValues>({
-    defaultValues: formDefaultValues,
+
+  type UsernameFormValues = typeof usernameFormDefaultValues
+
+  const usernameForm = useForm<UsernameFormValues>({
+    defaultValues: usernameFormDefaultValues,
     reValidateMode: 'onSubmit',
+    resolver: zodResolver(
+      z
+        .object<ZodObj<UsernameFormValues>>({
+          newUsername: z
+            .string()
+            .min(1, {
+              message: 'Username is required',
+            })
+            .min(USERNAME_MIN_LENGTH, {
+              message: `Username should be at least ${USERNAME_MIN_LENGTH} characters.`,
+            })
+            .refine((val) => val !== username, {
+              message: 'The new username is the same as the current username.',
+            }),
+        }),
+    ),
   })
 
   const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setError,
-  } = form
+    register: registerUsernameForm,
+    handleSubmit: handleUsernameFormSubmit,
+    formState: { errors: usernameErrors },
+    setError: setUsernameFormError,
+  } = usernameForm
+
   const { mutateAsync: updateUser, isPending: isUsernameUpdatePending } = useUpdateUser()
   const { mutateAsync: updateEmail, isPending: isEmailUpdatePending } = useUpdateEmail()
-  async function submitForm(values: FormValues) {
-    if (values.newUsername === username) {
-      setError('newUsername', {
-        message: 'The new username is the same as the current username.',
-      })
-      return
-    }
 
+  async function submitUsernameForm(values: UsernameFormValues) {
     const { error } = await updateUser({
       data: {
         username: values.newUsername,
       },
     })
     if (error) {
-      setError('newUsername', {
+      setUsernameFormError('newUsername', {
         message: error.message,
       })
     }
   }
 
-  async function submitEmailForm(values: FormValues) {
-    if (values.newEmail === email) {
-      setError('newEmail', {
-        message: 'The new email is the same as the current email.',
-      })
-      return
-    }
+  type EmailFormValues = typeof emailFormDefaultValues
+
+  const emailForm = useForm<EmailFormValues>({
+    defaultValues: emailFormDefaultValues,
+    reValidateMode: 'onSubmit',
+    resolver: zodResolver(
+      z
+        .object<ZodObj<EmailFormValues>>({
+          newEmail: z
+            .string()
+            .min(1, {
+              message: 'Email is required',
+            })
+            .email()
+            .refine((val) => val !== email, {
+              message: 'The new email is the same as the current email.',
+            }),
+        }),
+    ),
+  })
+
+  const {
+    register: registerEmailForm,
+    handleSubmit: handleEmailFormSubmit,
+    formState: { errors: emailErrors },
+    setError: setEmailFormError,
+  } = emailForm
+
+  async function submitEmailForm(values: EmailFormValues) {
     const { error } = await updateEmail({
       email: values.newEmail,
     })
     if (error) {
-      setError('newEmail', {
+      setEmailFormError('newEmail', {
         message: error.message,
       })
     }
@@ -71,18 +113,14 @@ export function ProfilePage() {
           {t('change_username')}
         </div>
         <div className="flex">
-          <Form {...form}>
+          <Form {...usernameForm}>
             <form
-              onSubmit={handleSubmit(submitForm)}
+              onSubmit={handleUsernameFormSubmit(submitUsernameForm)}
               className="space-y-4"
             >
               <FormField
-                control={form.control}
+                control={usernameForm.control}
                 name="newUsername"
-                rules={{
-                  required: 'The Username is required.',
-                  minLength: { value: 3, message: 'The Username must be at least 3 characters.' },
-                }}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t('Name')}</FormLabel>
@@ -94,17 +132,17 @@ export function ProfilePage() {
                             placeholder=""
                             autoComplete="username"
                             {...field}
-                            {...register('newUsername')}
+                            {...registerUsernameForm('newUsername')}
                             className="text-base md:text-sm"
                           />
                         </InputWrapper>
                       </div>
                     </FormControl>
-                    <FormMessage>{errors.newUsername?.message ?? ''}</FormMessage>
+                    <FormMessage>{usernameErrors.newUsername?.message ?? ''}</FormMessage>
                   </FormItem>
                 )}
               />
-              <FormMessage>{errors.root?.serverError?.message}</FormMessage>
+              <FormMessage>{usernameErrors.root?.serverError?.message}</FormMessage>
               <Button
                 className="group mt-8 gap-1.5"
                 type="submit"
@@ -123,23 +161,20 @@ export function ProfilePage() {
       </div>) : null}
       <div>
         <div className="mb-3 border-b pb-1.5 text-xl">
-          {t('Change email')}
+          Change email
         </div>
         <div className="flex">
-          <Form {...form}>
+          <Form {...emailForm}>
             <form
-              onSubmit={handleSubmit(submitEmailForm)}
+              onSubmit={handleEmailFormSubmit(submitEmailForm)}
               className="space-y-4"
             >
               <FormField
-                control={form.control}
+                control={emailForm.control}
                 name="newEmail"
-                rules={{
-                  required: 'The email is required.',
-                }}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('Email')}</FormLabel>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
                       <div className="flex">
                         <InputWrapper>
@@ -148,13 +183,13 @@ export function ProfilePage() {
                             placeholder=""
                             autoComplete="email"
                             {...field}
-                            {...register('newEmail')}
+                            {...registerEmailForm('newEmail')}
                             className="text-base md:text-sm"
                           />
                         </InputWrapper>
                       </div>
                     </FormControl>
-                    <FormMessage>{errors.newEmail?.message ?? ''}</FormMessage>
+                    <FormMessage>{emailErrors.newEmail?.message ?? ''}</FormMessage>
                     {email.endsWith(env.VITE_LEGACY_USER_EMAIL_SUFFIX) ? (
                       <article className="prose-sm">
                         <span className="text-neutral-700">
@@ -165,7 +200,7 @@ export function ProfilePage() {
                   </FormItem>
                 )}
               />
-              <FormMessage>{errors.root?.serverError?.message}</FormMessage>
+              <FormMessage>{emailErrors.root?.serverError?.message}</FormMessage>
               <Button
                 className="group mt-8 gap-1.5"
                 type="submit"

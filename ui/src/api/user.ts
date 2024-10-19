@@ -42,7 +42,7 @@ export function useLogOut() {
   })
 }
 
-export function useSignIn() {
+export function useSignInWithEmail() {
   return useMutation({
     mutationKey: ['signInWithPassword'],
     mutationFn: function signInWithPassword(credentials: SignInWithPasswordCredentials) {

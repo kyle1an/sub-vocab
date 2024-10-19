@@ -1,3 +1,4 @@
+import NumberFlow from '@number-flow/react'
 import { useMediaQuery } from 'foxact/use-media-query'
 
 import {
@@ -119,7 +120,16 @@ export function Home() {
                   <div className="flex h-10 shrink-0 items-center border-b bg-zinc-50 py-2 pl-4 pr-2 text-xs text-neutral-600 dark:bg-slate-900 dark:text-slate-400">
                     <span className="grow truncate">{fileInfo}</span>
                     <span className="mx-2 inline-block h-[18px] w-px border-l align-middle" />
-                    <span className="shrink-0 text-right tabular-nums">{`${count.toLocaleString('en-US')} ${t('words')}`}</span>
+                    <span className="shrink-0 text-right tabular-nums">
+                      <NumberFlow
+                        value={count}
+                        locales="en-US"
+                        isolate
+                      />
+                      <span>
+                        {` ${t('words')}`}
+                      </span>
+                    </span>
                   </div>
                   <div className="size-full grow text-base text-zinc-700 md:text-sm">
                     <TextareaInput

@@ -1,6 +1,4 @@
 import { createEnv } from '@t3-oss/env-core'
-// https://github.com/t3-oss/t3-env/issues/167
-import 'dotenv/config'
 import process from 'node:process'
 import { z } from 'zod'
 

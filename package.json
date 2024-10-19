@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.3.0",
   "private": true,
-  "packageManager": "pnpm@9.12.1",
+  "packageManager": "pnpm@9.12.2",
   "scripts": {
     "backend": "pnpm --filter @sub-vocab/backend",
     "ui": "pnpm --filter @sub-vocab/ui",
@@ -13,22 +13,22 @@
     "lint:fix": "pnpm --recursive run lint:fix"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.45.4",
+    "@supabase/supabase-js": "^2.45.6",
     "date-fns": "^4.1.0",
-    "type-fest": "^4.26.1"
+    "type-fest": "^4.26.1",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^3.7.3",
+    "@antfu/eslint-config": "^3.8.0",
     "@stylistic/eslint-plugin": "^2.9.0",
     "@t3-oss/env-core": "^0.11.1",
     "@total-typescript/ts-reset": "^0.6.1",
-    "@types/node": "^22.7.5",
-    "eslint": "^9.12.0",
+    "@types/node": "^22.8.1",
+    "eslint": "^9.13.0",
     "pathe": "^1.1.2",
     "prettier": "^3.3.3",
     "taze": "^0.17.2",
-    "typescript": "^5.6.3",
-    "zod": "^3.23.8"
+    "typescript": "^5.6.3"
   },
   "pnpm": {
     "overrides": {

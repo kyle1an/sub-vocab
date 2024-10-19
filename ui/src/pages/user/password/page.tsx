@@ -1,25 +1,15 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router'
+import { z } from 'zod'
+
+import type { ZodObj } from '@/types/utils'
 
 import { useLogOut, useUpdateUser } from '@/api/user'
+import { PASSWORD_MIN_LENGTH } from '@/constants/constraints'
 
 export function Password() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const { mutateAsync: logOut } = useLogOut()
-
-  function logout() {
-    logOut()
-      .then((logOutRes) => {
-        const { error } = logOutRes
-        if (!error) {
-          requestAnimationFrame(() => {
-            navigate('/')
-          })
-        }
-      })
-      .catch(console.error)
-  }
 
   const formDefaultValues = {
     newPassword: '',
@@ -28,10 +18,22 @@ export function Password() {
   const form = useForm<FormValues>({
     defaultValues: formDefaultValues,
     reValidateMode: 'onSubmit',
+    resolver: zodResolver(
+      z
+        .object<ZodObj<FormValues>>({
+          newPassword: z
+            .string()
+            .min(1, {
+              message: 'Password is required',
+            })
+            .min(PASSWORD_MIN_LENGTH, {
+              message: `Password should be at least ${PASSWORD_MIN_LENGTH} characters.`,
+            }),
+        }),
+    ),
   })
 
   const {
-    register,
     handleSubmit,
     formState: { errors },
     setError,
@@ -51,7 +53,7 @@ export function Password() {
       })
       return
     }
-    logout()
+    logOut()
   }
 
   return (
@@ -69,9 +71,6 @@ export function Password() {
               <FormField
                 control={form.control}
                 name="newPassword"
-                rules={{
-                  required: 'The password is required.',
-                }}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t('New Password')}</FormLabel>
@@ -81,9 +80,7 @@ export function Password() {
                           <Input
                             type={newPasswordVisible ? 'text' : 'password'}
                             autoComplete="new-password"
-                            placeholder=""
                             {...field}
-                            {...register('newPassword')}
                             className="text-base md:text-sm"
                           />
                         </InputWrapper>

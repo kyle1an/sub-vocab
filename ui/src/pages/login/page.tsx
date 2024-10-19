@@ -1,17 +1,19 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router'
+import { Navigate } from 'react-router'
 import { z } from 'zod'
 
-import { useSignIn, useSignInWithUsername } from '@/api/user'
+import type { ZodObj } from '@/types/utils'
 
-const emailSchema = z.string().email()
-
-function isValidEmail(username: string): boolean {
-  const result = emailSchema.safeParse(username)
-  return result.success
-}
+import { useSignInWithEmail, useSignInWithUsername } from '@/api/user'
+import { sessionAtom } from '@/store/useVocab'
 
 export function Login() {
+  const [session] = useAtom(sessionAtom)
+  const user = session?.user
+  const [passwordVisible, setPasswordVisible] = useState(false)
+  const { mutateAsync: signInWithEmailAsync, isPending: isPendingEmailSignIn } = useSignInWithEmail()
+  const { mutateAsync: signInWithUsernameAsync, isPending: isPendingUsernameSignIn } = useSignInWithUsername()
   const formDefaultValues = {
     username: '',
     password: '',
@@ -19,38 +21,51 @@ export function Login() {
   type FormValues = typeof formDefaultValues
   const form = useForm<FormValues>({
     defaultValues: formDefaultValues,
-    reValidateMode: 'onSubmit',
+    mode: 'onBlur',
+    resolver: zodResolver(
+      z
+        .object<ZodObj<FormValues>>({
+          username: z
+            .string()
+            .min(1, {
+              message: 'Username is required',
+            }),
+          password: z
+            .string()
+            .min(1, {
+              message: 'Password is required',
+            }),
+        }),
+    ),
   })
 
+  if (user) {
+    return <Navigate to="/" />
+  }
+
   const {
-    register,
-    trigger,
     handleSubmit,
     formState: { errors },
     setError,
   } = form
-  const [passwordVisible, setPasswordVisible] = useState(false)
-  const { mutateAsync: signInAsync, isPending: isSignInPending } = useSignIn()
-  const { mutateAsync: signInWithUsernameAsync, isPending: isSignInWithUsernameAsyncPending } = useSignInWithUsername()
-  const navigate = useNavigate()
-  const isPending = isSignInPending || isSignInWithUsernameAsyncPending
+  const isPending = isPendingEmailSignIn || isPendingUsernameSignIn
 
-  function signIn(values: FormValues) {
-    setPasswordVisible(false)
-    if (isValidEmail(values.username)) {
-      return signInAsync({
-        email: values.username,
-        password: values.password,
+  function signIn({ username, password }: FormValues) {
+    if (z.string().email().safeParse(username).success) {
+      return signInWithEmailAsync({
+        email: username,
+        password,
       })
     } else {
       return signInWithUsernameAsync({
-        username: values.username,
-        password: values.password,
+        username,
+        password,
       })
     }
   }
 
   async function onSubmit(values: FormValues) {
+    setPasswordVisible(false)
     const { error } = await signIn(values)
     if (error) {
       setError('root.serverError', {
@@ -62,9 +77,7 @@ export function Login() {
       setError('password', {
         message: '',
       })
-      return
     }
-    navigate('/')
   }
 
   return (
@@ -85,9 +98,6 @@ export function Login() {
                     <FormField
                       control={form.control}
                       name="username"
-                      rules={{
-                        required: 'The Username is required.',
-                      }}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Email or username</FormLabel>
@@ -96,14 +106,7 @@ export function Login() {
                               <Input
                                 type="text"
                                 autoComplete="username"
-                                placeholder=""
                                 {...field}
-                                {...register('username')}
-                                onBlur={() => {
-                                  if (form.formState.isDirty) {
-                                    trigger('username').catch(console.error)
-                                  }
-                                }}
                                 className="text-base md:text-sm"
                               />
                             </InputWrapper>
@@ -115,9 +118,6 @@ export function Login() {
                     <FormField
                       control={form.control}
                       name="password"
-                      rules={{
-                        required: 'The password is required.',
-                      }}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Password</FormLabel>
@@ -127,9 +127,7 @@ export function Login() {
                                 <Input
                                   type={passwordVisible ? 'text' : 'password'}
                                   autoComplete="current-password"
-                                  placeholder=""
                                   {...field}
-                                  {...register('password')}
                                   className="text-base md:text-sm"
                                 />
                               </InputWrapper>
@@ -154,7 +152,7 @@ export function Login() {
                               </Button>
                             </div>
                           </FormControl>
-
+                          <FormMessage>{errors.password?.message ?? ''}</FormMessage>
                         </FormItem>
                       )}
                     />

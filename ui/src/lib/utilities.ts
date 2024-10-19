@@ -1,6 +1,6 @@
 import type { Simplify } from 'type-fest'
 
-import { isUndefined, omitBy } from 'lodash-es'
+import { isUndefined, omitBy } from 'es-toolkit'
 
 type RemoveUndefinedFields<T> = Simplify<{
   [K in keyof T as undefined extends T[K] ? K : never]?: Exclude<T[K], undefined>;
