@@ -80,11 +80,12 @@ function useColumns() {
         id: 'timeModified',
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
+          const title = t('distance')
           return (
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[12%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal text-zinc-500 active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
+                'group/th w-[12%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
               )}
             >
               <div
@@ -92,10 +93,10 @@ function useColumns() {
                 onClick={header.column.getToggleSortingHandler()}
               >
                 <span
-                  title={t('distance')}
-                  className={cn('grow text-right text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold text-zinc-700' : '')}
+                  title={title}
+                  className={cn('grow text-right text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                 >
-                  {t('distance')}
+                  {title}
                 </span>
                 <SortIcon
                   isSorted={isSorted}
@@ -107,7 +108,7 @@ function useColumns() {
         cell: ({ getValue }) => {
           const timeModified = getValue()
           return (
-            <div className="float-right w-full text-center text-sm tabular-nums text-neutral-600 stretch-[condensed] dark:text-neutral-500">
+            <div className="float-right w-full text-center text-sm tabular-nums stretch-[condensed]">
               {timeModified ? formatDistanceToNowStrict(new Date(timeModified)) : null}
             </div>
           )
@@ -119,11 +120,12 @@ function useColumns() {
         filterFn: (row, columnId, fn: ColumnFilterFn) => fn(row.original),
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
+          const title = t('Word')
           return (
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
+                'group/th border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
               )}
             >
               <div
@@ -138,13 +140,13 @@ function useColumns() {
                   className="float-right flex grow select-none items-center"
                 >
                   <span
-                    title={t('Word')}
+                    title={title}
                     className={cn(
                       'grow text-left text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]',
                       isSorted ? 'font-semibold' : '',
                     )}
                   >
-                    {t('Word')}
+                    {title}
                   </span>
                   <SortIcon
                     isSorted={isSorted}
@@ -156,16 +158,17 @@ function useColumns() {
         },
         cell: ({ row }) => {
           const { wFamily } = row.original
+          const last = wFamily.length - 1
           return (
             <>
               {wFamily.map((w, i) => (
                 <div
                   key={w}
-                  className="ml-1.5 inline-block cursor-text select-text text-sm tracking-wider text-black ffs-['cv03','cv05','cv06'] first:ml-2 dark:text-slate-300"
+                  className="ml-1.5 inline-block cursor-text select-text text-sm tracking-wider ffs-['cv03','cv05','cv06'] first:ml-2"
                   onClick={(ev) => ev.stopPropagation()}
                 >
-                  <span className={cn(i !== 0 && 'text-neutral-500 dark:text-slate-600')}>{w}</span>
-                  {i !== wFamily.length - 1 && <span className="text-neutral-300">, </span>}
+                  <span className={cn(i === 0 ? '' : 'text-neutral-500 dark:text-slate-400')}>{w}</span>
+                  {i < last && <span className="text-neutral-500 dark:text-slate-400">, </span>}
                 </div>
               ))}
             </>
@@ -177,11 +180,12 @@ function useColumns() {
         id: 'word.length',
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
+          const title = t('length')
           return (
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
+                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
               )}
             >
               <div
@@ -194,10 +198,10 @@ function useColumns() {
                 />
                 <div className="flex items-center">
                   <span
-                    title={t('length')}
+                    title={title}
                     className={cn('grow text-right text-xs before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                   >
-                    {t('length')}
+                    {title}
                   </span>
                   <SortIcon
                     isSorted={isSorted}
@@ -210,7 +214,7 @@ function useColumns() {
         cell: ({ getValue }) => {
           const wordLength = getValue()
           return (
-            <div className="float-right mr-2 text-xs tabular-nums text-neutral-700 dark:text-neutral-500">
+            <div className="float-right mr-2 text-xs tabular-nums">
               <span>
                 {wordLength}
               </span>
@@ -230,7 +234,7 @@ function useColumns() {
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
+                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
               )}
             >
               <div
@@ -244,7 +248,7 @@ function useColumns() {
                 <div className="flex min-w-[30px] grow items-center justify-center">
                   <SortIcon
                     isSorted={isSorted}
-                    className="text-zinc-400"
+                    className=""
                     fallback={<IconLucideCheckCircle />}
                   />
                 </div>
@@ -290,11 +294,12 @@ function useColumns() {
         id: 'rank',
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
+          const title = t('rank')
           return (
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal text-zinc-500 active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
+                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
               )}
             >
               <div
@@ -307,10 +312,10 @@ function useColumns() {
                 />
                 <div className="flex items-center">
                   <span
-                    title={t('rank')}
+                    title={title}
                     className={cn('grow text-right text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                   >
-                    {t('rank')}
+                    {title}
                   </span>
                   <SortIcon
                     isSorted={isSorted}
@@ -323,7 +328,7 @@ function useColumns() {
         cell: ({ getValue }) => {
           const rank = getValue()
           return (
-            <div className="float-right w-full text-center text-sm tabular-nums text-neutral-600 stretch-[condensed] dark:text-neutral-500">
+            <div className="float-right w-full text-center text-sm tabular-nums stretch-[condensed]">
               {rank}
             </div>
           )
@@ -446,11 +451,11 @@ export function VocabDataTable({
 
   return (
     <div className={cn('flex h-full flex-col items-center overflow-hidden bg-white will-change-transform dark:bg-slate-900', className)}>
-      <div className="z-10 flex h-12 w-full justify-between bg-neutral-50 p-2 dark:bg-slate-900 dark:text-slate-400">
+      <div className="z-10 flex h-12 w-full justify-between bg-neutral-50 p-2 dark:bg-slate-900">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
-              className="flex max-h-full gap-1 p-2 text-neutral-500 [--sq-r:5px]"
+              className="flex max-h-full gap-1 p-2 [--sq-r:5px]"
               variant="ghost"
             >
               <IconIonEllipsisHorizontalCircleOutline
@@ -544,7 +549,7 @@ export function VocabDataTable({
           table={table}
         />
         <div className="flex grow items-center justify-end">
-          <div className="flex items-center text-neutral-600">
+          <div className="flex items-center">
             <Select
               defaultValue={String(pagination.pageSize)}
               onValueChange={(e) => {

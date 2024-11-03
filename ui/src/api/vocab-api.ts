@@ -1,6 +1,5 @@
 import type { Tables } from '@subvocab/ui/database.types'
-import type { RealtimePostgresInsertPayload, RealtimePostgresUpdatePayload, Session, User } from '@supabase/supabase-js'
-import type { MergeDeep } from 'type-fest'
+import type { RealtimePostgresInsertPayload, RealtimePostgresUpdatePayload } from '@supabase/supabase-js'
 
 import { UTCDateMini } from '@date-fns/utc'
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
@@ -51,14 +50,6 @@ type UserMetadata = {
   sub: string
   username?: string
 }
-
-export type UserWithUserMetadata = MergeDeep<User, {
-  user_metadata: UserMetadata
-}>
-
-export type SessionWithUserMetadata = MergeDeep<Session, {
-  user: UserWithUserMetadata
-}>
 
 async function getBaseVocabulary() {
   const { data, error } = await supabase

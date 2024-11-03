@@ -4,10 +4,10 @@ import { useMediaQuery } from 'foxact/use-media-query'
 import { DevTools } from 'jotai-devtools'
 import { Outlet } from 'react-router'
 
-import { type SessionWithUserMetadata, useVocabRealtimeSync } from '@/api/vocab-api'
+import { useVocabRealtimeSync } from '@/api/vocab-api'
 import { TopBar } from '@/components/TopBar.tsx'
 import { COLOR_SCHEME_QUERY, isDarkModeAtom, metaThemeColorEffect } from '@/lib/hooks'
-import { isMdScreenAtom, LIGHT_THEME_COLOR, metaThemeColorAtom, prefersDarkAtom, sessionAtom, supabase } from '@/store/useVocab'
+import { authChangeEventAtom, isMdScreenAtom, LIGHT_THEME_COLOR, metaThemeColorAtom, prefersDarkAtom, sessionAtom, supabase } from '@/store/useVocab'
 
 import './globals.css'
 
@@ -20,16 +20,18 @@ function useSyncAtomWithHooks() {
 }
 
 function useSyncAtomWithUser() {
+  const [, setAuthChangeEvent] = useAtom(authChangeEventAtom)
   const [, setUser] = useAtom(sessionAtom)
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session as SessionWithUserMetadata | null)
+      setAuthChangeEvent(event)
+      setUser(session)
     })
 
     return () => {
       subscription.unsubscribe()
     }
-  }, [setUser])
+  }, [setAuthChangeEvent, setUser])
 }
 
 export function RootLayout() {
@@ -76,7 +78,7 @@ export function RootLayout() {
       <TopBar />
       <div className="ffs-pre flex min-h-svh flex-col items-center pt-11">
         <Outlet />
-        <SpeedInsights />
+        {import.meta.env.PROD && <SpeedInsights />}
       </div>
       <Toaster
         closeButton

@@ -1,5 +1,6 @@
 import antfu from '@antfu/eslint-config'
 import stylistic from '@stylistic/eslint-plugin'
+import packageJson from 'eslint-plugin-package-json/configs/recommended'
 import perfectionist from 'eslint-plugin-perfectionist'
 
 export default antfu(
@@ -22,6 +23,19 @@ export default antfu(
       '@stylistic/brace-style': ['error', '1tbs'],
       'unused-imports/no-unused-vars': 'off',
       'prefer-arrow-callback': 'off',
+    },
+  },
+  {
+    ...packageJson,
+    rules: {
+      'package-json/sort-collections': [
+        'error',
+        [
+          'dependencies',
+          'devDependencies',
+          'peerDependencies',
+        ],
+      ],
     },
   },
   {

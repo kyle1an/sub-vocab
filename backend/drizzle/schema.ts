@@ -1,5 +1,5 @@
-import { pgTable, pgSchema, index, uniqueIndex, foreignKey, unique, uuid, text, timestamp, jsonb, check, bigserial, varchar, boolean, json, serial, integer, smallint, inet, primaryKey } from "drizzle-orm/pg-core"
-  import { sql } from "drizzle-orm"
+import { pgTable, pgSchema, index, uniqueIndex, foreignKey, unique, uuid, text, timestamp, jsonb, check, bigserial, varchar, boolean, json, pgPolicy, serial, integer, smallint, inet, primaryKey } from "drizzle-orm/pg-core"
+import { sql } from "drizzle-orm"
 
 export const auth = pgSchema("auth");
 export const aalLevelInAuth = auth.enum("aal_level", ['aal1', 'aal2', 'aal3'])
@@ -7,7 +7,6 @@ export const codeChallengeMethodInAuth = auth.enum("code_challenge_method", ['s2
 export const factorStatusInAuth = auth.enum("factor_status", ['unverified', 'verified'])
 export const factorTypeInAuth = auth.enum("factor_type", ['totp', 'webauthn', 'phone'])
 export const oneTimeTokenTypeInAuth = auth.enum("one_time_token_type", ['confirmation_token', 'reauthentication_token', 'recovery_token', 'email_change_token_new', 'email_change_token_current', 'phone_change_token'])
-
 
 
 export const mfaFactorsInAuth = auth.table("mfa_factors", {
@@ -23,8 +22,7 @@ export const mfaFactorsInAuth = auth.table("mfa_factors", {
 	lastChallengedAt: timestamp("last_challenged_at", { withTimezone: true, mode: 'string' }),
 	webAuthnCredential: jsonb("web_authn_credential"),
 	webAuthnAaguid: uuid("web_authn_aaguid"),
-},
-(table) => {
+}, (table) => {
 	return {
 		factorIdCreatedAtIdx: index("factor_id_created_at_idx").using("btree", table.userId.asc().nullsLast(), table.createdAt.asc().nullsLast()),
 		userFriendlyNameUnique: uniqueIndex("mfa_factors_user_friendly_name_unique").using("btree", table.friendlyName.asc().nullsLast(), table.userId.asc().nullsLast()).where(sql`(TRIM(BOTH FROM friendly_name) <> ''::text)`),
@@ -49,8 +47,7 @@ export const identitiesInAuth = auth.table("identities", {
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }),
 	email: text().generatedAlwaysAs(sql`lower((identity_data ->> 'email'::text))`),
 	id: uuid().defaultRandom().primaryKey().notNull(),
-},
-(table) => {
+}, (table) => {
 	return {
 		emailIdx: index("identities_email_idx").using("btree", table.email.asc().nullsLast()),
 		userIdIdx: index("identities_user_id_idx").using("btree", table.userId.asc().nullsLast()),
@@ -71,8 +68,7 @@ export const oneTimeTokensInAuth = auth.table("one_time_tokens", {
 	relatesTo: text("relates_to").notNull(),
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
-},
-(table) => {
+}, (table) => {
 	return {
 		relatesToHashIdx: index("one_time_tokens_relates_to_hash_idx").using("hash", table.relatesTo.asc().nullsLast()),
 		tokenHashHashIdx: index("one_time_tokens_token_hash_hash_idx").using("hash", table.tokenHash.asc().nullsLast()),
@@ -96,8 +92,7 @@ export const refreshTokensInAuth = auth.table("refresh_tokens", {
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }),
 	parent: varchar({ length: 255 }),
 	sessionId: uuid("session_id"),
-},
-(table) => {
+}, (table) => {
 	return {
 		instanceIdIdx: index("refresh_tokens_instance_id_idx").using("btree", table.instanceId.asc().nullsLast()),
 		instanceIdUserIdIdx: index("refresh_tokens_instance_id_user_id_idx").using("btree", table.instanceId.asc().nullsLast(), table.userId.asc().nullsLast()),
@@ -127,8 +122,7 @@ export const mfaAmrClaimsInAuth = auth.table("mfa_amr_claims", {
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).notNull(),
 	authenticationMethod: text("authentication_method").notNull(),
 	id: uuid().primaryKey().notNull(),
-},
-(table) => {
+}, (table) => {
 	return {
 		mfaAmrClaimsSessionIdFkey: foreignKey({
 			columns: [table.sessionId],
@@ -145,8 +139,7 @@ export const auditLogEntriesInAuth = auth.table("audit_log_entries", {
 	payload: json(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }),
 	ipAddress: varchar("ip_address", { length: 64 }).default('').notNull(),
-},
-(table) => {
+}, (table) => {
 	return {
 		auditLogsInstanceIdIdx: index("audit_logs_instance_id_idx").using("btree", table.instanceId.asc().nullsLast()),
 	}
@@ -161,10 +154,10 @@ export const vocabularyList = pgTable("vocabulary_list", {
 	createdAt: timestamp("created_at", { mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 	isUser: boolean("is_user").default(true),
 	wordRank: integer("word_rank"),
-},
-(table) => {
+}, (table) => {
 	return {
 		vocabularyListWordUindex: unique("vocabulary_list_word_uindex").on(table.word),
+		enableReadAccessForAllUsers: pgPolicy("Enable read access for all users", { as: "permissive", for: "select", to: ["public"], using: sql`true` }),
 	}
 });
 
@@ -204,8 +197,7 @@ export const usersInAuth = auth.table("users", {
 	isSsoUser: boolean("is_sso_user").default(false).notNull(),
 	deletedAt: timestamp("deleted_at", { withTimezone: true, mode: 'string' }),
 	isAnonymous: boolean("is_anonymous").default(false).notNull(),
-},
-(table) => {
+}, (table) => {
 	return {
 		confirmationTokenIdx: uniqueIndex("confirmation_token_idx").using("btree", table.confirmationToken.asc().nullsLast()).where(sql`((confirmation_token)::text !~ '^[0-9 ]*$'::text)`),
 		emailChangeTokenCurrentIdx: uniqueIndex("email_change_token_current_idx").using("btree", table.emailChangeTokenCurrent.asc().nullsLast()).where(sql`((email_change_token_current)::text !~ '^[0-9 ]*$'::text)`),
@@ -226,8 +218,7 @@ export const ssoProvidersInAuth = auth.table("sso_providers", {
 	resourceId: text("resource_id"),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }),
-},
-(table) => {
+}, (table) => {
 	return {
 		resourceIdIdx: uniqueIndex("sso_providers_resource_id_idx").using("btree", sql`lower(resource_id)`),
 		resourceIdNotEmpty: check("resource_id not empty", sql`(resource_id = NULL::text) OR (char_length(resource_id) > 0)`),
@@ -241,8 +232,7 @@ export const userVocabRecord = pgTable("user_vocab_record", {
 	timeCreated: timestamp("time_created", { withTimezone: true, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 	timeModified: timestamp("time_modified", { withTimezone: true, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 	id: integer().primaryKey().generatedByDefaultAsIdentity({ name: "user_vocab_record_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
-},
-(table) => {
+}, (table) => {
 	return {
 		userVocabRecordUserIdFkey: foreignKey({
 			columns: [table.userId],
@@ -250,6 +240,9 @@ export const userVocabRecord = pgTable("user_vocab_record", {
 			name: "user_vocab_record_user_id_fkey"
 		}),
 		userVocabRecordUserIdVocabularyKey: unique("user_vocab_record_user_id_vocabulary_key").on(table.userId, table.vocabulary),
+		enableInsertForUsersBasedOnUserId: pgPolicy("Enable insert for users based on user_id", { as: "permissive", for: "insert", to: ["public"], withCheck: sql`(( SELECT auth.uid() AS uid) = user_id)`  }),
+		enableSelectForUsersBasedOnUserId: pgPolicy("Enable select for users based on user_id", { as: "permissive", for: "select", to: ["public"] }),
+		enableUpdateForUsersBasedOnUserId: pgPolicy("Enable update for users based on user_id", { as: "permissive", for: "update", to: ["public"] }),
 	}
 });
 
@@ -258,8 +251,7 @@ export const profiles = pgTable("profiles", {
 	firstName: text("first_name"),
 	lastName: text("last_name"),
 	username: text(),
-},
-(table) => {
+}, (table) => {
 	return {
 		profilesIdFkey: foreignKey({
 			columns: [table.id],
@@ -267,6 +259,7 @@ export const profiles = pgTable("profiles", {
 			name: "profiles_id_fkey"
 		}).onDelete("cascade"),
 		profilesUsernameKey: unique("profiles_username_key").on(table.username),
+		enableUsersToViewTheirOwnDataOnly: pgPolicy("Enable users to view their own data only", { as: "permissive", for: "select", to: ["authenticated"], using: sql`(( SELECT auth.uid() AS uid) = id)` }),
 	}
 });
 
@@ -282,8 +275,7 @@ export const sessionsInAuth = auth.table("sessions", {
 	userAgent: text("user_agent"),
 	ip: inet(),
 	tag: text(),
-},
-(table) => {
+}, (table) => {
 	return {
 		notAfterIdx: index("sessions_not_after_idx").using("btree", table.notAfter.desc().nullsFirst()),
 		userIdIdx: index("sessions_user_id_idx").using("btree", table.userId.asc().nullsLast()),
@@ -313,8 +305,7 @@ export const flowStateInAuth = auth.table("flow_state", {
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }),
 	authenticationMethod: text("authentication_method").notNull(),
 	authCodeIssuedAt: timestamp("auth_code_issued_at", { withTimezone: true, mode: 'string' }),
-},
-(table) => {
+}, (table) => {
 	return {
 		createdAtIdx: index("flow_state_created_at_idx").using("btree", table.createdAt.desc().nullsFirst()),
 		idxAuthCode: index("idx_auth_code").using("btree", table.authCode.asc().nullsLast()),
@@ -332,8 +323,7 @@ export const samlProvidersInAuth = auth.table("saml_providers", {
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }),
 	nameIdFormat: text("name_id_format"),
-},
-(table) => {
+}, (table) => {
 	return {
 		ssoProviderIdIdx: index("saml_providers_sso_provider_id_idx").using("btree", table.ssoProviderId.asc().nullsLast()),
 		samlProvidersSsoProviderIdFkey: foreignKey({
@@ -357,8 +347,7 @@ export const samlRelayStatesInAuth = auth.table("saml_relay_states", {
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }),
 	flowStateId: uuid("flow_state_id"),
-},
-(table) => {
+}, (table) => {
 	return {
 		createdAtIdx: index("saml_relay_states_created_at_idx").using("btree", table.createdAt.desc().nullsFirst()),
 		forEmailIdx: index("saml_relay_states_for_email_idx").using("btree", table.forEmail.asc().nullsLast()),
@@ -383,8 +372,7 @@ export const ssoDomainsInAuth = auth.table("sso_domains", {
 	domain: text().notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }),
-},
-(table) => {
+}, (table) => {
 	return {
 		domainIdx: uniqueIndex("sso_domains_domain_idx").using("btree", sql`lower(domain)`),
 		ssoProviderIdIdx: index("sso_domains_sso_provider_id_idx").using("btree", table.ssoProviderId.asc().nullsLast()),
@@ -405,8 +393,7 @@ export const mfaChallengesInAuth = auth.table("mfa_challenges", {
 	ipAddress: inet("ip_address").notNull(),
 	otpCode: text("otp_code"),
 	webAuthnSessionData: jsonb("web_authn_session_data"),
-},
-(table) => {
+}, (table) => {
 	return {
 		mfaChallengeCreatedAtIdx: index("mfa_challenge_created_at_idx").using("btree", table.createdAt.desc().nullsFirst()),
 		mfaChallengesAuthFactorIdFkey: foreignKey({
@@ -421,9 +408,9 @@ export const derivation = pgTable("derivation", {
 	derivedWord: varchar("derived_word", { length: 32 }).notNull(),
 	stemWord: varchar("stem_word", { length: 32 }).notNull(),
 	isValid: boolean("is_valid"),
-},
-(table) => {
+}, (table) => {
 	return {
 		derivationPkey: primaryKey({ columns: [table.derivedWord, table.stemWord], name: "derivation_pkey"}),
+		enableReadAccessForAllUsers: pgPolicy("Enable read access for all users", { as: "permissive", for: "select", to: ["public"], using: sql`true` }),
 	}
 });

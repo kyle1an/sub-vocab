@@ -23,7 +23,7 @@ export function TablePagination<T>({
             <button
               type="button"
               aria-label="Previous page"
-              className={cn(className, 'px-0 text-zinc-500')}
+              className={cn(className, 'px-0')}
               disabled={!table.getCanPreviousPage()}
               onClick={table.previousPage}
               key={type}
@@ -47,10 +47,10 @@ export function TablePagination<T>({
               key={`${type}${page}`}
             >
               <IconLucideChevronsLeft
-                className="hidden size-4 text-zinc-500 group-hover:inline-block"
+                className="hidden size-4 group-hover:inline-block"
               />
               <IconPrimeEllipsisH
-                className="size-4 text-zinc-600 group-hover:hidden"
+                className="size-4 group-hover:hidden"
               />
             </button>
           )
@@ -84,10 +84,10 @@ export function TablePagination<T>({
               key={`${type}${page}`}
             >
               <IconLucideChevronsRight
-                className="hidden size-4 text-zinc-500 group-hover:inline-block"
+                className="hidden size-4 group-hover:inline-block"
               />
               <IconPrimeEllipsisH
-                className="size-4 text-zinc-600 group-hover:hidden"
+                className="size-4 group-hover:hidden"
               />
             </button>
           )
@@ -96,7 +96,7 @@ export function TablePagination<T>({
         if (type === 'next') {
           return (
             <button
-              className={cn('text-zinc-500', className)}
+              className={cn(className)}
               type="button"
               aria-label="Next page"
               disabled={!table.getCanNextPage()}

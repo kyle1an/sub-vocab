@@ -8,7 +8,7 @@ export default antfu(
   },
   configs,
   {
-    name: 'style',
+    name: 'style/backend',
     rules: {
       curly: ['error', 'multi-line'],
       'no-unused-vars': [0, { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],

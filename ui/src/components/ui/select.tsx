@@ -22,7 +22,7 @@ function SelectTrigger({
     <SelectPrimitive.Trigger
       ref={ref}
       className={cn(
-        'flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm text-violet11 shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-violet9',
+        'flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-violet9',
         'squircle sq-radius-[--sq-r] sq-outline-[--l-w] sq-stroke-input [--l-w:1px] [--sq-r:4px] sq:rounded-none sq:border-0 sq:shadow-none',
         'relative [--offset:1px] focus:after:squircle focus:after:sq-radius-[calc(var(--sq-r)+var(--offset)-0.3px)] focus:after:sq-outline focus:after:sq-stroke-ring sq:focus:ring-0 sq:focus:after:absolute sq:focus:after:-left-[--offset] sq:focus:after:-top-[--offset] sq:focus:after:size-[calc(100%+2*var(--offset))]',
         className,
@@ -61,7 +61,7 @@ function SelectContent({
         position={position}
         {...props}
       >
-        <SelectPrimitive.ScrollUpButton className="flex h-[25px] cursor-default items-center justify-center bg-transparent text-violet11">
+        <SelectPrimitive.ScrollUpButton className="flex h-[25px] cursor-default items-center justify-center bg-transparent">
           <ChevronUpIcon />
         </SelectPrimitive.ScrollUpButton>
         <SelectPrimitive.Viewport
@@ -73,7 +73,7 @@ function SelectContent({
         >
           {children}
         </SelectPrimitive.Viewport>
-        <SelectPrimitive.ScrollDownButton className="flex h-[25px] cursor-default items-center justify-center bg-transparent text-violet11">
+        <SelectPrimitive.ScrollDownButton className="flex h-[25px] cursor-default items-center justify-center bg-transparent">
           <ChevronDownIcon />
         </SelectPrimitive.ScrollDownButton>
       </SelectPrimitive.Content>
@@ -107,7 +107,7 @@ function SelectItem({
     <SelectPrimitive.Item
       ref={ref}
       className={cn(
-        'relative flex h-6 w-full cursor-default select-none items-center rounded-sm px-6 py-1.5 text-sm text-violet11 outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[highlighted]:bg-violet9 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 data-[highlighted]:outline-none',
+        'relative flex h-6 w-full cursor-default select-none items-center rounded-sm px-6 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[highlighted]:bg-violet9 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 data-[highlighted]:outline-none',
         'sq-radius-[--sq-r] [--sq-r:3px] focus:squircle focus:sq-fill-accent data-[highlighted]:sq-fill-violet9',
         className,
       )}

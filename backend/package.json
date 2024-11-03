@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "scripts": {
     "dev": "tsx watch --env-file=.env app",
     "introspect": "drizzle-kit introspect",
@@ -14,14 +14,12 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "@trpc/react-query": "11.0.0-rc.566",
-    "@trpc/server": "11.0.0-rc.566",
     "@types/cookie": "^0.6.0",
     "cookie": "^1.0.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "debug": "^4.3.7",
-    "drizzle-orm": "^0.35.3",
+    "drizzle-orm": "^0.36.1",
     "express": "^5.0.1",
     "http-errors": "^2.0.0",
     "morgan": "^1.10.0",
@@ -34,7 +32,7 @@
     "@types/express": "^5.0.0",
     "@types/http-errors": "^2.0.4",
     "@types/morgan": "^1.9.9",
-    "drizzle-kit": "^0.26.2",
-    "tsx": "^4.19.1"
+    "drizzle-kit": "^0.27.2",
+    "tsx": "^4.19.2"
   }
 }

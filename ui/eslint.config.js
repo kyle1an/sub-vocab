@@ -14,6 +14,7 @@ export default antfu(
   },
   configs,
   {
+    name: 'style/ui',
     rules: {
       'style/jsx-wrap-multilines': ['warn',
         {
@@ -31,6 +32,7 @@ export default antfu(
     },
   },
   {
+    name: 'react',
     rules: {
       'react/prefer-destructuring-assignment': 'off',
       'react-hooks/exhaustive-deps': [

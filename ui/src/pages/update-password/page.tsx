@@ -1,87 +1,72 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { Link, Navigate } from 'react-router'
+import { Navigate } from 'react-router'
 import { z } from 'zod'
 
 import type { ZodObj } from '@/types/utils'
 
-import { useSignInWithEmail, useSignInWithUsername } from '@/api/user'
+import { useLogOut, useUpdateUser } from '@/api/user'
+import { PASSWORD_MIN_LENGTH } from '@/constants/constraints'
 import { authChangeEventAtom, sessionAtom } from '@/store/useVocab'
 
-export function Login() {
+export function UpdatePassword() {
+  const { t } = useTranslation()
+  const { mutateAsync: logOut } = useLogOut()
   const [session] = useAtom(sessionAtom)
   const user = session?.user
-  const [passwordVisible, setPasswordVisible] = useState(false)
-  const { mutateAsync: signInWithEmailAsync, isPending: isPendingEmailSignIn } = useSignInWithEmail()
-  const { mutateAsync: signInWithUsernameAsync, isPending: isPendingUsernameSignIn } = useSignInWithUsername()
+
   const formDefaultValues = {
-    username: '',
-    password: '',
+    newPassword: '',
   }
   type FormValues = typeof formDefaultValues
   const form = useForm<FormValues>({
     defaultValues: formDefaultValues,
-    mode: 'onBlur',
+    reValidateMode: 'onBlur',
     resolver: zodResolver(
       z
         .object<ZodObj<FormValues>>({
-          username: z
-            .string()
-            .min(1, {
-              message: 'Username is required',
-            }),
-          password: z
+          newPassword: z
             .string()
             .min(1, {
               message: 'Password is required',
+            })
+            .min(PASSWORD_MIN_LENGTH, {
+              message: `Password should be at least ${PASSWORD_MIN_LENGTH} characters.`,
             }),
         }),
     ),
   })
-  const [authChangeEvent] = useAtom(authChangeEventAtom)
-  if (!authChangeEvent) {
-    return null
-  }
-
-  if (user) {
-    return <Navigate to="/" />
-  }
 
   const {
     handleSubmit,
     formState: { errors },
     setError,
   } = form
-  const isPending = isPendingEmailSignIn || isPendingUsernameSignIn
 
-  function signIn({ username, password }: FormValues) {
-    if (z.string().email().safeParse(username).success) {
-      return signInWithEmailAsync({
-        email: username,
-        password,
-      })
-    } else {
-      return signInWithUsernameAsync({
-        username,
-        password,
-      })
-    }
-  }
+  const [newPasswordVisible, setNewPasswordVisible] = useState(false)
+  const { mutateAsync: updateUser, isPending } = useUpdateUser()
 
   async function onSubmit(values: FormValues) {
-    setPasswordVisible(false)
-    const { error } = await signIn(values)
+    setNewPasswordVisible(false)
+    const { error } = await updateUser({
+      password: values.newPassword,
+    })
     if (error) {
       setError('root.serverError', {
         message: error.message,
       })
-      setError('username', {
-        message: '',
-      })
-      setError('password', {
-        message: '',
-      })
+      return
     }
+    logOut()
+  }
+
+  const [authChangeEvent] = useAtom(authChangeEventAtom)
+  if (!authChangeEvent) {
+    return null
+  }
+
+  if (!user) {
+    return <Navigate to="/login" />
   }
 
   return (
@@ -92,7 +77,7 @@ export function Login() {
             <Card className="w-full rounded-lg sm:max-w-md md:mt-0 xl:p-0">
               <div className="max-w-80 space-y-4 p-6 sm:px-8 sm:py-7 md:w-80 md:space-y-6">
                 <h1 className="text-xl/tight font-bold md:text-2xl">
-                  Sign in
+                  Update Password
                 </h1>
                 <Form {...form}>
                   <form
@@ -101,46 +86,16 @@ export function Login() {
                   >
                     <FormField
                       control={form.control}
-                      name="username"
+                      name="newPassword"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email or username</FormLabel>
-                          <FormControl>
-                            <InputWrapper>
-                              <Input
-                                type="text"
-                                autoComplete="username"
-                                {...field}
-                                className="text-base md:text-sm"
-                              />
-                            </InputWrapper>
-                          </FormControl>
-                          <FormMessage>{errors.username?.message ?? ''}</FormMessage>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="inline-flex w-full text-sm">
-                            <span className="flex-grow">
-                              Password
-                            </span>
-                            <Link
-                              to="/reset-password"
-                              className="text-foreground opacity-60"
-                            >
-                              Forgot password?
-                            </Link>
-                          </FormLabel>
+                          <FormLabel>{t('New Password')}</FormLabel>
                           <FormControl>
                             <div className="flex items-center gap-1">
                               <InputWrapper className="grow">
                                 <Input
-                                  type={passwordVisible ? 'text' : 'password'}
-                                  autoComplete="current-password"
+                                  type={newPasswordVisible ? 'text' : 'password'}
+                                  autoComplete="new-password"
                                   {...field}
                                   className="text-base md:text-sm"
                                 />
@@ -148,13 +103,13 @@ export function Login() {
                               <Button
                                 variant="outline"
                                 className="px-2"
-                                aria-checked={passwordVisible}
+                                aria-checked={newPasswordVisible}
                                 onClick={(e) => {
                                   e.preventDefault()
-                                  setPasswordVisible(!passwordVisible)
+                                  setNewPasswordVisible(!newPasswordVisible)
                                 }}
                               >
-                                {passwordVisible ? (
+                                {newPasswordVisible ? (
                                   <IconLucideEye
                                     className="size-[18px] text-neutral-600"
                                   />
@@ -166,7 +121,7 @@ export function Login() {
                               </Button>
                             </div>
                           </FormControl>
-                          <FormMessage>{errors.password?.message ?? ''}</FormMessage>
+                          <FormMessage>{errors.newPassword?.message ?? ''}</FormMessage>
                         </FormItem>
                       )}
                     />
@@ -176,7 +131,7 @@ export function Login() {
                       type="submit"
                       disabled={isPending}
                     >
-                      Sign in
+                      {t('confirm_changes')}
                       {isPending ? (
                         <IconLucideLoader2
                           className="animate-spin"
