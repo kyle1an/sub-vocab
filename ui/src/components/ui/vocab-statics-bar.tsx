@@ -1,18 +1,26 @@
 import NumberFlow from '@number-flow/react'
+import { useEffectOnce } from 'react-use'
 
-export function VocabStatics(props: {
+export function VocabStatics({
+  rowsCountFiltered,
+  rowsCountNew,
+  rowsCountAcquainted,
+  animated: isAnimated = true,
+}: {
   rowsCountFiltered: number
   rowsCountNew: number
   rowsCountAcquainted: number
   animated?: boolean
 }) {
   const { t } = useTranslation()
-  const animated = props.animated ?? true
+  const [isPending, startTransition] = useTransition()
+  useEffectOnce(() => startTransition(() => {}))
+  const animated = !isPending && isAnimated
   return (
     <div className="flex h-7 items-center text-xs tabular-nums text-neutral-600 dark:text-neutral-400">
       <span>
         <NumberFlow
-          value={props.rowsCountFiltered}
+          value={rowsCountFiltered}
           locales="en-US"
           animated={animated}
           isolate
@@ -22,13 +30,13 @@ export function VocabStatics(props: {
         </span>
       </span>
       <div className="flex items-center gap-0.5">
-        {props.rowsCountNew > 0 ? (
+        {rowsCountNew > 0 ? (
           <div className="flex items-center gap-2.5">
             <span className="text-neutral-400">, </span>
             <div className="flex items-center gap-1">
               <span>
                 <NumberFlow
-                  value={props.rowsCountNew}
+                  value={rowsCountNew}
                   locales="en-US"
                   animated={animated}
                   isolate
@@ -40,13 +48,13 @@ export function VocabStatics(props: {
             </div>
           </div>
         ) : null}
-        {props.rowsCountAcquainted > 0 ? (
+        {rowsCountAcquainted > 0 ? (
           <div className="flex items-center gap-2.5">
             <span className="text-neutral-400">, </span>
             <div className="flex items-center gap-1">
               <span>
                 <NumberFlow
-                  value={props.rowsCountAcquainted}
+                  value={rowsCountAcquainted}
                   locales="en-US"
                   animated={animated}
                   isolate

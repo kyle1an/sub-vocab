@@ -2,7 +2,7 @@ import type { AppRouter } from '@subvocab/backend/app'
 import type { Database } from '@subvocab/ui/database.types'
 import type { ArrayValues } from 'type-fest'
 
-import { createClient } from '@supabase/supabase-js'
+import { type AuthChangeEvent, createClient, type Session } from '@supabase/supabase-js'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { QueryClient } from '@tanstack/react-query'
 import { persistQueryClient } from '@tanstack/react-query-persist-client'
@@ -11,8 +11,7 @@ import { createTRPCReact } from '@trpc/react-query'
 import { createStore } from 'jotai'
 import { UAParser } from 'ua-parser-js'
 
-import type { SessionWithUserMetadata } from '@/api/vocab-api'
-
+import { MS_PER_MINUTE } from '@/constants/time'
 import { env } from '@/env'
 import { getLanguage } from '@/i18n'
 import { SUPPORTED_FILE_EXTENSIONS } from '@/lib/filesHandler'
@@ -20,8 +19,6 @@ import { omitUndefined } from '@/lib/utilities'
 import { getScrollbarWidth } from '@/lib/utils'
 
 import { DEFAULT_THEME, type THEMES } from '../components/themes'
-
-const MS_PER_MINUTE = 60 * 1000
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -69,7 +66,8 @@ export const store = createStore()
 
 export const themeAtom = atomWithStorage<ArrayValues<typeof THEMES>['value']>('themeAtom', DEFAULT_THEME.value, undefined, { getOnInit })
 
-export const sessionAtom = atomWithStorage<SessionWithUserMetadata | null>('sessionAtom', null, undefined, { getOnInit })
+export const authChangeEventAtom = atom <AuthChangeEvent>()
+export const sessionAtom = atomWithStorage<Session | null>('sessionAtom', null, undefined, { getOnInit })
 
 export const LIGHT_THEME_COLOR = 'rgb(255,255,254)'
 

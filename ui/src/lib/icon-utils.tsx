@@ -11,10 +11,9 @@ export function SortIcon({
   className?: string
   fallback?: React.ReactNode
 }) {
-  const iconClassName = cn('absolute inset-0 inline-block size-4 text-zinc-400', className)
   fallback = fallback ?? <IconCodiconBlank />
   return (
-    <div className="relative size-4">
+    <div className="relative size-4 text-zinc-400">
       <div
         className={cn(
           'absolute inset-0 transition-all duration-300 [transform-style:preserve-3d]',
@@ -24,9 +23,7 @@ export function SortIcon({
         )}
       >
         <IconLucideChevronUp
-          className={cn(
-            iconClassName,
-          )}
+          className={cn('size-4', className)}
         />
       </div>
       <div
@@ -36,9 +33,7 @@ export function SortIcon({
         )}
       >
         <Slot
-          className={cn(
-            iconClassName,
-          )}
+          className={cn('size-4', className)}
         >
           {fallback}
         </Slot>

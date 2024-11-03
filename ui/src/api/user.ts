@@ -9,7 +9,7 @@ import { supabase, trpc } from '@/store/useVocab'
 export function useRegister() {
   return useMutation({
     mutationKey: ['signUp'],
-    mutationFn: function signUp(credentials: SignUpWithPasswordCredentials) {
+    mutationFn: (credentials: SignUpWithPasswordCredentials) => {
       return supabase.auth.signUp(credentials)
     },
   })
@@ -18,7 +18,7 @@ export function useRegister() {
 export function useUpdateUser() {
   return useMutation({
     mutationKey: ['updateUser', 'username'],
-    mutationFn: async function updateUser(attributes: UserAttributes) {
+    mutationFn: async (attributes: UserAttributes) => {
       return supabase.auth.updateUser(attributes)
     },
   })
@@ -27,7 +27,7 @@ export function useUpdateUser() {
 export function useUpdateEmail() {
   return useMutation({
     mutationKey: ['updateUser', 'email'],
-    mutationFn: async function updateUser(attributes: UserAttributes) {
+    mutationFn: async (attributes: UserAttributes) => {
       return supabase.auth.updateUser(attributes)
     },
   })
@@ -36,7 +36,7 @@ export function useUpdateEmail() {
 export function useLogOut() {
   return useMutation({
     mutationKey: ['signOut'],
-    mutationFn: function signOut() {
+    mutationFn: () => {
       return supabase.auth.signOut({ scope: 'local' })
     },
   })
@@ -45,8 +45,19 @@ export function useLogOut() {
 export function useSignInWithEmail() {
   return useMutation({
     mutationKey: ['signInWithPassword'],
-    mutationFn: function signInWithPassword(credentials: SignInWithPasswordCredentials) {
+    mutationFn: (credentials: SignInWithPasswordCredentials) => {
       return supabase.auth.signInWithPassword(credentials)
+    },
+  })
+}
+
+export function useResetPasswordForEmail() {
+  return useMutation({
+    mutationKey: ['resetPasswordForEmail'],
+    mutationFn: (email: string) => {
+      return supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/update-password`,
+      })
     },
   })
 }
@@ -56,7 +67,7 @@ type SignInResponse = Awaited<ReturnType<inferRouterClient<AppRouter>['user']['s
 export function useSignInWithUsername() {
   const { mutateAsync } = useMutation({
     mutationKey: ['setSession'],
-    mutationFn: async function setSession(result: SignInResponse) {
+    mutationFn: async (result: SignInResponse) => {
       if (!result) throw new Error('No session')
       const { session } = result.data
       if (session) {

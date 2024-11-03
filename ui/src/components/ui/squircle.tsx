@@ -78,6 +78,7 @@ export function Squircle({
       className={cn(
         'relative before:absolute before:inset-[var(--inset)] before:-z-10 before:block before:[clip-path:var(--clip-path)]',
         className,
+        !clipPathPseudo && 'opacity-0',
       )}
       style={{
         clipPath,

@@ -1,20 +1,35 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Navigate, useNavigate } from 'react-router'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import type { ZodObj } from '@/types/utils'
 
-import { useRegister } from '@/api/user'
-import { PASSWORD_MIN_LENGTH } from '@/constants/constraints'
+import { useResetPasswordForEmail } from '@/api/user'
+import { MS_PER_MINUTE } from '@/constants/time'
 import { authChangeEventAtom, sessionAtom } from '@/store/useVocab'
 
-export function Register() {
+function ResetEmailNotification() {
+  return (
+    <div className="flex w-full flex-col gap-1">
+      <div className="flex flex-row justify-between">
+        <div>
+          If you registered using your email and password, you will receive a password reset email.
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function ResetPassword() {
   const [session] = useAtom(sessionAtom)
   const user = session?.user
+  const { mutateAsync: resetPasswordForEmail, isPending } = useResetPasswordForEmail()
+  const navigate = useNavigate()
+
   const formDefaultValues = {
     email: '',
-    password: '',
   }
   type FormValues = typeof formDefaultValues
   const form = useForm<FormValues>({
@@ -29,27 +44,9 @@ export function Register() {
               message: 'Email is required',
             })
             .email(),
-          password: z
-            .string()
-            .min(1, {
-              message: 'Password is required',
-            })
-            .min(PASSWORD_MIN_LENGTH, {
-              message: `Password should be at least ${PASSWORD_MIN_LENGTH} characters.`,
-            }),
         }),
     ),
   })
-
-  const {
-    handleSubmit,
-    formState: { errors },
-    setError,
-  } = form
-
-  const [passwordVisible, setPasswordVisible] = useState(false)
-  const { mutateAsync: signUp, isPending } = useRegister()
-  const navigate = useNavigate()
   const [authChangeEvent] = useAtom(authChangeEventAtom)
   if (!authChangeEvent) {
     return null
@@ -59,21 +56,19 @@ export function Register() {
     return <Navigate to="/" />
   }
 
-  async function onSubmit(values: FormValues) {
-    const { email, password } = values
-    setPasswordVisible(false)
-    const { error } = await signUp({
-      email,
-      password,
-    })
+  const {
+    handleSubmit,
+    formState: { errors },
+  } = form
 
-    if (error) {
-      setError('root.serverError', {
-        message: error.message,
+  async function onSubmit(values: FormValues) {
+    const { error } = await resetPasswordForEmail(values.email)
+    if (!error) {
+      toast(<ResetEmailNotification />, {
+        duration: MS_PER_MINUTE,
       })
-      return
+      navigate('/login')
     }
-    navigate('/')
   }
 
   return (
@@ -84,7 +79,7 @@ export function Register() {
             <Card className="w-full rounded-lg sm:max-w-md md:mt-0 xl:p-0">
               <div className="max-w-80 space-y-4 p-6 sm:px-8 sm:py-7 md:w-80 md:space-y-6">
                 <h1 className="text-xl/tight font-bold md:text-2xl">
-                  Sign up
+                  Reset Your Password
                 </h1>
                 <Form {...form}>
                   <form
@@ -111,54 +106,13 @@ export function Register() {
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Password</FormLabel>
-                          <FormControl>
-                            <div className="flex items-center gap-1">
-                              <InputWrapper className="grow">
-                                <Input
-                                  type={passwordVisible ? 'text' : 'password'}
-                                  autoComplete="new-password"
-                                  {...field}
-                                  className="text-base md:text-sm"
-                                />
-                              </InputWrapper>
-                              <Button
-                                variant="outline"
-                                className="px-2"
-                                aria-checked={passwordVisible}
-                                onClick={(e) => {
-                                  e.preventDefault()
-                                  setPasswordVisible(!passwordVisible)
-                                }}
-                              >
-                                {passwordVisible ? (
-                                  <IconLucideEye
-                                    className="size-[18px] text-neutral-600"
-                                  />
-                                ) : (
-                                  <IconLucideEyeOff
-                                    className="size-[18px] text-neutral-600"
-                                  />
-                                )}
-                              </Button>
-                            </div>
-                          </FormControl>
-                          <FormMessage>{errors.password?.message ?? ''}</FormMessage>
-                        </FormItem>
-                      )}
-                    />
                     <FormMessage>{errors.root?.serverError?.message}</FormMessage>
                     <Button
                       className="mt-8 gap-1.5"
                       type="submit"
                       disabled={isPending}
                     >
-                      Create account
+                      Send Reset Email
                       {isPending ? (
                         <IconLucideLoader2
                           className="animate-spin"

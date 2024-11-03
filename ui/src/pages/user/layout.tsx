@@ -2,12 +2,17 @@ import { Navigate, Outlet } from 'react-router'
 
 import { Footer } from '@/components/Footer'
 import { SideNav } from '@/components/SideNav'
-import { sessionAtom } from '@/store/useVocab'
+import { authChangeEventAtom, sessionAtom } from '@/store/useVocab'
 
 export function User() {
   const { t } = useTranslation()
   const [session] = useAtom(sessionAtom)
   const user = session?.user
+  const [authChangeEvent] = useAtom(authChangeEventAtom)
+  if (!authChangeEvent) {
+    return null
+  }
+
   if (!user) {
     return <Navigate to="/login" />
   }

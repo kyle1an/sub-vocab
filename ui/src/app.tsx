@@ -1,7 +1,7 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ComposeContextProvider } from 'foxact/compose-context-provider'
 import { queryClientAtom } from 'jotai-tanstack-query'
-import { RouterProvider } from 'react-router'
+import { RouterProvider } from 'react-router/dom'
 
 import './i18n'
 import './main.css'

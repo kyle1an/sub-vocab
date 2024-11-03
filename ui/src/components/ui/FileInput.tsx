@@ -55,7 +55,7 @@ export function FileInput({
             cornerRadius: 7,
           }}
           borderWidth={1}
-          className="inline-flex h-8 max-h-full grow-0 cursor-pointer items-center justify-center whitespace-nowrap bg-gray-200 px-3 py-2.5 text-center align-middle text-sm/3 tracking-wide text-neutral-800 transition-colors before:bg-white hover:border-sky-300 hover:bg-sky-100 hover:text-sky-600 focus-visible:!bg-ring focus-visible:outline-0 dark:bg-gray-800 dark:text-slate-400 dark:before:bg-slate-900"
+          className="inline-flex h-8 max-h-full grow-0 cursor-pointer items-center justify-center whitespace-nowrap bg-gray-200 px-3 py-2.5 text-center align-middle text-sm/3 tracking-wide transition-colors before:bg-white hover:border-sky-300 hover:bg-sky-100 hover:text-sky-600 focus-visible:!bg-ring focus-visible:outline-0 dark:bg-gray-800 dark:before:bg-slate-900"
           asChild
         >
           <Button>

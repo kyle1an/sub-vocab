@@ -10,6 +10,8 @@ import { MineLayout } from '@/pages/mine/layout'
 import { VocabularyPage } from '@/pages/mine/vocabulary/page'
 import { Home } from '@/pages/page'
 import { Register } from '@/pages/register/page'
+import { ResetPassword } from '@/pages/reset-password/page'
+import { UpdatePassword } from '@/pages/update-password/page'
 import { User } from '@/pages/user/layout'
 import { Password } from '@/pages/user/password/page'
 import { ProfilePage } from '@/pages/user/profile/page'
@@ -44,6 +46,14 @@ export const router = createBrowserRouter([
       {
         path: '/login',
         element: <Login />,
+      },
+      {
+        path: '/reset-password',
+        element: <ResetPassword />,
+      },
+      {
+        path: '/update-password',
+        element: <UpdatePassword />,
       },
       {
         path: '/register',
