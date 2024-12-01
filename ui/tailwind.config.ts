@@ -2,13 +2,12 @@
 import type { Config } from 'tailwindcss'
 
 import { mauve, violet } from '@radix-ui/colors'
-import flattenColorPalette from 'tailwindcss/lib/util/flattenColorPalette'
 import plugin from 'tailwindcss/plugin'
 
 import { omitUndefined } from './src/lib/utilities'
 
 const config: Config = {
-  darkMode: ['class'],
+  darkMode: ['selector'],
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
@@ -67,6 +66,7 @@ const config: Config = {
           foreground: 'hsl(var(--destructive-foreground))',
         },
         border: 'hsl(var(--border))',
+        'border-td': 'var(--border-td)',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
         ...mauve,
@@ -211,10 +211,10 @@ const config: Config = {
             '--squircle-stroke': value,
           },
         }),
-      }, {
-        values: flattenColorPalette(theme('colors')),
-        type: 'color',
-      })
+      }, omitUndefined({
+        values: theme('colors'),
+        type: ['color', 'any'],
+      }))
 
       matchUtilities({
         'sq-fill': (value) => ({
@@ -225,20 +225,10 @@ const config: Config = {
             },
           },
         }),
-      }, {
-        values: flattenColorPalette(theme('colors')),
+      }, omitUndefined({
+        values: theme('colors'),
         type: ['color', 'any'],
-      })
-
-      matchUtilities({
-        _bg: (value) => ({
-          '--bg-': value,
-          backgroundColor: value,
-        }),
-      }, {
-        values: flattenColorPalette(theme('colors')),
-        type: ['color', 'any'],
-      })
+      }))
     }),
   ],
 }

@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.3.0",
   "private": true,
-  "packageManager": "pnpm@9.12.3",
+  "packageManager": "pnpm@9.14.4",
   "scripts": {
     "backend": "pnpm --filter @sub-vocab/backend",
     "ui": "pnpm --filter @sub-vocab/ui",
@@ -13,30 +13,33 @@
     "lint:fix": "pnpm --recursive run lint:fix"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.46.1",
+    "@supabase/supabase-js": "^2.46.2",
     "@trpc/server": "11.0.0-rc.566",
     "date-fns": "^4.1.0",
-    "type-fest": "^4.26.1",
+    "type-fest": "^4.29.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^3.8.0",
-    "@stylistic/eslint-plugin": "^2.10.1",
+    "@antfu/eslint-config": "^3.11.2",
+    "@stylistic/eslint-plugin": "^2.11.0",
     "@t3-oss/env-core": "^0.11.1",
     "@total-typescript/ts-reset": "^0.6.1",
-    "@types/node": "^22.9.0",
-    "eslint": "^9.14.0",
-    "eslint-plugin-package-json": "^0.15.6",
+    "@types/node": "^22.10.1",
+    "eslint": "^9.16.0",
+    "eslint-plugin-package-json": "^0.16.0",
     "jsonc-eslint-parser": "^2.4.0",
     "pathe": "^1.1.2",
-    "prettier": "^3.3.3",
+    "prettier": "^3.4.1",
     "taze": "^0.18.0",
-    "typescript": "^5.6.3"
+    "typescript": "^5.7.2"
   },
   "pnpm": {
     "overrides": {
+      "array-flatten": "npm:@nolyfill/array-flatten@^1.0.42",
       "hasown": "npm:@nolyfill/hasown@^1.0.29",
       "is-core-module": "npm:@nolyfill/is-core-module@^1.0.39",
+      "safe-buffer": "npm:@nolyfill/safe-buffer@^1.0.41",
+      "safer-buffer": "npm:@nolyfill/safer-buffer@^1.0.41",
       "side-channel": "npm:@nolyfill/side-channel@^1.0.29"
     }
   },

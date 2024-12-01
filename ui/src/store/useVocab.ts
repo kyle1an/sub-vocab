@@ -93,7 +93,7 @@ if (os.name) {
 
 if (
   CSS.supports('background:paint(squircle)')
-  && engine.is('Blink')
+  && engine.name === 'Blink'
 ) {
   document.documentElement.classList.add('sq')
 }

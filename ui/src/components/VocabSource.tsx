@@ -1,3 +1,6 @@
+/* eslint-disable react-compiler/react-compiler */
+import type { RefObject } from 'react'
+
 import usePagination from '@mui/material/usePagination'
 import {
   createColumnHelper,
@@ -7,6 +10,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  type Row,
   type TableState,
   useReactTable,
 } from '@tanstack/react-table'
@@ -15,13 +19,17 @@ import {
   Trans,
   useTranslation,
 } from 'react-i18next'
+import { mergeRefs } from 'react-merge-refs'
 import { useSessionStorage, useUnmount } from 'react-use'
+import { useIntersectionObserver } from 'usehooks-ts'
 
 import type { LabelDisplaySource } from '@/lib/vocab'
 
 import { TablePagination } from '@/components/table-pagination'
+import { Examples } from '@/components/ui/Examples'
 import { useAcquaintAll, useVocabToggle } from '@/hooks/vocabToggle'
 import { transParams } from '@/i18n'
+import { useRect } from '@/lib/hooks'
 import { SortIcon } from '@/lib/icon-utils'
 import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
 import { tryGetRegex } from '@/lib/regex'
@@ -379,7 +387,6 @@ export function VocabSourceTable({
   onPurge: () => void
   className?: string
 }) {
-  // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
   const { t } = useTranslation()
   const [searchValue, setSearchValue] = useAtom(searchValueAtom)
@@ -471,6 +478,7 @@ export function VocabSourceTable({
   useUnmount(() => {
     setTableState(table.getState())
   })
+  const rootRef = useRef<HTMLDivElement>(null)
 
   return (
     <div className={cn('flex h-full flex-col items-center overflow-hidden bg-white will-change-transform dark:bg-slate-900', className)}>
@@ -523,7 +531,10 @@ export function VocabSourceTable({
           variant="ghost"
         />
       </div>
-      <div className="w-full grow overflow-auto overflow-y-scroll overscroll-contain">
+      <div
+        ref={rootRef}
+        className="w-full grow overflow-auto overflow-y-scroll overscroll-contain"
+      >
         <table className="min-w-full border-separate border-spacing-0">
           <thead className="sticky top-0 z-10 bg-white px-0">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -539,42 +550,13 @@ export function VocabSourceTable({
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => {
-              const canExpand = row.getCanExpand()
               return (
-                <Fragment key={`_${row.original.vocab.word}`}>
-                  <tr className={cn(
-                    'group',
-                    canExpand ? '[&:not(:has(+tr>td[colspan]))]:shadow-[inset_0px_-4px_10px_-6px_rgba(0,0,0,0.1)]' : '',
-                  )}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td
-                        key={cell.id}
-                        className="h-8 border-t border-solid border-t-zinc-100 pl-0.5 group-first-of-type:border-t-0 dark:border-slate-800 [tr:has(+tr>td[colspan])>&]:border-b-white"
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                  {canExpand && row.getIsExpanded() ? (
-                    <tr>
-                      <td
-                        colSpan={row.getVisibleCells().length}
-                        aria-label="Examples"
-                        className="py-0"
-                      >
-                        <Examples
-                          sentences={sentences}
-                          src={row.original.locations}
-                          className="text-xs tracking-wide"
-                        />
-                      </td>
-                    </tr>
-                  ) : null}
-                </Fragment>
+                <TableRow
+                  key={`_${row.original.vocab.word}`}
+                  row={row}
+                  sentences={sentences}
+                  rootRef={rootRef}
+                />
               )
             })}
           </tbody>
@@ -641,5 +623,87 @@ export function VocabSourceTable({
         />
       </div>
     </div>
+  )
+}
+
+function TableRow({
+  row,
+  sentences,
+  rootRef,
+}: {
+  row: Row<LabelDisplaySource>
+  sentences: string[]
+  rootRef: RefObject<HTMLDivElement | null>
+}) {
+  'use no memo'
+  const canExpand = row.getCanExpand()
+  const isExpanded = row.getIsExpanded()
+  const theadHeight = 30
+  const rowRef = useRef<HTMLTableRowElement>(null)
+  const { height: rowHeight } = useRect(rowRef)
+  const { isIntersecting: isRowIntersectingRoot, ref: rowRef2 } = useIntersectionObserver({
+    root: rootRef.current,
+    threshold: [0, 1],
+    rootMargin: `-${theadHeight + rowHeight + 0.1}px 0px 0px 0px`,
+  })
+  const { isIntersecting: isSubRowIntersectingRoot, ref: subRowRef } = useIntersectionObserver({
+    root: rootRef.current,
+    threshold: [0, 1],
+    rootMargin: `-${theadHeight + rowHeight}px 0px 0px 0px`,
+  })
+
+  return (
+    <>
+      <tr
+        ref={
+          mergeRefs([
+            rowRef,
+            rowRef2,
+          ])
+        }
+        style={{
+          '--top': `${theadHeight}px`,
+        }}
+        className={cn(
+          'group',
+          'data-[sub-r-intersecting=true]:sticky data-[sub-r-intersecting=true]:top-[--top] data-[sub-r-intersecting=true]:bg-white data-[sub-r-intersecting=true]:dark:bg-slate-900',
+          canExpand ? '[&:not(:has(+tr>td[colspan]))]:shadow-[inset_0px_-4px_10px_-6px_rgba(0,0,0,0.1)]' : '',
+        )}
+        data-intersecting={isRowIntersectingRoot}
+        data-expanded={isExpanded}
+        data-sub-r-intersecting={isSubRowIntersectingRoot}
+      >
+        {row.getVisibleCells().map((cell) => (
+          <td
+            key={cell.id}
+            className={cn(
+              'h-8 border-y border-solid border-b-transparent border-t-border-td pl-0.5 group-first-of-type:border-t-0 [tr:has(+tr>td[colspan])>&]:border-b-transparent',
+              'group-data-[expanded=true]:group-data-[intersecting=false]:border-b-border-td',
+            )}
+          >
+            {flexRender(
+              cell.column.columnDef.cell,
+              cell.getContext(),
+            )}
+          </td>
+        ))}
+      </tr>
+      {isExpanded ? (
+        <tr>
+          <td
+            colSpan={row.getVisibleCells().length}
+            aria-label="Examples"
+            className="py-0"
+            ref={subRowRef}
+          >
+            <Examples
+              sentences={sentences}
+              src={row.original.locations}
+              className="text-xs tracking-wide"
+            />
+          </td>
+        </tr>
+      ) : null}
+    </>
   )
 }

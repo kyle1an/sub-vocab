@@ -19,8 +19,8 @@ function Card({
     <div
       ref={ref}
       className={cn(
-        'rounded-xl border text-card-foreground shadow _bg-card',
-        'squircle sq-radius-[--sq-r] sq-outline-[--l-w] sq-stroke-border sq-fill-card [--l-w:1px] [--sq-r:8px] sq:relative sq:!border-0 sq:shadow-none sq:drop-shadow',
+        'rounded-xl border bg-card text-card-foreground shadow [--bg-:hsl(var(--card))]',
+        'squircle sq-radius-[--sq-r] sq-outline-[--l-w] sq-stroke-[hsl(var(--border))] sq-fill-[hsl(var(--card))] [--l-w:1px] [--sq-r:8px] sq:relative sq:!border-0 sq:bg-transparent sq:shadow-none sq:drop-shadow',
         className,
       )}
       {...props}

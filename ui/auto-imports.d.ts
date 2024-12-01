@@ -361,7 +361,6 @@ declare global {
   const lazy: typeof import('react')['lazy']
   const lightFormat: typeof import('date-fns')['lightFormat']
   const loadable: typeof import('jotai/utils')['loadable']
-  const locale: typeof import('date-fns')['locale']
   const max: typeof import('date-fns')['max']
   const memo: typeof import('react')['memo']
   const milliseconds: typeof import('date-fns')['milliseconds']
