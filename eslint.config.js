@@ -1,7 +1,6 @@
 import antfu from '@antfu/eslint-config'
 import stylistic from '@stylistic/eslint-plugin'
 import packageJson from 'eslint-plugin-package-json/configs/recommended'
-import perfectionist from 'eslint-plugin-perfectionist'
 
 export default antfu(
   {
@@ -39,32 +38,13 @@ export default antfu(
     },
   },
   {
-    name: 'perfectionist',
-    plugins: {
-      perfectionist,
-    },
+    name: 'root/perfectionist',
     rules: {
       'perfectionist/sort-imports': [
         'error',
         {
           type: 'natural',
-          order: 'asc',
-          ignoreCase: true,
-          internalPattern: ['~/**', '@/**'],
-          newlinesBetween: 'always',
-          maxLineLength: undefined,
-          groups: [
-            'type',
-            ['builtin', 'external'],
-            'internal-type',
-            'internal',
-            ['parent-type', 'sibling-type', 'index-type'],
-            ['parent', 'sibling', 'index'],
-            'object',
-            'unknown',
-          ],
-          customGroups: { type: {}, value: {} },
-          environment: 'node',
+          internalPattern: ['^@/.+'],
         },
       ],
     },

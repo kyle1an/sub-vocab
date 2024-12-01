@@ -34,7 +34,7 @@ export function VocabularyPage() {
       <div className="flex h-14">
         <div className="flex-auto grow" />
       </div>
-      <SquircleBg className="m-auto flex h-[calc(100vh-4px*36)] max-w-full items-center justify-center overflow-hidden rounded-xl border-[length:--l-w] sq-outline-[--l-w] sq-stroke-border [--l-w:1px] [--sq-r:9px] md:h-[calc(100%-4px*14)]">
+      <SquircleBg className="m-auto flex h-[calc(100vh-4px*36)] max-w-full items-center justify-center overflow-hidden rounded-xl border-[length:--l-w] sq-outline-[--l-w] sq-stroke-[hsl(var(--border))] [--l-w:1px] [--sq-r:9px] md:h-[calc(100%-4px*14)]">
         <SquircleMask className="flex size-full sq-radius-[calc(var(--sq-r)-var(--l-w)+0.5px)]">
           <VocabDataTable
             data={rows}

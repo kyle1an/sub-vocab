@@ -17,7 +17,7 @@
     "noEmit": true,
 
     "lib": [
-      "ESNext",
+      "es2024",
       "DOM",
       "DOM.Iterable"
     ]

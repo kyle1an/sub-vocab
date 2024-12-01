@@ -9,6 +9,7 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
+    --background-active: theme("colors.stone.50");
     --foreground: 222.2 84% 4.9%;
     --theme-bg: hsl(var(--background));
 
@@ -34,6 +35,7 @@
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
+    --border-td: theme("colors.zinc.100");
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
 
@@ -54,8 +56,9 @@
 
   .dark {
     --background: 222.2 84% 4.9%;
+    --background-active: theme("colors.slate.800");
     --foreground: 210 40% 98%;
-    --theme-bg: #0f172a; /* slate-900 */
+    --theme-bg: hsl(var(--background));
 
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
@@ -79,6 +82,7 @@
     --destructive-foreground: 210 40% 98%;
 
     --border: 217.2 32.6% 17.5%;
+    --border-td: theme("colors.slate.800");
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
     --chart-1: 220 70% 50%;

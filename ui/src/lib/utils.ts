@@ -1,8 +1,8 @@
-import { type ClassValue, clsx } from 'clsx'
+import { type ClassArray, type ClassDictionary, type ClassValue, clsx } from 'clsx/lite'
 import { twMerge } from 'tailwind-merge'
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+export function cn(...inputs: Exclude<ClassValue, ClassArray | ClassDictionary>[]) {
+  return twMerge(clsx(...inputs))
 }
 
 export function setMetaThemeColorAttribute(newThemeColor: string) {

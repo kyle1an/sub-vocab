@@ -8,6 +8,18 @@ export default antfu(
   },
   configs,
   {
+    name: 'backend/perfectionist',
+    rules: {
+      'perfectionist/sort-imports': [
+        'error',
+        {
+          type: 'natural',
+          internalPattern: ['^@/.+'],
+        },
+      ],
+    },
+  },
+  {
     name: 'style/backend',
     rules: {
       curly: ['error', 'multi-line'],

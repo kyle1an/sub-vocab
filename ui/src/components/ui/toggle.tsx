@@ -9,11 +9,11 @@ const toggleVariants = cva(
         default: cn(
           'bg-transparent',
           '[--sq-r:2px] before:size-full before:transition-colors before:mask-squircle before:sq-radius-[--sq-r] sq:rounded-none sq:bg-transparent sq:before:absolute sq:before:-z-10 sq:before:hover:bg-muted sq:data-[state=on]:before:bg-accent',
-          'relative [--offset:1px] focus-visible:after:squircle focus-visible:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus-visible:after:sq-outline focus-visible:after:sq-stroke-ring sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))]',
+          'relative [--offset:1px] focus-visible:after:squircle focus-visible:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus-visible:after:sq-outline focus-visible:after:sq-stroke-[hsl(var(--ring))] sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))]',
         ),
         outline: cn(
-          'border border-input shadow-sm squircle sq-radius-[--sq-r] sq-outline sq-stroke-input [--sq-r:6] hover:sq-fill-muted data-[state=on]:sq-fill-accent sq:border-none sq:shadow-none sq:drop-shadow-sm sq:data-[state=on]:bg-transparent',
-          'relative [--offset:1px] focus-visible:after:squircle focus-visible:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus-visible:after:sq-outline focus-visible:after:sq-stroke-ring sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))]',
+          'border border-input shadow-sm squircle sq-radius-[--sq-r] sq-outline sq-stroke-[hsl(var(--input))] [--sq-r:6] hover:sq-fill-[hsl(var(--muted))] data-[state=on]:sq-fill-[hsl(var(--accent))] sq:border-none sq:shadow-none sq:drop-shadow-sm sq:data-[state=on]:bg-transparent',
+          'relative [--offset:1px] focus-visible:after:squircle focus-visible:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus-visible:after:sq-outline focus-visible:after:sq-stroke-[hsl(var(--ring))] sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))]',
         ),
       },
       size: {
