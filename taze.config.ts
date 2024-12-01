@@ -7,7 +7,5 @@ export default defineConfig({
     '**/test/**',
   ],
   packageMode: {
-    react: 'next',
-    'react-dom': 'next',
   },
 })

@@ -3,40 +3,43 @@
   "type": "module",
   "version": "0.3.0",
   "private": true,
-  "packageManager": "pnpm@9.12.3",
+  "packageManager": "pnpm@9.15.0",
   "scripts": {
     "backend": "pnpm --filter @sub-vocab/backend",
     "ui": "pnpm --filter @sub-vocab/ui",
-    "bump": "ncu react, react-dom, eslint-plugin-react-hooks --target @next --deep -u && ncu --deep -u && taze -r && pnpm lint:pkg && pnpm up && pnpm i",
+    "bump": "ncu --deep -u && taze -r && pnpm lint:pkg && pnpm up && pnpm i",
     "lint:pkg": "eslint --fix package.json **/package.json",
     "introspect": "pnpm --recursive run introspect",
     "lint:fix": "pnpm --recursive run lint:fix"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.46.1",
+    "@supabase/supabase-js": "^2.47.10",
     "@trpc/server": "11.0.0-rc.566",
     "date-fns": "^4.1.0",
-    "type-fest": "^4.26.1",
-    "zod": "^3.23.8"
+    "type-fest": "^4.30.2",
+    "zod": "3.23.8"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^3.8.0",
-    "@stylistic/eslint-plugin": "^2.10.1",
+    "@antfu/eslint-config": "^3.12.0",
+    "@stylistic/eslint-plugin": "^2.12.1",
     "@t3-oss/env-core": "^0.11.1",
     "@total-typescript/ts-reset": "^0.6.1",
-    "@types/node": "^22.9.0",
-    "eslint": "^9.14.0",
-    "eslint-plugin-package-json": "^0.15.6",
+    "@types/node": "^22.10.2",
+    "eslint": "^9.17.0",
+    "eslint-plugin-package-json": "^0.18.0",
     "jsonc-eslint-parser": "^2.4.0",
     "pathe": "^1.1.2",
-    "prettier": "^3.3.3",
+    "prettier": "^3.4.2",
     "taze": "^0.18.0",
-    "typescript": "^5.6.3"
+    "typescript": "^5.7.2"
   },
   "pnpm": {
     "overrides": {
+      "array-flatten": "npm:@nolyfill/array-flatten@^1.0.42",
       "hasown": "npm:@nolyfill/hasown@^1.0.29",
       "is-core-module": "npm:@nolyfill/is-core-module@^1.0.39",
+      "safe-buffer": "npm:@nolyfill/safe-buffer@^1.0.41",
+      "safer-buffer": "npm:@nolyfill/safer-buffer@^1.0.41",
       "side-channel": "npm:@nolyfill/side-channel@^1.0.29"
     }
   },

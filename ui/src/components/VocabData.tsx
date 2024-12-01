@@ -1,7 +1,6 @@
 import usePagination from '@mui/material/usePagination'
 import {
   createColumnHelper,
-  flexRender,
   getCoreRowModel,
   getExpandedRowModel,
   getFilteredRowModel,
@@ -16,6 +15,7 @@ import { useSessionStorage, useUnmount } from 'react-use'
 import type { LabelDisplayTable } from '@/lib/vocab'
 
 import { TablePagination } from '@/components/table-pagination'
+import { TableHeader, TableHeaderWrapper, TableRow } from '@/components/ui/tableHeader'
 import { AcquaintAllDialog } from '@/components/VocabSource'
 import { useVocabToggle } from '@/hooks/vocabToggle'
 import { SortIcon } from '@/lib/icon-utils'
@@ -82,10 +82,10 @@ function useColumns() {
           const isSorted = header.column.getIsSorted()
           const title = t('distance')
           return (
-            <th
-              colSpan={header.colSpan}
+            <TableHeader
+              header={header}
               className={cn(
-                'group/th w-[12%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'w-[12%] whitespace-nowrap active:bg-background-active',
               )}
             >
               <div
@@ -102,7 +102,7 @@ function useColumns() {
                   isSorted={isSorted}
                 />
               </div>
-            </th>
+            </TableHeader>
           )
         },
         cell: ({ getValue }) => {
@@ -122,10 +122,10 @@ function useColumns() {
           const isSorted = header.column.getIsSorted()
           const title = t('Word')
           return (
-            <th
-              colSpan={header.colSpan}
+            <TableHeader
+              header={header}
               className={cn(
-                'group/th border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'active:bg-background-active',
               )}
             >
               <div
@@ -153,7 +153,7 @@ function useColumns() {
                   />
                 </div>
               </div>
-            </th>
+            </TableHeader>
           )
         },
         cell: ({ row }) => {
@@ -182,10 +182,10 @@ function useColumns() {
           const isSorted = header.column.getIsSorted()
           const title = t('length')
           return (
-            <th
-              colSpan={header.colSpan}
+            <TableHeader
+              header={header}
               className={cn(
-                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'w-[.1%] whitespace-nowrap active:bg-background-active',
               )}
             >
               <div
@@ -208,7 +208,7 @@ function useColumns() {
                   />
                 </div>
               </div>
-            </th>
+            </TableHeader>
           )
         },
         cell: ({ getValue }) => {
@@ -231,10 +231,10 @@ function useColumns() {
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           return (
-            <th
-              colSpan={header.colSpan}
+            <TableHeader
+              header={header}
               className={cn(
-                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'w-[.1%] whitespace-nowrap active:bg-background-active',
               )}
             >
               <div
@@ -253,7 +253,7 @@ function useColumns() {
                   />
                 </div>
               </div>
-            </th>
+            </TableHeader>
           )
         },
         cell: ({ row }) => (
@@ -269,26 +269,6 @@ function useColumns() {
       columnHelper.accessor((row) => row.vocab.isUser, {
         id: 'userOwned',
         filterFn: (row, columnId, fn: ColumnFilterFn) => fn(row.original),
-        header: ({ header }) => {
-          return (
-            <th
-              colSpan={header.colSpan}
-              className={cn(
-                'group/th border-y border-solid border-y-zinc-200 p-0 text-sm font-normal',
-              )}
-            >
-              <IconLucideCheckCircle
-                className="size-4"
-              />
-            </th>
-          )
-        },
-        cell: ({ getValue }) => (
-          <div className="flex justify-center">
-            {getValue()}
-          </div>
-        ),
-        footer: ({ column }) => column.id,
       }),
       columnHelper.accessor((row) => row.vocab.rank, {
         id: 'rank',
@@ -296,10 +276,10 @@ function useColumns() {
           const isSorted = header.column.getIsSorted()
           const title = t('rank')
           return (
-            <th
-              colSpan={header.colSpan}
+            <TableHeader
+              header={header}
               className={cn(
-                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'w-[.1%] whitespace-nowrap active:bg-background-active',
               )}
             >
               <div
@@ -322,7 +302,7 @@ function useColumns() {
                   />
                 </div>
               </div>
-            </th>
+            </TableHeader>
           )
         },
         cell: ({ getValue }) => {
@@ -450,8 +430,8 @@ export function VocabDataTable({
   })
 
   return (
-    <div className={cn('flex h-full flex-col items-center overflow-hidden bg-white will-change-transform dark:bg-slate-900', className)}>
-      <div className="z-10 flex h-12 w-full justify-between bg-neutral-50 p-2 dark:bg-slate-900">
+    <div className={cn('flex h-full flex-col items-center overflow-hidden bg-background will-change-transform', className)}>
+      <div className="z-10 flex h-12 w-full justify-between bg-background p-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -506,7 +486,7 @@ export function VocabDataTable({
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHeader
+                  <TableHeaderWrapper
                     key={header.id}
                     header={header}
                   />
@@ -517,27 +497,10 @@ export function VocabDataTable({
           <tbody>
             {table.getRowModel().rows.map((row) => {
               return (
-                <Fragment key={`_${row.original.vocab.word}`}>
-                  <tr
-                    data-expand={row.getCanExpand()}
-                    className={cn(
-                      'group',
-                      'data-[expand=true]:[&:not(:has(+tr>td[colspan]))]:shadow-[inset_0px_-4px_10px_-6px_rgba(0,0,0,0.1)]',
-                    )}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td
-                        key={cell.id}
-                        className="h-8 border-t border-solid border-t-zinc-100 pl-0.5 group-first-of-type:border-t-0 dark:border-slate-800 [tr:has(+tr>td[colspan])>&]:border-b-white"
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                </Fragment>
+                <TableRow
+                  key={`_${row.original.vocab.word}`}
+                  row={row}
+                />
               )
             })}
           </tbody>
@@ -595,7 +558,7 @@ export function VocabDataTable({
           </div>
         </div>
       </div>
-      <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-neutral-50 dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">
         <VocabStatics
           rowsCountFiltered={rowsFiltered.length}
           rowsCountNew={rowsNew.length}

@@ -5,7 +5,7 @@
     /* Base Options: */
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "target": "ESNext",
+    "target": "es2024",
     "allowJs": true,
     "module": "NodeNext",
     "moduleResolution": "NodeNext",

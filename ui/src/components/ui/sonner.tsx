@@ -10,7 +10,7 @@ function Toaster({ ...props }: ToasterProps) {
         classNames: {
           toast: cn(
             'toast group group-[.toaster]:border-border group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:shadow-lg',
-            'squircle sq-radius-[--sq-r] sq-outline sq-stroke-border [--l-w:1px] [--sq-r:9px] group-[.toaster]:sq-fill-popover sq:!border-0 sq:py-[17px] sq:group-[.toaster]:shadow-none sq:group-[.toaster]:drop-shadow-lg',
+            'squircle sq-radius-[--sq-r] sq-outline sq-stroke-[hsl(var(--border))] [--l-w:1px] [--sq-r:9px] group-[.toaster]:sq-fill-[hsl(var(--popover))] sq:!border-0 sq:py-[17px] group-[.toaster]:sq:bg-transparent sq:group-[.toaster]:shadow-none sq:group-[.toaster]:drop-shadow-lg',
           ),
           description: 'group-[.toast]:text-muted-foreground',
           actionButton:
