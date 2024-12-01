@@ -165,7 +165,10 @@ declare global {
   const SquircleBg: typeof import('./src/components/ui/squircle')['SquircleBg']
   const SquircleMask: typeof import('./src/components/ui/squircle')['SquircleMask']
   const Switch: typeof import('./src/components/ui/Switch')['Switch']
+  const TableColHeader: typeof import('./src/components/ui/tableHeader')['TableColHeader']
   const TableHeader: typeof import('./src/components/ui/tableHeader')['TableHeader']
+  const TableHeaderWrapper: typeof import('./src/components/ui/tableHeader')['TableHeaderWrapper']
+  const TableRow: typeof import('./src/components/ui/tableHeader')['TableRow']
   const TextareaInput: typeof import('./src/components/ui/TextareaInput')['TextareaInput']
   const Toast: typeof import('./src/components/ui/toast')['Toast']
   const ToastAction: typeof import('./src/components/ui/toast')['ToastAction']
@@ -361,7 +364,6 @@ declare global {
   const lazy: typeof import('react')['lazy']
   const lightFormat: typeof import('date-fns')['lightFormat']
   const loadable: typeof import('jotai/utils')['loadable']
-  const locale: typeof import('date-fns')['locale']
   const max: typeof import('date-fns')['max']
   const memo: typeof import('react')['memo']
   const milliseconds: typeof import('date-fns')['milliseconds']
@@ -491,4 +493,19 @@ declare global {
   // @ts-ignore
   export type { HTMLAttributes, Ref, RefAttributes, default as React } from 'react'
   import('react')
+  // @ts-ignore
+  export type { SegmentedControlProps } from './src/components/ui/SegmentedControl'
+  import('./src/components/ui/SegmentedControl')
+  // @ts-ignore
+  export type { ButtonProps } from './src/components/ui/button'
+  import('./src/components/ui/button')
+  // @ts-ignore
+  export type { HeadingProps, ParagraphProps } from './src/components/ui/card'
+  import('./src/components/ui/card')
+  // @ts-ignore
+  export type { InputProps } from './src/components/ui/input'
+  import('./src/components/ui/input')
+  // @ts-ignore
+  export type { DivProps } from './src/components/ui/squircle'
+  import('./src/components/ui/squircle')
 }

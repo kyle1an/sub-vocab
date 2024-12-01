@@ -153,7 +153,7 @@ export function TopBar({ className }: { className?: string }) {
       <Popover
         as="nav"
         className={cn(
-          'group/nav ffs-pre fixed z-20 w-full rounded-t-3xl bg-white tracking-wide shadow-sm group-has-[[vaul-drawer]]/body:bg-[unset] dark:bg-slate-900',
+          'group/nav ffs-pre fixed z-20 w-full rounded-t-3xl bg-background tracking-wide shadow-sm group-has-[[vaul-drawer]]/body:bg-[unset]',
           '[body:has(&[data-open])]:mr-[--scrollbar-width] [body:has(&[data-open])]:overflow-hidden',
         )}
       >
@@ -201,7 +201,7 @@ export function TopBar({ className }: { className?: string }) {
                       <a
                         href="https://github.com/kyle1an/sub-vocab"
                         target="_blank"
-                        className="mr-3 block px-2 text-neutral-400 transition-all hover:text-neutral-500 dark:hover:text-neutral-200 xl:mr-0"
+                        className="mr-3 block px-2 text-neutral-400 transition-all hover:text-neutral-500 xl:mr-0 dark:hover:text-neutral-200"
                         rel="noreferrer noopener"
                       >
                         <span className="sr-only">SubVocab on GitHub</span>
@@ -414,7 +414,7 @@ export function TopBar({ className }: { className?: string }) {
                       <div>
                         <CloseButton
                           as={Component}
-                          className="inline-flex shrink-0 items-center gap-3 rounded-md [&>*]:text-neutral-600 [&>*]:transition-all [&>*]:hover:text-black dark:[&>*]:text-neutral-400 [&>svg]:text-neutral-400"
+                          className="inline-flex shrink-0 items-center gap-3 rounded-md *:text-neutral-600 *:transition-all *:hover:text-black dark:*:text-neutral-400 [&>svg]:text-neutral-400"
                         />
                       </div>
                     </div>

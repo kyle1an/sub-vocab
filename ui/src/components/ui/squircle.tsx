@@ -76,7 +76,7 @@ export function Squircle({
       {...props}
       ref={refs}
       className={cn(
-        'relative before:absolute before:inset-[var(--inset)] before:-z-10 before:block before:[clip-path:var(--clip-path)]',
+        'relative before:absolute before:inset-[--inset] before:-z-10 before:block before:[clip-path:--clip-path]',
         className,
         !clipPathPseudo && 'opacity-0',
       )}
@@ -101,7 +101,7 @@ export function SquircleBg({
   const Component = asChild ? Slot : 'div'
   return (
     <Component
-      className={cn('drop-shadow-sm squircle sq-radius-[--sq-r] sq-fill-border [--sq-r:9px] sq:rounded-none sq:border-0', className)}
+      className={cn('drop-shadow-sm squircle sq-radius-[--sq-r] sq-fill-[hsl(var(--border))] [--sq-r:9px] sq:rounded-none sq:border-0', className)}
       {...props}
     >
       {children}

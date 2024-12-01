@@ -4,8 +4,7 @@
     "module": "es2022",
     "moduleResolution": "bundler",
     "outDir": "./dist",
-
-    "lib": ["ESNext"]
+    "lib": ["es2024"]
   },
   "include": [".eslintrc.js", ".eslintrc.cjs", "**/*.config.js", "**/*.config.cjs", "**/*.config.ts", "**/*.js", "**/*.ts", "src/**/*.ts", "**/*.d.ts", "src/**/*.d.ts"]
 }

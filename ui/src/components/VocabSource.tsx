@@ -1,7 +1,6 @@
 import usePagination from '@mui/material/usePagination'
 import {
   createColumnHelper,
-  flexRender,
   getCoreRowModel,
   getExpandedRowModel,
   getFilteredRowModel,
@@ -20,6 +19,8 @@ import { useSessionStorage, useUnmount } from 'react-use'
 import type { LabelDisplaySource } from '@/lib/vocab'
 
 import { TablePagination } from '@/components/table-pagination'
+import { Examples } from '@/components/ui/Examples'
+import { TableHeader, TableHeaderWrapper, TableRow } from '@/components/ui/tableHeader'
 import { useAcquaintAll, useVocabToggle } from '@/hooks/vocabToggle'
 import { transParams } from '@/i18n'
 import { SortIcon } from '@/lib/icon-utils'
@@ -114,10 +115,10 @@ function useColumns() {
           const isSorted = header.column.getIsSorted()
           const title = t('frequency')
           return (
-            <th
-              colSpan={header.colSpan}
+            <TableHeader
+              header={header}
               className={cn(
-                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'w-[.1%] whitespace-nowrap active:bg-background-active',
               )}
             >
               <div
@@ -136,7 +137,7 @@ function useColumns() {
                   />
                 </div>
               </div>
-            </th>
+            </TableHeader>
           )
         },
         cell: ({ row, getValue }) => {
@@ -146,8 +147,10 @@ function useColumns() {
               {row.getCanExpand() ? (
                 <button
                   type="button"
-                  onClick={row.getToggleExpandedHandler()}
-                  className="flex h-full grow cursor-pointer items-center justify-between gap-1 px-3"
+                  className={cn(
+                    'expand-button',
+                    'flex h-full grow cursor-pointer items-center justify-between gap-1 px-3',
+                  )}
                 >
                   <IconLucideChevronRight
                     className={cn('size-[14px] text-zinc-300 transition-transform dark:text-zinc-600', row.getIsExpanded() ? 'rotate-90' : '')}
@@ -175,10 +178,10 @@ function useColumns() {
           const isSorted = header.column.getIsSorted()
           const title = t('Word')
           return (
-            <th
-              colSpan={header.colSpan}
+            <TableHeader
+              header={header}
               className={cn(
-                'group/th border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'active:bg-background-active',
               )}
             >
               <div
@@ -206,7 +209,7 @@ function useColumns() {
                   />
                 </div>
               </div>
-            </th>
+            </TableHeader>
           )
         },
         cell: ({ row }) => {
@@ -235,10 +238,10 @@ function useColumns() {
           const isSorted = header.column.getIsSorted()
           const title = t('length')
           return (
-            <th
-              colSpan={header.colSpan}
+            <TableHeader
+              header={header}
               className={cn(
-                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'w-[.1%] whitespace-nowrap active:bg-background-active',
               )}
             >
               <div
@@ -261,7 +264,7 @@ function useColumns() {
                   />
                 </div>
               </div>
-            </th>
+            </TableHeader>
           )
         },
         cell: ({ getValue }) => {
@@ -284,10 +287,10 @@ function useColumns() {
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           return (
-            <th
-              colSpan={header.colSpan}
+            <TableHeader
+              header={header}
               className={cn(
-                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'w-[.1%] whitespace-nowrap active:bg-background-active',
               )}
             >
               <div
@@ -306,7 +309,7 @@ function useColumns() {
                   />
                 </div>
               </div>
-            </th>
+            </TableHeader>
           )
         },
         cell: ({ row }) => (
@@ -325,10 +328,10 @@ function useColumns() {
           const isSorted = header.column.getIsSorted()
           const title = t('rank')
           return (
-            <th
-              colSpan={header.colSpan}
+            <TableHeader
+              header={header}
               className={cn(
-                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'w-[.1%] whitespace-nowrap active:bg-background-active',
               )}
             >
               <div
@@ -351,7 +354,7 @@ function useColumns() {
                   />
                 </div>
               </div>
-            </th>
+            </TableHeader>
           )
         },
         cell: ({ getValue }) => {
@@ -471,10 +474,11 @@ export function VocabSourceTable({
   useUnmount(() => {
     setTableState(table.getState())
   })
+  const rootRef = useRef<HTMLDivElement>(null)
 
   return (
-    <div className={cn('flex h-full flex-col items-center overflow-hidden bg-white will-change-transform dark:bg-slate-900', className)}>
-      <div className="z-10 flex h-12 w-full justify-between bg-neutral-50 p-2 dark:bg-slate-900">
+    <div className={cn('flex h-full flex-col items-center overflow-hidden bg-background will-change-transform', className)}>
+      <div className="z-10 flex h-12 w-full justify-between bg-background p-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -523,13 +527,21 @@ export function VocabSourceTable({
           variant="ghost"
         />
       </div>
-      <div className="w-full grow overflow-auto overflow-y-scroll overscroll-contain">
-        <table className="min-w-full border-separate border-spacing-0">
-          <thead className="sticky top-0 z-10 bg-white px-0">
+      <div
+        ref={rootRef}
+        className="w-full grow overflow-auto overflow-y-scroll overscroll-contain"
+      >
+        <table className="relative min-w-full border-separate border-spacing-0">
+          <thead
+            style={{
+              '--z-index': 999_999_999,
+            }}
+            className="sticky top-0 z-[--z-index] bg-white px-0"
+          >
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHeader
+                  <TableHeaderWrapper
                     key={header.id}
                     header={header}
                   />
@@ -538,43 +550,26 @@ export function VocabSourceTable({
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows.map((row) => {
-              const canExpand = row.getCanExpand()
+            {table.getRowModel().rows.map((row, index) => {
               return (
-                <Fragment key={`_${row.original.vocab.word}`}>
-                  <tr className={cn(
-                    'group',
-                    canExpand ? '[&:not(:has(+tr>td[colspan]))]:shadow-[inset_0px_-4px_10px_-6px_rgba(0,0,0,0.1)]' : '',
-                  )}
+                <TableRow
+                  key={`_${row.original.vocab.word}`}
+                  row={row}
+                  rootRef={rootRef}
+                  index={index}
+                >
+                  <td
+                    colSpan={row.getVisibleCells().length}
+                    aria-label="Examples"
+                    className="py-0"
                   >
-                    {row.getVisibleCells().map((cell) => (
-                      <td
-                        key={cell.id}
-                        className="h-8 border-t border-solid border-t-zinc-100 pl-0.5 group-first-of-type:border-t-0 dark:border-slate-800 [tr:has(+tr>td[colspan])>&]:border-b-white"
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                  {canExpand && row.getIsExpanded() ? (
-                    <tr>
-                      <td
-                        colSpan={row.getVisibleCells().length}
-                        aria-label="Examples"
-                        className="py-0"
-                      >
-                        <Examples
-                          sentences={sentences}
-                          src={row.original.locations}
-                          className="text-xs tracking-wide"
-                        />
-                      </td>
-                    </tr>
-                  ) : null}
-                </Fragment>
+                    <Examples
+                      sentences={sentences}
+                      src={row.original.locations}
+                      className="text-xs tracking-wide"
+                    />
+                  </td>
+                </TableRow>
               )
             })}
           </tbody>
@@ -632,7 +627,7 @@ export function VocabSourceTable({
           </div>
         </div>
       </div>
-      <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-neutral-50 dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background  dark:border-slate-800">
         <VocabStatics
           rowsCountFiltered={rowsFiltered.length}
           rowsCountNew={rowsNew.length}
