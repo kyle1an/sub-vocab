@@ -10,8 +10,9 @@ import Icons from 'unplugin-icons/vite'
 import { defineConfig, loadEnv } from 'vite'
 import { checker } from 'vite-plugin-checker'
 import { createHtmlPlugin } from 'vite-plugin-html'
+import Inspect from 'vite-plugin-inspect'
 
-import { htmlInlineTransform, manualChunks } from './vite/utils'
+import { getManualChunk, htmlInlineTransform } from './vite/utils'
 
 const ReactCompilerConfig = {
 }
@@ -21,6 +22,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
+      // Inspect(),
       AutoImport({
         resolvers: [
           IconsResolver({
@@ -71,7 +73,7 @@ export default defineConfig(({ mode }) => {
       ...mode === 'test' ? [] : [createHtmlPlugin({
         minify: true,
       })],
-      visualizer(),
+      ...mode === 'production' ? [visualizer()] : [],
       checker({
         typescript: true,
       }),
@@ -99,7 +101,7 @@ export default defineConfig(({ mode }) => {
       target: 'esnext',
       rollupOptions: {
         output: {
-          manualChunks,
+          manualChunks: getManualChunk,
         },
       },
     },

@@ -14,6 +14,18 @@ export default antfu(
   },
   configs,
   {
+    name: 'ui/perfectionist',
+    rules: {
+      'perfectionist/sort-imports': [
+        'error',
+        {
+          type: 'natural',
+          internalPattern: ['^@/.+'],
+        },
+      ],
+    },
+  },
+  {
     name: 'style/ui',
     rules: {
       'style/jsx-wrap-multilines': ['warn',

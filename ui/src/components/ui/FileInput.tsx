@@ -45,7 +45,7 @@ export function FileInput({
         allowsMultiple
         // https://stackoverflow.com/a/47387521/10903455
         // https://caniuse.com/input-file-accept
-        {...(os.is('iOS') ? {} : {
+        {...(os.name === 'iOS' ? {} : {
           acceptedFileTypes,
         })}
         onSelect={handleFileSelect}

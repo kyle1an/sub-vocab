@@ -1,3 +1,6 @@
+/* eslint-disable react-compiler/react-compiler */
+import type { ReactElement, RefObject } from 'react'
+
 import usePagination from '@mui/material/usePagination'
 import {
   createColumnHelper,
@@ -7,6 +10,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  type Row,
   type TableState,
   useReactTable,
 } from '@tanstack/react-table'
@@ -15,13 +19,17 @@ import {
   Trans,
   useTranslation,
 } from 'react-i18next'
+import { mergeRefs } from 'react-merge-refs'
 import { useSessionStorage, useUnmount } from 'react-use'
+import { useIntersectionObserver } from 'usehooks-ts'
 
 import type { LabelDisplaySource } from '@/lib/vocab'
 
 import { TablePagination } from '@/components/table-pagination'
+import { Examples } from '@/components/ui/Examples'
 import { useAcquaintAll, useVocabToggle } from '@/hooks/vocabToggle'
 import { transParams } from '@/i18n'
+import { useRect } from '@/lib/hooks'
 import { SortIcon } from '@/lib/icon-utils'
 import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
 import { tryGetRegex } from '@/lib/regex'
@@ -117,7 +125,7 @@ function useColumns() {
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:active:bg-slate-800',
               )}
             >
               <div
@@ -146,8 +154,10 @@ function useColumns() {
               {row.getCanExpand() ? (
                 <button
                   type="button"
-                  onClick={row.getToggleExpandedHandler()}
-                  className="flex h-full grow cursor-pointer items-center justify-between gap-1 px-3"
+                  className={cn(
+                    'expand-button',
+                    'flex h-full grow cursor-pointer items-center justify-between gap-1 px-3',
+                  )}
                 >
                   <IconLucideChevronRight
                     className={cn('size-[14px] text-zinc-300 transition-transform dark:text-zinc-600', row.getIsExpanded() ? 'rotate-90' : '')}
@@ -178,7 +188,7 @@ function useColumns() {
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'group/th border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:active:bg-slate-800',
               )}
             >
               <div
@@ -238,7 +248,7 @@ function useColumns() {
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:active:bg-slate-800',
               )}
             >
               <div
@@ -287,7 +297,7 @@ function useColumns() {
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:active:bg-slate-800',
               )}
             >
               <div
@@ -328,7 +338,7 @@ function useColumns() {
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:active:bg-slate-800',
               )}
             >
               <div
@@ -379,7 +389,6 @@ export function VocabSourceTable({
   onPurge: () => void
   className?: string
 }) {
-  // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
   const { t } = useTranslation()
   const [searchValue, setSearchValue] = useAtom(searchValueAtom)
@@ -471,6 +480,7 @@ export function VocabSourceTable({
   useUnmount(() => {
     setTableState(table.getState())
   })
+  const rootRef = useRef<HTMLDivElement>(null)
 
   return (
     <div className={cn('flex h-full flex-col items-center overflow-hidden bg-white will-change-transform dark:bg-slate-900', className)}>
@@ -523,9 +533,17 @@ export function VocabSourceTable({
           variant="ghost"
         />
       </div>
-      <div className="w-full grow overflow-auto overflow-y-scroll overscroll-contain">
-        <table className="min-w-full border-separate border-spacing-0">
-          <thead className="sticky top-0 z-10 bg-white px-0">
+      <div
+        ref={rootRef}
+        className="w-full grow overflow-auto overflow-y-scroll overscroll-contain"
+      >
+        <table className="relative min-w-full border-separate border-spacing-0">
+          <thead
+            style={{
+              '--z-index': 999_999_999,
+            }}
+            className="sticky top-0 z-[--z-index] bg-white px-0"
+          >
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
@@ -537,44 +555,29 @@ export function VocabSourceTable({
               </tr>
             ))}
           </thead>
-          <tbody>
-            {table.getRowModel().rows.map((row) => {
-              const canExpand = row.getCanExpand()
+          <tbody
+            className="*:relative *:bg-white *:dark:bg-slate-900"
+          >
+            {table.getRowModel().rows.map((row, index) => {
               return (
-                <Fragment key={`_${row.original.vocab.word}`}>
-                  <tr className={cn(
-                    'group',
-                    canExpand ? '[&:not(:has(+tr>td[colspan]))]:shadow-[inset_0px_-4px_10px_-6px_rgba(0,0,0,0.1)]' : '',
-                  )}
+                <TableRow
+                  key={`_${row.original.vocab.word}`}
+                  row={row}
+                  rootRef={rootRef}
+                  index={index}
+                >
+                  <td
+                    colSpan={row.getVisibleCells().length}
+                    aria-label="Examples"
+                    className="py-0"
                   >
-                    {row.getVisibleCells().map((cell) => (
-                      <td
-                        key={cell.id}
-                        className="h-8 border-t border-solid border-t-zinc-100 pl-0.5 group-first-of-type:border-t-0 dark:border-slate-800 [tr:has(+tr>td[colspan])>&]:border-b-white"
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                  {canExpand && row.getIsExpanded() ? (
-                    <tr>
-                      <td
-                        colSpan={row.getVisibleCells().length}
-                        aria-label="Examples"
-                        className="py-0"
-                      >
-                        <Examples
-                          sentences={sentences}
-                          src={row.original.locations}
-                          className="text-xs tracking-wide"
-                        />
-                      </td>
-                    </tr>
-                  ) : null}
-                </Fragment>
+                    <Examples
+                      sentences={sentences}
+                      src={row.original.locations}
+                      className="text-xs tracking-wide"
+                    />
+                  </td>
+                </TableRow>
               )
             })}
           </tbody>

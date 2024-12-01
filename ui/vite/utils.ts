@@ -34,7 +34,7 @@ export const htmlInlineTransform = (): PluginOption => {
   }
 }
 
-export const manualChunks: ManualChunksOption = (id) => {
+export const getManualChunk: ManualChunksOption = (id) => {
   if (id.includes('/lib/worker')) {
     return 'worker'
   }
@@ -47,48 +47,66 @@ export const manualChunks: ManualChunksOption = (id) => {
     return 'pdfjs-dist'
   }
 
-  if (id.includes('sentry')) {
+  if (id.includes('@sentry')) {
     return 'sentry'
   }
 
-  if (id.includes('chart.js')) {
+  if (id.includes('.pnpm/chart.js@')) {
     return 'chart.js'
   }
 
-  if (
-    id.includes('commonjsHelpers.js')
-    || id.includes('/react@')
-    || id.includes('/react-dom@')
-  ) {
-    return 'vendors-react'
+  if (id.includes('commonjsHelpers.js')) {
+    return 'commonjsHelpers'
   }
 
   if (
-    id.includes('radix-ui')
-    || id.includes('sonner')
-    || id.includes('tailwind')
-    || id.includes('vaul')
-    || id.includes('/date-fns')
-    || id.includes('/lodash')
-    || id.includes('iconify')
+    [
+      '.pnpm/react@',
+      '.pnpm/react-dom@',
+      '.pnpm/scheduler',
+      '.pnpm/react-router@',
+    ].some((s) => id.includes(s))
   ) {
-    return 'vendors-chunk_1'
+    return 'react'
   }
 
   if (
-    id.includes('tanstack')
-    || id.includes('remix-run')
-    || id.includes('react-router')
-    || id.includes('i18next')
+    [
+      'i18next',
+      'tailwind-merge',
+      'date-fns',
+      'zod',
+      '@tanstack/table-core',
+      '@tanstack/query-core',
+      'ua-parser-js',
+      'immer',
+      'lodash-es',
+      'tailwindcss',
+    ]
+      .map((s) => `.pnpm/${s.replace(/\//g, '+')}@`)
+      .some((s) => id.includes(s))
   ) {
-    return 'vendors-chunk_2'
+    return 'self'
   }
 
-  if (id.includes('react')) {
-    return 'vendors-react-chunk'
-  }
-
-  if (id.includes('node_modules')) {
-    return 'vendors-node_modules'
+  if (
+    [
+      '.pnpm/@radix-ui+',
+      '.pnpm/@supabase+',
+      ...[
+        'jotai',
+        'jotai-effect',
+        'react-hook-form',
+        'react-resizable-panels',
+        'react-aria-components',
+        'jotai-tanstack-query',
+        'sonner',
+        'vaul',
+      ]
+        .map((s) => `.pnpm/${s.replace(/\//g, '+')}@`),
+    ]
+      .some((s) => id.includes(s))
+  ) {
+    return 'dep'
   }
 }

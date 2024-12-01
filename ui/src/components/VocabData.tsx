@@ -85,7 +85,7 @@ function useColumns() {
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[12%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'group/th w-[12%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:active:bg-slate-800',
               )}
             >
               <div
@@ -125,7 +125,7 @@ function useColumns() {
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'group/th border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:active:bg-slate-800',
               )}
             >
               <div
@@ -185,7 +185,7 @@ function useColumns() {
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:active:bg-slate-800',
               )}
             >
               <div
@@ -234,7 +234,7 @@ function useColumns() {
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:active:bg-slate-800',
               )}
             >
               <div
@@ -299,7 +299,7 @@ function useColumns() {
             <th
               colSpan={header.colSpan}
               className={cn(
-                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900',
+                'group/th w-[.1%] whitespace-nowrap border-y border-solid border-y-zinc-200 p-0 text-sm font-normal active:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:active:bg-slate-800',
               )}
             >
               <div
@@ -515,29 +515,13 @@ export function VocabDataTable({
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows.map((row) => {
+            {table.getRowModel().rows.map((row, index) => {
               return (
-                <Fragment key={`_${row.original.vocab.word}`}>
-                  <tr
-                    data-expand={row.getCanExpand()}
-                    className={cn(
-                      'group',
-                      'data-[expand=true]:[&:not(:has(+tr>td[colspan]))]:shadow-[inset_0px_-4px_10px_-6px_rgba(0,0,0,0.1)]',
-                    )}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td
-                        key={cell.id}
-                        className="h-8 border-t border-solid border-t-zinc-100 pl-0.5 group-first-of-type:border-t-0 dark:border-slate-800 [tr:has(+tr>td[colspan])>&]:border-b-white"
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                </Fragment>
+                <TableRow
+                  key={`_${row.original.vocab.word}`}
+                  row={row}
+                  index={index}
+                />
               )
             })}
           </tbody>
