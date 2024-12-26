@@ -10,6 +10,7 @@ import { queryClient, trpc, trpcClient } from './store/useVocab'
 
 if (import.meta.env.DEV) {
   import('jotai-devtools/styles.css')
+  import('./styles/devtools.css')
 }
 
 const HydrateAtoms = ({ children }: React.HTMLAttributes<HTMLElement>) => {
@@ -19,6 +20,7 @@ const HydrateAtoms = ({ children }: React.HTMLAttributes<HTMLElement>) => {
 
 /* eslint-disable react/no-missing-key */
 const contexts = [
+  // eslint-disable-next-line react/no-context-provider
   <trpc.Provider client={trpcClient} queryClient={queryClient}> </trpc.Provider>,
   <QueryClientProvider client={queryClient} />,
   <HydrateAtoms />,

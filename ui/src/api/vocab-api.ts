@@ -112,7 +112,7 @@ function userVocabularyOptions(userId: string) {
 
 const userVocabularyAtom = atomWithQuery((get) => {
   const session = get(sessionAtom)
-  const userId = session?.user.id ?? ''
+  const userId = session?.user?.id ?? ''
   return userVocabularyOptions(userId)
 })
 
@@ -157,7 +157,7 @@ export function useIrregularMapsQuery() {
 
 export function useUserWordPhaseMutation() {
   const [session] = useAtom(sessionAtom)
-  const userId = session?.user.id ?? ''
+  const userId = session?.user?.id ?? ''
   const vocabularyOptions = userVocabularyOptions(userId)
   return useMutation({
     mutationKey: ['upsertUserVocabulary'],
@@ -221,7 +221,7 @@ type Row_user_vocab_record = Tables<'user_vocab_record'>
 
 function useRealtimeVocabUpsert<T extends Row_user_vocab_record>() {
   const [session] = useAtom(sessionAtom)
-  const userId = session?.user.id ?? ''
+  const userId = session?.user?.id ?? ''
   const vocabularyOptions = userVocabularyOptions(userId)
 
   function upsertCallback(payload: RealtimePostgresInsertPayload<T> | RealtimePostgresUpdatePayload<T>) {
@@ -247,7 +247,7 @@ function useRealtimeVocabUpsert<T extends Row_user_vocab_record>() {
 export function useVocabRealtimeSync() {
   const upsertCallback = useRealtimeVocabUpsert()
   const [session] = useAtom(sessionAtom)
-  const userId = session?.user.id ?? ''
+  const userId = session?.user?.id ?? ''
 
   useEffect(() => {
     if (userId) {

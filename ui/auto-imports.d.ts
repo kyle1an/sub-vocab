@@ -6,6 +6,10 @@
 // biome-ignore lint: disable
 export {}
 declare global {
+  const Accordion: typeof import('./src/components/ui/accordion')['Accordion']
+  const AccordionContent: typeof import('./src/components/ui/accordion')['AccordionContent']
+  const AccordionItem: typeof import('./src/components/ui/accordion')['AccordionItem']
+  const AccordionTrigger: typeof import('./src/components/ui/accordion')['AccordionTrigger']
   const Alert: typeof import('./src/components/ui/alert')['Alert']
   const AlertDescription: typeof import('./src/components/ui/alert')['AlertDescription']
   const AlertDialog: typeof import('./src/components/ui/alert-dialog')['AlertDialog']
@@ -28,6 +32,9 @@ declare global {
   const CardHeader: typeof import('./src/components/ui/card')['CardHeader']
   const CardTitle: typeof import('./src/components/ui/card')['CardTitle']
   const Checkbox: typeof import('./src/components/ui/checkbox')['Checkbox']
+  const Collapsible: typeof import('./src/components/ui/collapsible')['Collapsible']
+  const CollapsibleContent: typeof import('./src/components/ui/collapsible')['CollapsibleContent']
+  const CollapsibleTrigger: typeof import('./src/components/ui/collapsible')['CollapsibleTrigger']
   const Command: typeof import('./src/components/ui/command')['Command']
   const CommandDialog: typeof import('./src/components/ui/command')['CommandDialog']
   const CommandEmpty: typeof import('./src/components/ui/command')['CommandEmpty']
@@ -48,6 +55,7 @@ declare global {
   const DialogPortal: typeof import('./src/components/ui/dialog')['DialogPortal']
   const DialogTitle: typeof import('./src/components/ui/dialog')['DialogTitle']
   const DialogTrigger: typeof import('./src/components/ui/dialog')['DialogTrigger']
+  const Div: typeof import('./src/components/ui/html-elements')['Div']
   const Drawer: typeof import('./src/components/ui/drawer')['Drawer']
   const DrawerClose: typeof import('./src/components/ui/drawer')['DrawerClose']
   const DrawerContent: typeof import('./src/components/ui/drawer')['DrawerContent']
@@ -165,9 +173,10 @@ declare global {
   const SquircleBg: typeof import('./src/components/ui/squircle')['SquircleBg']
   const SquircleMask: typeof import('./src/components/ui/squircle')['SquircleMask']
   const Switch: typeof import('./src/components/ui/Switch')['Switch']
-  const TableColHeader: typeof import('./src/components/ui/tableHeader')['TableColHeader']
+  const TableDataCell: typeof import('./src/components/ui/tableHeader')['TableDataCell']
   const TableHeader: typeof import('./src/components/ui/tableHeader')['TableHeader']
-  const TableHeaderWrapper: typeof import('./src/components/ui/tableHeader')['TableHeaderWrapper']
+  const TableHeaderCell: typeof import('./src/components/ui/tableHeader')['TableHeaderCell']
+  const TableHeaderCellRender: typeof import('./src/components/ui/tableHeader')['TableHeaderCellRender']
   const TableRow: typeof import('./src/components/ui/tableHeader')['TableRow']
   const TextareaInput: typeof import('./src/components/ui/TextareaInput')['TextareaInput']
   const Toast: typeof import('./src/components/ui/toast')['Toast']
@@ -476,6 +485,7 @@ declare global {
   const useRef: typeof import('react')['useRef']
   const useResetAtom: typeof import('jotai/utils')['useResetAtom']
   const useSetAtom: typeof import('jotai')['useSetAtom']
+  const useSnapshot: typeof import('valtio')['useSnapshot']
   const useState: typeof import('react')['useState']
   const useSyncExternalStore: typeof import('react')['useSyncExternalStore']
   const useToast: typeof import('./src/components/ui/use-toast')['useToast']
@@ -503,9 +513,9 @@ declare global {
   export type { HeadingProps, ParagraphProps } from './src/components/ui/card'
   import('./src/components/ui/card')
   // @ts-ignore
+  export type { DivProps } from './src/components/ui/html-elements'
+  import('./src/components/ui/html-elements')
+  // @ts-ignore
   export type { InputProps } from './src/components/ui/input'
   import('./src/components/ui/input')
-  // @ts-ignore
-  export type { DivProps } from './src/components/ui/squircle'
-  import('./src/components/ui/squircle')
 }

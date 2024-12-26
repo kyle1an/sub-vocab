@@ -9,7 +9,7 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --background-active: theme("colors.stone.50");
+    --background-active: theme(colors.stone.50);
     --foreground: 222.2 84% 4.9%;
     --theme-bg: hsl(var(--background));
 
@@ -35,7 +35,7 @@
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
-    --border-td: theme("colors.zinc.100");
+    --border-td: theme(colors.zinc.100);
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
 
@@ -52,11 +52,14 @@
     --chart-4: 43 74% 66%;
 
     --chart-5: 27 87% 67%;
+
+    --collapse: 0px -4px 10px -6px theme(colors.black / 10%);
+    --intersect: 0px 2px 10px -6px theme(colors.black / 10%);
   }
 
   .dark {
     --background: 222.2 84% 4.9%;
-    --background-active: theme("colors.slate.800");
+    --background-active: theme(colors.slate.800);
     --foreground: 210 40% 98%;
     --theme-bg: hsl(var(--background));
 
@@ -82,7 +85,7 @@
     --destructive-foreground: 210 40% 98%;
 
     --border: 217.2 32.6% 17.5%;
-    --border-td: theme("colors.slate.800");
+    --border-td: theme(colors.slate.800 / 70%);
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
     --chart-1: 220 70% 50%;
@@ -90,6 +93,9 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    --collapse: 0px -4px 10px -6px theme(colors.slate.600);
+    --intersect: 0px 2px 10px -6px theme(colors.slate.500);
   }
 }
 

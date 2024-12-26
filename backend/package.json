@@ -3,25 +3,29 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@9.15.3",
   "scripts": {
     "dev": "tsx watch --env-file=.env app",
     "introspect": "drizzle-kit introspect",
-    "build": "tsc && npm run copy-files",
+    "build": "tsc && node --run copy-files",
     "copy-files": "cp -R public dist/backend",
     "start": "node --env-file=.env dist/backend/app.js",
     "lint": "eslint . --report-unused-disable-directives",
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
+    "@trpc/server": "11.0.0-rc.566",
     "cookie": "^1.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "debug": "^4.4.0",
-    "drizzle-orm": "^0.38.2",
+    "drizzle-orm": "^0.38.3",
     "express": "^5.0.1",
     "http-errors": "^2.0.0",
+    "http-proxy-middleware": "^3.0.3",
     "morgan": "^1.10.0",
+    "ofetch": "^1.4.1",
+    "openapi-fetch": "^0.13.4",
     "postgres": "^3.4.5"
   },
   "devDependencies": {

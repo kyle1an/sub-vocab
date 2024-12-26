@@ -1,5 +1,6 @@
 import NumberFlow from '@number-flow/react'
 import { useMediaQuery } from 'foxact/use-media-query'
+import { Link, Outlet } from 'react-router'
 
 import {
   useIrregularMapsQuery,
@@ -12,12 +13,11 @@ import {
   type LabelDisplaySource,
 } from '@/lib/vocab'
 import { statusRetainedList } from '@/lib/vocab-utils'
-import { fileTypesAtom } from '@/store/useVocab'
+import { fileTypesAtom, sourceTextAtom } from '@/store/useVocab'
 
 import { FileSettings } from './file-settings'
 
 const fileInfoAtom = atom('')
-const sourceTextAtom = atom('')
 const textCountAtom = atom(0)
 
 function SourceVocab({
@@ -29,7 +29,7 @@ function SourceVocab({
   const [baseVocab] = useAtom(userVocabWithBaseVocabAtom)
   const [rows, setRows] = useState<LabelDisplaySource[]>([])
   const [sentences, setSentences] = useState<string[]>([])
-  const [, setCount] = useAtom(textCountAtom)
+  const setCount = useSetAtom(textCountAtom)
 
   useEffect(() => {
     const trie = new LabeledTire()
@@ -67,14 +67,47 @@ function SourceVocab({
 
 export function Home() {
   const { t } = useTranslation()
-  const [fileInfo, setFileInfo] = useAtom(fileInfoAtom)
-  const [sourceText, setSourceText] = useAtom(sourceTextAtom)
-  const deferredSourceText = useDeferredValue(sourceText)
+  const setFileInfo = useSetAtom(fileInfoAtom)
+  const setSourceText = useSetAtom(sourceTextAtom)
 
   function handleFileChange({ name, value }: { name: string, value: string }) {
     setFileInfo(name)
     setSourceText(value)
   }
+
+  return (
+    <main className="m-auto h-[calc(100svh-4px*11)] w-full max-w-screen-xl px-5 pb-7">
+      <div className="relative flex h-14 items-center gap-2">
+        <FileInput
+          onFileSelect={handleFileChange}
+        >
+          {t('browseFiles')}
+        </FileInput>
+        <FileSettings />
+        <Button
+          variant="outline"
+          className="whitespace-nowrap p-0"
+          size="sm"
+        >
+          <Link
+            to="/subtitles"
+            className="flex size-full items-center px-3"
+          >
+            Subtitles
+          </Link>
+        </Button>
+        <div className="grow" />
+      </div>
+      <Outlet />
+    </main>
+  )
+}
+
+export function ResizeVocabularyPanel() {
+  const { t } = useTranslation()
+  const [fileInfo, setFileInfo] = useAtom(fileInfoAtom)
+  const [sourceText, setSourceText] = useAtom(sourceTextAtom)
+  const deferredSourceText = useDeferredValue(sourceText)
 
   function handleTextareaChange({ name, value }: { name?: string, value: string }) {
     setSourceText(value)
@@ -86,7 +119,7 @@ export function Home() {
   const [count] = useAtom(textCountAtom)
   const isMdScreen = useMediaQuery('(min-width: 768px)')
   const direction = isMdScreen ? 'horizontal' : 'vertical'
-  let defaultSizes = [54, 46]
+  let defaultSizes = [50, 50]
   if (direction === 'vertical') {
     defaultSizes = [
       36,
@@ -96,16 +129,7 @@ export function Home() {
   const [fileTypes] = useAtom(fileTypesAtom)
 
   return (
-    <main className="m-auto h-[calc(100svh-4px*11)] w-full max-w-screen-xl px-5 pb-7">
-      <div className="relative flex h-14 items-center gap-2">
-        <FileInput
-          onFileSelect={handleFileChange}
-        >
-          {t('browseFiles')}
-        </FileInput>
-        <FileSettings />
-        <div className="grow" />
-      </div>
+    (
       <SquircleBg className="flex h-[calc(100%-4px*14)] items-center justify-center overflow-hidden rounded-xl border">
         <SquircleMask asChild>
           <ResizablePanelGroup
@@ -155,6 +179,6 @@ export function Home() {
           </ResizablePanelGroup>
         </SquircleMask>
       </SquircleBg>
-    </main>
+    )
   )
 }

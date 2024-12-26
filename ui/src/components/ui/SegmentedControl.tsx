@@ -85,7 +85,7 @@ export function SegmentedControl<T extends string>({
   }
 
   function addToRefs(key: T) {
-    return (el: HTMLSpanElement) => {
+    return (el: HTMLDivElement) => {
       pillRefs.current[key] = el
     }
   }
@@ -127,7 +127,7 @@ function Segment<T extends string>({
   label: string
   onValueChange: (value: T) => void
   checked: boolean
-  sqRef: Ref<HTMLSpanElement>
+  sqRef: Ref<HTMLDivElement>
 } & React.HTMLAttributes<HTMLDivElement> & RefAttributes<HTMLDivElement>) {
   const id = useId()
   return (

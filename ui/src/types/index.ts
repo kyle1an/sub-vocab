@@ -9,6 +9,7 @@ declare global {
     VITE_PUBLIC_SUPABASE_ANON_KEY: string
     VITE_LEGACY_USER_EMAIL_SUFFIX: string
   }
+  function setTimeout(...parameters: Parameters<WindowOrWorkerGlobalScope['setTimeout']>): ReturnType<WindowOrWorkerGlobalScope['setTimeout']>
 }
 
 // https://x.com/chancethedev/status/1757879569779200354?s=20

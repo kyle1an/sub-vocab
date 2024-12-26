@@ -6,12 +6,14 @@ import cors from 'cors'
 import Debug from 'debug'
 import express from 'express'
 import createError from 'http-errors'
+import { createProxyMiddleware } from 'http-proxy-middleware'
 import logger from 'morgan'
 import { createServer } from 'node:http'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'pathe'
 
+import { env } from './env.js'
 import { userRouter } from './src/routes/auth.js'
 import routes from './src/routes/index.js'
 import { router } from './src/routes/trpc.js'
@@ -25,6 +27,7 @@ function createContext({
 }: trpcExpress.CreateExpressContextOptions) {
   return {}
 }
+
 type Context = Awaited<ReturnType<typeof createContext>>
 
 const app = express()
@@ -35,7 +38,7 @@ app.use(cors({
   exposedHeaders: ['set-cookie'],
 }))
 
-export const appRouter = router({
+const appRouter = router({
   user: userRouter,
 })
 
@@ -46,6 +49,48 @@ app.use(
   trpcExpress.createExpressMiddleware({
     router: appRouter,
     createContext,
+  }),
+)
+
+;[
+  {
+    path: '/def',
+    target: 'https://api.opensubtitles.com/api/v1',
+  },
+  {
+    path: '/vip',
+    target: 'https://vip-api.opensubtitles.com/api/v1',
+  },
+].forEach(({ path, target }) => app.use(
+  `/opensubtitles-proxy${path}`,
+  (req, res, next) => {
+    req.headers['user-agent'] = env.APP_NAME__V_APP_VERSION
+    req.headers['api-key'] = env.OPENSUBTITLES_API_KEY
+    const url = new URL(target)
+    req.headers['x-forwarded-host'] = url.host
+    next()
+  },
+  createProxyMiddleware<Request, Response>({
+    target,
+    changeOrigin: true,
+    followRedirects: true,
+  }),
+))
+
+const tmdbTarget = 'https://api.themoviedb.org'
+
+app.use(
+  '/tmdb-proxy',
+  (req, res, next) => {
+    req.headers.authorization = `Bearer ${env.TMDB_TOKEN}`
+    const url = new URL(tmdbTarget)
+    // https://www.themoviedb.org/talk/673d9f8687917078d0108992
+    req.headers['x-forwarded-host'] = url.host
+    next()
+  },
+  createProxyMiddleware<Request, Response>({
+    target: tmdbTarget,
+    changeOrigin: true,
   }),
 )
 

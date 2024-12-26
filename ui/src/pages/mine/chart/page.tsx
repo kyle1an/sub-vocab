@@ -1,9 +1,9 @@
+import 'chart.js/auto'
 import {
   type ChartData,
   Chart as ChartJS,
   type ChartOptions,
 } from 'chart.js'
-import 'chart.js/auto'
 import { merge, rangeRight } from 'lodash-es'
 import { Bar } from 'react-chartjs-2'
 import { useSessionStorage } from 'react-use'

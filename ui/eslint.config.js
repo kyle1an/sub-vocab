@@ -2,6 +2,7 @@ import antfu from '@antfu/eslint-config'
 import { FlatCompat } from '@eslint/eslintrc'
 import pluginQuery from '@tanstack/eslint-plugin-query'
 import eslintPluginTailwindCss from 'eslint-plugin-tailwindcss'
+import valtio from 'eslint-plugin-valtio'
 
 import configs from '../eslint.config.js'
 
@@ -82,9 +83,11 @@ export default antfu(
       },
     },
   },
+  valtio.configs['flat/recommended'],
   {
     ignores: [
       'database.types.ts',
+      '**/types/schema-*.d.ts',
     ],
   },
 )

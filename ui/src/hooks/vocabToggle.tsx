@@ -1,4 +1,4 @@
-import { useIsOnline } from 'foxact/use-is-online'
+import { useNetworkState } from '@react-hookz/web'
 import { toast } from 'sonner'
 
 import { useUserWordPhaseMutation } from '@/api/vocab-api'
@@ -11,7 +11,7 @@ export function useVocabToggle() {
   const { mutateAsync: userWordPhaseMutation } = useUserWordPhaseMutation()
   const [session] = useAtom(sessionAtom)
   const user = session?.user
-  const isOnline = useIsOnline()
+  const { online: isOnline } = useNetworkState()
   return <T extends VocabState>(vocab: T) => {
     if (!user) {
       toast(<LoginToast />)
