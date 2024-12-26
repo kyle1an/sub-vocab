@@ -1,12 +1,12 @@
+import 'chart.js/auto'
 import {
   type ChartData,
   Chart as ChartJS,
   type ChartOptions,
 } from 'chart.js'
-import 'chart.js/auto'
+import { useSessionStorage } from 'foxact/use-session-storage'
 import { merge, rangeRight } from 'lodash-es'
 import { Bar } from 'react-chartjs-2'
-import { useSessionStorage } from 'react-use'
 import colors from 'tailwindcss/colors'
 
 import { userVocabWithBaseVocabAtom } from '@/api/vocab-api'

@@ -1,4 +1,5 @@
 import usePagination from '@mui/material/usePagination'
+import { useUnmountEffect } from '@react-hookz/web'
 import {
   createColumnHelper,
   getCoreRowModel,
@@ -9,18 +10,19 @@ import {
   type TableState,
   useReactTable,
 } from '@tanstack/react-table'
-import { uniq } from 'lodash-es'
-import { useSessionStorage, useUnmount } from 'react-use'
+import { useSessionStorage } from 'foxact/use-session-storage'
 
 import type { LabelDisplayTable } from '@/lib/vocab'
 
+import { AcquaintAllDialog } from '@/components/acquaint-all-dialog'
 import { TablePagination } from '@/components/table-pagination'
-import { TableHeader, TableHeaderWrapper, TableRow } from '@/components/ui/tableHeader'
-import { AcquaintAllDialog } from '@/components/VocabSource'
+import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
+import { TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/tableHeader'
 import { useVocabToggle } from '@/hooks/vocabToggle'
 import { SortIcon } from '@/lib/icon-utils'
 import { LEARNING_PHASE, type LearningPhase } from '@/lib/LabeledTire'
 import { tryGetRegex } from '@/lib/regex'
+import { findClosest } from '@/lib/utilities'
 
 const columnHelper = createColumnHelper<LabelDisplayTable>()
 
@@ -28,7 +30,7 @@ type ColumnFilterFn = (rowValue: LabelDisplayTable) => boolean
 
 const isUsingRegexAtom = atom(false)
 const searchValueAtom = atom('')
-const tableStateAtom = atom<Partial<TableState>>({})
+const initialTableStateAtom = atom<Partial<TableState>>({})
 
 function useSegments() {
   const { t } = useTranslation()
@@ -69,7 +71,7 @@ function getUserOwnedFilter(filterSegment: Segment): ColumnFilterFn {
   return (row) => filteredValue.includes(row.vocab.isUser)
 }
 
-const PAGES = [10, 20, 40, 50, 100, 200, 1000] as const
+const PAGE_SIZES = [10, 20, 40, 50, 100, 200, 1000] as const
 
 function useColumns() {
   const { t } = useTranslation()
@@ -82,35 +84,35 @@ function useColumns() {
           const isSorted = header.column.getIsSorted()
           const title = t('distance')
           return (
-            <TableHeader
+            <TableHeaderCell
               header={header}
-              className={cn(
-                'w-[12%] whitespace-nowrap active:bg-background-active',
-              )}
+              className="w-[12%] active:bg-background-active"
             >
-              <div
-                className="float-right flex h-7 w-full cursor-pointer select-none items-center pl-2 pr-1"
+              <Div
+                className="select-none pl-2 pr-1"
                 onClick={header.column.getToggleSortingHandler()}
               >
                 <span
                   title={title}
-                  className={cn('grow text-right text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
+                  className={cn('grow text-right stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                 >
                   {title}
                 </span>
-                <SortIcon
-                  isSorted={isSorted}
-                />
-              </div>
-            </TableHeader>
+                <SortIcon isSorted={isSorted} />
+              </Div>
+            </TableHeaderCell>
           )
         },
-        cell: ({ getValue }) => {
-          const timeModified = getValue()
+        cell: ({ row, cell, getValue }) => {
+          const value = getValue()
           return (
-            <div className="float-right w-full text-center text-sm tabular-nums stretch-[condensed]">
-              {timeModified ? formatDistanceToNowStrict(new Date(timeModified)) : null}
-            </div>
+            <TableDataCell
+              cell={cell}
+            >
+              <Div className="justify-center tabular-nums stretch-[condensed]">
+                {value ? formatDistanceToNowStrict(new Date(value)) : null}
+              </Div>
+            </TableDataCell>
           )
         },
         footer: ({ column }) => column.id,
@@ -122,14 +124,12 @@ function useColumns() {
           const isSorted = header.column.getIsSorted()
           const title = t('Word')
           return (
-            <TableHeader
+            <TableHeaderCell
               header={header}
-              className={cn(
-                'active:bg-background-active',
-              )}
+              className="active:bg-background-active"
             >
-              <div
-                className="group flex h-7 cursor-pointer items-center gap-2 pr-1"
+              <Div
+                className="group gap-2 pr-1"
                 onClick={header.column.getToggleSortingHandler()}
               >
                 <Separator
@@ -142,36 +142,38 @@ function useColumns() {
                   <span
                     title={title}
                     className={cn(
-                      'grow text-left text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]',
+                      'grow text-left stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]',
                       isSorted ? 'font-semibold' : '',
                     )}
                   >
                     {title}
                   </span>
-                  <SortIcon
-                    isSorted={isSorted}
-                  />
+                  <SortIcon isSorted={isSorted} />
                 </div>
-              </div>
-            </TableHeader>
+              </Div>
+            </TableHeaderCell>
           )
         },
-        cell: ({ row }) => {
+        cell: ({ row, cell, getValue }) => {
           const { wFamily } = row.original
           const last = wFamily.length - 1
           return (
-            <>
-              {wFamily.map((w, i) => (
-                <div
-                  key={w}
-                  className="ml-1.5 inline-block cursor-text select-text text-sm tracking-wider ffs-['cv03','cv05','cv06'] first:ml-2"
-                  onClick={(ev) => ev.stopPropagation()}
-                >
-                  <span className={cn(i === 0 ? '' : 'text-neutral-500 dark:text-slate-400')}>{w}</span>
-                  {i < last && <span className="text-neutral-500 dark:text-slate-400">, </span>}
-                </div>
-              ))}
-            </>
+            <TableDataCell
+              cell={cell}
+            >
+              <>
+                {wFamily.map((w, i) => (
+                  <div
+                    key={w}
+                    className="inline-block cursor-text select-text pl-1.5 tracking-wider ffs-['cv03','cv05','cv06'] first:pl-2.5"
+                    onClick={(ev) => ev.stopPropagation()}
+                  >
+                    <span className={cn(i === 0 ? '' : 'text-neutral-500 dark:text-slate-400')}>{w}</span>
+                    {i < last && <span className="text-neutral-500 dark:text-slate-400">, </span>}
+                  </div>
+                ))}
+              </>
+            </TableDataCell>
           )
         },
         footer: ({ column }) => column.id,
@@ -182,14 +184,12 @@ function useColumns() {
           const isSorted = header.column.getIsSorted()
           const title = t('length')
           return (
-            <TableHeader
+            <TableHeaderCell
               header={header}
-              className={cn(
-                'w-[.1%] whitespace-nowrap active:bg-background-active',
-              )}
+              className="w-[.1%] active:bg-background-active"
             >
-              <div
-                className="group float-right flex h-7 w-full cursor-pointer select-none items-center gap-2 pr-1 stretch-[condensed]"
+              <Div
+                className="group select-none gap-2 pr-1 stretch-[condensed]"
                 onClick={header.column.getToggleSortingHandler()}
               >
                 <Separator
@@ -199,26 +199,28 @@ function useColumns() {
                 <div className="flex items-center">
                   <span
                     title={title}
-                    className={cn('grow text-right text-xs before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
+                    className={cn('grow text-right before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                   >
                     {title}
                   </span>
-                  <SortIcon
-                    isSorted={isSorted}
-                  />
+                  <SortIcon isSorted={isSorted} />
                 </div>
-              </div>
-            </TableHeader>
+              </Div>
+            </TableHeaderCell>
           )
         },
-        cell: ({ getValue }) => {
-          const wordLength = getValue()
+        cell: ({ row, cell, getValue }) => {
+          const value = getValue()
           return (
-            <div className="float-right mr-2 text-xs tabular-nums">
-              <span>
-                {wordLength}
-              </span>
-            </div>
+            <TableDataCell
+              cell={cell}
+            >
+              <Div className="justify-end pr-[9px] text-xs tabular-nums">
+                <span>
+                  {value}
+                </span>
+              </Div>
+            </TableDataCell>
           )
         },
         footer: ({ column }) => column.id,
@@ -231,14 +233,12 @@ function useColumns() {
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           return (
-            <TableHeader
+            <TableHeaderCell
               header={header}
-              className={cn(
-                'w-[.1%] whitespace-nowrap active:bg-background-active',
-              )}
+              className="w-[.1%] active:bg-background-active"
             >
-              <div
-                className="group flex h-7 cursor-pointer select-none items-center stretch-[condensed]"
+              <Div
+                className="group select-none stretch-[condensed]"
                 onClick={header.column.getToggleSortingHandler()}
               >
                 <Separator
@@ -252,17 +252,21 @@ function useColumns() {
                     fallback={<IconLucideCheckCircle />}
                   />
                 </div>
-              </div>
-            </TableHeader>
+              </Div>
+            </TableHeaderCell>
           )
         },
-        cell: ({ row }) => (
-          <div className="flex justify-center">
-            <VocabToggle
-              vocab={row.original.vocab}
-              onToggle={handleVocabToggle}
-            />
-          </div>
+        cell: ({ row, cell, getValue }) => (
+          <TableDataCell
+            cell={cell}
+          >
+            <Div className="justify-center">
+              <VocabToggle
+                vocab={row.original.vocab}
+                onToggle={handleVocabToggle}
+              />
+            </Div>
+          </TableDataCell>
         ),
         footer: ({ column }) => column.id,
       }),
@@ -276,14 +280,12 @@ function useColumns() {
           const isSorted = header.column.getIsSorted()
           const title = t('rank')
           return (
-            <TableHeader
+            <TableHeaderCell
               header={header}
-              className={cn(
-                'w-[.1%] whitespace-nowrap active:bg-background-active',
-              )}
+              className="w-[.1%] active:bg-background-active"
             >
-              <div
-                className="group float-right flex h-7 w-full cursor-pointer select-none items-center gap-2 pr-1"
+              <Div
+                className="group select-none gap-2 pr-1"
                 onClick={header.column.getToggleSortingHandler()}
               >
                 <Separator
@@ -293,24 +295,26 @@ function useColumns() {
                 <div className="flex items-center">
                   <span
                     title={title}
-                    className={cn('grow text-right text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
+                    className={cn('grow text-right stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                   >
                     {title}
                   </span>
-                  <SortIcon
-                    isSorted={isSorted}
-                  />
+                  <SortIcon isSorted={isSorted} />
                 </div>
-              </div>
-            </TableHeader>
+              </Div>
+            </TableHeaderCell>
           )
         },
-        cell: ({ getValue }) => {
-          const rank = getValue()
+        cell: ({ cell, getValue }) => {
+          const value = getValue()
           return (
-            <div className="float-right w-full text-center text-sm tabular-nums stretch-[condensed]">
-              {rank}
-            </div>
+            <TableDataCell
+              cell={cell}
+            >
+              <Div className="justify-center tabular-nums stretch-[condensed]">
+                {value}
+              </Div>
+            </TableDataCell>
           )
         },
         footer: ({ column }) => column.id,
@@ -333,14 +337,14 @@ export function VocabDataTable({
   const { t } = useTranslation()
   const [searchValue, setSearchValue] = useAtom(searchValueAtom)
   const [isUsingRegex, setIsUsingRegex] = useAtom(isUsingRegexAtom)
-  const [tableState, setTableState] = useAtom(tableStateAtom)
+  const [initialTableState, setInitialTableState] = useAtom(initialTableStateAtom)
   const columns = useColumns()
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'allAcquainted')
   const [isSegmentTransitioning, startSegmentTransition] = useTransition()
 
-  const pagination = tableState.pagination ?? {
-    pageSize: 100,
+  const pagination = initialTableState.pagination ?? {
+    pageSize: findClosest(100, PAGE_SIZES),
     pageIndex: 0,
   }
   const table = useReactTable({
@@ -361,7 +365,7 @@ export function VocabDataTable({
       columnVisibility: {
         userOwned: false,
       },
-      ...tableState,
+      ...initialTableState,
     },
     autoResetPageIndex: false,
     getRowCanExpand: () => false,
@@ -409,9 +413,10 @@ export function VocabDataTable({
     }
   }
 
+  const tableState = table.getState()
   const { items } = usePagination({
     count: table.getPageCount(),
-    page: table.getState().pagination.pageIndex + 1,
+    page: tableState.pagination.pageIndex + 1,
   })
 
   const rowsFiltered = table.getFilteredRowModel().rows
@@ -423,10 +428,8 @@ export function VocabDataTable({
     .filter((row) => row.original.vocab.word.length <= 32)
     .map((row) => row.original.vocab)
 
-  const itemsNum = uniq([table.getPaginationRowModel().rows.length, rowsFiltered.length]).filter(Boolean).filter((n) => !PAGES.includes(n))
-
-  useUnmount(() => {
-    setTableState(table.getState())
+  useUnmountEffect(() => {
+    setInitialTableState(tableState)
   })
 
   return (
@@ -482,23 +485,23 @@ export function VocabDataTable({
       </div>
       <div className="w-full grow overflow-auto overflow-y-scroll overscroll-contain">
         <table className="min-w-full border-separate border-spacing-0">
-          <thead className="sticky top-0 z-10 bg-white px-0">
+          <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHeaderWrapper
+                  <TableHeaderCellRender
                     key={header.id}
                     header={header}
                   />
                 ))}
               </tr>
             ))}
-          </thead>
+          </TableHeader>
           <tbody>
             {table.getRowModel().rows.map((row) => {
               return (
                 <TableRow
-                  key={`_${row.original.vocab.word}`}
+                  key={row.original.vocab.word}
                   row={row}
                 />
               )
@@ -513,47 +516,12 @@ export function VocabDataTable({
         />
         <div className="flex grow items-center justify-end">
           <div className="flex items-center">
-            <Select
+            <TablePaginationSizeSelect
+              table={table}
+              sizes={PAGE_SIZES}
+              value={tableState.pagination.pageSize}
               defaultValue={String(pagination.pageSize)}
-              onValueChange={(e) => {
-                table.setPageSize(Number(e))
-              }}
-            >
-              <SelectTrigger className="h-5 w-[unset] px-2 py-0 text-xs tabular-nums">
-                <SelectValue placeholder="Select" />
-              </SelectTrigger>
-              <SelectContent
-                position="item-aligned"
-              >
-                <SelectGroup>
-                  {PAGES.map((size) => (
-                    <SelectItem
-                      className="pr-4 text-xs tabular-nums"
-                      key={size}
-                      value={String(size)}
-                    >
-                      {size}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-                {itemsNum.length > 0 ? (
-                  <>
-                    <SelectSeparator />
-                    <SelectGroup>
-                      {itemsNum.map((size) => (
-                        <SelectItem
-                          className="pr-4 text-xs tabular-nums"
-                          key={size}
-                          value={String(size)}
-                        >
-                          {size}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </>
-                ) : null}
-              </SelectContent>
-            </Select>
+            />
             <div className="whitespace-nowrap px-1 text-[.8125rem]">{`/${t('page')}`}</div>
           </div>
         </div>

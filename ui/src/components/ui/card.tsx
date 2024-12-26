@@ -1,7 +1,3 @@
-export interface DivProps extends
-  React.HTMLAttributes<HTMLDivElement>,
-  React.RefAttributes<HTMLDivElement> {}
-
 export interface HeadingProps extends
   React.HTMLAttributes<HTMLHeadingElement>,
   React.RefAttributes<HTMLHeadingElement> {}

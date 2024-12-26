@@ -1,4 +1,4 @@
-import useResizeObserver from '@react-hook/resize-observer'
+import { useResizeObserver } from '@react-hookz/web'
 import { atomEffect } from 'jotai-effect'
 
 import { isDrawerOpenAtom, isMdScreenAtom, metaThemeColorAtom, prefersDarkAtom, themeAtom } from '@/store/useVocab'
@@ -17,7 +17,7 @@ export const isDarkModeAtom = atom((get) => {
   return isDarkMode
 })
 
-export function useRect<T extends Element>(target: React.RefObject<T> | React.ForwardedRef<T> | T) {
+export function useRect<T extends Element>(target: React.RefObject<T> | T | null) {
   const [width, setWidth] = useState(0)
   const [height, setHeight] = useState(0)
   useResizeObserver(target, (entry) => {

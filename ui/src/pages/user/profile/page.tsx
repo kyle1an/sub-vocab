@@ -12,8 +12,8 @@ import { sessionAtom } from '@/store/useVocab'
 export function ProfilePage() {
   const { t } = useTranslation()
   const [session] = useAtom(sessionAtom)
-  const username = session?.user.user_metadata.username || ''
-  const email = session?.user.email || ''
+  const username = session?.user?.user_metadata?.username || ''
+  const email = session?.user?.email || ''
   const usernameFormDefaultValues = {
     newUsername: username,
   }
@@ -208,9 +208,7 @@ export function ProfilePage() {
               >
                 {t('confirm_changes')}
                 <IconLucideLoader2
-                  className={cn(
-                    'animate-spin group-[:not(disabled)]:hidden',
-                  )}
+                  className="animate-spin group-[:not(disabled)]:hidden"
                 />
               </Button>
             </form>

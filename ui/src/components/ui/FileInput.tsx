@@ -17,7 +17,7 @@ export function FileInput({
   children: React.ReactNode
   className?: string
 }) {
-  const [{ os }] = useAtom(uapAtom)
+  const { os } = useAtomValue(uapAtom)
   const [fileTypes] = useAtom(fileTypesAtom)
   const fileTypeNames = fileTypes.filter((fileType) => fileType.checked).map((fileType) => fileType.type)
   const acceptedFileTypes = [...SUPPORTED_FILE_TYPES, ...fileTypeNames]
@@ -45,7 +45,7 @@ export function FileInput({
         allowsMultiple
         // https://stackoverflow.com/a/47387521/10903455
         // https://caniuse.com/input-file-accept
-        {...(os.name === 'iOS' ? {} : {
+        {...(os?.name === 'iOS' ? {} : {
           acceptedFileTypes,
         })}
         onSelect={handleFileSelect}

@@ -47,6 +47,10 @@ export default defineConfig(({ mode }) => {
             'react-i18next': ['useTranslation'],
           },
           {
+            imports: ['useSnapshot'],
+            from: 'valtio',
+          },
+          {
             '@/lib/utils': ['cn'],
           },
         ],
@@ -90,11 +94,6 @@ export default defineConfig(({ mode }) => {
       host: true,
       strictPort: true,
       proxy: {
-        '/trpc': {
-          target: env.VITE_SUB_API_URL,
-          changeOrigin: true,
-          secure: false,
-        },
       },
     },
     build: {

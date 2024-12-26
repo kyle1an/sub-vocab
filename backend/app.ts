@@ -6,12 +6,14 @@ import cors from 'cors'
 import Debug from 'debug'
 import express from 'express'
 import createError from 'http-errors'
+import { createProxyMiddleware } from 'http-proxy-middleware'
 import logger from 'morgan'
 import { createServer } from 'node:http'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'pathe'
 
+import { env } from './env.js'
 import { userRouter } from './src/routes/auth.js'
 import routes from './src/routes/index.js'
 import { router } from './src/routes/trpc.js'
@@ -40,6 +42,48 @@ export const appRouter = router({
 })
 
 export type AppRouter = typeof appRouter
+
+app.use(
+  '/opensubtitles-proxy',
+  createProxyMiddleware<Request, Response>({
+    router: (req) => {
+      if (req.url.startsWith('/vip')) {
+        return 'https://vip-api.opensubtitles.com/api/v1'
+      }
+      return 'https://api.opensubtitles.com/api/v1'
+    },
+    changeOrigin: true,
+    pathRewrite: {
+      '^/fre': '',
+      '^/vip': '',
+    },
+    on: {
+      proxyReq: (proxyReq) => {
+        if (!proxyReq.hasHeader('Authorization') && env.OPENSUBTITLES_TOKEN) {
+          proxyReq.setHeader('Authorization', `Bearer ${env.OPENSUBTITLES_TOKEN}`)
+        }
+        proxyReq.setHeader('User-Agent', 'SubVocab v0.3')
+        proxyReq.setHeader('Api-Key', env.OPENSUBTITLES_API_KEY)
+        proxyReq.setHeader('X-Forwarded-Host', proxyReq.host)
+      },
+    },
+  }),
+)
+
+app.use(
+  '/tmdb-proxy',
+  createProxyMiddleware<Request, Response>({
+    target: 'https://api.themoviedb.org',
+    changeOrigin: true,
+    on: {
+      proxyReq: (proxyReq) => {
+        proxyReq.setHeader('Authorization', `Bearer ${env.TMDB_TOKEN}`)
+        // https://www.themoviedb.org/talk/673d9f8687917078d0108992
+        proxyReq.setHeader('X-Forwarded-Host', proxyReq.host)
+      },
+    },
+  }),
+)
 
 app.use(
   '/trpc',
