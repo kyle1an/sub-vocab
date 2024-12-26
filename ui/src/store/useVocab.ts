@@ -1,6 +1,6 @@
 import type { AppRouter } from '@subvocab/backend/app'
 import type { Database } from '@subvocab/ui/database.types'
-import type { ArrayValues } from 'type-fest'
+import type { ArrayValues, PartialDeep } from 'type-fest'
 
 import { type AuthChangeEvent, createClient, type Session } from '@supabase/supabase-js'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
@@ -10,6 +10,7 @@ import { httpBatchLink } from '@trpc/client'
 import { createTRPCReact } from '@trpc/react-query'
 import { createStore } from 'jotai'
 import { UAParser } from 'ua-parser-js'
+import { proxySet } from 'valtio/utils'
 
 import { MS_PER_MINUTE } from '@/constants/time'
 import { env } from '@/env'
@@ -19,6 +20,9 @@ import { omitUndefined } from '@/lib/utilities'
 import { getScrollbarWidth } from '@/lib/utils'
 
 import { DEFAULT_THEME, type THEMES } from '../components/themes'
+
+export const sourceTextAtom = atom('')
+export const selectedSubtitleIds = proxySet<number>([])
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,7 +37,7 @@ export const queryClient = new QueryClient({
 
 export const trpc = createTRPCReact<AppRouter>()
 
-const baseUrl = import.meta.env.DEV ? '' : import.meta.env.VITE_SUB_API_URL
+const baseUrl = env.VITE_SUB_API_URL
 
 export const trpcClient = trpc.createClient({
   links: [
@@ -66,13 +70,13 @@ export const store = createStore()
 
 export const themeAtom = atomWithStorage<ArrayValues<typeof THEMES>['value']>('themeAtom', DEFAULT_THEME.value, undefined, { getOnInit })
 
-export const authChangeEventAtom = atom <AuthChangeEvent>()
-export const sessionAtom = atomWithStorage<Session | null>('sessionAtom', null, undefined, { getOnInit })
+export const authChangeEventAtom = atom<AuthChangeEvent>()
+export const sessionAtom = atomWithStorage<PartialDeep<Session> | null>('sessionAtom', null, undefined, { getOnInit })
 
 export const LIGHT_THEME_COLOR = 'rgb(255,255,254)'
 
 export const metaThemeColorAtom = atomWithStorage('metaThemeColorAtom', LIGHT_THEME_COLOR, undefined, { getOnInit })
-export const isDrawerOpenAtom = atomWithStorage('isBackgroundScaledAtom', false, undefined, { getOnInit })
+export const isDrawerOpenAtom = atomWithStorage('isDrawerOpenAtom', false, undefined, { getOnInit })
 export const prefersDarkAtom = atomWithStorage('prefersDarkAtom', false, undefined, { getOnInit })
 export const isMdScreenAtom = atom(false)
 
@@ -101,7 +105,7 @@ if (
 const scrollbarWidth = getScrollbarWidth()
 document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`)
 
-export const uapAtom = atomWithStorage('uapAtom', {
+export const uapAtom = atom({
   browser,
   device,
   engine,

@@ -8,6 +8,7 @@ export function TablePagination<T>({
   items: UsePaginationItem[]
   table: Table<T>
 }) {
+  const tableState = table.getState()
   return (
     <div className="flex">
       {items.map(({
@@ -42,7 +43,7 @@ export function TablePagination<T>({
               aria-label="Start ellipsis"
               type="button"
               onClick={() => {
-                table.setPageIndex(Math.max(0, table.getState().pagination.pageIndex - 2))
+                table.setPageIndex(Math.max(0, tableState.pagination.pageIndex - 2))
               }}
               key={`${type}${page}`}
             >
@@ -79,7 +80,7 @@ export function TablePagination<T>({
               type="button"
               aria-label="End ellipsis"
               onClick={() => {
-                table.setPageIndex(Math.min(table.getState().pagination.pageIndex + 2, table.getPageCount() - 1))
+                table.setPageIndex(Math.min(tableState.pagination.pageIndex + 2, table.getPageCount() - 1))
               }}
               key={`${type}${page}`}
             >

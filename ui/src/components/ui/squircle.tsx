@@ -14,12 +14,6 @@ const SQUIRCLE_PARAMS_DEFAULT = {
   cornerRadius: 0,
 } satisfies SquircleParams
 
-export interface DivProps extends
-  React.HTMLAttributes<HTMLDivElement>,
-  React.RefAttributes<HTMLDivElement> {
-  asChild?: boolean
-}
-
 export function Squircle({
   ref,
   children,
@@ -34,47 +28,38 @@ export function Squircle({
   borderWidth?: number
   squircle?: SetOptional<SquircleParams, keyof typeof SQUIRCLE_PARAMS_DEFAULT>
 }) {
-  const elRef = useRef<HTMLElement>(null)
-  function refCallback(el: HTMLElement | null) {
-    elRef.current = el
-  }
-
+  const elRef = useRef<HTMLElement>(null!)
   const [clipPath, setClipPath] = useState('')
   const [clipPathPseudo, setClipPathPseudo] = useState('')
   const { width, height } = useRect(elRef)
 
   useEffect(() => {
-    const element = elRef.current
-    if (element) {
-      const squircleParams = {
-        ...SQUIRCLE_PARAMS_DEFAULT,
-        ...squircle,
-        width,
-        height,
-      } satisfies FigmaSquircleParams
-      setClipPath(`path('${getSvgPath(squircleParams)}')`)
+    const squircleParams = {
+      ...SQUIRCLE_PARAMS_DEFAULT,
+      ...squircle,
+      width,
+      height,
+    } satisfies FigmaSquircleParams
+    setClipPath(`path('${getSvgPath(squircleParams)}')`)
 
-      const svgPathPseudo = getSvgPath({
-        ...squircleParams,
-        width: width - borderWidth * 2,
-        height: height - borderWidth * 2,
-        cornerRadius: squircleParams.cornerRadius - borderWidth,
-      })
-      setClipPathPseudo(`path('${svgPathPseudo}')`)
-    }
+    const svgPathPseudo = getSvgPath({
+      ...squircleParams,
+      width: width - borderWidth * 2,
+      height: height - borderWidth * 2,
+      cornerRadius: squircleParams.cornerRadius - borderWidth,
+    })
+    setClipPathPseudo(`path('${svgPathPseudo}')`)
   }, [width, height, squircle, borderWidth])
-
-  const refs = mergeRefs([
-    ref,
-    refCallback,
-  ])
 
   const Component = asChild ? Slot : 'div'
 
   return (
     <Component
       {...props}
-      ref={refs}
+      ref={mergeRefs([
+        ref,
+        elRef,
+      ])}
       className={cn(
         'relative before:absolute before:inset-[--inset] before:-z-10 before:block before:[clip-path:--clip-path]',
         className,
@@ -97,7 +82,9 @@ export function SquircleBg({
   asChild = false,
   children,
   ...props
-}: DivProps) {
+}: DivProps & {
+  asChild?: boolean
+}) {
   const Component = asChild ? Slot : 'div'
   return (
     <Component
@@ -114,7 +101,9 @@ export function SquircleMask({
   asChild = false,
   children,
   ...props
-}: DivProps) {
+}: DivProps & {
+  asChild?: boolean
+}) {
   const Component = asChild ? Slot : 'div'
   return (
     <Component

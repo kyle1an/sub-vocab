@@ -1,7 +1,10 @@
 /* eslint-disable react-compiler/react-compiler */
 import type { ReactElement, RefObject } from 'react'
 
-import { flexRender, type Row } from '@tanstack/react-table'
+import { Slot } from '@radix-ui/react-slot'
+import { type Cell, flexRender, type Row } from '@tanstack/react-table'
+import { useRetimer } from 'foxact/use-retimer'
+import React from 'react'
 import { mergeRefs } from 'react-merge-refs'
 import { useIntersectionObserver } from 'usehooks-ts'
 
@@ -9,11 +12,37 @@ import type { GroupHeader } from '@/types/vocab'
 
 import { useRect } from '@/lib/hooks'
 
-export function TableHeaderWrapper<T>({ header }: { header: GroupHeader<T> }) {
+const HEAD_HEIGHT = 30
+
+export function TableHeader({
+  children,
+  className = '',
+  style,
+  ...props
+}: React.HTMLAttributes<HTMLTableSectionElement> & React.RefAttributes<HTMLTableSectionElement>) {
+  return (
+    <thead
+      style={{
+        '--z-index': 999_999_999,
+        '--height': `${HEAD_HEIGHT}px`,
+        ...style,
+      }}
+      className={cn(
+        'sticky top-0 z-[--z-index] h-[--height] bg-background px-0',
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </thead>
+  )
+}
+
+export function TableHeaderCellRender<T>({ header }: { header: GroupHeader<T> }) {
   'use no memo'
   return (
     header.isPlaceholder ? (
-      <TableHeader header={header} />
+      <TableHeaderCell header={header} />
     ) : (
       <>
         {flexRender(
@@ -25,7 +54,7 @@ export function TableHeaderWrapper<T>({ header }: { header: GroupHeader<T> }) {
   )
 }
 
-export function TableHeader<T>({
+export function TableHeaderCell<T>({
   header,
   children,
   className = '',
@@ -39,12 +68,40 @@ export function TableHeader<T>({
       key={header.id}
       colSpan={header.colSpan}
       className={cn(
-        'group/th border-y border-solid border-y-zinc-200 bg-background p-0 text-sm font-normal dark:border-slate-800',
+        'group/th whitespace-nowrap border-y border-solid border-y-zinc-200 bg-background p-0 text-xs font-normal dark:border-slate-800',
         className,
       )}
     >
-      {children}
+      <Slot className="flex size-full h-7 cursor-pointer items-center">
+        {children}
+      </Slot>
     </th>
+  )
+}
+
+export function TableDataCell<T>({
+  cell,
+  children,
+  className = '',
+}: {
+  cell: Cell<T, unknown>
+  children?: ReactElement
+  className?: string
+}) {
+  return (
+    <td
+      key={cell.id}
+      className={cn(
+        'h-8 border-y border-solid border-b-transparent border-t-border-td p-0 text-sm group-first-of-type/tr:border-t-0 group-data-[boundary=true]/tr:border-b-border-td',
+        className,
+      )}
+    >
+      {children?.type === React.Fragment ? children : (
+        <Slot className="flex size-full items-center pl-0.5 pr-px">
+          {children}
+        </Slot>
+      )}
+    </td>
   )
 }
 
@@ -58,77 +115,99 @@ type ExpandProp = {
   rootRef: RefObject<HTMLDivElement | null>
 }
 
+const ANIM_DURATION = 300
+
+const SHADOW_DURATION = 400
+
 export function TableRow<T>({
   row,
   rootRef,
   index = 0,
   children,
 }: RowProp<T>) {
-  const className = 'relative bg-background'
   const canExpand = row.getCanExpand()
   const isExpanded = row.getIsExpanded()
-  const headHeight = 30
-  const rowRef = useRef<HTMLTableRowElement>(null)
+  const rowRef = useRef<HTMLTableRowElement>(null!)
   const subRef = useRef<HTMLTableRowElement>(null)
   const { height: rowHeight } = useRect(rowRef)
+  const root = rootRef?.current ?? null
   const [rowRef2, rowUnderPinnedVisible] = useIntersectionObserver({
-    root: rootRef?.current ?? null,
-    rootMargin: `${-headHeight - rowHeight - 0.01}px 0% 0%`,
+    root,
+    rootMargin: `${-HEAD_HEIGHT - rowHeight - 0.01}px 0% 0%`,
   })
+  const rowPinnedOrAbove = !rowUnderPinnedVisible
   const [subRef2, , subEntry] = useIntersectionObserver({
-    root: rootRef?.current ?? null,
-    rootMargin: `${-headHeight - rowHeight}px 0% 0%`,
+    root,
+    rootMargin: `${-HEAD_HEIGHT - rowHeight}px 0% 0%`,
   })
   const isSubAboveRoot = subEntry && subEntry.boundingClientRect.bottom < (subEntry.rootBounds?.top ?? 0)
   const [subRef3, isSubVisibleIntersecting] = useIntersectionObserver({
-    root: rootRef?.current ?? null,
-    rootMargin: `${-headHeight - rowHeight + 1}px 0% -100%`,
+    root,
+    rootMargin: `${-HEAD_HEIGHT - rowHeight + 1}px 0% -100%`,
   })
   const toggleExpandedHandler = row.getToggleExpandedHandler()
+  const [accordionValue, setAccordionValue] = useState(isExpanded ? 'x' : '')
+  const [openAnimationDisabled, setOpenAnimationDisabled] = useState(isExpanded)
+  const [shadowTransitionDisabled, setShadowTransitionDisabled] = useState(true)
+  const retimerAnim = useRetimer()
+  const retimerShadow = useRetimer()
+
+  function handleAccordionUpdate() {
+    setAccordionValue(isExpanded ? '' : 'x')
+    if (!isExpanded) {
+      retimerAnim(setTimeout(() => setOpenAnimationDisabled(true), ANIM_DURATION))
+    }
+    retimerShadow(setTimeout(() => setShadowTransitionDisabled(true), SHADOW_DURATION))
+  }
 
   function handleToggleExpanded() {
     toggleExpandedHandler()
-    if (!rowRef.current) return
-    const rowPinnedOrAbove = !rowUnderPinnedVisible
+    setOpenAnimationDisabled(false)
+    setShadowTransitionDisabled(false)
+    if (subRef.current) {
+      handleAccordionUpdate()
+    } else {
+      requestAnimationFrame(handleAccordionUpdate)
+    }
     if (rowPinnedOrAbove) {
       if (subRef.current) {
         if (isSubVisibleIntersecting) {
           rootRef?.current?.scrollTo({
-            top: subRef.current.offsetTop - headHeight - rowHeight,
+            top: subRef.current.offsetTop - HEAD_HEIGHT - rowHeight,
           })
         } else if (isSubAboveRoot) {
           rootRef?.current?.scrollTo({
-            top: rowRef.current.offsetTop - headHeight - subRef.current.offsetHeight,
+            top: rowRef.current.offsetTop - HEAD_HEIGHT - subRef.current.offsetHeight,
           })
         }
       } else {
         rootRef?.current?.scrollTo({
-          top: rowRef.current.offsetTop - headHeight,
+          top: rowRef.current.offsetTop - HEAD_HEIGHT,
+          behavior: 'smooth',
         })
       }
     }
   }
 
+  const visibleCells = row.getVisibleCells()
+  const isCollapsed = canExpand && !isExpanded
+
   return (
     <>
       <tr
-        ref={
-          mergeRefs([
-            rowRef,
-            rowRef2,
-          ])
-        }
+        ref={mergeRefs([
+          rowRef,
+          rowRef2,
+        ])}
         style={{
-          '--top': `${headHeight}px`,
+          '--top': `${HEAD_HEIGHT}px`,
           '--z-index': index,
         }}
-        className={cn(
-          className,
-          'group/tr z-[--z-index] shadow-[0px_-4px_10px_-6px_rgba(0,0,0,0.1)] transition-shadow data-[sticky=true]:sticky data-[sticky=true]:top-[--top]',
-        )}
-        data-collapsed={canExpand && !isExpanded}
-        data-sticky={isExpanded}
-        data-boundary={isSubVisibleIntersecting || isSubAboveRoot}
+        className="row group/tr relative z-[--z-index] bg-background shadow-[0px_-4px_10px_-6px] shadow-black/10 transition-shadow duration-300 data-[expanded=true]:sticky data-[expanded=true]:top-[--top] dark:shadow-slate-600 [[data-collapsed=false]&+.row]:shadow-none [[data-no-shadow-transition=true]&+.row]:duration-0"
+        data-collapsed={isCollapsed}
+        data-expanded={isExpanded}
+        data-no-shadow-transition={shadowTransitionDisabled}
+        data-boundary={isSubAboveRoot ? isExpanded : isSubVisibleIntersecting}
         onClick={((event) => {
           if (
             event.nativeEvent.composedPath().some((e) => {
@@ -139,38 +218,46 @@ export function TableRow<T>({
           }
         })}
       >
-        {row.getVisibleCells().map((cell) => (
-          <td
-            key={cell.id}
-            className={cn(
-              'h-8 border-y border-solid border-b-transparent border-t-border-td pl-0.5 group-first-of-type/tr:border-t-0 group-data-[boundary=true]/tr:border-b-border-td',
-            )}
-          >
+        {visibleCells.map((cell) => (
+          <Fragment key={cell.id}>
             {flexRender(
               cell.column.columnDef.cell,
               cell.getContext(),
             )}
-          </td>
+          </Fragment>
         ))}
       </tr>
-      {isExpanded ? (
+      {children && (isExpanded || subRef.current) ? (
         <tr
-          ref={
-            mergeRefs([
-              subRef,
-              subRef2,
-              subRef3,
-            ])
-          }
+          ref={mergeRefs([
+            subRef,
+            subRef2,
+            subRef3,
+          ])}
           style={{
             '--z-index': index - 1,
           }}
-          className={cn(
-            className,
-            'z-[--z-index] [&+tr]:shadow-none',
-          )}
+          data-collapsed={isCollapsed}
+          data-no-shadow-transition={shadowTransitionDisabled}
+          className="relative z-[--z-index] bg-background [[data-collapsed=false]&+.row]:shadow-none [[data-no-shadow-transition=true]&+.row]:duration-0"
         >
-          {children}
+          <td
+            colSpan={visibleCells.length}
+            className="p-0"
+          >
+            <Accordion type="single" value={accordionValue}>
+              <AccordionItem
+                value="x"
+                data-no-open-anim={openAnimationDisabled}
+                data-no-closed-anim={isSubAboveRoot && !isExpanded}
+                className="border-none *:data-[no-closed-anim=true]:data-[state=closed]:anim-duration-0 *:data-[no-open-anim=true]:data-[state=open]:anim-duration-0"
+              >
+                <AccordionContent className="pb-0">
+                  {children}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </td>
         </tr>
       ) : null}
     </>

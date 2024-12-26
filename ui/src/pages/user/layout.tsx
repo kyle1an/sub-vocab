@@ -17,7 +17,7 @@ export function User() {
     return <Navigate to="/login" />
   }
 
-  const account = user.user_metadata.username || user.email || ''
+  const account = user.user_metadata?.username || user.email || ''
   const subNav = [
     {
       title: t('Profile'),

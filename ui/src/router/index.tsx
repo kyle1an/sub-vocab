@@ -2,15 +2,16 @@ import {
   createBrowserRouter,
 } from 'react-router'
 
-import { ImportPage } from '@/pages/import/page'
+import { AboutPage } from '@/pages/import/page'
 import { RootLayout } from '@/pages/layout'
 import { Login } from '@/pages/login/page'
 import { Chart } from '@/pages/mine/chart/page'
 import { MineLayout } from '@/pages/mine/layout'
 import { VocabularyPage } from '@/pages/mine/vocabulary/page'
-import { Home } from '@/pages/page'
+import { Home, ResizeVocabularyPanel } from '@/pages/page'
 import { Register } from '@/pages/register/page'
 import { ResetPassword } from '@/pages/reset-password/page'
+import { Subtitles } from '@/pages/subtitles/page'
 import { UpdatePassword } from '@/pages/update-password/page'
 import { User } from '@/pages/user/layout'
 import { Password } from '@/pages/user/password/page'
@@ -24,6 +25,16 @@ export const router = createBrowserRouter([
       {
         path: '/',
         element: <Home />,
+        children: [
+          {
+            path: '/',
+            element: <ResizeVocabularyPanel />,
+          },
+          {
+            path: '/subtitles',
+            element: <Subtitles />,
+          },
+        ],
       },
       {
         path: '/mine',
@@ -40,8 +51,8 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: '/import',
-        element: <ImportPage />,
+        path: '/about',
+        element: <AboutPage />,
       },
       {
         path: '/login',

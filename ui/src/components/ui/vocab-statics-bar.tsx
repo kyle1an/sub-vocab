@@ -1,5 +1,4 @@
 import NumberFlow from '@number-flow/react'
-import { useEffectOnce } from 'react-use'
 
 export function VocabStatics({
   rowsCountFiltered,
@@ -14,7 +13,7 @@ export function VocabStatics({
 }) {
   const { t } = useTranslation()
   const [isPending, startTransition] = useTransition()
-  useEffectOnce(() => startTransition(() => {}))
+  useEffect(() => startTransition(() => {}), [])
   const animated = !isPending && isAnimated
   return (
     <div className="flex h-7 items-center text-xs tabular-nums text-neutral-600 dark:text-neutral-400">

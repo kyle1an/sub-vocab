@@ -104,10 +104,10 @@ export function TopBar({ className }: { className?: string }) {
   const { t, i18n } = useTranslation()
   const [session] = useAtom(sessionAtom)
   const user = session?.user
-  const account = user?.user_metadata.username || user?.email || ''
+  const account = user?.user_metadata?.username || user?.email || ''
   const navigation = [
     { name: t('mine'), href: '/mine/vocabulary', current: true },
-    // { name: 'About', href: '/', current: false },
+    { name: 'About', href: '/about', current: false },
   ]
 
   const userNavigation = [
@@ -153,7 +153,7 @@ export function TopBar({ className }: { className?: string }) {
       <Popover
         as="nav"
         className={cn(
-          'group/nav ffs-pre fixed z-20 w-full rounded-t-3xl bg-background tracking-wide shadow-sm group-has-[[vaul-drawer]]/body:bg-[unset]',
+          'group/nav fixed z-20 w-full rounded-t-3xl bg-background tracking-wide shadow-sm group-has-[[vaul-drawer]]/body:bg-[unset]',
           '[body:has(&[data-open])]:mr-[--scrollbar-width] [body:has(&[data-open])]:overflow-hidden',
         )}
       >
@@ -168,7 +168,7 @@ export function TopBar({ className }: { className?: string }) {
                         as={Link}
                         to="/"
                       >
-                        <div className={cn('group flex items-center gap-2.5 rounded-md text-sm font-medium text-neutral-600 hover:text-black dark:text-neutral-400 dark:hover:text-slate-300')}>
+                        <div className="group flex items-center gap-2.5 rounded-md text-sm font-medium text-neutral-600 hover:text-black dark:text-neutral-400 dark:hover:text-slate-300">
                           <IconMingcuteHome3Line
                             className="size-[18px] text-neutral-400 transition-all duration-200 group-hover:text-black dark:group-hover:text-slate-300"
                           />
@@ -186,7 +186,7 @@ export function TopBar({ className }: { className?: string }) {
                         <CloseButton
                           as={Link}
                           to={item.href}
-                          className={cn('rounded-md px-3 py-2 text-sm font-medium text-neutral-600 hover:text-black dark:text-neutral-400 dark:hover:text-slate-300')}
+                          className="rounded-md px-3 py-2 text-sm font-medium text-neutral-600 hover:text-black dark:text-neutral-400 dark:hover:text-slate-300"
                           aria-current={item.current ? 'page' : undefined}
                         >
                           {item.name}
@@ -378,7 +378,7 @@ export function TopBar({ className }: { className?: string }) {
                         <CloseButton
                           as={Link}
                           to={item.href}
-                          className={cn('block rounded-md text-neutral-600 hover:text-black dark:text-neutral-400')}
+                          className="block rounded-md text-neutral-600 hover:text-black dark:text-neutral-400"
                         >
                           {item.name}
                         </CloseButton>

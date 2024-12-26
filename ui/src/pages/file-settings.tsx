@@ -1,6 +1,7 @@
 import type { CheckedState } from '@radix-ui/react-checkbox'
 
 import { useMediaQuery } from 'foxact/use-media-query'
+import { isEqual } from 'lodash-es'
 import { useSearchParams } from 'react-router'
 
 import { type FileType, fileTypesAtom, isDrawerOpenAtom } from '@/store/useVocab'
@@ -28,9 +29,7 @@ function FileSettingsContent({
                 pressed={checked}
                 variant="outline"
                 aria-label="Regular expression"
-                className={cn(
-                  'size-fit min-w-[35px] rounded-full px-1.5 py-1 text-muted-foreground [--sq-r:7] sq:rounded-none',
-                )}
+                className="size-fit min-w-[35px] rounded-full px-1.5 py-1 text-muted-foreground [--sq-r:7] sq:rounded-none"
                 onPressedChange={(pressed) => {
                   onFileTypesChange(fileType, pressed)
                 }}
@@ -52,7 +51,7 @@ export function FileSettings() {
   const isMdScreen = useMediaQuery('(min-width: 768px)')
   const [searchParams, setSearchParams] = useSearchParams()
   const [open, setOpen] = useState(searchParams.get('popup') === 'file-settings')
-  const [, setIsDrawerOpen] = useAtom(isDrawerOpenAtom)
+  const setIsDrawerOpen = useSetAtom(isDrawerOpenAtom)
   const [fileTypes, setFileTypes] = useAtom(fileTypesAtom)
   const [fileTypesInterim, setFileTypesInterim] = useState(fileTypes)
 
@@ -83,7 +82,7 @@ export function FileSettings() {
     setOpen(false)
   }
 
-  const settingsUnchanged = JSON.stringify(fileTypes) === JSON.stringify(fileTypesInterim)
+  const settingsUnchanged = isEqual(fileTypes, fileTypesInterim)
 
   const Trigger = (
     <Button
