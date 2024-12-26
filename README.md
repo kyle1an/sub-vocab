@@ -1,6 +1,8 @@
 SubVocab transforms your preparation for watching movies or reading books in English. Just input any text, such as subtitles, articles, or books, and SubVocab will efficiently categorize words into familiar and new groups, enhancing both your understanding and enjoyment.
 
-<img width="1422" alt="Screenshot" src="https://github.com/user-attachments/assets/423d7f96-8cee-4fc3-b45b-e2ec9cb3ed34" />
+<img width="1422" alt="Screenshot" src="https://github.com/user-attachments/assets/1945d43c-e3b3-4715-83d4-19b216e69246" />
+
+[Visualization of this repo](https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=kyle1an%2FSubVocab)
 
 ## How It Works
 
@@ -15,4 +17,10 @@ SubVocab transforms your preparation for watching movies or reading books in Eng
 - **Synchronized Learning**: Keeps your learning progress synchronized across all sessions.
 - **Vocabulary Tracking**: Manage your vocabulary effectively with batch imports and interactive tracking.
 
-[Visualization of this repo](https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=kyle1an%2FSubVocab)
+## Credits
+
+<img height="50px" src="./public/tmdb.svg">
+
+Data provided by [The Movie Database](https://www.themoviedb.org).
+
+This project uses the TMDB API but is not endorsed or certified by TMDB.

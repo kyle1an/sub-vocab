@@ -13,15 +13,15 @@ import './globals.css'
 
 function useSyncAtomWithHooks() {
   const isMdScreen = useMediaQuery('(min-width: 768px)')
-  const [,setIsMdScreen] = useAtom(isMdScreenAtom)
+  const setIsMdScreen = useSetAtom(isMdScreenAtom)
   useEffect(() => {
     setIsMdScreen(isMdScreen)
   }, [isMdScreen, setIsMdScreen])
 }
 
 function useSyncAtomWithUser() {
-  const [, setAuthChangeEvent] = useAtom(authChangeEventAtom)
-  const [, setUser] = useAtom(sessionAtom)
+  const setAuthChangeEvent = useSetAtom(authChangeEventAtom)
+  const setUser = useSetAtom(sessionAtom)
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setAuthChangeEvent(event)
@@ -35,7 +35,7 @@ function useSyncAtomWithUser() {
 }
 
 export function RootLayout() {
-  const ref = useRef<HTMLDivElement>(null)
+  const ref = useRef<HTMLDivElement>(null!)
   const isDarkOS = useMediaQuery(COLOR_SCHEME_QUERY)
   const [prefersDark, setPrefersDark] = useAtom(prefersDarkAtom)
   const [isDarkMode] = useAtom(isDarkModeAtom)
@@ -44,7 +44,7 @@ export function RootLayout() {
   }, [prefersDark, isDarkOS, setPrefersDark])
   useAtom(metaThemeColorEffect)
   useSyncAtomWithHooks()
-  const [, setMetaThemeColor] = useAtom(metaThemeColorAtom)
+  const setMetaThemeColor = useSetAtom(metaThemeColorAtom)
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode)
@@ -54,13 +54,10 @@ export function RootLayout() {
     } else {
       themeColorContentValue = LIGHT_THEME_COLOR
     }
-    const syncElt = ref.current
     requestAnimationFrame(() => {
-      if (syncElt) {
-        themeColorContentValue = window.getComputedStyle(syncElt, null).getPropertyValue('background-color')
-        if (themeColorContentValue === 'rgb(255, 255, 255)') {
-          themeColorContentValue = LIGHT_THEME_COLOR
-        }
+      themeColorContentValue = window.getComputedStyle(ref.current, null).getPropertyValue('background-color')
+      if (themeColorContentValue === 'rgb(255, 255, 255)') {
+        themeColorContentValue = LIGHT_THEME_COLOR
       }
       setMetaThemeColor(themeColorContentValue)
     })
@@ -76,7 +73,7 @@ export function RootLayout() {
       data-vaul-drawer-wrapper=""
     >
       <TopBar />
-      <div className="ffs-pre flex min-h-svh flex-col items-center pt-11">
+      <div className="flex min-h-svh flex-col items-center pt-11">
         <Outlet />
         {import.meta.env.PROD && <SpeedInsights />}
       </div>

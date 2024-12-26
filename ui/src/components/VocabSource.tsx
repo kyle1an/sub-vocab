@@ -1,4 +1,5 @@
 import usePagination from '@mui/material/usePagination'
+import { useUnmountEffect } from '@react-hookz/web'
 import {
   createColumnHelper,
   getCoreRowModel,
@@ -9,73 +10,37 @@ import {
   type TableState,
   useReactTable,
 } from '@tanstack/react-table'
-import { uniq } from 'lodash-es'
 import {
-  Trans,
   useTranslation,
 } from 'react-i18next'
-import { useSessionStorage, useUnmount } from 'react-use'
+import { useSessionStorage } from 'react-use'
 
 import type { LabelDisplaySource } from '@/lib/vocab'
 
 import { TablePagination } from '@/components/table-pagination'
-import { Examples } from '@/components/ui/Examples'
-import { TableHeader, TableHeaderWrapper, TableRow } from '@/components/ui/tableHeader'
-import { useAcquaintAll, useVocabToggle } from '@/hooks/vocabToggle'
-import { transParams } from '@/i18n'
+import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
+import { TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/tableHeader'
+import { AcquaintAllDialog } from '@/components/vocabulary/acquaint-all-dialog'
+import { useVocabularyCommonColumns } from '@/components/vocabulary/columns'
+import { Examples } from '@/components/vocabulary/Examples'
 import { SortIcon } from '@/lib/icon-utils'
-import { LEARNING_PHASE, type LearningPhase, type VocabState } from '@/lib/LabeledTire'
+import { LEARNING_PHASE, type LearningPhase } from '@/lib/LabeledTire'
 import { tryGetRegex } from '@/lib/regex'
-
-export function AcquaintAllDialog<T extends VocabState>({ vocabulary }: { vocabulary: T[] }) {
-  const { t } = useTranslation()
-  const acquaintAllVocab = useAcquaintAll()
-  const count = vocabulary.length
-  return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <div className="flex w-full flex-row items-center gap-1.5 px-2 py-1.5">
-          <IconSolarListCheckBold />
-          <div className="">{t('acquaintedAll')}</div>
-        </div>
-      </AlertDialogTrigger>
-      <AlertDialogContent className="sm:max-w-[425px]">
-        <AlertDialogHeader>
-          <AlertDialogTitle>{t('acquaintedAll')}</AlertDialogTitle>
-          <AlertDialogDescription>
-            <Trans
-              i18nKey="acquaintedAllConfirmText"
-              values={{ count }}
-            >
-              ()
-              <span className="font-bold text-foreground">{transParams({ count })}</span>
-            </Trans>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter className="">
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => {
-              if (vocabulary.length > 0) {
-                acquaintAllVocab(vocabulary)
-              }
-            }}
-          >
-            Continue
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  )
-}
-
-const columnHelper = createColumnHelper<LabelDisplaySource>()
+import { findClosest } from '@/lib/utilities'
 
 type ColumnFilterFn = (rowValue: LabelDisplaySource) => boolean
 
+const PAGE_SIZES = [10, 20, 40, 50, 100, 200, 1000] as const
+
 const isUsingRegexAtom = atom(false)
 const searchValueAtom = atom('')
-const tableStateAtom = atom<Partial<TableState>>({})
+const tableInitialStateAtom = atom({
+  columnOrder: ['frequency', 'word', 'word.length', 'acquaintedStatus', 'rank'],
+  pagination: {
+    pageSize: findClosest(100, PAGE_SIZES),
+    pageIndex: 0,
+  },
+} satisfies Partial<TableState>)
 
 function useSegments() {
   const { t } = useTranslation()
@@ -102,11 +67,9 @@ function getAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
   return (row) => filteredValue.includes(row.inertialPhase)
 }
 
-const PAGES = [10, 20, 40, 50, 100, 200, 1000] as const
-
-function useColumns() {
+function useSourceColumns<T extends LabelDisplaySource>() {
   const { t } = useTranslation()
-  const handleVocabToggle = useVocabToggle()
+  const columnHelper = createColumnHelper<T>()
   return (
     [
       columnHelper.accessor((row) => row.locations.length, {
@@ -115,254 +78,61 @@ function useColumns() {
           const isSorted = header.column.getIsSorted()
           const title = t('frequency')
           return (
-            <TableHeader
+            <TableHeaderCell
               header={header}
-              className={cn(
-                'w-[.1%] whitespace-nowrap active:bg-background-active',
-              )}
+              className="w-[.1%] active:bg-background-active"
             >
-              <div
-                className="flex h-7 min-w-[4.5rem] grow cursor-pointer select-none items-center gap-0.5 pl-2 pr-1"
+              <Div
+                className="min-w-[4.5rem] grow select-none gap-0.5 pl-2 pr-1"
                 onClick={header.column.getToggleSortingHandler()}
               >
                 <div className="flex grow items-center">
                   <span
                     title={title}
-                    className={cn('grow text-right text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
+                    className={cn('grow text-right stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                   >
                     {title}
                   </span>
-                  <SortIcon
-                    isSorted={isSorted}
-                  />
+                  <SortIcon isSorted={isSorted} />
                 </div>
-              </div>
-            </TableHeader>
+              </Div>
+            </TableHeaderCell>
           )
         },
-        cell: ({ row, getValue }) => {
-          const frequency = getValue()
+        cell: ({ row, cell, getValue }) => {
+          const value = getValue()
           return (
-            <div className="flex h-full items-center text-sm text-zinc-400">
-              {row.getCanExpand() ? (
-                <button
-                  type="button"
-                  className={cn(
-                    'expand-button',
-                    'flex h-full grow cursor-pointer items-center justify-between gap-1 px-3',
-                  )}
-                >
-                  <IconLucideChevronRight
-                    className={cn('size-[14px] text-zinc-300 transition-transform dark:text-zinc-600', row.getIsExpanded() ? 'rotate-90' : '')}
-                  />
-                  <span className="float-right inline-block tabular-nums stretch-[condensed]">
-                    {frequency}
-                  </span>
-                </button>
-              ) : (
-                <div className="w-full justify-end px-3">
-                  <span className="float-right inline-block tabular-nums stretch-[condensed]">
-                    {frequency}
-                  </span>
-                </div>
-              )}
-            </div>
-          )
-        },
-        footer: ({ column }) => column.id,
-      }),
-      columnHelper.accessor((row) => row.vocab.word, {
-        id: 'word',
-        filterFn: (row, columnId, fn: ColumnFilterFn) => fn(row.original),
-        header: ({ header }) => {
-          const isSorted = header.column.getIsSorted()
-          const title = t('Word')
-          return (
-            <TableHeader
-              header={header}
-              className={cn(
-                'active:bg-background-active',
-              )}
+            <TableDataCell
+              cell={cell}
             >
-              <div
-                className="group flex h-7 cursor-pointer items-center gap-1.5 pr-1"
-                onClick={header.column.getToggleSortingHandler()}
-              >
-                <Separator
-                  orientation="vertical"
-                  className="h-5 group-active:h-full group-[:has(:active)+th]/th:h-full"
-                />
-                <div
-                  className="float-right flex grow select-none items-center"
-                >
-                  <span
-                    title={title}
+              <Div className="text-zinc-400">
+                {row.getCanExpand() ? (
+                  <button
+                    type="button"
                     className={cn(
-                      'grow text-left text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]',
-                      isSorted ? 'font-semibold' : '',
+                      'expand-button',
+                      'flex h-full grow items-center justify-between gap-1 px-3',
                     )}
                   >
-                    {title}
-                  </span>
-                  <SortIcon
-                    isSorted={isSorted}
-                  />
-                </div>
-              </div>
-            </TableHeader>
-          )
-        },
-        cell: ({ row }) => {
-          const { wFamily } = row.original
-          const last = wFamily.length - 1
-          return (
-            <>
-              {wFamily.map((w, i) => (
-                <div
-                  key={w}
-                  className="ml-1.5 inline-block cursor-text select-text text-sm tracking-wider ffs-['cv03','cv05','cv06'] first:ml-1.5"
-                  onClick={(ev) => ev.stopPropagation()}
-                >
-                  <span className={cn(i === 0 ? '' : 'text-neutral-500 dark:text-slate-400')}>{w}</span>
-                  {i < last && <span className="text-neutral-500 dark:text-slate-400">, </span>}
-                </div>
-              ))}
-            </>
-          )
-        },
-        footer: ({ column }) => column.id,
-      }),
-      columnHelper.accessor((row) => row.vocab.word.length, {
-        id: 'word.length',
-        header: ({ header }) => {
-          const isSorted = header.column.getIsSorted()
-          const title = t('length')
-          return (
-            <TableHeader
-              header={header}
-              className={cn(
-                'w-[.1%] whitespace-nowrap active:bg-background-active',
-              )}
-            >
-              <div
-                className="group float-right flex h-7 w-full cursor-pointer select-none items-center gap-2 pr-1 stretch-[condensed]"
-                onClick={header.column.getToggleSortingHandler()}
-              >
-                <Separator
-                  orientation="vertical"
-                  className="h-5 group-active:h-full group-[:has(:active)+th]/th:h-full"
-                />
-                <div className="flex items-center">
-                  <span
-                    title={title}
-                    className={cn('grow text-right text-xs before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
-                  >
-                    {title}
-                  </span>
-                  <SortIcon
-                    isSorted={isSorted}
-                  />
-                </div>
-              </div>
-            </TableHeader>
-          )
-        },
-        cell: ({ getValue }) => {
-          const wordLength = getValue()
-          return (
-            <div className="float-right mr-2 text-xs tabular-nums">
-              <span>
-                {wordLength}
-              </span>
-            </div>
-          )
-        },
-        footer: ({ column }) => column.id,
-      }),
-      columnHelper.accessor((row) => {
-        return row.vocab.learningPhase <= 1 ? row.vocab.learningPhase : row.inertialPhase
-      }, {
-        id: 'acquaintedStatus',
-        filterFn: (row, columnId, fn: ColumnFilterFn) => fn(row.original),
-        header: ({ header }) => {
-          const isSorted = header.column.getIsSorted()
-          return (
-            <TableHeader
-              header={header}
-              className={cn(
-                'w-[.1%] whitespace-nowrap active:bg-background-active',
-              )}
-            >
-              <div
-                className="group flex h-7 cursor-pointer select-none items-center stretch-[condensed]"
-                onClick={header.column.getToggleSortingHandler()}
-              >
-                <Separator
-                  orientation="vertical"
-                  className="h-5 group-active:h-full group-[:has(:active)+th]/th:h-full"
-                />
-                <div className="flex min-w-[30px] grow items-center justify-center">
-                  <SortIcon
-                    isSorted={isSorted}
-                    className=""
-                    fallback={<IconLucideCheckCircle />}
-                  />
-                </div>
-              </div>
-            </TableHeader>
-          )
-        },
-        cell: ({ row }) => (
-          <div className="flex justify-center">
-            <VocabToggle
-              vocab={row.original.vocab}
-              onToggle={handleVocabToggle}
-            />
-          </div>
-        ),
-        footer: ({ column }) => column.id,
-      }),
-      columnHelper.accessor((row) => row.vocab.rank, {
-        id: 'rank',
-        header: ({ header }) => {
-          const isSorted = header.column.getIsSorted()
-          const title = t('rank')
-          return (
-            <TableHeader
-              header={header}
-              className={cn(
-                'w-[.1%] whitespace-nowrap active:bg-background-active',
-              )}
-            >
-              <div
-                className="group float-right flex h-7 w-full cursor-pointer select-none items-center gap-2 pr-1"
-                onClick={header.column.getToggleSortingHandler()}
-              >
-                <Separator
-                  orientation="vertical"
-                  className="h-5 group-active:h-full group-[:has(:active)+th]/th:h-full"
-                />
-                <div className="flex items-center">
-                  <span
-                    title={title}
-                    className={cn('grow text-right text-xs stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
-                  >
-                    {title}
-                  </span>
-                  <SortIcon
-                    isSorted={isSorted}
-                  />
-                </div>
-              </div>
-            </TableHeader>
-          )
-        },
-        cell: ({ getValue }) => {
-          const rank = getValue()
-          return (
-            <div className="float-right w-full text-center text-sm tabular-nums stretch-[condensed]">
-              {rank}
-            </div>
+                    <IconLucideChevronRight
+                      className={cn(
+                        'size-[14px] text-zinc-400 transition-transform duration-200 dark:text-zinc-500',
+                        row.getIsExpanded() ? 'rotate-90' : '',
+                      )}
+                    />
+                    <span className="float-right inline-block tabular-nums stretch-[condensed]">
+                      {value}
+                    </span>
+                  </button>
+                ) : (
+                  <div className="w-full justify-end px-3">
+                    <span className="float-right inline-block tabular-nums stretch-[condensed]">
+                      {value}
+                    </span>
+                  </div>
+                )}
+              </Div>
+            </TableDataCell>
           )
         },
         footer: ({ column }) => column.id,
@@ -387,30 +157,28 @@ export function VocabSourceTable({
   const { t } = useTranslation()
   const [searchValue, setSearchValue] = useAtom(searchValueAtom)
   const [isUsingRegex, setIsUsingRegex] = useAtom(isUsingRegexAtom)
-  const [tableState, setTableState] = useAtom(tableStateAtom)
-  const columns = useColumns()
+  const [tableInitialState, setTableInitialState] = useAtom(tableInitialStateAtom)
+  const vocabularyCommonColumns = useVocabularyCommonColumns<LabelDisplaySource>()
+  const sourceColumns = useSourceColumns()
+  const columns = [...vocabularyCommonColumns, ...sourceColumns]
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'all')
   const [isSegmentTransitioning, startSegmentTransition] = useTransition()
 
-  const pagination = tableState.pagination ?? {
-    pageSize: 100,
-    pageIndex: 0,
-  }
   const table = useReactTable({
     data,
     columns,
     initialState: {
-      pagination,
       columnFilters: [
         {
           id: 'acquaintedStatus',
           value: getAcquaintedStatusFilter(segment),
         },
       ],
-      ...tableState,
+      ...tableInitialState,
     },
     autoResetPageIndex: false,
+    getRowId: (row) => row.vocab.word,
     getRowCanExpand: (row) => sentences.length > 0 && row.original.locations.length > 0,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -455,9 +223,10 @@ export function VocabSourceTable({
     }
   }
 
+  const tableState = table.getState()
   const { items } = usePagination({
     count: table.getPageCount(),
-    page: table.getState().pagination.pageIndex + 1,
+    page: tableState.pagination.pageIndex + 1,
   })
 
   const rowsFiltered = table.getFilteredRowModel().rows
@@ -469,10 +238,8 @@ export function VocabSourceTable({
     .filter((row) => row.original.vocab.word.length <= 32)
     .map((row) => row.original.vocab)
 
-  const itemsNum = uniq([table.getPaginationRowModel().rows.length, rowsFiltered.length]).filter(Boolean).filter((n) => !PAGES.includes(n))
-
-  useUnmount(() => {
-    setTableState(table.getState())
+  useUnmountEffect(() => {
+    setTableInitialState(tableState)
   })
   const rootRef = useRef<HTMLDivElement>(null)
 
@@ -532,43 +299,32 @@ export function VocabSourceTable({
         className="w-full grow overflow-auto overflow-y-scroll overscroll-contain"
       >
         <table className="relative min-w-full border-separate border-spacing-0">
-          <thead
-            style={{
-              '--z-index': 999_999_999,
-            }}
-            className="sticky top-0 z-[--z-index] bg-white px-0"
-          >
+          <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHeaderWrapper
+                  <TableHeaderCellRender
                     key={header.id}
                     header={header}
                   />
                 ))}
               </tr>
             ))}
-          </thead>
+          </TableHeader>
           <tbody>
             {table.getRowModel().rows.map((row, index) => {
               return (
                 <TableRow
-                  key={`_${row.original.vocab.word}`}
+                  key={row.id}
                   row={row}
                   rootRef={rootRef}
-                  index={index}
+                  index={index + 1}
                 >
-                  <td
-                    colSpan={row.getVisibleCells().length}
-                    aria-label="Examples"
-                    className="py-0"
-                  >
-                    <Examples
-                      sentences={sentences}
-                      src={row.original.locations}
-                      className="text-xs tracking-wide"
-                    />
-                  </td>
+                  <Examples
+                    sentences={sentences}
+                    src={row.original.locations}
+                    className="text-xs tracking-wide"
+                  />
                 </TableRow>
               )
             })}
@@ -582,52 +338,17 @@ export function VocabSourceTable({
         />
         <div className="flex grow items-center justify-end">
           <div className="flex items-center">
-            <Select
-              defaultValue={String(pagination.pageSize)}
-              onValueChange={(e) => {
-                table.setPageSize(Number(e))
-              }}
-            >
-              <SelectTrigger className="h-5 w-[unset] px-2 py-0 text-xs tabular-nums">
-                <SelectValue placeholder="Select" />
-              </SelectTrigger>
-              <SelectContent
-                position="item-aligned"
-              >
-                <SelectGroup>
-                  {PAGES.map((size) => (
-                    <SelectItem
-                      className="pr-4 text-xs tabular-nums"
-                      key={size}
-                      value={String(size)}
-                    >
-                      {size}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-                {itemsNum.length > 0 ? (
-                  <>
-                    <SelectSeparator />
-                    <SelectGroup>
-                      {itemsNum.map((size) => (
-                        <SelectItem
-                          className="pr-4 text-xs tabular-nums"
-                          key={size}
-                          value={String(size)}
-                        >
-                          {size}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </>
-                ) : null}
-              </SelectContent>
-            </Select>
+            <TablePaginationSizeSelect
+              table={table}
+              sizes={PAGE_SIZES}
+              value={tableState.pagination.pageSize}
+              defaultValue={String(tableInitialState.pagination.pageSize)}
+            />
             <div className="whitespace-nowrap px-1 text-[.8125rem]">{`/${t('page')}`}</div>
           </div>
         </div>
       </div>
-      <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background  dark:border-slate-800">
+      <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">
         <VocabStatics
           rowsCountFiltered={rowsFiltered.length}
           rowsCountNew={rowsNew.length}

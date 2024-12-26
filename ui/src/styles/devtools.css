@@ -1,0 +1,4 @@
+.tsqd-query-details-container,
+.tsqd-queries-overflow-container {
+  overscroll-behavior: contain;
+}

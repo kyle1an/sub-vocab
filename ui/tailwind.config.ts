@@ -17,9 +17,36 @@ const config: Config = {
   ],
   theme: {
     fontFamily: {
-      sans: ['-apple-system', 'SF Pro Text', 'BlinkMacSystemFont', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'],
-      pro: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'Inter', 'system-ui', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'sans-serif'],
-      compact: ['Karla', 'SF Compact Text', '-apple-system', 'sans-serif'],
+      sans: [
+        '-apple-system',
+        'SF Pro Text',
+        'BlinkMacSystemFont',
+        'Inter',
+        'ui-sans-serif',
+        'system-ui',
+        'sans-serif',
+        'Apple Color Emoji',
+        'Segoe UI Emoji',
+        'Segoe UI Symbol',
+        'Noto Color Emoji',
+      ],
+      pro: [
+        '-apple-system',
+        'BlinkMacSystemFont',
+        'SF Pro Text',
+        'Inter',
+        'system-ui',
+        'Segoe UI',
+        'Roboto',
+        'Helvetica Neue',
+        'sans-serif',
+      ],
+      compact: [
+        'Karla',
+        'SF Compact Text',
+        '-apple-system',
+        'sans-serif',
+      ],
     },
     container: {
       center: true,
@@ -80,6 +107,32 @@ const config: Config = {
           4: 'hsl(var(--chart-4))',
           5: 'hsl(var(--chart-5))',
         },
+      },
+      boxShadow: {
+        collapse: 'var(--collapse)',
+        intersect: 'var(--intersect)',
+      },
+      keyframes: {
+        'accordion-down': {
+          from: {
+            height: '0',
+          },
+          to: {
+            height: 'var(--radix-accordion-content-height)',
+          },
+        },
+        'accordion-up': {
+          from: {
+            height: 'var(--radix-accordion-content-height)',
+          },
+          to: {
+            height: '0',
+          },
+        },
+      },
+      animation: {
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
       },
     },
   },
