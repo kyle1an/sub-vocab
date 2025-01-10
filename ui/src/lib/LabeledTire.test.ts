@@ -14,7 +14,6 @@ describe('labeledTire', () => {
     const tire = new LabeledTire()
     tire.add('This is a test sentence.')
     expect(tire.sentences.length).toBe(1)
-    expect(tire.wordCount).toBeGreaterThan(0)
     expect(tire.root.t?.h?.i?.s).toBeDefined()
   })
 

@@ -24,7 +24,7 @@ export const en = {
   frequency: 'Times',
   home: 'Home',
   incorrectUserPassword: 'The username/password is incorrect.',
-  inputArea: 'Enter subtitles or drag and drop files or folders in this area:',
+  inputArea: 'Enter text here or drag and drop files or folders',
   inputsNotMatch: `Two inputs don't match!`,
   length: 'Length',
   login: 'Log in',

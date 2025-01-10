@@ -56,9 +56,8 @@ interface State {
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
 function addToRemoveQueue(toastId: string) {
-  if (toastTimeouts.has(toastId)) {
+  if (toastTimeouts.has(toastId))
     return
-  }
 
   const timeout = setTimeout(() => {
     toastTimeouts.delete(toastId)
@@ -92,7 +91,8 @@ export function reducer(state: State, action: Action): State {
       // but I'll keep it here for simplicity
       if (toastId) {
         addToRemoveQueue(toastId)
-      } else {
+      }
+      else {
         state.toasts.forEach((toasterToast) => {
           addToRemoveQueue(toasterToast.id)
         })
@@ -154,9 +154,8 @@ function toast({ ...props }: Toast) {
       id,
       open: true,
       onOpenChange: (open) => {
-        if (!open) {
+        if (!open)
           dismiss()
-        }
       },
     },
   })
@@ -175,9 +174,8 @@ function useToast() {
     listeners.push(setState)
     return () => {
       const index = listeners.indexOf(setState)
-      if (index > -1) {
+      if (index > -1)
         listeners.splice(index, 1)
-      }
     }
   }, [state])
 

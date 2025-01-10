@@ -8,9 +8,8 @@ export function cn(...inputs: Exclude<ClassValue, ClassArray | ClassDictionary>[
 export function setMetaThemeColorAttribute(newThemeColor: string) {
   const metaThemeColorEl = document.querySelector('meta[name="theme-color"]')
   if (metaThemeColorEl) {
-    if (metaThemeColorEl.getAttribute('content') !== newThemeColor) {
+    if (metaThemeColorEl.getAttribute('content') !== newThemeColor)
       metaThemeColorEl.setAttribute('content', newThemeColor)
-    }
   }
 }
 

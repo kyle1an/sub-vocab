@@ -23,17 +23,15 @@ export function FileInput({
   const acceptedFileTypes = [...SUPPORTED_FILE_TYPES, ...fileTypeNames]
 
   function handleFileSelect(fileList: FileList | null) {
-    if (fileList) {
+    if (fileList)
       getFileContent(fileList).then(onFileSelect).catch(console.error)
-    }
   }
 
   function dropFile(ev: React.DragEvent<HTMLDivElement>) {
     ev.preventDefault()
     const files = ev.dataTransfer.files
-    if (files) {
+    if (files)
       getFileContent(files).then(onFileSelect).catch(console.error)
-    }
   }
 
   return (

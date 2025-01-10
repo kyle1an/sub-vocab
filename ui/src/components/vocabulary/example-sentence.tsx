@@ -1,6 +1,6 @@
 import type { WordLocator } from '@/lib/LabeledTire'
 
-export function Examples({
+export function ExampleSentence({
   sentences,
   src,
   className = '',
@@ -19,16 +19,16 @@ export function Examples({
     }
 
     const adjacentSentence = vocabPositions[vocabPositions.length - 1]
-    if (!adjacentSentence) {
+    if (!adjacentSentence)
       continue
-    }
+
     const adjacentSentenceIndex = adjacentSentence[0]
     const areCurrentAndAdjacentInTheSameSentence = sentenceId === adjacentSentenceIndex
-    if (areCurrentAndAdjacentInTheSameSentence) {
+    if (areCurrentAndAdjacentInTheSameSentence)
       adjacentSentence[1].push([startOffset, wordLength])
-    } else {
+
+    else
       vocabPositions.push([sentenceId, [[startOffset, wordLength]]])
-    }
   }
 
   return (

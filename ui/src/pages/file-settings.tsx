@@ -3,6 +3,7 @@ import type { CheckedState } from '@radix-ui/react-checkbox'
 import { useMediaQuery } from 'foxact/use-media-query'
 import { isEqual } from 'lodash-es'
 import { useSearchParams } from 'react-router'
+import { useImmer } from 'use-immer'
 
 import { type FileType, fileTypesAtom, isDrawerOpenAtom } from '@/store/useVocab'
 
@@ -53,7 +54,7 @@ export function FileSettings() {
   const [open, setOpen] = useState(searchParams.get('popup') === 'file-settings')
   const setIsDrawerOpen = useSetAtom(isDrawerOpenAtom)
   const [fileTypes, setFileTypes] = useAtom(fileTypesAtom)
-  const [fileTypesInterim, setFileTypesInterim] = useState(fileTypes)
+  const [fileTypesInterim, setFileTypesInterim] = useImmer(fileTypes)
 
   useEffect(() => {
     setIsDrawerOpen(open)
@@ -66,15 +67,14 @@ export function FileSettings() {
 
   useEffect(() => {
     setFileTypesInterim(fileTypes)
-  }, [fileTypes])
+  }, [fileTypes, setFileTypesInterim])
 
   function handleFileTypesChange({ type }: FileType, checkedState: CheckedState) {
-    setFileTypesInterim(produce((draft) => {
+    setFileTypesInterim((draft) => {
       const fileType = draft.find((ft) => ft.type === type)
-      if (fileType) {
+      if (fileType)
         fileType.checked = checkedState === true
-      }
-    }))
+    })
   }
 
   function save() {
@@ -98,7 +98,8 @@ export function FileSettings() {
   function handleOpenChange(open: boolean) {
     if (open) {
       searchParams.set('popup', 'file-settings')
-    } else {
+    }
+    else {
       searchParams.delete('popup')
       setFileTypesInterim(fileTypes)
     }

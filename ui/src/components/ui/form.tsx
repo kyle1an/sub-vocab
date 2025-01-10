@@ -28,9 +28,9 @@ function FormField<
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >({ ...props }: ControllerProps<TFieldValues, TName>) {
   return (
-    <FormFieldContext.Provider value={{ name: props.name }}>
+    <FormFieldContext value={{ name: props.name }}>
       <Controller {...props} />
-    </FormFieldContext.Provider>
+    </FormFieldContext>
   )
 }
 
@@ -41,9 +41,8 @@ function useFormField() {
 
   const fieldState = getFieldState(fieldContext.name, formState)
 
-  if (!fieldContext) {
+  if (!fieldContext)
     throw new Error('useFormField should be used within <FormField>')
-  }
 
   const { id } = itemContext
 
@@ -73,13 +72,13 @@ function FormItem({
   const id = useId()
 
   return (
-    <FormItemContext.Provider value={{ id }}>
+    <FormItemContext value={{ id }}>
       <div
         ref={ref}
         className={cn('space-y-2', className)}
         {...props}
       />
-    </FormItemContext.Provider>
+    </FormItemContext>
   )
 }
 FormItem.displayName = 'FormItem'
@@ -156,9 +155,8 @@ function FormMessage({
   const { error, formMessageId } = useFormField()
   const body = error ? String(error?.message) : children
 
-  if (!body) {
+  if (!body)
     return null
-  }
 
   return (
     <p

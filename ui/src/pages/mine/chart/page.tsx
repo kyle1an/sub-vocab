@@ -9,7 +9,7 @@ import { Bar } from 'react-chartjs-2'
 import { useSessionStorage } from 'react-use'
 import colors from 'tailwindcss/colors'
 
-import { userVocabWithBaseVocabAtom } from '@/api/vocab-api'
+import { baseVocabAtom } from '@/api/vocab-api'
 import { LEARNING_PHASE, type VocabState } from '@/lib/LabeledTire'
 
 type DataSet = {
@@ -44,9 +44,8 @@ function mapWeek(userWords: VocabState[]) {
     if (v.learningPhase === LEARNING_PHASE.ACQUAINTED && v.timeModified) {
       const label = getGroupKey(new Date(v.timeModified))
       const group = preset[label]
-      if (group) {
+      if (group)
         group.push(v)
-      }
     }
   })
 
@@ -61,9 +60,8 @@ function mapMonth(userWords: VocabState[]) {
   rangeRight(0, 31).forEach((i) => {
     const subDay = subDays(today, i)
     let groupName = ''
-    if (isSunday(subDay)) {
+    if (isSunday(subDay))
       groupName = format(subDay, 'd')
-    }
 
     const groupKey = getGroupKey(subDay)
     const groupValue: VocabState[] = []
@@ -81,9 +79,8 @@ function mapMonth(userWords: VocabState[]) {
     if (v.learningPhase === LEARNING_PHASE.ACQUAINTED && v.timeModified) {
       const label = getGroupKey(new Date(v.timeModified))
       const group = preset[label]
-      if (group) {
+      if (group)
         group.push(v)
-      }
     }
   })
 
@@ -101,9 +98,8 @@ function map6M(userWords: VocabState[]) {
     const weekStart = startOfWeek(subWeek)
     const weekEnd = endOfWeek(subWeek)
     const monthStart = startOfMonth(weekEnd)
-    if (monthStart >= weekStart && monthStart <= weekEnd) {
+    if (monthStart >= weekStart && monthStart <= weekEnd)
       groupName = format(weekEnd, 'MMM')
-    }
 
     const groupKey = getGroupKey(subWeek)
     const groupValue: VocabState[] = []
@@ -121,9 +117,8 @@ function map6M(userWords: VocabState[]) {
     if (v.learningPhase === LEARNING_PHASE.ACQUAINTED && v.timeModified) {
       const label = getGroupKey(new Date(v.timeModified))
       const group = preset[label]
-      if (group) {
+      if (group)
         group.push(v)
-      }
     }
   })
 
@@ -155,9 +150,8 @@ function mapY(userWords: VocabState[]) {
     if (v.learningPhase === LEARNING_PHASE.ACQUAINTED && v.timeModified) {
       const label = getGroupKey(new Date(v.timeModified))
       const group = preset[label]
-      if (group) {
+      if (group)
         group.push(v)
-      }
     }
   })
 
@@ -167,7 +161,7 @@ function mapY(userWords: VocabState[]) {
 const SEGMENT_NAME = 'prev-chart-select'
 export function Chart() {
   const { t } = useTranslation()
-  const [userWords] = useAtom(userVocabWithBaseVocabAtom)
+  const [userWords] = useAtom(baseVocabAtom)
 
   const segments = [
     { value: 'W', label: t('W') },
@@ -185,15 +179,14 @@ export function Chart() {
   ChartJS.defaults.font.weight = 500
 
   let groupedRows: DataSet[] = []
-  if (segment === 'W') {
+  if (segment === 'W')
     groupedRows = mapWeek(userWords)
-  } else if (segment === 'M') {
+  else if (segment === 'M')
     groupedRows = mapMonth(userWords)
-  } else if (segment === '6M') {
+  else if (segment === '6M')
     groupedRows = map6M(userWords)
-  } else if (segment === 'Y') {
+  else if (segment === 'Y')
     groupedRows = mapY(userWords)
-  }
 
   const barColor = colors.red[400]
 
@@ -248,9 +241,9 @@ export function Chart() {
         border: {
           dash(scaleContext) {
             const label = scaleContext?.tick?.label
-            if (label === '1' || label === 'Sun') {
+            if (label === '1' || label === 'Sun')
               return [0, 0]
-            }
+
             return [2, 2]
           },
         },
@@ -286,16 +279,16 @@ export function Chart() {
               if (context[0]) {
                 const { dataIndex } = context[0]
                 const bar = groupedRows[dataIndex]
-                if (bar) {
+                if (bar)
                   return bar.tooltipFooter
-                }
               }
             },
           },
         },
       },
     }
-  } else if (segment === 'M') {
+  }
+  else if (segment === 'M') {
     segmentOptions = {
       plugins: {
         tooltip: {
@@ -304,9 +297,8 @@ export function Chart() {
               if (context[0]) {
                 const { dataIndex } = context[0]
                 const bar = groupedRows[dataIndex]
-                if (bar) {
+                if (bar)
                   return format(new Date(bar.groupKey), 'MMM d, yyyy')
-                }
               }
             },
           },
@@ -319,13 +311,12 @@ export function Chart() {
               const { index: dataIndex } = scaleContext
               const bar = groupedRows[dataIndex]
               const groupDate = new Date(bar?.range[0] ?? '')
-              if (isFirstDayOfMonth(groupDate)) {
+              if (isFirstDayOfMonth(groupDate))
                 return [0, 0]
-              }
+
               if (bar) {
-                if (isSunday(new Date(bar.groupKey))) {
+                if (isSunday(new Date(bar.groupKey)))
                   return [2, 2]
-                }
               }
               return [0, 1] // hide
             },
@@ -333,7 +324,8 @@ export function Chart() {
         },
       },
     }
-  } else if (segment === '6M') {
+  }
+  else if (segment === '6M') {
     segmentOptions = {
       plugins: {
         tooltip: {
@@ -349,9 +341,8 @@ export function Chart() {
               if (context[0]) {
                 const { dataIndex } = context[0]
                 const bar = groupedRows[dataIndex]
-                if (bar) {
+                if (bar)
                   return bar.tooltipFooter
-                }
               }
             },
           },
@@ -363,9 +354,8 @@ export function Chart() {
             dash(scaleContext) {
               const { index: dataIndex } = scaleContext
               const bar = groupedRows[dataIndex]
-              if (bar?.groupName) {
+              if (bar?.groupName)
                 return [2, 2]
-              }
 
               return [0, 1]
             },
@@ -373,7 +363,8 @@ export function Chart() {
         },
       },
     }
-  } else if (segment === 'Y') {
+  }
+  else if (segment === 'Y') {
     segmentOptions = {
       plugins: {
         tooltip: {
@@ -382,9 +373,8 @@ export function Chart() {
               if (context[0]) {
                 const { dataIndex } = context[0]
                 const bar = groupedRows[dataIndex]
-                if (bar) {
+                if (bar)
                   return bar.tooltipFooter
-                }
               }
             },
           },
@@ -397,9 +387,9 @@ export function Chart() {
               const { index: dataIndex } = scaleContext
               const bar = groupedRows[dataIndex]
               const groupDate = new Date(bar?.range[0] ?? '')
-              if (getMonth(groupDate) === 0) {
+              if (getMonth(groupDate) === 0)
                 return [0, 0]
-              }
+
               return [2, 2]
             },
           },

@@ -8,7 +8,7 @@ export default antfu(
   },
   stylistic.configs.customize({
     arrowParens: true,
-    braceStyle: '1tbs',
+    braceStyle: 'stroustrup',
     quoteProps: 'as-needed',
   }),
   {
@@ -19,16 +19,16 @@ export default antfu(
       'no-extra-semi': 'off',
       '@stylistic/switch-colon-spacing': 'warn',
       '@stylistic/quotes': [1, 'single', { avoidEscape: true, allowTemplateLiterals: true }],
-      '@stylistic/brace-style': ['error', '1tbs'],
       'unused-imports/no-unused-vars': 'off',
       'prefer-arrow-callback': 'off',
+      curly: ['error', 'multi-or-nest', 'consistent'],
     },
   },
   {
     ...packageJson,
     rules: {
       'package-json/sort-collections': [
-        'error',
+        'warn',
         [
           'dependencies',
           'devDependencies',
@@ -41,7 +41,7 @@ export default antfu(
     name: 'root/perfectionist',
     rules: {
       'perfectionist/sort-imports': [
-        'error',
+        'warn',
         {
           type: 'natural',
           internalPattern: ['^@/.+'],

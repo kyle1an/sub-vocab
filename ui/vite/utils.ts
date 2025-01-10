@@ -22,10 +22,9 @@ export const htmlInlineTransform = (): PluginOption => {
       if (bundle) {
         Object.entries(bundle).forEach(([fileName, output]) => {
           if (/\/worker.*\.js$/.test(fileName)) {
-            if ('code' in output) {
+            if ('code' in output)
               html = replaceLinkTagWithScript(html, output.fileName, output.code)
               // delete bundle[output.fileName]
-            }
           }
         })
       }
@@ -35,29 +34,24 @@ export const htmlInlineTransform = (): PluginOption => {
 }
 
 export const getManualChunk: ManualChunksOption = (id) => {
-  if (id.includes('/lib/worker')) {
+  if (id.includes('/lib/worker'))
     return 'worker'
-  }
 
   if (id.includes('pdfjs-dist')) {
-    if (id.includes('pdf.worker')) {
+    if (id.includes('pdf.worker'))
       return 'pdfjs-dist.worker'
-    }
 
     return 'pdfjs-dist'
   }
 
-  if (id.includes('@sentry')) {
+  if (id.includes('@sentry'))
     return 'sentry'
-  }
 
-  if (id.includes('.pnpm/chart.js@')) {
+  if (id.includes('.pnpm/chart.js@'))
     return 'chart.js'
-  }
 
-  if (id.includes('commonjsHelpers.js')) {
+  if (id.includes('commonjsHelpers.js'))
     return 'commonjsHelpers'
-  }
 
   if (
     [
@@ -66,9 +60,8 @@ export const getManualChunk: ManualChunksOption = (id) => {
       '.pnpm/scheduler',
       '.pnpm/react-router@',
     ].some((s) => id.includes(s))
-  ) {
+  )
     return 'react'
-  }
 
   if (
     [
@@ -85,9 +78,8 @@ export const getManualChunk: ManualChunksOption = (id) => {
     ]
       .map((s) => `.pnpm/${s.replace(/\//g, '+')}@`)
       .some((s) => id.includes(s))
-  ) {
+  )
     return 'self'
-  }
 
   if (
     [
@@ -106,7 +98,6 @@ export const getManualChunk: ManualChunksOption = (id) => {
         .map((s) => `.pnpm/${s.replace(/\//g, '+')}@`),
     ]
       .some((s) => id.includes(s))
-  ) {
+  )
     return 'dep'
-  }
 }

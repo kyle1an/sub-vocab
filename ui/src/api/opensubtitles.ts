@@ -1,6 +1,6 @@
 import type { MergeDeep, PartialDeep } from 'type-fest'
 
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
 import { ofetch } from 'ofetch'
 
 import type { paths } from '@/types/schema-opensubtitles'
@@ -28,9 +28,8 @@ export const osSessionAtom = atomWithStorage<PartialDeep<Login['Response']> | un
 
 export const opensubtitlesAuthorizationAtom = atom((get) => {
   const osSession = get(osSessionAtom)
-  if (osSession?.token) {
+  if (osSession?.token)
     return `Bearer ${osSession.token}`
-  }
 })
 
 export const opensubtitlesReqAtom = atom((get) => {
@@ -58,20 +57,31 @@ type Subtitles = {
   Response: MergeDeep<attributes_feature_details, paths['/discover/most_downloaded']['get']['responses'][200]['content']['application/json'], { recurseIntoArrays: true }>
 }
 
-export function useOpenSubtitlesSubtitles(query: Subtitles['Query']) {
+export const useOpenSubtitlesQueryOptions = () => {
   const { baseUrl, headers } = useAtomValue(opensubtitlesReqAtom)
-  return useQuery({
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps
-    queryKey: ['opensubtitles-subtitles', query],
-    queryFn() {
-      return ofetch<Subtitles['Response']>(`${baseUrl}/subtitles`, {
-        method: 'GET',
-        query,
-        headers,
-      })
-    },
-  })
+  return (query: Subtitles['Query']) => {
+    // https://opensubtitles.stoplight.io/docs/opensubtitles-api/6ef2e232095c7-best-practices
+    const sortedQuery = Object.fromEntries(Object.entries(query).sort())
+    return queryOptions({
+      // eslint-disable-next-line @tanstack/query/exhaustive-deps
+      queryKey: ['opensubtitles-subtitles', sortedQuery],
+      queryFn() {
+        return ofetch<Subtitles['Response']>(`${baseUrl}/subtitles`, {
+          method: 'GET',
+          query: sortedQuery,
+          headers,
+        })
+      },
+    })
+  }
 }
+
+export function useOpenSubtitlesSubtitles(query: Subtitles['Query']) {
+  const openSubtitlesQueryOptions = useOpenSubtitlesQueryOptions()
+  return useQuery(openSubtitlesQueryOptions(query))
+}
+
+export type SubtitleResponseData = NonNullable<ReturnType<typeof useOpenSubtitlesSubtitles>['data']>['data'][number]
 
 type Login = {
   Body: NonNullable<paths['/login']['post']['requestBody']>['content']['application/json']
@@ -108,6 +118,7 @@ export function useOpenSubtitlesDownload() {
         headers: omitUndefined({
           Authorization,
         }),
+        retry: 3,
       })
     },
   })

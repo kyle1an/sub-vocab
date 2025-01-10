@@ -7,7 +7,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  type TableState,
+  type InitialTableState,
   useReactTable,
 } from '@tanstack/react-table'
 import {
@@ -17,30 +17,36 @@ import { useSessionStorage } from 'react-use'
 
 import type { LabelDisplaySource } from '@/lib/vocab'
 
+import { SearchWidget } from '@/components/search-widget'
 import { TablePagination } from '@/components/table-pagination'
 import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
-import { TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/tableHeader'
+import { TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { AcquaintAllDialog } from '@/components/vocabulary/acquaint-all-dialog'
 import { useVocabularyCommonColumns } from '@/components/vocabulary/columns'
-import { Examples } from '@/components/vocabulary/Examples'
+import { ExampleSentence } from '@/components/vocabulary/example-sentence'
+import { VocabularyMenu } from '@/components/vocabulary/menu'
+import { useLastTruthy } from '@/lib/hooks'
 import { SortIcon } from '@/lib/icon-utils'
 import { LEARNING_PHASE, type LearningPhase } from '@/lib/LabeledTire'
 import { tryGetRegex } from '@/lib/regex'
 import { findClosest } from '@/lib/utilities'
+import { isSourceTextStaleAtom } from '@/store/useVocab'
 
-type ColumnFilterFn = (rowValue: LabelDisplaySource) => boolean
+type TableData = LabelDisplaySource
 
-const PAGE_SIZES = [10, 20, 40, 50, 100, 200, 1000] as const
+type ColumnFilterFn = (rowValue: TableData) => boolean
+
+const PAGE_SIZES = [10, 20, 40, 50, 100, 200, 500, 1000] as const
 
 const isUsingRegexAtom = atom(false)
 const searchValueAtom = atom('')
-const tableInitialStateAtom = atom({
+const initialTableStateAtom = atom<InitialTableState>({
   columnOrder: ['frequency', 'word', 'word.length', 'acquaintedStatus', 'rank'],
   pagination: {
     pageSize: findClosest(100, PAGE_SIZES),
     pageIndex: 0,
   },
-} satisfies Partial<TableState>)
+})
 
 function useSegments() {
   const { t } = useTranslation()
@@ -54,20 +60,33 @@ function useSegments() {
 type Segment = ReturnType<typeof useSegments>[number]['value']
 const SEGMENT_NAME = 'source-table-segment'
 
-function getAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
+const noFilter = () => true
+
+function useAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
   let filteredValue: LearningPhase[] = []
-  if (filterSegment === 'new') {
+  if (filterSegment === 'new')
     filteredValue = [LEARNING_PHASE.NEW, LEARNING_PHASE.RETAINING]
-  } else if (filterSegment === 'acquainted') {
+  else if (filterSegment === 'acquainted')
     filteredValue = [LEARNING_PHASE.ACQUAINTED, LEARNING_PHASE.FADING]
-  } else {
-    return () => true
-  }
+  else
+    return noFilter
 
   return (row) => filteredValue.includes(row.inertialPhase)
 }
 
-function useSourceColumns<T extends LabelDisplaySource>() {
+function useSearchFilterValue(search: string, usingRegex: boolean): ColumnFilterFn | undefined {
+  search = search.toLowerCase()
+  if (usingRegex) {
+    const newRegex = tryGetRegex(search)
+    if (newRegex)
+      return (row) => newRegex.test(row.vocab.word)
+  }
+  else {
+    return (row) => row.wFamily.some((word) => word.toLowerCase().includes(search))
+  }
+}
+
+function useSourceColumns<T extends TableData>() {
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
   return (
@@ -99,8 +118,9 @@ function useSourceColumns<T extends LabelDisplaySource>() {
             </TableHeaderCell>
           )
         },
-        cell: ({ row, cell, getValue }) => {
+        cell: ({ row, cell, getValue, onExpandedChange }) => {
           const value = getValue()
+          const isExpanded = row.getIsExpanded()
           return (
             <TableDataCell
               cell={cell}
@@ -109,15 +129,15 @@ function useSourceColumns<T extends LabelDisplaySource>() {
                 {row.getCanExpand() ? (
                   <button
                     type="button"
-                    className={cn(
-                      'expand-button',
-                      'flex h-full grow items-center justify-between gap-1 px-3',
-                    )}
+                    className="flex h-full grow items-center justify-between gap-1 px-3"
+                    onClick={() => {
+                      onExpandedChange?.(isExpanded)
+                    }}
                   >
                     <IconLucideChevronRight
                       className={cn(
                         'size-[14px] text-zinc-400 transition-transform duration-200 dark:text-zinc-500',
-                        row.getIsExpanded() ? 'rotate-90' : '',
+                        isExpanded ? 'rotate-90' : '',
                       )}
                     />
                     <span className="float-right inline-block tabular-nums stretch-[condensed]">
@@ -135,7 +155,6 @@ function useSourceColumns<T extends LabelDisplaySource>() {
             </TableDataCell>
           )
         },
-        footer: ({ column }) => column.id,
       }),
     ]
   )
@@ -147,7 +166,7 @@ export function VocabSourceTable({
   onPurge,
   className = '',
 }: {
-  data: LabelDisplaySource[]
+  data: TableData[]
   sentences: string[]
   onPurge: () => void
   className?: string
@@ -156,27 +175,36 @@ export function VocabSourceTable({
   'use no memo'
   const { t } = useTranslation()
   const [searchValue, setSearchValue] = useAtom(searchValueAtom)
+  const deferredSearchValue = useDeferredValue(searchValue)
   const [isUsingRegex, setIsUsingRegex] = useAtom(isUsingRegexAtom)
-  const [tableInitialState, setTableInitialState] = useAtom(tableInitialStateAtom)
-  const vocabularyCommonColumns = useVocabularyCommonColumns<LabelDisplaySource>()
+  const deferredIsUsingRegex = useDeferredValue(isUsingRegex)
+  const [initialTableState, setInitialTableState] = useAtom(initialTableStateAtom)
+  const vocabularyCommonColumns = useVocabularyCommonColumns<TableData>()
   const sourceColumns = useSourceColumns()
   const columns = [...vocabularyCommonColumns, ...sourceColumns]
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'all')
-  const [isSegmentTransitioning, startSegmentTransition] = useTransition()
+  const segmentDeferredValue = useDeferredValue(segment)
+  const lastTruthySearchFilterValue = useLastTruthy(useSearchFilterValue(deferredSearchValue, deferredIsUsingRegex))
+  const isSourceTextStale = useAtomValue(isSourceTextStaleAtom)
+  const [disableNumberAnim, setDisableNumberAnim] = useState(false)
 
   const table = useReactTable({
     data,
     columns,
-    initialState: {
+    state: {
       columnFilters: [
         {
           id: 'acquaintedStatus',
-          value: getAcquaintedStatusFilter(segment),
+          value: useAcquaintedStatusFilter(segmentDeferredValue),
+        },
+        {
+          id: 'word',
+          value: lastTruthySearchFilterValue ?? noFilter,
         },
       ],
-      ...tableInitialState,
     },
+    initialState: initialTableState,
     autoResetPageIndex: false,
     getRowId: (row) => row.vocab.word,
     getRowCanExpand: (row) => sentences.length > 0 && row.original.locations.length > 0,
@@ -189,38 +217,16 @@ export function VocabSourceTable({
   })
 
   function handleSegmentChoose(newSegment: typeof segment) {
-    onPurge()
     setSegment(newSegment)
     requestAnimationFrame(() => {
-      startSegmentTransition(() => {})
+      startTransition(() => {
+        setDisableNumberAnim(true)
+        requestAnimationFrame(() => {
+          setDisableNumberAnim(false)
+          onPurge()
+        })
+      })
     })
-    table.getColumn('acquaintedStatus')?.setFilterValue(() => getAcquaintedStatusFilter(newSegment))
-  }
-
-  const columnWord = table.getColumn('word')
-
-  function handleSearchChange(search: string) {
-    setSearchValue(search)
-    updateSearchFilter(search, isUsingRegex)
-  }
-
-  function handleRegexChange(regex: boolean) {
-    setIsUsingRegex(regex)
-    updateSearchFilter(searchValue, regex)
-  }
-
-  function updateSearchFilter(search: string, usingRegex: boolean) {
-    search = search.toLowerCase()
-    if (usingRegex) {
-      const newRegex = tryGetRegex(search)
-      if (newRegex) {
-        const regexFilterFn: ColumnFilterFn = (row) => newRegex.test(row.vocab.word)
-        columnWord?.setFilterValue(() => regexFilterFn)
-      }
-    } else {
-      const searchFilterFn: ColumnFilterFn = (row) => row.wFamily.some((word) => word.toLowerCase().includes(search))
-      columnWord?.setFilterValue(() => searchFilterFn)
-    }
   }
 
   const tableState = table.getState()
@@ -230,59 +236,64 @@ export function VocabSourceTable({
   })
 
   const rowsFiltered = table.getFilteredRowModel().rows
-  const rowsAcquainted = rowsFiltered
-    .filter((row) => row.original.vocab.learningPhase === LEARNING_PHASE.ACQUAINTED)
-  const rowsNew = rowsFiltered
-    .filter((row) => row.original.vocab.learningPhase === LEARNING_PHASE.NEW)
+  const {
+    rowsAcquainted = [],
+    rowsNew = [],
+  } = Object.groupBy(rowsFiltered, (row) => {
+    switch (row.original.vocab.learningPhase) {
+      case LEARNING_PHASE.ACQUAINTED:
+        return 'rowsAcquainted'
+      case LEARNING_PHASE.NEW:
+        return 'rowsNew'
+      default:
+        return '_'
+    }
+  })
   const rowsToRetain = rowsNew
-    .filter((row) => row.original.vocab.word.length <= 32)
     .map((row) => row.original.vocab)
 
   useUnmountEffect(() => {
-    setTableInitialState(tableState)
+    setInitialTableState(tableState)
   })
   const rootRef = useRef<HTMLDivElement>(null)
+  const isStale = isSourceTextStale || segment !== segmentDeferredValue || searchValue !== deferredSearchValue || isUsingRegex !== deferredIsUsingRegex
 
   return (
     <div className={cn('flex h-full flex-col items-center overflow-hidden bg-background will-change-transform', className)}>
       <div className="z-10 flex h-12 w-full justify-between bg-background p-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              className="flex max-h-full gap-1 p-2 [--sq-r:5px]"
-              variant="ghost"
+        <VocabularyMenu>
+          <DropdownMenuLabel>{t('Options')}</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              onSelect={(e) => e.preventDefault()}
+              className="p-0"
             >
-              <IconIonEllipsisHorizontalCircleOutline
-                className="size-[19px]"
+              <AcquaintAllDialog
+                vocabulary={rowsToRetain}
               />
-              <IconLucideChevronDown
-                className="size-[14px]"
-              />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-52"
-            align="start"
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </VocabularyMenu>
+        <div className="flex items-center px-2.5 text-base">
+          <div
+            className={clsx(
+              'flex justify-center transition-all delay-300 duration-200',
+              isStale ? '' : 'opacity-0',
+            )}
           >
-            <DropdownMenuLabel>{t('Options')}</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem
-                onSelect={(e) => e.preventDefault()}
-                className="p-0"
-              >
-                <AcquaintAllDialog
-                  vocabulary={rowsToRetain}
-                />
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <Spinner
+              variant="primary"
+              size="sm"
+            />
+          </div>
+        </div>
+        <div className="grow"></div>
         <SearchWidget
           value={searchValue}
           isUsingRegex={isUsingRegex}
-          onSearch={handleSearchChange}
-          onRegex={handleRegexChange}
+          onSearch={setSearchValue}
+          onRegex={setIsUsingRegex}
         />
       </div>
       <div className="h-px w-full border-b border-solid border-zinc-200 shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)] dark:border-slate-800" />
@@ -320,7 +331,7 @@ export function VocabSourceTable({
                   rootRef={rootRef}
                   index={index + 1}
                 >
-                  <Examples
+                  <ExampleSentence
                     sentences={sentences}
                     src={row.original.locations}
                     className="text-xs tracking-wide"
@@ -342,7 +353,6 @@ export function VocabSourceTable({
               table={table}
               sizes={PAGE_SIZES}
               value={tableState.pagination.pageSize}
-              defaultValue={String(tableInitialState.pagination.pageSize)}
             />
             <div className="whitespace-nowrap px-1 text-[.8125rem]">{`/${t('page')}`}</div>
           </div>
@@ -351,9 +361,11 @@ export function VocabSourceTable({
       <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">
         <VocabStatics
           rowsCountFiltered={rowsFiltered.length}
+          text={` ${t('vocabulary')}`}
           rowsCountNew={rowsNew.length}
           rowsCountAcquainted={rowsAcquainted.length}
-          animated={!isSegmentTransitioning}
+          animated={!disableNumberAnim}
+          progress
         />
       </div>
     </div>

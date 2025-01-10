@@ -7,18 +7,16 @@ export function TablePaginationSizeSelect<T>({
   table,
   sizes,
   value: pageSize,
-  defaultValue,
 }: {
   table: Table<T>
   sizes: readonly number[]
   value: number
-  defaultValue: string
 }) {
   'use no memo'
   const itemsNum = uniq([table.getFilteredRowModel().rows.length]).filter(Boolean).filter((n) => !sizes.includes(n) && n > Math.min(...sizes))
   return (
     <Select
-      defaultValue={defaultValue}
+      defaultValue={String(pageSize)}
       onValueChange={(e) => {
         table.setPageSize(Number(e))
       }}

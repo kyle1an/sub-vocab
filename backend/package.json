@@ -3,9 +3,9 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@9.15.3",
+  "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "dev": "tsx watch --env-file=.env app",
+    "dev": "tsx watch --trace-deprecation --env-file=.env app",
     "introspect": "drizzle-kit introspect",
     "build": "tsc && node --run copy-files",
     "copy-files": "cp -R public dist/backend",
@@ -14,12 +14,12 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "@trpc/server": "11.0.0-rc.566",
+    "@trpc/server": "11.0.0-rc.700",
     "cookie": "^1.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "debug": "^4.4.0",
-    "drizzle-orm": "^0.38.3",
+    "drizzle-orm": "^0.38.4",
     "express": "^5.0.1",
     "http-errors": "^2.0.0",
     "http-proxy-middleware": "^3.0.3",

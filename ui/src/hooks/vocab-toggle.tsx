@@ -1,11 +1,11 @@
 import { useNetworkState } from '@react-hookz/web'
 import { toast } from 'sonner'
 
+import type { VocabState } from '@/lib/LabeledTire'
+
 import { useUserWordPhaseMutation } from '@/api/vocab-api'
 import { LoginToast } from '@/components/login-toast'
 import { sessionAtom } from '@/store/useVocab'
-
-import type { VocabState } from '../lib/LabeledTire'
 
 export function useVocabToggle() {
   const { mutateAsync: userWordPhaseMutation } = useUserWordPhaseMutation()
@@ -24,9 +24,8 @@ export function useVocabToggle() {
     }
 
     const rows2Mutate = [vocab].filter((row) => row.word.length <= 32)
-    if (rows2Mutate.length === 0) {
+    if (rows2Mutate.length === 0)
       return
-    }
 
     userWordPhaseMutation(rows2Mutate)
       .catch(console.error)

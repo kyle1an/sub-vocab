@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
-      // Inspect(),
+      Inspect(),
       AutoImport({
         resolvers: [
           IconsResolver({
@@ -49,6 +49,10 @@ export default defineConfig(({ mode }) => {
           {
             imports: ['useSnapshot'],
             from: 'valtio',
+          },
+          {
+            imports: ['clsx'],
+            from: 'clsx/lite',
           },
           {
             '@/lib/utils': ['cn'],
@@ -79,7 +83,6 @@ export default defineConfig(({ mode }) => {
       })],
       ...mode === 'production' ? [visualizer()] : [],
       checker({
-        typescript: true,
       }),
       ...mode === 'production' ? [htmlInlineTransform()] : [],
     ],

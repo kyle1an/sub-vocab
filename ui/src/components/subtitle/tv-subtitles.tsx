@@ -1,32 +1,132 @@
 import usePagination from '@mui/material/usePagination'
 import NumberFlow from '@number-flow/react'
-import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, type TableState, useReactTable } from '@tanstack/react-table'
-import { maxBy } from 'lodash-es'
+import { useQueries } from '@tanstack/react-query'
+import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, type InitialTableState, useReactTable } from '@tanstack/react-table'
+import { maxBy, sum } from 'lodash-es'
 
-import { useOpenSubtitlesSubtitles } from '@/api/opensubtitles'
+import type { SubtitleResponseData } from '@/api/opensubtitles'
+
+import { osSessionAtom, useOpenSubtitlesQueryOptions } from '@/api/opensubtitles'
+import { $api } from '@/api/tmdb'
+import { useCommonColumns } from '@/components/subtitle/columns'
 import { TablePagination } from '@/components/table-pagination'
 import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
-import { TableRow } from '@/components/ui/tableHeader'
+import { TableRow } from '@/components/ui/table-element'
 import { SortIcon } from '@/lib/icon-utils'
+import { getFileId } from '@/lib/subtitle'
+import { sortBySelection } from '@/lib/table-utils'
 import { findClosest, naturalNumLength } from '@/lib/utilities'
-
-import { useCommonColumns } from './columns'
+import { subtitleSelectionStateAtom, subtitleSelectionStateFamily } from '@/store/useVocab'
 
 type ExpandableRow<T> = T & { subRows?: T[] }
 
-type SubtitleData = NonNullable<ReturnType<typeof useOpenSubtitlesSubtitles>['data']>['data'][number]
+type SubtitleData = SubtitleResponseData
 
 type SubtitleDataExpandable = ExpandableRow<SubtitleData>
 
-function useTVColumns<T extends SubtitleDataExpandable>(highestEpisodeNumber = 0) {
+function useTVColumns<T extends SubtitleDataExpandable>(id: number, highestEpisodeNumber = 0) {
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
+  const [osSession] = useAtom(osSessionAtom)
+  const [rowSelection = {}] = useAtom(subtitleSelectionStateFamily(id))
+  const setSubtitleSelectionState = useSetAtom(subtitleSelectionStateAtom)
   return [
+    columnHelper.accessor((row) => row.id, {
+      id: 'action',
+      sortingFn: sortBySelection,
+      header: ({ header, table }) => {
+        const { rows } = table.getRowModel()
+        const { parentRows = [], subRows = [] } = Object.groupBy(rows, (row) => {
+          if (row.depth === 0)
+            return 'parentRows'
+          else
+            return 'subRows'
+        })
+        const checked = parentRows.length > 0 && parentRows.every((row) => rowSelection[getFileId(row.original)])
+        const isSorted = header.column.getIsSorted()
+        return (
+          <TableHeaderCell
+            header={header}
+            className="w-[.1%] [&:active:has(.child:not(:active))+th]:signal/active [&:active:has(.child:not(:active))]:signal/active"
+          >
+            <Div
+              className="select-none justify-between gap-1.5 pl-2 pr-1 signal/active:bg-background-active"
+              onClick={header.column.getToggleSortingHandler()}
+            >
+              <div className="flex stretch-[condensed]">
+                {osSession?.token ? (
+                  <Checkbox
+                    checked={checked}
+                    className="child"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSubtitleSelectionState((state) => {
+                        if (checked) {
+                          state[id] = {}
+                        }
+                        else {
+                          const selectionState = state[id] ??= {}
+                          parentRows.forEach((row) => {
+                            selectionState[getFileId(row.original)] = true
+                          })
+                          subRows.forEach((row) => {
+                            selectionState[getFileId(row.original)] = false
+                          })
+                        }
+                      })
+                    }}
+                  />
+                ) : (
+                  <div className="child w-4" />
+                )}
+              </div>
+              <SortIcon isSorted={isSorted} />
+            </Div>
+          </TableHeaderCell>
+        )
+      },
+      cell: ({ row, cell, onExpandedChange, onRowSelectionChange }) => {
+        const canExpand = row.getCanExpand()
+        const isExpanded = row.getIsExpanded()
+        return (
+          <TableDataCell
+            cell={cell}
+          >
+            <Div className="text-zinc-400">
+              <div
+                className={cn(
+                  'flex h-full grow items-center justify-between pl-1.5 pr-1',
+                  canExpand && 'cursor-pointer',
+                )}
+                onClick={() => {
+                  onExpandedChange?.(isExpanded)
+                }}
+              >
+                <Checkbox
+                  onClick={(e) => e.stopPropagation()}
+                  checked={row.getIsSelected()}
+                  onCheckedChange={(checked) => {
+                    onRowSelectionChange?.(checked, row)
+                  }}
+                />
+                {'\u200B'}
+                <IconLucideChevronRight
+                  className={cn(
+                    canExpand ? '' : 'invisible',
+                    'size-[14px] text-zinc-400 transition-transform duration-200 dark:text-zinc-500',
+                    isExpanded ? 'rotate-90' : '',
+                  )}
+                />
+              </div>
+            </Div>
+          </TableDataCell>
+        )
+      },
+    }),
     columnHelper.accessor((row) => {
       const { season_number, episode_number } = row.attributes.feature_details
-      if (season_number && episode_number) {
+      if (season_number && episode_number)
         return `S${season_number} E${String(episode_number).padStart(Math.min(naturalNumLength(highestEpisodeNumber), 2), '0')}`
-      }
     }, {
       id: 'season_episode',
       sortingFn: (rowA, rowB) => {
@@ -78,14 +178,13 @@ function useTVColumns<T extends SubtitleDataExpandable>(highestEpisodeNumber = 0
           </TableDataCell>
         )
       },
-      footer: ({ column }) => column.id,
     }),
   ]
 }
 
 const PAGE_SIZES = [5, 10, 20, 40, 50, 100, 200] as const
 
-const tableInitialState = {
+const initialTableState: InitialTableState = {
   sorting: [
     {
       id: 'season_episode',
@@ -97,14 +196,14 @@ const tableInitialState = {
     pageSize: findClosest(10, PAGE_SIZES),
     pageIndex: 0,
   },
-} satisfies Partial<TableState>
+}
 
 function groupSubtitleRows(rows: SubtitleData[]) {
   const episodeGroup = Object.groupBy(rows, (row) => {
     const { season_number, episode_number } = row.attributes.feature_details
-    if (!season_number || !episode_number) {
+    if (!season_number || !episode_number)
       return '_'
-    }
+
     return `${season_number}-${episode_number}`
   })
   const { _, ...rest } = episodeGroup
@@ -130,25 +229,55 @@ export function TVSubtitleFiles({
 }: {
   id: number
 }) {
-  // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
   const { t } = useTranslation()
-  const { data, isPending } = useOpenSubtitlesSubtitles({
-    parent_tmdb_id: id,
-    languages: 'en',
-    per_page: 100,
+  const { data: seriesDetail, isLoading: isSeriesDetailLoading } = $api.useQuery(
+    'get',
+    '/3/tv/{series_id}',
+    {
+      params: {
+        path: {
+          series_id: id,
+        },
+      },
+    },
+  )
+  const seasons = seriesDetail?.seasons ?? []
+  const totalEpisodes = sum(seasons.map((season) => season.episode_count))
+  const openSubtitlesQueryOptions = useOpenSubtitlesQueryOptions()
+  const { data: subtitles, isPending: isSubtitlesPending } = useQueries({
+    queries: seasons.map((season) => {
+      return openSubtitlesQueryOptions({
+        parent_tmdb_id: id,
+        languages: 'en',
+        per_page: 100,
+        season_number: season.season_number,
+      })
+    }),
+    combine: (results) => {
+      return {
+        data: results.map((result) => result.data?.data ?? []).flat(),
+        isPending: results.some((result) => result.isPending),
+      }
+    },
   })
-  const highestEpisode = maxBy(data?.data, (d) => d.attributes.feature_details.episode_number)
+  const totalSubtitles = subtitles.length
+  const isPending = isSeriesDetailLoading || isSubtitlesPending
+  const highestEpisode = maxBy(subtitles, (d) => d.attributes.feature_details.episode_number)
   const highestEpisodeNumber = highestEpisode?.attributes.feature_details.episode_number
   const commonColumns = useCommonColumns<SubtitleDataExpandable>()
-  const tvColumns = useTVColumns(highestEpisodeNumber)
+  const tvColumns = useTVColumns(id, highestEpisodeNumber)
   const columns = [...commonColumns, ...tvColumns]
+  const [rowSelection = {}, setRowSelection] = useAtom(subtitleSelectionStateFamily(id))
   const table = useReactTable({
-    data: groupSubtitleRows(data?.data ?? []),
+    data: groupSubtitleRows(subtitles),
     columns,
-    initialState: tableInitialState,
+    initialState: initialTableState,
     autoResetPageIndex: false,
-    getRowId: (row) => row.id,
+    state: {
+      rowSelection,
+    },
+    getRowId: getFileId,
     getRowCanExpand: (row) => row?.subRows.length >= 1,
     getSubRows: (row) => row?.subRows ?? [],
     getCoreRowModel: getCoreRowModel(),
@@ -158,7 +287,6 @@ export function TVSubtitleFiles({
     getSortedRowModel: getSortedRowModel(),
     debugTable: true,
   })
-  const rowsFiltered = table.getFilteredRowModel().rows
   const tableState = table.getState()
   const { items } = usePagination({
     count: table.getPageCount(),
@@ -167,7 +295,7 @@ export function TVSubtitleFiles({
   const rootRef = useRef<HTMLDivElement>(null)
 
   return (
-    <div className="pb-5 pl-24 pr-12 pt-2">
+    <div className="px-6 pb-5 pt-2 md:pl-24 md:pr-12">
       <SquircleBg className="flex h-[286px] items-center justify-center overflow-hidden rounded-xl border">
         <SquircleMask
           className="flex size-full flex-col bg-[--theme-bg]"
@@ -206,6 +334,7 @@ export function TVSubtitleFiles({
                       row={row}
                       rootRef={rootRef}
                       index={index + 1}
+                      onRowSelectionChange={setRowSelection}
                     />
                   )
                 })}
@@ -223,23 +352,34 @@ export function TVSubtitleFiles({
                   table={table}
                   sizes={PAGE_SIZES}
                   value={tableState.pagination.pageSize}
-                  defaultValue={String(tableInitialState.pagination.pageSize)}
                 />
                 <div className="whitespace-nowrap px-1 text-[.8125rem]">{`/${t('page')}`}</div>
               </div>
             </div>
           </div>
           <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">
-            <div className="flex h-7 items-center text-xs tabular-nums">
+            <div className="flex h-7 items-center gap-1.5 text-xs tabular-nums text-neutral-600 dark:text-neutral-400">
               <span>
                 <NumberFlow
-                  value={rowsFiltered.length}
+                  value={totalEpisodes}
                   locales="en-US"
                   animated
                   isolate
                 />
                 <span>
                   {` episodes`}
+                </span>
+                <span className="text-neutral-400">, </span>
+              </span>
+              <span>
+                <NumberFlow
+                  value={totalSubtitles}
+                  locales="en-US"
+                  animated
+                  isolate
+                />
+                <span>
+                  {` subtitles`}
                 </span>
               </span>
             </div>

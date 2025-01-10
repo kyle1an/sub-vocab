@@ -1,9 +1,8 @@
 import { useResizeObserver } from '@react-hookz/web'
 import { atomEffect } from 'jotai-effect'
 
+import { setMetaThemeColorAttribute } from '@/lib/utils'
 import { isDrawerOpenAtom, isMdScreenAtom, metaThemeColorAtom, prefersDarkAtom, themeAtom } from '@/store/useVocab'
-
-import { setMetaThemeColorAttribute } from './utils'
 
 export const COLOR_SCHEME_QUERY = '(prefers-color-scheme: dark)'
 
@@ -11,9 +10,8 @@ export const isDarkModeAtom = atom((get) => {
   const themePreference = get(themeAtom)
   const isDarkOS = get(prefersDarkAtom)
   let isDarkMode = false
-  if (themePreference === 'dark' || (themePreference === 'auto' && isDarkOS)) {
+  if (themePreference === 'dark' || (themePreference === 'auto' && isDarkOS))
     isDarkMode = true
-  }
   return isDarkMode
 })
 
@@ -39,11 +37,25 @@ export const metaThemeColorEffect = atomEffect((get) => {
   const isMdScreen = get(isMdScreenAtom)
   let newThemeColor = themeColor
   if (open && !isMdScreen) {
-    if (isDarkMode) {
+    if (isDarkMode)
       newThemeColor = 'black'
-    } else {
+    else
       newThemeColor = 'transparent'
-    }
   }
   setMetaThemeColorAttribute(newThemeColor)
 })
+
+export function useLastTruthy<T>(value: T) {
+  const lastTruthy = useRef<T>(null)
+
+  useEffect(() => {
+    if (value)
+      lastTruthy.current = value
+  })
+
+  if (value)
+    return value
+
+  // eslint-disable-next-line react-compiler/react-compiler
+  return lastTruthy.current
+}

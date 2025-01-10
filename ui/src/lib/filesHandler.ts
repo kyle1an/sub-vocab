@@ -21,9 +21,8 @@ function formatTextContent(textContent: TextContent) {
     let text = ''
     if ('transform' in item) {
       text = item.str
-      if (item.hasEOL) {
+      if (item.hasEOL)
         text += '\n'
-      }
     }
     return text
   })
@@ -141,9 +140,9 @@ function getFileType(file: File) {
     reader.onload = async (e) => {
       let fileType: FileTypeResult | undefined
       const document = e.target?.result
-      if (document instanceof ArrayBuffer) {
+      if (document instanceof ArrayBuffer)
         fileType = await fileTypeFromBuffer(document)
-      }
+
       resolve(fileType)
     }
     reader.readAsArrayBuffer(file)
@@ -166,7 +165,8 @@ async function readFile(file: File, { name, type }: Pick<File, 'name' | 'type'> 
         }
       }
       reader.readAsArrayBuffer(file)
-    } else if (type.startsWith('text/') || HUMAN_READABLE_FILE_EXTENSIONS.some((ext) => name.endsWith(ext))) {
+    }
+    else if (type.startsWith('text/') || HUMAN_READABLE_FILE_EXTENSIONS.some((ext) => name.endsWith(ext))) {
       reader.onload = (e) => {
         const result = e.target?.result
         if (typeof result === 'string') {
@@ -176,7 +176,8 @@ async function readFile(file: File, { name, type }: Pick<File, 'name' | 'type'> 
         }
       }
       reader.readAsText(file)
-    } else {
+    }
+    else {
       resolve({
         text: 'test',
         error: FORMAT_ERROR,
@@ -199,11 +200,11 @@ export class DataTransferItemListReader {
   constructor(private fileTypes: string[] = []) {}
 
   private readEntry(entry: FileSystemEntry) {
-    if (isDirectoryEntry(entry)) {
+    if (isDirectoryEntry(entry))
       return this.readDirectory(entry)
-    } else if (isFileEntry(entry)) {
+    else if (isFileEntry(entry))
       return this.readFile(entry)
-    }
+
     return Promise.reject(new Error('Entry is neither a file nor a directory'))
   }
 
@@ -216,16 +217,16 @@ export class DataTransferItemListReader {
           if (fileType) {
             const { ext, mime } = fileType
             type = mime
-            if (ext) {
+            if (ext)
               name = `${name}.${ext}`
-            }
           }
         }
 
         if (this.fileTypes.some((fileType) => name.endsWith(fileType))) {
           const res = await readFile(file, { type, name })
           resolve(res)
-        } else {
+        }
+        else {
           resolve({
             text: '',
             error: FORMAT_ERROR,
@@ -251,9 +252,9 @@ export class DataTransferItemListReader {
       .filter((item) => item.kind === 'file')
       .map((item) => {
         const fileSystemEntry = item.webkitGetAsEntry()
-        if (fileSystemEntry) {
+        if (fileSystemEntry)
           return this.readEntry(fileSystemEntry)
-        }
+
         return Promise.reject(new Error('Entry is null'))
       })
   }
@@ -293,10 +294,10 @@ export function readEntryFiles(entryFiles: EntryFiles, level = 0) {
       content += result.content
       foldersCount += result.title.split(', ')[0] === '0 folders' ? 0 : 1
       const titles = result.title.split(', ')
-      if (titles[1]) {
+      if (titles[1])
         filesCount += Number(titles[1].split(' ')[0])
-      }
-    } else {
+    }
+    else {
       content += entry.text
       filesCount += 1
     }

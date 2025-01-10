@@ -40,7 +40,8 @@ export function RootLayout() {
   const [prefersDark, setPrefersDark] = useAtom(prefersDarkAtom)
   const [isDarkMode] = useAtom(isDarkModeAtom)
   useEffect(() => {
-    if (prefersDark !== isDarkOS) setPrefersDark(isDarkOS)
+    if (prefersDark !== isDarkOS)
+      setPrefersDark(isDarkOS)
   }, [prefersDark, isDarkOS, setPrefersDark])
   useAtom(metaThemeColorEffect)
   useSyncAtomWithHooks()
@@ -49,16 +50,16 @@ export function RootLayout() {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode)
     let themeColorContentValue: string
-    if (isDarkMode) {
+    if (isDarkMode)
       themeColorContentValue = 'black'
-    } else {
+    else
       themeColorContentValue = LIGHT_THEME_COLOR
-    }
+
     requestAnimationFrame(() => {
       themeColorContentValue = window.getComputedStyle(ref.current, null).getPropertyValue('background-color')
-      if (themeColorContentValue === 'rgb(255, 255, 255)') {
+      if (themeColorContentValue === 'rgb(255, 255, 255)')
         themeColorContentValue = LIGHT_THEME_COLOR
-      }
+
       setMetaThemeColor(themeColorContentValue)
     })
   }, [isDarkMode, setMetaThemeColor])

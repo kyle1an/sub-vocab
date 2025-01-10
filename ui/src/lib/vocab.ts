@@ -36,14 +36,14 @@ export function formVocab(lemma: TrieWordLabel) {
             locations = lexicalEntry.src[0].wordOrder < locations[0].wordOrder
               ? lexicalEntry.src.concat(locations)
               : locations.concat(lexicalEntry.src)
-          } else {
+          }
+          else {
             locations = lexicalEntry.src
           }
         }
 
-        if (lexicalEntry.derive?.length) {
+        if (lexicalEntry.derive?.length)
           collectNestedSource(lexicalEntry.derive)
-        }
       }
     }
 

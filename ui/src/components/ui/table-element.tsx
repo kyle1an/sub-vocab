@@ -7,6 +7,7 @@ import { sum } from 'lodash-es'
 import React from 'react'
 import { useInView } from 'react-intersection-observer'
 
+import type { RowSelectionChangeFn } from '@/types/utils'
 import type { GroupHeader } from '@/types/vocab'
 
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
@@ -113,6 +114,7 @@ export function TableDataCell<T>({
 
 type RowProp<T> = {
   row: Row<T>
+  onRowSelectionChange?: RowSelectionChangeFn<T>
 } & (ExpandProp | Partial<ExpandProp>)
 
 type ExpandProp = {
@@ -137,6 +139,7 @@ export function TableRow<T>({
   rootRef,
   index = 0,
   children,
+  onRowSelectionChange,
 }: RowProp<T>) {
   const rowRef = useRef<HTMLTableRowElement>(null!)
   const { height: rowHeight } = useRect(rowRef)
@@ -157,15 +160,16 @@ export function TableRow<T>({
     if (detailElement || !children) {
       setOpen(isOpening)
       toggleExpanded()
-    } else {
+    }
+    else {
       requestAnimationFrame(() => {
         setOpen(isOpening)
         toggleExpanded()
       })
     }
-    if (isOpening) {
+    if (isOpening)
       retimerAnim(setTimeout(() => setAnimationOpen(false), ANIM_DURATION))
-    }
+
     retimerTransition(setTimeout(() => setTransitionOpen(false), SHADOW_DURATION))
     if (root) {
       const rowElement = rowRef.current
@@ -179,14 +183,16 @@ export function TableRow<T>({
             root.scrollTo({
               top: -HEAD_HEIGHT - rowHeight + detailElement.offsetTop,
             })
-          } else {
+          }
+          else {
             // isDetailAboveRoot
             root.scrollTo({
               top: -HEAD_HEIGHT + rowElement.offsetTop - expandedHeight,
               behavior: isClosing ? 'instant' : 'smooth',
             })
           }
-        } else {
+        }
+        else {
           root.scrollTo({
             top: -HEAD_HEIGHT + rowElement.offsetTop,
             behavior: 'smooth',
@@ -218,25 +224,21 @@ export function TableRow<T>({
           '--top': `${HEAD_HEIGHT}px`,
           '--z-index': index + (open && subRows.length ? 1 + subRows.length : 0),
         }}
-        className="group/tr relative z-[--z-index] bg-background transition-shadow duration-0 data-[state=open]:sticky data-[state=open]:top-[--top] data-[boundary]:!shadow-intersect [[data-boundary]+*:empty+&>*]:border-t-transparent [[data-detail-above]+&]:shadow-collapse [[data-state=closed]+&]:shadow-collapse [[data-state=closed][data-disabled]+&]:shadow-none [[data-transition-open]+&]:duration-300"
+        className="group/tr relative z-[--z-index] bg-background transition-shadow duration-0 data-[state=open]:sticky data-[state=open]:top-[--top] data-[boundary]:!shadow-intersect [[data-boundary]+*:empty+&>*]:border-t-transparent [[data-detail-above]+&]:shadow-collapse [[data-detail-above]+&]:duration-200 [[data-state=closed]+&]:shadow-collapse [[data-state=closed][data-disabled]+&]:shadow-none [[data-transition-open]+&]:duration-300"
         data-disabled={!getCanExpand() || undefined}
         data-state={state}
         data-boundary={(isDetailAboveRoot ? open : isDetailVisibleIntersecting) && !animationOpen ? '' : undefined}
-        onClick={((event) => {
-          if (
-            event.nativeEvent.composedPath().some((e) => {
-              return e instanceof HTMLElement && e.classList.contains('expand-button')
-            })
-          ) {
-            handleToggleExpanded(open)
-          }
-        })}
       >
+        {/* eslint-disable-next-line react-compiler/react-compiler */}
         {visibleCells.map((cell) => (
           <Fragment key={cell.id}>
             {flexRender(
               cell.column.columnDef.cell,
-              cell.getContext(),
+              {
+                ...cell.getContext(),
+                onExpandedChange: handleToggleExpanded,
+                onRowSelectionChange,
+              },
             )}
           </Fragment>
         ))}

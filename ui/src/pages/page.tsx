@@ -1,56 +1,72 @@
-import NumberFlow from '@number-flow/react'
 import { useMediaQuery } from 'foxact/use-media-query'
 import { Link, Outlet } from 'react-router'
 
 import {
+  baseVocabAtom,
   useIrregularMapsQuery,
-  userVocabWithBaseVocabAtom,
 } from '@/api/vocab-api'
+import { FileInput } from '@/components/file-input'
 import { VocabSourceTable } from '@/components/VocabSource'
-import { LabeledTire } from '@/lib/LabeledTire'
+import { LabeledTire, LEARNING_PHASE } from '@/lib/LabeledTire'
 import {
   formVocab,
   type LabelDisplaySource,
 } from '@/lib/vocab'
 import { statusRetainedList } from '@/lib/vocab-utils'
-import { fileTypesAtom, sourceTextAtom } from '@/store/useVocab'
+import { fileTypesAtom, isSourceTextStaleAtom, sourceTextAtom } from '@/store/useVocab'
 
 import { FileSettings } from './file-settings'
 
 const fileInfoAtom = atom('')
 const textCountAtom = atom(0)
+const acquaintedWordCountAtom = atom(0)
+const newWordCountAtom = atom(0)
 
 function SourceVocab({
-  text: sourceText,
+  text: { text: sourceText },
 }: {
-  text: string
+  text: { text: string }
 }) {
   const { data: irregulars = [] } = useIrregularMapsQuery()
-  const [baseVocab] = useAtom(userVocabWithBaseVocabAtom)
+  const [baseVocab] = useAtom(baseVocabAtom)
   const [rows, setRows] = useState<LabelDisplaySource[]>([])
   const [sentences, setSentences] = useState<string[]>([])
   const setCount = useSetAtom(textCountAtom)
+  const setNewCount = useSetAtom(newWordCountAtom)
+  const setAcquaintedCount = useSetAtom(acquaintedWordCountAtom)
 
   useEffect(() => {
     const trie = new LabeledTire()
     trie.add(sourceText)
     trie.mergeDerivedWordIntoStem(irregulars)
     trie.mergedVocabulary(baseVocab)
-    const vocabulary = trie.getVocabulary()
-    const list = vocabulary
-      .filter((v) => !v.variant)
+    const list = trie.getVocabulary()
       .map(formVocab)
       .filter((v) => v.locations.length >= 1)
       .sort((a, b) => (a.locations[0]?.wordOrder ?? 0) - (b.locations[0]?.wordOrder ?? 0))
     setRows((r) => statusRetainedList(r, list))
     setSentences(trie.sentences)
-    setCount(trie.wordCount)
-  }, [sourceText, baseVocab, irregulars, setCount])
+    let acquaintedCount = 0
+    let newCount = 0
+    let rest = 0
+    for (const item of list) {
+      if (item.vocab.learningPhase === LEARNING_PHASE.ACQUAINTED)
+        acquaintedCount += item.locations.length
+      else if (item.vocab.learningPhase === LEARNING_PHASE.NEW)
+        newCount += item.locations.length
+      else
+        rest += item.locations.length
+    }
+    setAcquaintedCount(acquaintedCount)
+    setNewCount(newCount)
+    setCount(acquaintedCount + newCount + rest)
+  }, [sourceText, baseVocab, irregulars, setCount, setAcquaintedCount, setNewCount])
 
   function handlePurge() {
     setRows(produce((draft) => {
       draft.forEach((todo) => {
-        todo.inertialPhase = todo.vocab.learningPhase
+        if (todo.inertialPhase !== todo.vocab.learningPhase)
+          todo.inertialPhase = todo.vocab.learningPhase
       })
     }))
   }
@@ -72,7 +88,10 @@ export function Home() {
 
   function handleFileChange({ name, value }: { name: string, value: string }) {
     setFileInfo(name)
-    setSourceText(value)
+    setSourceText((v) => ({
+      text: value,
+      version: v.version++,
+    }))
   }
 
   return (
@@ -108,15 +127,25 @@ export function ResizeVocabularyPanel() {
   const [fileInfo, setFileInfo] = useAtom(fileInfoAtom)
   const [sourceText, setSourceText] = useAtom(sourceTextAtom)
   const deferredSourceText = useDeferredValue(sourceText)
+  const [isSourceTextStale, setIsSourceTextStale] = useAtom(isSourceTextStaleAtom)
+  useEffect(() => {
+    const isStale = sourceText.version !== deferredSourceText.version
+    if (isSourceTextStale !== isStale)
+      setIsSourceTextStale(isStale)
+  })
 
   function handleTextareaChange({ name, value }: { name?: string, value: string }) {
-    setSourceText(value)
-    if (name) {
+    setSourceText((v) => ({
+      text: value,
+      version: v.version++,
+    }))
+    if (name)
       setFileInfo(name)
-    }
   }
 
   const [count] = useAtom(textCountAtom)
+  const [acquaintedWordCount] = useAtom(acquaintedWordCountAtom)
+  const [newWordCount] = useAtom(newWordCountAtom)
   const isMdScreen = useMediaQuery('(min-width: 768px)')
   const direction = isMdScreen ? 'horizontal' : 'vertical'
   let defaultSizes = [50, 50]
@@ -143,25 +172,23 @@ export function ResizeVocabularyPanel() {
                 <div className="relative flex h-full grow flex-col overflow-hidden">
                   <div className="flex h-12 shrink-0 items-center bg-background py-2 pl-4 pr-2 text-xs">
                     <span className="grow truncate">{fileInfo}</span>
-                    <span className="mx-2 inline-block h-[18px] w-px border-l align-middle" />
-                    <span className="shrink-0 text-right tabular-nums">
-                      <NumberFlow
-                        value={count}
-                        locales="en-US"
-                        isolate
-                      />
-                      <span>
-                        {` ${t('words')}`}
-                      </span>
-                    </span>
                   </div>
                   <div className="z-10 h-px w-full border-b border-solid border-border shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)]" />
                   <div className="size-full grow text-base text-zinc-700 md:text-sm">
                     <TextareaInput
-                      value={sourceText}
+                      value={sourceText.text}
                       placeholder={t('inputArea')}
                       fileTypes={fileTypes}
                       onChange={handleTextareaChange}
+                    />
+                  </div>
+                  <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">
+                    <VocabStatics
+                      rowsCountFiltered={count}
+                      text={` ${t('words')}`}
+                      rowsCountNew={newWordCount}
+                      rowsCountAcquainted={acquaintedWordCount}
+                      progress
                     />
                   </div>
                 </div>

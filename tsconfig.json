@@ -12,9 +12,9 @@
     "moduleDetection": "force",
     "verbatimModuleSyntax": true,
     "paths": {
-      "@subvocab/backend/*": ["./backend/*"],
-      "@subvocab/ui/*": ["./ui/*"],
-      "@/*": ["./ui/src/*"]
+      "@/*": ["./ui/src/*"],
+      "@backend/*": ["./backend/*"],
+      "@ui/*": ["./ui/*"]
     },
     /* Strictness */
     "strict": true,

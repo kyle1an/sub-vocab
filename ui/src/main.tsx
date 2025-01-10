@@ -3,7 +3,7 @@ import { inject } from '@vercel/analytics'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
-import App from './app.tsx'
+import App from '@/app.tsx'
 
 if (import.meta.env.PROD) {
   inject()
@@ -39,9 +39,8 @@ if (import.meta.env.PROD) {
 }
 
 const root = document.getElementById('root')
-if (!root) {
+if (!root)
   throw new Error('No root element')
-}
 
 createRoot(root).render(
   <StrictMode>
