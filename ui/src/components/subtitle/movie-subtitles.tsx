@@ -1,27 +1,79 @@
 import usePagination from '@mui/material/usePagination'
 import NumberFlow from '@number-flow/react'
-import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, type TableState, useReactTable } from '@tanstack/react-table'
+import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, type InitialTableState, useReactTable } from '@tanstack/react-table'
+
+import type { SubtitleResponseData } from '@/api/opensubtitles'
 
 import { useOpenSubtitlesSubtitles } from '@/api/opensubtitles'
 import { useCommonColumns } from '@/components/subtitle/columns'
 import { TablePagination } from '@/components/table-pagination'
 import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
-import { TableRow } from '@/components/ui/tableHeader'
+import { TableRow } from '@/components/ui/table-element'
 import { SortIcon } from '@/lib/icon-utils'
+import { getFileId } from '@/lib/subtitle'
+import { sortBySelection } from '@/lib/table-utils'
 import { findClosest } from '@/lib/utilities'
+import { subtitleSelectionStateFamily } from '@/store/useVocab'
 
-type SubtitleData = NonNullable<ReturnType<typeof useOpenSubtitlesSubtitles>['data']>['data'][number]
+type SubtitleData = SubtitleResponseData
 
 function useMovieColumns<T extends SubtitleData>() {
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
   return [
+    columnHelper.accessor((row) => row.id, {
+      id: 'action',
+      sortingFn: sortBySelection,
+      header: ({ header }) => {
+        const isSorted = header.column.getIsSorted()
+        return (
+          <TableHeaderCell
+            header={header}
+            className="w-[.1%] [&:active:has(.child:not(:active))+th]:signal/active [&:active:has(.child:not(:active))]:signal/active"
+          >
+            <Div
+              className="select-none justify-between gap-1 pl-2 pr-1 signal/active:bg-background-active"
+              onClick={header.column.getToggleSortingHandler()}
+            >
+              <div className="child flex stretch-[condensed]" />
+              <SortIcon isSorted={isSorted} />
+            </Div>
+          </TableHeaderCell>
+        )
+      },
+      cell: ({ row, cell, onRowSelectionChange }) => {
+        const canExpand = row.getCanExpand()
+        return (
+          <TableDataCell
+            cell={cell}
+          >
+            <Div className="text-zinc-400">
+              <div
+                className={cn(
+                  'flex h-full grow items-center justify-between pl-1.5 pr-1',
+                  canExpand && 'cursor-pointer',
+                )}
+              >
+                <Checkbox
+                  onClick={(e) => e.stopPropagation()}
+                  checked={row.getIsSelected()}
+                  onCheckedChange={(checked) => {
+                    onRowSelectionChange?.(checked, row)
+                  }}
+                />
+                {'\u200B'}
+              </div>
+            </Div>
+          </TableDataCell>
+        )
+      },
+    }),
   ]
 }
 
 const PAGE_SIZES = [5, 10, 20, 40, 50, 100, 200] as const
 
-const tableInitialState = {
+const initialTableState: InitialTableState = {
   sorting: [
     {
       id: 'download_count',
@@ -33,7 +85,7 @@ const tableInitialState = {
     pageSize: findClosest(10, PAGE_SIZES),
     pageIndex: 0,
   },
-} satisfies Partial<TableState>
+}
 
 export function MovieSubtitleFiles({
   id,
@@ -52,12 +104,16 @@ export function MovieSubtitleFiles({
   const commonColumns = useCommonColumns<SubtitleData>()
   const movieColumns = useMovieColumns()
   const columns = [...commonColumns, ...movieColumns]
+  const [rowSelection = {}, setRowSelection] = useAtom(subtitleSelectionStateFamily(id))
   const table = useReactTable({
     data: data?.data ?? [],
     columns,
-    initialState: tableInitialState,
+    initialState: initialTableState,
+    state: {
+      rowSelection,
+    },
     autoResetPageIndex: false,
-    getRowId: (row) => row.id,
+    getRowId: getFileId,
     getRowCanExpand: () => false,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -74,7 +130,7 @@ export function MovieSubtitleFiles({
   })
 
   return (
-    <div className="pb-5 pl-24 pr-12 pt-2">
+    <div className="px-6 pb-5 pt-2 md:pl-24 md:pr-12">
       <SquircleBg className="flex h-[286px] items-center justify-center overflow-hidden rounded-xl border">
         <SquircleMask
           className="flex size-full flex-col bg-[--theme-bg]"
@@ -110,6 +166,7 @@ export function MovieSubtitleFiles({
                     <TableRow
                       key={row.id}
                       row={row}
+                      onRowSelectionChange={setRowSelection}
                     />
                   )
                 })}
@@ -127,7 +184,6 @@ export function MovieSubtitleFiles({
                   table={table}
                   sizes={PAGE_SIZES}
                   value={tableState.pagination.pageSize}
-                  defaultValue={String(tableInitialState.pagination.pageSize)}
                 />
                 <div className="whitespace-nowrap px-1 text-[.8125rem]">{`/${t('page')}`}</div>
               </div>

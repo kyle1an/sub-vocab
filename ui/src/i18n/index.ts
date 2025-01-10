@@ -1,15 +1,15 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 
-import { localeAtom, store } from '../store/useVocab'
+import { localeAtom, store } from '@/store/useVocab'
+
 import { en } from './en'
 import { zh } from './zh'
 
 export function getLanguage() {
   if (navigator.languages[0]) {
-    if (navigator.languages[0].startsWith('zh')) {
+    if (navigator.languages[0].startsWith('zh'))
       return 'zh'
-    }
   }
   return 'en'
 }

@@ -5,19 +5,20 @@ import {
 
 import type { VocabState } from '@/lib/LabeledTire'
 
-import { useAcquaintAll } from '@/hooks/vocabToggle'
+import { useAcquaintAll } from '@/hooks/vocab-toggle'
 import { transParams } from '@/i18n'
 
 export function AcquaintAllDialog<T extends VocabState>({ vocabulary }: { vocabulary: T[] }) {
   const { t } = useTranslation()
   const acquaintAllVocab = useAcquaintAll()
-  const count = vocabulary.length
+  const rowsToRetain = vocabulary.filter((row) => row.word.length <= 32)
+  const count = rowsToRetain.length
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <div className="flex w-full flex-row items-center gap-1.5 px-2 py-1.5">
-          <IconSolarListCheckBold />
+        <div className="flex w-full flex-row items-center justify-between gap-1.5 px-2 py-1.5">
           <div className="">{t('acquaintedAll')}</div>
+          <IconSolarListCheckBold />
         </div>
       </AlertDialogTrigger>
       <AlertDialogContent className="sm:max-w-[425px]">
@@ -37,9 +38,8 @@ export function AcquaintAllDialog<T extends VocabState>({ vocabulary }: { vocabu
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
-              if (vocabulary.length > 0) {
-                acquaintAllVocab(vocabulary)
-              }
+              if (rowsToRetain.length > 0)
+                acquaintAllVocab(rowsToRetain)
             }}
           >
             Continue

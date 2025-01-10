@@ -1,4 +1,4 @@
-import type { ZodObj } from '@subvocab/ui/src/types/utils'
+import type { ZodObj } from '@ui/src/types/utils'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'

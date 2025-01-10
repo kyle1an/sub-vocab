@@ -1,28 +1,48 @@
-import type { AppRouter } from '@subvocab/backend/app'
-import type { Database } from '@subvocab/ui/database.types'
+import type { AppRouter } from '@backend/app'
+import type { Database } from '@ui/database.types'
 import type { ArrayValues, PartialDeep } from 'type-fest'
 
-import { type AuthChangeEvent, createClient, type Session } from '@supabase/supabase-js'
+import { type AuthChangeEvent, createClient, type REALTIME_SUBSCRIBE_STATES, type Session } from '@supabase/supabase-js'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { QueryClient } from '@tanstack/react-query'
 import { persistQueryClient } from '@tanstack/react-query-persist-client'
 import { httpBatchLink } from '@trpc/client'
 import { createTRPCReact } from '@trpc/react-query'
 import { createStore } from 'jotai'
+import { atomWithImmer } from 'jotai-immer'
 import { UAParser } from 'ua-parser-js'
-import { proxySet } from 'valtio/utils'
 
+import type { SubtitleData } from '@/components/subtitle/columns'
+import type { RowSelectionChangeFn } from '@/types/utils'
+
+import { DEFAULT_THEME, type THEMES } from '@/components/themes'
 import { MS_PER_MINUTE } from '@/constants/time'
 import { env } from '@/env'
 import { getLanguage } from '@/i18n'
 import { SUPPORTED_FILE_EXTENSIONS } from '@/lib/filesHandler'
+import { getFileId } from '@/lib/subtitle'
 import { omitUndefined } from '@/lib/utilities'
 import { getScrollbarWidth } from '@/lib/utils'
 
-import { DEFAULT_THEME, type THEMES } from '../components/themes'
+export const sourceTextAtom = atom({
+  text: '',
+  version: 0,
+})
 
-export const sourceTextAtom = atom('')
-export const selectedSubtitleIds = proxySet<number>([])
+export const vocabRealtimeSyncStatusAtom = atom<REALTIME_SUBSCRIBE_STATES>()
+
+export const isSourceTextStaleAtom = atom(false)
+
+export const subtitleSelectionStateAtom = atomWithImmer<Record<number, Record<string, boolean>>>({})
+
+export const subtitleSelectionStateFamily = atomFamily((mediaId: number) => atom(
+  (get) => get(subtitleSelectionStateAtom)[mediaId],
+  (get, set, ...[checked, row]: Parameters<RowSelectionChangeFn<SubtitleData>>) => {
+    set(subtitleSelectionStateAtom, (prev) => {
+      (prev[mediaId] ??= {})[getFileId(row.original)] = Boolean(checked)
+    })
+  },
+))
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,6 +56,8 @@ export const queryClient = new QueryClient({
 })
 
 export const trpc = createTRPCReact<AppRouter>()
+
+export const TRPCProvider = trpc.Provider
 
 const baseUrl = env.VITE_SUB_API_URL
 
@@ -91,26 +113,24 @@ export const {
   os,
 } = uap.getResult()
 
-if (os.name) {
+if (os.name)
   document.documentElement.classList.add(os.name)
-}
 
 if (
   CSS.supports('background:paint(squircle)')
   && engine.name === 'Blink'
-) {
+)
   document.documentElement.classList.add('sq')
-}
 
 const scrollbarWidth = getScrollbarWidth()
 document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`)
 
-export const uapAtom = atom({
+export const uapAtom = atom(() => ({
   browser,
   device,
   engine,
   os,
-})
+}))
 
 export type FileType = typeof fileTypes[number]
 

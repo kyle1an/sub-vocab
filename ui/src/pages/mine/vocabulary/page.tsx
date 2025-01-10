@@ -1,30 +1,31 @@
-import { useIrregularMapsQuery, userVocabWithBaseVocabAtom } from '@/api/vocab-api'
+import { baseVocabAtom, useIrregularMapsQuery } from '@/api/vocab-api'
 import { VocabDataTable } from '@/components/VocabData'
 import { LabeledTire } from '@/lib/LabeledTire'
 import { formVocab, type LabelDisplayTable } from '@/lib/vocab'
 import { statusRetainedList } from '@/lib/vocab-utils'
 
 export function VocabularyPage() {
-  const [userWords] = useAtom(userVocabWithBaseVocabAtom)
+  const [userWords] = useAtom(baseVocabAtom)
 
   const [rows, setRows] = useState<LabelDisplayTable[]>([])
   const { data: irregulars = [] } = useIrregularMapsQuery()
 
   useEffect(() => {
     const trie = new LabeledTire()
-    for (const word of userWords) {
+    for (const word of userWords)
       trie.update(word.word, -1, -1)
-    }
+
     trie.mergedVocabulary(userWords)
     trie.mergeDerivedWordIntoStem(irregulars)
-    const list = trie.getVocabulary().filter((v) => !v.variant).map(formVocab)
+    const list = trie.getVocabulary().map(formVocab)
     setRows((r) => statusRetainedList(r, list))
   }, [irregulars, userWords])
 
   function handlePurge() {
-    setRows(produce ((draft) => {
+    setRows(produce((draft) => {
       draft.forEach((todo) => {
-        todo.inertialPhase = todo.vocab.learningPhase
+        if (todo.inertialPhase !== todo.vocab.learningPhase)
+          todo.inertialPhase = todo.vocab.learningPhase
       })
     }))
   }

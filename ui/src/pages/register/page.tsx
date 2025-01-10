@@ -51,13 +51,11 @@ export function Register() {
   const { mutateAsync: signUp, isPending } = useRegister()
   const navigate = useNavigate()
   const [authChangeEvent] = useAtom(authChangeEventAtom)
-  if (!authChangeEvent) {
+  if (!authChangeEvent)
     return null
-  }
 
-  if (user) {
+  if (user)
     return <Navigate to="/" />
-  }
 
   async function onSubmit(values: FormValues) {
     const { email, password } = values
@@ -73,7 +71,9 @@ export function Register() {
       })
       return
     }
-    navigate('/')
+    startTransition(() => {
+      navigate('/')
+    })
   }
 
   return (

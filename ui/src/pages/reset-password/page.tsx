@@ -48,13 +48,11 @@ export function ResetPassword() {
     ),
   })
   const [authChangeEvent] = useAtom(authChangeEventAtom)
-  if (!authChangeEvent) {
+  if (!authChangeEvent)
     return null
-  }
 
-  if (user) {
+  if (user)
     return <Navigate to="/" />
-  }
 
   const {
     handleSubmit,
@@ -67,7 +65,9 @@ export function ResetPassword() {
       toast(<ResetEmailNotification />, {
         duration: MS_PER_MINUTE,
       })
-      navigate('/login')
+      startTransition(() => {
+        navigate('/login')
+      })
     }
   }
 

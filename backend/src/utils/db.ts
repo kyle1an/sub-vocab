@@ -1,4 +1,4 @@
-import type { Database } from '@subvocab/ui/database.types.js'
+import type { Database } from '@ui/database.types.js'
 
 import { createClient } from '@supabase/supabase-js'
 import { drizzle } from 'drizzle-orm/postgres-js'

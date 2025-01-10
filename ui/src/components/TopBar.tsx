@@ -23,13 +23,13 @@ function Account({ className, style, ...props }: React.HTMLAttributes<HTMLAnchor
   return (
     <Link
       to="/register"
-      className={cn('inline-flex items-center gap-3', className)}
+      className={cn('inline-flex items-center gap-3 md:justify-between', className)}
       {...props}
     >
       <IconLucideCog
         className="size-4"
       />
-      <span>Account</span>
+      <span className="md:order-first">Account</span>
     </Link>
   )
 }
@@ -38,13 +38,13 @@ function SignIn({ className, ...props }: React.HTMLAttributes<HTMLAnchorElement>
   return (
     <Link
       to="/login"
-      className={cn('inline-flex items-center gap-3', className)}
+      className={cn('inline-flex items-center gap-3 md:justify-between', className)}
       {...props}
     >
       <IconMingcuteUser4Fill
         className="size-4"
       />
-      <span>Sign in</span>
+      <span className="md:order-first">Sign in</span>
     </Link>
   )
 }
@@ -54,13 +54,13 @@ function Settings({ className, ...props }: React.HTMLAttributes<HTMLAnchorElemen
   return (
     <Link
       to="/user/profile"
-      className={cn('inline-flex items-center gap-3', className)}
+      className={cn('inline-flex items-center gap-3 md:justify-between', className)}
       {...props}
     >
       <IconLucideCog
         className="size-4 text-neutral-600"
       />
-      <span>
+      <span className="md:order-first">
         {t('Settings')}
       </span>
     </Link>
@@ -76,9 +76,8 @@ function SignOut({ className, ...props }: React.HTMLAttributes<HTMLButtonElement
     logOut()
       .then((logOutRes) => {
         const { error } = logOutRes
-        if (!error) {
+        if (!error)
           close()
-        }
       })
       .catch(console.error)
   }
@@ -86,14 +85,14 @@ function SignOut({ className, ...props }: React.HTMLAttributes<HTMLButtonElement
   return (
     <button
       type="button"
-      className={cn('inline-flex items-center gap-3', className)}
+      className={cn('inline-flex items-center gap-3 md:justify-between', className)}
       {...props}
       onClick={logout}
     >
       <IconSolarLogout2Outline
         className="size-4 -scale-x-100"
       />
-      <span>
+      <span className="md:order-first">
         {t('SignOut')}
       </span>
     </button>
@@ -153,7 +152,7 @@ export function TopBar({ className }: { className?: string }) {
       <Popover
         as="nav"
         className={cn(
-          'group/nav fixed z-20 w-full rounded-t-3xl bg-background tracking-wide shadow-sm group-has-[[vaul-drawer]]/body:bg-[unset]',
+          'group/nav fixed z-20 w-full rounded-t-3xl bg-background tracking-wide shadow-sm group-has-[[data-vaul-drawer]]/body:bg-[unset]',
           '[body:has(&[data-open])]:mr-[--scrollbar-width] [body:has(&[data-open])]:overflow-hidden',
         )}
       >
@@ -234,6 +233,7 @@ export function TopBar({ className }: { className?: string }) {
                               <MenubarRadioItem
                                 key={theme.value}
                                 value={theme.value}
+                                disabled={theme.value === themePreference}
                                 onSelect={() => {
                                   setThemePreference(theme.value)
                                   startThemeTransition(() => {})
@@ -266,6 +266,7 @@ export function TopBar({ className }: { className?: string }) {
                               <MenubarRadioItem
                                 key={language.value}
                                 value={language.value}
+                                disabled={language.value === locale}
                                 onSelect={() => {
                                   updateLocale(language.value)
                                 }}

@@ -1,4 +1,4 @@
-import type { AppRouter } from '@subvocab/backend/app'
+import type { AppRouter } from '@backend/app'
 import type { SignInWithPasswordCredentials, SignUpWithPasswordCredentials, UserAttributes } from '@supabase/supabase-js'
 import type { inferRouterClient } from '@trpc/client'
 
@@ -70,9 +70,9 @@ export function useSignInWithUsername() {
     mutationFn: async (result: SignInResponse) => {
       if (!result) throw new Error('No session')
       const { session } = result.data
-      if (session) {
+      if (session)
         return await supabase.auth.setSession(session)
-      }
+
       return result.data
     },
   })

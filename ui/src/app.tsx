@@ -1,12 +1,13 @@
 import { QueryClientProvider } from '@tanstack/react-query'
-import { ComposeContextProvider } from 'foxact/compose-context-provider'
 import { queryClientAtom } from 'jotai-tanstack-query'
 import { RouterProvider } from 'react-router/dom'
 
-import './i18n'
+import '@/i18n'
+
 import './main.css'
-import { router } from './router'
-import { queryClient, trpc, trpcClient } from './store/useVocab'
+
+import { router } from '@/router'
+import { queryClient, trpcClient, TRPCProvider } from '@/store/useVocab'
 
 if (import.meta.env.DEV) {
   import('jotai-devtools/styles.css')
@@ -18,20 +19,15 @@ const HydrateAtoms = ({ children }: React.HTMLAttributes<HTMLElement>) => {
   return children
 }
 
-/* eslint-disable react/no-missing-key */
-const contexts = [
-  // eslint-disable-next-line react/no-context-provider
-  <trpc.Provider client={trpcClient} queryClient={queryClient}> </trpc.Provider>,
-  <QueryClientProvider client={queryClient} />,
-  <HydrateAtoms />,
-  <RouterProvider router={router} />,
-]
-/* eslint-enable react/no-missing-key */
-
 function App() {
   return (
-    <ComposeContextProvider contexts={contexts}>
-    </ComposeContextProvider>
+    <TRPCProvider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <HydrateAtoms>
+          <RouterProvider router={router} />
+        </HydrateAtoms>
+      </QueryClientProvider>
+    </TRPCProvider>
   )
 }
 

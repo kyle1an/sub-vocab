@@ -82,8 +82,6 @@ declare global {
   const DropdownMenuSubContent: typeof import('./src/components/ui/dropdown-menu')['DropdownMenuSubContent']
   const DropdownMenuSubTrigger: typeof import('./src/components/ui/dropdown-menu')['DropdownMenuSubTrigger']
   const DropdownMenuTrigger: typeof import('./src/components/ui/dropdown-menu')['DropdownMenuTrigger']
-  const Examples: typeof import('./src/components/ui/Examples')['Examples']
-  const FileInput: typeof import('./src/components/ui/FileInput')['FileInput']
   const Form: typeof import('./src/components/ui/form')['Form']
   const FormControl: typeof import('./src/components/ui/form')['FormControl']
   const FormDescription: typeof import('./src/components/ui/form')['FormDescription']
@@ -117,6 +115,7 @@ declare global {
   const IconLucideEyeOff: typeof import('~icons/lucide/eye-off.jsx')['default']
   const IconLucideLoader: typeof import('~icons/lucide/loader.jsx')['default']
   const IconLucideLoader2: typeof import('~icons/lucide/loader2.jsx')['default']
+  const IconMaterialSymbolsRefreshRounded: typeof import('~icons/material-symbols/refresh-rounded.jsx')['default']
   const IconMingcuteHome3Line: typeof import('~icons/mingcute/home3-line.jsx')['default']
   const IconMingcuteUser4Fill: typeof import('~icons/mingcute/user4-fill.jsx')['default']
   const IconPhSun: typeof import('~icons/ph/sun.jsx')['default']
@@ -148,8 +147,7 @@ declare global {
   const ResizableHandle: typeof import('./src/components/ui/resizable')['ResizableHandle']
   const ResizablePanel: typeof import('./src/components/ui/resizable')['ResizablePanel']
   const ResizablePanelGroup: typeof import('./src/components/ui/resizable')['ResizablePanelGroup']
-  const SearchWidget: typeof import('./src/components/ui/search-widget')['SearchWidget']
-  const SegmentedControl: typeof import('./src/components/ui/SegmentedControl')['SegmentedControl']
+  const SegmentedControl: typeof import('./src/components/ui/segmented-control')['SegmentedControl']
   const Select: typeof import('./src/components/ui/select')['Select']
   const SelectContent: typeof import('./src/components/ui/select')['SelectContent']
   const SelectGroup: typeof import('./src/components/ui/select')['SelectGroup']
@@ -169,15 +167,16 @@ declare global {
   const SheetPortal: typeof import('./src/components/ui/sheet')['SheetPortal']
   const SheetTitle: typeof import('./src/components/ui/sheet')['SheetTitle']
   const SheetTrigger: typeof import('./src/components/ui/sheet')['SheetTrigger']
+  const Spinner: typeof import('./src/components/ui/spinner')['Spinner']
   const Squircle: typeof import('./src/components/ui/squircle')['Squircle']
   const SquircleBg: typeof import('./src/components/ui/squircle')['SquircleBg']
   const SquircleMask: typeof import('./src/components/ui/squircle')['SquircleMask']
   const Switch: typeof import('./src/components/ui/Switch')['Switch']
-  const TableDataCell: typeof import('./src/components/ui/tableHeader')['TableDataCell']
-  const TableHeader: typeof import('./src/components/ui/tableHeader')['TableHeader']
-  const TableHeaderCell: typeof import('./src/components/ui/tableHeader')['TableHeaderCell']
-  const TableHeaderCellRender: typeof import('./src/components/ui/tableHeader')['TableHeaderCellRender']
-  const TableRow: typeof import('./src/components/ui/tableHeader')['TableRow']
+  const TableDataCell: typeof import('./src/components/ui/table-element')['TableDataCell']
+  const TableHeader: typeof import('./src/components/ui/table-element')['TableHeader']
+  const TableHeaderCell: typeof import('./src/components/ui/table-element')['TableHeaderCell']
+  const TableHeaderCellRender: typeof import('./src/components/ui/table-element')['TableHeaderCellRender']
+  const TableRow: typeof import('./src/components/ui/table-element')['TableRow']
   const TextareaInput: typeof import('./src/components/ui/TextareaInput')['TextareaInput']
   const Toast: typeof import('./src/components/ui/toast')['Toast']
   const ToastAction: typeof import('./src/components/ui/toast')['ToastAction']
@@ -189,7 +188,6 @@ declare global {
   const Toaster: typeof import('./src/components/ui/sonner')['Toaster']
   const Toggle: typeof import('./src/components/ui/toggle')['Toggle']
   const VocabStatics: typeof import('./src/components/ui/vocab-statics-bar')['VocabStatics']
-  const VocabToggle: typeof import('./src/components/ui/ToggleButton')['VocabToggle']
   const add: typeof import('date-fns')['add']
   const addBusinessDays: typeof import('date-fns')['addBusinessDays']
   const addDays: typeof import('date-fns')['addDays']
@@ -221,6 +219,7 @@ declare global {
   const clamp: typeof import('date-fns')['clamp']
   const closestIndexTo: typeof import('date-fns')['closestIndexTo']
   const closestTo: typeof import('date-fns')['closestTo']
+  const clsx: typeof import('clsx/lite')['clsx']
   const cn: typeof import('@/lib/utils')['cn']
   const compareAsc: typeof import('date-fns')['compareAsc']
   const compareDesc: typeof import('date-fns')['compareDesc']
@@ -463,7 +462,6 @@ declare global {
   const test: typeof import('vitest')['test']
   const toDate: typeof import('date-fns')['toDate']
   const toast: typeof import('./src/components/ui/use-toast')['toast']
-  const toggleVariants: typeof import('./src/components/ui/toggle')['toggleVariants']
   const use: typeof import('react')['use']
   const useAtom: typeof import('jotai')['useAtom']
   const useAtomCallback: typeof import('jotai/utils')['useAtomCallback']
@@ -504,9 +502,6 @@ declare global {
   export type { HTMLAttributes, Ref, RefAttributes, default as React } from 'react'
   import('react')
   // @ts-ignore
-  export type { SegmentedControlProps } from './src/components/ui/SegmentedControl'
-  import('./src/components/ui/SegmentedControl')
-  // @ts-ignore
   export type { ButtonProps } from './src/components/ui/button'
   import('./src/components/ui/button')
   // @ts-ignore
@@ -518,4 +513,7 @@ declare global {
   // @ts-ignore
   export type { InputProps } from './src/components/ui/input'
   import('./src/components/ui/input')
+  // @ts-ignore
+  export type { SpinnerProps } from './src/components/ui/spinner'
+  import('./src/components/ui/spinner')
 }

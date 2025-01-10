@@ -30,7 +30,8 @@ function shorthandToConstituent<T>(shorthand: Shorthand<T>): [T, T, T, T] {
       first,
       first,
     ]
-  } else if (shorthand.length === 2) {
+  }
+  else if (shorthand.length === 2) {
     const [first, second] = shorthand
     return [
       first,
@@ -38,7 +39,8 @@ function shorthandToConstituent<T>(shorthand: Shorthand<T>): [T, T, T, T] {
       first,
       second,
     ]
-  } else if (shorthand.length === 3) {
+  }
+  else if (shorthand.length === 3) {
     const [first, second, third] = shorthand
     return [
       first,
@@ -46,7 +48,8 @@ function shorthandToConstituent<T>(shorthand: Shorthand<T>): [T, T, T, T] {
       third,
       second,
     ]
-  } else {
+  }
+  else {
     return shorthand
   }
 }
@@ -190,31 +193,29 @@ const DEFAULT_CIRCLE_SMOOTH = 0.2
 
 function getSmoothValue(squircleSmooth: CSSUnitValue | CSSUnparsedValue, size: Size, radii: Radii, props: any) {
   let smooth: number
-  if ('value' in squircleSmooth) {
+  if ('value' in squircleSmooth)
     smooth = Number(squircleSmooth.value)
-  } else {
+  else
     smooth = Number(squircleSmooth[0] ?? 1)
-  }
+
   const smooths: Smooths = [smooth, smooth, smooth, smooth, smooth, smooth, smooth, smooth]
   const smoothCircle = Number.parseFloat(props.get('--squircle-circle-smooth')) || DEFAULT_CIRCLE_SMOOTH
   radii.forEach((radius, i) => {
     if (X_PROPS_INDEXES.includes(i)) {
       const min = size.height / 2
-      if (radius >= min) {
+      if (radius >= min)
         smooths[i] = smoothCircle
-      }
-    } else if (Y_PROPS_INDEXES.includes(i)) {
+    }
+    else if (Y_PROPS_INDEXES.includes(i)) {
       const min = size.width / 2
-      if (radius >= min) {
+      if (radius >= min)
         smooths[i] = smoothCircle
-      }
     }
   })
   INDIVIDUAL_SMOOTH_PROPS.forEach((prop, i) => {
     const value = Number.parseFloat(props.get(prop))
-    if (!Number.isNaN(value)) {
+    if (!Number.isNaN(value))
       smooths[i] = value
-    }
   })
   smooths.forEach((smooth, i) => {
     smooths[i] = smooth * SMOOTH_RATIO
@@ -225,15 +226,16 @@ function getSmoothValue(squircleSmooth: CSSUnitValue | CSSUnparsedValue, size: S
 function getRadiiValue(size: Size, props: any) {
   let radiusShorthand = String(props.get(__SQUIRCLE.RADIUS))
   const match = radiusShorthand.match(/calc\(([^)]+)\)/)
-  if (match) {
+  if (match)
     radiusShorthand = math(match[1] ?? '')
-  }
+
   let radii: Radii
   const matches = radiusShorthand.match(radiusRegex)
   if (matches) {
     const shorthandRadii = matches.map((val) => Number.parseFloat(val) * DISTANCE_RATIO) as Shorthand<number>
     radii = constituentToIndividual(shorthandToConstituent(shorthandRadii))
-  } else {
+  }
+  else {
     radii = [
       DEFAULT_RADIUS_VALUE,
       DEFAULT_RADIUS_VALUE,
@@ -257,22 +259,20 @@ function getRadiiValue(size: Size, props: any) {
 
   INDIVIDUAL_RADII_PROPS.forEach((prop, i) => {
     const value = Number.parseFloat(props.get(prop))
-    if (!Number.isNaN(value)) {
+    if (!Number.isNaN(value))
       radii[i] = value * DISTANCE_RATIO
-    }
   })
 
   radii.forEach((radius, i) => {
     if (X_PROPS_INDEXES.includes(i)) {
       const min = size.height / 2
-      if (radius > min) {
+      if (radius > min)
         radii[i] = min
-      }
-    } else if (Y_PROPS_INDEXES.includes(i)) {
+    }
+    else if (Y_PROPS_INDEXES.includes(i)) {
       const min = size.width / 2
-      if (radius > min) {
+      if (radius > min)
         radii[i] = min
-      }
     }
   })
 

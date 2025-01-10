@@ -1,10 +1,10 @@
-/* eslint-disable react-compiler/react-compiler */
 import usePagination from '@mui/material/usePagination'
 import NumberFlow from '@number-flow/react'
 import { useUnmountEffect } from '@react-hookz/web'
 import { useMutation } from '@tanstack/react-query'
-import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, type TableState, useReactTable } from '@tanstack/react-table'
+import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, type InitialTableState, useReactTable } from '@tanstack/react-table'
 import { useDebouncedValue } from 'foxact/use-debounced-value'
+import { ofetch } from 'ofetch'
 import { useNavigate } from 'react-router'
 
 import type { paths as PathsThemoviedb } from '@/types/schema-themoviedb'
@@ -15,31 +15,30 @@ import { MediaDetails } from '@/components/media-details'
 import { OpensubtitlesAuthentication } from '@/components/subtitle/opensubtitles-authentication'
 import { TablePagination } from '@/components/table-pagination'
 import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
-import { TableDataCell, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/tableHeader'
+import { TableDataCell, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { SortIcon } from '@/lib/icon-utils'
 import { findClosest } from '@/lib/utilities'
-import { selectedSubtitleIds, sourceTextAtom } from '@/store/useVocab'
+import { sourceTextAtom, subtitleSelectionStateAtom } from '@/store/useVocab'
 
 const mediaSearchAtom = atomWithStorage('mediaSearchAtom', '')
 
-type SearchMultiResult = NonNullable<PathsThemoviedb['/3/search/multi']['get']['responses'][200]['content']['application/json']['results']>[number]
+type TableData = NonNullable<PathsThemoviedb['/3/search/multi']['get']['responses'][200]['content']['application/json']['results']>[number]
 
-const columnHelper = createColumnHelper<SearchMultiResult>()
-
-type ColumnFilterFn = (rowValue: SearchMultiResult) => boolean
+type ColumnFilterFn = (rowValue: TableData) => boolean
 
 const PAGE_SIZES = [5, 10, 20] as const
 
-const tableInitialStateAtom = atom({
+const initialTableStateAtom = atom<InitialTableState>({
   pagination: {
     pageSize: findClosest(100, PAGE_SIZES),
     pageIndex: 0,
   },
-} satisfies Partial<TableState>)
+})
 
-function useColumns() {
+function useColumns<T extends TableData>() {
   // Add this to prevent all columns from re-rendering on sort
   const { t } = useTranslation()
+  const columnHelper = createColumnHelper<T>()
   return [
     columnHelper.accessor((row) => row.id, {
       id: 'action',
@@ -48,27 +47,23 @@ function useColumns() {
         return (
           <TableHeaderCell
             header={header}
-            className="w-[.1%] [&:active:has(.child:not(:active))+th]:signal/active [&:active:has(.child:not(:active))]:signal/active"
+            className="w-[.1%] active:signal/active [&:active+th]:signal/active"
           >
             <Div
-              className="select-none justify-between gap-2 pl-2 pr-1 signal/active:bg-background-active"
+              className="min-w-10 select-none justify-center gap-2 signal/active:bg-background-active"
               onClick={header.column.getToggleSortingHandler()}
             >
               <div
-                className="child flex stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]"
+                className="flex stretch-[condensed]"
               >
-                {/*
-                <Checkbox
-                  onClick={(e) => e.stopPropagation()}
-                />
-                */}
+                <SortIcon isSorted={isSorted} />
               </div>
-              <SortIcon isSorted={isSorted} />
             </Div>
           </TableHeaderCell>
         )
       },
-      cell: ({ row, cell, getValue }) => {
+      cell: ({ row, cell, onExpandedChange }) => {
+        const isExpanded = row.getIsExpanded()
         return (
           <TableDataCell
             cell={cell}
@@ -76,7 +71,10 @@ function useColumns() {
             <Div className="text-zinc-400">
               {row.getCanExpand() ? (
                 <div
-                  className="expand-button flex h-full grow cursor-pointer select-none items-center justify-center pl-1.5 pr-1"
+                  className="flex h-full grow cursor-pointer select-none items-center justify-center"
+                  onClick={() => {
+                    onExpandedChange?.(isExpanded)
+                  }}
                 >
                   {/*
                 <Checkbox
@@ -88,7 +86,7 @@ function useColumns() {
                   <IconLucideChevronRight
                     className={cn(
                       'size-[14px] text-zinc-400 transition-transform dark:text-zinc-500',
-                      row.getIsExpanded() ? 'rotate-90' : '',
+                      isExpanded ? 'rotate-90' : '',
                     )}
                   />
                 </div>
@@ -103,7 +101,6 @@ function useColumns() {
           </TableDataCell>
         )
       },
-      footer: ({ column }) => column.id,
     }),
     columnHelper.accessor((row) => row.release_date ?? row.first_air_date, {
       id: 'upload_date',
@@ -150,7 +147,6 @@ function useColumns() {
           </TableDataCell>
         )
       },
-      footer: ({ column }) => column.id,
     }),
     columnHelper.accessor((row) => row.media_type, {
       id: 'media_type',
@@ -198,7 +194,6 @@ function useColumns() {
           </TableDataCell>
         )
       },
-      footer: ({ column }) => column.id,
     }),
     columnHelper.accessor((row) => row.title ?? row.original_title ?? row.original_name, {
       id: 'movie_name',
@@ -252,7 +247,6 @@ function useColumns() {
           </TableDataCell>
         )
       },
-      footer: ({ column }) => column.id,
     }),
     columnHelper.accessor((row) => row.vote_average, {
       id: 'vote_average',
@@ -299,7 +293,6 @@ function useColumns() {
           </TableDataCell>
         )
       },
-      footer: ({ column }) => column.id,
     }),
     columnHelper.accessor((row) => row.popularity, {
       id: 'popularity',
@@ -338,7 +331,7 @@ function useColumns() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pr-[11px] text-xs tabular-nums stretch-[condensed]">
+            <Div className="justify-end pr-4 text-xs tabular-nums stretch-[condensed]">
               <span>
                 {value}
               </span>
@@ -346,20 +339,19 @@ function useColumns() {
           </TableDataCell>
         )
       },
-      footer: ({ column }) => column.id,
     }),
   ]
 }
 
 export function Subtitles() {
+  // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
   const { mutateAsync: download } = useOpenSubtitlesDownload()
   const [query, setQuery] = useAtom(mediaSearchAtom)
-  const [tableInitialState, setTableInitialState] = useAtom(tableInitialStateAtom)
+  const [initialTableState, setInitialTableState] = useAtom(initialTableStateAtom)
   const debouncedQuery = useDebouncedValue(query, 500)
   const columns = useColumns()
   const setSourceText = useSetAtom(sourceTextAtom)
-
   const { data: movie, isLoading: isSearchLoading } = $api.useQuery(
     'get',
     '/3/search/multi',
@@ -374,11 +366,10 @@ export function Subtitles() {
       enabled: Boolean(debouncedQuery),
     },
   )
-
   const table = useReactTable({
     data: movie?.results ?? [],
     columns,
-    initialState: tableInitialState,
+    initialState: initialTableState,
     autoResetPageIndex: false,
     getRowId: (row) => String(row.id),
     getRowCanExpand: () => true,
@@ -391,36 +382,37 @@ export function Subtitles() {
   })
   const rowsFiltered = table.getFilteredRowModel().rows
   const navigate = useNavigate()
-
-  async function getFile(id: number) {
-    const file = await download({
-      file_id: Number(id),
-    })
-    return await fetch(file.link).then((x) => x.text())
-  }
-
-  const snap = useSnapshot(selectedSubtitleIds)
-
+  const [isPending, starTransition] = useTransition()
   const { isPending: isDownloadPending, mutateAsync: getFileById } = useMutation({
     mutationKey: ['getFileById'] as const,
-    mutationFn: (id: number) => {
-      return getFile(id)
+    mutationFn: async (file_id: number) => {
+      const file = await download({
+        file_id,
+      })
+      return await ofetch<string>(file.link)
     },
     retry: 2,
   })
+  const [subtitleSelectionState, setSubtitleSelectionState] = useAtom(subtitleSelectionStateAtom)
+  const fileIds = Object.values(subtitleSelectionState).flatMap((innerObj) => Object.keys(innerObj).filter((key) => innerObj[key]).map(Number))
 
-  async function getFiles() {
-    const fileIds = [...snap.values()]
-    const fileTexts = await Promise.all(fileIds.map((id) => {
-      return getFileById(id)
-    }))
-    setSourceText(fileTexts.join('\n'))
-    navigate('/')
+  async function getFiles(fileIds: number[]) {
+    starTransition(async () => {
+      const fileTexts = await Promise.all(fileIds.map((id) => {
+        return getFileById(id)
+      }))
+      setSourceText((v) => ({
+        text: fileTexts.join('\n'),
+        version: v.version++,
+      }))
+      navigate('/')
+    })
   }
 
   function clearSelection() {
-    selectedSubtitleIds.clear()
+    setSubtitleSelectionState({})
   }
+
   const tableState = table.getState()
   const { items } = usePagination({
     count: table.getPageCount(),
@@ -429,7 +421,7 @@ export function Subtitles() {
   const { t } = useTranslation()
 
   useUnmountEffect(() => {
-    setTableInitialState(tableState)
+    setInitialTableState(tableState)
   })
   const rootRef = useRef<HTMLDivElement>(null)
 
@@ -468,7 +460,7 @@ export function Subtitles() {
           <Button
             className="h-full gap-1.5"
             variant="outline"
-            disabled={selectedSubtitleIds.size === 0}
+            disabled={fileIds.length === 0}
             onClick={clearSelection}
           >
             <span className="tabular-nums">
@@ -477,13 +469,15 @@ export function Subtitles() {
           </Button>
           <Button
             className="h-full gap-1.5"
-            onClick={getFiles}
-            disabled={selectedSubtitleIds.size === 0 || isDownloadPending}
+            onClick={() => {
+              getFiles(fileIds)
+            }}
+            disabled={fileIds.length === 0 || isDownloadPending}
           >
             <span className="tabular-nums">
-              {`Download ${selectedSubtitleIds.size || ''}`}
+              {`Download ${fileIds.length || ''}`}
             </span>
-            {isDownloadPending ? (
+            {isDownloadPending || isPending ? (
               <IconLucideLoader2
                 className="animate-spin"
               />
@@ -537,7 +531,6 @@ export function Subtitles() {
                 table={table}
                 sizes={PAGE_SIZES}
                 value={tableState.pagination.pageSize}
-                defaultValue={String(tableInitialState.pagination.pageSize)}
               />
               <div className="whitespace-nowrap px-1 text-[.8125rem]">{`/${t('page')}`}</div>
             </div>

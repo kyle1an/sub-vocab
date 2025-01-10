@@ -4,13 +4,13 @@ import type { Table } from '@tanstack/react-table'
 
 export function TablePagination<T>({
   items,
-  table,
+  table: { getCanPreviousPage, previousPage, setPageIndex, getPageCount, getCanNextPage, nextPage, getState },
 }: {
   items: UsePaginationItem[]
   table: Table<T>
 }) {
   'use no memo'
-  const tableState = table.getState()
+  const tableState = getState()
   return (
     <div className="flex">
       {items.map(({
@@ -27,8 +27,8 @@ export function TablePagination<T>({
               type="button"
               aria-label="Previous page"
               className={cn(className, 'px-0')}
-              disabled={!table.getCanPreviousPage()}
-              onClick={table.previousPage}
+              disabled={!getCanPreviousPage()}
+              onClick={previousPage}
               key={type}
             >
               <IconLucideChevronLeft
@@ -45,7 +45,7 @@ export function TablePagination<T>({
               aria-label="Start ellipsis"
               type="button"
               onClick={() => {
-                table.setPageIndex(Math.max(0, tableState.pagination.pageIndex - 2))
+                setPageIndex(Math.max(0, tableState.pagination.pageIndex - 2))
               }}
               key={`${type}${page}`}
             >
@@ -66,7 +66,7 @@ export function TablePagination<T>({
               type="button"
               disabled={selected}
               onClick={() => {
-                table.setPageIndex(Number(page) - 1)
+                setPageIndex(Number(page) - 1)
               }}
               key={`${type}${page}`}
             >
@@ -82,7 +82,7 @@ export function TablePagination<T>({
               type="button"
               aria-label="End ellipsis"
               onClick={() => {
-                table.setPageIndex(Math.min(tableState.pagination.pageIndex + 2, table.getPageCount() - 1))
+                setPageIndex(Math.min(tableState.pagination.pageIndex + 2, getPageCount() - 1))
               }}
               key={`${type}${page}`}
             >
@@ -102,8 +102,8 @@ export function TablePagination<T>({
               className={cn(className)}
               type="button"
               aria-label="Next page"
-              disabled={!table.getCanNextPage()}
-              onClick={table.nextPage}
+              disabled={!getCanNextPage()}
+              onClick={nextPage}
               key={type}
             >
               <IconLucideChevronRight

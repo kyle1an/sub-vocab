@@ -26,7 +26,7 @@ export const zh = {
   frequency: '频率',
   home: '首页',
   incorrectUserPassword: '用户名或密码错误',
-  inputArea: '在此区域输入单词句子，或拖拽文件或文件夹：',
+  inputArea: '在此输入文本或将文件或文件夹拖放到此区域',
   inputsNotMatch: '两次输入不一致！',
   length: '长度',
   login: '登录',

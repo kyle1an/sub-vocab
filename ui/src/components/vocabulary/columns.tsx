@@ -7,9 +7,9 @@ import {
 
 import type { LabelDisplayTable } from '@/lib/vocab'
 
-import { TableHeaderCell } from '@/components/ui/tableHeader'
-import { VocabToggle } from '@/components/vocabulary/ToggleButton'
-import { useVocabToggle } from '@/hooks/vocabToggle'
+import { TableHeaderCell } from '@/components/ui/table-element'
+import { VocabToggle } from '@/components/vocabulary/toggle-button'
+import { useVocabToggle } from '@/hooks/vocab-toggle'
 import { SortIcon } from '@/lib/icon-utils'
 
 export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDisplayTable>() {
@@ -77,7 +77,6 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
           </TableDataCell>
         )
       },
-      footer: ({ column }) => column.id,
     }),
     columnHelper.accessor((row) => row.vocab.word.length, {
       id: 'word.length',
@@ -124,7 +123,6 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
           </TableDataCell>
         )
       },
-      footer: ({ column }) => column.id,
     }),
     columnHelper.accessor((row) => {
       return row.vocab.learningPhase <= 1 ? row.vocab.learningPhase : row.inertialPhase
@@ -168,7 +166,6 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
           </Div>
         </TableDataCell>
       ),
-      footer: ({ column }) => column.id,
     }),
     columnHelper.accessor((row) => row.vocab.rank, {
       id: 'rank',
@@ -213,7 +210,6 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
           </TableDataCell>
         )
       },
-      footer: ({ column }) => column.id,
     }),
   ]
 }
