@@ -1,16 +1,16 @@
-export function useTabActive() {
-  const [isTabActive, setIsTabActive] = useState(false)
-
-  const handleVisibilityChange = useCallback(() => {
-    setIsTabActive(document.visibilityState === 'visible')
-  }, [setIsTabActive])
+export function usePageVisibility() {
+  const [isVisible, setIsVisible] = useState(() => document.visibilityState === 'visible')
 
   useEffect(() => {
+    function handleVisibilityChange() {
+      setIsVisible(document.visibilityState === 'visible')
+    }
+
     document.addEventListener('visibilitychange', handleVisibilityChange)
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
-  }, [handleVisibilityChange])
+  }, [])
 
-  return isTabActive
+  return isVisible
 }

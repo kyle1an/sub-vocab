@@ -2,7 +2,7 @@ import type { AppRouter } from '@backend/app'
 import type { Database } from '@ui/database.types'
 import type { ArrayValues, PartialDeep } from 'type-fest'
 
-import { type AuthChangeEvent, createClient, type REALTIME_SUBSCRIBE_STATES, type Session } from '@supabase/supabase-js'
+import { type AuthChangeEvent, createClient, REALTIME_CHANNEL_STATES, type Session } from '@supabase/supabase-js'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { QueryClient } from '@tanstack/react-query'
 import { persistQueryClient } from '@tanstack/react-query-persist-client'
@@ -12,6 +12,7 @@ import { createStore } from 'jotai'
 import { atomWithImmer } from 'jotai-immer'
 import { UAParser } from 'ua-parser-js'
 
+import type { RealtimeChannelState } from '@/api/vocab-api'
 import type { SubtitleData } from '@/components/subtitle/columns'
 import type { RowSelectionChangeFn } from '@/types/utils'
 
@@ -29,7 +30,7 @@ export const sourceTextAtom = atom({
   version: 0,
 })
 
-export const vocabRealtimeSyncStatusAtom = atom<REALTIME_SUBSCRIBE_STATES>()
+export const vocabRealtimeSyncStatusAtom = atom<RealtimeChannelState>(REALTIME_CHANNEL_STATES.closed)
 
 export const isSourceTextStaleAtom = atom(false)
 
