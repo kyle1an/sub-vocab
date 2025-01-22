@@ -19,7 +19,7 @@
     "zod": "3.23.8"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^3.14.0",
+    "@antfu/eslint-config": "^3.16.0",
     "@stylistic/eslint-plugin": "^2.13.0",
     "@t3-oss/env-core": "^0.11.1",
     "@total-typescript/ts-reset": "^0.6.1",
@@ -30,7 +30,7 @@
     "openapi-typescript": "^7.5.2",
     "pathe": "^2.0.2",
     "prettier": "^3.4.2",
-    "taze": "^18.2.0",
+    "taze": "^18.3.0",
     "typescript": "5.7.2"
   },
   "pnpm": {

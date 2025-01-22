@@ -14,7 +14,7 @@ import { useSessionStorage } from 'react-use'
 
 import type { LabelDisplayTable } from '@/lib/vocab'
 
-import { userVocabularyAtom } from '@/api/vocab-api'
+import { statusLabels, userVocabularyAtom } from '@/api/vocab-api'
 import { SearchWidget } from '@/components/search-widget'
 import { TablePagination } from '@/components/table-pagination'
 import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
@@ -26,7 +26,7 @@ import { useLastTruthy } from '@/lib/hooks'
 import { SortIcon } from '@/lib/icon-utils'
 import { LEARNING_PHASE, type LearningPhase } from '@/lib/LabeledTire'
 import { tryGetRegex } from '@/lib/regex'
-import { findClosest } from '@/lib/utilities'
+import { findClosest, getFallBack } from '@/lib/utilities'
 import { vocabRealtimeSyncStatusAtom } from '@/store/useVocab'
 
 type TableData = LabelDisplayTable
@@ -283,11 +283,10 @@ export function VocabDataTable({
               disabled
               className={clsx(
                 'gap-1.5',
-                vocabRealtimeSubscribeState ? '' : 'hidden',
               )}
             >
               <div>
-                {vocabRealtimeSubscribeState}
+                {getFallBack(vocabRealtimeSubscribeState ?? '', statusLabels)}
               </div>
               <div
                 className="size-[1em]"
