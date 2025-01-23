@@ -25,6 +25,11 @@ export default antfu(
     },
   },
   {
+    rules: {
+      'prefer-const': ['off'],
+    },
+  },
+  {
     ...packageJson,
     rules: {
       'package-json/sort-collections': [
