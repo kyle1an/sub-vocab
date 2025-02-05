@@ -37,7 +37,7 @@ function useMovieColumns<T extends SubtitleData>() {
               className="select-none justify-between gap-1 pl-2 pr-1 signal/active:bg-background-active"
               onClick={header.column.getToggleSortingHandler()}
             >
-              <div className="child flex stretch-[condensed]" />
+              <div className="child flex [font-stretch:condensed]" />
               <SortIcon isSorted={isSorted} />
             </Div>
           </TableHeaderCell>
@@ -51,7 +51,7 @@ function useMovieColumns<T extends SubtitleData>() {
           >
             <Div className="text-zinc-400">
               <div
-                className={cn(
+                className={clsx(
                   'flex h-full grow items-center justify-between pl-1.5 pr-1',
                   canExpand && 'cursor-pointer',
                 )}

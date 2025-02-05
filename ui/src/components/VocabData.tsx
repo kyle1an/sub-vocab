@@ -84,13 +84,13 @@ function useAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
 }
 
 function useSearchFilterValue(search: string, usingRegex: boolean): ColumnFilterFn | undefined {
-  search = search.toLowerCase()
   if (usingRegex) {
     const newRegex = tryGetRegex(search)
     if (newRegex)
       return (row) => newRegex.test(row.vocab.word)
   }
   else {
+    search = search.toLowerCase()
     return (row) => row.wFamily.some((word) => word.toLowerCase().includes(search))
   }
 }
@@ -128,7 +128,7 @@ function useDataColumns<T extends TableData>() {
               >
                 <span
                   title={title}
-                  className={cn('grow text-right stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
+                  className={clsx('grow text-right [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                 >
                   {title}
                 </span>
@@ -143,7 +143,7 @@ function useDataColumns<T extends TableData>() {
             <TableDataCell
               cell={cell}
             >
-              <Div className="justify-center tabular-nums stretch-[condensed]">
+              <Div className="justify-center tabular-nums [font-stretch:condensed]">
                 {value ? formatDistanceToNowStrict(new Date(value)) : null}
               </Div>
             </TableDataCell>

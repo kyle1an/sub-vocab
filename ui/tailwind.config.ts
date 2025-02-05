@@ -1,7 +1,6 @@
 /* eslint-disable ts/no-require-imports */
 import type { Config } from 'tailwindcss'
 
-import { mauve, violet } from '@radix-ui/colors'
 import plugin from 'tailwindcss/plugin'
 
 import { omitUndefined } from './src/lib/utilities'
@@ -97,8 +96,6 @@ const config: Config = {
         'border-td': 'var(--border-td)',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
-        ...mauve,
-        ...violet,
         'internal-autofill': 'var(--internal-autofill)',
         chart: {
           1: 'hsl(var(--chart-1))',
@@ -149,29 +146,18 @@ const config: Config = {
   plugins: [
     require('@anuragroy/tailwindcss-animate'),
     require('tailwindcss-signals'),
-    require('@tailwindcss/typography'),
     plugin(({
       addUtilities,
       addVariant,
       matchUtilities,
       theme,
     }) => {
-      matchUtilities({
-        ffs: (value) => ({
-          fontFeatureSettings: value,
-        }),
-        stretch: (value) => ({
-          fontStretch: value,
-        }),
-      })
-
       const sq_DEFINITION = '&:is(.sq *)'
 
       addUtilities({
         '.squircle': {
           [sq_DEFINITION]: {
             background: 'paint(squircle)',
-            '--squircle-outline': '0',
           },
         },
       })
@@ -261,7 +247,6 @@ const config: Config = {
       matchUtilities({
         'sq-outline': (value) => ({
           [sq_DEFINITION]: {
-            '--squircle-fill': 'transparent',
             '--squircle-outline': value,
           },
         }),
@@ -284,9 +269,6 @@ const config: Config = {
         'sq-fill': (value) => ({
           [sq_DEFINITION]: {
             '--squircle-fill': value,
-            '&.squircle': {
-              backgroundColor: 'transparent',
-            },
           },
         }),
       }, omitUndefined({

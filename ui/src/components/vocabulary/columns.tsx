@@ -42,8 +42,8 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
               >
                 <span
                   title={title}
-                  className={cn(
-                    'grow text-left stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]',
+                  className={clsx(
+                    'grow text-left [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]',
                     isSorted ? 'font-semibold' : '',
                   )}
                 >
@@ -66,10 +66,10 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
               {wFamily.map((w, i) => (
                 <div
                   key={w}
-                  className="inline-block cursor-text select-text pl-1.5 tracking-wider ffs-['cv03','cv05','cv06'] first:pl-2"
+                  className="inline-block cursor-text select-text pl-1.5 tracking-wider [font-feature-settings:'cv03','cv05','cv06'] first:pl-2"
                   onClick={(ev) => ev.stopPropagation()}
                 >
-                  <span className={cn(i === 0 ? '' : 'text-neutral-500 dark:text-slate-400')}>{w}</span>
+                  <span className={clsx(i === 0 ? '' : 'text-neutral-500 dark:text-slate-400')}>{w}</span>
                   {i < last && <span className="text-neutral-500 dark:text-slate-400">, </span>}
                 </div>
               ))}
@@ -89,7 +89,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
             className="w-[.1%] active:bg-background-active"
           >
             <Div
-              className="group select-none gap-2 pr-1 stretch-[condensed]"
+              className="group select-none gap-2 pr-1 [font-stretch:condensed]"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -99,7 +99,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
               <div className="flex items-center">
                 <span
                   title={title}
-                  className={cn('grow text-right before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
+                  className={clsx('grow text-right before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                 >
                   {title}
                 </span>
@@ -137,7 +137,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
             className="w-[.1%] active:bg-background-active"
           >
             <Div
-              className="group select-none stretch-[condensed]"
+              className="group select-none [font-stretch:condensed]"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -188,7 +188,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
               <div className="flex items-center">
                 <span
                   title={title}
-                  className={cn('grow text-right stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
+                  className={clsx('grow text-right [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                 >
                   {title}
                 </span>
@@ -204,7 +204,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center tabular-nums stretch-[condensed]">
+            <Div className="justify-center tabular-nums [font-stretch:condensed]">
               {value}
             </Div>
           </TableDataCell>

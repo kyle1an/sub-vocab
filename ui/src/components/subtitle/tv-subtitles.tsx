@@ -7,6 +7,7 @@ import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRo
 import { maxBy, sum } from 'lodash-es'
 
 import type { SubtitleResponseData } from '@/api/opensubtitles'
+import type { RowId } from '@/lib/subtitle'
 
 import { osSessionAtom, useOpenSubtitlesQueryOptions } from '@/api/opensubtitles'
 import { $api } from '@/api/tmdb'
@@ -22,7 +23,7 @@ import { subtitleSelectionStateAtom, subtitleSelectionStateFamily } from '@/stor
 
 type ExpandableRow<T> = T & { subRows?: T[] }
 
-type SubtitleData = SubtitleResponseData & { _rowId?: string }
+type SubtitleData = SubtitleResponseData & RowId
 
 type SubtitleDataExpandable = ExpandableRow<SubtitleData>
 
@@ -49,7 +50,7 @@ function useTVColumns<T extends SubtitleDataExpandable>(mediaId: number, highest
               className="select-none justify-between gap-1.5 pl-2 pr-1 signal/active:bg-background-active"
               onClick={header.column.getToggleSortingHandler()}
             >
-              <div className="flex stretch-[condensed]">
+              <div className="flex [font-stretch:condensed]">
                 {osSession?.token ? (
                   <Checkbox
                     checked={checked}
@@ -90,7 +91,7 @@ function useTVColumns<T extends SubtitleDataExpandable>(mediaId: number, highest
           >
             <Div className="text-zinc-400">
               <div
-                className={cn(
+                className={clsx(
                   'flex h-full grow items-center justify-between pl-1.5 pr-1',
                   canExpand && 'cursor-pointer',
                 )}
@@ -117,7 +118,7 @@ function useTVColumns<T extends SubtitleDataExpandable>(mediaId: number, highest
                 />
                 {'\u200B'}
                 <IconLucideChevronRight
-                  className={cn(
+                  className={clsx(
                     canExpand ? '' : 'invisible',
                     'size-[14px] text-zinc-400 transition-transform duration-200 dark:text-zinc-500',
                     isExpanded ? 'rotate-90' : '',
@@ -159,7 +160,7 @@ function useTVColumns<T extends SubtitleDataExpandable>(mediaId: number, highest
               <div className="flex items-center">
                 <span
                   title={title}
-                  className={cn('grow text-right stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
+                  className={clsx('grow text-right [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                 >
                   {title}
                 </span>
@@ -176,7 +177,7 @@ function useTVColumns<T extends SubtitleDataExpandable>(mediaId: number, highest
             cell={cell}
           >
             <Div
-              className="pl-2 capitalize tabular-nums stretch-[condensed] data-[value='tv']:uppercase"
+              className="pl-2 capitalize tabular-nums [font-stretch:condensed] data-[value='tv']:uppercase"
               data-value={value}
             >
               {value}
@@ -223,7 +224,7 @@ function groupSubtitleRows(rows: SubtitleData[]) {
         const { season_number, episode_number } = parent.attributes.feature_details
         subtitles.push({
           ...parent,
-          _rowId: `${season_number}0${episode_number}`,
+          '~rowId': `${season_number}0${episode_number}`,
           subRows: group,
         })
       }

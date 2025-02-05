@@ -1,3 +1,4 @@
+import { CssVarsProvider } from '@mui/joy/styles'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientAtom } from 'jotai-tanstack-query'
 import { RouterProvider } from 'react-router/dom'
@@ -24,7 +25,9 @@ function App() {
     <TRPCProvider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
         <HydrateAtoms>
-          <RouterProvider router={router} />
+          <CssVarsProvider>
+            <RouterProvider router={router} />
+          </CssVarsProvider>
         </HydrateAtoms>
       </QueryClientProvider>
     </TRPCProvider>

@@ -225,7 +225,7 @@ export function TableRow<T>({
           '--top': `${HEAD_HEIGHT}px`,
           '--z-index': index + (open && subRows.length ? 1 + subRows.length : 0),
         }}
-        className="group/tr relative z-[--z-index] bg-background transition-shadow duration-0 data-[state=open]:sticky data-[state=open]:top-[--top] data-[boundary]:!shadow-intersect [[data-boundary]+*:empty+&>*]:border-t-transparent [[data-detail-above]+&]:shadow-collapse [[data-detail-above]+&]:duration-200 [[data-state=closed]+&]:shadow-collapse [[data-state=closed][data-disabled]+&]:shadow-none [[data-transition-open]+&]:duration-300"
+        className="group/tr relative z-[--z-index] bg-background transition-shadow duration-0 [content-visibility:auto] data-[state=open]:sticky data-[state=open]:top-[--top] data-[boundary]:!shadow-intersect [[data-boundary]+*:empty+&>*]:border-t-transparent [[data-detail-above]+&]:shadow-collapse [[data-detail-above]+&]:duration-200 [[data-state=closed]+&]:shadow-collapse [[data-state=closed][data-disabled]+&]:shadow-none [[data-transition-open]+&]:duration-300"
         data-disabled={!getCanExpand() || undefined}
         data-state={state}
         data-boundary={(isDetailAboveRoot ? open : isDetailVisibleIntersecting) && !animationOpen ? '' : undefined}

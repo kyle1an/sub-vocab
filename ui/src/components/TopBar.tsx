@@ -151,14 +151,14 @@ export function TopBar({ className }: { className?: string }) {
     >
       <Popover
         as="nav"
-        className={cn(
+        className={clsx(
           'group/nav fixed z-20 w-full rounded-t-3xl bg-background tracking-wide shadow-sm group-has-[[data-vaul-drawer]]/body:bg-[unset]',
           '[body:has(&[data-open])]:mr-[--scrollbar-width] [body:has(&[data-open])]:overflow-hidden',
         )}
       >
         {() => {
           return (
-            <div className={cn('mr-[--removed-body-scroll-bar-size]')}>
+            <div className={clsx('mr-[--removed-body-scroll-bar-size]')}>
               <div className="mx-auto max-w-7xl px-4 group-data-[open]/nav:mr-[--scrollbar-width] md:group-data-[open]/nav:mr-auto">
                 <div className="flex h-11 items-center justify-between">
                   <div className="flex h-full items-center gap-4">
@@ -227,7 +227,7 @@ export function TopBar({ className }: { className?: string }) {
                         >
                           <MenubarRadioGroup
                             value={themePreference}
-                            className={cn(isThemeTransitioning && '[body:has(&)_*::after]:!transition-none [body:has(&)_*::before]:!transition-none [body:has(&)_*]:!transition-none')}
+                            className={clsx(isThemeTransitioning && '[body:has(&)_*::after]:!transition-none [body:has(&)_*::before]:!transition-none [body:has(&)_*]:!transition-none')}
                           >
                             {THEMES.map((theme) => (
                               <MenubarRadioItem

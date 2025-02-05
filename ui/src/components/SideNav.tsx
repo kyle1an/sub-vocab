@@ -17,7 +17,7 @@ export function SideNav({
           <NavLink
             key={nav.to}
             to={nav.to}
-            className={(l) => cn(
+            className={(l) => clsx(
               l.isActive && '*:bg-zinc-100 dark:*:bg-zinc-600',
             )}
           >

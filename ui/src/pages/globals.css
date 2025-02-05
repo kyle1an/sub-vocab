@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  min-width: 0;
-}
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -99,11 +95,23 @@
   }
 }
 
+/* https://github.com/tailwindlabs/tailwindcss/issues/8961#issuecomment-2556921547 */
+@layer base {
+  button,
+  [role='button'] {
+    cursor: pointer;
+  }
+  button:disabled,
+  [role='button']:disabled {
+    cursor: default;
+  }
+}
+
 @layer base {
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground;
+  * {
+    min-width: 0;
   }
 }

@@ -62,7 +62,7 @@ export function TablePagination<T>({
         if (type === 'first' || type === 'page' || type === 'last') {
           return (
             <button
-              className={cn(className, selected && 'border-border font-bold squircle sq-radius-[--sq-r] sq-outline sq-stroke-[hsl(var(--border))] [--sq-r:3px] disabled:text-[unset] sq:border-0')}
+              className={cn(className, selected && 'border-border font-bold squircle sq-radius-[--sq-r] sq-outline sq-fill-transparent sq-stroke-[hsl(var(--border))] [--sq-r:3px] disabled:text-[unset] sq:border-0')}
               type="button"
               disabled={selected}
               onClick={() => {

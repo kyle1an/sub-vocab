@@ -164,7 +164,7 @@ export function ResizeVocabularyPanel() {
         <SquircleMask asChild>
           <ResizablePanelGroup
             direction={direction}
-            className={cn(
+            className={clsx(
               'iOS:[body:has(&)]:overflow-hidden', // prevent overscroll
             )}
           >
