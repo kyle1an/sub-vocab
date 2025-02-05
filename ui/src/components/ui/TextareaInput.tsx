@@ -43,7 +43,7 @@ export function TextareaInput({
     <textarea
       aria-label="Text input"
       value={value}
-      className="size-full max-h-full resize-none rounded-none bg-background px-[30px] py-3 align-top tracking-normal outline-none ffs-[normal] placeholder:tracking-[.01em] dark:text-slate-400 dark:placeholder:text-slate-600"
+      className="size-full max-h-full resize-none rounded-none bg-background px-[30px] py-3 align-top tracking-normal outline-none [font-feature-settings:normal] placeholder:tracking-[.01em] dark:text-slate-400 dark:placeholder:text-slate-600"
       placeholder={placeholder ?? ''}
       onChange={textareaOnChange}
       onDrop={dropHandler}

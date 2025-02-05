@@ -43,7 +43,7 @@ function ResizableHandle({
         <div
           className={cn(
             'z-10 flex h-4 min-w-3 items-center justify-center rounded-sm border bg-border',
-            'squircle sq-radius-[3] sq-fill-[hsl(var(--border))] sq:rounded-none sq:border-0 sq:bg-transparent',
+            'squircle sq-radius-[3] sq-outline-0 sq-fill-[hsl(var(--border))] sq:rounded-none sq:border-0 sq:bg-transparent',
           )}
         >
           <DragHandleDots2Icon className="size-2.5" />

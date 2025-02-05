@@ -54,7 +54,7 @@ function useColumns<T extends TableData>() {
               onClick={header.column.getToggleSortingHandler()}
             >
               <div
-                className="flex stretch-[condensed]"
+                className="flex [font-stretch:condensed]"
               >
                 <SortIcon isSorted={isSorted} />
               </div>
@@ -84,7 +84,7 @@ function useColumns<T extends TableData>() {
                   {/* https://stackoverflow.com/questions/2876424/html-double-click-selection-oddity */}
                   {'\u200B'}
                   <IconLucideChevronRight
-                    className={cn(
+                    className={clsx(
                       'size-[14px] text-zinc-400 transition-transform dark:text-zinc-500',
                       isExpanded ? 'rotate-90' : '',
                     )}
@@ -125,7 +125,7 @@ function useColumns<T extends TableData>() {
               >
                 <span
                   title={title}
-                  className={cn('grow text-left stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
+                  className={clsx('grow text-left [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                 >
                   {title}
                 </span>
@@ -141,7 +141,7 @@ function useColumns<T extends TableData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center tabular-nums stretch-[condensed]">
+            <Div className="justify-center tabular-nums [font-stretch:condensed]">
               {value ? format(value, 'yyyy') : null}
             </Div>
           </TableDataCell>
@@ -169,7 +169,7 @@ function useColumns<T extends TableData>() {
               <div className="flex items-center">
                 <span
                   title={title}
-                  className={cn('grow text-right stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
+                  className={clsx('grow text-right [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                 >
                   {title}
                 </span>
@@ -186,7 +186,7 @@ function useColumns<T extends TableData>() {
             cell={cell}
           >
             <Div
-              className="justify-center capitalize tabular-nums stretch-[condensed] data-[value='tv']:uppercase"
+              className="justify-center capitalize tabular-nums [font-stretch:condensed] data-[value='tv']:uppercase"
               data-value={value}
             >
               {value}
@@ -219,8 +219,8 @@ function useColumns<T extends TableData>() {
               >
                 <span
                   title={title}
-                  className={cn(
-                    'grow text-left stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]',
+                  className={clsx(
+                    'grow text-left [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]',
                     isSorted ? 'font-semibold' : '',
                   )}
                 >
@@ -239,7 +239,7 @@ function useColumns<T extends TableData>() {
             cell={cell}
           >
             <Div
-              className="cursor-text select-text pl-2.5 tracking-wider ffs-['cv03','cv05','cv06']"
+              className="cursor-text select-text pl-2.5 tracking-wider [font-feature-settings:'cv03','cv05','cv06']"
               onClick={(ev) => ev.stopPropagation()}
             >
               <span>{value}</span>
@@ -259,7 +259,7 @@ function useColumns<T extends TableData>() {
             className="w-[.1%] active:bg-background-active active:signal/active [&:active+th]:signal/active"
           >
             <Div
-              className="group select-none gap-2 pr-1 stretch-[condensed]"
+              className="group select-none gap-2 pr-1 [font-stretch:condensed]"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -269,7 +269,7 @@ function useColumns<T extends TableData>() {
               <div className="flex items-center">
                 <span
                   title={title}
-                  className={cn('grow text-right before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
+                  className={clsx('grow text-right before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                 >
                   {title}
                 </span>
@@ -294,7 +294,7 @@ function useColumns<T extends TableData>() {
         )
       },
     }),
-    columnHelper.accessor((row) => row.popularity, {
+    columnHelper.accessor((row) => row.popularity || 0, {
       id: 'popularity',
       header: ({ header }) => {
         const title = 'Popularity'
@@ -315,7 +315,7 @@ function useColumns<T extends TableData>() {
               <div className="flex items-center">
                 <span
                   title={title}
-                  className={cn('grow text-right stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
+                  className={clsx('grow text-right [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                 >
                   {title}
                 </span>
@@ -331,7 +331,7 @@ function useColumns<T extends TableData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pr-4 text-xs tabular-nums stretch-[condensed]">
+            <Div className="justify-end pr-4 text-xs tabular-nums [font-stretch:condensed]">
               <span>
                 {value}
               </span>
@@ -384,26 +384,32 @@ export function Subtitles() {
   })
   const rowsFiltered = table.getFilteredRowModel().rows
   const navigate = useNavigate()
-  const [isPending, starTransition] = useTransition()
   const setSubtitleSelectionState = useSetAtom(subtitleSelectionStateAtom)
   const [fileIds] = useAtom(fileIdsAtom)
+  const [downloadProgressAnim, setDownloadProgressAnim] = useState(false)
 
   async function getFiles(fileIds: number[]) {
-    starTransition(async () => {
-      const fileTexts = await Promise.all(fileIds.map(async (id) => {
-        const { text } = await download({
-          file_id: id,
-        })
-        return text
-      }))
-      setSubtitleDownloadProgress([])
-      setSourceText((v) => ({
-        text: fileTexts.join('\n'),
-        version: v.version++,
-      }))
-      navigate('/')
-    })
+    setDownloadProgressAnim(true)
+    const fileTexts = await Promise.all(fileIds.map(async (id) => {
+      const { text } = await download({
+        file_id: id,
+      })
+      return text
+    }))
+    setSourceText((v) => ({
+      text: fileTexts.join('\n'),
+      version: v.version++,
+    }))
   }
+
+  useEffect(() => {
+    if (subtitleDownloadProgress.length >= 1 && !downloadProgressAnim) {
+      navigate('/')
+      startTransition(() => {
+        setSubtitleDownloadProgress([])
+      })
+    }
+  }, [downloadProgressAnim, navigate, setSubtitleDownloadProgress, subtitleDownloadProgress.length])
 
   function clearSelection() {
     setSubtitleSelectionState({})
@@ -420,6 +426,7 @@ export function Subtitles() {
     setInitialTableState(tableState)
   })
   const rootRef = useRef<HTMLDivElement>(null)
+  const isLoading = downloadProgressAnim || subtitleDownloadProgress.length >= 1
 
   return (
     <SquircleBg className="flex h-[calc(100%-4px*14)] items-center justify-center overflow-hidden rounded-xl border">
@@ -464,7 +471,7 @@ export function Subtitles() {
             <Button
               className="h-full gap-1.5 px-3"
               variant="outline"
-              disabled={fileIds.length === 0}
+              disabled={fileIds.length === 0 || isDownloadPending || isLoading}
               onClick={clearSelection}
             >
               <IconF7MultiplyCircle className="min-w-[1em]" />
@@ -479,7 +486,7 @@ export function Subtitles() {
               }}
               disabled={fileIds.length === 0 || isDownloadPending}
             >
-              {isDownloadPending || isPending ? (
+              {isLoading ? (
                 <IconLucideLoader2
                   className="min-w-[1em] animate-spin"
                 />
@@ -489,11 +496,15 @@ export function Subtitles() {
               <span className="hidden md:block">
                 Download
               </span>
-              {isDownloadPending ? (
+              {isLoading ? (
                 <div className="flex items-center gap-1.5">
                   <span>
                     <NumberFlow
                       value={subtitleDownloadProgress.length}
+                      onAnimationsFinish={() => {
+                        if (subtitleDownloadProgress.length === fileIds.length)
+                          setDownloadProgressAnim(false)
+                      }}
                     />
                     {` / `}
                     <NumberFlow

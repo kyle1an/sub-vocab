@@ -49,7 +49,7 @@ function DialogContent({
         <DialogPrimitive.Close
           className={cn(
             'absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground',
-            '[--offset:2px] [--sq-r:2] focus:after:squircle focus:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus:after:sq-outline-[1.1] focus:after:sq-stroke-[hsl(var(--ring))] sq:rounded-none sq:focus:ring-0 sq:focus:after:absolute sq:focus:after:-left-[--offset] sq:focus:after:-top-[--offset] sq:focus:after:size-[calc(100%+2*var(--offset))]',
+            '[--offset:2px] [--sq-r:2] focus:after:squircle focus:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus:after:sq-outline-[1.1] focus:after:sq-stroke-[hsl(var(--ring))] focus:after:sq-fill-transparent sq:rounded-none sq:focus:ring-0 sq:focus:after:absolute sq:focus:after:-left-[--offset] sq:focus:after:-top-[--offset] sq:focus:after:size-[calc(100%+2*var(--offset))]',
           )}
         >
           <Cross2Icon className="size-4" />

@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.3.0",
   "private": true,
-  "packageManager": "pnpm@9.15.4",
+  "packageManager": "pnpm@10.2.0",
   "scripts": {
     "backend": "pnpm --filter @sub-vocab/backend",
     "ui": "pnpm --filter @sub-vocab/ui",
@@ -19,18 +19,18 @@
     "zod": "3.24.1"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^4.1.0",
-    "@stylistic/eslint-plugin": "^3.0.0",
+    "@antfu/eslint-config": "^4.1.1",
+    "@stylistic/eslint-plugin": "^3.0.1",
     "@t3-oss/env-core": "0.12.0",
     "@total-typescript/ts-reset": "^0.6.1",
-    "@types/node": "^22.10.10",
+    "@types/node": "^22.13.1",
     "eslint": "^9.19.0",
-    "eslint-plugin-package-json": "^0.21.1",
+    "eslint-plugin-package-json": "^0.23.0",
     "jsonc-eslint-parser": "^2.4.0",
-    "openapi-typescript": "^7.6.0",
+    "openapi-typescript": "^7.6.1",
     "pathe": "^2.0.2",
     "prettier": "^3.4.2",
-    "taze": "^18.3.0",
+    "taze": "^18.4.0",
     "typescript": "5.7.2"
   },
   "pnpm": {

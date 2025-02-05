@@ -22,9 +22,9 @@ function SelectTrigger({
     <SelectPrimitive.Trigger
       ref={ref}
       className={cn(
-        'flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-violet9',
-        'squircle sq-radius-[--sq-r] sq-outline-[--l-w] sq-stroke-[hsl(var(--input))] [--l-w:1px] [--sq-r:4px] sq:rounded-none sq:border-0 sq:shadow-none',
-        'relative [--offset:1px] focus:after:squircle focus:after:sq-radius-[calc(var(--sq-r)+var(--offset)-0.3px)] focus:after:sq-outline focus:after:sq-stroke-[hsl(var(--ring))] sq:focus:ring-0 sq:focus:after:absolute sq:focus:after:-left-[--offset] sq:focus:after:-top-[--offset] sq:focus:after:size-[calc(100%+2*var(--offset))]',
+        'flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-indigo-500',
+        'squircle sq-radius-[--sq-r] sq-outline-[--l-w] sq-stroke-[hsl(var(--input))] sq-fill-transparent [--l-w:1px] [--sq-r:4px] sq:rounded-none sq:border-0 sq:shadow-none',
+        'relative [--offset:1px] focus:after:squircle focus:after:sq-radius-[calc(var(--sq-r)+var(--offset)-0.3px)] focus:after:sq-outline focus:after:sq-stroke-[hsl(var(--ring))] focus:after:sq-fill-transparent sq:focus:ring-0 sq:focus:after:absolute sq:focus:after:-left-[--offset] sq:focus:after:-top-[--offset] sq:focus:after:size-[calc(100%+2*var(--offset))]',
         className,
       )}
       {...props}
@@ -90,7 +90,7 @@ function SelectLabel({
   return (
     <SelectPrimitive.Label
       ref={ref}
-      className={cn('px-6 text-xs font-semibold leading-6 text-mauve11', className)}
+      className={cn('px-6 text-xs font-semibold leading-6 text-zinc-500', className)}
       {...props}
     />
   )
@@ -107,8 +107,8 @@ function SelectItem({
     <SelectPrimitive.Item
       ref={ref}
       className={cn(
-        'relative flex h-6 w-full cursor-default select-none items-center rounded-sm px-6 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[highlighted]:bg-violet9 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 data-[highlighted]:outline-none',
-        'sq-radius-[--sq-r] [--sq-r:3px] focus:squircle focus:sq-fill-[hsl(var(--accent))] data-[highlighted]:sq-fill-violet9',
+        'relative flex h-6 w-full cursor-default select-none items-center rounded-sm px-6 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[highlighted]:bg-indigo-500 data-[disabled]:text-neutral-300 data-[highlighted]:text-white data-[highlighted]:outline-none',
+        'sq-radius-[--sq-r] [--sq-r:3px] focus:squircle focus:sq-outline-0 focus:sq-fill-[hsl(var(--accent))] data-[highlighted]:sq-fill-[#6e56cf] focus:sq:bg-transparent data-[highlighted]:sq:bg-transparent',
         className,
       )}
       {...props}

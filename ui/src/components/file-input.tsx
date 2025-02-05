@@ -37,7 +37,7 @@ export function FileInput({
   return (
     <div
       onDrop={dropFile}
-      className={cn(className)}
+      className={className}
     >
       <FileTrigger
         allowsMultiple

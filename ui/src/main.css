@@ -10,7 +10,7 @@
   interpolate-size: allow-keywords;
 }
 
-@property --bg- {
+@property --b-g {
   syntax: "<color>";
   inherits: true;
 }

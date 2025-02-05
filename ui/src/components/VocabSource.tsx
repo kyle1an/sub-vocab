@@ -77,13 +77,13 @@ function useAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
 }
 
 function useSearchFilterValue(search: string, usingRegex: boolean): ColumnFilterFn | undefined {
-  search = search.toLowerCase()
   if (usingRegex) {
     const newRegex = tryGetRegex(search)
     if (newRegex)
       return (row) => newRegex.test(row.vocab.word)
   }
   else {
+    search = search.toLowerCase()
     return (row) => row.wFamily.some((word) => word.toLowerCase().includes(search))
   }
 }
@@ -110,7 +110,7 @@ function useSourceColumns<T extends TableData>() {
                 <div className="flex grow items-center">
                   <span
                     title={title}
-                    className={cn('grow text-right stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
+                    className={clsx('grow text-right [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                   >
                     {title}
                   </span>
@@ -137,18 +137,18 @@ function useSourceColumns<T extends TableData>() {
                     }}
                   >
                     <IconLucideChevronRight
-                      className={cn(
+                      className={clsx(
                         'size-[14px] text-zinc-400 transition-transform duration-200 dark:text-zinc-500',
                         isExpanded ? 'rotate-90' : '',
                       )}
                     />
-                    <span className="float-right inline-block tabular-nums stretch-[condensed]">
+                    <span className="float-right inline-block tabular-nums [font-stretch:condensed]">
                       {value}
                     </span>
                   </button>
                 ) : (
                   <div className="w-full justify-end px-3">
-                    <span className="float-right inline-block tabular-nums stretch-[condensed]">
+                    <span className="float-right inline-block tabular-nums [font-stretch:condensed]">
                       {value}
                     </span>
                   </div>

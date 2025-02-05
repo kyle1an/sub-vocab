@@ -15,7 +15,7 @@ export function SortIcon({
   return (
     <div className="relative size-4 text-zinc-400">
       <div
-        className={cn(
+        className={clsx(
           'absolute inset-0 transition-all duration-300 [transform-style:preserve-3d]',
           isSorted === 'asc' && '[transform:rotateX(0deg)]',
           isSorted === 'desc' && '[transform:rotateX(180deg)]',
@@ -27,7 +27,7 @@ export function SortIcon({
         />
       </div>
       <div
-        className={cn(
+        className={clsx(
           'absolute inset-0 transition-all duration-300 [transform-style:preserve-3d]',
           isSorted && 'opacity-0',
         )}

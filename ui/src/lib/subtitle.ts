@@ -1,3 +1,8 @@
 import type { SubtitleData } from '@/components/subtitle/columns'
 
-export const getFileId = (row: SubtitleData & { _rowId?: string }) => row._rowId ?? String(row.attributes.files[0]?.file_id ?? '')
+export type RowId = {
+  // https://standardschema.dev/#why-did-you-prefix-the-standard-property-with-
+  '~rowId'?: string
+}
+
+export const getFileId = (row: SubtitleData & RowId) => row['~rowId'] ?? String(row.attributes.files[0]?.file_id ?? '')

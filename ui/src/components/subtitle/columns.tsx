@@ -36,7 +36,7 @@ export function useCommonColumns<T extends SubtitleData>() {
               >
                 <span
                   title={title}
-                  className={cn('grow text-left stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
+                  className={clsx('grow text-left [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                 >
                   {title}
                 </span>
@@ -52,7 +52,7 @@ export function useCommonColumns<T extends SubtitleData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center tabular-nums stretch-[condensed]">
+            <Div className="justify-center tabular-nums [font-stretch:condensed]">
               {value}
             </Div>
           </TableDataCell>
@@ -83,8 +83,8 @@ export function useCommonColumns<T extends SubtitleData>() {
               >
                 <span
                   title={title}
-                  className={cn(
-                    'grow text-left stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]',
+                  className={clsx(
+                    'grow text-left [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]',
                     isSorted ? 'font-semibold' : '',
                   )}
                 >
@@ -103,7 +103,7 @@ export function useCommonColumns<T extends SubtitleData>() {
             cell={cell}
           >
             <Div
-              className="cursor-text select-text pl-2.5 tracking-wider ffs-['cv03','cv05','cv06']"
+              className="cursor-text select-text pl-2.5 tracking-wider [font-feature-settings:'cv03','cv05','cv06']"
               onClick={(ev) => ev.stopPropagation()}
             >
               <span>{value}</span>
@@ -123,7 +123,7 @@ export function useCommonColumns<T extends SubtitleData>() {
             className="w-[.1%] active:bg-background-active active:signal/active [&:active+th]:signal/active"
           >
             <Div
-              className="group select-none gap-2 pr-1 stretch-[condensed]"
+              className="group select-none gap-2 pr-1 [font-stretch:condensed]"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -133,7 +133,7 @@ export function useCommonColumns<T extends SubtitleData>() {
               <div className="flex items-center">
                 <span
                   title={title}
-                  className={cn('grow text-right before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
+                  className={clsx('grow text-right before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                 >
                   {title}
                 </span>
@@ -150,7 +150,7 @@ export function useCommonColumns<T extends SubtitleData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center tabular-nums stretch-[condensed]">
+            <Div className="justify-center tabular-nums [font-stretch:condensed]">
               <span>
                 {displayName}
               </span>
@@ -180,7 +180,7 @@ export function useCommonColumns<T extends SubtitleData>() {
               <div className="flex items-center">
                 <span
                   title={title}
-                  className={cn('grow text-right stretch-[condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
+                  className={clsx('grow text-right [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
                 >
                   {title}
                 </span>

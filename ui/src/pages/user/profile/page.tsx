@@ -150,7 +150,7 @@ export function ProfilePage() {
               >
                 {t('confirm_changes')}
                 <IconLucideLoader2
-                  className={cn(
+                  className={clsx(
                     'animate-spin group-[:not(disabled)]:hidden',
                   )}
                 />
@@ -191,7 +191,7 @@ export function ProfilePage() {
                     </FormControl>
                     <FormMessage>{emailErrors.newEmail?.message ?? ''}</FormMessage>
                     {email.endsWith(env.VITE_LEGACY_USER_EMAIL_SUFFIX) ? (
-                      <article className="prose-sm">
+                      <article className="text-sm">
                         <span className="text-neutral-700">
                           * This is an auto-generated placeholder email address.
                         </span>

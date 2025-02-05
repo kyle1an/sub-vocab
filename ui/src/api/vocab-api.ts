@@ -9,6 +9,7 @@ import { atomWithQuery } from 'jotai-tanstack-query'
 
 import type { LearningPhase, VocabState } from '@/lib/LabeledTire'
 
+import { MS_PER_MINUTE } from '@/constants/time'
 import { usePageVisibility } from '@/hooks/utils'
 import { LEARNING_PHASE } from '@/lib/LabeledTire'
 import { omitUndefined } from '@/lib/utilities'
@@ -28,10 +29,20 @@ const sharedVocabularyAtom = atomWithQuery(() => {
     queryFn: async () => {
       const { data } = await supabase
         .from('vocabulary_list')
-        .select('w:word, original, is_user, rank:word_rank')
+        .select('w:word, o:original, u:is_user, r:word_rank')
         .eq('share', true)
         .throwOnError()
-      return data
+      return data.map(({ w, o, u, r }) => {
+        const vocabState: VocabState = {
+          word: w,
+          isUser: Boolean(u),
+          original: Boolean(o),
+          rank: r,
+          timeModified: null,
+          learningPhase: !u ? LEARNING_PHASE.ACQUAINTED : LEARNING_PHASE.NEW,
+        }
+        return [w, vocabState] as const
+      })
     },
     placeholderData: [],
   }
@@ -40,17 +51,7 @@ const sharedVocabularyAtom = atomWithQuery(() => {
 export const baseVocabAtom = atom((get) => {
   const { data: userVocab = [] } = get(userVocabularyAtom)
   const { data: sharedVocab = [] } = get(sharedVocabularyAtom)
-  const map = new Map<string, VocabState>()
-  sharedVocab.forEach((row) => {
-    map.set(row.w, {
-      word: row.w,
-      isUser: Boolean(row.is_user),
-      original: Boolean(row.original),
-      rank: row.rank,
-      timeModified: null,
-      learningPhase: !row.is_user ? LEARNING_PHASE.ACQUAINTED : LEARNING_PHASE.NEW,
-    })
-  })
+  const map = new Map(sharedVocab)
   userVocab.forEach((row) => {
     const existing = map.get(row.w)
     if (existing) {
@@ -63,11 +64,11 @@ export const baseVocabAtom = atom((get) => {
     else {
       map.set(row.w, {
         word: row.w,
+        isUser: true,
         original: false,
+        rank: null,
         timeModified: row.time_modified,
         learningPhase: row.learningPhase,
-        isUser: true,
-        rank: null,
       })
     }
   })
@@ -80,14 +81,14 @@ function userVocabularyOptions(userId: string) {
     async queryFn() {
       const { data } = await supabase
         .from('user_vocab_record')
-        .select('w:vocabulary, time_modified, acquainted')
+        .select('w:vocabulary, t:time_modified, a:acquainted')
         .eq('user_id', userId)
         .throwOnError()
 
-      return data.map((row) => ({
-        w: row.w,
-        time_modified: new UTCDateMini(row.time_modified).toISOString(),
-        learningPhase: getLearningPhase(row.acquainted),
+      return data.map(({ w, t, a }) => ({
+        w,
+        time_modified: new UTCDateMini(t).toISOString(),
+        learningPhase: getLearningPhase(a),
       }))
     },
     placeholderData: [],
@@ -98,19 +99,19 @@ function userVocabularyOptions(userId: string) {
 async function getStemsMapping() {
   const { data } = await supabase
     .from('derivation')
-    .select('stem_word, derived_word')
+    .select('s:stem_word, d:derived_word')
     .order('stem_word')
     .throwOnError()
   const map: Record<string, string[]> = {}
-  data.forEach((link) => {
-    let wordGroup = map[link.stem_word]
+  data.forEach(({ s, d }) => {
+    let wordGroup = map[s]
     if (!wordGroup) {
-      wordGroup = [link.stem_word]
-      map[link.stem_word] = wordGroup
+      wordGroup = [s]
+      map[s] = wordGroup
     }
-    wordGroup.push(link.derived_word)
-    if (link.derived_word.includes(`'`)) {
-      const variant = link.derived_word.replace(/'/g, `’`)
+    wordGroup.push(d)
+    if (d.includes(`'`)) {
+      const variant = d.replace(/'/g, `’`)
       if (!wordGroup.includes(variant))
         wordGroup.push(variant)
     }
@@ -221,7 +222,7 @@ export const statusLabels = {
   leaving: 'Disconnecting...',
 } as const satisfies Partial<Record<RealtimeChannelState, string>>
 
-const INACTIVITY_TIMEOUT_MS = 60_000
+const INACTIVITY_TIMEOUT_MS = MS_PER_MINUTE
 
 export function useVocabRealtimeSync() {
   const [session] = useAtom(sessionAtom)

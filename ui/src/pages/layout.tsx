@@ -1,3 +1,4 @@
+import { useColorScheme } from '@mui/joy/styles'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import { useMediaQuery } from 'foxact/use-media-query'
@@ -7,9 +8,10 @@ import { Outlet } from 'react-router'
 import { useVocabRealtimeSync } from '@/api/vocab-api'
 import { TopBar } from '@/components/TopBar.tsx'
 import { COLOR_SCHEME_QUERY, isDarkModeAtom, metaThemeColorEffect } from '@/lib/hooks'
-import { authChangeEventAtom, isMdScreenAtom, LIGHT_THEME_COLOR, metaThemeColorAtom, prefersDarkAtom, sessionAtom, supabase } from '@/store/useVocab'
 
 import './globals.css'
+
+import { authChangeEventAtom, isMdScreenAtom, LIGHT_THEME_COLOR, metaThemeColorAtom, prefersDarkAtom, sessionAtom, supabase } from '@/store/useVocab'
 
 function useSyncAtomWithHooks() {
   const isMdScreen = useMediaQuery('(min-width: 768px)')
@@ -34,17 +36,27 @@ function useSyncAtomWithUser() {
   }, [setAuthChangeEvent, setUser])
 }
 
-export function RootLayout() {
-  const ref = useRef<HTMLDivElement>(null!)
+function useSyncDarkPreference() {
   const isDarkOS = useMediaQuery(COLOR_SCHEME_QUERY)
   const [prefersDark, setPrefersDark] = useAtom(prefersDarkAtom)
-  const [isDarkMode] = useAtom(isDarkModeAtom)
   useEffect(() => {
     if (prefersDark !== isDarkOS)
       setPrefersDark(isDarkOS)
   }, [prefersDark, isDarkOS, setPrefersDark])
-  useAtom(metaThemeColorEffect)
-  useSyncAtomWithHooks()
+}
+
+function useSyncMuiColorScheme() {
+  const [isDarkMode] = useAtom(isDarkModeAtom)
+  const { mode, setMode } = useColorScheme()
+  useEffect(() => {
+    const nextMode = isDarkMode ? 'dark' : 'light'
+    if (nextMode !== mode)
+      setMode(nextMode)
+  }, [isDarkMode, mode, setMode])
+}
+
+function useSyncMetaThemeColor<T extends Element>(ref: React.RefObject<T>) {
+  const [isDarkMode] = useAtom(isDarkModeAtom)
   const setMetaThemeColor = useSetAtom(metaThemeColorAtom)
 
   useEffect(() => {
@@ -62,7 +74,16 @@ export function RootLayout() {
 
       setMetaThemeColor(themeColorContentValue)
     })
-  }, [isDarkMode, setMetaThemeColor])
+  }, [isDarkMode, ref, setMetaThemeColor])
+}
+
+export function RootLayout() {
+  const ref = useRef<HTMLDivElement>(null!)
+  useSyncMuiColorScheme()
+  useSyncDarkPreference()
+  useAtom(metaThemeColorEffect)
+  useSyncAtomWithHooks()
+  useSyncMetaThemeColor(ref)
 
   useSyncAtomWithUser()
   useVocabRealtimeSync()
@@ -70,7 +91,7 @@ export function RootLayout() {
   return (
     <div
       ref={ref}
-      className="isolate flex h-full min-h-full flex-col bg-[--theme-bg] pr-[--pr] tracking-[.02em] antialiased sq-smooth-[0.6] sq-radius-[5_5_0_0] sq-fill-[red] [--bg-:--theme-bg] [&[style*='border-radius:_8px;']]:mask-squircle"
+      className="isolate flex h-full min-h-full flex-col bg-[--theme-bg] pr-[--pr] tracking-[.02em] antialiased sq-smooth-[0.6] sq-radius-[5_5_0_0] sq-fill-[red] [--b-g:--theme-bg] [&[style*='border-radius:_8px;']]:mask-squircle"
       data-vaul-drawer-wrapper=""
     >
       <TopBar />

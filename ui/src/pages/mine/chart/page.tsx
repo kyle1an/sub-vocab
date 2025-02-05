@@ -418,7 +418,7 @@ export function Chart() {
         <Bar
           options={options}
           data={chartData}
-          className="w-full tabular-nums tracking-wide ffs-[normal] md:pb-0"
+          className="w-full tabular-nums tracking-wide [font-feature-settings:normal] md:pb-0"
         />
       </div>
     </div>

@@ -12,8 +12,8 @@ const checkboxVariants = cva(
     variants: {
       variant: {
         default: cn(
-          'drop-shadow-md squircle sq-radius-[3.2] sq-outline-[1.07] sq-stroke-[hsl(var(--primary))] data-[state=checked]:drop-shadow data-[state=checked]:sq-outline-0 data-[state=checked]:sq-fill-[hsl(var(--primary))] sq:rounded-none sq:border-0 sq:shadow-none data-[state=checked]:sq:bg-transparent',
-          '[--offset:2px] [--sq-r:2] focus-visible:after:squircle focus-visible:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus-visible:after:sq-outline-[1.1] focus-visible:after:sq-stroke-[hsl(var(--ring))] sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))]',
+          'drop-shadow-md squircle sq-radius-[3.2] sq-outline-[1.07] sq-stroke-[hsl(var(--primary))] sq-fill-transparent data-[state=checked]:drop-shadow data-[state=checked]:sq-outline-0 data-[state=checked]:sq-fill-[hsl(var(--primary))] sq:rounded-none sq:border-0 sq:shadow-none data-[state=checked]:sq:bg-transparent',
+          '[--offset:2px] [--sq-r:2] focus-visible:after:squircle focus-visible:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus-visible:after:sq-outline-[1.1] focus-visible:after:sq-stroke-[hsl(var(--ring))] focus-visible:after:sq-fill-transparent sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))]',
         ),
         radio: 'rounded-full [&_svg]:h-[15px]',
       },

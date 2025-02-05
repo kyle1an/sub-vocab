@@ -3,7 +3,7 @@ import type { VariantProps } from 'class-variance-authority'
 import { cva } from 'class-variance-authority'
 
 const segmentedControlVariants = cva(
-  `grid w-full !touch-manipulation select-none auto-cols-[1fr] grid-flow-col overflow-hidden tracking-wide antialiased outline-none ffs-['cv08'] [text-rendering:geometricPrecision]`,
+  `grid w-full !touch-manipulation select-none auto-cols-[1fr] grid-flow-col overflow-hidden tracking-wide antialiased outline-none [font-feature-settings:'cv08'] [text-rendering:geometricPrecision]`,
   {
     variants: {
       variant: {
@@ -105,6 +105,7 @@ export function SegmentedControl<T extends string>({
         <Segment
           key={item.value}
           value={item.value}
+          variant={variant}
           sqRef={addToRefs(item.value)}
           checked={item.value === value}
           label={item.label}
@@ -115,6 +116,21 @@ export function SegmentedControl<T extends string>({
   )
 }
 
+const checkedSegmentVariants = cva(
+  'bg-white transition-transform duration-300',
+  {
+    variants: {
+      variant: {
+        default: 'border-0 bg-black/[.04] shadow before:bg-white dark:before:bg-neutral-600',
+        ghost: 'bg-neutral-200 dark:bg-slate-600',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+    },
+  },
+)
+
 function Segment<T extends string>({
   value,
   label,
@@ -122,6 +138,7 @@ function Segment<T extends string>({
   onValueChange,
   sqRef,
   className,
+  variant,
   ...props
 }: {
   value: T
@@ -129,11 +146,12 @@ function Segment<T extends string>({
   onValueChange: (value: T) => void
   checked: boolean
   sqRef: Ref<HTMLDivElement>
-} & React.HTMLAttributes<HTMLDivElement> & RefAttributes<HTMLDivElement>) {
+} & React.HTMLAttributes<HTMLDivElement> & RefAttributes<HTMLDivElement> & VariantProps<typeof checkedSegmentVariants>) {
   const id = useId()
   return (
     <div
       className={cn('group/d relative first-of-type:col-[1] first-of-type:row-[1] first-of-type:shadow-none', className)}
+      data-checked={checked}
       {...props}
     >
       <input
@@ -142,18 +160,24 @@ function Segment<T extends string>({
         type="radio"
         value={value}
         checked={checked}
-        className="group/i peer absolute inset-0 appearance-none opacity-0 outline-none"
+        className="absolute inset-0 appearance-none opacity-0 outline-none"
         onChange={() => {
           onValueChange(value)
         }}
       />
       <label
         htmlFor={id}
-        className="group/l relative block cursor-pointer bg-transparent text-center before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[10px] before:bg-neutral-300 before:transition-[background] before:duration-200 before:ease-[ease] before:will-change-[background] group-first-of-type/d:before:opacity-0 group-[:has(:checked)+*]/d:before:bg-transparent peer-checked:cursor-default peer-checked:before:z-10 peer-checked:before:bg-transparent dark:before:bg-slate-700"
+        className="relative block cursor-pointer bg-transparent text-center before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[10px] before:bg-neutral-300 before:transition-[background] before:duration-200 before:ease-[ease] before:will-change-[background] group-first-of-type/d:before:opacity-0 group-[[data-checked=true]]/d:cursor-default group-[[data-checked=true]]/d:before:z-10 group-[&[data-checked=true]+*]/d:before:bg-transparent group-[[data-checked=true]]/d:before:bg-transparent dark:before:bg-slate-700"
       >
-        <div className="flex flex-col justify-center text-sm/6 group-[]/ghost:leading-[1.375rem]">
+        <div className={clsx(
+          'flex flex-col justify-center text-sm/6',
+          variant === 'ghost' && 'leading-[1.375rem]',
+        )}
+        >
           <div
-            className="relative z-10 flex justify-center text-black transition-all duration-200 ease-[ease] will-change-transform group-hover/d:opacity-20 group-focus/d:opacity-20 group-active/d:opacity-20 group-active/d:delay-150 group-active/d:group-[:not(:checked)+label]/i:scale-95 peer-checked:group-[]/l:font-medium peer-checked:group-[]/l:opacity-100 dark:text-white"
+            className={clsx(
+              'relative z-10 flex justify-center text-black transition-all duration-200 ease-[ease] will-change-transform group-hover/d:opacity-20 group-focus/d:opacity-20 group-active/d:opacity-20 group-active/d:delay-150 group-[&:active[data-checked=false]]/d:scale-95 group-[[data-checked=true]]/d:font-medium group-[[data-checked=true]]/d:opacity-100 dark:text-white',
+            )}
           >
             {label}
           </div>
@@ -170,8 +194,8 @@ function Segment<T extends string>({
             }}
             borderWidth={0.5}
             className={cn(
-              'flex size-full ease-[ease] will-change-transform group-[]/default:peer-checked:group-[]/l:border-0 group-[]/default:peer-checked:group-[]/l:bg-black/[.04] group-[]/ghost:peer-checked:group-[]/l:bg-neutral-200 peer-checked:group-[]/l:bg-white group-[]/default:peer-checked:group-[]/l:shadow group-[]/default:peer-checked:group-[]/l:before:bg-white dark:group-[]/ghost:peer-checked:group-[]/l:bg-slate-600 dark:group-[]/default:peer-checked:group-[]/l:before:bg-neutral-600',
-              checked && 'transition-transform duration-300',
+              'flex size-full ease-[ease] will-change-transform',
+              checked && checkedSegmentVariants({ variant }),
             )}
           />
         </div>

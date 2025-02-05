@@ -100,7 +100,7 @@ function DropdownMenuItem({
       ref={ref}
       className={cn(
         'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-        'sq-radius-[--sq-r] sq-fill-[hsl(var(--accent))] [--sq-r:3px] focus:squircle sq:bg-transparent',
+        'sq-radius-[--sq-r] sq-fill-[hsl(var(--accent))] [--sq-r:3px] focus:squircle focus:sq-outline-0 sq:bg-transparent',
         inset && 'pl-8',
         className,
       )}
