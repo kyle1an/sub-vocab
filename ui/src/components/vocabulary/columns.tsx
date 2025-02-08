@@ -7,7 +7,7 @@ import {
 
 import type { LabelDisplayTable } from '@/lib/vocab'
 
-import { TableHeaderCell } from '@/components/ui/table-element'
+import { HeaderTitle, TableHeaderCell } from '@/components/ui/table-element'
 import { VocabToggle } from '@/components/vocabulary/toggle-button'
 import { useVocabToggle } from '@/hooks/vocab-toggle'
 import { SortIcon } from '@/lib/icon-utils'
@@ -37,20 +37,11 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
                 orientation="vertical"
                 className="h-5 group-active:h-full group-[:has(:active)+th]/th:h-full"
               />
-              <div
-                className="float-right flex grow select-none items-center"
-              >
-                <span
-                  title={title}
-                  className={clsx(
-                    'grow text-left [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]',
-                    isSorted ? 'font-semibold' : '',
-                  )}
-                >
-                  {title}
-                </span>
-                <SortIcon isSorted={isSorted} />
-              </div>
+              <HeaderTitle
+                title={title}
+                isSorted={isSorted}
+                className="data-[title]:*:text-left"
+              />
             </Div>
           </TableHeaderCell>
         )
@@ -96,15 +87,11 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
                 orientation="vertical"
                 className="h-5 group-active:h-full group-[:has(:active)+th]/th:h-full"
               />
-              <div className="flex items-center">
-                <span
-                  title={title}
-                  className={clsx('grow text-right before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
-                >
-                  {title}
-                </span>
-                <SortIcon isSorted={isSorted} />
-              </div>
+              <HeaderTitle
+                title={title}
+                isSorted={isSorted}
+                className="data-[title]:*:text-right"
+              />
             </Div>
           </TableHeaderCell>
         )
@@ -115,7 +102,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pr-[9px] text-xs tabular-nums">
+            <Div className="justify-end pl-0.5 pr-[9px] text-xs tabular-nums">
               <span>
                 {value}
               </span>
@@ -158,7 +145,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
         <TableDataCell
           cell={cell}
         >
-          <Div className="justify-center">
+          <Div className="justify-center pl-0.5 pr-px">
             <VocabToggle
               vocab={row.original.vocab}
               onToggle={handleVocabToggle}
@@ -185,15 +172,11 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
                 orientation="vertical"
                 className="h-5 group-active:h-full group-[:has(:active)+th]/th:h-full"
               />
-              <div className="flex items-center">
-                <span
-                  title={title}
-                  className={clsx('grow text-right [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
-                >
-                  {title}
-                </span>
-                <SortIcon isSorted={isSorted} />
-              </div>
+              <HeaderTitle
+                title={title}
+                isSorted={isSorted}
+                className="data-[title]:*:text-right"
+              />
             </Div>
           </TableHeaderCell>
         )
@@ -204,7 +187,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center tabular-nums [font-stretch:condensed]">
+            <Div className="justify-center pl-0.5 pr-px tabular-nums [font-stretch:condensed]">
               {value}
             </Div>
           </TableDataCell>
