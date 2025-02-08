@@ -4,10 +4,11 @@ import usePagination from '@mui/material/usePagination'
 import NumberFlow from '@number-flow/react'
 import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
-import type { SubtitleResponseData } from '@/api/opensubtitles'
+import type { SubtitleData } from '@/components/subtitle/columns'
 
 import { useOpenSubtitlesSubtitles } from '@/api/opensubtitles'
 import { useCommonColumns } from '@/components/subtitle/columns'
+import { RefetchButton } from '@/components/subtitle/menu-items'
 import { TablePagination } from '@/components/table-pagination'
 import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
 import { TableRow } from '@/components/ui/table-element'
@@ -17,13 +18,13 @@ import { sortBySelection } from '@/lib/table-utils'
 import { findClosest } from '@/lib/utilities'
 import { subtitleSelectionStateFamily } from '@/store/useVocab'
 
-type SubtitleData = SubtitleResponseData
+type MovieSubtitleData = SubtitleData
 
-function useMovieColumns<T extends SubtitleData>() {
+function useMovieColumns<T extends MovieSubtitleData>() {
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
   return [
-    columnHelper.accessor((row) => row.id, {
+    columnHelper.accessor((row) => row.subtitle.id, {
       id: 'action',
       sortingFn: sortBySelection,
       header: ({ header }) => {
@@ -52,7 +53,7 @@ function useMovieColumns<T extends SubtitleData>() {
             <Div className="text-zinc-400">
               <div
                 className={clsx(
-                  'flex h-full grow items-center justify-between pl-1.5 pr-1',
+                  'flex h-full grow items-center justify-between pl-2 pr-1',
                   canExpand && 'cursor-pointer',
                 )}
               >
@@ -74,7 +75,7 @@ function useMovieColumns<T extends SubtitleData>() {
   ]
 }
 
-const PAGE_SIZES = [5, 10, 20, 40, 50, 100, 200] as const
+const PAGE_SIZES = [4, 5, 10, 20, 40, 50, 100, 200] as const
 
 const initialTableState: InitialTableState = {
   sorting: [
@@ -83,7 +84,7 @@ const initialTableState: InitialTableState = {
       desc: true,
     },
   ],
-  columnOrder: ['action', 'year', 'media_type', 'movie_name', 'language', 'download_count'],
+  columnOrder: ['action', 'year', 'media_type', 'movie_name', 'language', 'upload_date', 'download_count'],
   pagination: {
     pageSize: findClosest(10, PAGE_SIZES),
     pageIndex: 0,
@@ -98,18 +99,20 @@ export function MovieSubtitleFiles({
   // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
   const { t } = useTranslation()
-  const { data, isPending } = useOpenSubtitlesSubtitles({
+  const { data, isFetching, refetch } = useOpenSubtitlesSubtitles({
     type: 'movie',
     tmdb_id: id,
     languages: 'en',
     per_page: 100,
   })
-  const commonColumns = useCommonColumns<SubtitleData>()
+  const commonColumns = useCommonColumns<MovieSubtitleData>()
   const movieColumns = useMovieColumns()
   const columns = [...commonColumns, ...movieColumns]
   const [rowSelection = {}, setRowSelection] = useAtom(subtitleSelectionStateFamily(id))
   const table = useReactTable({
-    data: data?.data ?? [],
+    data: (data?.data ?? []).map((subtitle) => ({
+      subtitle,
+    })),
     columns,
     initialState: initialTableState,
     state: {
@@ -133,24 +136,26 @@ export function MovieSubtitleFiles({
   })
 
   return (
-    <div className="px-6 pb-5 pt-2 md:pl-24 md:pr-12">
-      <SquircleBg className="flex h-[286px] items-center justify-center overflow-hidden rounded-xl border">
+    <div className="px-6 pb-5 pt-2 md:pl-16 md:pr-12">
+      <SquircleBg
+        style={{
+          '--h': `${126 + 4 * 32}px`,
+        }}
+        className="flex h-[--h] items-center justify-center overflow-hidden rounded-xl border"
+      >
         <SquircleMask
           className="flex size-full flex-col bg-[--theme-bg]"
         >
           <div>
             <div className="flex h-9 gap-2 p-1.5">
-              <div className="flex aspect-square items-center justify-center">
-                {isPending ? (
-                  <IconLucideLoader2
-                    className="animate-spin"
-                  />
-                ) : null}
-              </div>
+              <RefetchButton
+                refetch={refetch}
+                isFetching={isFetching}
+              />
             </div>
           </div>
           <div
-            className="grow overflow-auto overflow-y-scroll overscroll-contain"
+            className="grow overflow-auto overflow-y-scroll"
           >
             <table className="relative border-separate border-spacing-0">
               <TableHeader>

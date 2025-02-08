@@ -15,12 +15,16 @@ import { MediaDetails } from '@/components/media-details'
 import { OpensubtitlesAuthentication } from '@/components/subtitle/opensubtitles-authentication'
 import { TablePagination } from '@/components/table-pagination'
 import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
-import { TableDataCell, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
+import { HeaderTitle, TableDataCell, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { SortIcon } from '@/lib/icon-utils'
 import { findClosest } from '@/lib/utilities'
 import { fileIdsAtom, sourceTextAtom, subtitleDownloadProgressAtom, subtitleSelectionStateAtom } from '@/store/useVocab'
 
 const mediaSearchAtom = atomWithStorage('mediaSearchAtom', '')
+
+const popularityNumberFormat = new Intl.NumberFormat('en', { maximumFractionDigits: 1, minimumFractionDigits: 1 })
+const voteNumberFormat = new Intl.NumberFormat('en', { maximumFractionDigits: 1, minimumFractionDigits: 1 })
+const voteCountFormat = new Intl.NumberFormat('en', { notation: 'compact', compactDisplay: 'short' })
 
 type TableData = NonNullable<PathsThemoviedb['/3/search/multi']['get']['responses'][200]['content']['application/json']['results']>[number]
 
@@ -68,7 +72,7 @@ function useColumns<T extends TableData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="text-zinc-400">
+            <Div className="pl-0.5 pr-px text-zinc-400">
               {row.getCanExpand() ? (
                 <div
                   className="flex h-full grow cursor-pointer select-none items-center justify-center"
@@ -120,17 +124,11 @@ function useColumns<T extends TableData>() {
                 orientation="vertical"
                 className="h-5 signal/active:h-full"
               />
-              <div
-                className="float-right flex grow select-none items-center"
-              >
-                <span
-                  title={title}
-                  className={clsx('grow text-left [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
-                >
-                  {title}
-                </span>
-                <SortIcon isSorted={isSorted} />
-              </div>
+              <HeaderTitle
+                title={title}
+                isSorted={isSorted}
+                className="data-[title]:*:text-left"
+              />
             </Div>
           </TableHeaderCell>
         )
@@ -141,7 +139,7 @@ function useColumns<T extends TableData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center tabular-nums [font-stretch:condensed]">
+            <Div className="justify-center pl-0.5 pr-px tabular-nums [font-stretch:condensed]">
               {value ? format(value, 'yyyy') : null}
             </Div>
           </TableDataCell>
@@ -166,15 +164,11 @@ function useColumns<T extends TableData>() {
                 orientation="vertical"
                 className="h-5 signal/active:h-full"
               />
-              <div className="flex items-center">
-                <span
-                  title={title}
-                  className={clsx('grow text-right [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
-                >
-                  {title}
-                </span>
-                <SortIcon isSorted={isSorted} />
-              </div>
+              <HeaderTitle
+                title={title}
+                isSorted={isSorted}
+                className="data-[title]:*:text-right"
+              />
             </Div>
           </TableHeaderCell>
         )
@@ -186,7 +180,7 @@ function useColumns<T extends TableData>() {
             cell={cell}
           >
             <Div
-              className="justify-center capitalize tabular-nums [font-stretch:condensed] data-[value='tv']:uppercase"
+              className="justify-center pl-0.5 pr-px capitalize tabular-nums [font-stretch:condensed] data-[value='tv']:uppercase"
               data-value={value}
             >
               {value}
@@ -214,20 +208,11 @@ function useColumns<T extends TableData>() {
                 orientation="vertical"
                 className="h-5 signal/active:h-full"
               />
-              <div
-                className="float-right flex grow select-none items-center"
-              >
-                <span
-                  title={title}
-                  className={clsx(
-                    'grow text-left [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]',
-                    isSorted ? 'font-semibold' : '',
-                  )}
-                >
-                  {title}
-                </span>
-                <SortIcon isSorted={isSorted} />
-              </div>
+              <HeaderTitle
+                title={title}
+                isSorted={isSorted}
+                className="data-[title]:*:text-left"
+              />
             </Div>
           </TableHeaderCell>
         )
@@ -239,7 +224,7 @@ function useColumns<T extends TableData>() {
             cell={cell}
           >
             <Div
-              className="cursor-text select-text pl-2.5 tracking-wider [font-feature-settings:'cv03','cv05','cv06']"
+              className="cursor-text select-text pl-2.5 pr-px tracking-wider [font-feature-settings:'cv03','cv05','cv06']"
               onClick={(ev) => ev.stopPropagation()}
             >
               <span>{value}</span>
@@ -251,7 +236,7 @@ function useColumns<T extends TableData>() {
     columnHelper.accessor((row) => row.vote_average, {
       id: 'vote_average',
       header: ({ header }) => {
-        const title = 'Vote'
+        const title = 'Rating'
         const isSorted = header.column.getIsSorted()
         return (
           <TableHeaderCell
@@ -266,30 +251,39 @@ function useColumns<T extends TableData>() {
                 orientation="vertical"
                 className="h-5 signal/active:h-full"
               />
-              <div className="flex items-center">
-                <span
-                  title={title}
-                  className={clsx('grow text-right before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
-                >
-                  {title}
-                </span>
-                <SortIcon isSorted={isSorted} />
-              </div>
+              <HeaderTitle
+                title={title}
+                isSorted={isSorted}
+                className="data-[title]:*:text-left"
+              />
             </Div>
           </TableHeaderCell>
         )
       },
       cell: ({ cell, row, getValue }) => {
         const value = getValue()
+        const voteCount = row.original.vote_count
         return (
           <TableDataCell
             cell={cell}
           >
-            <Div className="pr-2 tabular-nums">
-              <span>
-                {row.original.vote_count >= 1 ? value : null}
-              </span>
-            </Div>
+            {
+              voteCount >= 1 ? (
+                <Div className="flex flex-nowrap gap-1 px-1 tabular-nums">
+                  <div className="flex items-center gap-1.5">
+                    <IconClarityStarSolid className="text-neutral-800 dark:text-neutral-100" />
+                    <span className="font-semibold">
+                      {voteNumberFormat.format(value)}
+                    </span>
+                  </div>
+                  <span>
+                    {`(${voteCountFormat.format(voteCount)})`}
+                  </span>
+                </Div>
+              ) : (
+                <></>
+              )
+            }
           </TableDataCell>
         )
       },
@@ -312,28 +306,24 @@ function useColumns<T extends TableData>() {
                 orientation="vertical"
                 className="h-5 signal/active:h-full"
               />
-              <div className="flex items-center">
-                <span
-                  title={title}
-                  className={clsx('grow text-right [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
-                >
-                  {title}
-                </span>
-                <SortIcon isSorted={isSorted} />
-              </div>
+              <HeaderTitle
+                title={title}
+                isSorted={isSorted}
+                className="data-[title]:*:text-right"
+              />
             </Div>
           </TableHeaderCell>
         )
       },
       cell: ({ cell, getValue }) => {
-        const value = getValue().toFixed(3)
+        const value = getValue()
         return (
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pr-4 text-xs tabular-nums [font-stretch:condensed]">
+            <Div className="justify-end pl-0.5 pr-5 text-xs tabular-nums [font-stretch:condensed]">
               <span>
-                {value}
+                {popularityNumberFormat.format(value)}
               </span>
             </Div>
           </TableDataCell>
@@ -353,7 +343,7 @@ export function Subtitles() {
   const columns = useColumns()
   const setSourceText = useSetAtom(sourceTextAtom)
   const [subtitleDownloadProgress, setSubtitleDownloadProgress] = useAtom(subtitleDownloadProgressAtom)
-  const { data: movie, isFetching: isSearchLoading } = $api.useQuery(
+  const { data: multiData, isFetching: isSearchLoading } = $api.useQuery(
     'get',
     '/3/search/multi',
     {
@@ -368,8 +358,9 @@ export function Subtitles() {
       placeholderData: (prev) => prev,
     },
   )
+  const tvAndMovieResults = (multiData?.results ?? []).filter(({ media_type }) => media_type === 'tv' || media_type === 'movie')
   const table = useReactTable({
-    data: movie?.results ?? [],
+    data: tvAndMovieResults,
     columns,
     initialState: initialTableState,
     autoResetPageIndex: false,
@@ -539,7 +530,7 @@ export function Subtitles() {
                 </tr>
               ))}
             </TableHeader>
-            <tbody>
+            <tbody className="data-[row]:*:h-9">
               {table.getRowModel().rows.map((row, index) => {
                 return (
                   <TableRow

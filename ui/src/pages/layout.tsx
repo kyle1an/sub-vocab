@@ -48,7 +48,7 @@ function useSyncDarkPreference() {
 function useSyncMuiColorScheme() {
   const [isDarkMode] = useAtom(isDarkModeAtom)
   const { mode, setMode } = useColorScheme()
-  useEffect(() => {
+  useLayoutEffect(() => {
     const nextMode = isDarkMode ? 'dark' : 'light'
     if (nextMode !== mode)
       setMode(nextMode)

@@ -1,4 +1,4 @@
-import type { Cell, Row } from '@tanstack/react-table'
+import type { Cell, Row, SortDirection } from '@tanstack/react-table'
 import type { ReactElement, RefObject } from 'react'
 
 import { Slot } from '@radix-ui/react-slot'
@@ -13,6 +13,7 @@ import type { GroupHeader } from '@/types/vocab'
 
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
 import { useRect } from '@/lib/hooks'
+import { SortIcon } from '@/lib/icon-utils'
 import { mergeRefs } from '@/lib/merge-refs'
 
 const HEAD_HEIGHT = 30
@@ -105,11 +106,36 @@ export function TableDataCell<T>({
       )}
     >
       {children?.type === React.Fragment ? children : (
-        <Slot className="flex size-full items-center pl-0.5 pr-px">
+        <Slot className="flex size-full items-center">
           {children}
         </Slot>
       )}
     </td>
+  )
+}
+
+export function HeaderTitle({
+  title,
+  className,
+  isSorted,
+}: DivProps & {
+  isSorted: false | SortDirection
+}) {
+  return (
+    <div className={cn('flex grow select-none items-center', className)}>
+      <span
+        data-title={title}
+        className={clsx(
+          'grow [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(data-title)]',
+          isSorted ? 'font-semibold' : '',
+        )}
+      >
+        {title}
+      </span>
+      <SortIcon
+        isSorted={isSorted}
+      />
+    </div>
   )
 }
 
@@ -225,6 +251,7 @@ export function TableRow<T>({
           '--top': `${HEAD_HEIGHT}px`,
           '--z-index': index + (open && subRows.length ? 1 + subRows.length : 0),
         }}
+        data-row
         className="group/tr relative z-[--z-index] bg-background transition-shadow duration-0 [content-visibility:auto] data-[state=open]:sticky data-[state=open]:top-[--top] data-[boundary]:!shadow-intersect [[data-boundary]+*:empty+&>*]:border-t-transparent [[data-detail-above]+&]:shadow-collapse [[data-detail-above]+&]:duration-200 [[data-state=closed]+&]:shadow-collapse [[data-state=closed][data-disabled]+&]:shadow-none [[data-transition-open]+&]:duration-300"
         data-disabled={!getCanExpand() || undefined}
         data-state={state}

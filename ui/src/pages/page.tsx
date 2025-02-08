@@ -1,3 +1,5 @@
+import type { ImperativePanelGroupHandle } from 'react-resizable-panels'
+
 import { useMediaQuery } from 'foxact/use-media-query'
 import { Link, Outlet } from 'react-router'
 
@@ -123,6 +125,12 @@ export function Home() {
   )
 }
 
+const horizontalDefaultSizesAtom = atom([50, 50])
+const verticalDefaultSizesAtom = atom([
+  36,
+  64,
+])
+
 export function ResizeVocabularyPanel() {
   const { t } = useTranslation()
   const [fileInfo, setFileInfo] = useAtom(fileInfoAtom)
@@ -147,15 +155,25 @@ export function ResizeVocabularyPanel() {
   const [count] = useAtom(textCountAtom)
   const [acquaintedWordCount] = useAtom(acquaintedWordCountAtom)
   const [newWordCount] = useAtom(newWordCountAtom)
+  const [horizontalDefaultSizes, setHorizontalDefaultSizes] = useAtom(horizontalDefaultSizesAtom)
+  const [verticalDefaultSizes, setVerticalDefaultSizes] = useAtom(verticalDefaultSizesAtom)
   const isMdScreen = useMediaQuery('(min-width: 768px)')
   const direction = isMdScreen ? 'horizontal' : 'vertical'
-  let defaultSizes = [50, 50]
-  if (direction === 'vertical') {
-    defaultSizes = [
-      36,
-      64,
-    ]
+  const defaultSizes = direction === 'vertical' ? verticalDefaultSizes : horizontalDefaultSizes
+  const panelGroupRef = useRef<ImperativePanelGroupHandle>(null)
+  useLayoutEffect(() => {
+    panelGroupRef.current?.setLayout(defaultSizes)
+  // eslint-disable-next-line react-compiler/react-compiler
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [direction])
+
+  function onLayout(sizes: number[]) {
+    if (direction === 'vertical')
+      setVerticalDefaultSizes(sizes)
+    else
+      setHorizontalDefaultSizes(sizes)
   }
+
   const [fileTypes] = useAtom(fileTypesAtom)
 
   return (
@@ -163,10 +181,12 @@ export function ResizeVocabularyPanel() {
       <SquircleBg className="flex h-[calc(100%-4px*14)] items-center justify-center overflow-hidden rounded-xl border">
         <SquircleMask asChild>
           <ResizablePanelGroup
+            ref={panelGroupRef}
             direction={direction}
             className={clsx(
               'iOS:[body:has(&)]:overflow-hidden', // prevent overscroll
             )}
+            onLayout={onLayout}
           >
             <ResizablePanel defaultSize={defaultSizes[0]}>
               <div className="flex h-full items-center justify-center">

@@ -20,12 +20,11 @@ import { statusLabels, userVocabularyAtom } from '@/api/vocab-api'
 import { SearchWidget } from '@/components/search-widget'
 import { TablePagination } from '@/components/table-pagination'
 import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
-import { TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
+import { HeaderTitle, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { AcquaintAllDialog } from '@/components/vocabulary/acquaint-all-dialog'
 import { useVocabularyCommonColumns } from '@/components/vocabulary/columns'
 import { VocabularyMenu } from '@/components/vocabulary/menu'
 import { useLastTruthy } from '@/lib/hooks'
-import { SortIcon } from '@/lib/icon-utils'
 import { LEARNING_PHASE } from '@/lib/LabeledTire'
 import { tryGetRegex } from '@/lib/regex'
 import { findClosest, getFallBack } from '@/lib/utilities'
@@ -126,13 +125,11 @@ function useDataColumns<T extends TableData>() {
                 className="select-none pl-2 pr-1"
                 onClick={header.column.getToggleSortingHandler()}
               >
-                <span
+                <HeaderTitle
                   title={title}
-                  className={clsx('grow text-right [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]', isSorted ? 'font-semibold' : '')}
-                >
-                  {title}
-                </span>
-                <SortIcon isSorted={isSorted} />
+                  isSorted={isSorted}
+                  className="data-[title]:*:text-right"
+                />
               </Div>
             </TableHeaderCell>
           )
@@ -143,7 +140,7 @@ function useDataColumns<T extends TableData>() {
             <TableDataCell
               cell={cell}
             >
-              <Div className="justify-center tabular-nums [font-stretch:condensed]">
+              <Div className="justify-center pl-0.5 pr-px tabular-nums [font-stretch:condensed]">
                 {value ? formatDistanceToNowStrict(new Date(value)) : null}
               </Div>
             </TableDataCell>
@@ -275,9 +272,16 @@ export function VocabDataTable({
               <div>
                 Refresh
               </div>
-              <IconMaterialSymbolsRefreshRounded
+              <IconLucideLoader2
                 className={clsx(
-                  isLoadingUserVocab && 'animate-spin',
+                  'size-3.5 animate-spin',
+                  isLoadingUserVocab ? '' : 'hidden',
+                )}
+              />
+              <IconIonRefresh
+                className={clsx(
+                  'size-4',
+                  isLoadingUserVocab ? 'hidden' : '',
                 )}
               />
             </DropdownMenuItem>

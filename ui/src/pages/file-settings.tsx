@@ -158,9 +158,9 @@ export function FileSettings() {
       </DrawerTrigger>
       <DrawerContent>
         <div className="w-full border-b pb-3 pt-1 text-lg">
-          <h2 className="m-auto w-fit text-lg font-semibold leading-none">
+          <DialogTitle className="m-auto w-fit text-lg font-semibold leading-none">
             {FILE_SETTINGS_TITLE}
-          </h2>
+          </DialogTitle>
         </div>
         <div className="size-full overflow-y-scroll px-6 pb-4">
           <div className="mx-auto max-w-[425px]">

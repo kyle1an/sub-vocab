@@ -5,4 +5,4 @@ export type RowId = {
   '~rowId'?: string
 }
 
-export const getFileId = (row: SubtitleData & RowId) => row['~rowId'] ?? String(row.attributes.files[0]?.file_id ?? '')
+export const getFileId = (row: SubtitleData & RowId) => row['~rowId'] ?? String(row.subtitle.attributes.files[0]?.file_id ?? '')
