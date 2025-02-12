@@ -1781,7 +1781,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Details */
+        /**
+         * Details
+         * @description Get the public details of an account on TMDB.
+         */
         get: operations["account-details"];
         put?: never;
         post?: never;
@@ -1798,7 +1801,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Lists */
+        /**
+         * Lists
+         * @description Get a users list of custom lists.
+         */
         get: operations["account-lists"];
         put?: never;
         post?: never;
@@ -1815,7 +1821,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Favorite Movies */
+        /**
+         * Favorite Movies
+         * @description Get a users list of favourite movies.
+         */
         get: operations["account-get-favorites"];
         put?: never;
         post?: never;
@@ -1832,7 +1841,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Favorite TV */
+        /**
+         * Favorite TV
+         * @description Get a users list of favourite TV shows.
+         */
         get: operations["account-favorite-tv"];
         put?: never;
         post?: never;
@@ -1849,7 +1861,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Rated Movies */
+        /**
+         * Rated Movies
+         * @description Get a users list of rated movies.
+         */
         get: operations["account-rated-movies"];
         put?: never;
         post?: never;
@@ -1866,7 +1881,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Rated TV */
+        /**
+         * Rated TV
+         * @description Get a users list of rated TV shows.
+         */
         get: operations["account-rated-tv"];
         put?: never;
         post?: never;
@@ -1883,7 +1901,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Rated TV Episodes */
+        /**
+         * Rated TV Episodes
+         * @description Get a users list of rated TV episodes.
+         */
         get: operations["account-rated-tv-episodes"];
         put?: never;
         post?: never;
@@ -1900,7 +1921,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Watchlist Movies */
+        /**
+         * Watchlist Movies
+         * @description Get a list of movies added to a users watchlist.
+         */
         get: operations["account-watchlist-movies"];
         put?: never;
         post?: never;
@@ -1917,7 +1941,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Watchlist TV */
+        /**
+         * Watchlist TV
+         * @description Get a list of TV shows added to a users watchlist.
+         */
         get: operations["account-watchlist-tv"];
         put?: never;
         post?: never;
@@ -1936,7 +1963,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Add Favorite */
+        /**
+         * Add Favorite
+         * @description Mark a movie or TV show as a favourite.
+         */
         post: operations["account-add-favorite"];
         delete?: never;
         options?: never;
@@ -1953,7 +1983,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Add To Watchlist */
+        /**
+         * Add To Watchlist
+         * @description Add a movie or TV show to your watchlist.
+         */
         post: operations["account-add-to-watchlist"];
         delete?: never;
         options?: never;

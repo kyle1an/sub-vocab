@@ -37,3 +37,8 @@ export function getFallBack<P extends string, T extends Record<string, string>>(
 }
 
 export type ArrayConcat<T extends UnknownArray, Item extends UnknownArray> = ArraySplice<T, T['length'], 0, Item>
+
+// https://www.reddit.com/r/typescript/comments/s1rdbp/comment/ihh0hyx/
+export function hasKey<T extends string>(obj: unknown, key: T): obj is { [key in T]: unknown } {
+  return Boolean(typeof obj === 'object' && obj && key in obj)
+}

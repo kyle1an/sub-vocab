@@ -4,7 +4,8 @@ import type { inferRouterClient } from '@trpc/client'
 
 import { useMutation } from '@tanstack/react-query'
 
-import { supabase, trpc } from '@/store/useVocab'
+import { useTRPC } from '@/api/trpc'
+import { supabase } from '@/store/useVocab'
 
 export function useRegister() {
   return useMutation({
@@ -77,12 +78,12 @@ export function useSignInWithUsername() {
     },
   })
 
+  const trpc = useTRPC()
   // https://stackoverflow.com/a/74898111/10903455
-  return trpc.user.signIn.useMutation({
-    mutationKey: ['signInWithUsername'],
+  return useMutation(trpc.user.signIn.mutationOptions({
     onSuccess: (credential) => {
       return mutateAsync(credential)
     },
     retry: 2,
-  })
+  }))
 }

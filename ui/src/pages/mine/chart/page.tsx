@@ -413,7 +413,7 @@ export function Chart() {
         <SegmentedControl
           segments={segments}
           value={segment}
-          onChoose={setSegment}
+          onValueChange={setSegment}
         />
         <Bar
           options={options}

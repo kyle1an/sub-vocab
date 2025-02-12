@@ -24,7 +24,7 @@ export function Squircle({
   borderWidth = 0,
   squircle,
   ...props
-}: React.HTMLAttributes<HTMLDivElement> & React.RefAttributes<HTMLDivElement> & {
+}: React.ComponentProps<'div'> & {
   asChild?: boolean
   borderWidth?: number
   squircle?: SetOptional<SquircleParams, keyof typeof SQUIRCLE_PARAMS_DEFAULT>
@@ -62,7 +62,7 @@ export function Squircle({
         elRef,
       )}
       className={cn(
-        'relative before:absolute before:inset-[--inset] before:-z-10 before:block before:[clip-path:--clip-path]',
+        'relative before:absolute before:inset-[--inset] before:-z-10 before:block before:[clip-path:var(--clip-path)]',
         className,
         !clipPathPseudo && 'opacity-0',
       )}
@@ -89,7 +89,7 @@ export function SquircleBg({
   const Component = asChild ? Slot : 'div'
   return (
     <Component
-      className={cn('drop-shadow-sm squircle sq-radius-[--sq-r] sq-fill-[hsl(var(--border))] [--sq-r:9px] sq:rounded-none sq:border-0 sq:bg-transparent', className)}
+      className={cn('drop-shadow-sm sq-radius-[--sq-r] sq-fill-[--border] [--sq-r:9px] sq:rounded-none sq:border-0 sq:bg-transparent sq:[background:paint(squircle)]', className)}
       {...props}
     >
       {children}
@@ -108,7 +108,7 @@ export function SquircleMask({
   const Component = asChild ? Slot : 'div'
   return (
     <Component
-      className={cn('mask-squircle sq-radius-[calc(var(--sq-r)-1px+0.5px)] sq-fill-white sq:size-[calc(100%-2px)]', className)}
+      className={cn('sq-radius-[calc(var(--sq-r)-1px+0.5px)] sq-fill-white sq:size-[calc(100%-2px)] sq:[mask:paint(squircle)]', className)}
       {...props}
     >
       {children}

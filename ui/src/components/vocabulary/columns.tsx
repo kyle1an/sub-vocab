@@ -11,16 +11,16 @@ import { HeaderTitle, TableHeaderCell } from '@/components/ui/table-element'
 import { VocabToggle } from '@/components/vocabulary/toggle-button'
 import { useVocabToggle } from '@/hooks/vocab-toggle'
 import { SortIcon } from '@/lib/icon-utils'
+import { getFilterFn } from '@/lib/table-utils'
 
 export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDisplayTable>() {
-  type ColumnFilterFn = (rowValue: T) => boolean
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
   const handleVocabToggle = useVocabToggle()
   return [
     columnHelper.accessor((row) => row.vocab.word, {
       id: 'word',
-      filterFn: (row, columnId, fn: ColumnFilterFn) => fn(row.original),
+      filterFn: getFilterFn(),
       header: ({ header }) => {
         const isSorted = header.column.getIsSorted()
         const title = t('Word')
@@ -54,13 +54,13 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
             cell={cell}
           >
             <>
-              {wFamily.map((w, i) => (
+              {wFamily.map(({ path: w, src }, i) => (
                 <div
                   key={w}
                   className="inline-block cursor-text select-text pl-1.5 tracking-wider [font-feature-settings:'cv03','cv05','cv06'] first:pl-2"
                   onClick={(ev) => ev.stopPropagation()}
                 >
-                  <span className={clsx(i === 0 ? '' : 'text-neutral-500 dark:text-slate-400')}>{w}</span>
+                  <span className={clsx(i === 0 && src.length >= 1 ? '' : 'text-neutral-500 dark:text-slate-400')}>{w}</span>
                   {i < last && <span className="text-neutral-500 dark:text-slate-400">, </span>}
                 </div>
               ))}
@@ -115,7 +115,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
       return row.vocab.learningPhase <= 1 ? row.vocab.learningPhase : row.inertialPhase
     }, {
       id: 'acquaintedStatus',
-      filterFn: (row, columnId, fn: ColumnFilterFn) => fn(row.original),
+      filterFn: getFilterFn(),
       header: ({ header }) => {
         const isSorted = header.column.getIsSorted()
         return (

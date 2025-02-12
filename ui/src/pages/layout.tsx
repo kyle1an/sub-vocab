@@ -91,7 +91,7 @@ export function RootLayout() {
   return (
     <div
       ref={ref}
-      className="isolate flex h-full min-h-full flex-col bg-[--theme-bg] pr-[--pr] tracking-[.02em] antialiased sq-smooth-[0.6] sq-radius-[5_5_0_0] sq-fill-[red] [--b-g:--theme-bg] [&[style*='border-radius:_8px;']]:mask-squircle"
+      className="isolate flex h-full min-h-full flex-col bg-[--theme-bg] pr-[--pr] tracking-[--tracking] [--tracking:.02em] antialiased sq-smooth-[0.6] sq-radius-[5_5_0_0] sq-fill-[red] [--b-g:var(--theme-bg)] [&[style*='border-radius:_8px;']]:sq:[mask:paint(squircle)]"
       data-vaul-drawer-wrapper=""
     >
       <TopBar />

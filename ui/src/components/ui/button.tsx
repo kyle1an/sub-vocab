@@ -9,23 +9,23 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: cn(
-          'bg-primary text-primary-foreground shadow hover:bg-primary/90',
-          'squircle sq-radius-[--sq-r] sq-outline-0 sq-fill-[hsl(var(--primary))] hover:sq-fill-[hsl(var(--primary)/0.9)] sq:bg-transparent sq:shadow-none sq:drop-shadow',
-          'relative focus-visible:after:squircle focus-visible:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus-visible:after:sq-outline focus-visible:after:sq-stroke-[hsl(var(--ring))] focus-visible:after:sq-fill-transparent sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))]',
+          'hover:bg-primary/90 bg-primary text-primary-foreground shadow',
+          'sq-radius-[--sq-r] sq-outline-0 sq-fill-[--primary] hover:sq-fill-[--primary-hover] sq:bg-transparent sq:shadow-none sq:drop-shadow sq:[background:paint(squircle)]',
+          'relative focus-visible:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus-visible:after:sq-outline focus-visible:after:sq-stroke-[--ring] focus-visible:after:sq-fill-transparent sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))] focus-visible:after:sq:[background:paint(squircle)]',
         ),
         destructive:
-          'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
+          'hover:bg-destructive/90 bg-destructive text-destructive-foreground shadow-sm',
         outline: cn(
           'border border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground',
-          'squircle sq-radius-[--sq-r] sq-outline-[--l-w] sq-stroke-[hsl(var(--input))] sq-fill-[--b-g] [--l-w:1px] hover:sq-fill-[hsl(var(--accent))] sq:border-0 sq:bg-transparent sq:shadow-none sq:drop-shadow-sm',
-          'relative focus-visible:after:squircle focus-visible:after:sq-radius-[calc(var(--sq-r)+var(--offset)-0.5px)] focus-visible:after:sq-outline focus-visible:after:sq-stroke-[hsl(var(--ring))] focus-visible:after:sq-fill-transparent sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))]',
+          'sq-radius-[--sq-r] sq-outline-[--l-w] sq-stroke-[--input] sq-fill-[--b-g] [--l-w:1px] hover:sq-fill-[--accent] sq:border-0 sq:bg-transparent sq:shadow-none sq:drop-shadow-sm sq:[background:paint(squircle)]',
+          'relative focus-visible:after:sq-radius-[calc(var(--sq-r)+var(--offset)-0.5px)] focus-visible:after:sq-outline focus-visible:after:sq-stroke-[--ring] focus-visible:after:sq-fill-transparent sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))] focus-visible:after:sq:[background:paint(squircle)]',
         ),
         secondary:
-          'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
+          'hover:bg-secondary/80 bg-secondary text-secondary-foreground shadow-sm',
         ghost: cn(
           'hover:bg-accent hover:text-accent-foreground',
-          'sq-radius-[--sq-r] hover:squircle hover:sq-outline-0 hover:sq-fill-[hsl(var(--accent))] hover:sq:bg-transparent',
-          'relative focus-visible:after:squircle focus-visible:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus-visible:after:sq-outline focus-visible:after:sq-stroke-[hsl(var(--ring))] focus-visible:after:sq-fill-transparent sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))]',
+          'sq-radius-[--sq-r] hover:sq-outline-0 hover:sq-fill-[--accent] hover:sq:bg-transparent hover:sq:[background:paint(squircle)]',
+          'relative focus-visible:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus-visible:after:sq-outline focus-visible:after:sq-stroke-[--ring] focus-visible:after:sq-fill-transparent sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))] focus-visible:after:sq:[background:paint(squircle)]',
         ),
         link: 'text-primary underline-offset-4 hover:underline',
       },
@@ -44,8 +44,7 @@ const buttonVariants = cva(
 )
 
 export interface ButtonProps extends
-  React.ButtonHTMLAttributes<HTMLButtonElement>,
-  React.RefAttributes<HTMLButtonElement>,
+  React.ComponentProps<'button'>,
   VariantProps<typeof buttonVariants> {
   asChild?: boolean
 }
@@ -55,18 +54,17 @@ function Button({
   variant,
   size,
   asChild = false,
-  ref,
   ...props
 }: ButtonProps) {
   const Comp = asChild ? Slot : 'button'
   return (
     <Comp
       className={cn(buttonVariants({ variant, size, className }))}
-      ref={ref}
       {...props}
     />
   )
 }
-Button.displayName = 'Button'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export { Button, buttonVariants }
+// ^ With auto-imports, adding a new line will cause ReferenceError: buttonVariants is not defined

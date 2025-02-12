@@ -3,6 +3,8 @@ import { createColumnHelper } from '@tanstack/react-table'
 import type { SubtitleResponseData } from '@/api/opensubtitles'
 
 import { HeaderTitle } from '@/components/ui/table-element'
+import { customFormatDistance, formatDistanceLocale } from '@/lib/date-utils'
+import { customFormatDistanceToNowStrict } from '@/lib/formatDistance'
 
 type Subtitle = {
   subtitle: SubtitleResponseData
@@ -17,93 +19,8 @@ const numberFormat = new Intl.NumberFormat('en')
 
 export function useCommonColumns<T extends SubtitleData>() {
   const { t } = useTranslation()
-  type ColumnFilterFn = (rowValue: T) => boolean
   const columnHelper = createColumnHelper<T>()
   return [
-    columnHelper.accessor((row) => row.subtitle.attributes.feature_details.year, {
-      id: 'year',
-      header: ({ header }) => {
-        const title = 'Year'
-        const isSorted = header.column.getIsSorted()
-        return (
-          <TableHeaderCell
-            header={header}
-            className="w-[.1%] active:bg-background-active active:signal/active [&:active+th]:signal/active"
-          >
-            <Div
-              className="group select-none gap-2 pr-1"
-              onClick={header.column.getToggleSortingHandler()}
-            >
-              <Separator
-                orientation="vertical"
-                className="h-5 signal/active:h-full"
-              />
-              <HeaderTitle
-                title={title}
-                isSorted={isSorted}
-                className="data-[title]:*:text-left"
-              />
-            </Div>
-          </TableHeaderCell>
-        )
-      },
-      cell: ({ cell, getValue }) => {
-        const value = getValue()
-        return (
-          <TableDataCell
-            cell={cell}
-          >
-            <Div className="justify-center pl-0.5 pr-px tabular-nums [font-stretch:condensed]">
-              {value}
-            </Div>
-          </TableDataCell>
-        )
-      },
-    }),
-    columnHelper.accessor((row) => row.subtitle.attributes.feature_details.title, {
-      id: 'movie_name',
-      filterFn: (row, columnId, fn: ColumnFilterFn) => fn(row.original),
-      header: ({ header }) => {
-        const title = 'Name'
-        const isSorted = header.column.getIsSorted()
-        return (
-          <TableHeaderCell
-            header={header}
-            className="active:bg-background-active active:signal/active [&:active+th]:signal/active"
-          >
-            <Div
-              className="group gap-2 pr-1"
-              onClick={header.column.getToggleSortingHandler()}
-            >
-              <Separator
-                orientation="vertical"
-                className="h-5 signal/active:h-full"
-              />
-              <HeaderTitle
-                title={title}
-                isSorted={isSorted}
-                className="data-[title]:*:text-left"
-              />
-            </Div>
-          </TableHeaderCell>
-        )
-      },
-      cell: ({ cell, getValue }) => {
-        const value = getValue()
-        return (
-          <TableDataCell
-            cell={cell}
-          >
-            <Div
-              className="cursor-text select-text pl-2.5 pr-px tracking-wider [font-feature-settings:'cv03','cv05','cv06']"
-              onClick={(ev) => ev.stopPropagation()}
-            >
-              <span>{value}</span>
-            </Div>
-          </TableDataCell>
-        )
-      },
-    }),
     columnHelper.accessor((row) => row.subtitle.attributes.language, {
       id: 'language',
       header: ({ header }) => {
@@ -138,7 +55,7 @@ export function useCommonColumns<T extends SubtitleData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center pl-0.5 pr-px tabular-nums [font-stretch:condensed]">
+            <Div className="justify-center whitespace-nowrap pl-1.5 pr-px tabular-nums [font-stretch:condensed]">
               <span>
                 {displayName}
               </span>
@@ -220,8 +137,13 @@ export function useCommonColumns<T extends SubtitleData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center tabular-nums [font-stretch:condensed]">
-              {value ? formatDistanceToNowStrict(new Date(value)) : null}
+            <Div className="justify-end pr-1.5 tabular-nums [font-stretch:condensed]">
+              {value ? customFormatDistanceToNowStrict(new Date(value), {
+                addSuffix: true,
+                locale: {
+                  formatDistance: customFormatDistance(formatDistanceLocale),
+                },
+              }) : null}
             </Div>
           </TableDataCell>
         )

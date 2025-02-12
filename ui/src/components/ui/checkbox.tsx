@@ -12,8 +12,8 @@ const checkboxVariants = cva(
     variants: {
       variant: {
         default: cn(
-          'drop-shadow-md squircle sq-radius-[3.2] sq-outline-[1.07] sq-stroke-[hsl(var(--primary))] sq-fill-transparent data-[state=checked]:drop-shadow data-[state=checked]:sq-outline-0 data-[state=checked]:sq-fill-[hsl(var(--primary))] sq:rounded-none sq:border-0 sq:shadow-none data-[state=checked]:sq:bg-transparent',
-          '[--offset:2px] [--sq-r:2] focus-visible:after:squircle focus-visible:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus-visible:after:sq-outline-[1.1] focus-visible:after:sq-stroke-[hsl(var(--ring))] focus-visible:after:sq-fill-transparent sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))]',
+          'drop-shadow-md sq-radius-[3.2] sq-outline-[1.07] sq-stroke-[--primary] sq-fill-transparent data-[state=checked]:drop-shadow data-[state=checked]:sq-outline-0 data-[state=checked]:sq-fill-[--primary] sq:rounded-none sq:border-0 sq:shadow-none sq:[background:paint(squircle)] data-[state=checked]:sq:bg-transparent',
+          '[--offset:2px] [--sq-r:2] focus-visible:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus-visible:after:sq-outline-[1.1] focus-visible:after:sq-stroke-[--ring] focus-visible:after:sq-fill-transparent sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))] focus-visible:after:sq:[background:paint(squircle)]',
         ),
         radio: 'rounded-full [&_svg]:h-[15px]',
       },
@@ -27,12 +27,10 @@ const checkboxVariants = cva(
 function Checkbox({
   className,
   variant,
-  ref,
   ...props
-}: React.ComponentPropsWithRef<typeof CheckboxPrimitive.Root> & VariantProps<typeof checkboxVariants>) {
+}: React.ComponentProps<typeof CheckboxPrimitive.Root> & VariantProps<typeof checkboxVariants>) {
   return (
     <CheckboxPrimitive.Root
-      ref={ref}
       className={cn(
         checkboxVariants({ variant, className }),
       )}
@@ -46,6 +44,5 @@ function Checkbox({
     </CheckboxPrimitive.Root>
   )
 }
-Checkbox.displayName = CheckboxPrimitive.Root.displayName
 
 export { Checkbox }

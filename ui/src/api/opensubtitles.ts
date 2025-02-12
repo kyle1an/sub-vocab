@@ -2,6 +2,8 @@ import type { MergeDeep, PartialDeep } from 'type-fest'
 
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
 import { ofetch } from 'ofetch'
+import createFetchClient from 'openapi-fetch'
+import createClient from 'openapi-react-query'
 import PQueue from 'p-queue'
 
 import type { paths } from '@/types/schema-opensubtitles'
@@ -9,6 +11,13 @@ import type { paths } from '@/types/schema-opensubtitles'
 import { env } from '@/env'
 import { omitUndefined } from '@/lib/utilities'
 import { subtitleDownloadProgressAtom } from '@/store/useVocab'
+
+const baseUrl = env.VITE_SUB_API_URL
+
+const fetchClient = createFetchClient<paths>({
+  baseUrl: `${baseUrl}/opensubtitles-proxy/def`,
+})
+export const $osApi = createClient(fetchClient)
 
 type subtitles_parameters_query = {
   // https://forum.opensubtitles.org/viewtopic.php?t=17146&start=105#p48222
@@ -54,7 +63,10 @@ export const opensubtitlesReqAtom = atom((get) => {
   }
 })
 
-type Subtitles = {
+/*
+  * https://opensubtitles.stoplight.io/docs/opensubtitles-api/a172317bd5ccc-search-for-subtitles
+  */
+export type Subtitles = {
   Query: MergeDeep<NonNullable<paths['/subtitles']['get']['parameters']['query']>, subtitles_parameters_query>
   Response: MergeDeep<attributes_feature_details, paths['/discover/most_downloaded']['get']['responses'][200]['content']['application/json'], { recurseIntoArrays: true }>
 }
@@ -74,6 +86,7 @@ export const useOpenSubtitlesQueryOptions = () => {
           headers,
         })
       },
+      select: (data) => data.data,
     })
   }
 }
@@ -83,8 +96,11 @@ export function useOpenSubtitlesSubtitles(query: Subtitles['Query']) {
   return useQuery(openSubtitlesQueryOptions(query))
 }
 
-export type SubtitleResponseData = NonNullable<ReturnType<typeof useOpenSubtitlesSubtitles>['data']>['data'][number]
+export type SubtitleResponseData = NonNullable<ReturnType<typeof useOpenSubtitlesSubtitles>['data']>[number]
 
+/*
+  * https://opensubtitles.stoplight.io/docs/opensubtitles-api/73acf79accc0a-login
+  */
 type Login = {
   Body: NonNullable<paths['/login']['post']['requestBody']>['content']['application/json']
   Response: paths['/login']['post']['responses'][200]['content']['application/json']
@@ -103,6 +119,9 @@ export function useOpenSubtitlesLogin() {
   })
 }
 
+/*
+  * https://opensubtitles.stoplight.io/docs/opensubtitles-api/6be7f6ae2d918-download
+  */
 export type Download = {
   Body: NonNullable<paths['/download']['post']['requestBody']>['content']['application/json']
   Response: paths['/download']['post']['responses'][200]['content']['application/json']
