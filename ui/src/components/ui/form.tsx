@@ -34,6 +34,7 @@ function FormField<
 
 function useFormField() {
   const fieldContext = use(FormFieldContext)
+  // eslint-disable-next-line ts/no-use-before-define
   const itemContext = use(FormItemContext)
   const { getFieldState, formState } = useFormContext()
 
@@ -64,45 +65,38 @@ const FormItemContext = createContext<FormItemContextValue>(
 
 function FormItem({
   className,
-  ref,
   ...props
-}: React.HTMLAttributes<HTMLDivElement> & React.RefAttributes<HTMLDivElement>) {
+}: React.ComponentProps<'div'> & React.RefAttributes<HTMLDivElement>) {
   const id = useId()
 
   return (
     <FormItemContext value={{ id }}>
       <div
-        ref={ref}
         className={cn('space-y-2', className)}
         {...props}
       />
     </FormItemContext>
   )
 }
-FormItem.displayName = 'FormItem'
 
 function FormLabel({
   className,
-  ref,
   ...props
-}: React.ComponentPropsWithRef<typeof LabelPrimitive.Root>) {
+}: React.ComponentProps<typeof LabelPrimitive.Root>) {
   const { error, formItemId } = useFormField()
 
   return (
     <Label
-      ref={ref}
       className={cn(error && 'text-destructive', className)}
       htmlFor={formItemId}
       {...props}
     />
   )
 }
-FormLabel.displayName = 'FormLabel'
 
 function FormControl({
-  ref,
   ...props
-}: React.ComponentPropsWithRef<typeof Slot>) {
+}: React.ComponentProps<typeof Slot>) {
   const {
     error,
     formItemId,
@@ -112,7 +106,6 @@ function FormControl({
 
   return (
     <Slot
-      ref={ref}
       id={formItemId}
       aria-describedby={
         !error
@@ -124,32 +117,27 @@ function FormControl({
     />
   )
 }
-FormControl.displayName = 'FormControl'
 
 function FormDescription({
   className,
-  ref,
   ...props
-}: React.HTMLAttributes<HTMLParagraphElement> & React.RefAttributes<HTMLParagraphElement>) {
+}: React.ComponentProps<'p'> & React.RefAttributes<HTMLParagraphElement>) {
   const { formDescriptionId } = useFormField()
 
   return (
     <p
-      ref={ref}
       id={formDescriptionId}
       className={cn('text-[.8rem] text-muted-foreground', className)}
       {...props}
     />
   )
 }
-FormDescription.displayName = 'FormDescription'
 
 function FormMessage({
   className,
   children,
-  ref,
   ...props
-}: React.HTMLAttributes<HTMLParagraphElement> & React.RefAttributes<HTMLParagraphElement>) {
+}: React.ComponentProps<'p'> & React.RefAttributes<HTMLParagraphElement>) {
   const { error, formMessageId } = useFormField()
   const body = error ? String(error?.message) : children
 
@@ -158,7 +146,6 @@ function FormMessage({
 
   return (
     <p
-      ref={ref}
       id={formMessageId}
       className={cn('text-[.8rem] font-medium text-destructive', className)}
       {...props}
@@ -167,7 +154,6 @@ function FormMessage({
     </p>
   )
 }
-FormMessage.displayName = 'FormMessage'
 
 export {
   Form,

@@ -1,4 +1,5 @@
 import type { InitialTableState } from '@tanstack/react-table'
+import type { FormatDistanceLocale } from 'date-fns'
 
 import usePagination from '@mui/material/usePagination'
 import NumberFlow from '@number-flow/react'
@@ -21,7 +22,7 @@ import { HeaderTitle, TableRow } from '@/components/ui/table-element'
 import { SortIcon } from '@/lib/icon-utils'
 import { getFileId } from '@/lib/subtitle'
 import { sortBySelection } from '@/lib/table-utils'
-import { findClosest, naturalNumLength, omitUndefined } from '@/lib/utilities'
+import { findClosest, naturalNumLength } from '@/lib/utilities'
 import { subtitleSelectionStateAtom, subtitleSelectionStateFamily } from '@/store/useVocab'
 
 type ExpandableRow<T> = T & { subRows?: T[] }
@@ -30,7 +31,7 @@ type Episode = NonNullable<paths['/3/tv/{series_id}/season/{season_number}']['ge
 
 type TVSubtitleData = SubtitleData<Episode> & RowId
 
-const formatDistanceLocale = {
+const formatDistanceLocale: Partial<FormatDistanceLocale<string>> = {
   xMinutes: '{{count}} min',
   xHours: '{{count}} hr',
 }
@@ -402,7 +403,7 @@ export function TVSubtitleFiles({
   const rootRef = useRef<HTMLDivElement>(null)
 
   return (
-    <div className="px-6 pb-5 pt-2 md:pl-16 md:pr-12">
+    <div className="px-6 pb-4 pt-1.5 md:pl-16 md:pr-12">
       <SquircleBg
         style={{
           '--h': `${126 + 6 * 32}px`,

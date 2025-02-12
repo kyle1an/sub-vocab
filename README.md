@@ -1,4 +1,4 @@
-SubVocab transforms your preparation for watching movies or reading books in English. Just input any text, such as subtitles, articles, or books, and SubVocab will efficiently categorize words into familiar and new groups, enhancing both your understanding and enjoyment.
+Subvocab transforms your preparation for watching movies or reading books in English. Just input any text, such as subtitles, articles, or books, and Subvocab will efficiently categorize words into familiar and new groups, enhancing both your understanding and enjoyment.
 
 <img width="1422" alt="Screenshot" src="https://github.com/user-attachments/assets/6e1cf65b-b65b-4294-96a3-3a32077a709f" />
 

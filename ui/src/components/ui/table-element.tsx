@@ -23,7 +23,7 @@ export function TableHeader({
   className = '',
   style,
   ...props
-}: React.HTMLAttributes<HTMLTableSectionElement> & React.RefAttributes<HTMLTableSectionElement>) {
+}: React.ComponentProps<'thead'>) {
   return (
     <thead
       style={{

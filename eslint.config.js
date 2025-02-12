@@ -1,5 +1,6 @@
 import antfu from '@antfu/eslint-config'
 import stylistic from '@stylistic/eslint-plugin'
+import deMorgan from 'eslint-plugin-de-morgan'
 import packageJson from 'eslint-plugin-package-json/configs/recommended'
 
 export default antfu(
@@ -55,6 +56,7 @@ export default antfu(
       'style/spaced-comment': 'off',
     },
   },
+  deMorgan.configs.recommended,
   {
     settings: {
       regexp: {

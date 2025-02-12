@@ -90,7 +90,7 @@ function useSearchFilterValue(search: string, usingRegex: boolean): ColumnFilter
   }
   else {
     search = search.toLowerCase()
-    return (row) => row.wFamily.some((word) => word.toLowerCase().includes(search))
+    return (row) => row.wFamily.some((word) => word.path.toLowerCase().includes(search))
   }
 }
 

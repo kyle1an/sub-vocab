@@ -21,48 +21,39 @@ const alertVariants = cva(
 function Alert({
   className,
   variant,
-  ref,
   ...props
-}: React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof alertVariants> & React.RefAttributes<HTMLDivElement>) {
+}: React.ComponentProps<'div'> & VariantProps<typeof alertVariants>) {
   return (
     <div
-      ref={ref}
       role="alert"
       className={cn(alertVariants({ variant }), className)}
       {...props}
     />
   )
 }
-Alert.displayName = 'Alert'
 
 function AlertTitle({
   className,
-  ref,
   ...props
-}: React.HTMLAttributes<HTMLHeadingElement> & React.RefAttributes<HTMLHeadingElement>) {
+}: React.ComponentProps<'h5'>) {
   return (
     <h5
-      ref={ref}
       className={cn('mb-1 font-medium leading-none', className)}
       {...props}
     />
   )
 }
-AlertTitle.displayName = 'AlertTitle'
 
 function AlertDescription({
   className,
-  ref,
   ...props
-}: React.HTMLAttributes<HTMLParagraphElement> & React.RefAttributes<HTMLParagraphElement>) {
+}: React.ComponentProps<'div'>) {
   return (
     <div
-      ref={ref}
       className={cn('text-sm [&_p]:leading-relaxed', className)}
       {...props}
     />
   )
 }
-AlertDescription.displayName = 'AlertDescription'
 
 export { Alert, AlertDescription, AlertTitle }

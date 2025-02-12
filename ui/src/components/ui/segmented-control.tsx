@@ -34,8 +34,7 @@ const segmentedControlVariants = cva(
 )
 
 interface SegmentedControlProps<T extends string> extends
-  HTMLAttributes<HTMLDivElement>,
-  RefAttributes<HTMLDivElement>,
+  React.ComponentProps<'div'>,
   VariantProps<typeof segmentedControlVariants> {
   value: NoInfer<T>
   segments: Readonly<{ value: T, label: string }[]>
@@ -49,7 +48,6 @@ export function SegmentedControl<T extends string>({
   variant,
   size,
   className,
-  ref,
   ...props
 }: SegmentedControlProps<T>) {
   const pillRefs = useRef<Partial<Record<T, HTMLSpanElement>>>({})
@@ -93,7 +91,6 @@ export function SegmentedControl<T extends string>({
 
   return (
     <Squircle
-      ref={ref}
       squircle={{
         cornerRadius: 9,
       }}
@@ -146,7 +143,7 @@ function Segment<T extends string>({
   onValueChange: (value: T) => void
   checked: boolean
   sqRef: Ref<HTMLDivElement>
-} & React.HTMLAttributes<HTMLDivElement> & RefAttributes<HTMLDivElement> & VariantProps<typeof checkedSegmentVariants>) {
+} & React.ComponentProps<'div'> & VariantProps<typeof checkedSegmentVariants>) {
   const id = useId()
   return (
     <div

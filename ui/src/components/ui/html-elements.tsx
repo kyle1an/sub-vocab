@@ -1,8 +1,7 @@
 import { Slot } from '@radix-ui/react-slot'
 
 export interface DivProps extends
-  React.HTMLAttributes<HTMLDivElement>,
-  React.RefAttributes<HTMLDivElement> {}
+  React.ComponentProps<'div'> {}
 
 export function Div({
   className,

@@ -136,7 +136,7 @@ export function MovieSubtitleFiles({
   })
 
   return (
-    <div className="px-6 pb-5 pt-2 md:pl-16 md:pr-12">
+    <div className="px-6 pb-4 pt-1.5 md:pl-16 md:pr-12">
       <SquircleBg
         style={{
           '--h': `${126 + 4 * 32}px`,

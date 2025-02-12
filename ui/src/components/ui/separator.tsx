@@ -4,12 +4,10 @@ function Separator({
   className,
   orientation = 'horizontal',
   decorative = true,
-  ref,
   ...props
-}: React.ComponentPropsWithRef<typeof SeparatorPrimitive.Root>) {
+}: React.ComponentProps<typeof SeparatorPrimitive.Root>) {
   return (
     <SeparatorPrimitive.Root
-      ref={ref}
       decorative={decorative}
       orientation={orientation}
       className={cn(
@@ -21,6 +19,5 @@ function Separator({
     />
   )
 }
-Separator.displayName = SeparatorPrimitive.Root.displayName
 
 export { Separator }

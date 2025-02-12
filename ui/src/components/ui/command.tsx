@@ -5,12 +5,10 @@ import { Command as CommandPrimitive } from 'cmdk'
 
 function Command({
   className,
-  ref,
   ...props
-}: React.ComponentPropsWithRef<typeof CommandPrimitive>) {
+}: React.ComponentProps<typeof CommandPrimitive>) {
   return (
     <CommandPrimitive
-      ref={ref}
       className={cn(
         'flex size-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground',
         className,
@@ -19,7 +17,6 @@ function Command({
     />
   )
 }
-Command.displayName = CommandPrimitive.displayName
 
 interface CommandDialogProps extends DialogProps {}
 
@@ -37,16 +34,14 @@ function CommandDialog({ children, ...props }: CommandDialogProps) {
 
 function CommandInput({
   className,
-  ref,
   ...props
-}: React.ComponentPropsWithRef<typeof CommandPrimitive.Input>) {
+}: React.ComponentProps<typeof CommandPrimitive.Input>) {
   return (
     <div
       className="flex items-center border-b px-3"
     >
       <MagnifyingGlassIcon className="mr-2 size-4 shrink-0 opacity-50" />
       <CommandPrimitive.Input
-        ref={ref}
         className={cn(
           'flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
           className,
@@ -57,25 +52,19 @@ function CommandInput({
   )
 }
 
-CommandInput.displayName = CommandPrimitive.Input.displayName
-
 function CommandList({
   className,
-  ref,
   ...props
-}: React.ComponentPropsWithRef<typeof CommandPrimitive.List>) {
+}: React.ComponentProps<typeof CommandPrimitive.List>) {
   return (
     <CommandPrimitive.List
-      ref={ref}
       className={cn('max-h-[300px] overflow-y-auto overflow-x-hidden', className)}
       {...props}
     />
   )
 }
 
-CommandList.displayName = CommandPrimitive.List.displayName
-
-function CommandEmpty(props: React.ComponentPropsWithRef<typeof CommandPrimitive.Empty>) {
+function CommandEmpty(props: React.ComponentProps<typeof CommandPrimitive.Empty>) {
   return (
     <CommandPrimitive.Empty
       className="py-6 text-center text-sm"
@@ -84,16 +73,12 @@ function CommandEmpty(props: React.ComponentPropsWithRef<typeof CommandPrimitive
   )
 }
 
-CommandEmpty.displayName = CommandPrimitive.Empty.displayName
-
 function CommandGroup({
   className,
-  ref,
   ...props
-}: React.ComponentPropsWithRef<typeof CommandPrimitive.Group>) {
+}: React.ComponentProps<typeof CommandPrimitive.Group>) {
   return (
     <CommandPrimitive.Group
-      ref={ref}
       className={cn(
         'overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground',
         className,
@@ -103,31 +88,24 @@ function CommandGroup({
   )
 }
 
-CommandGroup.displayName = CommandPrimitive.Group.displayName
-
 function CommandSeparator({
   className,
-  ref,
   ...props
-}: React.ComponentPropsWithRef<typeof CommandPrimitive.Separator>) {
+}: React.ComponentProps<typeof CommandPrimitive.Separator>) {
   return (
     <CommandPrimitive.Separator
-      ref={ref}
       className={cn('-mx-1 h-px bg-border', className)}
       {...props}
     />
   )
 }
-CommandSeparator.displayName = CommandPrimitive.Separator.displayName
 
 function CommandItem({
   className,
-  ref,
   ...props
-}: React.ComponentPropsWithRef<typeof CommandPrimitive.Item>) {
+}: React.ComponentProps<typeof CommandPrimitive.Item>) {
   return (
     <CommandPrimitive.Item
-      ref={ref}
       className={cn(
         'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
         className,
@@ -137,12 +115,10 @@ function CommandItem({
   )
 }
 
-CommandItem.displayName = CommandPrimitive.Item.displayName
-
 function CommandShortcut({
   className,
   ...props
-}: React.HTMLAttributes<HTMLSpanElement>) {
+}: React.ComponentProps<'span'>) {
   return (
     <span
       className={cn(
@@ -153,7 +129,6 @@ function CommandShortcut({
     />
   )
 }
-CommandShortcut.displayName = 'CommandShortcut'
 
 export {
   Command,
