@@ -2,29 +2,38 @@ import CircularProgress from '@mui/joy/CircularProgress'
 import NumberFlow from '@number-flow/react'
 
 export function VocabStatics({
-  rowsCountFiltered,
+  total,
   text = '',
-  rowsCountNew,
-  rowsCountAcquainted,
+  remaining,
+  completed,
   animated: isAnimated = true,
   progress = false,
 }: {
-  rowsCountFiltered: number
+  total: number
   text: string
-  rowsCountNew: number
-  rowsCountAcquainted: number
+  remaining: number
+  completed: number
   animated?: boolean
   progress?: boolean
 }) {
-  const [isPending, startTransition] = useTransition()
-  useEffect(() => startTransition(() => {}), [])
+  const [isPending, setAnimated] = useState(true)
+  useEffect(() => {
+    if (isAnimated) {
+      const id = setTimeout(() => requestAnimationFrame(() => setAnimated(false)), 0)
+      return () => clearTimeout(id)
+    }
+  // eslint-disable-next-line react-compiler/react-compiler
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const animated = !isPending && isAnimated
-  const percentage = Number((rowsCountFiltered === 0 ? 0 : 100 * (rowsCountAcquainted / rowsCountFiltered)).toFixed(1))
+  const percentage = Number(total === 0 ? 0 : (100 * (completed / total)).toFixed(1))
+  const deferredRemaining = useDeferredValue(remaining) || 0
+  const deferredCompleted = useDeferredValue(completed) || 0
   return (
     <div className="flex h-7 items-center text-xs tabular-nums text-neutral-600 dark:text-neutral-400">
       <span>
         <NumberFlow
-          value={rowsCountFiltered}
+          value={total}
           locales="en-US"
           animated={animated}
           isolate
@@ -34,13 +43,17 @@ export function VocabStatics({
         </span>
       </span>
       <div className="flex items-center gap-0.5">
-        {rowsCountNew > 0 ? (
-          <div className="flex items-center gap-2.5">
+        <>
+          <div className={clsx(
+            'flex items-center gap-2.5',
+            remaining > 0 ? '' : 'hidden',
+          )}
+          >
             <span className="text-neutral-400">, </span>
             <div className="flex items-center gap-1">
               <span>
                 <NumberFlow
-                  value={rowsCountNew}
+                  value={animated ? deferredRemaining : remaining}
                   locales="en-US"
                   animated={animated}
                   isolate
@@ -51,14 +64,19 @@ export function VocabStatics({
               />
             </div>
           </div>
-        ) : null}
-        {rowsCountAcquainted > 0 ? (
-          <div className="flex items-center gap-2.5">
+        </>
+        <>
+          <div
+            className={clsx(
+              'flex items-center gap-2.5',
+              completed > 0 ? '' : 'hidden',
+            )}
+          >
             <span className="text-neutral-400">, </span>
             <div className="flex items-center gap-1">
               <span>
                 <NumberFlow
-                  value={rowsCountAcquainted}
+                  value={animated ? deferredCompleted : completed}
                   locales="en-US"
                   animated={animated}
                   isolate
@@ -69,7 +87,7 @@ export function VocabStatics({
               />
             </div>
           </div>
-        ) : null}
+        </>
         {progress ? (
           <div className="flex items-center gap-0.5 pl-1">
             <span className="text-neutral-300 dark:text-neutral-600">(</span>

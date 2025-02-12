@@ -3,22 +3,26 @@ import type { InitialTableState } from '@tanstack/react-table'
 import usePagination from '@mui/material/usePagination'
 import NumberFlow from '@number-flow/react'
 import { useUnmountEffect } from '@react-hookz/web'
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import { useDebouncedValue } from 'foxact/use-debounced-value'
+import { uniqBy } from 'lodash-es'
 import { useNavigate } from 'react-router'
 
 import type { paths as PathsThemoviedb } from '@/types/schema-themoviedb'
 
-import { useOpenSubtitlesDownload } from '@/api/opensubtitles'
+import { $osApi, useOpenSubtitlesDownload } from '@/api/opensubtitles'
 import { $api } from '@/api/tmdb'
 import { MediaDetails } from '@/components/media-details'
 import { OpensubtitlesAuthentication } from '@/components/subtitle/opensubtitles-authentication'
 import { TablePagination } from '@/components/table-pagination'
 import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
 import { HeaderTitle, TableDataCell, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
+import { MS_PER_WEEK } from '@/constants/time'
 import { SortIcon } from '@/lib/icon-utils'
+import { getFilterFn } from '@/lib/table-utils'
 import { findClosest } from '@/lib/utilities'
-import { fileIdsAtom, sourceTextAtom, subtitleDownloadProgressAtom, subtitleSelectionStateAtom } from '@/store/useVocab'
+import { fileIdsAtom, osLanguageAtom, sourceTextAtom, subtitleDownloadProgressAtom, subtitleSelectionStateAtom } from '@/store/useVocab'
 
 const mediaSearchAtom = atomWithStorage('mediaSearchAtom', '')
 
@@ -27,8 +31,6 @@ const voteNumberFormat = new Intl.NumberFormat('en', { maximumFractionDigits: 1,
 const voteCountFormat = new Intl.NumberFormat('en', { notation: 'compact', compactDisplay: 'short' })
 
 type TableData = NonNullable<PathsThemoviedb['/3/search/multi']['get']['responses'][200]['content']['application/json']['results']>[number]
-
-type ColumnFilterFn = (rowValue: TableData) => boolean
 
 const PAGE_SIZES = [5, 10, 20] as const
 
@@ -191,7 +193,7 @@ function useColumns<T extends TableData>() {
     }),
     columnHelper.accessor((row) => row.title ?? row.original_title ?? row.original_name, {
       id: 'movie_name',
-      filterFn: (row, columnId, fn: ColumnFilterFn) => fn(row.original),
+      filterFn: getFilterFn(),
       header: ({ header }) => {
         const title = 'Name'
         const isSorted = header.column.getIsSorted()
@@ -321,7 +323,7 @@ function useColumns<T extends TableData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pl-0.5 pr-5 text-xs tabular-nums [font-stretch:condensed]">
+            <Div className="justify-end pl-0.5 pr-5 tabular-nums [font-stretch:condensed]">
               <span>
                 {popularityNumberFormat.format(value)}
               </span>
@@ -343,7 +345,8 @@ export function Subtitles() {
   const columns = useColumns()
   const setSourceText = useSetAtom(sourceTextAtom)
   const [subtitleDownloadProgress, setSubtitleDownloadProgress] = useAtom(subtitleDownloadProgressAtom)
-  const { data: multiData, isFetching: isSearchLoading } = $api.useQuery(
+  const queryEnabled = Boolean(debouncedQuery)
+  const { data: multiData, isFetching: isSearchLoading } = useQuery($api.queryOptions(
     'get',
     '/3/search/multi',
     {
@@ -354,11 +357,39 @@ export function Subtitles() {
       },
     },
     {
-      enabled: Boolean(debouncedQuery),
+      enabled: queryEnabled,
       placeholderData: (prev) => prev,
     },
-  )
-  const tvAndMovieResults = (multiData?.results ?? []).filter(({ media_type }) => media_type === 'tv' || media_type === 'movie')
+  ))
+  const { data: languages = [] } = useQuery($osApi.queryOptions(
+    'get',
+    '/infos/languages',
+    {
+    },
+    {
+      gcTime: MS_PER_WEEK,
+      staleTime: MS_PER_WEEK,
+      select: ({ data }) => data,
+      placeholderData: (prev) => prev,
+    },
+  ))
+  const languageOptions = [
+    {
+      language_code: 'all',
+      language_name: 'All Languages',
+    },
+    ...uniqBy(
+      [
+        {
+          language_code: 'en',
+          language_name: 'English',
+        },
+        ...languages,
+      ],
+      (language) => language.language_code,
+    ).sort((a, b) => a.language_name.localeCompare(b.language_name)),
+  ]
+  const tvAndMovieResults = queryEnabled ? (multiData?.results ?? []).filter(({ media_type }) => media_type === 'tv' || media_type === 'movie') : []
   const table = useReactTable({
     data: tvAndMovieResults,
     columns,
@@ -418,7 +449,7 @@ export function Subtitles() {
   })
   const rootRef = useRef<HTMLDivElement>(null)
   const isLoading = downloadProgressAnim || subtitleDownloadProgress.length >= 1
-
+  const [language, setLanguage] = useAtom(osLanguageAtom)
   return (
     <SquircleBg className="flex h-[calc(100%-4px*14)] items-center justify-center overflow-hidden rounded-xl border">
       <SquircleMask
@@ -436,6 +467,30 @@ export function Subtitles() {
                 className="h-full text-base sq-smooth-[0.9] md:text-sm"
               />
             </InputWrapper>
+            <Select
+              value={language}
+              onValueChange={(e) => {
+                setLanguage(e)
+              }}
+            >
+              <SelectTrigger className="h-full w-[unset] px-2 py-0 text-xs tabular-nums [--sq-r:5px]">
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent
+                position="item-aligned"
+                className="tabular-nums"
+              >
+                {languageOptions.map((language) => (
+                  <SelectItem
+                    key={language.language_code}
+                    className="pr-4 text-xs"
+                    value={language.language_code}
+                  >
+                    {language.language_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <div className="flex aspect-square h-full grow items-center justify-start pl-1.5">
               {isSearchLoading ? (
                 <IconLucideLoader2

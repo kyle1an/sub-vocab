@@ -1,4 +1,3 @@
-import type { AppRouter } from '@backend/app'
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 import type { Database } from '@ui/database.types'
 import type { ArrayValues, PartialDeep } from 'type-fest'
@@ -7,8 +6,6 @@ import { createClient, REALTIME_CHANNEL_STATES } from '@supabase/supabase-js'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { QueryClient } from '@tanstack/react-query'
 import { persistQueryClient } from '@tanstack/react-query-persist-client'
-import { httpBatchLink } from '@trpc/client'
-import { createTRPCReact } from '@trpc/react-query'
 import { createStore } from 'jotai'
 import { atomWithImmer } from 'jotai-immer'
 import { UAParser } from 'ua-parser-js'
@@ -25,7 +22,6 @@ import { MS_PER_MINUTE } from '@/constants/time'
 import { env } from '@/env'
 import { getLanguage } from '@/i18n'
 import { SUPPORTED_FILE_EXTENSIONS } from '@/lib/filesHandler'
-import { omitUndefined } from '@/lib/utilities'
 import { getScrollbarWidth } from '@/lib/utils'
 
 export const sourceTextAtom = atom({
@@ -46,7 +42,7 @@ export const fileIdsAtom = atom((get) => {
 export const subtitleDownloadProgressAtom = atomWithImmer<Download['Body'][]>([])
 
 export const subtitleSelectionStateFamily = atomFamily((mediaId: number) => atom(
-  (get) => get(subtitleSelectionStateAtom)[mediaId],
+  (get) => get(subtitleSelectionStateAtom)[mediaId] ?? {},
   (get, set, ...[checked, row, mode]: ArrayConcat<Parameters<RowSelectionChangeFn<SubtitleData>>, []>) => {
     set(subtitleSelectionStateAtom, (selection) => {
       if (mode === 'singleRow') {
@@ -67,6 +63,8 @@ export const subtitleSelectionStateFamily = atomFamily((mediaId: number) => atom
   },
 ))
 
+export const osLanguageAtom = atomWithStorage('osLanguageAtom', 'en')
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -76,26 +74,6 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
     },
   },
-})
-
-export const trpc = createTRPCReact<AppRouter>()
-
-export const TRPCProvider = trpc.Provider
-
-const baseUrl = env.VITE_SUB_API_URL
-
-export const trpcClient = trpc.createClient({
-  links: [
-    httpBatchLink({
-      url: `${baseUrl}/trpc`,
-      fetch(url, options) {
-        return fetch(url, omitUndefined({
-          ...options,
-          credentials: 'include',
-        }))
-      },
-    }),
-  ],
 })
 
 const localStoragePersister = createSyncStoragePersister({

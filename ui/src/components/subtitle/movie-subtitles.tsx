@@ -4,6 +4,7 @@ import usePagination from '@mui/material/usePagination'
 import NumberFlow from '@number-flow/react'
 import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 
+import type { Subtitles } from '@/api/opensubtitles'
 import type { SubtitleData } from '@/components/subtitle/columns'
 
 import { useOpenSubtitlesSubtitles } from '@/api/opensubtitles'
@@ -14,9 +15,9 @@ import { TablePaginationSizeSelect } from '@/components/table-pagination-size-se
 import { TableRow } from '@/components/ui/table-element'
 import { SortIcon } from '@/lib/icon-utils'
 import { getFileId } from '@/lib/subtitle'
-import { sortBySelection } from '@/lib/table-utils'
+import { getFilterFn, sortBySelection } from '@/lib/table-utils'
 import { findClosest } from '@/lib/utilities'
-import { subtitleSelectionStateFamily } from '@/store/useVocab'
+import { osLanguageAtom, subtitleSelectionStateFamily } from '@/store/useVocab'
 
 type MovieSubtitleData = SubtitleData
 
@@ -72,6 +73,55 @@ function useMovieColumns<T extends MovieSubtitleData>() {
         )
       },
     }),
+    columnHelper.accessor((row) => row.subtitle.attributes.files[0]?.file_name || '', {
+      id: 'movie_name',
+      filterFn: getFilterFn(),
+      header: ({ header }) => {
+        const title = 'Name'
+        const isSorted = header.column.getIsSorted()
+        return (
+          <TableHeaderCell
+            header={header}
+            className="active:bg-background-active active:signal/active [&:active+th]:signal/active"
+          >
+            <Div
+              className="group gap-2 pr-1"
+              onClick={header.column.getToggleSortingHandler()}
+            >
+              <Separator
+                orientation="vertical"
+                className="h-5 signal/active:h-full"
+              />
+              <HeaderTitle
+                title={title}
+                isSorted={isSorted}
+                className="data-[title]:*:text-left"
+              />
+            </Div>
+          </TableHeaderCell>
+        )
+      },
+      cell: ({ cell, getValue }) => {
+        const value = getValue()
+        return (
+          <TableDataCell
+            cell={cell}
+          >
+            <Div
+              className="cursor-text select-text pl-2.5 pr-px tracking-wider [font-feature-settings:'cv03','cv05','cv06']"
+              onClick={(ev) => ev.stopPropagation()}
+            >
+              <div
+                title={value}
+                className="w-0 grow overflow-hidden overflow-ellipsis whitespace-nowrap"
+              >
+                <span>{value}</span>
+              </div>
+            </Div>
+          </TableDataCell>
+        )
+      },
+    }),
   ]
 }
 
@@ -84,7 +134,7 @@ const initialTableState: InitialTableState = {
       desc: true,
     },
   ],
-  columnOrder: ['action', 'year', 'media_type', 'movie_name', 'language', 'upload_date', 'download_count'],
+  columnOrder: ['action', 'movie_name', 'language', 'upload_date', 'download_count'],
   pagination: {
     pageSize: findClosest(10, PAGE_SIZES),
     pageIndex: 0,
@@ -98,19 +148,47 @@ export function MovieSubtitleFiles({
 }) {
   // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
-  const { t } = useTranslation()
+  const [language] = useAtom(osLanguageAtom)
   const { data, isFetching, refetch } = useOpenSubtitlesSubtitles({
     type: 'movie',
     tmdb_id: id,
-    languages: 'en',
+    languages: language,
     per_page: 100,
   })
+  return (
+    <>
+      <div>
+        <div className="flex h-9 gap-2 p-1.5">
+          <RefetchButton
+            refetch={refetch}
+            isFetching={isFetching}
+          />
+        </div>
+      </div>
+      <SubtitleFiles
+        id={id}
+        subtitleData={data ?? []}
+      />
+    </>
+  )
+}
+
+function SubtitleFiles({
+  id,
+  subtitleData,
+}: {
+  id: number
+  subtitleData: Subtitles['Response']['data']
+}) {
+  // eslint-disable-next-line react-compiler/react-compiler
+  'use no memo'
+  const { t } = useTranslation()
   const commonColumns = useCommonColumns<MovieSubtitleData>()
   const movieColumns = useMovieColumns()
   const columns = [...commonColumns, ...movieColumns]
   const [rowSelection = {}, setRowSelection] = useAtom(subtitleSelectionStateFamily(id))
   const table = useReactTable({
-    data: (data?.data ?? []).map((subtitle) => ({
+    data: subtitleData.map((subtitle) => ({
       subtitle,
     })),
     columns,
@@ -136,24 +214,9 @@ export function MovieSubtitleFiles({
   })
 
   return (
-    <div className="px-6 pb-5 pt-2 md:pl-16 md:pr-12">
-      <SquircleBg
-        style={{
-          '--h': `${126 + 4 * 32}px`,
-        }}
-        className="flex h-[--h] items-center justify-center overflow-hidden rounded-xl border"
-      >
-        <SquircleMask
-          className="flex size-full flex-col bg-[--theme-bg]"
-        >
-          <div>
-            <div className="flex h-9 gap-2 p-1.5">
-              <RefetchButton
-                refetch={refetch}
-                isFetching={isFetching}
-              />
-            </div>
-          </div>
+    <>
+      <>
+        <>
           <div
             className="grow overflow-auto overflow-y-scroll"
           >
@@ -209,13 +272,13 @@ export function MovieSubtitleFiles({
                   isolate
                 />
                 <span>
-                  {` items`}
+                  {` subtitles`}
                 </span>
               </span>
             </div>
           </div>
-        </SquircleMask>
-      </SquircleBg>
-    </div>
+        </>
+      </>
+    </>
   )
 }

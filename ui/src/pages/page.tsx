@@ -11,6 +11,7 @@ import {
 } from '@/api/vocab-api'
 import { FileInput } from '@/components/file-input'
 import { VocabSourceTable } from '@/components/VocabSource'
+import { VocabStatics } from '@/components/vocabulary/vocab-statics-bar'
 import { LabeledTire, LEARNING_PHASE } from '@/lib/LabeledTire'
 import {
   formVocab,
@@ -205,10 +206,10 @@ export function ResizeVocabularyPanel() {
                   </div>
                   <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">
                     <VocabStatics
-                      rowsCountFiltered={count}
+                      total={count}
                       text={` ${t('words')}`}
-                      rowsCountNew={newWordCount}
-                      rowsCountAcquainted={acquaintedWordCount}
+                      remaining={newWordCount}
+                      completed={acquaintedWordCount}
                       progress
                     />
                   </div>

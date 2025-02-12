@@ -24,9 +24,13 @@ import { HeaderTitle, TableHeaderCell, TableHeaderCellRender, TableRow } from '@
 import { AcquaintAllDialog } from '@/components/vocabulary/acquaint-all-dialog'
 import { useVocabularyCommonColumns } from '@/components/vocabulary/columns'
 import { VocabularyMenu } from '@/components/vocabulary/menu'
+import { VocabStatics } from '@/components/vocabulary/vocab-statics-bar'
+import { customFormatDistance, formatDistanceLocale } from '@/lib/date-utils'
+import { customFormatDistanceToNowStrict } from '@/lib/formatDistance'
 import { useLastTruthy } from '@/lib/hooks'
 import { LEARNING_PHASE } from '@/lib/LabeledTire'
 import { tryGetRegex } from '@/lib/regex'
+import { getFilterFn, noFilter } from '@/lib/table-utils'
 import { findClosest, getFallBack } from '@/lib/utilities'
 import { vocabRealtimeSyncStatusAtom } from '@/store/useVocab'
 
@@ -68,8 +72,6 @@ function useSegments() {
 type Segment = ReturnType<typeof useSegments>[number]['value']
 const SEGMENT_NAME = 'data-table-segment'
 
-const noFilter = () => true
-
 function useAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
   let filteredValue: LearningPhase[] = []
   if (filterSegment === 'new')
@@ -90,7 +92,7 @@ function useSearchFilterValue(search: string, usingRegex: boolean): ColumnFilter
   }
   else {
     search = search.toLowerCase()
-    return (row) => row.wFamily.some((word) => word.toLowerCase().includes(search))
+    return (row) => row.wFamily.some((word) => word.path.toLowerCase().includes(search))
   }
 }
 
@@ -140,8 +142,13 @@ function useDataColumns<T extends TableData>() {
             <TableDataCell
               cell={cell}
             >
-              <Div className="justify-center pl-0.5 pr-px tabular-nums [font-stretch:condensed]">
-                {value ? formatDistanceToNowStrict(new Date(value)) : null}
+              <Div className="justify-end pl-0.5 pr-2 tabular-nums [font-stretch:condensed]">
+                {value ? customFormatDistanceToNowStrict(new Date(value), {
+                  addSuffix: true,
+                  locale: {
+                    formatDistance: customFormatDistance(formatDistanceLocale),
+                  },
+                }) : null}
               </Div>
             </TableDataCell>
           )
@@ -149,7 +156,7 @@ function useDataColumns<T extends TableData>() {
       }),
       columnHelper.accessor((row) => row.vocab.isUser, {
         id: 'userOwned',
-        filterFn: (row, columnId, fn: ColumnFilterFn) => fn(row.original),
+        filterFn: getFilterFn(),
       }),
     ]
   )
@@ -334,7 +341,7 @@ export function VocabDataTable({
         <SegmentedControl
           value={segment}
           segments={segments}
-          onChoose={handleSegmentChoose}
+          onValueChange={handleSegmentChoose}
           variant="ghost"
         />
       </div>
@@ -384,10 +391,10 @@ export function VocabDataTable({
       </div>
       <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">
         <VocabStatics
-          rowsCountFiltered={rowsFiltered.length}
+          total={rowsFiltered.length}
           text={` ${t('vocabulary')}`}
-          rowsCountNew={rowsNew.length}
-          rowsCountAcquainted={rowsAcquainted.length}
+          remaining={rowsNew.length}
+          completed={rowsAcquainted.length}
           animated={!disableNumberAnim}
         />
       </div>

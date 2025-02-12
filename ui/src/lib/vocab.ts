@@ -6,7 +6,7 @@ import {
 
 export type LabelData = {
   vocab: VocabState
-  wFamily: string[]
+  wFamily: TrieWordLabel[]
 }
 
 export type LabelSourceData = LabelData & {
@@ -23,13 +23,13 @@ export type InertialPhase = {
 
 export function formVocab(lemma: TrieWordLabel) {
   let locations = [...lemma.src]
-  const wFamily = [lemma.path]
+  const wFamily = [lemma]
 
   if (lemma.derive?.length) {
     function collectNestedSource(lexicalEntries: TrieWordLabel[]) {
       for (const lexicalEntry of lexicalEntries) {
         if (lexicalEntry.src[0]) {
-          wFamily.push(lexicalEntry.path)
+          wFamily.push(lexicalEntry)
           if (locations[0]) {
             locations = lexicalEntry.src[0].wordOrder < locations[0].wordOrder
               ? lexicalEntry.src.concat(locations)

@@ -27,9 +27,11 @@ import { AcquaintAllDialog } from '@/components/vocabulary/acquaint-all-dialog'
 import { useVocabularyCommonColumns } from '@/components/vocabulary/columns'
 import { ExampleSentence } from '@/components/vocabulary/example-sentence'
 import { VocabularyMenu } from '@/components/vocabulary/menu'
+import { VocabStatics } from '@/components/vocabulary/vocab-statics-bar'
 import { useLastTruthy } from '@/lib/hooks'
 import { LEARNING_PHASE } from '@/lib/LabeledTire'
 import { tryGetRegex } from '@/lib/regex'
+import { noFilter } from '@/lib/table-utils'
 import { findClosest } from '@/lib/utilities'
 import { isSourceTextStaleAtom } from '@/store/useVocab'
 
@@ -61,8 +63,6 @@ function useSegments() {
 type Segment = ReturnType<typeof useSegments>[number]['value']
 const SEGMENT_NAME = 'source-table-segment'
 
-const noFilter = () => true
-
 function useAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
   let filteredValue: LearningPhase[] = []
   if (filterSegment === 'new')
@@ -83,7 +83,7 @@ function useSearchFilterValue(search: string, usingRegex: boolean): ColumnFilter
   }
   else {
     search = search.toLowerCase()
-    return (row) => row.wFamily.some((word) => word.toLowerCase().includes(search))
+    return (row) => row.wFamily.some((word) => word.path.toLowerCase().includes(search))
   }
 }
 
@@ -298,7 +298,7 @@ export function VocabSourceTable({
         <SegmentedControl
           value={segment}
           segments={segments}
-          onChoose={handleSegmentChoose}
+          onValueChange={handleSegmentChoose}
           variant="ghost"
         />
       </div>
@@ -357,10 +357,10 @@ export function VocabSourceTable({
       </div>
       <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">
         <VocabStatics
-          rowsCountFiltered={rowsFiltered.length}
+          total={rowsFiltered.length}
           text={` ${t('vocabulary')}`}
-          rowsCountNew={rowsNew.length}
-          rowsCountAcquainted={rowsAcquainted.length}
+          remaining={rowsNew.length}
+          completed={rowsAcquainted.length}
           animated={!disableNumberAnim}
           progress
         />

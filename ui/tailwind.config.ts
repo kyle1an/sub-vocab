@@ -6,7 +6,7 @@ import plugin from 'tailwindcss/plugin'
 import { omitUndefined } from './src/lib/utilities'
 
 const config: Config = {
-  darkMode: ['selector'],
+  darkMode: ['selector', '.dark'],
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
@@ -29,17 +29,6 @@ const config: Config = {
         'Segoe UI Symbol',
         'Noto Color Emoji',
       ],
-      pro: [
-        '-apple-system',
-        'BlinkMacSystemFont',
-        'SF Pro Text',
-        'Inter',
-        'system-ui',
-        'Segoe UI',
-        'Roboto',
-        'Helvetica Neue',
-        'sans-serif',
-      ],
       compact: [
         'Karla',
         'SF Compact Text',
@@ -61,48 +50,53 @@ const config: Config = {
         sm: 'calc(var(--radius) - 4px)',
       },
       colors: {
-        background: 'hsl(var(--background))',
-        'background-active': 'var(--background-active)',
-        foreground: 'hsl(var(--foreground))',
+        background: {
+          DEFAULT: 'var(--background)',
+          active: 'var(--background-active)',
+        },
+        foreground: 'var(--foreground)',
         card: {
-          DEFAULT: 'hsl(var(--card))',
-          foreground: 'hsl(var(--card-foreground))',
+          DEFAULT: 'var(--card)',
+          foreground: 'var(--card-foreground)',
         },
         popover: {
-          DEFAULT: 'hsl(var(--popover))',
-          foreground: 'hsl(var(--popover-foreground))',
+          DEFAULT: 'var(--popover)',
+          foreground: 'var(--popover-foreground)',
         },
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
+          DEFAULT: 'var(--primary)',
+          foreground: 'var(--primary-foreground)',
+          hover: 'var(--primary-hover)',
         },
         secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
+          DEFAULT: 'var(--secondary)',
+          foreground: 'var(--secondary-foreground)',
         },
         muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
+          DEFAULT: 'var(--muted)',
+          foreground: 'var(--muted-foreground)',
         },
         accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
+          DEFAULT: 'var(--accent)',
+          foreground: 'var(--accent-foreground)',
         },
         destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))',
+          DEFAULT: 'var(--destructive)',
+          foreground: 'var(--destructive-foreground)',
         },
-        border: 'hsl(var(--border))',
-        'border-td': 'var(--border-td)',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
+        border: {
+          DEFAULT: 'var(--border)',
+          td: 'var(--border-td)',
+        },
+        input: 'var(--input)',
+        ring: 'var(--ring)',
         'internal-autofill': 'var(--internal-autofill)',
         chart: {
-          1: 'hsl(var(--chart-1))',
-          2: 'hsl(var(--chart-2))',
-          3: 'hsl(var(--chart-3))',
-          4: 'hsl(var(--chart-4))',
-          5: 'hsl(var(--chart-5))',
+          1: 'var(--chart-1)',
+          2: 'var(--chart-2)',
+          3: 'var(--chart-3)',
+          4: 'var(--chart-4)',
+          5: 'var(--chart-5)',
         },
       },
       boxShadow: {
@@ -147,72 +141,41 @@ const config: Config = {
     require('@anuragroy/tailwindcss-animate'),
     require('tailwindcss-signals'),
     plugin(({
-      addUtilities,
       addVariant,
       matchUtilities,
       theme,
     }) => {
-      const sq_DEFINITION = '&:is(.sq *)'
-
-      addUtilities({
-        '.squircle': {
-          [sq_DEFINITION]: {
-            background: 'paint(squircle)',
-          },
-        },
-      })
-
-      addVariant('sq', sq_DEFINITION)
+      addVariant('sq', '&:is(.sq *)')
       addVariant('iOS', '&:is(.iOS *)')
       addVariant('webkit', '&:is(.webkit *)')
 
       matchUtilities({
-        mask: (value) => ({
-          [sq_DEFINITION]: {
-            maskImage: value,
-          },
-        }),
-      }, {
-        values: {
-          squircle: 'paint(squircle)',
-        },
-      })
-
-      matchUtilities({
         'sq-smooth': (value) => ({
-          [sq_DEFINITION]: {
-            '--squircle-smooth': value,
-          },
+          '--squircle-smooth': value,
         }),
       })
 
       matchUtilities({
         'sq-smooth-x': (value) => ({
-          [sq_DEFINITION]: {
-            '--squircle-right-top-smooth': value,
-            '--squircle-right-bottom-smooth': value,
-            '--squircle-left-bottom-smooth': value,
-            '--squircle-left-top-smooth': value,
-          },
+          '--squircle-right-top-smooth': value,
+          '--squircle-right-bottom-smooth': value,
+          '--squircle-left-bottom-smooth': value,
+          '--squircle-left-top-smooth': value,
         }),
       })
 
       matchUtilities({
         'sq-smooth-y': (value) => ({
-          [sq_DEFINITION]: {
-            '--squircle-top-left-smooth': value,
-            '--squircle-top-right-smooth': value,
-            '--squircle-bottom-right-smooth': value,
-            '--squircle-bottom-left-smooth': value,
-          },
+          '--squircle-top-left-smooth': value,
+          '--squircle-top-right-smooth': value,
+          '--squircle-bottom-right-smooth': value,
+          '--squircle-bottom-left-smooth': value,
         }),
       })
 
       matchUtilities({
         'sq-radius': (value) => ({
-          [sq_DEFINITION]: {
-            '--squircle-radius': value,
-          },
+          '--squircle-radius': value,
         }),
       }, omitUndefined({
         values: theme('borderRadius'),
@@ -220,12 +183,10 @@ const config: Config = {
 
       matchUtilities({
         'sq-radius-x': (value) => ({
-          [sq_DEFINITION]: {
-            '--squircle-right-top-radius': value,
-            '--squircle-right-bottom-radius': value,
-            '--squircle-left-bottom-radius': value,
-            '--squircle-left-top-radius': value,
-          },
+          '--squircle-right-top-radius': value,
+          '--squircle-right-bottom-radius': value,
+          '--squircle-left-bottom-radius': value,
+          '--squircle-left-top-radius': value,
         }),
       }, omitUndefined({
         values: theme('borderRadius'),
@@ -233,12 +194,10 @@ const config: Config = {
 
       matchUtilities({
         'sq-radius-y': (value) => ({
-          [sq_DEFINITION]: {
-            '--squircle-top-left-radius': value,
-            '--squircle-top-right-radius': value,
-            '--squircle-bottom-right-radius': value,
-            '--squircle-bottom-left-radius': value,
-          },
+          '--squircle-top-left-radius': value,
+          '--squircle-top-right-radius': value,
+          '--squircle-bottom-right-radius': value,
+          '--squircle-bottom-left-radius': value,
         }),
       }, omitUndefined({
         values: theme('borderRadius'),
@@ -246,9 +205,7 @@ const config: Config = {
 
       matchUtilities({
         'sq-outline': (value) => ({
-          [sq_DEFINITION]: {
-            '--squircle-outline': value,
-          },
+          '--squircle-outline': value,
         }),
       }, omitUndefined({
         values: theme('borderWidth'),
@@ -256,9 +213,7 @@ const config: Config = {
 
       matchUtilities({
         'sq-stroke': (value) => ({
-          [sq_DEFINITION]: {
-            '--squircle-stroke': value,
-          },
+          '--squircle-stroke': value,
         }),
       }, omitUndefined({
         values: theme('colors'),
@@ -267,9 +222,7 @@ const config: Config = {
 
       matchUtilities({
         'sq-fill': (value) => ({
-          [sq_DEFINITION]: {
-            '--squircle-fill': value,
-          },
+          '--squircle-fill': value,
         }),
       }, omitUndefined({
         values: theme('colors'),

@@ -19,7 +19,7 @@ const LOCALES = [
   },
 ] as const
 
-function Account({ className, style, ...props }: React.HTMLAttributes<HTMLAnchorElement>) {
+function Account({ className, style, ...props }: React.ComponentProps<'a'>) {
   return (
     <Link
       to="/register"
@@ -34,7 +34,7 @@ function Account({ className, style, ...props }: React.HTMLAttributes<HTMLAnchor
   )
 }
 
-function SignIn({ className, ...props }: React.HTMLAttributes<HTMLAnchorElement>) {
+function SignIn({ className, ...props }: React.ComponentProps<'a'>) {
   return (
     <Link
       to="/login"
@@ -49,7 +49,7 @@ function SignIn({ className, ...props }: React.HTMLAttributes<HTMLAnchorElement>
   )
 }
 
-function Settings({ className, ...props }: React.HTMLAttributes<HTMLAnchorElement>) {
+function Settings({ className, ...props }: React.ComponentProps<'a'>) {
   const { t } = useTranslation()
   return (
     <Link
@@ -67,7 +67,7 @@ function Settings({ className, ...props }: React.HTMLAttributes<HTMLAnchorElemen
   )
 }
 
-function SignOut({ className, ...props }: React.HTMLAttributes<HTMLButtonElement>) {
+function SignOut({ className, ...props }: React.ComponentProps<'button'>) {
   const { t } = useTranslation()
   const { mutateAsync: logOut } = useLogOut()
   const close = useClose()
@@ -203,7 +203,7 @@ export function TopBar({ className }: { className?: string }) {
                         className="mr-3 block px-2 text-neutral-400 transition-all hover:text-neutral-500 xl:mr-0 dark:hover:text-neutral-200"
                         rel="noreferrer noopener"
                       >
-                        <span className="sr-only">SubVocab on GitHub</span>
+                        <span className="sr-only">Subvocab on GitHub</span>
                         <IconBiGithub />
                       </a>
                     </div>

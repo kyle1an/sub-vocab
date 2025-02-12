@@ -1,22 +1,36 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { Cross2Icon } from '@radix-ui/react-icons'
 
-const Dialog = DialogPrimitive.Root
+function Dialog({
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Root>) {
+  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+}
 
-const DialogTrigger = DialogPrimitive.Trigger
+function DialogTrigger({
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Trigger>) {
+  return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />
+}
+function DialogPortal({
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Portal>) {
+  return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />
+}
 
-const DialogPortal = DialogPrimitive.Portal
-
-const DialogClose = DialogPrimitive.Close
+function DialogClose({
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Close>) {
+  return <DialogPrimitive.Close data-slot="dialog-close" {...props} />
+}
 
 function DialogOverlay({
   className,
-  ref,
   ...props
-}: React.ComponentPropsWithRef<typeof DialogPrimitive.Overlay>) {
+}: React.ComponentProps<typeof DialogPrimitive.Overlay>) {
   return (
     <DialogPrimitive.Overlay
-      ref={ref}
+      data-slot="dialog-overlay"
       className={cn(
         'fixed inset-0 z-50 bg-black/30 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
         className,
@@ -25,22 +39,21 @@ function DialogOverlay({
     />
   )
 }
-DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 function DialogContent({
   className,
   children,
-  ref,
   ...props
-}: React.ComponentPropsWithRef<typeof DialogPrimitive.Content>) {
+}: React.ComponentProps<typeof DialogPrimitive.Content>) {
   return (
-    <DialogPortal>
+    <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
       <DialogPrimitive.Content
-        ref={ref}
+        data-slot="dialog-content"
         className={cn(
-          'fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg md:w-full',
-          'squircle sq-radius-[--sq-r] sq-outline-[--l-w] sq-stroke-[hsl(var(--border))] sq-fill-[hsl(var(--background))] [--l-w:1px] [--sq-r:8px] sq:border-0 sq:bg-transparent sq:shadow-none sq:drop-shadow-lg',
+          'fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:rounded-lg md:w-full',
+          'data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
+          'sq-radius-[--sq-r] sq-outline-[--l-w] sq-stroke-[--border] sq-fill-[--background] [--l-w:1px] [--sq-r:8px] sq:border-0 sq:bg-transparent sq:shadow-none sq:drop-shadow-lg sq:[background:paint(squircle)]',
           className,
         )}
         {...props}
@@ -49,7 +62,7 @@ function DialogContent({
         <DialogPrimitive.Close
           className={cn(
             'absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground',
-            '[--offset:2px] [--sq-r:2] focus:after:squircle focus:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus:after:sq-outline-[1.1] focus:after:sq-stroke-[hsl(var(--ring))] focus:after:sq-fill-transparent sq:rounded-none sq:focus:ring-0 sq:focus:after:absolute sq:focus:after:-left-[--offset] sq:focus:after:-top-[--offset] sq:focus:after:size-[calc(100%+2*var(--offset))]',
+            '[--offset:2px] [--sq-r:2] focus:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus:after:sq-outline-[1.1] focus:after:sq-stroke-[--ring] focus:after:sq-fill-transparent sq:rounded-none sq:focus:ring-0 sq:focus:after:absolute sq:focus:after:-left-[--offset] sq:focus:after:-top-[--offset] sq:focus:after:size-[calc(100%+2*var(--offset))] focus:after:sq:[background:paint(squircle)]',
           )}
         >
           <Cross2Icon className="size-4" />
@@ -59,14 +72,11 @@ function DialogContent({
     </DialogPortal>
   )
 }
-DialogContent.displayName = DialogPrimitive.Content.displayName
 
-function DialogHeader({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+function DialogHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
+      data-slot="dialog-header"
       className={cn(
         'flex flex-col space-y-1.5 text-center sm:text-left',
         className,
@@ -75,14 +85,11 @@ function DialogHeader({
     />
   )
 }
-DialogHeader.displayName = 'DialogHeader'
 
-function DialogFooter({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+function DialogFooter({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
+      data-slot="dialog-footer"
       className={cn(
         'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2',
         className,
@@ -91,16 +98,14 @@ function DialogFooter({
     />
   )
 }
-DialogFooter.displayName = 'DialogFooter'
 
 function DialogTitle({
   className,
-  ref,
   ...props
-}: React.ComponentPropsWithRef<typeof DialogPrimitive.Title>) {
+}: React.ComponentProps<typeof DialogPrimitive.Title>) {
   return (
     <DialogPrimitive.Title
-      ref={ref}
+      data-slot="dialog-title"
       className={cn(
         'text-lg font-semibold leading-none',
         className,
@@ -109,22 +114,19 @@ function DialogTitle({
     />
   )
 }
-DialogTitle.displayName = DialogPrimitive.Title.displayName
 
 function DialogDescription({
   className,
-  ref,
   ...props
-}: React.ComponentPropsWithRef<typeof DialogPrimitive.Description>) {
+}: React.ComponentProps<typeof DialogPrimitive.Description>) {
   return (
     <DialogPrimitive.Description
-      ref={ref}
+      data-slot="dialog-description"
       className={cn('text-sm text-muted-foreground', className)}
       {...props}
     />
   )
 }
-DialogDescription.displayName = DialogPrimitive.Description.displayName
 
 export {
   Dialog,
