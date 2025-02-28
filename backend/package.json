@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@10.5.0",
+  "packageManager": "pnpm@10.5.2",
   "scripts": {
     "dev": "tsx watch --trace-deprecation --env-file=.env app",
     "introspect": "drizzle-kit introspect",

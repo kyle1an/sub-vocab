@@ -9,7 +9,7 @@ import { useLogOut, useUpdateUser } from '@/api/user'
 import { PASSWORD_MIN_LENGTH } from '@/constants/constraints'
 import { authChangeEventAtom, sessionAtom } from '@/store/useVocab'
 
-export function UpdatePassword() {
+export default function UpdatePassword() {
   const { t } = useTranslation()
   const { mutateAsync: logOut } = useLogOut()
   const [session] = useAtom(sessionAtom)

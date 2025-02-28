@@ -1,4 +1,4 @@
-export function AboutPage() {
+export default function AboutPage() {
   return (
     <main>
       <div className="py-6">

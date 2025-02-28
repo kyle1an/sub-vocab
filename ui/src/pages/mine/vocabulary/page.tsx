@@ -6,7 +6,7 @@ import { LabeledTire } from '@/lib/LabeledTire'
 import { formVocab } from '@/lib/vocab'
 import { statusRetainedList } from '@/lib/vocab-utils'
 
-export function VocabularyPage() {
+export default function VocabularyPage() {
   const [userWords] = useAtom(baseVocabAtom)
 
   const [rows, setRows] = useState<LabelDisplayTable[]>([])

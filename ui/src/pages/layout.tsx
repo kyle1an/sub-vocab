@@ -1,6 +1,5 @@
 import { useColorScheme } from '@mui/joy/styles'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { SpeedInsights } from '@vercel/speed-insights/react'
 import { useMediaQuery } from 'foxact/use-media-query'
 import { DevTools } from 'jotai-devtools'
 import { Outlet } from 'react-router'
@@ -77,7 +76,7 @@ function useSyncMetaThemeColor<T extends Element>(ref: React.RefObject<T>) {
   }, [isDarkMode, ref, setMetaThemeColor])
 }
 
-export function RootLayout() {
+export default function RootLayout() {
   const ref = useRef<HTMLDivElement>(null!)
   useSyncMuiColorScheme()
   useSyncDarkPreference()
@@ -91,13 +90,12 @@ export function RootLayout() {
   return (
     <div
       ref={ref}
-      className="isolate flex h-full min-h-full flex-col bg-[--theme-bg] pr-[--pr] tracking-[--tracking] [--tracking:.02em] antialiased sq-smooth-[0.6] sq-radius-[5_5_0_0] sq-fill-[red] [--b-g:var(--theme-bg)] [&[style*='border-radius:_8px;']]:sq:[mask:paint(squircle)]"
+      className="isolate flex h-full min-h-full flex-col bg-[--theme-bg] pr-[--pr] tracking-[--tracking] antialiased sq-smooth-[0.6] sq-radius-[5_5_0_0] sq-fill-[red] [--b-g:var(--theme-bg)] [--tracking:.02em] [&[style*='border-radius:_8px;']]:sq:[mask:paint(squircle)]"
       data-vaul-drawer-wrapper=""
     >
       <TopBar />
       <div className="flex min-h-svh flex-col items-center pt-11">
         <Outlet />
-        {import.meta.env.PROD && <SpeedInsights />}
       </div>
       <Toaster
         closeButton
