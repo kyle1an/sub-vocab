@@ -9,7 +9,7 @@ import { USERNAME_MIN_LENGTH } from '@/constants/constraints'
 import { env } from '@/env'
 import { sessionAtom } from '@/store/useVocab'
 
-export function ProfilePage() {
+export default function ProfilePage() {
   const { t } = useTranslation()
   const [session] = useAtom(sessionAtom)
   const username = session?.user?.user_metadata?.username || ''

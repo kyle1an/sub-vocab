@@ -1,7 +1,6 @@
 import type { ImperativePanelGroupHandle } from 'react-resizable-panels'
 
 import { useMediaQuery } from 'foxact/use-media-query'
-import { Link, Outlet } from 'react-router'
 
 import type { LabelDisplaySource } from '@/lib/vocab'
 
@@ -9,7 +8,6 @@ import {
   baseVocabAtom,
   useIrregularMapsQuery,
 } from '@/api/vocab-api'
-import { FileInput } from '@/components/file-input'
 import { VocabSourceTable } from '@/components/VocabSource'
 import { VocabStatics } from '@/components/vocabulary/vocab-statics-bar'
 import { LabeledTire, LEARNING_PHASE } from '@/lib/LabeledTire'
@@ -18,8 +16,6 @@ import {
 } from '@/lib/vocab'
 import { statusRetainedList } from '@/lib/vocab-utils'
 import { fileTypesAtom, isSourceTextStaleAtom, sourceTextAtom } from '@/store/useVocab'
-
-import { FileSettings } from './file-settings'
 
 const fileInfoAtom = atom('')
 const textCountAtom = atom(0)
@@ -85,54 +81,13 @@ function SourceVocab({
   )
 }
 
-export function Home() {
-  const { t } = useTranslation()
-  const setFileInfo = useSetAtom(fileInfoAtom)
-  const setSourceText = useSetAtom(sourceTextAtom)
-
-  function handleFileChange({ name, value }: { name: string, value: string }) {
-    setFileInfo(name)
-    setSourceText((v) => ({
-      text: value,
-      version: v.version++,
-    }))
-  }
-
-  return (
-    <main className="m-auto h-[calc(100svh-4px*11)] w-full max-w-screen-xl px-5 pb-7">
-      <div className="relative flex h-14 items-center gap-2">
-        <FileInput
-          onFileSelect={handleFileChange}
-        >
-          {t('browseFiles')}
-        </FileInput>
-        <FileSettings />
-        <Button
-          variant="outline"
-          className="whitespace-nowrap p-0"
-          size="sm"
-        >
-          <Link
-            to="/subtitles"
-            className="flex size-full items-center px-3"
-          >
-            Subtitles
-          </Link>
-        </Button>
-        <div className="grow" />
-      </div>
-      <Outlet />
-    </main>
-  )
-}
-
 const horizontalDefaultSizesAtom = atom([50, 50])
 const verticalDefaultSizesAtom = atom([
   36,
   64,
 ])
 
-export function ResizeVocabularyPanel() {
+export default function ResizeVocabularyPanel() {
   const { t } = useTranslation()
   const [fileInfo, setFileInfo] = useAtom(fileInfoAtom)
   const [sourceText, setSourceText] = useAtom(sourceTextAtom)

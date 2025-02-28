@@ -8,7 +8,7 @@ import type { ZodObj } from '@/types/utils'
 import { useSignInWithEmail, useSignInWithUsername } from '@/api/user'
 import { authChangeEventAtom, sessionAtom } from '@/store/useVocab'
 
-export function Login() {
+export default function Login() {
   const [session] = useAtom(sessionAtom)
   const user = session?.user
   const [passwordVisible, setPasswordVisible] = useState(false)

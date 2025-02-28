@@ -7,7 +7,7 @@ export function VocabularyMenu({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          className="flex max-h-full gap-1 p-2 [--sq-r:5px]"
+          className="flex max-h-full gap-1 p-2 [--sq-r:4px]"
           variant="ghost"
         >
           <IconIonEllipsisHorizontalCircleOutline

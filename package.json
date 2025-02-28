@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.3.0",
   "private": true,
-  "packageManager": "pnpm@10.5.0",
+  "packageManager": "pnpm@10.5.2",
   "scripts": {
     "backend": "pnpm --filter @sub-vocab/backend",
     "ui": "pnpm --filter @sub-vocab/ui",
@@ -15,42 +15,41 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
     "date-fns": "^4.1.0",
-    "type-fest": "^4.35.0",
+    "type-fest": "^4.37.0",
     "zod": "3.24.2"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^4.3.0",
+    "@antfu/eslint-config": "^4.7.0",
     "@eslint/eslintrc": "^3.3.0",
-    "@stylistic/eslint-plugin": "4.1.0",
+    "@stylistic/eslint-plugin": "4.2.0",
     "@t3-oss/env-core": "0.12.0",
     "@total-typescript/ts-reset": "^0.6.1",
-    "@types/node": "^22.13.5",
+    "@types/node": "^22.13.9",
     "eslint": "^9.21.0",
-    "eslint-plugin-de-morgan": "^1.1.0",
-    "eslint-plugin-package-json": "^0.26.0",
+    "eslint-plugin-de-morgan": "^1.2.0",
+    "eslint-plugin-package-json": "^0.26.2",
     "jsonc-eslint-parser": "^2.4.0",
     "openapi-typescript": "^7.6.1",
     "pathe": "^2.0.3",
-    "prettier": "^3.5.2",
+    "prettier": "^3.5.3",
     "taze": "^18.6.0",
-    "typescript": "5.7.3"
+    "typescript": "5.8.2"
   },
   "pnpm": {
     "overrides": {
-      "array-flatten": "npm:@nolyfill/array-flatten@^1.0.42",
-      "es-set-tostringtag": "npm:@nolyfill/es-set-tostringtag@^1.0.29",
-      "hasown": "npm:@nolyfill/hasown@^1.0.29",
+      "array-flatten": "npm:@nolyfill/array-flatten@^1.0.44",
+      "es-set-tostringtag": "npm:@nolyfill/es-set-tostringtag@^1.0.44",
+      "hasown": "npm:@nolyfill/hasown@^1.0.44",
       "is-core-module": "npm:@nolyfill/is-core-module@^1.0.39",
-      "safe-buffer": "npm:@nolyfill/safe-buffer@^1.0.41",
-      "safer-buffer": "npm:@nolyfill/safer-buffer@^1.0.41",
-      "side-channel": "npm:@nolyfill/side-channel@^1.0.29",
+      "safe-buffer": "npm:@nolyfill/safe-buffer@^1.0.44",
+      "safer-buffer": "npm:@nolyfill/safer-buffer@^1.0.44",
+      "side-channel": "npm:@nolyfill/side-channel@^1.0.44",
       "whatwg-url": "^14.1.1"
     },
     "patchedDependencies": {
       "http-proxy@1.18.1": "patches/http-proxy@1.18.1.patch"
     },
     "onlyBuiltDependencies": [
-      "@vercel/speed-insights",
       "esbuild",
       "supabase"
     ]

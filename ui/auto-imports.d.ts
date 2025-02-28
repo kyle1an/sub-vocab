@@ -158,6 +158,8 @@ declare global {
   const SelectGroup: typeof import('./src/components/ui/select')['SelectGroup']
   const SelectItem: typeof import('./src/components/ui/select')['SelectItem']
   const SelectLabel: typeof import('./src/components/ui/select')['SelectLabel']
+  const SelectScrollDownButton: typeof import('./src/components/ui/select')['SelectScrollDownButton']
+  const SelectScrollUpButton: typeof import('./src/components/ui/select')['SelectScrollUpButton']
   const SelectSeparator: typeof import('./src/components/ui/select')['SelectSeparator']
   const SelectTrigger: typeof import('./src/components/ui/select')['SelectTrigger']
   const SelectValue: typeof import('./src/components/ui/select')['SelectValue']

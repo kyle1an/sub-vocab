@@ -22,13 +22,28 @@ export const htmlInlineTransform = (): PluginOption => {
       if (bundle) {
         Object.entries(bundle).forEach(([fileName, output]) => {
           if (/\/worker.*\.js$/.test(fileName)) {
-            if ('code' in output)
+            if ('code' in output) {
               html = replaceLinkTagWithScript(html, output.fileName, output.code)
-              // delete bundle[output.fileName]
+              delete bundle[output.fileName]
+            }
           }
         })
       }
       return html
+    },
+    generateBundle(options, bundle) {
+      Object.values(bundle).forEach((chunk) => {
+        if ('preliminaryFileName' in chunk) {
+          if (
+            chunk.preliminaryFileName.endsWith('.js')
+            && chunk.type === 'chunk'
+          ) {
+            chunk.code = chunk.code.replace(
+              /import\s*["']\.\/worker-[^"']+["'];?/,
+              '')
+          }
+        }
+      })
     },
   }
 }
