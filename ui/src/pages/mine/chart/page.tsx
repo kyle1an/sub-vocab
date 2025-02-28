@@ -162,7 +162,7 @@ function mapY(userWords: VocabState[]) {
 }
 
 const SEGMENT_NAME = 'prev-chart-select'
-export function Chart() {
+export default function Chart() {
   const { t } = useTranslation()
   const [userWords] = useAtom(baseVocabAtom)
 

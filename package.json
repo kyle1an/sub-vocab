@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.3.0",
   "private": true,
-  "packageManager": "pnpm@10.5.0",
+  "packageManager": "pnpm@10.5.2",
   "scripts": {
     "backend": "pnpm --filter @sub-vocab/backend",
     "ui": "pnpm --filter @sub-vocab/ui",
@@ -50,7 +50,6 @@
       "http-proxy@1.18.1": "patches/http-proxy@1.18.1.patch"
     },
     "onlyBuiltDependencies": [
-      "@vercel/speed-insights",
       "esbuild",
       "supabase"
     ]

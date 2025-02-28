@@ -30,6 +30,21 @@ export const htmlInlineTransform = (): PluginOption => {
       }
       return html
     },
+    generateBundle(options, bundle) {
+      Object.values(bundle).forEach((chunk) => {
+        if ('preliminaryFileName' in chunk) {
+          if (
+            chunk.preliminaryFileName === 'assets/index-!~{001}~.js'
+            && chunk.type === 'chunk'
+          ) {
+            chunk.code = chunk.code.replace(
+              /^import\s*["']\.\/worker-[^"']+["'];\s*/,
+              '',
+            )
+          }
+        }
+      })
+    },
   }
 }
 

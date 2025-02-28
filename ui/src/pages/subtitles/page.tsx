@@ -335,7 +335,7 @@ function useColumns<T extends TableData>() {
   ]
 }
 
-export function Subtitles() {
+export default function Subtitles() {
   // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
   const { isPending: isDownloadPending, mutateAsync: download } = useOpenSubtitlesDownload()
