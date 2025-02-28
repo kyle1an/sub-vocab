@@ -589,13 +589,13 @@ export function TVSubtitleFiles({
               table={table}
             />
             <div className="flex grow items-center justify-end">
-              <div className="flex items-center">
+              <div className="flex items-center text-xs">
                 <TablePaginationSizeSelect
                   table={table}
                   sizes={PAGE_SIZES}
                   value={tableState.pagination.pageSize}
                 />
-                <div className="whitespace-nowrap px-1 text-[.8125rem]">{`/${t('page')}`}</div>
+                <div className="whitespace-nowrap px-1">{`/${t('page')}`}</div>
               </div>
             </div>
           </div>

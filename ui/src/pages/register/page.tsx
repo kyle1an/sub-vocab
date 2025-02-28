@@ -9,7 +9,7 @@ import { useRegister } from '@/api/user'
 import { PASSWORD_MIN_LENGTH } from '@/constants/constraints'
 import { authChangeEventAtom, sessionAtom } from '@/store/useVocab'
 
-export function Register() {
+export default function Register() {
   const [session] = useAtom(sessionAtom)
   const user = session?.user
   const formDefaultValues = {

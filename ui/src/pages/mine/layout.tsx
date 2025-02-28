@@ -2,7 +2,7 @@ import { Outlet } from 'react-router'
 
 import { SideNav } from '@/components/SideNav'
 
-export function MineLayout() {
+export default function MineLayout() {
   const { t } = useTranslation()
   const subNav = [
     {

@@ -4,7 +4,7 @@ import { Footer } from '@/components/Footer'
 import { SideNav } from '@/components/SideNav'
 import { authChangeEventAtom, sessionAtom } from '@/store/useVocab'
 
-export function User() {
+export default function User() {
   const { t } = useTranslation()
   const [session] = useAtom(sessionAtom)
   const user = session?.user

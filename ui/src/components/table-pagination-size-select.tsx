@@ -3,6 +3,17 @@ import type { Table } from '@tanstack/react-table'
 
 import { uniq } from 'lodash-es'
 
+function SizeSelectItem({ size }: { size: number }) {
+  return (
+    <SelectItem
+      className="pr-4 text-xs tabular-nums"
+      value={String(size)}
+    >
+      {size.toLocaleString('en-US')}
+    </SelectItem>
+  )
+}
+
 export function TablePaginationSizeSelect<T>({
   table,
   sizes,
@@ -29,13 +40,10 @@ export function TablePaginationSizeSelect<T>({
       >
         <SelectGroup>
           {sizes.map((size) => (
-            <SelectItem
-              className="pr-4 text-xs tabular-nums"
+            <SizeSelectItem
               key={size}
-              value={String(size)}
-            >
-              {size}
-            </SelectItem>
+              size={size}
+            />
           ))}
         </SelectGroup>
         {![...sizes, ...itemsNum].includes(pageSize) ? (
@@ -43,13 +51,10 @@ export function TablePaginationSizeSelect<T>({
             <SelectSeparator />
             <SelectGroup>
               {[pageSize].map((size) => (
-                <SelectItem
-                  className="pr-4 text-xs tabular-nums"
+                <SizeSelectItem
                   key={size}
-                  value={String(size)}
-                >
-                  {size}
-                </SelectItem>
+                  size={size}
+                />
               ))}
             </SelectGroup>
           </>
@@ -59,13 +64,10 @@ export function TablePaginationSizeSelect<T>({
             <SelectSeparator />
             <SelectGroup>
               {itemsNum.map((size) => (
-                <SelectItem
-                  className="pr-4 text-xs tabular-nums"
+                <SizeSelectItem
                   key={size}
-                  value={String(size)}
-                >
-                  {size}
-                </SelectItem>
+                  size={size}
+                />
               ))}
             </SelectGroup>
           </>

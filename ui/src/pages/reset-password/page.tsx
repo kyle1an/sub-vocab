@@ -22,7 +22,7 @@ function ResetEmailNotification() {
   )
 }
 
-export function ResetPassword() {
+export default function ResetPassword() {
   const [session] = useAtom(sessionAtom)
   const user = session?.user
   const { mutateAsync: resetPasswordForEmail, isPending } = useResetPasswordForEmail()

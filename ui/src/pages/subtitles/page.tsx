@@ -335,7 +335,7 @@ function useColumns<T extends TableData>() {
   ]
 }
 
-export function Subtitles() {
+export default function Subtitles() {
   // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
   const { isPending: isDownloadPending, mutateAsync: download } = useOpenSubtitlesDownload()
@@ -610,13 +610,13 @@ export function Subtitles() {
             table={table}
           />
           <div className="flex grow items-center justify-end">
-            <div className="flex items-center">
+            <div className="flex items-center text-xs">
               <TablePaginationSizeSelect
                 table={table}
                 sizes={PAGE_SIZES}
                 value={tableState.pagination.pageSize}
               />
-              <div className="whitespace-nowrap px-1 text-[.8125rem]">{`/${t('page')}`}</div>
+              <div className="whitespace-nowrap px-1">{`/${t('page')}`}</div>
             </div>
           </div>
         </div>

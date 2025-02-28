@@ -7,7 +7,7 @@ import type { ZodObj } from '@/types/utils'
 import { useLogOut, useUpdateUser } from '@/api/user'
 import { PASSWORD_MIN_LENGTH } from '@/constants/constraints'
 
-export function Password() {
+export default function Password() {
   const { t } = useTranslation()
   const { mutateAsync: logOut } = useLogOut()
 
