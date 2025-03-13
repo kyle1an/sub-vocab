@@ -14,6 +14,7 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'pathe'
 
 import { env } from './env.js'
+import { aiRouter } from './src/routes/ai.js'
 import { userRouter } from './src/routes/auth.js'
 import routes from './src/routes/index.js'
 import { router } from './src/routes/trpc.js'
@@ -40,6 +41,7 @@ app.use(cors({
 
 const appRouter = router({
   user: userRouter,
+  ai: aiRouter,
 })
 
 export type AppRouter = typeof appRouter
@@ -97,7 +99,6 @@ app.use(
 app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
-// need cookieParser middleware before we can do anything with cookies
 app.use(cookieParser())
 // let static middleware do its job
 app.use(express.static(join(__dirname, 'public')))
@@ -122,15 +123,14 @@ app.use(function (err: Parameters<ErrorRequestHandler>[0], req: Request, res: Re
 })
 
 const PORT = Number(process.env.PORT || '5001')
-app.set('port', PORT)
 
 const server = createServer(app)
 
 server.listen(PORT, () => {
-  console.log(`Socket server running at ${PORT}`)
+  console.log(`Listening on port ${PORT}`)
 })
 
-server.on('error', function onError(error: NodeJS.ErrnoException) {
+server.on('error', (error: NodeJS.ErrnoException) => {
   if (error.syscall !== 'listen') {
     throw error
   }
@@ -151,13 +151,12 @@ server.on('error', function onError(error: NodeJS.ErrnoException) {
 
 const debug = Debug('subvocab-server:server')
 
-server.on('listening', function onListening() {
+server.on('listening', () => {
   const addr = server.address()
   const bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr?.port
   debug('Listening on ' + bind)
-  console.log(`Listening on port ${PORT}`)
 })
 
 export default app

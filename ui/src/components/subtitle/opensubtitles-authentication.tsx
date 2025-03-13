@@ -7,6 +7,7 @@ import { z } from 'zod'
 import type { ZodObj } from '@/types/utils'
 
 import { osSessionAtom, useOpenSubtitlesLogin } from '@/api/opensubtitles'
+import { tryCatch } from '@/lib/try-catch'
 
 const osAuthAtom = atom({
   username: '',
@@ -48,18 +49,20 @@ export function OpensubtitlesAuthentication() {
 
     async function onSubmit(values: FormValues) {
       setPasswordVisible(false)
-      mutateAsync(values)
-        .then((res) => {
-          setOsSession(res)
-        })
-        .catch((error) => {
-          const message = get(error, 'data.message')
-          if (typeof message === 'string') {
-            setError('root.serverError', {
-              message,
-            })
-          }
-        })
+      const { error } = await tryCatch(
+        mutateAsync(values)
+          .then((res) => {
+            setOsSession(res)
+          }),
+      )
+      if (error) {
+        const message = get(error, 'data.message')
+        if (typeof message === 'string') {
+          setError('root.serverError', {
+            message,
+          })
+        }
+      }
     }
 
     useUnmountEffect(() => {

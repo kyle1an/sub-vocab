@@ -21,7 +21,7 @@ export default function Home() {
   }
 
   return (
-    <main className="m-auto h-[calc(100svh-4px*11)] w-full max-w-screen-xl px-5 pb-7">
+    <main className="m-auto h-[calc(100dvh-4px*11)] w-full max-w-screen-xl px-5 pb-7">
       <div className="relative flex h-14 items-center gap-2">
         <FileInput
           onFileSelect={handleFileChange}

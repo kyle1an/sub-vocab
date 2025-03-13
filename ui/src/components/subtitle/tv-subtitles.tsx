@@ -9,6 +9,7 @@ import { maxBy, sum } from 'lodash-es'
 import type { Subtitles } from '@/api/opensubtitles'
 import type { SubtitleData } from '@/components/subtitle/columns'
 import type { RowId } from '@/lib/subtitle'
+import type { ColumnFilterFn } from '@/lib/table-utils'
 import type { paths } from '@/types/schema-themoviedb'
 
 import { osSessionAtom, useOpenSubtitlesQueryOptions } from '@/api/opensubtitles'
@@ -394,9 +395,7 @@ function subtitleEpisodeData(subtitles: Subtitles['Response']['data'], episodes:
   }).filter(Boolean)
 }
 
-type ColumnFilterFn = (rowValue: RowData) => boolean
-
-function useAcquaintedStatusFilter(filterEpisode: string): ColumnFilterFn {
+function useAcquaintedStatusFilter(filterEpisode: string): ColumnFilterFn<RowData> {
   if (filterEpisode === 'all')
     return noFilter
   else
