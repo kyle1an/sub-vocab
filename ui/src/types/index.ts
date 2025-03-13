@@ -18,3 +18,10 @@ declare module 'react' {
     [key: `--${string}`]: string | number
   }
 }
+
+export interface Option {
+  label: string
+  value: string
+  icon?: React.ComponentType<{ className?: string }>
+  count?: number
+}

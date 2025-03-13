@@ -1,7 +1,7 @@
 import antfu from '@antfu/eslint-config'
 import stylistic from '@stylistic/eslint-plugin'
 import deMorgan from 'eslint-plugin-de-morgan'
-import packageJson from 'eslint-plugin-package-json/configs/recommended'
+import packageJson from 'eslint-plugin-package-json'
 
 export default antfu(
   {
@@ -25,9 +25,11 @@ export default antfu(
       curly: ['error', 'multi-or-nest', 'consistent'],
     },
   },
+  packageJson.configs.recommended,
   {
-    ...packageJson,
     rules: {
+      'package-json/order-properties': [0],
+      /*
       'package-json/sort-collections': [
         'warn',
         [
@@ -36,6 +38,7 @@ export default antfu(
           'peerDependencies',
         ],
       ],
+      */
     },
   },
   {
