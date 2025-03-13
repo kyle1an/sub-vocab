@@ -14,6 +14,7 @@ import {
 import { useSessionStorage } from 'react-use'
 
 import type { LearningPhase } from '@/lib/LabeledTire'
+import type { ColumnFilterFn } from '@/lib/table-utils'
 import type { LabelDisplayTable } from '@/lib/vocab'
 
 import { statusLabels, userVocabularyAtom } from '@/api/vocab-api'
@@ -35,8 +36,6 @@ import { findClosest, getFallBack } from '@/lib/utilities'
 import { vocabRealtimeSyncStatusAtom } from '@/store/useVocab'
 
 type TableData = LabelDisplayTable
-
-type ColumnFilterFn = (rowValue: TableData) => boolean
 
 const PAGE_SIZES = [10, 20, 40, 50, 100, 200, 500, 1000] as const
 
@@ -72,7 +71,7 @@ function useSegments() {
 type Segment = ReturnType<typeof useSegments>[number]['value']
 const SEGMENT_NAME = 'data-table-segment'
 
-function useAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
+function useAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn<TableData> {
   let filteredValue: LearningPhase[] = []
   if (filterSegment === 'new')
     filteredValue = [LEARNING_PHASE.NEW, LEARNING_PHASE.RETAINING]
@@ -84,7 +83,7 @@ function useAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
   return (row) => filteredValue.includes(row.inertialPhase)
 }
 
-function useSearchFilterValue(search: string, usingRegex: boolean): ColumnFilterFn | undefined {
+function useSearchFilterValue(search: string, usingRegex: boolean): ColumnFilterFn<TableData> | undefined {
   if (usingRegex) {
     const newRegex = tryGetRegex(search)
     if (newRegex)
@@ -96,7 +95,7 @@ function useSearchFilterValue(search: string, usingRegex: boolean): ColumnFilter
   }
 }
 
-function useUserOwnedFilter(filterSegment: Segment): ColumnFilterFn {
+function useUserOwnedFilter(filterSegment: Segment): ColumnFilterFn<TableData> {
   let filteredValue: boolean[] = []
   if (filterSegment === 'top')
     filteredValue = [false]

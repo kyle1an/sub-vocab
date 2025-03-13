@@ -1,6 +1,6 @@
 import type { AppRouter } from '@backend/app'
 import type { SignInWithPasswordCredentials, SignUpWithPasswordCredentials, UserAttributes } from '@supabase/supabase-js'
-import type { inferRouterClient } from '@trpc/client'
+import type { TRPCClient } from '@trpc/client'
 
 import { useMutation } from '@tanstack/react-query'
 
@@ -63,7 +63,7 @@ export function useResetPasswordForEmail() {
   })
 }
 
-type SignInResponse = Awaited<ReturnType<inferRouterClient<AppRouter>['user']['signIn']['mutate']>>
+type SignInResponse = Awaited<ReturnType<TRPCClient<AppRouter>['user']['signIn']['mutate']>>
 
 export function useSignInWithUsername() {
   const { mutateAsync } = useMutation({

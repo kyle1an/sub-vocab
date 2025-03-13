@@ -1,5 +1,6 @@
 import type { ImperativePanelGroupHandle } from 'react-resizable-panels'
 
+import { useIsomorphicLayoutEffect } from '@react-hookz/web'
 import { useMediaQuery } from 'foxact/use-media-query'
 
 import type { LabelDisplaySource } from '@/lib/vocab'
@@ -117,7 +118,7 @@ export default function ResizeVocabularyPanel() {
   const direction = isMdScreen ? 'horizontal' : 'vertical'
   const defaultSizes = direction === 'vertical' ? verticalDefaultSizes : horizontalDefaultSizes
   const panelGroupRef = useRef<ImperativePanelGroupHandle>(null)
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     panelGroupRef.current?.setLayout(defaultSizes)
   // eslint-disable-next-line react-compiler/react-compiler
   // eslint-disable-next-line react-hooks/exhaustive-deps

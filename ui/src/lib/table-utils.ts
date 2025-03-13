@@ -8,7 +8,8 @@ export const sortBySelection = <T>(rowA: Row<T>, rowB: Row<T>) => {
 
 export const noFilter = () => true
 
+export type ColumnFilterFn<T> = (rowValue: T) => boolean
+
 export function getFilterFn<T>(): FilterFnOption<T> {
-  type ColumnFilterFn = (rowValue: T) => boolean
-  return (row, columnId, fn: ColumnFilterFn) => fn(row.original)
+  return (row, columnId, fn: ColumnFilterFn<T>) => fn(row.original)
 }

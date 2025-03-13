@@ -53,7 +53,7 @@ const FILE_SETTINGS_DESCRIPTION = `Choose the file types you want to include for
 export function FileSettings() {
   const isMdScreen = useMediaQuery('(min-width: 768px)')
   const [searchParams, setSearchParams] = useSearchParams()
-  const [open, setOpen] = useState(searchParams.get('popup') === 'file-settings')
+  const open = searchParams.get('popup') === 'file-settings'
   const setIsDrawerOpen = useSetAtom(isDrawerOpenAtom)
   const [fileTypes, setFileTypes] = useAtom(fileTypesAtom)
   const [fileTypesInterim, setFileTypesInterim] = useImmer(fileTypes)
@@ -61,11 +61,6 @@ export function FileSettings() {
   useEffect(() => {
     setIsDrawerOpen(open)
   }, [open, setIsDrawerOpen])
-
-  useEffect(() => {
-    const popup = searchParams.get('popup')
-    setOpen(popup === 'file-settings')
-  }, [searchParams])
 
   useEffect(() => {
     setFileTypesInterim(fileTypes)
@@ -81,7 +76,7 @@ export function FileSettings() {
 
   function save() {
     setFileTypes(fileTypesInterim)
-    setOpen(false)
+    searchParams.delete('popup')
   }
 
   const settingsUnchanged = isEqual(fileTypes, fileTypesInterim)
@@ -106,7 +101,6 @@ export function FileSettings() {
       setFileTypesInterim(fileTypes)
     }
     setSearchParams(searchParams)
-    setOpen(open)
   }
 
   if (isMdScreen) {

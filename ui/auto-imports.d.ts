@@ -24,6 +24,7 @@ declare global {
   const AlertDialogTitle: typeof import('./src/components/ui/alert-dialog')['AlertDialogTitle']
   const AlertDialogTrigger: typeof import('./src/components/ui/alert-dialog')['AlertDialogTrigger']
   const AlertTitle: typeof import('./src/components/ui/alert')['AlertTitle']
+  const Badge: typeof import('./src/components/ui/badge')['Badge']
   const Button: typeof import('./src/components/ui/button')['Button']
   const Card: typeof import('./src/components/ui/card')['Card']
   const CardContent: typeof import('./src/components/ui/card')['CardContent']
@@ -103,6 +104,8 @@ declare global {
   const IconGgDarkMode: typeof import('~icons/gg/dark-mode.jsx')['default']
   const IconHeroiconsBars3: typeof import('~icons/heroicons/bars3.jsx')['default']
   const IconHeroiconsXMark: typeof import('~icons/heroicons/x-mark.jsx')['default']
+  const IconIcRoundClose: typeof import('~icons/ic/round-close.jsx')['default']
+  const IconIconoirSparks: typeof import('~icons/iconoir/sparks.jsx')['default']
   const IconIonEllipsisHorizontalCircleOutline: typeof import('~icons/ion/ellipsis-horizontal-circle-outline.jsx')['default']
   const IconIonRefresh: typeof import('~icons/ion/refresh.jsx')['default']
   const IconIonSearch: typeof import('~icons/ion/search.jsx')['default']
@@ -118,13 +121,16 @@ declare global {
   const IconLucideCog: typeof import('~icons/lucide/cog.jsx')['default']
   const IconLucideEye: typeof import('~icons/lucide/eye.jsx')['default']
   const IconLucideEyeOff: typeof import('~icons/lucide/eye-off.jsx')['default']
+  const IconLucideFilter: typeof import('~icons/lucide/filter.jsx')['default']
   const IconLucideLoader: typeof import('~icons/lucide/loader.jsx')['default']
   const IconLucideLoader2: typeof import('~icons/lucide/loader2.jsx')['default']
+  const IconLucideSearch: typeof import('~icons/lucide/search.jsx')['default']
   const IconMingcuteHome3Line: typeof import('~icons/mingcute/home3-line.jsx')['default']
   const IconMingcuteUser4Fill: typeof import('~icons/mingcute/user4-fill.jsx')['default']
   const IconOuiTokenKey: typeof import('~icons/oui/token-key.jsx')['default']
   const IconPhSun: typeof import('~icons/ph/sun.jsx')['default']
   const IconPrimeEllipsisH: typeof import('~icons/prime/ellipsis-h.jsx')['default']
+  const IconSiFilterListDuotone: typeof import('~icons/si/filter-list-duotone.jsx')['default']
   const IconSolarListCheckBold: typeof import('~icons/solar/list-check-bold.jsx')['default']
   const IconSolarLogout2Outline: typeof import('~icons/solar/logout2-outline.jsx')['default']
   const Input: typeof import('./src/components/ui/input')['Input']
@@ -211,6 +217,7 @@ declare global {
   const atomWithReducer: typeof import('jotai/utils')['atomWithReducer']
   const atomWithReset: typeof import('jotai/utils')['atomWithReset']
   const atomWithStorage: typeof import('jotai/utils')['atomWithStorage']
+  const badgeVariants: typeof import('./src/components/ui/badge')['badgeVariants']
   const beforeAll: typeof import('vitest')['beforeAll']
   const beforeEach: typeof import('vitest')['beforeEach']
   const buttonVariants: typeof import('./src/components/ui/button')['buttonVariants']
@@ -497,6 +504,9 @@ declare global {
   // @ts-ignore
   export type { HTMLAttributes, Ref, RefAttributes, default as React } from 'react'
   import('react')
+  // @ts-ignore
+  export type { BadgeProps } from './src/components/ui/badge'
+  import('./src/components/ui/badge')
   // @ts-ignore
   export type { ButtonProps } from './src/components/ui/button'
   import('./src/components/ui/button')

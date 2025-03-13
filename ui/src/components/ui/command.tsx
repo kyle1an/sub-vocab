@@ -1,7 +1,12 @@
+'use client'
+
 import type { DialogProps } from '@radix-ui/react-dialog'
 
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { Command as CommandPrimitive } from 'cmdk'
+import * as React from 'react'
+
+import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { cn } from '@/lib/utils'
 
 function Command({
   className,
@@ -39,8 +44,9 @@ function CommandInput({
   return (
     <div
       className="flex items-center border-b px-3"
+      cmdk-input-wrapper=""
     >
-      <MagnifyingGlassIcon className="mr-2 size-4 shrink-0 opacity-50" />
+      <IconLucideSearch className="mr-2 size-4 shrink-0 opacity-50" />
       <CommandPrimitive.Input
         className={cn(
           'flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
@@ -64,10 +70,10 @@ function CommandList({
   )
 }
 
-function CommandEmpty(props: React.ComponentProps<typeof CommandPrimitive.Empty>) {
+function CommandEmpty({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Empty>) {
   return (
     <CommandPrimitive.Empty
-      className="py-6 text-center text-sm"
+      className={cn('py-6 text-center text-sm', className)}
       {...props}
     />
   )
@@ -107,7 +113,8 @@ function CommandItem({
   return (
     <CommandPrimitive.Item
       className={cn(
-        'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        'relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+        'sq-radius-[--sq-r] sq-fill-[--accent] [--sq-r:3px] data-[selected="true"]:sq-outline-0 sq:bg-transparent data-[selected="true"]:sq:[background:paint(squircle)]',
         className,
       )}
       {...props}
