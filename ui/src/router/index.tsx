@@ -2,85 +2,86 @@ import {
   createBrowserRouter,
 } from 'react-router'
 
-function convert(m: any) {
-  const {
-    clientLoader,
-    clientAction,
-    default: Component,
-    ...rest
-  } = m
-  return {
-    ...rest,
-    loader: clientLoader,
-    action: clientAction,
-    Component,
-  }
-}
+import Home from '@/pages/home'
+import AboutPage from '@/pages/import/page'
+import RootLayout from '@/pages/layout'
+import Login from '@/pages/login/page'
+import Chart from '@/pages/mine/chart/page'
+import MineLayout from '@/pages/mine/layout'
+import VocabularyPage from '@/pages/mine/vocabulary/page'
+import ResizeVocabularyPanel from '@/pages/page'
+import Register from '@/pages/register/page'
+import ResetPassword from '@/pages/reset-password/page'
+import Subtitles from '@/pages/subtitles/page'
+import UpdatePassword from '@/pages/update-password/page'
+import User from '@/pages/user/layout'
+import Password from '@/pages/user/password/page'
+import ProfilePage from '@/pages/user/profile/page'
 
 export const router = createBrowserRouter([
   {
     path: '/',
-    lazy: () => import('@/pages/layout').then(convert),
+    element: <RootLayout />,
     children: [
       {
         path: '/',
-        lazy: () => import('@/pages/home').then(convert),
+        element: <Home />,
         children: [
           {
             path: '/',
-            lazy: () => import('@/pages/page').then(convert),
+            element: <ResizeVocabularyPanel />,
           },
           {
             path: '/subtitles',
-            lazy: () => import('@/pages/subtitles/page').then(convert),
+            element: <Subtitles />,
           },
         ],
       },
       {
         path: '/mine',
-        lazy: () => import('@/pages/mine/layout').then(convert),
+        element: <MineLayout />,
         children: [
           {
             path: '/mine/vocabulary',
-            lazy: () => import('@/pages/mine/vocabulary/page').then(convert),
+            element: <VocabularyPage />,
           },
           {
             path: '/mine/chart',
-            lazy: () => import('@/pages/mine/chart/page').then(convert),
+            element: <Chart />,
           },
         ],
       },
       {
         path: '/about',
-        lazy: () => import('@/pages/import/page').then(convert),
+        element: <AboutPage />,
       },
       {
         path: '/login',
-        lazy: () => import('@/pages/login/page').then(convert),
+        element: <Login />,
       },
       {
         path: '/reset-password',
-        lazy: () => import('@/pages/reset-password/page').then(convert),
+        element: <ResetPassword />,
       },
       {
         path: '/update-password',
-        lazy: () => import('@/pages/update-password/page').then(convert),
+        element: <UpdatePassword />,
       },
       {
         path: '/register',
-        lazy: () => import('@/pages/register/page').then(convert),
+        element: <Register />,
       },
       {
         path: '/user',
-        lazy: () => import('@/pages/user/layout').then(convert),
+        element: <User />,
         children: [
           {
             path: '/user/profile',
-            lazy: () => import('@/pages/user/profile/page').then(convert),
+            element: <ProfilePage />,
           },
           {
             path: '/user/password',
-            lazy: () => import('@/pages/user/password/page').then(convert),
+            element: <Password />,
           },
         ],
       },

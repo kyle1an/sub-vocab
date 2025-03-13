@@ -2,6 +2,7 @@ import type { InitialTableState } from '@tanstack/react-table'
 
 import usePagination from '@mui/material/usePagination'
 import { useUnmountEffect } from '@react-hookz/web'
+import { useMutation } from '@tanstack/react-query'
 import {
   createColumnHelper,
   getCoreRowModel,
@@ -17,8 +18,11 @@ import {
 import { useSessionStorage } from 'react-use'
 
 import type { LearningPhase } from '@/lib/LabeledTire'
-import type { LabelDisplaySource } from '@/lib/vocab'
+import type { ColumnFilterFn } from '@/lib/table-utils'
+import type { Category, LabelDisplaySource } from '@/lib/vocab'
 
+import { useTRPC } from '@/api/trpc'
+import { DataTableFacetedFilter } from '@/components/data-table/data-table-faceted-filter'
 import { SearchWidget } from '@/components/search-widget'
 import { TablePagination } from '@/components/table-pagination'
 import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
@@ -31,13 +35,11 @@ import { VocabStatics } from '@/components/vocabulary/vocab-statics-bar'
 import { useLastTruthy } from '@/lib/hooks'
 import { LEARNING_PHASE } from '@/lib/LabeledTire'
 import { tryGetRegex } from '@/lib/regex'
-import { noFilter } from '@/lib/table-utils'
+import { getFilterFn, noFilter } from '@/lib/table-utils'
 import { findClosest } from '@/lib/utilities'
 import { isSourceTextStaleAtom } from '@/store/useVocab'
 
-type TableData = LabelDisplaySource
-
-type ColumnFilterFn = (rowValue: TableData) => boolean
+type TableData = LabelDisplaySource & Category
 
 const PAGE_SIZES = [10, 20, 40, 50, 100, 200, 500, 1000] as const
 
@@ -63,7 +65,7 @@ function useSegments() {
 type Segment = ReturnType<typeof useSegments>[number]['value']
 const SEGMENT_NAME = 'source-table-segment'
 
-function useAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
+function useAcquaintedStatusFilter(filterSegment: Segment): (rowValue: TableData) => boolean {
   let filteredValue: LearningPhase[] = []
   if (filterSegment === 'new')
     filteredValue = [LEARNING_PHASE.NEW, LEARNING_PHASE.RETAINING]
@@ -75,7 +77,7 @@ function useAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn {
   return (row) => filteredValue.includes(row.inertialPhase)
 }
 
-function useSearchFilterValue(search: string, usingRegex: boolean): ColumnFilterFn | undefined {
+function useSearchFilterValue(search: string, usingRegex: boolean): ColumnFilterFn<TableData> | undefined {
   if (usingRegex) {
     const newRegex = tryGetRegex(search)
     if (newRegex)
@@ -87,6 +89,14 @@ function useSearchFilterValue(search: string, usingRegex: boolean): ColumnFilter
   }
 }
 
+function useCategoryFilter(filterValue: Record<string, boolean>): ColumnFilterFn<TableData> {
+  const categories = Object.entries(filterValue).filter(([k, v]) => v).map(([k]) => k)
+  if (categories.length === 0)
+    return noFilter
+
+  return (row) => categories.includes(row.category || 'others')
+}
+
 function useSourceColumns<T extends TableData>() {
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
@@ -94,6 +104,7 @@ function useSourceColumns<T extends TableData>() {
     [
       columnHelper.accessor((row) => row.locations.length, {
         id: 'frequency',
+        filterFn: getFilterFn(),
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           const title = t('frequency')
@@ -157,19 +168,46 @@ function useSourceColumns<T extends TableData>() {
   )
 }
 
+type CategoryValue = 'properName' | 'acronym'
+
+type VocabularyCategory = {
+  [key in CategoryValue]?: string[]
+}
+
+const categoryAtom = atomWithStorage<VocabularyCategory>('categoryAtom', {})
+
+function useCategorize(vocabularyCategory: VocabularyCategory, data: LabelDisplaySource[]) {
+  const { t } = useTranslation()
+  const { properName = [], acronym = [] } = vocabularyCategory
+
+  return data.map((d) => {
+    let category: string | null = null
+    if (d.wFamily.some((w) => properName.includes(w.path)))
+      category = 'properName'
+    else if (d.wFamily.some((w) => acronym.includes(w.path)))
+      category = 'acronym'
+
+    return {
+      ...d,
+      category,
+    }
+  })
+}
+
 export function VocabSourceTable({
   data,
   sentences,
   onPurge,
   className = '',
 }: {
-  data: TableData[]
+  data: LabelDisplaySource[]
   sentences: string[]
   onPurge: () => void
   className?: string
 }) {
   // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
+  const [categoryAtomValue, setCategoryAtom] = useAtom(categoryAtom)
   const { t } = useTranslation()
   const [searchValue, setSearchValue] = useAtom(searchValueAtom)
   const deferredSearchValue = useDeferredValue(searchValue)
@@ -177,7 +215,7 @@ export function VocabSourceTable({
   const deferredIsUsingRegex = useDeferredValue(isUsingRegex)
   const [initialTableState, setInitialTableState] = useAtom(initialTableStateAtom)
   const vocabularyCommonColumns = useVocabularyCommonColumns<TableData>()
-  const sourceColumns = useSourceColumns()
+  const sourceColumns = useSourceColumns<TableData>()
   const columns = [...vocabularyCommonColumns, ...sourceColumns]
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'all')
@@ -185,9 +223,11 @@ export function VocabSourceTable({
   const lastTruthySearchFilterValue = useLastTruthy(useSearchFilterValue(deferredSearchValue, deferredIsUsingRegex))
   const isSourceTextStale = useAtomValue(isSourceTextStaleAtom)
   const [disableNumberAnim, setDisableNumberAnim] = useState(false)
+  const finalData = useCategorize(categoryAtomValue, data)
+  const [filterValue, setFilterValue] = useState<Record<string, boolean>>({})
 
   const table = useReactTable({
-    data,
+    data: finalData,
     columns,
     state: {
       columnFilters: [
@@ -198,6 +238,10 @@ export function VocabSourceTable({
         {
           id: 'word',
           value: lastTruthySearchFilterValue ?? noFilter,
+        },
+        {
+          id: 'frequency',
+          value: useCategoryFilter(filterValue),
         },
       ],
     },
@@ -254,6 +298,65 @@ export function VocabSourceTable({
   })
   const rootRef = useRef<HTMLDivElement>(null)
   const isStale = isSourceTextStale || segment !== segmentDeferredValue || searchValue !== deferredSearchValue || isUsingRegex !== deferredIsUsingRegex
+  const trpc = useTRPC()
+  const { mutateAsync, isPending } = useMutation(trpc.ai.getCategory.mutationOptions({
+    retry: 2,
+  }))
+  const options = [
+    {
+      label: 'Name',
+      value: 'properName',
+    },
+    {
+      label: 'Acronym',
+      value: 'acronym',
+    },
+    {
+      label: 'Others',
+      value: 'others',
+    },
+  ]
+
+  const freshVocabularies = data
+    .filter((d) => d.vocab.learningPhase === LEARNING_PHASE.NEW && !d.vocab.rank)
+
+  async function handleAiVocabCategorize() {
+    if (!isPending) {
+      const wordsString = freshVocabularies
+        .map((d) => d.wFamily.map((w) => w.path))
+        .flat()
+        .join(',')
+      const category = await mutateAsync({
+        prompt: `
+You are a REST API that receives an array of vocabulary items (strings) and must classify each item according to the following prioritized rules:
+
+Common Word Exclusion:
+
+First, check if the item is a standard English dictionary word—that is, if it has a clear, widely recognized meaning in common usage.
+If it is a common dictionary word, exclude it from the output.
+Acronym Identification:
+
+If the item is not a dictionary word, determine if it is an acronym.
+An acronym is a term formed from the initial letters (or a combination of letters) of a phrase. It is typically written in uppercase (or in a case-insensitive form) and does not form a standard dictionary word.
+If the item meets these criteria, include it in the output under the "acronym" category.
+Proper Noun Determination:
+
+If the item is neither a dictionary word nor an acronym, decide whether it represents a specific proper noun (such as the name of a person, place, organization, or other uniquely identified entity).
+Avoid treating simply capitalized words or generic titles as proper nouns.
+If the item clearly functions as a proper noun, include it in the output under the "properName" category.
+Omit Others:
+
+If the item does not satisfy any of the above criteria, omit it from the final output.
+
+Your response must be plain JSON text with no markdown formatting, code fences, extra text, or comments.
+
+The input array is provided as follows:
+${wordsString}
+`,
+      })
+      setCategoryAtom(category)
+    }
+  }
 
   return (
     <div className={cn('flex h-full flex-col items-center overflow-hidden bg-background will-change-transform', className)}>
@@ -272,6 +375,28 @@ export function VocabSourceTable({
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </VocabularyMenu>
+        <Button
+          className="aspect-square h-full p-0 [--sq-r:5px]"
+          variant="ghost"
+          disabled={freshVocabularies.length === 0}
+          onClick={handleAiVocabCategorize}
+        >
+          {isPending ? (
+            <IconIcRoundClose className="size-[19px] text-neutral-700" />
+          ) : (
+            <IconIconoirSparks className="size-[18px] text-neutral-700" />
+          )}
+        </Button>
+        <div className="p-0.5"></div>
+        <DataTableFacetedFilter
+          title="Category"
+          className="[--sq-r:5px] *:rounded-[7px]"
+          options={options}
+          filterValue={filterValue}
+          onFilterChange={(v) => {
+            setFilterValue(v)
+          }}
+        />
         <div className="flex items-center px-2.5 text-base">
           <div
             className={clsx(
@@ -294,7 +419,7 @@ export function VocabSourceTable({
         />
       </div>
       <div className="h-px w-full border-b border-solid border-zinc-200 shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)] dark:border-slate-800" />
-      <div className="w-full">
+      <div className="z-10 w-full outline outline-1 outline-border">
         <SegmentedControl
           value={segment}
           segments={segments}

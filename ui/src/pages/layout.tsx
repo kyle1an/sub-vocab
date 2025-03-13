@@ -1,4 +1,7 @@
+import './globals.css'
+
 import { useColorScheme } from '@mui/joy/styles'
+import { useIsomorphicLayoutEffect } from '@react-hookz/web'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useMediaQuery } from 'foxact/use-media-query'
 import { DevTools } from 'jotai-devtools'
@@ -7,10 +10,7 @@ import { Outlet } from 'react-router'
 import { useVocabRealtimeSync } from '@/api/vocab-api'
 import { TopBar } from '@/components/TopBar.tsx'
 import { COLOR_SCHEME_QUERY, isDarkModeAtom, metaThemeColorEffect } from '@/lib/hooks'
-
-import './globals.css'
-
-import { authChangeEventAtom, isMdScreenAtom, LIGHT_THEME_COLOR, metaThemeColorAtom, prefersDarkAtom, sessionAtom, supabase } from '@/store/useVocab'
+import { authChangeEventAtom, isMdScreenAtom, LIGHT_THEME_COLOR, metaThemeColorAtom, prefersDarkAtom, sessionAtom, supabase, useDocumentInit } from '@/store/useVocab'
 
 function useSyncAtomWithHooks() {
   const isMdScreen = useMediaQuery('(min-width: 768px)')
@@ -47,7 +47,7 @@ function useSyncDarkPreference() {
 function useSyncMuiColorScheme() {
   const [isDarkMode] = useAtom(isDarkModeAtom)
   const { mode, setMode } = useColorScheme()
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const nextMode = isDarkMode ? 'dark' : 'light'
     if (nextMode !== mode)
       setMode(nextMode)
@@ -83,14 +83,14 @@ export default function RootLayout() {
   useAtom(metaThemeColorEffect)
   useSyncAtomWithHooks()
   useSyncMetaThemeColor(ref)
-
+  useDocumentInit()
   useSyncAtomWithUser()
   useVocabRealtimeSync()
 
   return (
     <div
       ref={ref}
-      className="isolate flex h-full min-h-full flex-col bg-[--theme-bg] pr-[--pr] tracking-[--tracking] antialiased sq-smooth-[0.6] sq-radius-[5_5_0_0] sq-fill-[red] [--b-g:var(--theme-bg)] [--tracking:.02em] [&[style*='border-radius:_8px;']]:sq:[mask:paint(squircle)]"
+      className="isolate flex h-full min-h-full flex-col bg-[--theme-bg] pr-[--pr] antialiased sq-smooth-[0.6] sq-radius-[5_5_0_0] sq-fill-[red] [--b-g:var(--theme-bg)] [&[style*='border-radius:_8px;']]:sq:[mask:paint(squircle)]"
       data-vaul-drawer-wrapper=""
     >
       <TopBar />

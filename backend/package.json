@@ -3,39 +3,43 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@10.5.2",
+  "packageManager": "pnpm@10.7.0",
   "scripts": {
-    "dev": "tsx watch --trace-deprecation --env-file=.env app",
-    "introspect": "drizzle-kit introspect",
     "build": "tsc && node --run copy-files",
     "copy-files": "cp -R public dist/backend",
-    "start": "node --env-file=.env dist/backend/app.js",
+    "dev": "tsx watch --trace-deprecation --env-file=.env app",
+    "introspect": "drizzle-kit introspect",
     "lint": "eslint . --report-unused-disable-directives",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "start": "node --env-file=.env dist/backend/app.js"
   },
   "dependencies": {
-    "@trpc/server": "11.0.0-rc.781",
+    "@openrouter/ai-sdk-provider": "^0.4.5",
+    "@trpc/server": "11.0.1",
+    "@types/body-parser": "^1.19.5",
+    "ai": "^4.2.8",
+    "body-parser": "^2.2.0",
     "cookie": "^1.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "debug": "^4.4.0",
-    "drizzle-orm": "^0.40.0",
+    "drizzle-orm": "^0.41.0",
     "express": "^5.0.1",
     "http-errors": "^2.0.0",
     "http-proxy-middleware": "^3.0.3",
     "morgan": "^1.10.0",
     "ofetch": "^1.4.1",
-    "openapi-fetch": "^0.13.4",
+    "openapi-fetch": "^0.13.5",
     "postgres": "^3.4.5"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
     "@types/debug": "^4.1.12",
-    "@types/express": "^5.0.0",
+    "@types/express": "^5.0.1",
     "@types/http-errors": "^2.0.4",
     "@types/morgan": "^1.9.9",
-    "drizzle-kit": "0.30.5",
+    "drizzle-kit": "0.30.6",
     "tsx": "^4.19.3"
   }
 }

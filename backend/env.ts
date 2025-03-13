@@ -11,6 +11,7 @@ export const env = createEnv({
     OPENSUBTITLES_TOKEN: z.string().optional(),
     OPENSUBTITLES_API_KEY: z.string().min(1),
     APP_NAME__V_APP_VERSION: z.string().min(1),
+    OPENROUTER_API_KEY: z.string().min(1),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

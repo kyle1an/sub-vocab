@@ -17,7 +17,7 @@ export function FileInput({
   children: React.ReactNode
   className?: string
 }) {
-  const { os } = useAtomValue(uapAtom)
+  const { os } = useAtomValue(uapAtom) ?? {}
   const [fileTypes] = useAtom(fileTypesAtom)
   const fileTypeNames = fileTypes.filter((fileType) => fileType.checked).map((fileType) => fileType.type)
   const acceptedFileTypes = [...SUPPORTED_FILE_TYPES, ...fileTypeNames]

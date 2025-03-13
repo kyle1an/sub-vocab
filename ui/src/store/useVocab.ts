@@ -2,10 +2,9 @@ import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 import type { Database } from '@ui/database.types'
 import type { ArrayValues, PartialDeep } from 'type-fest'
 
+import { useIsomorphicLayoutEffect } from '@react-hookz/web'
 import { createClient, REALTIME_CHANNEL_STATES } from '@supabase/supabase-js'
-import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { QueryClient } from '@tanstack/react-query'
-import { persistQueryClient } from '@tanstack/react-query-persist-client'
 import { createStore } from 'jotai'
 import { atomWithImmer } from 'jotai-immer'
 import { UAParser } from 'ua-parser-js'
@@ -65,7 +64,7 @@ export const subtitleSelectionStateFamily = atomFamily((mediaId: number) => atom
 
 export const osLanguageAtom = atomWithStorage('osLanguageAtom', 'en')
 
-export const queryClient = new QueryClient({
+export const createQueryClient = () => new QueryClient({
   defaultOptions: {
     queries: {
       gcTime: 60 * MS_PER_MINUTE,
@@ -76,14 +75,7 @@ export const queryClient = new QueryClient({
   },
 })
 
-const localStoragePersister = createSyncStoragePersister({
-  storage: window.localStorage,
-})
-
-persistQueryClient({
-  queryClient,
-  persister: localStoragePersister,
-})
+export type Supabase = typeof supabase
 
 export const supabase = createClient<Database>(env.VITE_PUBLIC_SUPABASE_URL, env.VITE_PUBLIC_SUPABASE_ANON_KEY)
 
@@ -107,31 +99,30 @@ export const localeAtom = atomWithStorage('localeAtom', getLanguage(), undefined
 
 const uap = new UAParser()
 
-export const {
-  browser,
-  device,
-  engine,
-  os,
-} = uap.getResult()
+export const uapAtom = atom(() => {
+  if (typeof window !== 'undefined')
+    return uap.getResult()
+})
 
-if (os.name)
-  document.documentElement.classList.add(os.name)
+export function useDocumentInit() {
+  const uap = useAtomValue(uapAtom)
+  useIsomorphicLayoutEffect(() => {
+    if (uap) {
+      const { engine, os } = uap
+      if (os.name)
+        document.documentElement.classList.add(os.name)
 
-if (
-  CSS.supports('background:paint(squircle)')
-  && engine.name === 'Blink'
-)
-  document.documentElement.classList.add('sq')
+      if (
+        CSS.supports('background:paint(squircle)')
+        && engine.name === 'Blink'
+      )
+        document.documentElement.classList.add('sq')
 
-const scrollbarWidth = getScrollbarWidth()
-document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`)
-
-export const uapAtom = atom(() => ({
-  browser,
-  device,
-  engine,
-  os,
-}))
+      const scrollbarWidth = getScrollbarWidth()
+      document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`)
+    }
+  }, [uap])
+}
 
 export type FileType = typeof fileTypes[number]
 

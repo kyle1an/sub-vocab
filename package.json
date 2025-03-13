@@ -3,36 +3,38 @@
   "type": "module",
   "version": "0.3.0",
   "private": true,
-  "packageManager": "pnpm@10.5.2",
+  "packageManager": "pnpm@10.7.0",
   "scripts": {
     "backend": "pnpm --filter @sub-vocab/backend",
-    "ui": "pnpm --filter @sub-vocab/ui",
-    "bump": "ncu --deep -u && taze -r && pnpm lint:pkg && pnpm up && pnpm i",
-    "lint:pkg": "eslint --fix package.json **/package.json",
+    "bump": "ncu --deep -u && taze -r && pnpm lint:pkg",
+    "bump-apply": "pnpm i && pnpm up && npx nolyfill",
     "introspect": "pnpm --recursive run introspect",
-    "lint:fix": "pnpm --recursive run lint:fix"
+    "lint:fix": "pnpm --recursive run lint:fix",
+    "lint:pkg": "eslint --fix package.json **/package.json",
+    "ui": "pnpm --filter @sub-vocab/ui"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.49.1",
+    "@supabase/supabase-js": "^2.49.4",
     "date-fns": "^4.1.0",
-    "type-fest": "^4.37.0",
+    "neverthrow": "^8.2.0",
+    "type-fest": "^4.38.0",
     "zod": "3.24.2"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^4.7.0",
-    "@eslint/eslintrc": "^3.3.0",
+    "@antfu/eslint-config": "^4.11.0",
+    "@eslint/eslintrc": "^3.3.1",
     "@stylistic/eslint-plugin": "4.2.0",
     "@t3-oss/env-core": "0.12.0",
     "@total-typescript/ts-reset": "^0.6.1",
-    "@types/node": "^22.13.9",
-    "eslint": "^9.21.0",
-    "eslint-plugin-de-morgan": "^1.2.0",
-    "eslint-plugin-package-json": "^0.26.2",
+    "@types/node": "^22.13.14",
+    "eslint": "^9.23.0",
+    "eslint-plugin-de-morgan": "^1.2.1",
+    "eslint-plugin-package-json": "^0.29.0",
     "jsonc-eslint-parser": "^2.4.0",
     "openapi-typescript": "^7.6.1",
     "pathe": "^2.0.3",
     "prettier": "^3.5.3",
-    "taze": "^18.6.0",
+    "taze": "^19.0.4",
     "typescript": "5.8.2"
   },
   "pnpm": {
@@ -44,7 +46,7 @@
       "safe-buffer": "npm:@nolyfill/safe-buffer@^1.0.44",
       "safer-buffer": "npm:@nolyfill/safer-buffer@^1.0.44",
       "side-channel": "npm:@nolyfill/side-channel@^1.0.44",
-      "whatwg-url": "^14.1.1"
+      "whatwg-url": "^14.2.0"
     },
     "patchedDependencies": {
       "http-proxy@1.18.1": "patches/http-proxy@1.18.1.patch"

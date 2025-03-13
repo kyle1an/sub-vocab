@@ -21,6 +21,10 @@ export type InertialPhase = {
   inertialPhase: LearningPhase
 }
 
+export type Category = {
+  category: string | null
+}
+
 export function formVocab(lemma: TrieWordLabel) {
   let locations = [...lemma.src]
   const wFamily = [lemma]
