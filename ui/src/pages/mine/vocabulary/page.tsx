@@ -1,6 +1,11 @@
+import { produce } from 'immer'
+import { useAtom } from 'jotai'
+import { useEffect, useState } from 'react'
+
 import type { LabelDisplayTable } from '@/lib/vocab'
 
 import { baseVocabAtom, useIrregularMapsQuery } from '@/api/vocab-api'
+import { SquircleBg, SquircleMask } from '@/components/ui/squircle'
 import { VocabDataTable } from '@/components/VocabData'
 import { LabeledTire } from '@/lib/LabeledTire'
 import { formVocab } from '@/lib/vocab'

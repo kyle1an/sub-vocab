@@ -1,3 +1,9 @@
+import IconIonEllipsisHorizontalCircleOutline from '~icons/ion/ellipsis-horizontal-circle-outline'
+import IconLucideChevronDown from '~icons/lucide/chevron-down'
+
+import { Button } from '@/components/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+
 export function VocabularyMenu({
   children,
 }: {

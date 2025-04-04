@@ -1,6 +1,9 @@
+import { atom, useSetAtom } from 'jotai'
+import { useTranslation } from 'react-i18next'
 import { Link, Outlet } from 'react-router'
 
 import { FileInput } from '@/components/file-input'
+import { Button } from '@/components/ui/button'
 import { sourceTextAtom } from '@/store/useVocab'
 
 import { FileSettings } from './file-settings'

@@ -3,11 +3,13 @@ import type { ReactElement, RefObject } from 'react'
 
 import { Slot } from '@radix-ui/react-slot'
 import { flexRender } from '@tanstack/react-table'
+import clsx from 'clsx'
 import { useRetimer } from 'foxact/use-retimer'
 import { sum } from 'lodash-es'
-import React from 'react'
+import React, { Fragment, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 
+import type { DivProps } from '@/components/ui/html-elements'
 import type { RowSelectionChangeFn } from '@/types/utils'
 import type { GroupHeader } from '@/types/vocab'
 
@@ -15,6 +17,7 @@ import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
 import { useRect } from '@/lib/hooks'
 import { SortIcon } from '@/lib/icon-utils'
 import { mergeRefs } from '@/lib/merge-refs'
+import { cn } from '@/lib/utils'
 
 const HEAD_HEIGHT = 30
 
@@ -105,7 +108,7 @@ export function TableDataCell<T>({
         className,
       )}
     >
-      {children?.type === React.Fragment ? children : (
+      {children?.type === Fragment ? children : (
         <Slot className="flex size-full items-center">
           {children}
         </Slot>

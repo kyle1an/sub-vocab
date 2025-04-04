@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import type { VocabState } from './LabeledTire'
 
 import { LabeledTire, LEARNING_PHASE } from './LabeledTire'

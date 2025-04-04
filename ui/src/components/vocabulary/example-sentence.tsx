@@ -1,5 +1,7 @@
 import type { WordLocator } from '@/lib/LabeledTire'
 
+import { cn } from '@/lib/utils'
+
 export function ExampleSentence({
   sentences,
   src,

@@ -1,9 +1,9 @@
 'use client'
-
 import type { DialogProps } from '@radix-ui/react-dialog'
 
 import { Command as CommandPrimitive } from 'cmdk'
 import * as React from 'react'
+import IconLucideSearch from '~icons/lucide/search'
 
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'

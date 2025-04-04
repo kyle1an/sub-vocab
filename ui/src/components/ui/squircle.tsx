@@ -3,9 +3,13 @@ import type { SetOptional } from 'type-fest'
 
 import { Slot } from '@radix-ui/react-slot'
 import { getSvgPath } from 'figma-squircle'
+import { useMemo, useRef } from 'react'
+
+import type { DivProps } from '@/components/ui/html-elements'
 
 import { useRect } from '@/lib/hooks'
 import { mergeRefs } from '@/lib/merge-refs'
+import { cn } from '@/lib/utils'
 
 type SquircleParams = Omit<FigmaSquircleParams, 'width' | 'height'>
 
@@ -30,27 +34,24 @@ export function Squircle({
   squircle?: SetOptional<SquircleParams, keyof typeof SQUIRCLE_PARAMS_DEFAULT>
 }) {
   const elRef = useRef<HTMLDivElement>(null!)
-  const [clipPath, setClipPath] = useState('')
-  const [clipPathPseudo, setClipPathPseudo] = useState('')
   const { width, height } = useRect(elRef)
 
-  useEffect(() => {
-    const squircleParams = {
-      ...SQUIRCLE_PARAMS_DEFAULT,
-      ...squircle,
-      width,
-      height,
-    } satisfies FigmaSquircleParams
-    setClipPath(`path('${getSvgPath(squircleParams)}')`)
+  const squircleParams = useMemo(() => ({
+    ...SQUIRCLE_PARAMS_DEFAULT,
+    ...squircle,
+  } satisfies Omit<FigmaSquircleParams, 'width' | 'height'>), [squircle])
+  const clipPath = useMemo(() => `path('${getSvgPath({
+    ...squircleParams,
+    width,
+    height,
+  })}')`, [height, squircleParams, width])
 
-    const svgPathPseudo = getSvgPath({
-      ...squircleParams,
-      width: width - borderWidth * 2,
-      height: height - borderWidth * 2,
-      cornerRadius: squircleParams.cornerRadius - borderWidth,
-    })
-    setClipPathPseudo(`path('${svgPathPseudo}')`)
-  }, [width, height, squircle, borderWidth])
+  const clipPathPseudo = useMemo(() => `path('${getSvgPath({
+    ...squircleParams,
+    width: width - borderWidth * 2,
+    height: height - borderWidth * 2,
+    cornerRadius: squircleParams.cornerRadius - borderWidth,
+  })}')`, [borderWidth, height, squircleParams, width])
 
   const Component = asChild ? Slot : 'div'
 
@@ -64,7 +65,6 @@ export function Squircle({
       className={cn(
         'relative before:absolute before:inset-[--inset] before:-z-10 before:block before:[clip-path:var(--clip-path)]',
         className,
-        !clipPathPseudo && 'opacity-0',
       )}
       style={{
         clipPath,

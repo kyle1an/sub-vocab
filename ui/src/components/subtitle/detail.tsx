@@ -1,3 +1,6 @@
+import { SquircleBg, SquircleMask } from '@/components/ui/squircle'
+import { cn } from '@/lib/utils'
+
 export function Detail({
   className,
   children,

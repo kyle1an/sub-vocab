@@ -1,7 +1,9 @@
 import type React from 'react'
 
+import { useAtom, useAtomValue } from 'jotai'
 import { Button, FileTrigger } from 'react-aria-components'
 
+import { Squircle } from '@/components/ui/squircle'
 import { getFileContent, SUPPORTED_FILE_TYPES } from '@/lib/filesHandler'
 import { fileTypesAtom, uapAtom } from '@/store/useVocab'
 
