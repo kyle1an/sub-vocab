@@ -8,6 +8,8 @@ import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persist
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { createTRPCClient, httpBatchLink } from '@trpc/client'
 import { queryClientAtom } from 'jotai-tanstack-query'
+import { useHydrateAtoms } from 'jotai/utils'
+import { useState } from 'react'
 import { I18nextProvider } from 'react-i18next'
 import { RouterProvider } from 'react-router/dom'
 
@@ -16,7 +18,7 @@ import { env } from '@/env'
 import { useI18n } from '@/i18n'
 import { omitUndefined } from '@/lib/utilities'
 import { router } from '@/router'
-import { createQueryClient } from '@/store/useVocab'
+import { queryClient } from '@/store/useVocab'
 
 if (import.meta.env.DEV) {
   import('jotai-devtools/styles.css')
@@ -24,28 +26,25 @@ if (import.meta.env.DEV) {
 }
 
 function App() {
-  const [queryClient] = useState(() => createQueryClient())
   const [persister] = useState(() => createSyncStoragePersister({
     storage: localStorage,
   }))
   useHydrateAtoms([[queryClientAtom, queryClient]])
   const i18n = useI18n()
   const baseUrl = env.VITE_SUB_API_URL
-  const [trpcClient] = useState(() =>
-    createTRPCClient<AppRouter>({
-      links: [
-        httpBatchLink({
-          url: `${baseUrl}/trpc`,
-          fetch(url, options) {
-            return fetch(url, omitUndefined({
-              ...options,
-              credentials: 'include',
-            }))
-          },
-        }),
-      ],
-    }),
-  )
+  const [trpcClient] = useState(() => createTRPCClient<AppRouter>({
+    links: [
+      httpBatchLink({
+        url: `${baseUrl}/trpc`,
+        fetch(url, options) {
+          return fetch(url, omitUndefined({
+            ...options,
+            credentials: 'include',
+          }))
+        },
+      }),
+    ],
+  }))
   return (
     <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
       <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>

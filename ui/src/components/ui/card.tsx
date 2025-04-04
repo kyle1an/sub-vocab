@@ -1,3 +1,7 @@
+import type { DivProps } from '@/components/ui/html-elements'
+
+import { cn } from '@/lib/utils'
+
 export interface HeadingProps extends
   React.ComponentProps<'h3'> {}
 

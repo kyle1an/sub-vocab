@@ -1,5 +1,7 @@
 import { useResizeObserver } from '@react-hookz/web'
+import { atom } from 'jotai'
 import { atomEffect } from 'jotai-effect'
+import { useEffect, useRef, useState } from 'react'
 
 import { setMetaThemeColorAttribute } from '@/lib/utils'
 import { isDrawerOpenAtom, isMdScreenAtom, metaThemeColorAtom, prefersDarkAtom, themeAtom } from '@/store/useVocab'

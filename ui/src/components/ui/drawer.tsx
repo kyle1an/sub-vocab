@@ -1,5 +1,7 @@
 import { Drawer as DrawerPrimitive } from 'vaul'
 
+import { cn } from '@/lib/utils'
+
 function Drawer({
   shouldScaleBackground = true,
   ...props

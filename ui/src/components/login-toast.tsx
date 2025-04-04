@@ -1,5 +1,7 @@
 import { Link } from 'react-router'
 
+import { Button } from '@/components/ui/button'
+
 export function LoginToast() {
   return (
     <div className="flex w-full flex-col gap-1">

@@ -5,8 +5,9 @@ import type { ArrayValues, PartialDeep } from 'type-fest'
 import { useIsomorphicLayoutEffect } from '@react-hookz/web'
 import { createClient, REALTIME_CHANNEL_STATES } from '@supabase/supabase-js'
 import { QueryClient } from '@tanstack/react-query'
-import { createStore } from 'jotai'
+import { atom, createStore, useAtomValue } from 'jotai'
 import { atomWithImmer } from 'jotai-immer'
+import { atomFamily, atomWithStorage } from 'jotai/utils'
 import { UAParser } from 'ua-parser-js'
 
 import type { Download } from '@/api/opensubtitles'
@@ -64,7 +65,7 @@ export const subtitleSelectionStateFamily = atomFamily((mediaId: number) => atom
 
 export const osLanguageAtom = atomWithStorage('osLanguageAtom', 'en')
 
-export const createQueryClient = () => new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       gcTime: 60 * MS_PER_MINUTE,

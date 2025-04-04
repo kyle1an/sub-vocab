@@ -21,67 +21,67 @@ import ProfilePage from '@/pages/user/profile/page'
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <RootLayout />,
+    Component: RootLayout,
     children: [
       {
         path: '/',
-        element: <Home />,
+        Component: Home,
         children: [
           {
             path: '/',
-            element: <ResizeVocabularyPanel />,
+            Component: ResizeVocabularyPanel,
           },
           {
             path: '/subtitles',
-            element: <Subtitles />,
+            Component: Subtitles,
           },
         ],
       },
       {
         path: '/mine',
-        element: <MineLayout />,
+        Component: MineLayout,
         children: [
           {
             path: '/mine/vocabulary',
-            element: <VocabularyPage />,
+            Component: VocabularyPage,
           },
           {
             path: '/mine/chart',
-            element: <Chart />,
+            Component: Chart,
           },
         ],
       },
       {
         path: '/about',
-        element: <AboutPage />,
+        Component: AboutPage,
       },
       {
         path: '/login',
-        element: <Login />,
+        Component: Login,
       },
       {
         path: '/reset-password',
-        element: <ResetPassword />,
+        Component: ResetPassword,
       },
       {
         path: '/update-password',
-        element: <UpdatePassword />,
+        Component: UpdatePassword,
       },
       {
         path: '/register',
-        element: <Register />,
+        Component: Register,
       },
       {
         path: '/user',
-        element: <User />,
+        Component: User,
         children: [
           {
             path: '/user/profile',
-            element: <ProfilePage />,
+            Component: ProfilePage,
           },
           {
             path: '/user/password',
-            element: <Password />,
+            Component: Password,
           },
         ],
       },

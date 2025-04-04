@@ -1,7 +1,12 @@
 import type { ImperativePanelGroupHandle } from 'react-resizable-panels'
 
 import { useIsomorphicLayoutEffect } from '@react-hookz/web'
+import clsx from 'clsx'
 import { useMediaQuery } from 'foxact/use-media-query'
+import { produce } from 'immer'
+import { atom, useAtom, useSetAtom } from 'jotai'
+import { useDeferredValue, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import type { LabelDisplaySource } from '@/lib/vocab'
 
@@ -9,6 +14,9 @@ import {
   baseVocabAtom,
   useIrregularMapsQuery,
 } from '@/api/vocab-api'
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
+import { SquircleBg, SquircleMask } from '@/components/ui/squircle'
+import { TextareaInput } from '@/components/ui/textarea-input'
 import { VocabSourceTable } from '@/components/VocabSource'
 import { VocabStatics } from '@/components/vocabulary/vocab-statics-bar'
 import { LabeledTire, LEARNING_PHASE } from '@/lib/LabeledTire'
