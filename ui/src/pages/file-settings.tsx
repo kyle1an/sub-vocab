@@ -1,12 +1,20 @@
 import type { CheckedState } from '@radix-ui/react-checkbox'
 
 import { useMediaQuery } from 'foxact/use-media-query'
+import { useAtom, useSetAtom } from 'jotai'
 import { isEqual } from 'lodash-es'
+import { useEffect } from 'react'
 import { useSearchParams } from 'react-router'
 import { useImmer } from 'use-immer'
+import IconLucideCog from '~icons/lucide/cog'
 
 import type { FileType } from '@/store/useVocab'
 
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTrigger } from '@/components/ui/drawer'
+import { Separator } from '@/components/ui/separator'
+import { Toggle } from '@/components/ui/toggle'
 import { fileTypesAtom, isDrawerOpenAtom } from '@/store/useVocab'
 
 function FileSettingsContent({
@@ -112,18 +120,22 @@ export function FileSettings() {
         <DialogTrigger asChild>
           {Trigger}
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
+        <DialogContent className="flex flex-col gap-0 sm:max-w-[425px]">
+          <DialogHeader className="pb-2">
             <DialogTitle>{FILE_SETTINGS_TITLE}</DialogTitle>
             <DialogDescription>
               {FILE_SETTINGS_DESCRIPTION}
             </DialogDescription>
           </DialogHeader>
-          <FileSettingsContent
-            fileTypes={fileTypesInterim}
-            onFileTypesChange={handleFileTypesChange}
-          />
-          <DialogFooter>
+          <Separator />
+          <div className="size-full overflow-y-scroll px-0.5 py-3">
+            <FileSettingsContent
+              fileTypes={fileTypesInterim}
+              onFileTypesChange={handleFileTypesChange}
+            />
+          </div>
+          <Separator />
+          <DialogFooter className="pt-3">
             <DialogClose asChild>
               <Button variant="outline">
                 Cancel

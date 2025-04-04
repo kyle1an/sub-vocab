@@ -2,6 +2,14 @@
 import type { UsePaginationItem } from '@mui/material/usePagination'
 import type { Table } from '@tanstack/react-table'
 
+import IconLucideChevronLeft from '~icons/lucide/chevron-left'
+import IconLucideChevronRight from '~icons/lucide/chevron-right'
+import IconLucideChevronsLeft from '~icons/lucide/chevrons-left'
+import IconLucideChevronsRight from '~icons/lucide/chevrons-right'
+import IconPrimeEllipsisH from '~icons/prime/ellipsis-h'
+
+import { cn } from '@/lib/utils'
+
 export function TablePagination<T>({
   items,
   table: { getCanPreviousPage, previousPage, setPageIndex, getPageCount, getCanNextPage, nextPage, getState },

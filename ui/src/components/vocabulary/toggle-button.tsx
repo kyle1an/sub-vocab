@@ -1,6 +1,10 @@
+import IconLucideCheck from '~icons/lucide/check'
+import IconLucideLoader from '~icons/lucide/loader'
+
 import type { VocabState } from '@/lib/LabeledTire.ts'
 
 import { LEARNING_PHASE } from '@/lib/LabeledTire.ts'
+import { cn } from '@/lib/utils'
 
 export function VocabToggle<T extends VocabState>({
   vocab,

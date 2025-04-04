@@ -1,11 +1,11 @@
+import type { UserConfig } from 'vite'
+
 import react from '@vitejs/plugin-react'
 import jotaiDebugLabel from 'jotai/babel/plugin-debug-label'
 import jotaiReactRefresh from 'jotai/babel/plugin-react-refresh'
 import process from 'node:process'
 import { resolve } from 'pathe'
 import { visualizer } from 'rollup-plugin-visualizer'
-import AutoImport from 'unplugin-auto-import/vite'
-import IconsResolver from 'unplugin-icons/resolver'
 import Icons from 'unplugin-icons/vite'
 import { defineConfig, loadEnv } from 'vite'
 import { checker } from 'vite-plugin-checker'
@@ -23,45 +23,6 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       Inspect(),
-      AutoImport({
-        resolvers: [
-          IconsResolver({
-            prefix: 'Icon',
-            extension: 'jsx',
-          }),
-        ],
-        imports: [
-          'react',
-          'date-fns',
-          'jotai',
-          'jotai/utils',
-          'vitest',
-          {
-            imports: ['HTMLAttributes', 'Ref', 'RefAttributes', ['default', 'React']],
-            from: 'react',
-            type: true,
-          },
-          {
-            react: ['Component', 'Fragment', 'createContext', 'use'],
-            immer: ['produce'],
-            'react-i18next': ['useTranslation'],
-          },
-          {
-            imports: ['useSnapshot'],
-            from: 'valtio',
-          },
-          {
-            imports: ['clsx'],
-            from: 'clsx/lite',
-          },
-          {
-            '@/lib/utils': ['cn'],
-          },
-        ],
-        dirs: [
-          './src/components/ui',
-        ],
-      }),
       Icons({
         compiler: 'jsx',
         jsx: 'react',
@@ -96,8 +57,6 @@ export default defineConfig(({ mode }) => {
     server: {
       host: true,
       strictPort: true,
-      proxy: {
-      },
     },
     build: {
       target: 'esnext',
@@ -113,5 +72,5 @@ export default defineConfig(({ mode }) => {
         target: 'esnext',
       },
     },
-  }
+  } satisfies UserConfig
 })

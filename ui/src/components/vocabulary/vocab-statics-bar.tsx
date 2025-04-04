@@ -1,5 +1,9 @@
 import CircularProgress from '@mui/joy/CircularProgress'
 import NumberFlow from '@number-flow/react'
+import clsx from 'clsx'
+import { useDeferredValue, useEffect, useState } from 'react'
+import IconLucideCheckCircle from '~icons/lucide/check-circle'
+import IconLucideCircle from '~icons/lucide/circle'
 
 export function VocabStatics({
   total,

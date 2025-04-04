@@ -1,3 +1,11 @@
+import { useTranslation } from 'react-i18next'
+import IconCodiconRegex from '~icons/codicon/regex'
+import IconEpCircleCloseFilled from '~icons/ep/circle-close-filled'
+import IconIonSearch from '~icons/ion/search'
+
+import { Squircle } from '@/components/ui/squircle'
+import { Toggle } from '@/components/ui/toggle'
+
 export function SearchWidget({
   value,
   isUsingRegex = false,

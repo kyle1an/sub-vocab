@@ -1,7 +1,9 @@
+import { useAtom } from 'jotai'
+import { useTranslation } from 'react-i18next'
 import { Navigate, Outlet } from 'react-router'
 
 import { Footer } from '@/components/Footer'
-import { SideNav } from '@/components/SideNav'
+import { SideNav } from '@/components/side-nav'
 import { authChangeEventAtom, sessionAtom } from '@/store/useVocab'
 
 export default function User() {

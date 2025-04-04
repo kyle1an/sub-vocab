@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+
 export function usePageVisibility() {
   const [isVisible, setIsVisible] = useState(() => document.visibilityState === 'visible')
 

@@ -1,10 +1,17 @@
 import type { ZodObj } from '@ui/src/types/utils'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import clsx from 'clsx'
+import { useAtom } from 'jotai'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
+import IconLucideLoader2 from '~icons/lucide/loader2'
 
 import { useUpdateEmail, useUpdateUser } from '@/api/user'
+import { Button } from '@/components/ui/button'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Input, InputWrapper } from '@/components/ui/input'
 import { USERNAME_MIN_LENGTH } from '@/constants/constraints'
 import { env } from '@/env'
 import { sessionAtom } from '@/store/useVocab'

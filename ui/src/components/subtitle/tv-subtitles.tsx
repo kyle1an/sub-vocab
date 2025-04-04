@@ -4,7 +4,13 @@ import usePagination from '@mui/material/usePagination'
 import NumberFlow from '@number-flow/react'
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
+import clsx from 'clsx'
+import { addMinutes, formatDuration, getYear, intervalToDuration } from 'date-fns'
+import { useAtom, useSetAtom } from 'jotai'
 import { maxBy, sum } from 'lodash-es'
+import { useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import IconLucideChevronRight from '~icons/lucide/chevron-right'
 
 import type { Subtitles } from '@/api/opensubtitles'
 import type { SubtitleData } from '@/components/subtitle/columns'
@@ -18,7 +24,11 @@ import { useCommonColumns } from '@/components/subtitle/columns'
 import { RefetchButton } from '@/components/subtitle/menu-items'
 import { TablePagination } from '@/components/table-pagination'
 import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
-import { HeaderTitle, TableRow } from '@/components/ui/table-element'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Div } from '@/components/ui/html-elements'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
+import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { customFormatDistance, formatIntervalLocale } from '@/lib/date-utils'
 import { SortIcon } from '@/lib/icon-utils'
 import { getFileId } from '@/lib/subtitle'
@@ -395,7 +405,7 @@ function subtitleEpisodeData(subtitles: Subtitles['Response']['data'], episodes:
   }).filter(Boolean)
 }
 
-function useAcquaintedStatusFilter(filterEpisode: string): ColumnFilterFn<RowData> {
+function episodeFilter(filterEpisode: string): ColumnFilterFn<RowData> {
   if (filterEpisode === 'all')
     return noFilter
   else
@@ -484,7 +494,7 @@ export function TVSubtitleFiles({
       columnFilters: [
         {
           id: 'season_episode',
-          value: useAcquaintedStatusFilter(filterEpisode),
+          value: episodeFilter(filterEpisode),
         },
       ],
     },

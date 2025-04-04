@@ -12,10 +12,16 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import {
-  useTranslation,
-} from 'react-i18next'
+import clsx from 'clsx'
+import { atom, useAtom, useAtomValue } from 'jotai'
+import { atomWithStorage } from 'jotai/utils'
+import { startTransition, useDeferredValue, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
+import { toast } from 'sonner'
+import IconIcRoundClose from '~icons/ic/round-close'
+import IconIconoirSparks from '~icons/iconoir/sparks'
+import IconLucideChevronRight from '~icons/lucide/chevron-right'
 
 import type { LearningPhase } from '@/lib/LabeledTire'
 import type { ColumnFilterFn } from '@/lib/table-utils'
@@ -26,7 +32,12 @@ import { DataTableFacetedFilter } from '@/components/data-table/data-table-facet
 import { SearchWidget } from '@/components/search-widget'
 import { TablePagination } from '@/components/table-pagination'
 import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
-import { HeaderTitle, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
+import { Button } from '@/components/ui/button'
+import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
+import { Div } from '@/components/ui/html-elements'
+import { SegmentedControl } from '@/components/ui/segmented-control'
+import { Spinner } from '@/components/ui/spinner'
+import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { AcquaintAllDialog } from '@/components/vocabulary/acquaint-all-dialog'
 import { useVocabularyCommonColumns } from '@/components/vocabulary/columns'
 import { ExampleSentence } from '@/components/vocabulary/example-sentence'
@@ -34,10 +45,11 @@ import { VocabularyMenu } from '@/components/vocabulary/menu'
 import { VocabStatics } from '@/components/vocabulary/vocab-statics-bar'
 import { useLastTruthy } from '@/lib/hooks'
 import { LEARNING_PHASE } from '@/lib/LabeledTire'
-import { tryGetRegex } from '@/lib/regex'
 import { getFilterFn, noFilter } from '@/lib/table-utils'
 import { findClosest } from '@/lib/utilities'
+import { cn } from '@/lib/utils'
 import { isSourceTextStaleAtom } from '@/store/useVocab'
+import { searchFilterValue } from '@/utils/vocabulary/filters'
 
 type TableData = LabelDisplaySource & Category
 
@@ -65,7 +77,7 @@ function useSegments() {
 type Segment = ReturnType<typeof useSegments>[number]['value']
 const SEGMENT_NAME = 'source-table-segment'
 
-function useAcquaintedStatusFilter(filterSegment: Segment): (rowValue: TableData) => boolean {
+function acquaintedStatusFilter(filterSegment: Segment): (rowValue: TableData) => boolean {
   let filteredValue: LearningPhase[] = []
   if (filterSegment === 'new')
     filteredValue = [LEARNING_PHASE.NEW, LEARNING_PHASE.RETAINING]
@@ -77,19 +89,7 @@ function useAcquaintedStatusFilter(filterSegment: Segment): (rowValue: TableData
   return (row) => filteredValue.includes(row.inertialPhase)
 }
 
-function useSearchFilterValue(search: string, usingRegex: boolean): ColumnFilterFn<TableData> | undefined {
-  if (usingRegex) {
-    const newRegex = tryGetRegex(search)
-    if (newRegex)
-      return (row) => newRegex.test(row.vocab.word)
-  }
-  else {
-    search = search.toLowerCase()
-    return (row) => row.wFamily.some((word) => word.path.toLowerCase().includes(search))
-  }
-}
-
-function useCategoryFilter(filterValue: Record<string, boolean>): ColumnFilterFn<TableData> {
+function categoryFilter(filterValue: Record<string, boolean>): ColumnFilterFn<TableData> {
   const categories = Object.entries(filterValue).filter(([k, v]) => v).map(([k]) => k)
   if (categories.length === 0)
     return noFilter
@@ -220,7 +220,7 @@ export function VocabSourceTable({
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'all')
   const segmentDeferredValue = useDeferredValue(segment)
-  const lastTruthySearchFilterValue = useLastTruthy(useSearchFilterValue(deferredSearchValue, deferredIsUsingRegex))
+  const lastTruthySearchFilterValue = useLastTruthy(searchFilterValue(deferredSearchValue, deferredIsUsingRegex))
   const isSourceTextStale = useAtomValue(isSourceTextStaleAtom)
   const [disableNumberAnim, setDisableNumberAnim] = useState(false)
   const finalData = useCategorize(categoryAtomValue, data)
@@ -233,7 +233,7 @@ export function VocabSourceTable({
       columnFilters: [
         {
           id: 'acquaintedStatus',
-          value: useAcquaintedStatusFilter(segmentDeferredValue),
+          value: acquaintedStatusFilter(segmentDeferredValue),
         },
         {
           id: 'word',
@@ -241,7 +241,7 @@ export function VocabSourceTable({
         },
         {
           id: 'frequency',
-          value: useCategoryFilter(filterValue),
+          value: categoryFilter(filterValue),
         },
       ],
     },
@@ -326,7 +326,7 @@ export function VocabSourceTable({
         .map((d) => d.wFamily.map((w) => w.path))
         .flat()
         .join(',')
-      const category = await mutateAsync({
+      const { data: category, error } = await mutateAsync({
         prompt: `
 You are a REST API that receives an array of vocabulary items (strings) and must classify each item according to the following prioritized rules:
 
@@ -354,7 +354,13 @@ The input array is provided as follows:
 ${wordsString}
 `,
       })
-      setCategoryAtom(category)
+      if (category) {
+        setCategoryAtom(category)
+      }
+      else if (error) {
+        toast.error(error.message, {
+        })
+      }
     }
   }
 

@@ -1,4 +1,5 @@
 import { useNetworkState } from '@react-hookz/web'
+import { useAtom } from 'jotai'
 import { toast } from 'sonner'
 
 import type { VocabState } from '@/lib/LabeledTire'

@@ -1,3 +1,5 @@
+import IconLucideCheckCircle from '~icons/lucide/check-circle'
+
 export function Footer() {
   return (
     <footer className="mt-6 w-full bg-zinc-100 dark:bg-zinc-800">

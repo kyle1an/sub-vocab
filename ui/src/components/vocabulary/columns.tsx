@@ -1,13 +1,17 @@
 import {
   createColumnHelper,
 } from '@tanstack/react-table'
+import clsx from 'clsx'
 import {
   useTranslation,
 } from 'react-i18next'
+import IconLucideCheckCircle from '~icons/lucide/check-circle'
 
 import type { LabelDisplayTable } from '@/lib/vocab'
 
-import { HeaderTitle, TableHeaderCell } from '@/components/ui/table-element'
+import { Div } from '@/components/ui/html-elements'
+import { Separator } from '@/components/ui/separator'
+import { HeaderTitle, TableDataCell, TableHeaderCell } from '@/components/ui/table-element'
 import { VocabToggle } from '@/components/vocabulary/toggle-button'
 import { useVocabToggle } from '@/hooks/vocab-toggle'
 import { SortIcon } from '@/lib/icon-utils'

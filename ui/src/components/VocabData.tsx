@@ -11,7 +11,13 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
+import clsx from 'clsx'
+import { atom, useAtom, useAtomValue } from 'jotai'
+import { startTransition, useDeferredValue, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
+import IconIonRefresh from '~icons/ion/refresh'
+import IconLucideLoader2 from '~icons/lucide/loader2'
 
 import type { LearningPhase } from '@/lib/LabeledTire'
 import type { ColumnFilterFn } from '@/lib/table-utils'
@@ -21,7 +27,11 @@ import { statusLabels, userVocabularyAtom } from '@/api/vocab-api'
 import { SearchWidget } from '@/components/search-widget'
 import { TablePagination } from '@/components/table-pagination'
 import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
-import { HeaderTitle, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
+import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
+import { Div } from '@/components/ui/html-elements'
+import { SegmentedControl } from '@/components/ui/segmented-control'
+import { Spinner } from '@/components/ui/spinner'
+import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { AcquaintAllDialog } from '@/components/vocabulary/acquaint-all-dialog'
 import { useVocabularyCommonColumns } from '@/components/vocabulary/columns'
 import { VocabularyMenu } from '@/components/vocabulary/menu'
@@ -30,10 +40,11 @@ import { customFormatDistance, formatDistanceLocale } from '@/lib/date-utils'
 import { customFormatDistanceToNowStrict } from '@/lib/formatDistance'
 import { useLastTruthy } from '@/lib/hooks'
 import { LEARNING_PHASE } from '@/lib/LabeledTire'
-import { tryGetRegex } from '@/lib/regex'
 import { getFilterFn, noFilter } from '@/lib/table-utils'
 import { findClosest, getFallBack } from '@/lib/utilities'
+import { cn } from '@/lib/utils'
 import { vocabRealtimeSyncStatusAtom } from '@/store/useVocab'
+import { searchFilterValue } from '@/utils/vocabulary/filters'
 
 type TableData = LabelDisplayTable
 
@@ -71,7 +82,7 @@ function useSegments() {
 type Segment = ReturnType<typeof useSegments>[number]['value']
 const SEGMENT_NAME = 'data-table-segment'
 
-function useAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn<TableData> {
+function acquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn<TableData> {
   let filteredValue: LearningPhase[] = []
   if (filterSegment === 'new')
     filteredValue = [LEARNING_PHASE.NEW, LEARNING_PHASE.RETAINING]
@@ -83,19 +94,7 @@ function useAcquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn<Table
   return (row) => filteredValue.includes(row.inertialPhase)
 }
 
-function useSearchFilterValue(search: string, usingRegex: boolean): ColumnFilterFn<TableData> | undefined {
-  if (usingRegex) {
-    const newRegex = tryGetRegex(search)
-    if (newRegex)
-      return (row) => newRegex.test(row.vocab.word)
-  }
-  else {
-    search = search.toLowerCase()
-    return (row) => row.wFamily.some((word) => word.path.toLowerCase().includes(search))
-  }
-}
-
-function useUserOwnedFilter(filterSegment: Segment): ColumnFilterFn<TableData> {
+function userOwnedFilter(filterSegment: Segment): ColumnFilterFn<TableData> {
   let filteredValue: boolean[] = []
   if (filterSegment === 'top')
     filteredValue = [false]
@@ -185,7 +184,7 @@ export function VocabDataTable({
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'allAcquainted')
   const segmentDeferredValue = useDeferredValue(segment)
   const [disableNumberAnim, setDisableNumberAnim] = useState(false)
-  const lastTruthySearchFilterValue = useLastTruthy(useSearchFilterValue(deferredSearchValue, deferredIsUsingRegex)) ?? noFilter
+  const lastTruthySearchFilterValue = useLastTruthy(searchFilterValue(deferredSearchValue, deferredIsUsingRegex)) ?? noFilter
   const { refetch, isFetching: isLoadingUserVocab } = useAtomValue(userVocabularyAtom)
 
   const table = useReactTable({
@@ -195,11 +194,11 @@ export function VocabDataTable({
       columnFilters: [
         {
           id: 'acquaintedStatus',
-          value: useAcquaintedStatusFilter(segmentDeferredValue),
+          value: acquaintedStatusFilter(segmentDeferredValue),
         },
         {
           id: 'userOwned',
-          value: useUserOwnedFilter(segmentDeferredValue),
+          value: userOwnedFilter(segmentDeferredValue),
         },
         {
           id: 'word',

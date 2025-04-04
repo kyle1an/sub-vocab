@@ -1,6 +1,7 @@
+import { useTranslation } from 'react-i18next'
 import { Outlet } from 'react-router'
 
-import { SideNav } from '@/components/SideNav'
+import { SideNav } from '@/components/side-nav'
 
 export default function MineLayout() {
   const { t } = useTranslation()

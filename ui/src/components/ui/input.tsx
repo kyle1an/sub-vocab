@@ -1,3 +1,7 @@
+import type { DivProps } from '@/components/ui/html-elements'
+
+import { cn } from '@/lib/utils'
+
 export interface InputProps extends
   React.InputHTMLAttributes<HTMLInputElement>,
   React.RefAttributes<HTMLInputElement> {}
