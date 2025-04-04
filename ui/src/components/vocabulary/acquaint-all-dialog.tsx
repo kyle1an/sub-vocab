@@ -1,10 +1,9 @@
-import {
-  Trans,
-  useTranslation,
-} from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
+import IconSolarListCheckBold from '~icons/solar/list-check-bold'
 
 import type { VocabState } from '@/lib/LabeledTire'
 
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { useAcquaintAll } from '@/hooks/vocab-toggle'
 import { transParams } from '@/i18n'
 

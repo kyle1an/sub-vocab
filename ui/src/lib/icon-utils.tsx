@@ -1,6 +1,11 @@
 import type { SortDirection } from '@tanstack/react-table'
 
 import { Slot } from '@radix-ui/react-slot'
+import clsx from 'clsx'
+import IconCodiconBlank from '~icons/codicon/blank'
+import IconLucideChevronUp from '~icons/lucide/chevron-up'
+
+import { cn } from '@/lib/utils'
 
 export function SortIcon({
   isSorted,

@@ -1,12 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useAtom } from 'jotai'
+import { startTransition } from 'react'
 import { useForm } from 'react-hook-form'
 import { Navigate, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
+import IconLucideLoader2 from '~icons/lucide/loader2'
 
 import type { ZodObj } from '@/types/utils'
 
 import { useResetPasswordForEmail } from '@/api/user'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Input, InputWrapper } from '@/components/ui/input'
 import { MS_PER_MINUTE } from '@/constants/time'
 import { authChangeEventAtom, sessionAtom } from '@/store/useVocab'
 

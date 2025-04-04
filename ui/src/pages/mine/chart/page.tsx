@@ -1,18 +1,22 @@
-import 'chart.js/auto'
-
 import type { ChartData, ChartOptions } from 'chart.js'
 
+import 'chart.js/auto'
+import { useIsomorphicLayoutEffect } from '@react-hookz/web'
 import {
   Chart as ChartJS,
 } from 'chart.js'
+import { endOfWeek, format, getMonth, isFirstDayOfMonth, isSunday, startOfMonth, startOfWeek, subDays, subMonths, subWeeks } from 'date-fns'
+import { useAtom } from 'jotai'
 import { merge, rangeRight } from 'lodash-es'
 import { Bar } from 'react-chartjs-2'
+import { useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
 import colors from 'tailwindcss/colors'
 
 import type { VocabState } from '@/lib/LabeledTire'
 
 import { baseVocabAtom } from '@/api/vocab-api'
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import { LEARNING_PHASE } from '@/lib/LabeledTire'
 
 type DataSet = {
@@ -175,11 +179,13 @@ export default function Chart() {
   type Segment = typeof segments[number]['value']
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'W')
 
-  ChartJS.defaults.font.family = [
-    ...(navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome') ? [] : ['SF Pro Rounded']),
-    ...['SF Pro Text', '-apple-system', 'Inter', 'system-ui', 'sans-serif'],
-  ].join(', ')
-  ChartJS.defaults.font.weight = 500
+  useIsomorphicLayoutEffect(() => {
+    ChartJS.defaults.font.family = [
+      ...(navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome') ? [] : ['SF Pro Rounded']),
+      ...['SF Pro Text', '-apple-system', 'Inter', 'system-ui', 'sans-serif'],
+    ].join(', ')
+    ChartJS.defaults.font.weight = 500
+  }, [])
 
   let groupedRows: DataSet[] = []
   if (segment === 'W')

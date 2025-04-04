@@ -3,6 +3,8 @@ import type { Table } from '@tanstack/react-table'
 
 import { uniq } from 'lodash-es'
 
+import { Select, SelectContent, SelectGroup, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select'
+
 function SizeSelectItem({ size }: { size: number }) {
   return (
     <SelectItem

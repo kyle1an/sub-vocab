@@ -1,6 +1,8 @@
 import type { Resource } from 'i18next'
 
 import i18n from 'i18next'
+import { useAtom } from 'jotai'
+import { useState } from 'react'
 import { initReactI18next } from 'react-i18next'
 
 import { localeAtom } from '@/store/useVocab'

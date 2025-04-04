@@ -5,6 +5,8 @@ import {
 } from '@radix-ui/react-icons'
 import * as MenubarPrimitive from '@radix-ui/react-menubar'
 
+import { cn } from '@/lib/utils'
+
 function MenubarMenu({
   ...props
 }: React.ComponentProps<typeof MenubarPrimitive.Menu>) {

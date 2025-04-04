@@ -1,8 +1,11 @@
 import { createColumnHelper } from '@tanstack/react-table'
+import { useTranslation } from 'react-i18next'
 
 import type { SubtitleResponseData } from '@/api/opensubtitles'
 
-import { HeaderTitle } from '@/components/ui/table-element'
+import { Div } from '@/components/ui/html-elements'
+import { Separator } from '@/components/ui/separator'
+import { HeaderTitle, TableDataCell, TableHeaderCell } from '@/components/ui/table-element'
 import { customFormatDistance, formatDistanceLocale } from '@/lib/date-utils'
 import { customFormatDistanceToNowStrict } from '@/lib/formatDistance'
 

@@ -4,8 +4,11 @@ import type { ValueOf } from 'type-fest'
 
 import { UTCDateMini } from '@date-fns/utc'
 import { REALTIME_CHANNEL_STATES } from '@supabase/supabase-js'
-import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import { produce } from 'immer'
+import { atom, useAtom, useAtomValue } from 'jotai'
 import { atomWithQuery } from 'jotai-tanstack-query'
+import { useEffect, useRef } from 'react'
 
 import type { LearningPhase, VocabState } from '@/lib/LabeledTire'
 import type { Supabase } from '@/store/useVocab'
@@ -14,7 +17,7 @@ import { MS_PER_MINUTE } from '@/constants/time'
 import { usePageVisibility } from '@/hooks/utils'
 import { LEARNING_PHASE } from '@/lib/LabeledTire'
 import { omitUndefined } from '@/lib/utilities'
-import { sessionAtom, supabase, vocabRealtimeSyncStatusAtom } from '@/store/useVocab'
+import { queryClient, sessionAtom, supabase, vocabRealtimeSyncStatusAtom } from '@/store/useVocab'
 
 const getLearningPhase = (acquainted: boolean | null): LearningPhase => acquainted ? LEARNING_PHASE.ACQUAINTED : LEARNING_PHASE.NEW
 
@@ -129,7 +132,6 @@ export function useIrregularMapsQuery() {
 }
 
 export function useUserWordPhaseMutation() {
-  const queryClient = useQueryClient()
   const [session] = useAtom(sessionAtom)
   const userId = session?.user?.id ?? ''
   const vocabularyOptions = userVocabularyOptions(userId)
@@ -194,7 +196,6 @@ export function useUserWordPhaseMutation() {
 }
 
 function useRealtimeVocabUpsert<T extends Tables<'user_vocab_record'>>() {
-  const queryClient = useQueryClient()
   const [session] = useAtom(sessionAtom)
   const userId = session?.user?.id ?? ''
   const vocabularyOptions = userVocabularyOptions(userId)

@@ -1,4 +1,8 @@
+import clsx from 'clsx'
 import { NavLink } from 'react-router'
+
+import { Squircle } from '@/components/ui/squircle'
+import { cn } from '@/lib/utils'
 
 export function SideNav({
   nav: navList,

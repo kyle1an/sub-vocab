@@ -1,13 +1,21 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useUnmountEffect } from '@react-hookz/web'
+import { atom, useAtom } from 'jotai'
 import { get } from 'lodash-es'
 import { ResultAsync } from 'neverthrow'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import IconLucideEye from '~icons/lucide/eye'
+import IconLucideEyeOff from '~icons/lucide/eye-off'
+import IconLucideLoader2 from '~icons/lucide/loader2'
 
 import type { ZodObj } from '@/types/utils'
 
 import { osSessionAtom, useOpenSubtitlesLogin } from '@/api/opensubtitles'
+import { Button } from '@/components/ui/button'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Input, InputWrapper } from '@/components/ui/input'
 
 const osAuthAtom = atom({
   username: '',

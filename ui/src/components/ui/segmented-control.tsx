@@ -1,6 +1,12 @@
 import type { VariantProps } from 'class-variance-authority'
+import type { Ref } from 'react'
 
 import { cva } from 'class-variance-authority'
+import clsx from 'clsx'
+import { useId, useRef } from 'react'
+
+import { Squircle } from '@/components/ui/squircle'
+import { cn } from '@/lib/utils'
 
 const segmentedControlVariants = cva(
   `grid w-full !touch-manipulation select-none auto-cols-[1fr] grid-flow-col overflow-hidden tracking-wide antialiased outline-none [font-feature-settings:'cv08'] [text-rendering:geometricPrecision]`,
