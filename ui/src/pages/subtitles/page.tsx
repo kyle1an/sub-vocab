@@ -36,7 +36,6 @@ import { Input, InputWrapper } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { SquircleBg, SquircleMask } from '@/components/ui/squircle'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { MS_PER_WEEK } from '@/constants/time'
 import { SortIcon } from '@/lib/icon-utils'
@@ -471,13 +470,13 @@ export default function Subtitles() {
   const isLoading = downloadProgressAnim || subtitleDownloadProgress.length >= 1
   const [language, setLanguage] = useAtom(osLanguageAtom)
   return (
-    <SquircleBg className="flex h-[calc(100%-4px*14)] items-center justify-center overflow-hidden rounded-xl border">
-      <SquircleMask
+    <div className="flex h-[calc(100%-4px*14)] items-center justify-center overflow-hidden rounded-xl border [corner-shape:squircle] sq:rounded-3xl">
+      <div
         className="flex size-full flex-col bg-[--theme-bg]"
       >
         <div>
           <div className="flex h-12 gap-2 p-2">
-            <InputWrapper className="[--sq-r:6] after:sq-smooth-[0.8]">
+            <InputWrapper className="[--sq-r:.8125rem]">
               <Input
                 type="text"
                 value={query}
@@ -493,7 +492,7 @@ export default function Subtitles() {
                 setLanguage(e)
               }}
             >
-              <SelectTrigger className="h-full w-[unset] px-2 py-0 text-xs tabular-nums [--sq-r:5px]">
+              <SelectTrigger className="h-full w-[unset] px-2 py-0 text-xs tabular-nums">
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent
@@ -655,7 +654,7 @@ export default function Subtitles() {
             </span>
           </div>
         </div>
-      </SquircleMask>
-    </SquircleBg>
+      </div>
+    </div>
   )
 }

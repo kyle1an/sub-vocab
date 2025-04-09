@@ -1,4 +1,3 @@
-import { SquircleBg, SquircleMask } from '@/components/ui/squircle'
 import { cn } from '@/lib/utils'
 
 export function Detail({
@@ -11,15 +10,15 @@ export function Detail({
       className={cn('px-6 pb-3 pt-1 md:pl-16 md:pr-12', className)}
       {...props}
     >
-      <SquircleBg
-        className="flex h-[--h] items-center justify-center overflow-hidden rounded-xl border"
+      <div
+        className="flex h-[--h] items-center justify-center overflow-hidden rounded-xl border sq:rounded-[1.25rem] sq:[corner-shape:squircle]"
       >
-        <SquircleMask
+        <div
           className="flex size-full flex-col bg-[--theme-bg]"
         >
           {children}
-        </SquircleMask>
-      </SquircleBg>
+        </div>
+      </div>
     </div>
   )
 }

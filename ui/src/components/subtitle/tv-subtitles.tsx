@@ -405,7 +405,7 @@ function subtitleEpisodeData(subtitles: Subtitles['Response']['data'], episodes:
   }).filter(Boolean)
 }
 
-function acquaintedStatusFilter(filterEpisode: string): ColumnFilterFn<RowData> {
+function episodeFilter(filterEpisode: string): ColumnFilterFn<RowData> {
   if (filterEpisode === 'all')
     return noFilter
   else
@@ -494,7 +494,7 @@ export function TVSubtitleFiles({
       columnFilters: [
         {
           id: 'season_episode',
-          value: acquaintedStatusFilter(filterEpisode),
+          value: episodeFilter(filterEpisode),
         },
       ],
     },
@@ -530,7 +530,7 @@ export function TVSubtitleFiles({
                   setFilterEpisode(e)
                 }}
               >
-                <SelectTrigger className="h-full w-[unset] px-2 py-0 text-xs tabular-nums [--sq-r:4.5px]">
+                <SelectTrigger className="h-full w-[unset] px-2 py-0 text-xs tabular-nums [--sq-r:.625rem]">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent

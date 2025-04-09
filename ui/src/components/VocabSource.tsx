@@ -45,11 +45,11 @@ import { VocabularyMenu } from '@/components/vocabulary/menu'
 import { VocabStatics } from '@/components/vocabulary/vocab-statics-bar'
 import { useLastTruthy } from '@/lib/hooks'
 import { LEARNING_PHASE } from '@/lib/LabeledTire'
-import { tryGetRegex } from '@/lib/regex'
 import { getFilterFn, noFilter } from '@/lib/table-utils'
 import { findClosest } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
 import { isSourceTextStaleAtom } from '@/store/useVocab'
+import { searchFilterValue } from '@/utils/vocabulary/filters'
 
 type TableData = LabelDisplaySource & Category
 
@@ -87,18 +87,6 @@ function acquaintedStatusFilter(filterSegment: Segment): (rowValue: TableData) =
     return noFilter
 
   return (row) => filteredValue.includes(row.inertialPhase)
-}
-
-function searchFilterValue(search: string, usingRegex: boolean): ColumnFilterFn<TableData> | undefined {
-  if (usingRegex) {
-    const newRegex = tryGetRegex(search)
-    if (newRegex)
-      return (row) => newRegex.test(row.vocab.word)
-  }
-  else {
-    search = search.toLowerCase()
-    return (row) => row.wFamily.some((word) => word.path.toLowerCase().includes(search))
-  }
 }
 
 function categoryFilter(filterValue: Record<string, boolean>): ColumnFilterFn<TableData> {
@@ -395,7 +383,7 @@ ${wordsString}
           </DropdownMenuGroup>
         </VocabularyMenu>
         <Button
-          className="aspect-square h-full p-0 [--sq-r:5px]"
+          className="aspect-square h-full p-0 [--sq-r:.8125rem]"
           variant="ghost"
           disabled={freshVocabularies.length === 0}
           onClick={handleAiVocabCategorize}
@@ -409,7 +397,7 @@ ${wordsString}
         <div className="p-0.5"></div>
         <DataTableFacetedFilter
           title="Category"
-          className="[--sq-r:5px] *:rounded-[7px]"
+          className="[--sq-r:.875rem]"
           options={options}
           filterValue={filterValue}
           onFilterChange={(v) => {

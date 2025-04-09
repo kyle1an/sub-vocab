@@ -40,11 +40,11 @@ import { customFormatDistance, formatDistanceLocale } from '@/lib/date-utils'
 import { customFormatDistanceToNowStrict } from '@/lib/formatDistance'
 import { useLastTruthy } from '@/lib/hooks'
 import { LEARNING_PHASE } from '@/lib/LabeledTire'
-import { tryGetRegex } from '@/lib/regex'
 import { getFilterFn, noFilter } from '@/lib/table-utils'
 import { findClosest, getFallBack } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
 import { vocabRealtimeSyncStatusAtom } from '@/store/useVocab'
+import { searchFilterValue } from '@/utils/vocabulary/filters'
 
 type TableData = LabelDisplayTable
 
@@ -92,18 +92,6 @@ function acquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn<TableDat
     return noFilter
 
   return (row) => filteredValue.includes(row.inertialPhase)
-}
-
-function searchFilterValue(search: string, usingRegex: boolean): ColumnFilterFn<TableData> | undefined {
-  if (usingRegex) {
-    const newRegex = tryGetRegex(search)
-    if (newRegex)
-      return (row) => newRegex.test(row.vocab.word)
-  }
-  else {
-    search = search.toLowerCase()
-    return (row) => row.wFamily.some((word) => word.path.toLowerCase().includes(search))
-  }
 }
 
 function userOwnedFilter(filterSegment: Segment): ColumnFilterFn<TableData> {

@@ -28,13 +28,14 @@ export default function Home() {
       <div className="relative flex h-14 items-center gap-2">
         <FileInput
           onFileSelect={handleFileChange}
+          className="*:*:text-xs data-[slot=button]:*:*:h-8 data-[slot=button]:*:*:px-3"
         >
           {t('browseFiles')}
         </FileInput>
         <FileSettings />
         <Button
           variant="outline"
-          className="whitespace-nowrap p-0"
+          className="whitespace-nowrap p-0 shadow-none sq:drop-shadow-none"
           size="sm"
         >
           <Link

@@ -89,7 +89,7 @@ export function SquircleBg({
   const Component = asChild ? Slot : 'div'
   return (
     <Component
-      className={cn('drop-shadow-sm sq-radius-[--sq-r] sq-fill-[--border] [--sq-r:9px] sq:rounded-none sq:border-0 sq:bg-transparent sq:[background:paint(squircle)]', className)}
+      className={cn('drop-shadow-sm sq-radius-[--sq-r] sq-fill-[--border] [--sq-r:9] sq:rounded-none sq:border-0 sq:bg-transparent sq:[background:paint(squircle)]', className)}
       {...props}
     >
       {children}

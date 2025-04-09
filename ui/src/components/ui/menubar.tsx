@@ -64,7 +64,7 @@ function MenubarTrigger({
       data-slot="menubar-trigger"
       className={cn(
         'flex cursor-default select-none items-center rounded-sm px-3 py-1 text-sm font-medium outline-none focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground',
-        'sq-radius-[5] sq-outline-0 sq-fill-transparent focus:sq-fill-[--accent] data-[state=open]:sq-fill-[--accent] sq:rounded-none sq:bg-transparent sq:[background:paint(squircle)]',
+        'sq:rounded-[.75rem] sq:[corner-shape:squircle]',
         className,
       )}
       {...props}
@@ -130,7 +130,7 @@ function MenubarContent({
         className={cn(
           'z-50 min-w-48 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
           'origin-[var(--radix-menubar-content-transform-origin)]',
-          'sq-radius-[--sq-r] sq-outline-[--l-w] sq-stroke-[--border] sq-fill-[--popover] [--l-w:1px] [--sq-r:6px] sq:relative sq:border-0 sq:bg-transparent sq:p-[calc(4px+var(--l-w))] sq:shadow-none sq:drop-shadow-md sq:[background:paint(squircle)]',
+          'sq:rounded-[--sq-r] [--sq-r:1rem] sq:relative sq:shadow-none sq:drop-shadow-md sq:[corner-shape:squircle]',
           className,
         )}
         {...props}
@@ -193,7 +193,7 @@ function MenubarRadioItem({
       data-slot="menubar-radio-item"
       className={cn(
         'relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-        'sq-radius-[--sq-r] sq-fill-[--accent] [--sq-r:3px] focus:sq-outline-0 sq:bg-transparent focus:sq:[background:paint(squircle)]',
+        'sq:rounded-[--sq-r] [--sq-r:.5rem] focus:sq:[corner-shape:squircle]',
         className,
       )}
       {...props}

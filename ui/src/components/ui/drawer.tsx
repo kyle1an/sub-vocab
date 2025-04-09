@@ -42,7 +42,7 @@ function DrawerContent({ className, children, ...props }: React.ComponentProps<t
         )}
         {...props}
       >
-        <div className="flex h-full flex-col rounded-t-[10px] bg-[--theme-bg] sq-radius-[7_7_0_0] sq-fill-[red] sq:rounded-none sq:[mask:paint(squircle)]">
+        <div className="flex h-full flex-col rounded-t-[.625rem] bg-[--theme-bg] sq:rounded-t-2xl sq:[corner-shape:squircle]">
           <DrawerHandle className="mt-1.5 shrink-0" />
           {children}
         </div>

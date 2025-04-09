@@ -3,8 +3,8 @@ import IconCodiconRegex from '~icons/codicon/regex'
 import IconEpCircleCloseFilled from '~icons/ep/circle-close-filled'
 import IconIonSearch from '~icons/ion/search'
 
-import { Squircle } from '@/components/ui/squircle'
 import { Toggle } from '@/components/ui/toggle'
+import { cn } from '@/lib/utils'
 
 export function SearchWidget({
   value,
@@ -21,12 +21,11 @@ export function SearchWidget({
   const { t } = useTranslation()
 
   return (
-    <Squircle
-      squircle={{
-        cornerRadius: 6,
-      }}
-      borderWidth={1}
-      className="flex max-w-48 flex-row items-center gap-1 overflow-hidden bg-border p-1.5 before:bg-background has-[>:focus]:!bg-ring dark:text-slate-400"
+    <div
+      className={cn(
+        'flex max-w-48 flex-row items-center gap-1 overflow-hidden rounded-md border p-1.5 before:bg-background sq:[corner-shape:squircle] dark:text-slate-400',
+        'relative [--offset:2px] [--sq-r:.8125rem] sq:overflow-visible sq:rounded-[--sq-r] sq:drop-shadow-sm sq:has-[>:focus]:ring-0 sq:has-[>:focus]:after:absolute sq:has-[>:focus]:after:-left-[--offset] sq:has-[>:focus]:after:-top-[--offset] sq:has-[>:focus]:after:-z-10 sq:has-[>:focus]:after:size-[calc(100%+2*var(--offset))] sq:has-[>:focus]:after:rounded-[calc(var(--sq-r)+var(--offset))] sq:has-[>:focus]:after:border sq:has-[>:focus]:after:border-[--ring] sq:has-[>:focus]:after:[corner-shape:squircle]',
+      )}
     >
       <IconIonSearch
         className="size-4 text-neutral-500 dark:text-neutral-400"
@@ -53,7 +52,8 @@ export function SearchWidget({
         <Toggle
           pressed={isUsingRegex}
           aria-label="Regular expression"
-          className="size-fit rounded-[3px] p-px text-muted-foreground"
+          // https://x.com/JohnPhamous/status/1909293861547262141
+          className="size-fit rounded-[3px] p-px text-muted-foreground [touch-action:manipulation]"
           onPressedChange={() => {
             onRegex(!isUsingRegex)
           }}
@@ -63,6 +63,6 @@ export function SearchWidget({
           />
         </Toggle>
       </div>
-    </Squircle>
+    </div>
   )
 }

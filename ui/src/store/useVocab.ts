@@ -18,6 +18,7 @@ import type { ArrayConcat } from '@/lib/utilities'
 import type { RowSelectionChangeFn } from '@/types/utils'
 
 import { DEFAULT_THEME } from '@/components/themes'
+import { THEME_KEY } from '@/constants/keys'
 import { MS_PER_MINUTE } from '@/constants/time'
 import { env } from '@/env'
 import { getLanguage } from '@/i18n'
@@ -84,7 +85,7 @@ const getOnInit = true
 
 export const store = createStore()
 
-export const themeAtom = atomWithStorage<ArrayValues<typeof THEMES>['value']>('themeAtom', DEFAULT_THEME.value, undefined, { getOnInit })
+export const themeAtom = atomWithStorage<ArrayValues<typeof THEMES>['value']>(THEME_KEY, DEFAULT_THEME.value, undefined, { getOnInit })
 
 export const authChangeEventAtom = atom<AuthChangeEvent>()
 export const sessionAtom = atomWithStorage<PartialDeep<Session> | null>('sessionAtom', null, undefined, { getOnInit })
@@ -115,6 +116,7 @@ export function useDocumentInit() {
 
       if (
         CSS.supports('background:paint(squircle)')
+        && CSS.supports('corner-shape:squircle')
         && engine.name === 'Blink'
       )
         document.documentElement.classList.add('sq')
