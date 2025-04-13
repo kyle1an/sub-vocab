@@ -61,7 +61,7 @@ function useSyncMetaThemeColor<T extends Element>(ref: React.RefObject<T>) {
   const [isDarkMode] = useAtom(isDarkModeAtom)
   const setMetaThemeColor = useSetAtom(metaThemeColorAtom)
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode)
     let themeColorContentValue: string
     if (isDarkMode)
@@ -93,11 +93,11 @@ export default function RootLayout() {
   return (
     <div
       ref={ref}
-      className="isolate flex h-full min-h-full flex-col bg-[--theme-bg] pr-[--pr] antialiased sq-smooth-[0.6] sq-radius-[5_5_0_0] sq-fill-[red] [--b-g:var(--theme-bg)] [&[style*='border-radius:_8px;']]:sq:[mask:paint(squircle)]"
+      className="isolate flex h-full min-h-full flex-col bg-[--theme-bg] pr-[--pr] antialiased sq:[corner-shape:superellipse(3)]"
       data-vaul-drawer-wrapper=""
     >
       <TopBar />
-      <div className="flex min-h-svh flex-col items-center pt-11">
+      <div className="z-0 flex min-h-svh flex-col items-center pt-11">
         <Outlet />
       </div>
       <Toaster

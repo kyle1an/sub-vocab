@@ -5,11 +5,13 @@ import { cva } from 'class-variance-authority'
 import clsx from 'clsx'
 import { useId, useRef } from 'react'
 
-import { Squircle } from '@/components/ui/squircle'
 import { cn } from '@/lib/utils'
 
 const segmentedControlVariants = cva(
-  `grid w-full !touch-manipulation select-none auto-cols-[1fr] grid-flow-col overflow-hidden tracking-wide antialiased outline-none [font-feature-settings:'cv08'] [text-rendering:geometricPrecision]`,
+  clsx(
+    `grid w-full !touch-manipulation select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-lg tracking-wide antialiased outline-none [font-feature-settings:'cv08'] [text-rendering:geometricPrecision]`,
+    'sq:rounded-[.9375rem] sq:[corner-shape:superellipse(3.5)]',
+  ),
   {
     variants: {
       variant: {
@@ -96,11 +98,7 @@ export function SegmentedControl<T extends string>({
   }
 
   return (
-    <Squircle
-      squircle={{
-        cornerRadius: 9,
-      }}
-      borderWidth={1}
+    <div
       className={cn(segmentedControlVariants({ variant, size, className }))}
       {...props}
     >
@@ -115,7 +113,7 @@ export function SegmentedControl<T extends string>({
           onValueChange={handleOnChange}
         />
       ))}
-    </Squircle>
+    </div>
   )
 }
 
@@ -124,7 +122,7 @@ const checkedSegmentVariants = cva(
   {
     variants: {
       variant: {
-        default: 'border-0 bg-black/[.04] shadow before:bg-white dark:before:bg-neutral-600',
+        default: 'border-[.5px] border-black/[.1] bg-white drop-shadow-sm dark:bg-neutral-600',
         ghost: 'bg-neutral-200 dark:bg-slate-600',
       },
     },
@@ -170,7 +168,7 @@ function Segment<T extends string>({
       />
       <label
         htmlFor={id}
-        className="relative block cursor-pointer bg-transparent text-center before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[10px] before:bg-neutral-300 before:transition-[background] before:duration-200 before:ease-[ease] before:will-change-[background] group-first-of-type/d:before:opacity-0 group-[[data-checked=true]]/d:cursor-default group-[[data-checked=true]]/d:before:z-10 group-[&[data-checked=true]+*]/d:before:bg-transparent group-[[data-checked=true]]/d:before:bg-transparent dark:before:bg-slate-700"
+        className="relative block cursor-pointer bg-transparent text-center before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[.625rem] before:bg-neutral-300 before:transition-[background] before:duration-200 before:ease-[ease] before:will-change-[background] group-first-of-type/d:before:opacity-0 group-[[data-checked=true]]/d:cursor-default group-[[data-checked=true]]/d:before:z-10 group-[&[data-checked=true]+*]/d:before:bg-transparent group-[[data-checked=true]]/d:before:bg-transparent dark:before:bg-slate-700"
       >
         <div className={clsx(
           'flex flex-col justify-center text-sm/6',
@@ -190,14 +188,11 @@ function Segment<T extends string>({
           />
         </div>
         <div className="absolute left-0 top-0 size-full">
-          <Squircle
+          <div
             ref={sqRef}
-            squircle={{
-              cornerRadius: 7,
-            }}
-            borderWidth={0.5}
             className={cn(
-              'flex size-full ease-[ease] will-change-transform',
+              'flex size-full rounded-md ease-[ease] will-change-transform',
+              'sq:rounded-[.6875rem] sq:[corner-shape:superellipse(3.5)]',
               checked && checkedSegmentVariants({ variant }),
             )}
           />

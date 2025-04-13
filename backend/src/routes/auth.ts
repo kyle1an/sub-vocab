@@ -8,8 +8,8 @@ import { publicProcedure, router } from './trpc.js'
 export const userRouter = router({
   signIn: publicProcedure
     .input(z.object({
-      username: z.string().min(1),
-      password: z.string().min(1),
+      username: z.string().nonempty(),
+      password: z.string().nonempty(),
     }))
     .mutation(async (opts) => {
       const { username, password } = opts.input

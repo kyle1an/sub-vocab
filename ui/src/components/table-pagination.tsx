@@ -70,7 +70,7 @@ export function TablePagination<T>({
         if (type === 'first' || type === 'page' || type === 'last') {
           return (
             <button
-              className={cn(className, selected && 'border-border font-bold sq-radius-[--sq-r] sq-outline sq-stroke-[--border] sq-fill-transparent [--sq-r:3px] disabled:text-[unset] sq:border-0 sq:[background:paint(squircle)]')}
+              className={cn(className, selected && 'border-border font-bold [--sq-r:.5rem] disabled:text-[unset] sq:rounded-[--sq-r] sq:[corner-shape:squircle]')}
               type="button"
               disabled={selected}
               onClick={() => {

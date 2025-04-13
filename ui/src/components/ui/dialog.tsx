@@ -56,7 +56,7 @@ function DialogContent({
           'fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:rounded-lg md:w-full',
           'data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
           'max-h-screen overflow-y-scroll focus:outline-0',
-          'sq-radius-[--sq-r] sq-outline-[--l-w] sq-stroke-[--border] sq-fill-[--background] [--l-w:1px] [--sq-r:8px] sq:border-0 sq:bg-transparent sq:shadow-none sq:drop-shadow-lg sq:[background:paint(squircle)]',
+          '[--sq-r:1.25rem] sq:shadow-none sq:drop-shadow-lg sq:[corner-shape:squircle] sq:sm:rounded-[--sq-r]',
           className,
         )}
         {...props}
@@ -64,8 +64,8 @@ function DialogContent({
         {children}
         <DialogPrimitive.Close
           className={cn(
-            'absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground',
-            '[--offset:2px] [--sq-r:2] focus:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus:after:sq-outline-[1.1] focus:after:sq-stroke-[--ring] focus:after:sq-fill-transparent sq:rounded-none sq:focus:ring-0 sq:focus:after:absolute sq:focus:after:-left-[--offset] sq:focus:after:-top-[--offset] sq:focus:after:size-[calc(100%+2*var(--offset))] focus:after:sq:[background:paint(squircle)]',
+            'absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-0 focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground',
+            '[--offset:2px] [--sq-r:.625rem] focus:after:rounded-[calc(var(--sq-r)+var(--offset))] focus:after:border focus:after:border-ring sq:shadow-none sq:ring-transparent sq:focus:ring-0 sq:focus:after:absolute sq:focus:after:-left-[--offset] sq:focus:after:-top-[--offset] sq:focus:after:size-[calc(100%+2*var(--offset))] focus:after:sq:[corner-shape:squircle]',
           )}
         >
           <Cross2Icon className="size-4" />

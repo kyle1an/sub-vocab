@@ -1,14 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
-
 :root {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
   /* https://developer.chrome.com/blog/new-in-chrome-129?hl=en#animate */
   interpolate-size: allow-keywords;
-}
-
-@property --b-g {
-  syntax: "<color>";
-  inherits: true;
 }

@@ -5,13 +5,13 @@ import { z } from 'zod'
 export const env = createEnv({
   server: {
     PUBLIC_SUPABASE_URL: z.string().url(),
-    SUPABASE_ANON_KEY: z.string().min(1),
+    SUPABASE_ANON_KEY: z.string().nonempty(),
     POSTGRES_URL: z.string().url(),
-    TMDB_TOKEN: z.string().min(1),
+    TMDB_TOKEN: z.string().nonempty(),
     OPENSUBTITLES_TOKEN: z.string().optional(),
-    OPENSUBTITLES_API_KEY: z.string().min(1),
-    APP_NAME__V_APP_VERSION: z.string().min(1),
-    OPENROUTER_API_KEY: z.string().min(1),
+    OPENSUBTITLES_API_KEY: z.string().nonempty(),
+    APP_NAME__V_APP_VERSION: z.string().nonempty(),
+    OPENROUTER_API_KEY: z.string().nonempty(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

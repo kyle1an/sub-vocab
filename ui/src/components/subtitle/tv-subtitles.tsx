@@ -530,7 +530,7 @@ export function TVSubtitleFiles({
                   setFilterEpisode(e)
                 }}
               >
-                <SelectTrigger className="h-full w-[unset] px-2 py-0 text-xs tabular-nums [--sq-r:4.5px]">
+                <SelectTrigger className="h-full w-[unset] px-2 py-0 text-xs tabular-nums [--sq-r:.625rem]">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent

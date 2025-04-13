@@ -1,5 +1,4 @@
 import './main.css'
-import './styles/squircle.css'
 
 import type { AppRouter } from '@backend/app'
 

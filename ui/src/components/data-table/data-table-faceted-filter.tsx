@@ -41,9 +41,9 @@ export function DataTableFacetedFilter({
         <Button
           variant="outline"
           size="sm"
-          className={cn('h-8 border-none p-0 shadow-none [--l-w:0] [--sq-r:6px] sq:[mask:paint(squircle)]', className)}
+          className={cn('h-8 border-dashed p-0 shadow-none !drop-shadow-none', className)}
         >
-          <div className="inline-flex size-full items-center justify-center rounded-[8px] border border-dashed border-border">
+          <>
             <div className="inline-flex h-full items-center justify-center space-x-[2.5px] px-[6px] has-[>*:nth-child(2)]:pl-[5.5px]">
               {/* <IconSiFilterListDuotone className="size-[15px]" /> */}
               {/* <IconLucideFilter className="size-[16px]" /> */}
@@ -60,7 +60,7 @@ export function DataTableFacetedFilter({
                 >
                   {selected.length}
                 </Badge>
-                <div className="hidden space-x-1 px-[5px] lg:flex">
+                <div className="hidden space-x-1 px-1 lg:flex">
                   {selected.length >= 2 ? (
                     <Badge
                       variant="secondary"
@@ -84,11 +84,11 @@ export function DataTableFacetedFilter({
                 </div>
               </>
             )}
-          </div>
+          </>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[12.5rem] p-0" align="start">
-        <Command className="rounded-none bg-transparent sq:p-px">
+        <Command className="rounded-none bg-transparent">
           <CommandInput placeholder={title} />
           <CommandList className="max-h-full">
             <CommandEmpty className="py-[26px]">No results found.</CommandEmpty>
@@ -112,7 +112,7 @@ export function DataTableFacetedFilter({
                         })
                       }
                     }}
-                    className="gap-2 [--sq-r:4.5px]"
+                    className="gap-2"
                   >
                     <div
                       className={cn(
@@ -122,7 +122,7 @@ export function DataTableFacetedFilter({
                     >
                       <Checkbox
                         checked={isSelected}
-                        className="cursor-default"
+                        className="cursor-default [&_[data-slot=check-icon]]:size-3.5"
                       />
                     </div>
                     {option.icon && (
@@ -144,7 +144,7 @@ export function DataTableFacetedFilter({
                 <CommandGroup>
                   <CommandItem
                     onSelect={() => onFilterChange({})}
-                    className="justify-center text-center [--sq-r:4.5px]"
+                    className="justify-center text-center"
                   >
                     Clear filters
                   </CommandItem>

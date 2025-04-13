@@ -15,7 +15,6 @@ import {
   useIrregularMapsQuery,
 } from '@/api/vocab-api'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
-import { SquircleBg, SquircleMask } from '@/components/ui/squircle'
 import { TextareaInput } from '@/components/ui/textarea-input'
 import { VocabSourceTable } from '@/components/VocabSource'
 import { VocabStatics } from '@/components/vocabulary/vocab-statics-bar'
@@ -143,8 +142,8 @@ export default function ResizeVocabularyPanel() {
 
   return (
     (
-      <SquircleBg className="flex h-[calc(100%-4px*14)] items-center justify-center overflow-hidden rounded-xl border">
-        <SquircleMask asChild>
+      <div className="flex h-[calc(100%-4px*14)] items-center justify-center overflow-hidden rounded-xl border drop-shadow-sm sq:rounded-3xl sq:[corner-shape:squircle]">
+        <>
           <ResizablePanelGroup
             ref={panelGroupRef}
             direction={direction}
@@ -190,8 +189,8 @@ export default function ResizeVocabularyPanel() {
               />
             </ResizablePanel>
           </ResizablePanelGroup>
-        </SquircleMask>
-      </SquircleBg>
+        </>
+      </div>
     )
   )
 }

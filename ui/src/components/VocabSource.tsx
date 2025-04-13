@@ -382,7 +382,7 @@ ${wordsString}
           </DropdownMenuGroup>
         </VocabularyMenu>
         <Button
-          className="aspect-square h-full p-0 [--sq-r:5px]"
+          className="aspect-square h-full p-0 [--sq-r:.8125rem]"
           variant="ghost"
           disabled={freshVocabularies.length === 0}
           onClick={handleAiVocabCategorize}
@@ -396,7 +396,7 @@ ${wordsString}
         <div className="p-0.5"></div>
         <DataTableFacetedFilter
           title="Category"
-          className="[--sq-r:5px] *:rounded-[7px]"
+          className="[--sq-r:.875rem]"
           options={options}
           filterValue={filterValue}
           onFilterChange={(v) => {
