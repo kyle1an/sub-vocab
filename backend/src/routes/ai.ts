@@ -29,7 +29,7 @@ const safeJsonParse = Result.fromThrowable((s: string) => errorSchema.parse(JSON
 export const aiRouter = router({
   getCategory: publicProcedure
     .input(z.object({
-      prompt: z.string().min(1),
+      prompt: z.string().nonempty(),
     }))
     .mutation(async (opts) => {
       const { prompt } = opts.input

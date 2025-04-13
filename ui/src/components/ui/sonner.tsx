@@ -12,8 +12,7 @@ function Toaster({ ...props }: ToasterProps) {
         classNames: {
           toast: cn(
             'toast group group-[.toaster]:border-border group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:shadow-lg',
-            '[--bg:--popover] data-[type=error]:[--bg:var(--error-bg)] data-[type=info]:[--bg:var(--info-bg)] data-[type=success]:[--bg:var(--success-bg)] data-[type=warning]:[--bg:var(--warning-bg)] data-[type=error]:[--border:var(--error-border)] data-[type=info]:[--border:var(--info-border)] data-[type=success]:[--border:var(--success-border)] data-[type=warning]:[--border:var(--warning-border)]',
-            'sq-radius-[--sq-r] sq-outline sq-stroke-[--border] [--l-w:1px] [--sq-r:9px] group-[.toaster]:sq-fill-[--bg] sq:!border-0 sq:py-[17px] sq:![background:paint(squircle)] group-[.toaster]:sq:bg-transparent sq:group-[.toaster]:shadow-none sq:group-[.toaster]:drop-shadow-lg',
+            'sq:[--border-radius:--sq-r] [--sq-r:1.25rem] sq:[corner-shape:squircle] sq:group-[.toaster]:shadow-none sq:group-[.toaster]:drop-shadow-lg',
           ),
           content: 'w-full',
           description: 'group-[.toast]:text-muted-foreground',
@@ -25,6 +24,7 @@ function Toaster({ ...props }: ToasterProps) {
             '!bg-background !text-muted-foreground !border-border opacity-0 group-[.toast:hover]:opacity-100',
         },
       }}
+      duration={999999999}
       position="bottom-center"
       {...props}
     />

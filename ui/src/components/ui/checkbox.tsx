@@ -14,8 +14,8 @@ const checkboxVariants = cva(
     variants: {
       variant: {
         default: cn(
-          'drop-shadow-md sq-radius-[3.2] sq-outline-[1.07] sq-stroke-[--primary] sq-fill-transparent data-[state=checked]:drop-shadow data-[state=checked]:sq-outline-0 data-[state=checked]:sq-fill-[--primary] sq:rounded-none sq:border-0 sq:shadow-none sq:[background:paint(squircle)] data-[state=checked]:sq:bg-transparent',
-          '[--offset:2px] [--sq-r:2] focus-visible:after:sq-radius-[calc(var(--sq-r)+var(--offset))] focus-visible:after:sq-outline-[1.1] focus-visible:after:sq-stroke-[--ring] focus-visible:after:sq-fill-transparent sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))] focus-visible:after:sq:[background:paint(squircle)]',
+          'drop-shadow-md [--sq-r:.425rem] data-[state=checked]:drop-shadow sq:rounded-[--sq-r] sq:shadow-none sq:[corner-shape:superellipse(3)]',
+          '[--offset:3px] sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))] focus-visible:after:sq:rounded-[calc(var(--sq-r)+var(--offset))] focus-visible:after:sq:border focus-visible:after:sq:border-[--ring] focus-visible:after:sq:[corner-shape:superellipse(3)]',
         ),
         radio: 'rounded-full [&_svg]:h-[15px]',
       },
@@ -41,7 +41,10 @@ function Checkbox({
       <CheckboxPrimitive.Indicator
         className={cn('flex items-center justify-center text-current')}
       >
-        <CheckIcon className="size-4" />
+        <CheckIcon
+          data-slot="check-icon"
+          className="size-3.5"
+        />
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   )

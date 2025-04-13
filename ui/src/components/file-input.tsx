@@ -1,9 +1,9 @@
 import type React from 'react'
 
 import { useAtom, useAtomValue } from 'jotai'
-import { Button, FileTrigger } from 'react-aria-components'
+import { Button as AriaButton, FileTrigger } from 'react-aria-components'
 
-import { Squircle } from '@/components/ui/squircle'
+import { Button } from '@/components/ui/button'
 import { getFileContent, SUPPORTED_FILE_TYPES } from '@/lib/filesHandler'
 import { fileTypesAtom, uapAtom } from '@/store/useVocab'
 
@@ -50,18 +50,16 @@ export function FileInput({
         })}
         onSelect={handleFileSelect}
       >
-        <Squircle
-          squircle={{
-            cornerRadius: 7,
-          }}
-          borderWidth={1}
-          className="inline-flex h-8 max-h-full grow-0 cursor-pointer items-center justify-center whitespace-nowrap bg-border px-3 py-2.5 text-center align-middle text-sm/3 tracking-wide transition-colors before:bg-background hover:border-sky-300 hover:bg-sky-100 hover:text-sky-600 focus-visible:!bg-ring focus-visible:outline-0"
-          asChild
-        >
-          <Button>
-            { children}
+        <div>
+          <Button
+            variant="outline"
+            asChild
+          >
+            <AriaButton>
+              {children}
+            </AriaButton>
           </Button>
-        </Squircle>
+        </div>
       </FileTrigger>
     </div>
   )

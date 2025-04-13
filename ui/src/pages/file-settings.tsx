@@ -40,7 +40,7 @@ function FileSettingsContent({
                 pressed={checked}
                 variant="outline"
                 aria-label="Regular expression"
-                className="size-fit min-w-[35px] rounded-full px-1.5 py-1 text-muted-foreground [--sq-r:7] sq:rounded-none"
+                className="size-fit min-w-[35px] px-1.5 py-1 text-muted-foreground"
                 onPressedChange={(pressed) => {
                   onFileTypesChange(fileType, pressed)
                 }}
@@ -92,7 +92,7 @@ export function FileSettings() {
   const Trigger = (
     <Button
       variant="outline"
-      className="size-8 rounded-[7px] p-0 shadow-none sq:drop-shadow-none"
+      className="size-8 p-0"
     >
       <IconLucideCog
         className="size-[14px]"

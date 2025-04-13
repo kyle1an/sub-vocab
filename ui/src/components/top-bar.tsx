@@ -4,6 +4,7 @@ import { CloseButton, Popover, PopoverButton, PopoverPanel, useClose } from '@he
 import { Slot } from '@radix-ui/react-slot'
 import clsx from 'clsx'
 import { useAtom } from 'jotai'
+import { ResultAsync } from 'neverthrow'
 import { useEffect, useTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -89,14 +90,19 @@ function SignOut({ className, ...props }: React.ComponentProps<'button'>) {
   const { mutateAsync: logOut } = useLogOut()
   const close = useClose()
 
-  function logout() {
-    logOut()
-      .then((logOutRes) => {
-        const { error } = logOutRes
-        if (!error)
-          close()
-      })
-      .catch(console.error)
+  async function logout() {
+    const logOutResult = await ResultAsync.fromPromise(logOut(), (e) => e)
+    if (logOutResult.isOk()) {
+      const { error } = logOutResult.value
+      if (!error) {
+        close()
+        return
+      }
+      console.error(error)
+    }
+    else {
+      console.error(logOutResult.error)
+    }
   }
 
   return (

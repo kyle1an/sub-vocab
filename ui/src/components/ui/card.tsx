@@ -15,8 +15,7 @@ function Card({
   return (
     <div
       className={cn(
-        'rounded-xl border bg-card text-card-foreground shadow [--b-g:var(--card)]',
-        'sq-radius-[--sq-r] sq-outline-[--l-w] sq-stroke-[--border] sq-fill-[--card] [--l-w:1px] [--sq-r:8px] sq:relative sq:!border-0 sq:bg-transparent sq:shadow-none sq:drop-shadow sq:[background:paint(squircle)]',
+        'rounded-xl border bg-card text-card-foreground drop-shadow sq:rounded-3xl sq:[corner-shape:squircle]',
         className,
       )}
       {...props}

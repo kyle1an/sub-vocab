@@ -3,8 +3,6 @@ import type { Config } from 'tailwindcss'
 
 import plugin from 'tailwindcss/plugin'
 
-import { omitUndefined } from './src/lib/utilities'
-
 const config: Config = {
   darkMode: ['selector', '.dark'],
   content: [
@@ -121,13 +119,27 @@ const config: Config = {
           },
         },
         spinner: {
-          '0%': { opacity: '1' },
-          '10%': { opacity: '0.7' },
-          '20%': { opacity: '0.3' },
-          '35%': { opacity: '0.2' },
-          '50%': { opacity: '0.1' },
-          '75%': { opacity: '0.05' },
-          '100%': { opacity: '0' },
+          '0%': {
+            opacity: '1',
+          },
+          '10%': {
+            opacity: '0.7',
+          },
+          '20%': {
+            opacity: '0.3',
+          },
+          '35%': {
+            opacity: '0.2',
+          },
+          '50%': {
+            opacity: '0.1',
+          },
+          '75%': {
+            opacity: '0.05',
+          },
+          '100%': {
+            opacity: '0',
+          },
         },
       },
       animation: {
@@ -145,89 +157,8 @@ const config: Config = {
       matchUtilities,
       theme,
     }) => {
-      addVariant('sq', '&:is(.sq *)')
+      addVariant('sq', '@supports (corner-shape: squircle)')
       addVariant('iOS', '&:is(.iOS *)')
-      addVariant('webkit', '&:is(.webkit *)')
-
-      matchUtilities({
-        'sq-smooth': (value) => ({
-          '--squircle-smooth': value,
-        }),
-      })
-
-      matchUtilities({
-        'sq-smooth-x': (value) => ({
-          '--squircle-right-top-smooth': value,
-          '--squircle-right-bottom-smooth': value,
-          '--squircle-left-bottom-smooth': value,
-          '--squircle-left-top-smooth': value,
-        }),
-      })
-
-      matchUtilities({
-        'sq-smooth-y': (value) => ({
-          '--squircle-top-left-smooth': value,
-          '--squircle-top-right-smooth': value,
-          '--squircle-bottom-right-smooth': value,
-          '--squircle-bottom-left-smooth': value,
-        }),
-      })
-
-      matchUtilities({
-        'sq-radius': (value) => ({
-          '--squircle-radius': value,
-        }),
-      }, omitUndefined({
-        values: theme('borderRadius'),
-      }))
-
-      matchUtilities({
-        'sq-radius-x': (value) => ({
-          '--squircle-right-top-radius': value,
-          '--squircle-right-bottom-radius': value,
-          '--squircle-left-bottom-radius': value,
-          '--squircle-left-top-radius': value,
-        }),
-      }, omitUndefined({
-        values: theme('borderRadius'),
-      }))
-
-      matchUtilities({
-        'sq-radius-y': (value) => ({
-          '--squircle-top-left-radius': value,
-          '--squircle-top-right-radius': value,
-          '--squircle-bottom-right-radius': value,
-          '--squircle-bottom-left-radius': value,
-        }),
-      }, omitUndefined({
-        values: theme('borderRadius'),
-      }))
-
-      matchUtilities({
-        'sq-outline': (value) => ({
-          '--squircle-outline': value,
-        }),
-      }, omitUndefined({
-        values: theme('borderWidth'),
-      }))
-
-      matchUtilities({
-        'sq-stroke': (value) => ({
-          '--squircle-stroke': value,
-        }),
-      }, omitUndefined({
-        values: theme('colors'),
-        type: ['color', 'any'],
-      }))
-
-      matchUtilities({
-        'sq-fill': (value) => ({
-          '--squircle-fill': value,
-        }),
-      }, omitUndefined({
-        values: theme('colors'),
-        type: ['color', 'any'],
-      }))
     }),
   ],
 }

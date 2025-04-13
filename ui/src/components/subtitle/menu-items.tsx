@@ -16,7 +16,7 @@ export function RefetchButton({
       variant="ghost"
       disabled={isFetching}
       className={clsx(
-        'aspect-square max-h-full p-0 [--sq-r:4.5px]',
+        'aspect-square max-h-full p-0 [--sq-r:.625rem]',
       )}
       onClick={() => refetch()}
     >
