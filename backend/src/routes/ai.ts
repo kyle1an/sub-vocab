@@ -35,6 +35,7 @@ export const aiRouter = router({
       const { prompt } = opts.input
       const result = await ResultAsync.fromPromise(generateObject({
         model: openrouter.languageModel('google/gemini-2.0-flash-exp:free'),
+        temperature: 0,
         schema: z.object({
           properName: z.array(z.string()),
           acronym: z.array(z.string()),

@@ -76,6 +76,4 @@ function Button({
   )
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export { Button, buttonVariants }
-// ^ With auto-imports, adding a new line will cause ReferenceError: buttonVariants is not defined

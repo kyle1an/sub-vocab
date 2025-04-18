@@ -1,5 +1,6 @@
 import antfu from '@antfu/eslint-config'
 import stylistic from '@stylistic/eslint-plugin'
+import command from 'eslint-plugin-command/config'
 import deMorgan from 'eslint-plugin-de-morgan'
 import packageJson from 'eslint-plugin-package-json'
 
@@ -41,6 +42,7 @@ export default antfu(
       */
     },
   },
+  command(),
   {
     name: 'root/perfectionist',
     rules: {

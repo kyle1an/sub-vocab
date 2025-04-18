@@ -197,7 +197,7 @@ function useCategorize(vocabularyCategory: VocabularyCategory, data: LabelDispla
 export function VocabSourceTable({
   data,
   sentences,
-  onPurge,
+  onPurge: purgeVocabulary,
   className = '',
 }: {
   data: LabelDisplaySource[]
@@ -264,7 +264,7 @@ export function VocabSourceTable({
         setDisableNumberAnim(true)
         requestAnimationFrame(() => {
           setDisableNumberAnim(false)
-          onPurge()
+          purgeVocabulary()
         })
       })
     })

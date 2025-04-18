@@ -15,9 +15,9 @@ export function AcquaintAllDialog<T extends VocabState>({ vocabulary }: { vocabu
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <div className="flex w-full flex-row items-center justify-between gap-1.5 px-2 py-1.5">
-          <div className="">{t('acquaintedAll')}</div>
+        <div className="flex w-full flex-row items-center gap-3 px-2 py-1.5">
           <IconSolarListCheckBold />
+          <div className="">{t('acquaintedAll')}</div>
         </div>
       </AlertDialogTrigger>
       <AlertDialogContent className="sm:max-w-[425px]">

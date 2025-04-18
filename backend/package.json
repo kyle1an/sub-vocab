@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@10.8.0",
+  "packageManager": "pnpm@10.8.1",
   "scripts": {
     "build": "tsc && node --run copy-files",
     "copy-files": "cp -R public dist/backend",
@@ -17,13 +17,13 @@
     "@openrouter/ai-sdk-provider": "^0.4.5",
     "@trpc/server": "11.1.0",
     "@types/body-parser": "^1.19.5",
-    "ai": "^4.3.5",
+    "ai": "^4.3.9",
     "body-parser": "^2.2.0",
     "cookie": "^1.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "debug": "^4.4.0",
-    "drizzle-orm": "^0.41.0",
+    "drizzle-orm": "^0.42.0",
     "express": "^5.1.0",
     "http-errors": "^2.0.0",
     "http-proxy-middleware": "^3.0.5",
@@ -39,7 +39,7 @@
     "@types/express": "^5.0.1",
     "@types/http-errors": "^2.0.4",
     "@types/morgan": "^1.9.9",
-    "drizzle-kit": "0.30.6",
+    "drizzle-kit": "0.31.0",
     "tsx": "^4.19.3"
   }
 }

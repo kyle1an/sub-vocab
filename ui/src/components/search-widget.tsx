@@ -1,3 +1,5 @@
+import { useRef } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import IconCodiconRegex from '~icons/codicon/regex'
 import IconEpCircleCloseFilled from '~icons/ep/circle-close-filled'
@@ -19,6 +21,15 @@ export function SearchWidget({
   onRegex: (arg: boolean) => void
 }) {
   const { t } = useTranslation()
+  const inputRef = useRef<HTMLInputElement>(null)
+  useHotkeys('meta+f', (e) => {
+    if (document.activeElement === inputRef.current)
+      return
+    e.preventDefault()
+    inputRef.current?.focus()
+  }, {
+    enableOnFormTags: ['textarea', 'input'],
+  })
 
   return (
     <div
@@ -31,6 +42,7 @@ export function SearchWidget({
         className="size-4 text-neutral-500 dark:text-neutral-400"
       />
       <input
+        ref={inputRef}
         type="text"
         aria-label="Search"
         value={value}

@@ -10,8 +10,11 @@ import { useEffect, useRef } from 'react'
 import { Outlet } from 'react-router'
 
 import { useVocabRealtimeSync } from '@/api/vocab-api'
-import { TopBar } from '@/components/top-bar'
+import { AppSidebar } from '@/components/app-sidebar'
+import { NavActions } from '@/components/nav-actions'
+import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/sonner'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { COLOR_SCHEME_QUERY, isDarkModeAtom, metaThemeColorEffect } from '@/lib/hooks'
 import { authChangeEventAtom, isMdScreenAtom, LIGHT_THEME_COLOR, metaThemeColorAtom, prefersDarkAtom, sessionAtom, supabase, useDocumentInit } from '@/store/useVocab'
 
@@ -79,6 +82,20 @@ function useSyncMetaThemeColor<T extends Element>(ref: React.RefObject<T>) {
   }, [isDarkMode, ref, setMetaThemeColor])
 }
 
+function Header() {
+  const isMobile = useIsMobile()
+  return (
+    <header className="flex h-14 shrink-0 items-center gap-2">
+      <div className="flex flex-1 items-center gap-2 px-3">
+        {isMobile && <SidebarTrigger />}
+      </div>
+      <div className="ml-auto px-3 pr-4">
+        <NavActions />
+      </div>
+    </header>
+  )
+}
+
 export default function RootLayout() {
   const ref = useRef<HTMLDivElement>(null!)
   useSyncMuiColorScheme()
@@ -91,21 +108,24 @@ export default function RootLayout() {
   useVocabRealtimeSync()
 
   return (
-    <div
+    <SidebarProvider
       ref={ref}
-      className="isolate flex h-full min-h-full flex-col bg-[--theme-bg] pr-[--pr] antialiased sq:[corner-shape:superellipse(3)]"
+      className="isolate bg-[--theme-bg] pr-[--pr] antialiased sq:[corner-shape:superellipse(3)]"
       data-vaul-drawer-wrapper=""
     >
-      <TopBar />
-      <div className="z-0 flex min-h-svh flex-col items-center pt-11">
-        <Outlet />
-      </div>
+      <AppSidebar collapsible="icon" />
+      <SidebarInset>
+        <Header />
+        <div className="z-0 flex flex-col items-center">
+          <Outlet />
+        </div>
+      </SidebarInset>
       <Toaster
         closeButton
         richColors
       />
       <DevTools />
       <ReactQueryDevtools initialIsOpen={false} />
-    </div>
+    </SidebarProvider>
   )
 }

@@ -56,6 +56,12 @@ export default antfu(
       ],
     },
   },
+  {
+    files: ['src/components/ui/**/*.{js,ts,jsx,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
   compat.config({
     plugins: [
       'eslint-plugin-react-compiler',

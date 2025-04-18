@@ -12,6 +12,7 @@ import { atom, useAtom, useSetAtom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { uniqBy } from 'lodash-es'
 import { startTransition, useEffect, useRef, useState } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import IconClarityStarSolid from '~icons/clarity/star-solid'
@@ -467,191 +468,206 @@ export default function Subtitles() {
     setInitialTableState(tableState)
   })
   const rootRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+  useHotkeys('meta+f', (e) => {
+    if (document.activeElement === inputRef.current)
+      return
+    e.preventDefault()
+    inputRef.current?.focus()
+  })
   const isLoading = downloadProgressAnim || subtitleDownloadProgress.length >= 1
   const [language, setLanguage] = useAtom(osLanguageAtom)
   return (
-    <div className="flex h-[calc(100%-4px*14)] items-center justify-center overflow-hidden rounded-xl border sq:rounded-3xl sq:[corner-shape:squircle]">
-      <div
-        className="flex size-full flex-col bg-[--theme-bg]"
-      >
-        <div>
-          <div className="flex h-12 gap-2 p-2">
-            <InputWrapper className="[--sq-r:.8125rem]">
-              <Input
-                type="text"
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value)
-                }}
-                className="h-full text-base md:text-sm"
-              />
-            </InputWrapper>
-            <Select
-              value={language}
-              onValueChange={(e) => {
-                setLanguage(e)
-              }}
-            >
-              <SelectTrigger className="h-full w-[unset] px-2 py-0 text-xs tabular-nums">
-                <SelectValue placeholder="Select" />
-              </SelectTrigger>
-              <SelectContent
-                position="item-aligned"
-                className="tabular-nums"
+    <div className="flex h-full flex-col">
+      <div className="pb-3">
+        <div className="flex items-center gap-2">
+          <div className="grow" />
+          <Popover>
+            <PopoverTrigger className="h-8" asChild>
+              <Button
+                variant="ghost"
+                className="gap-1.5 px-3"
               >
-                {languageOptions.map((language) => (
-                  <SelectItem
-                    key={language.language_code}
-                    className="pr-4 text-xs"
-                    value={language.language_code}
-                  >
-                    {language.language_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="flex aspect-square h-full grow items-center justify-start pl-1.5">
-              {isSearchLoading ? (
-                <IconLucideLoader2
-                  className="animate-spin"
-                />
-              ) : null}
-            </div>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="h-full gap-1.5 px-3"
-                >
-                  <IconOuiTokenKey className="min-w-[1em]" />
-                  <span className="hidden md:block">
-                    OpenSubtitles Login
-                  </span>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-72">
-                <OpensubtitlesAuthentication />
-              </PopoverContent>
-            </Popover>
-            <Button
-              className="h-full gap-1.5 px-3"
-              variant="outline"
-              disabled={fileIds.length === 0 || isDownloadPending || isLoading}
-              onClick={clearSelection}
-            >
-              <IconF7MultiplyCircle className="min-w-[1em]" />
-              <span className="hidden md:block">
-                Clear
-              </span>
-            </Button>
-            <Button
-              className="h-full gap-1.5 px-3 tabular-nums"
-              onClick={() => {
-                getFiles(fileIds)
-              }}
-              disabled={fileIds.length === 0 || isDownloadPending}
-            >
-              {isLoading ? (
-                <IconLucideLoader2
-                  className="min-w-[1em] animate-spin"
-                />
-              ) : (
-                <IconF7ArrowDownCircleFill className="min-w-[1em]" />
-              )}
-              <span className="hidden md:block">
-                Download
-              </span>
-              {isLoading ? (
-                <div className="flex items-center gap-1.5">
-                  <span>
-                    <NumberFlow
-                      value={subtitleDownloadProgress.length}
-                      onAnimationsFinish={() => {
-                        if (subtitleDownloadProgress.length === fileIds.length)
-                          setDownloadProgressAnim(false)
-                      }}
-                    />
-                    {` / `}
-                    <NumberFlow
-                      value={fileIds.length}
-                    />
-                  </span>
-                </div>
-              ) : (
-                <NumberFlow
-                  value={fileIds.length}
-                  className={clsx(fileIds.length === 0 ? 'hidden' : '')}
-                  isolate
-                />
-              )}
-            </Button>
-          </div>
-        </div>
-        <div
-          ref={rootRef}
-          className="grow overflow-auto overflow-y-scroll overscroll-contain"
-        >
-          <table className="relative border-separate border-spacing-0">
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHeaderCellRender
-                      key={header.id}
-                      header={header}
-                    />
-                  ))}
-                </tr>
-              ))}
-            </TableHeader>
-            <tbody className="data-[row]:*:h-9">
-              {table.getRowModel().rows.map((row, index) => {
-                return (
-                  <TableRow
-                    key={row.id}
-                    row={row}
-                    rootRef={rootRef}
-                    index={index + 1}
-                  >
-                    <MediaDetails
-                      id={row.original.id}
-                      media_type={row.original.media_type}
-                    />
-                  </TableRow>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-slate-800">
-          <TablePagination
-            items={items}
-            table={table}
-          />
-          <div className="flex grow items-center justify-end">
-            <div className="flex items-center text-xs">
-              <TablePaginationSizeSelect
-                table={table}
-                sizes={PAGE_SIZES}
-                value={tableState.pagination.pageSize}
+                <IconOuiTokenKey className="min-w-[1em]" />
+                <span className="hidden md:block">
+                  OpenSubtitles Login
+                </span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-72">
+              <OpensubtitlesAuthentication />
+            </PopoverContent>
+          </Popover>
+          <Button
+            className="h-8 gap-1.5 px-3"
+            variant="outline"
+            disabled={fileIds.length === 0 || isDownloadPending || isLoading}
+            onClick={clearSelection}
+          >
+            <IconF7MultiplyCircle className="min-w-[1em]" />
+            <span className="hidden md:block">
+              Clear
+            </span>
+          </Button>
+          <Button
+            className="h-8 gap-1.5 px-3 tabular-nums"
+            onClick={() => {
+              getFiles(fileIds)
+            }}
+            disabled={fileIds.length === 0 || isDownloadPending}
+          >
+            {isLoading ? (
+              <IconLucideLoader2
+                className="min-w-[1em] animate-spin"
               />
-              <div className="whitespace-nowrap px-1">{`/${t('page')}`}</div>
-            </div>
-          </div>
-        </div>
-        <div className="flex justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">
-          <div className="flex h-7 items-center text-xs tabular-nums">
-            <span>
+            ) : (
+              <IconF7ArrowDownCircleFill className="min-w-[1em]" />
+            )}
+            <span className="hidden md:block">
+              Download
+            </span>
+            {isLoading ? (
+              <div className="flex items-center gap-1.5">
+                <span>
+                  <NumberFlow
+                    value={subtitleDownloadProgress.length}
+                    onAnimationsFinish={() => {
+                      if (subtitleDownloadProgress.length === fileIds.length)
+                        setDownloadProgressAnim(false)
+                    }}
+                  />
+                  {` / `}
+                  <NumberFlow
+                    value={fileIds.length}
+                  />
+                </span>
+              </div>
+            ) : (
               <NumberFlow
-                value={rowsFiltered.length}
-                locales="en-US"
-                animated
+                value={fileIds.length}
+                className={clsx(fileIds.length === 0 ? 'hidden' : '')}
                 isolate
               />
+            )}
+          </Button>
+        </div>
+      </div>
+      <div className="flex grow items-center justify-center overflow-hidden rounded-xl border sq:rounded-3xl sq:[corner-shape:squircle]">
+        <div
+          className="flex size-full flex-col bg-[--theme-bg]"
+        >
+          <div>
+            <div className="flex h-12 gap-2 p-2">
+              <InputWrapper className="[--sq-r:.8125rem]">
+                <Input
+                  ref={inputRef}
+                  type="text"
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value)
+                  }}
+                  className="h-full text-base md:text-sm"
+                />
+              </InputWrapper>
+              <Select
+                value={language}
+                onValueChange={(e) => {
+                  setLanguage(e)
+                }}
+              >
+                <SelectTrigger className="h-full w-[unset] px-2 py-0 text-xs tabular-nums">
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent
+                  position="item-aligned"
+                  className="tabular-nums"
+                >
+                  {languageOptions.map((language) => (
+                    <SelectItem
+                      key={language.language_code}
+                      className="pr-4 text-xs"
+                      value={language.language_code}
+                    >
+                      {language.language_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="flex aspect-square h-full grow items-center justify-start pl-1.5">
+                {isSearchLoading ? (
+                  <IconLucideLoader2
+                    className="animate-spin"
+                  />
+                ) : null}
+              </div>
+            </div>
+          </div>
+          <div
+            ref={rootRef}
+            className="grow overflow-auto overflow-y-scroll overscroll-contain"
+          >
+            <table className="relative border-separate border-spacing-0">
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableHeaderCellRender
+                        key={header.id}
+                        header={header}
+                      />
+                    ))}
+                  </tr>
+                ))}
+              </TableHeader>
+              <tbody className="data-[row]:*:h-9">
+                {table.getRowModel().rows.map((row, index) => {
+                  return (
+                    <TableRow
+                      key={row.id}
+                      row={row}
+                      rootRef={rootRef}
+                      index={index + 1}
+                    >
+                      <MediaDetails
+                        id={row.original.id}
+                        media_type={row.original.media_type}
+                      />
+                    </TableRow>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-slate-800">
+            <TablePagination
+              items={items}
+              table={table}
+            />
+            <div className="flex grow items-center justify-end">
+              <div className="flex items-center text-xs">
+                <TablePaginationSizeSelect
+                  table={table}
+                  sizes={PAGE_SIZES}
+                  value={tableState.pagination.pageSize}
+                />
+                <div className="whitespace-nowrap px-1">{`/${t('page')}`}</div>
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">
+            <div className="flex h-7 items-center text-xs tabular-nums">
               <span>
-                {` items`}
+                <NumberFlow
+                  value={rowsFiltered.length}
+                  locales="en-US"
+                  animated
+                  isolate
+                />
+                <span>
+                  {` items`}
+                </span>
               </span>
-            </span>
+            </div>
           </div>
         </div>
       </div>
