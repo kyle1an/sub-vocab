@@ -1,17 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useAbortableEffect } from 'foxact/use-abortable-effect'
+import { useState } from 'react'
 
 export function usePageVisibility() {
   const [isVisible, setIsVisible] = useState(() => document.visibilityState === 'visible')
 
-  useEffect(() => {
-    function handleVisibilityChange() {
+  useAbortableEffect((signal) => {
+    // eslint-disable-next-line react-web-api/no-leaked-event-listener
+    document.addEventListener('visibilitychange', () => {
       setIsVisible(document.visibilityState === 'visible')
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-    }
+    }, { signal })
   }, [])
 
   return isVisible

@@ -46,6 +46,7 @@ export function TableHeader({
 }
 
 export function TableHeaderCellRender<T>({ header }: { header: GroupHeader<T> }) {
+  // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
   return (
     header.isPlaceholder ? (
@@ -174,7 +175,6 @@ export function TableRow<T>({
   const rowRef = useRef<HTMLTableRowElement>(null!)
   const { height: rowHeight } = useRect(rowRef)
   const detailRef = useRef<HTMLTableRowElement>(null)
-  // eslint-disable-next-line react-compiler/react-compiler
   const detailElement = detailRef.current
   const root = rootRef?.current ?? null
   const [open, setOpen] = useState(getIsExpanded)
@@ -260,7 +260,6 @@ export function TableRow<T>({
         data-state={state}
         data-boundary={(isDetailAboveRoot ? open : isDetailVisibleIntersecting) && !animationOpen ? '' : undefined}
       >
-        {/* eslint-disable-next-line react-compiler/react-compiler */}
         {visibleCells.map((cell) => (
           <Fragment key={cell.id}>
             {flexRender(
@@ -277,7 +276,6 @@ export function TableRow<T>({
       {detailElement || open || animationOpen ? (
         <tr
           ref={mergeRefs(
-            // eslint-disable-next-line react-compiler/react-compiler
             detailRef,
             detailRef2,
             detailRef3,

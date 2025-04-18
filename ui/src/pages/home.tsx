@@ -1,53 +1,9 @@
-import { atom, useSetAtom } from 'jotai'
-import { useTranslation } from 'react-i18next'
-import { Link, Outlet } from 'react-router'
-
-import { FileInput } from '@/components/file-input'
-import { Button } from '@/components/ui/button'
-import { sourceTextAtom } from '@/store/useVocab'
-
-import { FileSettings } from './file-settings'
-
-const fileInfoAtom = atom('')
+import { Outlet } from 'react-router'
 
 export default function Home() {
-  const { t } = useTranslation()
-  const setFileInfo = useSetAtom(fileInfoAtom)
-  const setSourceText = useSetAtom(sourceTextAtom)
-
-  function handleFileChange({ name, value }: { name: string, value: string }) {
-    setFileInfo(name)
-    setSourceText((v) => ({
-      text: value,
-      version: v.version++,
-    }))
-  }
-
   return (
-    <main className="m-auto h-[calc(100svh-4px*11)] w-full max-w-screen-xl px-5 pb-7">
-      <div className="relative flex h-14 items-center gap-2">
-        <FileInput
-          onFileSelect={handleFileChange}
-          className="*:*:text-xs data-[slot=button]:*:*:h-8 data-[slot=button]:*:*:px-3"
-        >
-          {t('browseFiles')}
-        </FileInput>
-        <FileSettings />
-        <Button
-          variant="outline"
-          className="whitespace-nowrap p-0 shadow-none sq:drop-shadow-none"
-          size="sm"
-        >
-          <Link
-            to="/subtitles"
-            className="flex size-full items-center px-3"
-          >
-            Subtitles
-          </Link>
-        </Button>
-        <div className="grow" />
-      </div>
+    <div className="m-auto h-[calc(100svh-4px*14)] w-full max-w-screen-xl px-5 pb-7">
       <Outlet />
-    </main>
+    </div>
   )
 }

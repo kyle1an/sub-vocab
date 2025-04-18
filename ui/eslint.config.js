@@ -21,7 +21,7 @@ export default antfu(
         'error',
         {
           type: 'natural',
-          internalPattern: ['^@/.+'],
+          internalPattern: ['^@/.+', '^@ui/.+', '^@backend/.+'],
         },
       ],
     },
@@ -42,6 +42,7 @@ export default antfu(
         },
       ],
       'style/jsx-closing-tag-location': 'off',
+      'style/jsx-one-expression-per-line': ['warn', { allow: 'single-line' }],
     },
   },
   {
@@ -51,9 +52,15 @@ export default antfu(
       'react-hooks/exhaustive-deps': [
         'warn',
         {
-          additionalHooks: 'useIsomorphicLayoutEffect',
+          additionalHooks: '(useIsomorphicLayoutEffect|useAbortableEffect)',
         },
       ],
+    },
+  },
+  {
+    files: ['src/components/ui/**/*.{js,ts,jsx,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
     },
   },
   compat.config({

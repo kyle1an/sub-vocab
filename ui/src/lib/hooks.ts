@@ -58,6 +58,5 @@ export function useLastTruthy<T>(value: T) {
   if (value)
     return value
 
-  // eslint-disable-next-line react-compiler/react-compiler
   return lastTruthy.current
 }

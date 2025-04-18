@@ -1,5 +1,3 @@
-import type { ZodObj } from '@ui/src/types/utils'
-
 import { zodResolver } from '@hookform/resolvers/zod'
 import clsx from 'clsx'
 import { useAtom } from 'jotai'
@@ -7,6 +5,8 @@ import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import IconLucideLoader2 from '~icons/lucide/loader2'
+
+import type { ZodObj } from '@ui/src/types/utils'
 
 import { useUpdateEmail, useUpdateUser } from '@/api/user'
 import { Button } from '@/components/ui/button'

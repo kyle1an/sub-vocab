@@ -1,8 +1,7 @@
 {
-  "version": 2,
   "builds": [
     {
-      "src": "/app.ts",
+      "src": "api/app.js",
       "use": "@vercel/node"
     },
     {
@@ -13,7 +12,7 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/app.ts"
+      "destination": "api/app.js"
     },
     {
       "source": "/(.+\\.[a-z]+)$",

@@ -39,7 +39,7 @@ function SelectTrigger({
       className={cn(
         'flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-muted-foreground',
         '[--sq-r:.75rem] sq:rounded-[--sq-r] sq:shadow-none sq:[corner-shape:squircle]',
-        'relative [--offset:2px] focus:after:sq:rounded-[calc(var(--sq-r)+var(--offset)-0.3px)] sq:focus:after:sq:border focus:after:sq:border-[--ring] sq:focus:ring-0 sq:focus:after:absolute sq:focus:after:-left-[--offset] sq:focus:after:-top-[--offset] sq:focus:after:size-[calc(100%+2*var(--offset))] focus:after:sq:[corner-shape:squircle]',
+        'relative [--offset:2px] sq:focus:ring-0 sq:focus:after:absolute sq:focus:after:-left-[--offset] sq:focus:after:-top-[--offset] sq:focus:after:size-[calc(100%+2*var(--offset))] focus:after:sq:rounded-[calc(var(--sq-r)+var(--offset)-0.3px)] sq:focus:after:sq:border focus:after:sq:border-[--ring] focus:after:sq:[corner-shape:squircle]',
         'tracking-wide',
         className,
       )}
@@ -70,7 +70,7 @@ function SelectContent({
           'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
           position === 'popper'
           && 'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
-          'sq:rounded-[--sq-r] [--sq-r:1rem] sq:relative sq:shadow-none sq:drop-shadow-md sq:[corner-shape:squircle]',
+          '[--sq-r:1rem] sq:relative sq:rounded-[--sq-r] sq:shadow-none sq:drop-shadow-md sq:[corner-shape:squircle]',
           className,
         )}
         position={position}
@@ -116,7 +116,7 @@ function SelectItem({
       className={cn(
         'relative flex h-6 w-full cursor-default select-none items-center rounded-sm px-6 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
         'data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[highlighted]:outline-none',
-        'sq:rounded-[--sq-r] [--sq-r:.5rem] sq:[corner-shape:squircle]',
+        '[--sq-r:.5rem] sq:rounded-[--sq-r] sq:[corner-shape:squircle]',
         'tracking-wide',
         className,
       )}

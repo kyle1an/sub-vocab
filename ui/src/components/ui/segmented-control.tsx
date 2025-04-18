@@ -52,7 +52,7 @@ interface SegmentedControlProps<T extends string> extends
 export function SegmentedControl<T extends string>({
   value,
   segments,
-  onValueChange,
+  onValueChange: setValue,
   variant,
   size,
   className,
@@ -66,7 +66,7 @@ export function SegmentedControl<T extends string>({
       const previousPill = pillRefs.current[value]
       const domRect = previousPill?.getBoundingClientRect()
       activatePill(pillRef, domRect)
-      onValueChange(newValue)
+      setValue(newValue)
     }
   }
 

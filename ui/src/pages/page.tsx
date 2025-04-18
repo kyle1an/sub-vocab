@@ -8,12 +8,13 @@ import { atom, useAtom, useSetAtom } from 'jotai'
 import { useDeferredValue, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import type { LabelDisplaySource } from '@/lib/vocab'
+import type { LabelDisplaySource, LabelSourceData } from '@/lib/vocab'
 
 import {
   baseVocabAtom,
   useIrregularMapsQuery,
 } from '@/api/vocab-api'
+import { FileInput } from '@/components/file-input'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { TextareaInput } from '@/components/ui/textarea-input'
 import { VocabSourceTable } from '@/components/VocabSource'
@@ -23,12 +24,32 @@ import {
   formVocab,
 } from '@/lib/vocab'
 import { statusRetainedList } from '@/lib/vocab-utils'
+import { FileSettings } from '@/pages/file-settings'
 import { fileTypesAtom, isSourceTextStaleAtom, sourceTextAtom } from '@/store/useVocab'
 
 const fileInfoAtom = atom('')
 const textCountAtom = atom(0)
 const acquaintedWordCountAtom = atom(0)
 const newWordCountAtom = atom(0)
+
+function getCount(list: LabelSourceData[]) {
+  let acquaintedCount = 0
+  let newCount = 0
+  let rest = 0
+  for (const item of list) {
+    if (item.vocab.learningPhase === LEARNING_PHASE.ACQUAINTED)
+      acquaintedCount += item.locations.length
+    else if (item.vocab.learningPhase === LEARNING_PHASE.NEW)
+      newCount += item.locations.length
+    else
+      rest += item.locations.length
+  }
+  return {
+    acquaintedCount,
+    newCount,
+    total: acquaintedCount + newCount + rest,
+  }
+}
 
 function SourceVocab({
   text: { text: sourceText },
@@ -54,20 +75,10 @@ function SourceVocab({
       .sort((a, b) => (a.locations[0]?.wordOrder ?? 0) - (b.locations[0]?.wordOrder ?? 0))
     setRows((r) => statusRetainedList(r, list))
     setSentences(trie.sentences)
-    let acquaintedCount = 0
-    let newCount = 0
-    let rest = 0
-    for (const item of list) {
-      if (item.vocab.learningPhase === LEARNING_PHASE.ACQUAINTED)
-        acquaintedCount += item.locations.length
-      else if (item.vocab.learningPhase === LEARNING_PHASE.NEW)
-        newCount += item.locations.length
-      else
-        rest += item.locations.length
-    }
+    const { acquaintedCount, newCount, total } = getCount(list)
     setAcquaintedCount(acquaintedCount)
     setNewCount(newCount)
-    setCount(acquaintedCount + newCount + rest)
+    setCount(total)
   }, [sourceText, baseVocab, irregulars, setCount, setAcquaintedCount, setNewCount])
 
   function handlePurge() {
@@ -121,7 +132,7 @@ export default function ResizeVocabularyPanel() {
   const [newWordCount] = useAtom(newWordCountAtom)
   const [horizontalDefaultSizes, setHorizontalDefaultSizes] = useAtom(horizontalDefaultSizesAtom)
   const [verticalDefaultSizes, setVerticalDefaultSizes] = useAtom(verticalDefaultSizesAtom)
-  const isMdScreen = useMediaQuery('(min-width: 768px)')
+  const isMdScreen = useMediaQuery('(min-width: 1024px)')
   const direction = isMdScreen ? 'horizontal' : 'vertical'
   const defaultSizes = direction === 'vertical' ? verticalDefaultSizes : horizontalDefaultSizes
   const panelGroupRef = useRef<ImperativePanelGroupHandle>(null)
@@ -131,7 +142,7 @@ export default function ResizeVocabularyPanel() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [direction])
 
-  function onLayout(sizes: number[]) {
+  function handleLayoutChange(sizes: number[]) {
     if (direction === 'vertical')
       setVerticalDefaultSizes(sizes)
     else
@@ -140,17 +151,37 @@ export default function ResizeVocabularyPanel() {
 
   const [fileTypes] = useAtom(fileTypesAtom)
 
+  function handleFileChange({ name, value }: { name: string, value: string }) {
+    setFileInfo(name)
+    setSourceText((v) => ({
+      text: value,
+      version: v.version++,
+    }))
+  }
+
   return (
     (
-      <div className="flex h-[calc(100%-4px*14)] items-center justify-center overflow-hidden rounded-xl border drop-shadow-sm sq:rounded-3xl sq:[corner-shape:squircle]">
-        <>
+      <div className="flex h-full flex-col">
+        <div className="pb-3">
+          <div className="flex items-center gap-2">
+            <FileInput
+              onFileSelect={handleFileChange}
+              className="*:*:text-xs data-[slot=button]:*:*:h-8 data-[slot=button]:*:*:px-3"
+            >
+              {t('browseFiles')}
+            </FileInput>
+            <FileSettings />
+            <div className="grow" />
+          </div>
+        </div>
+        <div className="flex grow items-center justify-center overflow-hidden rounded-xl border drop-shadow-sm sq:rounded-3xl sq:[corner-shape:squircle]">
           <ResizablePanelGroup
             ref={panelGroupRef}
             direction={direction}
             className={clsx(
               'iOS:[body:has(&)]:overflow-hidden', // prevent overscroll
             )}
-            onLayout={onLayout}
+            onLayout={handleLayoutChange}
           >
             <ResizablePanel defaultSize={defaultSizes[0]}>
               <div className="flex h-full items-center justify-center">
@@ -189,7 +220,7 @@ export default function ResizeVocabularyPanel() {
               />
             </ResizablePanel>
           </ResizablePanelGroup>
-        </>
+        </div>
       </div>
     )
   )

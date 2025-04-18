@@ -1,6 +1,8 @@
 import antfu from '@antfu/eslint-config'
 import stylistic from '@stylistic/eslint-plugin'
+import command from 'eslint-plugin-command/config'
 import deMorgan from 'eslint-plugin-de-morgan'
+import eslintPluginJsonc from 'eslint-plugin-jsonc'
 import packageJson from 'eslint-plugin-package-json'
 
 export default antfu(
@@ -23,8 +25,10 @@ export default antfu(
       'unused-imports/no-unused-vars': 'off',
       'prefer-arrow-callback': 'off',
       curly: ['error', 'multi-or-nest', 'consistent'],
+      'jsonc/indent': ['warn', 2],
     },
   },
+  ...eslintPluginJsonc.configs['flat/recommended-with-jsonc'],
   packageJson.configs.recommended,
   {
     rules: {
@@ -41,6 +45,7 @@ export default antfu(
       */
     },
   },
+  command(),
   {
     name: 'root/perfectionist',
     rules: {

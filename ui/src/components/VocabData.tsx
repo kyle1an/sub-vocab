@@ -269,14 +269,11 @@ export function VocabDataTable({
           <DropdownMenuGroup>
             <DropdownMenuItem
               disabled={isLoadingUserVocab}
-              className="justify-between gap-1.5"
+              className="gap-3"
               onClick={(e) => {
                 requestAnimationFrame(() => refetch())
               }}
             >
-              <div>
-                Refresh
-              </div>
               <IconLucideLoader2
                 className={clsx(
                   'size-3.5 animate-spin',
@@ -285,23 +282,26 @@ export function VocabDataTable({
               />
               <IconIonRefresh
                 className={clsx(
-                  'size-4',
+                  'size-3.5',
                   isLoadingUserVocab ? 'hidden' : '',
                 )}
               />
+              <div>
+                Refresh
+              </div>
             </DropdownMenuItem>
             <DropdownMenuItem
               disabled
               className={clsx(
-                'gap-1.5',
+                'gap-3',
               )}
             >
+              <div
+                className="size-3.5"
+              />
               <div>
                 {getFallBack(vocabRealtimeSubscribeState ?? '', statusLabels)}
               </div>
-              <div
-                className="size-[1em]"
-              />
             </DropdownMenuItem>
             <DropdownMenuItem
               onSelect={(e) => e.preventDefault()}

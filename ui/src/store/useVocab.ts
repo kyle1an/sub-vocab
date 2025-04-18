@@ -1,5 +1,4 @@
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
-import type { Database } from '@ui/database.types'
 import type { ArrayValues, PartialDeep } from 'type-fest'
 
 import { useIsomorphicLayoutEffect } from '@react-hookz/web'
@@ -16,6 +15,7 @@ import type { SubtitleData } from '@/components/subtitle/columns'
 import type { THEMES } from '@/components/themes'
 import type { ArrayConcat } from '@/lib/utilities'
 import type { RowSelectionChangeFn } from '@/types/utils'
+import type { Database } from '@ui/database.types'
 
 import { DEFAULT_THEME } from '@/components/themes'
 import { THEME_KEY } from '@/constants/keys'
