@@ -1,12 +1,12 @@
-import type { ZodObj } from '@ui/src/types/utils'
-
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { APICallError, generateObject } from 'ai'
 import { Result, ResultAsync } from 'neverthrow'
 import { z } from 'zod'
 
-import { env } from '../../env.js'
-import { publicProcedure, router } from './trpc.js'
+import type { ZodObj } from '@ui/src/types/utils'
+
+import { env } from '@backend/env.ts'
+import { publicProcedure, router } from '@backend/src/routes/trpc'
 
 const openrouter = createOpenRouter({
   apiKey: env.OPENROUTER_API_KEY,
@@ -35,6 +35,7 @@ export const aiRouter = router({
       const { prompt } = opts.input
       const result = await ResultAsync.fromPromise(generateObject({
         model: openrouter.languageModel('google/gemini-2.0-flash-exp:free'),
+        temperature: 0,
         schema: z.object({
           properName: z.array(z.string()),
           acronym: z.array(z.string()),

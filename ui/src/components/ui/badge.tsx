@@ -14,7 +14,7 @@ const badgeVariants = cva(
           'hover:bg-primary/80 border-transparent bg-primary text-primary-foreground shadow',
         secondary: cn(
           'hover:bg-secondary/80 border-transparent bg-secondary text-secondary-foreground',
-          'sq:rounded-[--sq-r] sq:relative sq:[corner-shape:squircle]',
+          'sq:relative sq:rounded-[--sq-r] sq:[corner-shape:squircle]',
         ),
         destructive:
           'hover:bg-destructive/80 border-transparent bg-destructive text-destructive-foreground shadow',
@@ -37,5 +37,4 @@ function Badge({ className, variant, ...props }: BadgeProps) {
   )
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export { Badge, badgeVariants }

@@ -1,8 +1,9 @@
-import type { AppRouter } from '@backend/app'
 import type { SignInWithPasswordCredentials, SignUpWithPasswordCredentials, UserAttributes } from '@supabase/supabase-js'
 import type { TRPCClient } from '@trpc/client'
 
 import { useMutation } from '@tanstack/react-query'
+
+import type { AppRouter } from '@backend/app'
 
 import { useTRPC } from '@/api/trpc'
 import { supabase } from '@/store/useVocab'

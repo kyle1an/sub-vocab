@@ -12,7 +12,7 @@ function Toaster({ ...props }: ToasterProps) {
         classNames: {
           toast: cn(
             'toast group group-[.toaster]:border-border group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:shadow-lg',
-            'sq:[--border-radius:--sq-r] [--sq-r:1.25rem] sq:[corner-shape:squircle] sq:group-[.toaster]:shadow-none sq:group-[.toaster]:drop-shadow-lg',
+            '[--sq-r:1.25rem] sq:[--border-radius:--sq-r] sq:[corner-shape:squircle] sq:group-[.toaster]:shadow-none sq:group-[.toaster]:drop-shadow-lg',
           ),
           content: 'w-full',
           description: 'group-[.toast]:text-muted-foreground',

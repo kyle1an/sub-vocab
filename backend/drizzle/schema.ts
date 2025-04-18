@@ -190,7 +190,7 @@ export const usersInAuth = auth.table("users", {
 	uniqueIndex("reauthentication_token_idx").using("btree", table.reauthenticationToken.asc().nullsLast().op("text_ops")).where(sql`((reauthentication_token)::text !~ '^[0-9 ]*$'::text)`),
 	uniqueIndex("recovery_token_idx").using("btree", table.recoveryToken.asc().nullsLast().op("text_ops")).where(sql`((recovery_token)::text !~ '^[0-9 ]*$'::text)`),
 	uniqueIndex("users_email_partial_key").using("btree", table.email.asc().nullsLast().op("text_ops")).where(sql`(is_sso_user = false)`),
-	index("users_instance_id_email_idx").using("btree", sql`instance_id`, sql`null`),
+	index("users_instance_id_email_idx").using("btree", sql`instance_id`, sql`lower((email)::text)`),
 	index("users_instance_id_idx").using("btree", table.instanceId.asc().nullsLast().op("uuid_ops")),
 	index("users_is_anonymous_idx").using("btree", table.isAnonymous.asc().nullsLast().op("bool_ops")),
 	unique("users_phone_key").on(table.phone),

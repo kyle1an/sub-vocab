@@ -14,7 +14,7 @@ export default antfu(
         'error',
         {
           type: 'natural',
-          internalPattern: ['^@/.+'],
+          internalPattern: ['^@/.+', '^@ui/.+', '^@backend/.+'],
         },
       ],
     },
@@ -35,6 +35,12 @@ export default antfu(
       }],
       'no-multi-assign': ['error', { ignoreNonDeclaration: true }],
       'prefer-template': 'off',
+    },
+  },
+  {
+    files: ['app.ts'],
+    rules: {
+      'antfu/no-top-level-await': ['off'],
     },
   },
   {

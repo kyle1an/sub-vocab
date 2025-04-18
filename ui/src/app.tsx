@@ -1,7 +1,5 @@
 import './main.css'
 
-import type { AppRouter } from '@backend/app'
-
 import { CssVarsProvider } from '@mui/joy/styles'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
@@ -11,6 +9,8 @@ import { useHydrateAtoms } from 'jotai/utils'
 import { useState } from 'react'
 import { I18nextProvider } from 'react-i18next'
 import { RouterProvider } from 'react-router/dom'
+
+import type { AppRouter } from '@backend/app'
 
 import { TRPCProvider } from '@/api/trpc'
 import { env } from '@/env'

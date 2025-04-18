@@ -1,4 +1,10 @@
+.internal-jotai-devtools-atom-viewer-wrapper > *,
+#jotai-devtools-panel-resize-handle + [data-panel],
 .tsqd-query-details-container,
 .tsqd-queries-overflow-container {
   overscroll-behavior: contain;
+}
+
+:is(.jotai-devtools-trigger-button, .tsqd-open-btn-container):not(:hover) {
+  opacity: 0.4;
 }

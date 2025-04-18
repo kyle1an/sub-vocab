@@ -5,7 +5,7 @@ import type { TextContent } from 'pdfjs-dist/types/src/display/api'
 
 import { fileTypeFromBuffer } from 'file-type'
 import { getDocument } from 'pdfjs-dist'
-import 'pdfjs-dist/build/pdf.worker.mjs'
+import 'pdfjs-dist/build/pdf.worker.min.mjs'
 
 interface FileContent {
   text: string

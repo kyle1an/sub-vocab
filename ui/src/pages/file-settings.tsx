@@ -20,11 +20,11 @@ import { fileTypesAtom, isDrawerOpenAtom } from '@/store/useVocab'
 function FileSettingsContent({
   className,
   fileTypes,
-  onFileTypesChange,
+  onFileTypeChange: setFileType,
 }: {
   className?: string
   fileTypes: FileType[]
-  onFileTypesChange: (fileTypes: FileType, checkedState: CheckedState) => void
+  onFileTypeChange: (fileTypes: FileType, checkedState: CheckedState) => void
 }) {
   return (
     <div className={className}>
@@ -42,7 +42,7 @@ function FileSettingsContent({
                 aria-label="Regular expression"
                 className="size-fit min-w-[35px] px-1.5 py-1 text-muted-foreground"
                 onPressedChange={(pressed) => {
-                  onFileTypesChange(fileType, pressed)
+                  setFileType(fileType, pressed)
                 }}
               >
                 {fileType.type}
@@ -74,7 +74,7 @@ export function FileSettings() {
     setFileTypesInterim(fileTypes)
   }, [fileTypes, setFileTypesInterim])
 
-  function handleFileTypesChange({ type }: FileType, checkedState: CheckedState) {
+  function handleFileTypeChange({ type }: FileType, checkedState: CheckedState) {
     setFileTypesInterim((draft) => {
       const fileType = draft.find((ft) => ft.type === type)
       if (fileType)
@@ -131,7 +131,7 @@ export function FileSettings() {
           <div className="size-full overflow-y-scroll px-0.5 py-3">
             <FileSettingsContent
               fileTypes={fileTypesInterim}
-              onFileTypesChange={handleFileTypesChange}
+              onFileTypeChange={handleFileTypeChange}
             />
           </div>
           <Separator />
@@ -177,7 +177,7 @@ export function FileSettings() {
             </DrawerHeader>
             <FileSettingsContent
               fileTypes={fileTypesInterim}
-              onFileTypesChange={handleFileTypesChange}
+              onFileTypeChange={handleFileTypeChange}
             />
           </div>
         </div>

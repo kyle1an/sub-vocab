@@ -3,11 +3,10 @@
   "type": "module",
   "version": "0.3.0",
   "private": true,
-  "packageManager": "pnpm@10.8.0",
+  "packageManager": "pnpm@10.9.0",
   "scripts": {
     "backend": "pnpm --filter @sub-vocab/backend",
-    "bump": "ncu --deep -u && taze -r && pnpm lint:pkg",
-    "bump-apply": "pnpm i && pnpm up && npx nolyfill",
+    "bump": "taze major -r && pnpm lint:pkg && pnpm i && pnpm up && npx nolyfill",
     "introspect": "pnpm --recursive run introspect",
     "lint:fix": "pnpm --recursive run lint:fix",
     "lint:pkg": "eslint --fix package.json **/package.json",
@@ -17,28 +16,33 @@
     "@supabase/supabase-js": "^2.49.4",
     "date-fns": "^4.1.0",
     "neverthrow": "^8.2.0",
-    "type-fest": "^4.39.1",
-    "zod": "3.24.2"
+    "type-fest": "^4.40.0",
+    "zod": "^3.24.3"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.12.0",
     "@eslint/eslintrc": "^3.3.1",
-    "@stylistic/eslint-plugin": "4.2.0",
-    "@t3-oss/env-core": "0.12.0",
+    "@stylistic/eslint-plugin": "^4.2.0",
+    "@t3-oss/env-core": "^0.13.0",
     "@total-typescript/ts-reset": "^0.6.1",
-    "@types/node": "^22.14.1",
-    "eslint": "^9.24.0",
+    "@types/node": "^22.15.2",
+    "eslint": "^9.25.1",
+    "eslint-plugin-command": "^3.2.0",
     "eslint-plugin-de-morgan": "^1.2.1",
-    "eslint-plugin-package-json": "^0.29.1",
+    "eslint-plugin-jsonc": "^2.20.0",
+    "eslint-plugin-package-json": "^0.30.0",
     "jsonc-eslint-parser": "^2.4.0",
     "openapi-typescript": "^7.6.1",
     "pathe": "^2.0.3",
     "prettier": "^3.5.3",
     "taze": "^19.0.4",
-    "typescript": "5.8.3"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   },
   "pnpm": {
     "overrides": {
+      "@vercel/node>ts-node": "$ts-node",
+      "@vercel/node>typescript": "$typescript",
       "array-flatten": "npm:@nolyfill/array-flatten@^1.0.44",
       "es-set-tostringtag": "npm:@nolyfill/es-set-tostringtag@^1.0.44",
       "hasown": "npm:@nolyfill/hasown@^1.0.44",
@@ -48,12 +52,11 @@
       "side-channel": "npm:@nolyfill/side-channel@^1.0.44",
       "whatwg-url": "^14.2.0"
     },
-    "patchedDependencies": {
-      "http-proxy@1.18.1": "patches/http-proxy@1.18.1.patch"
-    },
     "onlyBuiltDependencies": [
+      "@vercel/speed-insights",
       "esbuild",
-      "supabase"
+      "supabase",
+      "unrs-resolver"
     ]
   },
   "resolutions": {

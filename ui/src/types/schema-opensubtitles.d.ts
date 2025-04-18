@@ -325,6 +325,171 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/ai/translation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * AI Translation
+         * @description Available translation APIs and Languages
+         */
+        get: operations["translation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ai/transcription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * AI Transcription
+         * @description Available transcription APIs and languages
+         */
+        get: operations["transcription"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ai/translate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * AI Translate
+         * @description **Translate** subtitles using AI from one language to another language.
+         *     Credits on user account are needed, they can be bought using https://ai.opensubtitles.com
+         *
+         *     Method is returning
+         *     ```
+         *     {
+         *       "status": "CREATED",
+         *       "correlation_id": "67eda18f52e11"
+         *     }
+         *     ```
+         *     Status possible values:
+         *     ```
+         *     CREATED     -> Initial state`
+         *     PENDING     -> procedure is still running
+         *     COMPLETED   -> remote procedure call is completed and has a result
+         *     ERROR       -> procedure resulted in an error and is not running anymore
+         *     TIMEOUT     -> No matching procedure call found before timeout
+         *     ```
+         *     Using `correlation_id` can check status of job using GET
+         *
+         */
+        post: operations["translate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ai/transcribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * AI Transcribe
+         * @description **Transcribe** media (audio, video) file using AI into subtitles. Max size of file: 100 MB
+         *
+         *     Credits on user account are needed, they can be bought using https://ai.opensubtitles.com
+         *
+         *     Method is returning
+         *     ```
+         *     {
+         *       "status": "CREATED",
+         *       "correlation_id": "67eda18f52e11"
+         *     }
+         *     ```
+         *     Status possible values:
+         *     ```
+         *     CREATED     -> Initial state`
+         *     PENDING     -> procedure is still running
+         *     COMPLETED   -> remote procedure call is completed and has a result
+         *     ERROR       -> procedure resulted in an error and is not running anymore
+         *     TIMEOUT     -> No matching procedure call found before timeout
+         *     ```
+         *     Using `correlation_id` can check status of job using GET
+         *
+         */
+        post: operations["transcribe"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ai/translate/{correlation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description correlation_id */
+                correlation_id: string;
+            };
+            cookie?: never;
+        };
+        /**
+         * AI Translate status
+         * @description Get status of **translate** job using `correlation_id`
+         */
+        get: operations["translate-status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ai/transribe/{correlation_id}_copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description correlation_id */
+                correlation_id: string;
+            };
+            cookie?: never;
+        };
+        /**
+         * AI Transcribe status
+         * @description Get status of **transcribe** job using `correlation_id`
+         */
+        get: operations["transcribe-status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -664,7 +829,6 @@ export interface operations {
                             output_formats: unknown[];
                         };
                     };
-                    example: unknown;
                 };
             };
         };
@@ -693,7 +857,6 @@ export interface operations {
                             language_name: string;
                         }[];
                     };
-                    example: unknown;
                 };
             };
         };
@@ -837,7 +1000,6 @@ export interface operations {
                             };
                         }[];
                     };
-                    example: unknown;
                 };
             };
         };
@@ -871,7 +1033,6 @@ export interface operations {
                         page: number;
                         data: components["schemas"]["Subtitle"][];
                     };
-                    example: unknown;
                 };
             };
         };
@@ -916,7 +1077,6 @@ export interface operations {
                         episode?: components["schemas"]["Feature-Episode"];
                         tv?: components["schemas"]["Feature-Tvshow"];
                     };
-                    example: unknown;
                 };
             };
         };
@@ -1081,6 +1241,176 @@ export interface operations {
                         type: string;
                     };
                 };
+            };
+        };
+    };
+    translation: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description <<{{APP_NAME}} v{{APP_VERSION}}>> */
+                "User-Agent"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: {
+                            name?: string;
+                            display_name?: string;
+                            description?: string;
+                            pricing?: string;
+                            reliability?: string;
+                            price?: number;
+                            languages_supported?: {
+                                language_code?: string;
+                                language_name?: string;
+                            }[];
+                        }[];
+                    };
+                };
+            };
+        };
+    };
+    transcription: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description <<{{APP_NAME}} v{{APP_VERSION}}>> */
+                "User-Agent"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: {
+                            name?: string;
+                            display_name?: string;
+                            description?: string;
+                            pricing?: string;
+                            reliability?: string;
+                            price?: number;
+                            languages_supported?: {
+                                language_code?: string;
+                                language_name?: string;
+                            }[];
+                        }[];
+                    };
+                };
+            };
+        };
+    };
+    translate: {
+        parameters: {
+            query: {
+                /** @description translation_apis */
+                api: string;
+                /** @description file contents to translate */
+                file: string;
+                /** @description language ISO639 translate_from (auto is default) */
+                translate_from?: string;
+                /** @description language ISO639 translate_from */
+                translate_to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "multipart/form-data": Record<string, never>;
+                };
+            };
+        };
+    };
+    transcribe: {
+        parameters: {
+            query: {
+                /** @description transcribe API */
+                api: string;
+                /** @description media file */
+                file: string;
+                /** @description language of media file */
+                language: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "multipart/form-data": Record<string, never>;
+                };
+            };
+        };
+    };
+    "translate-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description correlation_id */
+                correlation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "transcribe-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description correlation_id */
+                correlation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

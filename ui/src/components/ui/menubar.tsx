@@ -130,7 +130,7 @@ function MenubarContent({
         className={cn(
           'z-50 min-w-48 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
           'origin-[var(--radix-menubar-content-transform-origin)]',
-          'sq:rounded-[--sq-r] [--sq-r:1rem] sq:relative sq:shadow-none sq:drop-shadow-md sq:[corner-shape:squircle]',
+          '[--sq-r:1rem] sq:relative sq:rounded-[--sq-r] sq:shadow-none sq:drop-shadow-md sq:[corner-shape:squircle]',
           className,
         )}
         {...props}
@@ -193,7 +193,7 @@ function MenubarRadioItem({
       data-slot="menubar-radio-item"
       className={cn(
         'relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-        'sq:rounded-[--sq-r] [--sq-r:.5rem] focus:sq:[corner-shape:squircle]',
+        '[--sq-r:.5rem] sq:rounded-[--sq-r] focus:sq:[corner-shape:squircle]',
         className,
       )}
       {...props}

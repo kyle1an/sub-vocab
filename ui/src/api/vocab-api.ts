@@ -1,5 +1,4 @@
 import type { RealtimePostgresInsertPayload, RealtimePostgresUpdatePayload } from '@supabase/supabase-js'
-import type { Tables } from '@ui/database.types'
 import type { ValueOf } from 'type-fest'
 
 import { UTCDateMini } from '@date-fns/utc'
@@ -12,6 +11,7 @@ import { useEffect, useRef } from 'react'
 
 import type { LearningPhase, VocabState } from '@/lib/LabeledTire'
 import type { Supabase } from '@/store/useVocab'
+import type { Tables } from '@ui/database.types'
 
 import { MS_PER_MINUTE } from '@/constants/time'
 import { usePageVisibility } from '@/hooks/utils'

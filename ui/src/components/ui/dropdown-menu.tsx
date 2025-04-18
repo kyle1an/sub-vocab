@@ -71,7 +71,7 @@ function DropdownMenuContent({
           'z-50 min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
           'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
           'origin-[var(--radix-dropdown-menu-content-transform-origin)]',
-          'sq:rounded-[--sq-r] [--sq-r:1rem] sq:relative sq:shadow-none sq:drop-shadow-md sq:[corner-shape:squircle]',
+          '[--sq-r:1rem] sq:relative sq:rounded-[--sq-r] sq:shadow-none sq:drop-shadow-md sq:[corner-shape:squircle]',
           className,
         )}
         {...props}
@@ -91,7 +91,7 @@ function DropdownMenuItem({
     <DropdownMenuPrimitive.Item
       className={cn(
         'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-        'sq:rounded-[--sq-r] [--sq-r:.6rem] sq:[corner-shape:squircle]',
+        '[--sq-r:.6rem] sq:rounded-[--sq-r] sq:[corner-shape:squircle]',
         inset && 'pl-8',
         className,
       )}

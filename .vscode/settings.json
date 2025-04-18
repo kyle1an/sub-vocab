@@ -12,6 +12,7 @@
     "hookz",
     "iconify",
     "immer",
+    "jotai",
     "lucide",
     "neverthrow",
     "nolyfill",
@@ -73,5 +74,6 @@
   // Enable eslint for all supported languages
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "html", "markdown", "json", "jsonc", "yaml", "toml", "astro"],
 
-  "css.customData": [".vscode/tailwind.json"]
+  "css.customData": [".vscode/tailwind.json"],
+  "npm.exclude": ["**/.vercel/**"],
 }

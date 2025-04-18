@@ -1,9 +1,9 @@
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
-import { profiles, usersInAuth } from '../../drizzle/schema.js'
-import { db, supabase } from '../utils/db.js'
-import { publicProcedure, router } from './trpc.js'
+import { profiles, usersInAuth } from '@backend/drizzle/schema.ts'
+import { publicProcedure, router } from '@backend/src/routes/trpc'
+import { db, supabase } from '@backend/src/utils/db.ts'
 
 export const userRouter = router({
   signIn: publicProcedure

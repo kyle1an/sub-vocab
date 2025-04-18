@@ -1,43 +1,23 @@
-import type { ErrorRequestHandler, NextFunction, Request, Response } from 'express'
+import type { FastifyTRPCPluginOptions } from '@trpc/server/adapters/fastify'
 
-import * as trpcExpress from '@trpc/server/adapters/express'
-import cookieParser from 'cookie-parser'
-import cors from 'cors'
-import Debug from 'debug'
-import express from 'express'
-import createError from 'http-errors'
-import { createProxyMiddleware } from 'http-proxy-middleware'
-import logger from 'morgan'
-import { createServer } from 'node:http'
-import process from 'node:process'
-import { fileURLToPath } from 'node:url'
-import { dirname, join } from 'pathe'
+import cors from '@fastify/cors'
+import { fastifyHttpProxy } from '@fastify/http-proxy'
+import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify'
+import Fastify from 'fastify'
 
-import { env } from './env.js'
-import { aiRouter } from './src/routes/ai.js'
-import { userRouter } from './src/routes/auth.js'
-import routes from './src/routes/index.js'
-import { router } from './src/routes/trpc.js'
+import { createContext } from '@backend/context'
+import { env } from '@backend/env'
+import { aiRouter } from '@backend/src/routes/ai'
+import { userRouter } from '@backend/src/routes/auth'
+import { router } from '@backend/src/routes/trpc'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+const app = Fastify()
 
-function createContext({
-  req,
-  res,
-}: trpcExpress.CreateExpressContextOptions) {
-  return {}
-}
-
-type Context = Awaited<ReturnType<typeof createContext>>
-
-const app = express()
-
-app.use(cors({
+await app.register(cors, {
   origin: true,
   credentials: true,
   exposedHeaders: ['set-cookie'],
-}))
+})
 
 const appRouter = router({
   user: userRouter,
@@ -46,117 +26,56 @@ const appRouter = router({
 
 export type AppRouter = typeof appRouter
 
-app.use(
-  '/trpc',
-  trpcExpress.createExpressMiddleware({
+app.register(fastifyTRPCPlugin, {
+  prefix: '/trpc',
+  trpcOptions: {
     router: appRouter,
     createContext,
-  }),
-)
+    onError({ path, error }) {
+      console.error(`Error in tRPC handler on path '${path}':`, error)
+    },
+  } satisfies FastifyTRPCPluginOptions<AppRouter>['trpcOptions'],
+})
 
 ;[
   {
     path: '/def',
-    target: 'https://api.opensubtitles.com/api/v1',
+    target: new URL('https://api.opensubtitles.com/api/v1'),
   },
   {
     path: '/vip',
-    target: 'https://vip-api.opensubtitles.com/api/v1',
+    target: new URL('https://vip-api.opensubtitles.com/api/v1'),
   },
-].forEach(({ path, target }) => app.use(
-  `/opensubtitles-proxy${path}`,
-  (req, res, next) => {
-    req.headers['user-agent'] = env.APP_NAME__V_APP_VERSION
-    req.headers['api-key'] = env.OPENSUBTITLES_API_KEY
-    const url = new URL(target)
-    req.headers['x-forwarded-host'] = url.host
-    next()
+].forEach(({ path, target }) => app.register(fastifyHttpProxy, {
+  upstream: target.href,
+  prefix: `/opensubtitles-proxy${path}`,
+  replyOptions: {
+    rewriteRequestHeaders: (request, headers) => ({
+      ...headers,
+      'user-agent': env.APP_NAME__V_APP_VERSION,
+      'api-key': env.OPENSUBTITLES_API_KEY,
+      'x-forwarded-host': target.host,
+    }),
   },
-  createProxyMiddleware<Request, Response>({
-    target,
-    changeOrigin: true,
-    followRedirects: true,
-  }),
-))
+}))
 
-const tmdbTarget = 'https://api.themoviedb.org'
+const tmdbUrl = new URL('https://api.themoviedb.org')
 
-app.use(
-  '/tmdb-proxy',
-  (req, res, next) => {
-    req.headers.authorization = `Bearer ${env.TMDB_TOKEN}`
-    const url = new URL(tmdbTarget)
-    // https://www.themoviedb.org/talk/673d9f8687917078d0108992
-    req.headers['x-forwarded-host'] = url.host
-    next()
+app.register(fastifyHttpProxy, {
+  upstream: tmdbUrl.href,
+  prefix: '/tmdb-proxy',
+  replyOptions: {
+    rewriteRequestHeaders: (request, headers) => ({
+      ...headers,
+      authorization: `Bearer ${env.TMDB_TOKEN}`,
+      // https://www.themoviedb.org/talk/673d9f8687917078d0108992
+      'x-forwarded-host': tmdbUrl.host,
+    }),
   },
-  createProxyMiddleware<Request, Response>({
-    target: tmdbTarget,
-    changeOrigin: true,
-  }),
-)
-
-app.use(logger('dev'))
-app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
-app.use(cookieParser())
-// let static middleware do its job
-app.use(express.static(join(__dirname, 'public')))
-
-app.use('/', routes)
-app.get(/favicon.*/, (req, res) => {
-  res.status(204).end()
 })
 
-// catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  next(createError(404))
-})
+app.get('/', (request, reply) => reply.send('API is running'))
 
-app.use(function (err: Parameters<ErrorRequestHandler>[0], req: Request, res: Response, next: NextFunction) {
-  // set locals, only providing errors in development
-  res.locals.message = err.message
-  res.locals.error = req.app.get('env') === 'development' ? err : {}
+app.get('/favicon.ico', (request, reply) => reply.code(204).send())
 
-  res.status(err.status || 500)
-  res.send('error')
-})
-
-const PORT = Number(process.env.PORT || '5001')
-
-const server = createServer(app)
-
-server.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`)
-})
-
-server.on('error', (error: NodeJS.ErrnoException) => {
-  if (error.syscall !== 'listen') {
-    throw error
-  }
-
-  const bind = 'Port ' + PORT
-
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges')
-      throw error
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use')
-      throw error
-    default:
-      throw error
-  }
-})
-
-const debug = Debug('subvocab-server:server')
-
-server.on('listening', () => {
-  const addr = server.address()
-  const bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr?.port
-  debug('Listening on ' + bind)
-})
-
-export default app
+export { app as fastify }

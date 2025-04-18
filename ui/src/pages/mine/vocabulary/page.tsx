@@ -37,11 +37,13 @@ export default function VocabularyPage() {
   }
 
   return (
-    <div className="h-full pb-7">
-      <div className="flex h-14">
-        <div className="flex-auto grow" />
+    <div className="flex h-full flex-col">
+      <div className="pb-3">
+        <div className="flex">
+          <div className="h-8 flex-auto grow" />
+        </div>
       </div>
-      <div className="m-auto flex h-[calc(100vh-4px*36)] max-w-full items-center justify-center overflow-hidden rounded-xl border sq:rounded-3xl sq:[corner-shape:squircle] md:h-[calc(100%-4px*14)]">
+      <div className="flex grow items-center justify-center overflow-hidden rounded-xl border sq:rounded-3xl sq:[corner-shape:squircle]">
         <div className="flex size-full">
           <VocabDataTable
             data={rows}
