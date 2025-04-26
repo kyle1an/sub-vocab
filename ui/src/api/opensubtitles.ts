@@ -8,7 +8,7 @@ import createFetchClient from 'openapi-fetch'
 import createClient from 'openapi-react-query'
 import PQueue from 'p-queue'
 
-import type { paths } from '@/types/schema-opensubtitles'
+import type { paths } from '@/types/schema/opensubtitles'
 
 import { env } from '@/env'
 import { omitUndefined } from '@/lib/utilities'

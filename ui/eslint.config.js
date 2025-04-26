@@ -3,12 +3,15 @@ import { FlatCompat } from '@eslint/eslintrc'
 import pluginQuery from '@tanstack/eslint-plugin-query'
 import eslintPluginTailwindCss from 'eslint-plugin-tailwindcss'
 import valtio from 'eslint-plugin-valtio'
+// @ts-check
+/// <reference path="./eslint-typegen.d.ts" />
+import typegen from 'eslint-typegen'
 
 import configs from '../eslint.config.js'
 
 const compat = new FlatCompat()
 
-export default antfu(
+export default typegen(antfu(
   {
     react: true,
     stylistic: false,
@@ -94,7 +97,7 @@ export default antfu(
   {
     ignores: [
       'database.types.ts',
-      '**/types/schema-*.d.ts',
+      '**/types/schema/*.d.ts',
     ],
   },
-)
+))

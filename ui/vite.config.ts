@@ -1,8 +1,6 @@
 import type { UserConfig } from 'vite'
 
 import react from '@vitejs/plugin-react'
-import jotaiDebugLabel from 'jotai/babel/plugin-debug-label'
-import jotaiReactRefresh from 'jotai/babel/plugin-react-refresh'
 import process from 'node:process'
 import { resolve } from 'pathe'
 import { visualizer } from 'rollup-plugin-visualizer'
@@ -32,31 +30,26 @@ export default defineConfig(({ mode }) => {
       react({
         babel: {
           plugins: [
-            jotaiDebugLabel,
-            jotaiReactRefresh,
             ['babel-plugin-react-compiler', ReactCompilerConfig],
           ],
           presets: ['jotai/babel/preset'],
         },
       }),
-      ...mode === 'test' ? [] : [createHtmlPlugin({
+      createHtmlPlugin({
         minify: true,
-      })],
-      ...mode === 'production' ? [visualizer()] : [],
+      }),
+      ...mode === 'production' ? [
+        visualizer(),
+        htmlInlineTransform(),
+      ] : [],
       checker({
       }),
-      ...mode === 'production' ? [htmlInlineTransform()] : [],
     ],
     resolve: {
       dedupe: ['react', 'react-dom'],
       alias: {
         '@/': `${resolve(__dirname, 'src')}/`,
       },
-    },
-    define: {},
-    server: {
-      host: true,
-      strictPort: true,
     },
     build: {
       target: 'esnext',

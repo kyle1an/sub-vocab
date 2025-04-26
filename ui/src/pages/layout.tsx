@@ -6,6 +6,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useMediaQuery } from 'foxact/use-media-query'
 import { useAtom, useSetAtom } from 'jotai'
 import { DevTools } from 'jotai-devtools'
+import css from 'jotai-devtools/styles.css?inline'
 import { useEffect, useRef } from 'react'
 import { Outlet } from 'react-router'
 
@@ -17,6 +18,14 @@ import { Toaster } from '@/components/ui/sonner'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { COLOR_SCHEME_QUERY, isDarkModeAtom, metaThemeColorEffect } from '@/lib/hooks'
 import { authChangeEventAtom, isMdScreenAtom, LIGHT_THEME_COLOR, metaThemeColorAtom, prefersDarkAtom, sessionAtom, supabase, useDocumentInit } from '@/store/useVocab'
+
+const JotaiDevTools = () =>
+  !import.meta.env.PROD ? (
+    <>
+      <style>{css}</style>
+      <DevTools />
+    </>
+  ) : null
 
 function useSyncAtomWithHooks() {
   const isMdScreen = useMediaQuery('(min-width: 768px)')
@@ -86,8 +95,12 @@ function Header() {
   const isMobile = useIsMobile()
   return (
     <header className="flex h-14 shrink-0 items-center gap-2">
-      <div className="flex flex-1 items-center gap-2 px-3">
-        {isMobile && <SidebarTrigger />}
+      <div className="flex h-full flex-1 gap-2">
+        {isMobile && (
+          <div className="flex p-2">
+            <SidebarTrigger />
+          </div>
+        )}
       </div>
       <div className="ml-auto px-3 pr-4">
         <NavActions />
@@ -110,21 +123,19 @@ export default function RootLayout() {
   return (
     <SidebarProvider
       ref={ref}
-      className="isolate bg-[--theme-bg] pr-[--pr] antialiased sq:[corner-shape:superellipse(3)]"
+      className="isolate h-svh bg-[--theme-bg] pr-[--pr] antialiased sq:superellipse-[3]"
       data-vaul-drawer-wrapper=""
     >
       <AppSidebar collapsible="icon" />
       <SidebarInset>
         <Header />
-        <div className="z-0 flex flex-col items-center">
-          <Outlet />
-        </div>
+        <Outlet />
       </SidebarInset>
       <Toaster
         closeButton
         richColors
       />
-      <DevTools />
+      <JotaiDevTools />
       <ReactQueryDevtools initialIsOpen={false} />
     </SidebarProvider>
   )

@@ -26,6 +26,11 @@ type NodeOf<T> = Simplify<{
   $?: T
 }>
 
+export type Sentence = {
+  text: string
+  index: number
+}
+
 export type WordLocator = {
   sentenceId: number
   startOffset: number
@@ -56,10 +61,13 @@ function caseOr(a: string, b: string) {
 const capitalIn = (chars: string) => /[A-ZÀ-Þ]/.test(chars)
 const isVowel = (chars: string) => ['a', 'e', 'i', 'o', 'u'].includes(chars)
 
+const sentenceRegex = /["'“‘[@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|\{[^}]*\})*[ \n]?(?:[-.](?=[A-Za-zÀ-ÿ])|\.{3} *)*["'”’\]@A-Za-zÀ-ÿ])+[^<>(){} \n]*/g
+const wordRegex = /(?:[A-Za-zÀ-ÿ]['’-]?)*[A-Za-zÀ-ÿ][a-zß-ÿ]*(?:['’-]?[A-Za-zÀ-ÿ]['’]?)+/g
+
 export class LabeledTire {
   root: NodeOf<TrieWordLabel> = {}
   #sequence = 0
-  sentences: string[] = []
+  sentences: Sentence[] = []
   #vocabulary = new Set<TrieWordLabel>()
 
   getNode(word: string) {
@@ -173,20 +181,18 @@ export class LabeledTire {
   }
 
   add(input: string) {
-    const sentencesMatched = input.match(/["'“‘[@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|\{[^}]*\})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ])|\.{3} *)*["'”’\]@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/g)
-    if (sentencesMatched) {
-      const previousLength = this.sentences.length
-      const newLength = previousLength + sentencesMatched.length
-      Array.prototype.push.apply(this.sentences, sentencesMatched)
-      for (let len = previousLength; len < newLength; len++) {
-        const sentence = this.sentences[len]!
-        const wordsMatched = sentence.matchAll(/(?:[A-Za-zÀ-ÿ]['’-]?)*[A-Za-zÀ-ÿ][a-zß-ÿ]*(?:['’-]?[A-Za-zÀ-ÿ]['’]?)+/g)
-        for (let n = wordsMatched.next(); !n.done; n = wordsMatched.next()) {
-          const m = n.value
-          const matchedWord = m[0]
-          if (m.index !== undefined)
-            this.update(matchedWord, m.index, len)
-        }
+    const sentenceMatches = input.matchAll(sentenceRegex)
+    this.sentences = []
+    for (const sentenceMatch of sentenceMatches) {
+      const sentenceText = sentenceMatch[0]
+      const sentenceIndex = this.sentences.length
+      this.sentences.push({
+        text: sentenceText,
+        index: sentenceMatch.index,
+      })
+      const wordMatches = sentenceText.matchAll(wordRegex)
+      for (const wordMatch of wordMatches) {
+        this.update(wordMatch[0], wordMatch.index, sentenceIndex)
       }
     }
   }

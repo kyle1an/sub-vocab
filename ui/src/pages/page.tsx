@@ -7,7 +7,10 @@ import { produce } from 'immer'
 import { atom, useAtom, useSetAtom } from 'jotai'
 import { useDeferredValue, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
+import getCaretCoordinates from 'textarea-caret'
 
+import type { Sentence } from '@/lib/LabeledTire'
 import type { LabelDisplaySource, LabelSourceData } from '@/lib/vocab'
 
 import {
@@ -15,11 +18,13 @@ import {
   useIrregularMapsQuery,
 } from '@/api/vocab-api'
 import { FileInput } from '@/components/file-input'
+import { Button } from '@/components/ui/button'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { TextareaInput } from '@/components/ui/textarea-input'
 import { VocabSourceTable } from '@/components/VocabSource'
 import { VocabStatics } from '@/components/vocabulary/vocab-statics-bar'
 import { LabeledTire, LEARNING_PHASE } from '@/lib/LabeledTire'
+import { normalizeNewlines } from '@/lib/utilities'
 import {
   formVocab,
 } from '@/lib/vocab'
@@ -53,13 +58,15 @@ function getCount(list: LabelSourceData[]) {
 
 function SourceVocab({
   text: { text: sourceText },
+  onSentenceTrack,
 }: {
   text: { text: string }
+  onSentenceTrack: (sentenceId: Sentence) => void
 }) {
   const { data: irregulars = [] } = useIrregularMapsQuery()
   const [baseVocab] = useAtom(baseVocabAtom)
   const [rows, setRows] = useState<LabelDisplaySource[]>([])
-  const [sentences, setSentences] = useState<string[]>([])
+  const [sentences, setSentences] = useState<Sentence[]>([])
   const setCount = useSetAtom(textCountAtom)
   const setNewCount = useSetAtom(newWordCountAtom)
   const setAcquaintedCount = useSetAtom(acquaintedWordCountAtom)
@@ -90,11 +97,19 @@ function SourceVocab({
     }))
   }
 
+  function handleLocateSentence(no: number) {
+    const sentence = sentences[no]
+    if (sentence) {
+      onSentenceTrack(sentence)
+    }
+  }
+
   return (
     <VocabSourceTable
       data={rows}
       sentences={sentences}
       onPurge={handlePurge}
+      onSentenceTrack={handleLocateSentence}
       className="h-full"
     />
   )
@@ -118,13 +133,11 @@ export default function ResizeVocabularyPanel() {
       setIsSourceTextStale(isStale)
   })
 
-  function handleTextareaChange({ name, value }: { name?: string, value: string }) {
+  function handleTextareaChange(ev: React.ChangeEvent<HTMLTextAreaElement>) {
     setSourceText((v) => ({
-      text: value,
+      text: ev.target.value,
       version: v.version++,
     }))
-    if (name)
-      setFileInfo(name)
   }
 
   const [count] = useAtom(textCountAtom)
@@ -151,12 +164,31 @@ export default function ResizeVocabularyPanel() {
 
   const [fileTypes] = useAtom(fileTypesAtom)
 
-  function handleFileChange({ name, value }: { name: string, value: string }) {
-    setFileInfo(name)
+  function handleFileChange({ name, value }: { name?: string, value: string }) {
     setSourceText((v) => ({
-      text: value,
+      text: normalizeNewlines(value),
       version: v.version++,
     }))
+    if (name) {
+      setFileInfo(name)
+    }
+  }
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  function onSentenceTrack(sentence: Sentence) {
+    const textarea = textareaRef.current
+    if (textarea) {
+      requestAnimationFrame(() => {
+        const coords = getCaretCoordinates(textarea, sentence.index)
+        textarea.focus()
+        textarea.setSelectionRange(sentence.index, sentence.index + sentence.text.length)
+        textarea.scrollTo({
+          top: coords.top - textarea.clientHeight / 2,
+          behavior: 'smooth',
+        })
+      })
+    }
   }
 
   return (
@@ -171,6 +203,15 @@ export default function ResizeVocabularyPanel() {
               {t('browseFiles')}
             </FileInput>
             <FileSettings />
+            <Button
+              variant="secondary"
+              className="h-8 px-3 text-xs"
+              asChild
+            >
+              <Link to="/subtitles">
+                Subtitles
+              </Link>
+            </Button>
             <div className="grow" />
           </div>
         </div>
@@ -192,10 +233,12 @@ export default function ResizeVocabularyPanel() {
                   <div className="z-10 h-px w-full border-b border-solid border-border shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)]" />
                   <div className="size-full grow text-base text-zinc-700 md:text-sm">
                     <TextareaInput
+                      ref={textareaRef}
                       value={sourceText.text}
                       placeholder={t('inputArea')}
                       fileTypes={fileTypes}
                       onChange={handleTextareaChange}
+                      onFileChange={handleFileChange}
                     />
                   </div>
                   <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">
@@ -217,6 +260,7 @@ export default function ResizeVocabularyPanel() {
             <ResizablePanel defaultSize={defaultSizes[1]}>
               <SourceVocab
                 text={deferredSourceText}
+                onSentenceTrack={onSentenceTrack}
               />
             </ResizablePanel>
           </ResizablePanelGroup>

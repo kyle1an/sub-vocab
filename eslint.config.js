@@ -4,8 +4,11 @@ import command from 'eslint-plugin-command/config'
 import deMorgan from 'eslint-plugin-de-morgan'
 import eslintPluginJsonc from 'eslint-plugin-jsonc'
 import packageJson from 'eslint-plugin-package-json'
+// @ts-check
+/// <reference path="./eslint-typegen.d.ts" />
+import typegen from 'eslint-typegen'
 
-export default antfu(
+export default typegen(antfu(
   {
     stylistic: false,
   },
@@ -24,7 +27,7 @@ export default antfu(
       '@stylistic/quotes': [1, 'single', { avoidEscape: true, allowTemplateLiterals: true }],
       'unused-imports/no-unused-vars': 'off',
       'prefer-arrow-callback': 'off',
-      curly: ['error', 'multi-or-nest', 'consistent'],
+      curly: ['off'],
       'jsonc/indent': ['warn', 2],
     },
   },
@@ -84,4 +87,4 @@ export default antfu(
       'jsonc/sort-keys': 'off',
     },
   },
-)
+))

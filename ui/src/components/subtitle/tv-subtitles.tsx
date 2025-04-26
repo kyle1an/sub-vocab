@@ -8,7 +8,7 @@ import clsx from 'clsx'
 import { addMinutes, formatDuration, getYear, intervalToDuration } from 'date-fns'
 import { useAtom, useSetAtom } from 'jotai'
 import { maxBy, sum } from 'lodash-es'
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import IconLucideChevronRight from '~icons/lucide/chevron-right'
 
@@ -16,7 +16,7 @@ import type { Subtitles } from '@/api/opensubtitles'
 import type { SubtitleData } from '@/components/subtitle/columns'
 import type { RowId } from '@/lib/subtitle'
 import type { ColumnFilterFn } from '@/lib/table-utils'
-import type { paths } from '@/types/schema-themoviedb'
+import type { paths } from '@/types/schema/themoviedb'
 
 import { osSessionAtom, useOpenSubtitlesQueryOptions } from '@/api/opensubtitles'
 import { $api } from '@/api/tmdb'
@@ -34,7 +34,7 @@ import { SortIcon } from '@/lib/icon-utils'
 import { getFileId } from '@/lib/subtitle'
 import { getFilterFn, noFilter, sortBySelection } from '@/lib/table-utils'
 import { findClosest, naturalNumLength } from '@/lib/utilities'
-import { osLanguageAtom, subtitleSelectionStateAtom, subtitleSelectionStateFamily } from '@/store/useVocab'
+import { episodeFilterStateFamily, mediaSubtitleStateAtom, osLanguageAtom, subtitleSelectionStateFamily } from '@/store/useVocab'
 
 type ExpandableRow<T> = T & { subRows?: T[] }
 
@@ -48,7 +48,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
   const [osSession] = useAtom(osSessionAtom)
-  const setSubtitleSelectionState = useSetAtom(subtitleSelectionStateAtom)
+  const setSubtitleSelectionState = useSetAtom(mediaSubtitleStateAtom)
   return [
     columnHelper.accessor((row) => {
       const air_date = row.media?.air_date
@@ -118,14 +118,14 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
                     onClick={(e) => {
                       e.stopPropagation()
                       setSubtitleSelectionState((selection) => {
-                        const selectionState = selection[mediaId] ??= {}
+                        const state = selection[mediaId] ??= { rowSelection: {} }
                         parentRows.forEach(({ subRows, id }) => {
                           if (subRows.length === 0) {
-                            selectionState[id] = !checked
+                            state.rowSelection[id] = !checked
                           }
                           else {
                             subRows.forEach(({ id }, index) => {
-                              selectionState[id] = !checked && index === 0
+                              state.rowSelection[id] = !checked && index === 0
                             })
                           }
                         })
@@ -356,6 +356,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
   ]
 }
 
+/// keep-unique
 const PAGE_SIZES = [5, 6, 10, 20, 40, 50, 100, 200] as const
 
 const initialTableState: InitialTableState = {
@@ -484,7 +485,7 @@ export function TVSubtitleFiles({
   const columns = [...commonColumns, ...tvColumns]
   const [rowSelection, setRowSelection] = useAtom(subtitleSelectionStateFamily(id))
   const dataRows = subtitleEpisodeData(subtitles, episodes)
-  const [filterEpisode, setFilterEpisode] = useState('all')
+  const [filterEpisode, setFilterEpisode] = useAtom(episodeFilterStateFamily(id))
   const table = useReactTable({
     data: dataRows,
     columns,

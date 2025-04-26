@@ -12,7 +12,8 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import clsx from 'clsx'
-import { atom, useAtom, useAtomValue } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
+import { atomWithImmer } from 'jotai-immer'
 import { startTransition, useDeferredValue, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
@@ -41,32 +42,35 @@ import { customFormatDistanceToNowStrict } from '@/lib/formatDistance'
 import { useLastTruthy } from '@/lib/hooks'
 import { LEARNING_PHASE } from '@/lib/LabeledTire'
 import { getFilterFn, noFilter } from '@/lib/table-utils'
-import { findClosest, getFallBack } from '@/lib/utilities'
+import { findClosest, getFallBack, type } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
 import { vocabRealtimeSyncStatusAtom } from '@/store/useVocab'
 import { searchFilterValue } from '@/utils/vocabulary/filters'
 
 type TableData = LabelDisplayTable
 
+/// keep-unique
 const PAGE_SIZES = [10, 20, 40, 50, 100, 200, 500, 1000] as const
 
-const isUsingRegexAtom = atom(false)
-const searchValueAtom = atom('')
-const initialTableStateAtom = atom<InitialTableState>({
-  columnOrder: ['timeModified', 'word', 'word.length', 'acquaintedStatus', 'userOwned', 'rank'],
-  pagination: {
-    pageSize: findClosest(100, PAGE_SIZES),
-    pageIndex: 0,
-  },
-  sorting: [
-    {
-      id: 'timeModified',
-      desc: true,
+const cacheStateAtom = atomWithImmer({
+  isUsingRegex: false,
+  searchValue: '',
+  initialTableState: type<InitialTableState>({
+    columnOrder: ['timeModified', 'word', 'word.length', 'acquaintedStatus', 'userOwned', 'rank'],
+    pagination: {
+      pageSize: findClosest(100, PAGE_SIZES),
+      pageIndex: 0,
     },
-  ],
-  columnVisibility: {
-    userOwned: false,
-  },
+    sorting: [
+      {
+        id: 'timeModified',
+        desc: true,
+      },
+    ],
+    columnVisibility: {
+      userOwned: false,
+    },
+  }),
 })
 
 function useSegments() {
@@ -172,11 +176,10 @@ export function VocabDataTable({
   // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
   const { t } = useTranslation()
-  const [searchValue, setSearchValue] = useAtom(searchValueAtom)
+  const [cacheState, setCacheState] = useAtom(cacheStateAtom)
+  const { initialTableState, isUsingRegex, searchValue } = cacheState
   const deferredSearchValue = useDeferredValue(searchValue)
-  const [isUsingRegex, setIsUsingRegex] = useAtom(isUsingRegexAtom)
   const deferredIsUsingRegex = useDeferredValue(isUsingRegex)
-  const [initialTableState, setInitialTableState] = useAtom(initialTableStateAtom)
   const vocabularyCommonColumns = useVocabularyCommonColumns<TableData>()
   const dataColumns = useDataColumns()
   const columns = [...vocabularyCommonColumns, ...dataColumns]
@@ -255,7 +258,10 @@ export function VocabDataTable({
     .map((row) => row.original.vocab)
 
   useUnmountEffect(() => {
-    setInitialTableState(tableState)
+    setCacheState({
+      ...cacheState,
+      initialTableState: tableState,
+    })
   })
   const isStale = segment !== segmentDeferredValue || searchValue !== deferredSearchValue || isUsingRegex !== deferredIsUsingRegex
   const [vocabRealtimeSubscribeState] = useAtom(vocabRealtimeSyncStatusAtom)
@@ -330,8 +336,16 @@ export function VocabDataTable({
         <SearchWidget
           value={searchValue}
           isUsingRegex={isUsingRegex}
-          onSearch={setSearchValue}
-          onRegex={setIsUsingRegex}
+          onSearch={(v) => {
+            setCacheState((draft) => {
+              draft.searchValue = v
+            })
+          }}
+          onRegex={(v) => {
+            setCacheState((draft) => {
+              draft.isUsingRegex = v
+            })
+          }}
         />
       </div>
       <div className="h-px w-full border-b border-solid border-zinc-200 shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)] dark:border-slate-800" />

@@ -34,8 +34,8 @@ export function SearchWidget({
   return (
     <div
       className={cn(
-        'flex max-w-48 flex-row items-center gap-1 overflow-hidden rounded-md border p-1.5 before:bg-background sq:[corner-shape:squircle] dark:text-slate-400',
-        'relative [--offset:2px] [--sq-r:.8125rem] sq:overflow-visible sq:rounded-[--sq-r] sq:drop-shadow-sm sq:has-[>:focus]:ring-0 sq:has-[>:focus]:after:absolute sq:has-[>:focus]:after:-left-[--offset] sq:has-[>:focus]:after:-top-[--offset] sq:has-[>:focus]:after:-z-10 sq:has-[>:focus]:after:size-[calc(100%+2*var(--offset))] sq:has-[>:focus]:after:rounded-[calc(var(--sq-r)+var(--offset))] sq:has-[>:focus]:after:border sq:has-[>:focus]:after:border-[--ring] sq:has-[>:focus]:after:[corner-shape:squircle]',
+        'flex max-w-48 flex-row items-center gap-1 overflow-visible rounded-md border p-1.5 pr-[.3125rem] sq:[corner-shape:squircle] dark:text-slate-400',
+        'shadow-sm [--sq-r:.75rem] has-[>:focus]:ring-1 has-[>:focus]:ring-ring sq:rounded-[--sq-r] sq:shadow-none sq:drop-shadow-sm',
       )}
     >
       <IconIonSearch

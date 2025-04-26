@@ -20,7 +20,6 @@ import { router } from '@/router'
 import { queryClient } from '@/store/useVocab'
 
 if (import.meta.env.DEV) {
-  import('jotai-devtools/styles.css')
   import('./styles/devtools.css')
 }
 

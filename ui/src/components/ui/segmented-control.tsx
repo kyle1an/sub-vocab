@@ -1,16 +1,16 @@
 import type { VariantProps } from 'class-variance-authority'
-import type { Ref } from 'react'
 
 import { cva } from 'class-variance-authority'
 import clsx from 'clsx'
-import { useId, useRef } from 'react'
+import { useRef } from 'react'
+import $ from 'render-hooks'
 
 import { cn } from '@/lib/utils'
 
 const segmentedControlVariants = cva(
   clsx(
     `grid w-full !touch-manipulation select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-lg tracking-wide antialiased outline-none [font-feature-settings:'cv08'] [text-rendering:geometricPrecision]`,
-    'sq:rounded-[.9375rem] sq:[corner-shape:superellipse(3.5)]',
+    'sq:rounded-[.9375rem] sq:superellipse-[3.5]',
   ),
   {
     variants: {
@@ -48,6 +48,21 @@ interface SegmentedControlProps<T extends string> extends
   segments: Readonly<{ value: T, label: string }[]>
   onValueChange: (value: T) => void
 }
+
+const checkedSegmentVariants = cva(
+  'bg-white transition-transform duration-300',
+  {
+    variants: {
+      variant: {
+        default: 'border-[.5px] border-black/[.1] bg-white drop-shadow-sm dark:bg-neutral-600',
+        ghost: 'bg-neutral-200 dark:bg-slate-600',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+    },
+  },
+)
 
 export function SegmentedControl<T extends string>({
   value,
@@ -103,101 +118,65 @@ export function SegmentedControl<T extends string>({
       {...props}
     >
       {segments.map((item) => (
-        <Segment
-          key={item.value}
-          value={item.value}
-          variant={variant}
-          sqRef={addToRefs(item.value)}
-          checked={item.value === value}
-          label={item.label}
-          onValueChange={handleOnChange}
-        />
+        <$ key={item.value}>
+          {({ useId }) => {
+            // eslint-disable-next-line react-compiler/react-compiler, react-hooks/rules-of-hooks
+            const id = useId()
+            const checked = item.value === value
+            const label = item.label
+            return (
+              <div
+                className="group/d relative first-of-type:col-[1] first-of-type:row-[1] first-of-type:shadow-none"
+                data-checked={checked}
+              >
+                <input
+                  id={id}
+                  aria-label="Segmented control"
+                  type="radio"
+                  value={item.value}
+                  checked={checked}
+                  className="absolute inset-0 appearance-none opacity-0 outline-none"
+                  onChange={() => {
+                    handleOnChange(item.value)
+                  }}
+                />
+                <label
+                  htmlFor={id}
+                  className="relative block cursor-pointer bg-transparent text-center before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[.625rem] before:bg-neutral-300 before:transition-[background] before:duration-200 before:ease-[ease] before:will-change-[background] group-first-of-type/d:before:opacity-0 group-[[data-checked=true]]/d:cursor-default group-[[data-checked=true]]/d:before:z-10 group-[&[data-checked=true]+*]/d:before:bg-transparent group-[[data-checked=true]]/d:before:bg-transparent dark:before:bg-slate-700"
+                >
+                  <div className={clsx(
+                    'flex flex-col justify-center text-sm/6',
+                    variant === 'ghost' && 'leading-[1.375rem]',
+                  )}
+                  >
+                    <div
+                      className={clsx(
+                        'relative z-10 flex justify-center text-black transition-all duration-200 ease-[ease] will-change-transform group-hover/d:opacity-20 group-focus/d:opacity-20 group-active/d:opacity-20 group-active/d:delay-150 group-[&:active[data-checked=false]]/d:scale-95 group-[[data-checked=true]]/d:font-medium group-[[data-checked=true]]/d:opacity-100 dark:text-white',
+                      )}
+                    >
+                      {label}
+                    </div>
+                    <div
+                      title={label}
+                      className="before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]"
+                    />
+                  </div>
+                  <div className="absolute left-0 top-0 size-full">
+                    <div
+                      ref={addToRefs(item.value)}
+                      className={cn(
+                        'flex size-full rounded-md ease-[ease] will-change-transform',
+                        'sq:rounded-[.6875rem] sq:superellipse-[3.5]',
+                        checked && checkedSegmentVariants({ variant }),
+                      )}
+                    />
+                  </div>
+                </label>
+              </div>
+            )
+          }}
+        </$>
       ))}
-    </div>
-  )
-}
-
-const checkedSegmentVariants = cva(
-  'bg-white transition-transform duration-300',
-  {
-    variants: {
-      variant: {
-        default: 'border-[.5px] border-black/[.1] bg-white drop-shadow-sm dark:bg-neutral-600',
-        ghost: 'bg-neutral-200 dark:bg-slate-600',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-    },
-  },
-)
-
-function Segment<T extends string>({
-  value,
-  label,
-  checked,
-  onValueChange,
-  sqRef,
-  className,
-  variant,
-  ...props
-}: {
-  value: T
-  label: string
-  onValueChange: (value: T) => void
-  checked: boolean
-  sqRef: Ref<HTMLDivElement>
-} & React.ComponentProps<'div'> & VariantProps<typeof checkedSegmentVariants>) {
-  const id = useId()
-  return (
-    <div
-      className={cn('group/d relative first-of-type:col-[1] first-of-type:row-[1] first-of-type:shadow-none', className)}
-      data-checked={checked}
-      {...props}
-    >
-      <input
-        id={id}
-        aria-label="Segmented control"
-        type="radio"
-        value={value}
-        checked={checked}
-        className="absolute inset-0 appearance-none opacity-0 outline-none"
-        onChange={() => {
-          onValueChange(value)
-        }}
-      />
-      <label
-        htmlFor={id}
-        className="relative block cursor-pointer bg-transparent text-center before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[.625rem] before:bg-neutral-300 before:transition-[background] before:duration-200 before:ease-[ease] before:will-change-[background] group-first-of-type/d:before:opacity-0 group-[[data-checked=true]]/d:cursor-default group-[[data-checked=true]]/d:before:z-10 group-[&[data-checked=true]+*]/d:before:bg-transparent group-[[data-checked=true]]/d:before:bg-transparent dark:before:bg-slate-700"
-      >
-        <div className={clsx(
-          'flex flex-col justify-center text-sm/6',
-          variant === 'ghost' && 'leading-[1.375rem]',
-        )}
-        >
-          <div
-            className={clsx(
-              'relative z-10 flex justify-center text-black transition-all duration-200 ease-[ease] will-change-transform group-hover/d:opacity-20 group-focus/d:opacity-20 group-active/d:opacity-20 group-active/d:delay-150 group-[&:active[data-checked=false]]/d:scale-95 group-[[data-checked=true]]/d:font-medium group-[[data-checked=true]]/d:opacity-100 dark:text-white',
-            )}
-          >
-            {label}
-          </div>
-          <div
-            title={label}
-            className="before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]"
-          />
-        </div>
-        <div className="absolute left-0 top-0 size-full">
-          <div
-            ref={sqRef}
-            className={cn(
-              'flex size-full rounded-md ease-[ease] will-change-transform',
-              'sq:rounded-[.6875rem] sq:[corner-shape:superellipse(3.5)]',
-              checked && checkedSegmentVariants({ variant }),
-            )}
-          />
-        </div>
-      </label>
     </div>
   )
 }

@@ -131,6 +131,7 @@ function useMovieColumns<T extends MovieSubtitleData>() {
   ]
 }
 
+/// keep-unique
 const PAGE_SIZES = [4, 5, 10, 20, 40, 50, 100, 200] as const
 
 const initialTableState: InitialTableState = {

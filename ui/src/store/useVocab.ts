@@ -34,32 +34,53 @@ export const vocabRealtimeSyncStatusAtom = atom<RealtimeChannelState>(REALTIME_C
 
 export const isSourceTextStaleAtom = atom(false)
 
-export const subtitleSelectionStateAtom = atomWithImmer<Record<number, Record<string, boolean>>>({})
+type RowSelection = {
+  [fileId: string]: boolean
+}
+
+type MediaSubtitleState = {
+  [mediaId: string]: {
+    rowSelection: RowSelection
+    episodeFilter?: 'all' | string
+  }
+}
+
+export const mediaSubtitleStateAtom = atomWithImmer<MediaSubtitleState>({})
 
 export const fileIdsAtom = atom((get) => {
-  return Object.values(get(subtitleSelectionStateAtom)).flatMap((innerObj) => Object.keys(innerObj).filter((key) => innerObj[key]).map(Number))
+  return Object.values(get(mediaSubtitleStateAtom)).flatMap(
+    (innerObj) => Object.keys(innerObj.rowSelection).filter((key) => innerObj.rowSelection[key]).map(Number),
+  )
 })
 
 export const subtitleDownloadProgressAtom = atomWithImmer<Download['Body'][]>([])
 
 export const subtitleSelectionStateFamily = atomFamily((mediaId: number) => atom(
-  (get) => get(subtitleSelectionStateAtom)[mediaId] ?? {},
+  (get) => get(mediaSubtitleStateAtom)[mediaId]?.rowSelection ?? {},
   (get, set, ...[checked, row, mode]: ArrayConcat<Parameters<RowSelectionChangeFn<SubtitleData>>, []>) => {
-    set(subtitleSelectionStateAtom, (selection) => {
+    set(mediaSubtitleStateAtom, (prev) => {
+      const state = prev[mediaId] ??= { rowSelection: {} }
       if (mode === 'singleRow') {
-        selection[mediaId] = {}
+        state.rowSelection = {}
       }
-      else {
-        selection[mediaId] ??= {}
-        if (mode === 'singleSubRow') {
-          const parent = row.getParentRow()
-          if (parent) {
-            for (const { id } of parent.subRows)
-              selection[mediaId][id] = false
-          }
+      else if (mode === 'singleSubRow') {
+        const parent = row.getParentRow()
+        if (parent) {
+          for (const { id } of parent.subRows)
+            state.rowSelection[id] = false
         }
       }
-      selection[mediaId][row.id] = Boolean(checked)
+      state.rowSelection[row.id] = Boolean(checked)
+    })
+  },
+))
+
+export const episodeFilterStateFamily = atomFamily((mediaId: number) => atom(
+  (get) => get(mediaSubtitleStateAtom)[mediaId]?.episodeFilter ?? 'all',
+  (get, set, filter: string) => {
+    set(mediaSubtitleStateAtom, (prev) => {
+      const state = prev[mediaId] ??= { rowSelection: {} }
+      state.episodeFilter = filter
     })
   },
 ))
@@ -110,10 +131,16 @@ export function useDocumentInit() {
   const uap = useAtomValue(uapAtom)
   useIsomorphicLayoutEffect(() => {
     if (uap) {
-      const { os } = uap
-      if (os.name)
-        document.documentElement.classList.add(os.name)
-
+      const { os, browser } = uap
+      if (os.name) {
+        document.documentElement.setAttribute('data-os-name', os.name)
+      }
+      if (browser.name) {
+        document.documentElement.setAttribute('data-browser-name', browser.name)
+      }
+      if (browser.major) {
+        document.documentElement.setAttribute('data-browser-major', browser.major)
+      }
       const scrollbarWidth = getScrollbarWidth()
       document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`)
     }
