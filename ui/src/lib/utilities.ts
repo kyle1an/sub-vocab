@@ -42,3 +42,5 @@ export type ArrayConcat<T extends UnknownArray, Item extends UnknownArray> = Arr
 export function hasKey<T extends string>(obj: unknown, key: T): obj is { [key in T]: unknown } {
   return Boolean(typeof obj === 'object' && obj && key in obj)
 }
+
+export const type = <T>(a: T) => a

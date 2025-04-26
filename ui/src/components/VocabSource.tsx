@@ -13,7 +13,8 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import clsx from 'clsx'
-import { atom, useAtom, useAtomValue } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
+import { atomWithImmer } from 'jotai-immer'
 import { atomWithStorage } from 'jotai/utils'
 import { startTransition, useDeferredValue, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -46,7 +47,7 @@ import { VocabStatics } from '@/components/vocabulary/vocab-statics-bar'
 import { useLastTruthy } from '@/lib/hooks'
 import { LEARNING_PHASE } from '@/lib/LabeledTire'
 import { getFilterFn, noFilter } from '@/lib/table-utils'
-import { findClosest } from '@/lib/utilities'
+import { findClosest, type } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
 import { isSourceTextStaleAtom } from '@/store/useVocab'
 import { searchFilterValue } from '@/utils/vocabulary/filters'
@@ -55,14 +56,17 @@ type TableData = LabelDisplaySource & Category
 
 const PAGE_SIZES = [10, 20, 40, 50, 100, 200, 500, 1000] as const
 
-const isUsingRegexAtom = atom(false)
-const searchValueAtom = atom('')
-const initialTableStateAtom = atom<InitialTableState>({
-  columnOrder: ['frequency', 'word', 'word.length', 'acquaintedStatus', 'rank'],
-  pagination: {
-    pageSize: findClosest(100, PAGE_SIZES),
-    pageIndex: 0,
-  },
+const cacheStateAtom = atomWithImmer({
+  isUsingRegex: false,
+  searchValue: '',
+  initialTableState: type<InitialTableState>({
+    columnOrder: ['frequency', 'word', 'word.length', 'acquaintedStatus', 'rank'],
+    pagination: {
+      pageSize: findClosest(100, PAGE_SIZES),
+      pageIndex: 0,
+    },
+  }),
+  filterValue: type<Record<string, boolean>>({}),
 })
 
 function useSegments() {
@@ -209,11 +213,10 @@ export function VocabSourceTable({
   'use no memo'
   const [categoryAtomValue, setCategoryAtom] = useAtom(categoryAtom)
   const { t } = useTranslation()
-  const [searchValue, setSearchValue] = useAtom(searchValueAtom)
+  const [cacheState, setCacheState] = useAtom(cacheStateAtom)
+  const { initialTableState, isUsingRegex, searchValue, filterValue } = cacheState
   const deferredSearchValue = useDeferredValue(searchValue)
-  const [isUsingRegex, setIsUsingRegex] = useAtom(isUsingRegexAtom)
   const deferredIsUsingRegex = useDeferredValue(isUsingRegex)
-  const [initialTableState, setInitialTableState] = useAtom(initialTableStateAtom)
   const vocabularyCommonColumns = useVocabularyCommonColumns<TableData>()
   const sourceColumns = useSourceColumns<TableData>()
   const columns = [...vocabularyCommonColumns, ...sourceColumns]
@@ -224,7 +227,6 @@ export function VocabSourceTable({
   const isSourceTextStale = useAtomValue(isSourceTextStaleAtom)
   const [disableNumberAnim, setDisableNumberAnim] = useState(false)
   const finalData = useCategorize(categoryAtomValue, data)
-  const [filterValue, setFilterValue] = useState<Record<string, boolean>>({})
 
   const table = useReactTable({
     data: finalData,
@@ -294,7 +296,10 @@ export function VocabSourceTable({
     .map((row) => row.original.vocab)
 
   useUnmountEffect(() => {
-    setInitialTableState(tableState)
+    setCacheState({
+      ...cacheState,
+      initialTableState: tableState,
+    })
   })
   const rootRef = useRef<HTMLDivElement>(null)
   const isStale = isSourceTextStale || segment !== segmentDeferredValue || searchValue !== deferredSearchValue || isUsingRegex !== deferredIsUsingRegex
@@ -400,7 +405,9 @@ ${wordsString}
           options={options}
           filterValue={filterValue}
           onFilterChange={(v) => {
-            setFilterValue(v)
+            setCacheState((draft) => {
+              draft.filterValue = v
+            })
           }}
         />
         <div className="flex items-center px-2.5 text-base">
@@ -420,8 +427,16 @@ ${wordsString}
         <SearchWidget
           value={searchValue}
           isUsingRegex={isUsingRegex}
-          onSearch={setSearchValue}
-          onRegex={setIsUsingRegex}
+          onSearch={(v) => {
+            setCacheState((draft) => {
+              draft.searchValue = v
+            })
+          }}
+          onRegex={(v) => {
+            setCacheState((draft) => {
+              draft.isUsingRegex = v
+            })
+          }}
         />
       </div>
       <div className="h-px w-full border-b border-solid border-zinc-200 shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)] dark:border-slate-800" />
