@@ -16,24 +16,21 @@ const buttonVariants = cva(
         default: clsx(
           'bg-primary text-primary-foreground shadow hover:bg-primary-hover',
           'sq:rounded-[--sq-r] sq:shadow-none sq:drop-shadow',
-          'relative focus-visible:after:rounded-[calc(var(--sq-r)+var(--offset))] focus-visible:after:border focus-visible:after:border-[--ring] focus-visible:after:[corner-shape:squircle] sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))]',
         ),
         destructive: clsx(
-          'hover:bg-destructive/90 bg-destructive text-destructive-foreground shadow-sm',
+          'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
         ),
         outline: clsx(
           'border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground',
           'sq:rounded-[--sq-r] sq:shadow-none sq:drop-shadow-sm',
           '[--offset:2px]',
-          'relative focus-visible:after:rounded-[calc(var(--sq-r)+var(--offset))] focus-visible:after:border focus-visible:after:border-[--ring] focus-visible:after:[corner-shape:squircle] sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))]',
         ),
         secondary: clsx(
-          'hover:bg-secondary/80 bg-secondary text-secondary-foreground shadow-sm',
+          'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 sq:rounded-[--sq-r]',
         ),
         ghost: clsx(
           'hover:bg-accent hover:text-accent-foreground',
           'sq:rounded-[--sq-r]',
-          'relative focus-visible:after:rounded-[calc(var(--sq-r)+var(--offset))] focus-visible:after:border focus-visible:after:border-[--ring] focus-visible:after:[corner-shape:squircle] sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))]',
         ),
         link: clsx(
           'text-primary underline-offset-4 hover:underline',

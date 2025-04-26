@@ -1,8 +1,11 @@
 import antfu from '@antfu/eslint-config'
+// @ts-check
+/// <reference path="./eslint-typegen.d.ts" />
+import typegen from 'eslint-typegen'
 
 import configs from '../eslint.config.js'
 
-export default antfu(
+export default typegen(antfu(
   {
     stylistic: false,
   },
@@ -53,4 +56,4 @@ export default antfu(
       'no-console': 'off',
     },
   },
-)
+))

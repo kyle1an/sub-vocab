@@ -12,10 +12,11 @@ import IconLucideLoader2 from '~icons/lucide/loader2'
 import type { ZodObj } from '@/types/utils'
 
 import { useLogOut, useUpdateUser } from '@/api/user'
+import { ContentRoot } from '@/components/content-root'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input, InputWrapper } from '@/components/ui/input'
+import { Input } from '@/components/ui/input'
 import { PASSWORD_MIN_LENGTH } from '@/constants/constraints'
 import { authChangeEventAtom, sessionAtom } from '@/store/useVocab'
 
@@ -78,7 +79,7 @@ export default function UpdatePassword() {
     return <Navigate to="/login" />
 
   return (
-    <div className="flex flex-row">
+    <ContentRoot>
       <div className="mx-auto py-6">
         <section className="py-5">
           <div className="mx-auto flex flex-col items-center justify-center px-6 py-8 lg:py-0">
@@ -100,14 +101,14 @@ export default function UpdatePassword() {
                           <FormLabel>{t('New Password')}</FormLabel>
                           <FormControl>
                             <div className="flex items-center gap-1">
-                              <InputWrapper className="grow">
+                              <div className="grow">
                                 <Input
                                   type={newPasswordVisible ? 'text' : 'password'}
                                   autoComplete="new-password"
                                   {...field}
                                   className="text-base md:text-sm"
                                 />
-                              </InputWrapper>
+                              </div>
                               <Button
                                 variant="outline"
                                 className="px-2"
@@ -153,6 +154,6 @@ export default function UpdatePassword() {
           </div>
         </section>
       </div>
-    </div>
+    </ContentRoot>
   )
 }

@@ -1,7 +1,9 @@
+import { ContentRoot } from '@/components/content-root'
+
 export default function AboutPage() {
   return (
-    <main>
-      <div className="py-6">
+    <ContentRoot>
+      <div className="p-6">
         <div className="flex">
           Data provided by&nbsp;
           <a
@@ -17,6 +19,6 @@ export default function AboutPage() {
         </div>
         This project uses the TMDB API but is not endorsed or certified by TMDB.
       </div>
-    </main>
+    </ContentRoot>
   )
 }

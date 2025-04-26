@@ -12,6 +12,8 @@ export const env = createEnv({
     OPENSUBTITLES_API_KEY: z.string().nonempty(),
     APP_NAME__V_APP_VERSION: z.string().nonempty(),
     OPENROUTER_API_KEY: z.string().nonempty(),
+    // https://ai-sdk.dev/providers/ai-sdk-providers/google-generative-ai#provider-instance
+    GOOGLE_GENERATIVE_AI_API_KEY: z.string().nonempty(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

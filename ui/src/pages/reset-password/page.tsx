@@ -10,10 +10,11 @@ import IconLucideLoader2 from '~icons/lucide/loader2'
 import type { ZodObj } from '@/types/utils'
 
 import { useResetPasswordForEmail } from '@/api/user'
+import { ContentRoot } from '@/components/content-root'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input, InputWrapper } from '@/components/ui/input'
+import { Input } from '@/components/ui/input'
 import { MS_PER_MINUTE } from '@/constants/time'
 import { authChangeEventAtom, sessionAtom } from '@/store/useVocab'
 
@@ -79,7 +80,7 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="flex flex-row">
+    <ContentRoot className="items-start">
       <div className="mx-auto py-6">
         <section className="py-5">
           <div className="mx-auto flex flex-col items-center justify-center px-6 py-8 lg:py-0">
@@ -100,14 +101,14 @@ export default function ResetPassword() {
                         <FormItem>
                           <FormLabel>Email</FormLabel>
                           <FormControl>
-                            <InputWrapper>
+                            <div>
                               <Input
                                 type="text"
                                 autoComplete="username"
                                 {...field}
                                 className="text-base md:text-sm"
                               />
-                            </InputWrapper>
+                            </div>
                           </FormControl>
                           <FormMessage>{errors.email?.message ?? ''}</FormMessage>
                         </FormItem>
@@ -133,6 +134,6 @@ export default function ResetPassword() {
           </div>
         </section>
       </div>
-    </div>
+    </ContentRoot>
   )
 }

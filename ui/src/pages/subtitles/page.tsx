@@ -8,21 +8,23 @@ import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRo
 import clsx from 'clsx'
 import { format } from 'date-fns'
 import { useDebouncedValue } from 'foxact/use-debounced-value'
-import { atom, useAtom, useSetAtom } from 'jotai'
+import { useAtom, useSetAtom } from 'jotai'
+import { atomWithImmer } from 'jotai-immer'
 import { atomWithStorage } from 'jotai/utils'
 import { uniqBy } from 'lodash-es'
 import { startTransition, useEffect, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import IconClarityStarSolid from '~icons/clarity/star-solid'
 import IconF7ArrowDownCircleFill from '~icons/f7/arrow-down-circle-fill'
 import IconF7MultiplyCircle from '~icons/f7/multiply-circle'
 import IconLucideChevronRight from '~icons/lucide/chevron-right'
 import IconLucideLoader2 from '~icons/lucide/loader2'
+import MiChevronLeft from '~icons/mi/chevron-left'
 import IconOuiTokenKey from '~icons/oui/token-key'
 
-import type { paths as PathsThemoviedb } from '@/types/schema-themoviedb'
+import type { paths as PathsThemoviedb } from '@/types/schema/themoviedb'
 
 import { $osApi, useOpenSubtitlesDownload } from '@/api/opensubtitles'
 import { $api } from '@/api/tmdb'
@@ -33,7 +35,7 @@ import { TablePaginationSizeSelect } from '@/components/table-pagination-size-se
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Div } from '@/components/ui/html-elements'
-import { Input, InputWrapper } from '@/components/ui/input'
+import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
@@ -41,8 +43,8 @@ import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCe
 import { MS_PER_WEEK } from '@/constants/time'
 import { SortIcon } from '@/lib/icon-utils'
 import { getFilterFn } from '@/lib/table-utils'
-import { findClosest } from '@/lib/utilities'
-import { fileIdsAtom, osLanguageAtom, sourceTextAtom, subtitleDownloadProgressAtom, subtitleSelectionStateAtom } from '@/store/useVocab'
+import { findClosest, type } from '@/lib/utilities'
+import { fileIdsAtom, mediaSubtitleStateAtom, osLanguageAtom, sourceTextAtom, subtitleDownloadProgressAtom } from '@/store/useVocab'
 
 const mediaSearchAtom = atomWithStorage('mediaSearchAtom', '')
 
@@ -52,13 +54,16 @@ const voteCountFormat = new Intl.NumberFormat('en', { notation: 'compact', compa
 
 type TableData = NonNullable<PathsThemoviedb['/3/search/multi']['get']['responses'][200]['content']['application/json']['results']>[number]
 
+/// keep-unique
 const PAGE_SIZES = [5, 10, 20] as const
 
-const initialTableStateAtom = atom<InitialTableState>({
-  pagination: {
-    pageSize: findClosest(100, PAGE_SIZES),
-    pageIndex: 0,
-  },
+const cacheStateAtom = atomWithImmer({
+  initialTableState: type<InitialTableState>({
+    pagination: {
+      pageSize: findClosest(100, PAGE_SIZES),
+      pageIndex: 0,
+    },
+  }),
 })
 
 function useColumns<T extends TableData>() {
@@ -360,7 +365,8 @@ export default function Subtitles() {
   'use no memo'
   const { isPending: isDownloadPending, mutateAsync: download } = useOpenSubtitlesDownload()
   const [query, setQuery] = useAtom(mediaSearchAtom)
-  const [initialTableState, setInitialTableState] = useAtom(initialTableStateAtom)
+  const [cacheState, setCacheState] = useAtom(cacheStateAtom)
+  const { initialTableState } = cacheState
   const debouncedQuery = useDebouncedValue(query, 500)
   const columns = useColumns()
   const setSourceText = useSetAtom(sourceTextAtom)
@@ -426,7 +432,7 @@ export default function Subtitles() {
   })
   const rowsFiltered = table.getFilteredRowModel().rows
   const navigate = useNavigate()
-  const setSubtitleSelectionState = useSetAtom(subtitleSelectionStateAtom)
+  const setSubtitleSelectionState = useSetAtom(mediaSubtitleStateAtom)
   const [fileIds] = useAtom(fileIdsAtom)
   const [downloadProgressAnim, setDownloadProgressAnim] = useState(false)
 
@@ -465,7 +471,10 @@ export default function Subtitles() {
   const { t } = useTranslation()
 
   useUnmountEffect(() => {
-    setInitialTableState(tableState)
+    setCacheState({
+      ...cacheState,
+      initialTableState: tableState,
+    })
   })
   const rootRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -481,6 +490,16 @@ export default function Subtitles() {
     <div className="flex h-full flex-col">
       <div className="pb-3">
         <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            className="h-8 gap-0.5 pl-2.5 pr-3 text-xs"
+            asChild
+          >
+            <Link to="/">
+              <MiChevronLeft className="size-[1.125rem]" />
+              Home
+            </Link>
+          </Button>
           <div className="grow" />
           <Popover>
             <PopoverTrigger className="h-8" asChild>
@@ -490,11 +509,11 @@ export default function Subtitles() {
               >
                 <IconOuiTokenKey className="min-w-[1em]" />
                 <span className="hidden md:block">
-                  OpenSubtitles Login
+                  OpenSubtitles
                 </span>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-72">
+            <PopoverContent className="w-72 [--sq-r:1.75rem]">
               <OpensubtitlesAuthentication />
             </PopoverContent>
           </Popover>
@@ -558,7 +577,7 @@ export default function Subtitles() {
         >
           <div>
             <div className="flex h-12 gap-2 p-2">
-              <InputWrapper className="[--sq-r:.8125rem]">
+              <div>
                 <Input
                   ref={inputRef}
                   type="text"
@@ -566,9 +585,9 @@ export default function Subtitles() {
                   onChange={(e) => {
                     setQuery(e.target.value)
                   }}
-                  className="h-full text-base md:text-sm"
+                  className="h-full text-base [--sq-r:.75rem] md:text-sm"
                 />
-              </InputWrapper>
+              </div>
               <Select
                 value={language}
                 onValueChange={(e) => {

@@ -2,13 +2,15 @@
 
 import type { LucideIcon } from 'lucide-react'
 
-import { NavLink } from 'react-router'
+import { Link } from 'react-router'
+import $ from 'render-hooks'
 
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
+import { useReactRouterIsMatch } from '@/hooks/useReactRouterIsMatch'
 
 export function NavMain({
   items,
@@ -16,7 +18,7 @@ export function NavMain({
   items: {
     title: string
     url: string
-    icon: LucideIcon
+    icon?: LucideIcon
     isActive?: boolean
   }[]
 }) {
@@ -24,19 +26,24 @@ export function NavMain({
     <SidebarMenu>
       {items.map((item) => (
         <SidebarMenuItem key={item.title}>
-          <NavLink to={item.url}>
-            {({ isActive }) => (
+          <$ hooks={{ useReactRouterIsMatch }}>
+            {({ useReactRouterIsMatch }) => (
               <SidebarMenuButton
-                isActive={isActive}
+                // eslint-disable-next-line react-compiler/react-compiler, react-hooks/rules-of-hooks
+                isActive={useReactRouterIsMatch(item.url)}
+                tooltip={item.title}
                 asChild
               >
-                <div>
-                  <item.icon />
+                <Link
+                  to={item.url}
+                  className="flex"
+                >
+                  {item.icon && <item.icon />}
                   <span>{item.title}</span>
-                </div>
+                </Link>
               </SidebarMenuButton>
             )}
-          </NavLink>
+          </$>
         </SidebarMenuItem>
       ))}
     </SidebarMenu>

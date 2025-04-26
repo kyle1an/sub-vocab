@@ -40,11 +40,17 @@ app.register(fastifyTRPCPlugin, {
 ;[
   {
     path: '/def',
-    target: new URL('https://api.opensubtitles.com/api/v1'),
+    target: {
+      href: 'https://api.opensubtitles.com/api/v1',
+      host: 'api.opensubtitles.com',
+    },
   },
   {
     path: '/vip',
-    target: new URL('https://vip-api.opensubtitles.com/api/v1'),
+    target: {
+      href: 'https://vip-api.opensubtitles.com/api/v1',
+      host: 'vip-api.opensubtitles.com',
+    },
   },
 ].forEach(({ path, target }) => app.register(fastifyHttpProxy, {
   upstream: target.href,
@@ -59,7 +65,10 @@ app.register(fastifyTRPCPlugin, {
   },
 }))
 
-const tmdbUrl = new URL('https://api.themoviedb.org')
+const tmdbUrl = {
+  href: 'https://api.themoviedb.org',
+  host: 'api.themoviedb.org',
+}
 
 app.register(fastifyHttpProxy, {
   upstream: tmdbUrl.href,

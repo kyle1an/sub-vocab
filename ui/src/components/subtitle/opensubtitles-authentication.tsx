@@ -15,7 +15,7 @@ import type { ZodObj } from '@/types/utils'
 import { osSessionAtom, useOpenSubtitlesLogin } from '@/api/opensubtitles'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input, InputWrapper } from '@/components/ui/input'
+import { Input } from '@/components/ui/input'
 
 const osAuthAtom = atom({
   username: '',
@@ -101,14 +101,14 @@ export function OpensubtitlesAuthentication() {
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <InputWrapper>
+                    <div>
                       <Input
                         type="text"
                         autoComplete="username"
                         {...field}
                         className="text-base md:text-sm"
                       />
-                    </InputWrapper>
+                    </div>
                   </FormControl>
                   <FormMessage>{errors.username?.message ?? ''}</FormMessage>
                 </FormItem>
@@ -126,14 +126,14 @@ export function OpensubtitlesAuthentication() {
                   </FormLabel>
                   <FormControl>
                     <div className="flex items-center gap-1">
-                      <InputWrapper className="grow">
+                      <div className="grow">
                         <Input
                           type={passwordVisible ? 'text' : 'password'}
                           autoComplete="current-password"
                           {...field}
                           className="text-base md:text-sm"
                         />
-                      </InputWrapper>
+                      </div>
                       <Button
                         variant="outline"
                         className="px-2"

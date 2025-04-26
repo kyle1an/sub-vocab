@@ -6,8 +6,9 @@ import { ViewVerticalIcon } from '@radix-ui/react-icons'
 import { Slot } from '@radix-ui/react-slot'
 import { cva } from 'class-variance-authority'
 import clsx from 'clsx'
-import { useAbortableEffect } from 'foxact/use-abortable-effect'
 import * as React from 'react'
+import { useCallback } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -50,22 +51,14 @@ const SidebarContext = React.createContext<SidebarContextProps | null>(null)
 
 function useSidebar() {
   const context = React.use(SidebarContext)
-  if (!context)
+  if (!context) {
     throw new Error('useSidebar must be used within a SidebarProvider.')
+  }
 
   return context
 }
 
-function SidebarProvider({
-  ref,
-  defaultOpen = true,
-  open: openProp,
-  onOpenChange: setOpenProp,
-  className,
-  style,
-  children,
-  ...props
-}: React.ComponentProps<'div'> & {
+function SidebarProvider({ ref, defaultOpen = true, open: openProp, onOpenChange: setOpenProp, className, style, children, ...props }: React.ComponentProps<'div'> & {
   defaultOpen?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
@@ -80,10 +73,12 @@ function SidebarProvider({
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
       const openState = typeof value === 'function' ? value(open) : value
-      if (setOpenProp)
+      if (setOpenProp) {
         setOpenProp(openState)
-      else
+      }
+      else {
         _setOpen(openState)
+      }
 
       // This sets the cookie to keep the sidebar state.
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
@@ -99,18 +94,10 @@ function SidebarProvider({
   }, [isMobile, setOpen, setOpenMobile])
 
   // Adds a keyboard shortcut to toggle the sidebar.
-  useAbortableEffect((signal) => {
-    // eslint-disable-next-line react-web-api/no-leaked-event-listener
-    window.addEventListener('keydown', (event) => {
-      if (
-        event.key === SIDEBAR_KEYBOARD_SHORTCUT
-        && (event.metaKey || event.ctrlKey)
-      ) {
-        event.preventDefault()
-        toggleSidebar()
-      }
-    }, { signal })
-  }, [toggleSidebar])
+  useHotkeys(`meta+${SIDEBAR_KEYBOARD_SHORTCUT}`, useCallback((event) => {
+    event.preventDefault()
+    toggleSidebar()
+  }, [toggleSidebar]), {})
 
   // We add a state so that we can do data-state="expanded" or "collapsed".
   // This makes it easier to style the sidebar with Tailwind classes.
@@ -154,15 +141,7 @@ function SidebarProvider({
   )
 }
 
-function Sidebar({
-  ref,
-  side = 'left',
-  variant = 'sidebar',
-  collapsible = 'offcanvas',
-  className,
-  children,
-  ...props
-}: React.ComponentProps<'div'> & {
+function Sidebar({ ref, side = 'left', variant = 'sidebar', collapsible = 'offcanvas', className, children, ...props }: React.ComponentProps<'div'> & {
   side?: 'left' | 'right'
   variant?: 'sidebar' | 'floating' | 'inset'
   collapsible?: 'offcanvas' | 'icon' | 'none'
@@ -263,7 +242,7 @@ function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<t
       data-sidebar="trigger"
       variant="ghost"
       size="icon"
-      className={cn('size-7', className)}
+      className={cn('size-8', className)}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()
@@ -402,7 +381,7 @@ function SidebarGroupLabel({ ref, className, asChild = false, ...props }: React.
       data-slot="sidebar-group-label"
       data-sidebar="group-label"
       className={cn(
-        'text-sidebar-foreground/70 flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium outline-none ring-sidebar-ring transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
+        'flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
         'group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0',
         className,
       )}
@@ -466,7 +445,8 @@ function SidebarMenuItem({ ref, className, ...props }: React.ComponentProps<'li'
 
 const sidebarMenuButtonVariants = cva(
   clsx(
-    'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
+    'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
+    'group-data-[collapsible=icon]:w-full',
     '[corner-shape:squircle] sq:rounded-xl',
   ),
   {
@@ -489,17 +469,7 @@ const sidebarMenuButtonVariants = cva(
   },
 )
 
-function SidebarMenuButton({
-  ref,
-  asChild = false,
-  isActive = false,
-  variant = 'default',
-  size = 'default',
-  tooltip,
-  className,
-  onClick,
-  ...props
-}: React.ComponentProps<'button'> & {
+function SidebarMenuButton({ ref, asChild = false, isActive = false, variant = 'default', size = 'default', tooltip, className, onClick, ...props }: React.ComponentProps<'button'> & {
   asChild?: boolean
   isActive?: boolean
   tooltip?: string | React.ComponentProps<typeof TooltipContent>
@@ -514,7 +484,7 @@ function SidebarMenuButton({
       data-sidebar="menu-button"
       data-size={size}
       data-active={isActive}
-      className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+      className={cn('grow', sidebarMenuButtonVariants({ variant, size }), className)}
       // https://github.com/shadcn-ui/ui/issues/5561#issuecomment-2461329627
       onClick={(event) => {
         onClick?.(event)
@@ -524,8 +494,9 @@ function SidebarMenuButton({
     />
   )
 
-  if (!tooltip)
+  if (!tooltip) {
     return button
+  }
 
   if (typeof tooltip === 'string') {
     tooltip = {
@@ -649,15 +620,7 @@ function SidebarMenuSubItem({ ref, ...props }: React.ComponentProps<'li'>) {
   return <li ref={ref} {...props} />
 }
 
-function SidebarMenuSubButton({
-  ref,
-  asChild = false,
-  size = 'md',
-  isActive,
-  className,
-  onClick,
-  ...props
-}: React.ComponentProps<'a'> & {
+function SidebarMenuSubButton({ ref, asChild = false, size = 'md', isActive, className, onClick, ...props }: React.ComponentProps<'a'> & {
   asChild?: boolean
   size?: 'sm' | 'md'
   isActive?: boolean
