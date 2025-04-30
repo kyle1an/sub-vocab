@@ -127,6 +127,12 @@ export default function ResizeVocabularyPanel() {
       setFileInfo(name)
   }
 
+  function textareaOnChange(ev: React.ChangeEvent<HTMLTextAreaElement>) {
+    handleTextareaChange({
+      value: ev.target.value,
+    })
+  }
+
   const [count] = useAtom(textCountAtom)
   const [acquaintedWordCount] = useAtom(acquaintedWordCountAtom)
   const [newWordCount] = useAtom(newWordCountAtom)
@@ -195,7 +201,8 @@ export default function ResizeVocabularyPanel() {
                       value={sourceText.text}
                       placeholder={t('inputArea')}
                       fileTypes={fileTypes}
-                      onChange={handleTextareaChange}
+                      onChange={textareaOnChange}
+                      handleChange={handleTextareaChange}
                     />
                   </div>
                   <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">

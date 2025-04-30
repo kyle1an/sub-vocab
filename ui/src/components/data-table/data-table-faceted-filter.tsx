@@ -41,7 +41,7 @@ export function DataTableFacetedFilter({
         <Button
           variant="outline"
           size="sm"
-          className={cn('h-8 border-dashed p-0 shadow-none !drop-shadow-none', className)}
+          className={cn('h-8 p-0 shadow-none !drop-shadow-none', className)}
         >
           <>
             <div className="inline-flex h-full items-center justify-center space-x-[2.5px] px-[6px] has-[>*:nth-child(2)]:pl-[5.5px]">
