@@ -169,6 +169,11 @@ const config: Config = {
     }) => {
       addVariant('sq', '@supports (corner-shape: squircle)')
       addVariant('iOS', '&:is(.iOS *)')
+      matchUtilities({
+        superellipse: (value) => ({
+          'corner-shape': `superellipse(${Number(value) / 2})`,
+        }),
+      })
     }),
   ],
 }

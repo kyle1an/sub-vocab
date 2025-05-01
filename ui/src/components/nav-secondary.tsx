@@ -27,7 +27,10 @@ export function NavSecondary({
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.title}>
-            <NavLink to={item.url}>
+            <NavLink
+              to={item.url}
+              className="flex"
+            >
               {({ isActive }) => (
                 <>
                   <SidebarMenuButton

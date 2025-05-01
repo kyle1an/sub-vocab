@@ -6,6 +6,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useMediaQuery } from 'foxact/use-media-query'
 import { useAtom, useSetAtom } from 'jotai'
 import { DevTools } from 'jotai-devtools'
+import css from 'jotai-devtools/styles.css?inline'
 import { useEffect, useRef } from 'react'
 import { Outlet } from 'react-router'
 
@@ -17,6 +18,14 @@ import { Toaster } from '@/components/ui/sonner'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { COLOR_SCHEME_QUERY, isDarkModeAtom, metaThemeColorEffect } from '@/lib/hooks'
 import { authChangeEventAtom, isMdScreenAtom, LIGHT_THEME_COLOR, metaThemeColorAtom, prefersDarkAtom, sessionAtom, supabase, useDocumentInit } from '@/store/useVocab'
+
+const JotaiDevTools = () =>
+  !import.meta.env.PROD ? (
+    <>
+      <style>{css}</style>
+      <DevTools />
+    </>
+  ) : null
 
 function useSyncAtomWithHooks() {
   const isMdScreen = useMediaQuery('(min-width: 768px)')
@@ -114,7 +123,7 @@ export default function RootLayout() {
   return (
     <SidebarProvider
       ref={ref}
-      className="isolate bg-[--theme-bg] pr-[--pr] antialiased sq:[corner-shape:superellipse(3)]"
+      className="isolate bg-[--theme-bg] pr-[--pr] antialiased sq:superellipse-[3]"
       data-vaul-drawer-wrapper=""
     >
       <AppSidebar collapsible="icon" />
@@ -128,7 +137,7 @@ export default function RootLayout() {
         closeButton
         richColors
       />
-      <DevTools />
+      <JotaiDevTools />
       <ReactQueryDevtools initialIsOpen={false} />
     </SidebarProvider>
   )

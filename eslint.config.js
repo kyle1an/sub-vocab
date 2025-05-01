@@ -24,7 +24,7 @@ export default antfu(
       '@stylistic/quotes': [1, 'single', { avoidEscape: true, allowTemplateLiterals: true }],
       'unused-imports/no-unused-vars': 'off',
       'prefer-arrow-callback': 'off',
-      curly: ['error', 'multi-or-nest', 'consistent'],
+      curly: ['off'],
       'jsonc/indent': ['warn', 2],
     },
   },

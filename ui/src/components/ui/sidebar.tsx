@@ -514,7 +514,7 @@ function SidebarMenuButton({
       data-sidebar="menu-button"
       data-size={size}
       data-active={isActive}
-      className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+      className={cn('grow', sidebarMenuButtonVariants({ variant, size }), className)}
       // https://github.com/shadcn-ui/ui/issues/5561#issuecomment-2461329627
       onClick={(event) => {
         onClick?.(event)

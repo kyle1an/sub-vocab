@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 const segmentedControlVariants = cva(
   clsx(
     `grid w-full !touch-manipulation select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-lg tracking-wide antialiased outline-none [font-feature-settings:'cv08'] [text-rendering:geometricPrecision]`,
-    'sq:rounded-[.9375rem] sq:[corner-shape:superellipse(3.5)]',
+    'sq:rounded-[.9375rem] sq:superellipse-[3.5]',
   ),
   {
     variants: {
@@ -192,7 +192,7 @@ function Segment<T extends string>({
             ref={sqRef}
             className={cn(
               'flex size-full rounded-md ease-[ease] will-change-transform',
-              'sq:rounded-[.6875rem] sq:[corner-shape:superellipse(3.5)]',
+              'sq:rounded-[.6875rem] sq:superellipse-[3.5]',
               checked && checkedSegmentVariants({ variant }),
             )}
           />

@@ -120,7 +120,7 @@ export function FileSettings() {
         <DialogTrigger asChild>
           {Trigger}
         </DialogTrigger>
-        <DialogContent className="flex flex-col gap-0 sm:max-w-[425px]">
+        <DialogContent className="flex max-h-[calc(100vh-1rem)] flex-col gap-0 sm:max-w-[425px]">
           <DialogHeader className="pb-2">
             <DialogTitle>{FILE_SETTINGS_TITLE}</DialogTitle>
             <DialogDescription>
