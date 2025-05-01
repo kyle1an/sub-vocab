@@ -86,8 +86,12 @@ function Header() {
   const isMobile = useIsMobile()
   return (
     <header className="flex h-14 shrink-0 items-center gap-2">
-      <div className="flex flex-1 items-center gap-2 px-3">
-        {isMobile && <SidebarTrigger />}
+      <div className="flex h-full flex-1 gap-2">
+        {isMobile && (
+          <div className="flex p-2">
+            <SidebarTrigger />
+          </div>
+        )}
       </div>
       <div className="ml-auto px-3 pr-4">
         <NavActions />

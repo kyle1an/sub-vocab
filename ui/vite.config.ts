@@ -53,11 +53,6 @@ export default defineConfig(({ mode }) => {
         '@/': `${resolve(__dirname, 'src')}/`,
       },
     },
-    define: {},
-    server: {
-      host: true,
-      strictPort: true,
-    },
     build: {
       target: 'esnext',
       rollupOptions: {

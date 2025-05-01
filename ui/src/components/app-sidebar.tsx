@@ -75,7 +75,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar className="border-r-0" {...props}>
       <SidebarHeader className="gap-1.5">
-        <SidebarTrigger className="size-8" />
+        <SidebarTrigger />
         <NavMain items={data.navMain} />
       </SidebarHeader>
       <div className="flex w-full">
