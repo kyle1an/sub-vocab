@@ -111,7 +111,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               >
                 <span className="sr-only">Subvocab on GitHub</span>
                 <IconBiGithub className="bg-sidebar group-hover/bg:bg-inherit" />
-                <span className="grow">Github</span>
+                <span className="grow">
+                  <span className="bg-sidebar group-hover/bg:bg-inherit">Github</span>
+                </span>
               </a>
             </SidebarMenuButton>
             <SidebarMenuBadge>
