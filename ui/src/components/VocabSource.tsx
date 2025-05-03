@@ -348,8 +348,6 @@ Omit Others:
 
 If the item does not satisfy any of the above criteria, omit it from the final output.
 
-Your response must be plain JSON text with no markdown formatting, code fences, extra text, or comments.
-
 The input array is provided as follows:
 ${wordsString}
 `,

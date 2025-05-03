@@ -1,7 +1,7 @@
 import type { ZodObj } from '@ui/src/types/utils'
 
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
-import { APICallError, generateObject } from 'ai'
+import { AISDKError, APICallError, generateObject } from 'ai'
 import { Result, ResultAsync } from 'neverthrow'
 import { z } from 'zod'
 
@@ -29,25 +29,32 @@ const safeJsonParse = Result.fromThrowable((s: string) => errorSchema.parse(JSON
 export const aiRouter = router({
   getCategory: publicProcedure
     .input(z.object({
-      prompt: z.string().min(1),
+      prompt: z.string().nonempty(),
     }))
     .mutation(async (opts) => {
       const { prompt } = opts.input
       const result = await ResultAsync.fromPromise(generateObject({
-        model: openrouter.languageModel('google/gemini-2.0-flash-exp:free'),
+        model: openrouter.languageModel('meta-llama/llama-4-maverick:free'),
+        temperature: 0,
         schema: z.object({
           properName: z.array(z.string()),
           acronym: z.array(z.string()),
         }),
+        mode: 'json',
         prompt,
-      }), (e) => {
-        if (APICallError.isInstance(e)) {
-          const parseResult = safeJsonParse(e.responseBody ?? '')
+      }), (error) => {
+        if (APICallError.isInstance(error)) {
+          const parseResult = safeJsonParse(error.responseBody ?? '')
           if (parseResult.isOk()) {
             return parseResult.value
           }
           else {
             return parseResult.error
+          }
+        }
+        if (AISDKError.isInstance(error)) {
+          return {
+            message: error.message,
           }
         }
         return {
