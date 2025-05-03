@@ -16,7 +16,7 @@ import type { Subtitles } from '@/api/opensubtitles'
 import type { SubtitleData } from '@/components/subtitle/columns'
 import type { RowId } from '@/lib/subtitle'
 import type { ColumnFilterFn } from '@/lib/table-utils'
-import type { paths } from '@/types/schema-themoviedb'
+import type { paths } from '@/types/schema/themoviedb'
 
 import { osSessionAtom, useOpenSubtitlesQueryOptions } from '@/api/opensubtitles'
 import { $api } from '@/api/tmdb'

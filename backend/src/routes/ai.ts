@@ -1,3 +1,4 @@
+import { google } from '@ai-sdk/google'
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { APICallError, generateObject } from 'ai'
 import { Result, ResultAsync } from 'neverthrow'
@@ -33,13 +34,15 @@ export const aiRouter = router({
     }))
     .mutation(async (opts) => {
       const { prompt } = opts.input
+      const model = google('gemini-2.0-flash')
       const result = await ResultAsync.fromPromise(generateObject({
-        model: openrouter.languageModel('google/gemini-2.0-flash-exp:free'),
+        model,
         temperature: 0,
         schema: z.object({
           properName: z.array(z.string()),
           acronym: z.array(z.string()),
         }),
+        mode: 'json',
         prompt,
       }), (e) => {
         if (APICallError.isInstance(e)) {

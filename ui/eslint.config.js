@@ -94,7 +94,7 @@ export default antfu(
   {
     ignores: [
       'database.types.ts',
-      '**/types/schema-*.d.ts',
+      '**/types/schema/*.d.ts',
     ],
   },
 )

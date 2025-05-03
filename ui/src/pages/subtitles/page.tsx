@@ -22,7 +22,7 @@ import IconLucideChevronRight from '~icons/lucide/chevron-right'
 import IconLucideLoader2 from '~icons/lucide/loader2'
 import IconOuiTokenKey from '~icons/oui/token-key'
 
-import type { paths as PathsThemoviedb } from '@/types/schema-themoviedb'
+import type { paths as PathsThemoviedb } from '@/types/schema/themoviedb'
 
 import { $osApi, useOpenSubtitlesDownload } from '@/api/opensubtitles'
 import { $api } from '@/api/tmdb'

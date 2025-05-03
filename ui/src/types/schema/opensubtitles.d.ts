@@ -325,7 +325,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/ai/translation": {
+    "/ai/credits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * User Credits Informations
+         * @description Check how much credits have logged-in user.
+         *     [Buy Credits](../open_api.json/paths/~1ai~1credits~1buy/get)
+         */
+        get: operations["get-credits"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ai/credits/buy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Buy Credits
+         * @description Buy credits - packages with checkout URL
+         */
+        get: operations["buy-credits"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ai/info/translation": {
         parameters: {
             query?: never;
             header?: never;
@@ -334,7 +375,9 @@ export interface paths {
         };
         /**
          * AI Translation
-         * @description Available translation APIs and Languages
+         * @description Available translation APIs and Languages. User doesn't need to be authentificated.
+         *
+         *
          */
         get: operations["translation"];
         put?: never;
@@ -345,7 +388,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/ai/transcription": {
+    "/ai/info/transcription": {
         parameters: {
             query?: never;
             header?: never;
@@ -354,7 +397,7 @@ export interface paths {
         };
         /**
          * AI Transcription
-         * @description Available transcription APIs and languages
+         * @description Available transcription APIs and languages. User doesn't need to be authentificated.
          */
         get: operations["transcription"];
         put?: never;
@@ -377,7 +420,7 @@ export interface paths {
         /**
          * AI Translate
          * @description **Translate** subtitles using AI from one language to another language.
-         *     Credits on user account are needed, they can be bought using https://ai.opensubtitles.com
+         *     Credits on user account are needed. [Buy Credits](../open_api.json/paths/~1ai~1credits~1buy/get)
          *
          *     Method is returning
          *     ```
@@ -417,7 +460,7 @@ export interface paths {
          * AI Transcribe
          * @description **Transcribe** media (audio, video) file using AI into subtitles. Max size of file: 100 MB
          *
-         *     Credits on user account are needed, they can be bought using https://ai.opensubtitles.com
+         *     Credits on user account are needed. [Buy Credits](../open_api.json/paths/~1ai~1credits~1buy/get)
          *
          *     Method is returning
          *     ```
@@ -456,7 +499,8 @@ export interface paths {
         };
         /**
          * AI Translate status
-         * @description Get status of **translate** job using `correlation_id`
+         * @description Get status of **[translate](..open_api.json/paths/~1ai~1translate/post)** job using `correlation_id`
+         *
          */
         get: operations["translate-status"];
         put?: never;
@@ -479,7 +523,7 @@ export interface paths {
         };
         /**
          * AI Transcribe status
-         * @description Get status of **transcribe** job using `correlation_id`
+         * @description Get status of **[transcribe](../open_api.json/paths/~1ai~1transcribe)** job using `correlation_id`
          */
         get: operations["transcribe-status"];
         put?: never;
@@ -1239,6 +1283,67 @@ export interface operations {
                         video_codec: string;
                         release_group: string;
                         type: string;
+                    };
+                };
+            };
+        };
+    };
+    "get-credits": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description <<{{APP_NAME}} v{{APP_VERSION}}>> */
+                "User-Agent"?: string;
+                /** @description Bearer <<{{token}}>> */
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: {
+                            credits?: number;
+                        };
+                    };
+                };
+            };
+        };
+    };
+    "buy-credits": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description <<{{APP_NAME}} v{{APP_VERSION}}>> */
+                "User-Agent"?: string;
+                /** @description Bearer <<{{token}}>> */
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: {
+                            name?: string;
+                            value?: string;
+                            discount_percent?: number;
+                            checkout_url?: string;
+                        }[];
                     };
                 };
             };
