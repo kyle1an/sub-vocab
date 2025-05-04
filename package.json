@@ -33,7 +33,7 @@
     "eslint-plugin-jsonc": "^2.20.0",
     "eslint-plugin-package-json": "^0.31.0",
     "jsonc-eslint-parser": "^2.4.0",
-    "openapi-typescript": "^7.6.1",
+    "openapi-typescript": "^7.7.0",
     "pathe": "^2.0.3",
     "prettier": "^3.5.3",
     "taze": "^19.0.4",
