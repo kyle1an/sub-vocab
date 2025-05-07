@@ -15,7 +15,6 @@ const checkboxVariants = cva(
       variant: {
         default: cn(
           'drop-shadow-md [--sq-r:.425rem] data-[state=checked]:drop-shadow sq:rounded-[--sq-r] sq:shadow-none sq:superellipse-[3.4]',
-          '[--offset:3px] sq:focus-visible:ring-0 sq:focus-visible:after:absolute sq:focus-visible:after:-left-[--offset] sq:focus-visible:after:-top-[--offset] sq:focus-visible:after:size-[calc(100%+2*var(--offset))] focus-visible:after:sq:rounded-[calc(var(--sq-r)+var(--offset))] focus-visible:after:sq:border focus-visible:after:sq:border-[--ring] focus-visible:after:sq:superellipse-[3.4]',
         ),
         radio: 'rounded-full [&_svg]:h-[15px]',
       },

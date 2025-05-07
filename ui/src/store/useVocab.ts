@@ -110,10 +110,17 @@ export function useDocumentInit() {
   const uap = useAtomValue(uapAtom)
   useIsomorphicLayoutEffect(() => {
     if (uap) {
-      const { os } = uap
-      if (os.name)
+      const { os, browser } = uap
+      if (os.name) {
+        // Add OS name to the html element class list
         document.documentElement.classList.add(os.name)
-
+      }
+      if (browser.name) {
+        document.documentElement.classList.add(browser.name)
+      }
+      if (browser.major) {
+        document.documentElement.classList.add(`v${browser.major}`)
+      }
       const scrollbarWidth = getScrollbarWidth()
       document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`)
     }

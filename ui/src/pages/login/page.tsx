@@ -114,14 +114,14 @@ export default function Login() {
                         <FormItem>
                           <FormLabel>Email or username</FormLabel>
                           <FormControl>
-                            <InputWrapper>
+                            <div>
                               <Input
                                 type="text"
                                 autoComplete="username"
                                 {...field}
                                 className="text-base md:text-sm"
                               />
-                            </InputWrapper>
+                            </div>
                           </FormControl>
                           <FormMessage>{errors.username?.message ?? ''}</FormMessage>
                         </FormItem>
@@ -145,14 +145,14 @@ export default function Login() {
                           </FormLabel>
                           <FormControl>
                             <div className="flex items-center gap-1">
-                              <InputWrapper className="grow">
+                              <div className="grow">
                                 <Input
                                   type={passwordVisible ? 'text' : 'password'}
                                   autoComplete="current-password"
                                   {...field}
                                   className="text-base md:text-sm"
                                 />
-                              </InputWrapper>
+                              </div>
                               <Button
                                 variant="outline"
                                 className="px-2"

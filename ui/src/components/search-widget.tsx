@@ -34,7 +34,7 @@ export function SearchWidget({
   return (
     <div
       className={cn(
-        'flex max-w-48 flex-row items-center gap-1 overflow-visible rounded-md border p-1.5 before:bg-background sq:[corner-shape:squircle] dark:text-slate-400',
+        'flex max-w-48 flex-row items-center gap-1 overflow-visible rounded-md border p-1.5 pr-[.3125rem] before:bg-background sq:[corner-shape:squircle] dark:text-slate-400',
         'relative [--offset:2px] [--sq-r:.8125rem] has-[>:focus]:ring-0 has-[>:focus]:after:absolute has-[>:focus]:after:-left-[--offset] has-[>:focus]:after:-top-[--offset] has-[>:focus]:after:-z-10 has-[>:focus]:after:size-[calc(100%+2*var(--offset))] has-[>:focus]:after:rounded-[calc(var(--radius)-2px+var(--offset)-1px)] has-[>:focus]:after:border has-[>:focus]:after:border-[--ring] sq:rounded-[--sq-r] sq:drop-shadow-sm sq:has-[>:focus]:after:rounded-[calc(var(--sq-r)+var(--offset))] sq:has-[>:focus]:after:[corner-shape:squircle]',
       )}
     >

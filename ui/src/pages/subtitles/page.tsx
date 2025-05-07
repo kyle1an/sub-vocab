@@ -558,7 +558,7 @@ export default function Subtitles() {
         >
           <div>
             <div className="flex h-12 gap-2 p-2">
-              <InputWrapper className="[--sq-r:.8125rem]">
+              <div className="[--sq-r:.8125rem]">
                 <Input
                   ref={inputRef}
                   type="text"
@@ -568,7 +568,7 @@ export default function Subtitles() {
                   }}
                   className="h-full text-base md:text-sm"
                 />
-              </InputWrapper>
+              </div>
               <Select
                 value={language}
                 onValueChange={(e) => {

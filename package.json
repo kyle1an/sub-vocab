@@ -26,7 +26,7 @@
     "@stylistic/eslint-plugin": "^4.2.0",
     "@t3-oss/env-core": "^0.13.4",
     "@total-typescript/ts-reset": "^0.6.1",
-    "@types/node": "^22.15.12",
+    "@types/node": "^22.15.14",
     "eslint": "^9.26.0",
     "eslint-plugin-command": "^3.2.0",
     "eslint-plugin-de-morgan": "^1.2.1",
@@ -36,7 +36,7 @@
     "openapi-typescript": "^7.7.1",
     "pathe": "^2.0.3",
     "prettier": "^3.5.3",
-    "taze": "^19.0.4",
+    "taze": "^19.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },

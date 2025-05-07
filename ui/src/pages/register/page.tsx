@@ -107,14 +107,14 @@ export default function Register() {
                         <FormItem>
                           <FormLabel>Email</FormLabel>
                           <FormControl>
-                            <InputWrapper>
+                            <div>
                               <Input
                                 type="text"
                                 autoComplete="username"
                                 {...field}
                                 className="text-base md:text-sm"
                               />
-                            </InputWrapper>
+                            </div>
                           </FormControl>
                           <FormMessage>{errors.email?.message ?? ''}</FormMessage>
                         </FormItem>
@@ -128,14 +128,14 @@ export default function Register() {
                           <FormLabel>Password</FormLabel>
                           <FormControl>
                             <div className="flex items-center gap-1">
-                              <InputWrapper className="grow">
+                              <div className="grow">
                                 <Input
                                   type={passwordVisible ? 'text' : 'password'}
                                   autoComplete="new-password"
                                   {...field}
                                   className="text-base md:text-sm"
                                 />
-                              </InputWrapper>
+                              </div>
                               <Button
                                 variant="outline"
                                 className="px-2"

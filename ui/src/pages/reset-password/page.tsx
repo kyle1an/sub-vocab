@@ -100,14 +100,14 @@ export default function ResetPassword() {
                         <FormItem>
                           <FormLabel>Email</FormLabel>
                           <FormControl>
-                            <InputWrapper>
+                            <div>
                               <Input
                                 type="text"
                                 autoComplete="username"
                                 {...field}
                                 className="text-base md:text-sm"
                               />
-                            </InputWrapper>
+                            </div>
                           </FormControl>
                           <FormMessage>{errors.email?.message ?? ''}</FormMessage>
                         </FormItem>

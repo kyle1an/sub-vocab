@@ -133,7 +133,7 @@ export default function ProfilePage() {
                     <FormLabel>{t('Name')}</FormLabel>
                     <FormControl>
                       <div className="flex">
-                        <InputWrapper>
+                        <div>
                           <Input
                             type="text"
                             placeholder=""
@@ -142,7 +142,7 @@ export default function ProfilePage() {
                             {...registerUsernameForm('newUsername')}
                             className="text-base md:text-sm"
                           />
-                        </InputWrapper>
+                        </div>
                       </div>
                     </FormControl>
                     <FormMessage>{usernameErrors.newUsername?.message ?? ''}</FormMessage>
@@ -184,7 +184,7 @@ export default function ProfilePage() {
                     <FormLabel>Email</FormLabel>
                     <FormControl>
                       <div className="flex">
-                        <InputWrapper>
+                        <div>
                           <Input
                             type="text"
                             placeholder=""
@@ -193,7 +193,7 @@ export default function ProfilePage() {
                             {...registerEmailForm('newEmail')}
                             className="text-base md:text-sm"
                           />
-                        </InputWrapper>
+                        </div>
                       </div>
                     </FormControl>
                     <FormMessage>{emailErrors.newEmail?.message ?? ''}</FormMessage>

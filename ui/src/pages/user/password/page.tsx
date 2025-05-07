@@ -84,14 +84,14 @@ export default function Password() {
                     <FormLabel>{t('New Password')}</FormLabel>
                     <FormControl>
                       <div className="flex gap-1">
-                        <InputWrapper>
+                        <div>
                           <Input
                             type={newPasswordVisible ? 'text' : 'password'}
                             autoComplete="new-password"
                             {...field}
                             className="text-base md:text-sm"
                           />
-                        </InputWrapper>
+                        </div>
                         <Button
                           variant="outline"
                           className="px-2"
