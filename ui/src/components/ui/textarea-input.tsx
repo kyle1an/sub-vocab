@@ -2,6 +2,7 @@ import type React from 'react'
 
 import type { FileType } from '@/store/useVocab'
 
+import { Textarea } from '@/components/ui/textarea'
 import { DataTransferItemListReader, readEntryFiles } from '@/lib/filesHandler'
 import { cn } from '@/lib/utils'
 
@@ -33,9 +34,13 @@ export function TextareaInput({
   }
 
   return (
-    <textarea
+    <Textarea
       aria-label="Text input"
-      className={cn('size-full max-h-full resize-none rounded-none bg-background px-[30px] py-3 align-top tracking-normal outline-none [font-feature-settings:normal] placeholder:tracking-[.01em] dark:text-slate-400 dark:placeholder:text-slate-600', className)}
+      className={cn(
+        'size-full max-h-full resize-none rounded-none bg-background px-[30px] py-3 align-top tracking-normal outline-none [font-feature-settings:normal] placeholder:tracking-[.01em] dark:text-slate-400 dark:placeholder:text-slate-600',
+        'border-0',
+        className,
+      )}
       onDrop={dropHandler}
       {...props}
     />
