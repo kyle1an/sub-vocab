@@ -7,6 +7,7 @@ import { produce } from 'immer'
 import { atom, useAtom, useSetAtom } from 'jotai'
 import { useDeferredValue, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import getCaretCoordinates from 'textarea-caret'
 
 import type { LabelDisplaySource, LabelSourceData } from '@/lib/vocab'
 
@@ -15,6 +16,7 @@ import {
   useIrregularMapsQuery,
 } from '@/api/vocab-api'
 import { FileInput } from '@/components/file-input'
+import { Button } from '@/components/ui/button'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { TextareaInput } from '@/components/ui/textarea-input'
 import { VocabSourceTable } from '@/components/VocabSource'
@@ -165,6 +167,19 @@ export default function ResizeVocabularyPanel() {
     }))
   }
 
+  function handleCaret() {
+    const textarea = document.querySelector('textarea')
+    if (textarea) {
+      requestAnimationFrame(() => {
+        const coords = getCaretCoordinates(textarea, textarea.selectionEnd)
+        textarea.scrollTo({
+          top: coords.top - textarea.clientHeight / 2,
+          behavior: 'smooth',
+        })
+      })
+    }
+  }
+
   return (
     (
       <div className="flex h-full flex-col">
@@ -177,6 +192,7 @@ export default function ResizeVocabularyPanel() {
               {t('browseFiles')}
             </FileInput>
             <FileSettings />
+            <Button onClick={handleCaret} className="h-8">handleCaret</Button>
             <div className="grow" />
           </div>
         </div>
