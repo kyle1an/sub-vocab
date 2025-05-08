@@ -50,22 +50,14 @@ const SidebarContext = React.createContext<SidebarContextProps | null>(null)
 
 function useSidebar() {
   const context = React.use(SidebarContext)
-  if (!context)
+  if (!context) {
     throw new Error('useSidebar must be used within a SidebarProvider.')
+  }
 
   return context
 }
 
-function SidebarProvider({
-  ref,
-  defaultOpen = true,
-  open: openProp,
-  onOpenChange: setOpenProp,
-  className,
-  style,
-  children,
-  ...props
-}: React.ComponentProps<'div'> & {
+function SidebarProvider({ ref, defaultOpen = true, open: openProp, onOpenChange: setOpenProp, className, style, children, ...props }: React.ComponentProps<'div'> & {
   defaultOpen?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
@@ -80,10 +72,12 @@ function SidebarProvider({
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
       const openState = typeof value === 'function' ? value(open) : value
-      if (setOpenProp)
+      if (setOpenProp) {
         setOpenProp(openState)
-      else
+      }
+      else {
         _setOpen(openState)
+      }
 
       // This sets the cookie to keep the sidebar state.
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
@@ -154,15 +148,7 @@ function SidebarProvider({
   )
 }
 
-function Sidebar({
-  ref,
-  side = 'left',
-  variant = 'sidebar',
-  collapsible = 'offcanvas',
-  className,
-  children,
-  ...props
-}: React.ComponentProps<'div'> & {
+function Sidebar({ ref, side = 'left', variant = 'sidebar', collapsible = 'offcanvas', className, children, ...props }: React.ComponentProps<'div'> & {
   side?: 'left' | 'right'
   variant?: 'sidebar' | 'floating' | 'inset'
   collapsible?: 'offcanvas' | 'icon' | 'none'
@@ -402,7 +388,7 @@ function SidebarGroupLabel({ ref, className, asChild = false, ...props }: React.
       data-slot="sidebar-group-label"
       data-sidebar="group-label"
       className={cn(
-        'text-sidebar-foreground/70 flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium outline-none ring-sidebar-ring transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
+        'flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
         'group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0',
         className,
       )}
@@ -489,17 +475,7 @@ const sidebarMenuButtonVariants = cva(
   },
 )
 
-function SidebarMenuButton({
-  ref,
-  asChild = false,
-  isActive = false,
-  variant = 'default',
-  size = 'default',
-  tooltip,
-  className,
-  onClick,
-  ...props
-}: React.ComponentProps<'button'> & {
+function SidebarMenuButton({ ref, asChild = false, isActive = false, variant = 'default', size = 'default', tooltip, className, onClick, ...props }: React.ComponentProps<'button'> & {
   asChild?: boolean
   isActive?: boolean
   tooltip?: string | React.ComponentProps<typeof TooltipContent>
@@ -524,8 +500,9 @@ function SidebarMenuButton({
     />
   )
 
-  if (!tooltip)
+  if (!tooltip) {
     return button
+  }
 
   if (typeof tooltip === 'string') {
     tooltip = {
@@ -649,15 +626,7 @@ function SidebarMenuSubItem({ ref, ...props }: React.ComponentProps<'li'>) {
   return <li ref={ref} {...props} />
 }
 
-function SidebarMenuSubButton({
-  ref,
-  asChild = false,
-  size = 'md',
-  isActive,
-  className,
-  onClick,
-  ...props
-}: React.ComponentProps<'a'> & {
+function SidebarMenuSubButton({ ref, asChild = false, size = 'md', isActive, className, onClick, ...props }: React.ComponentProps<'a'> & {
   asChild?: boolean
   size?: 'sm' | 'md'
   isActive?: boolean

@@ -15,7 +15,7 @@ import type { ZodObj } from '@/types/utils'
 import { osSessionAtom, useOpenSubtitlesLogin } from '@/api/opensubtitles'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input, InputWrapper } from '@/components/ui/input'
+import { Input } from '@/components/ui/input'
 
 const osAuthAtom = atom({
   username: '',

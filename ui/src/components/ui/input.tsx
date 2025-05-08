@@ -1,26 +1,8 @@
-import type { DivProps } from '@/components/ui/html-elements'
-
 import { cn } from '@/lib/utils'
 
 export interface InputProps extends
   React.InputHTMLAttributes<HTMLInputElement>,
   React.RefAttributes<HTMLInputElement> {}
-
-function InputWrapper({
-  className,
-  children,
-  ...props
-}: DivProps) {
-  return (
-    <div
-      data-slot="input-wrapper"
-      className={className}
-      {...props}
-    >
-      {children}
-    </div>
-  )
-}
 
 function Input({
   className,
@@ -41,7 +23,4 @@ function Input({
   )
 }
 
-export {
-  Input,
-  InputWrapper,
-}
+export { Input }

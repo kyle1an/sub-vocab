@@ -33,7 +33,7 @@ import { TablePaginationSizeSelect } from '@/components/table-pagination-size-se
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Div } from '@/components/ui/html-elements'
-import { Input, InputWrapper } from '@/components/ui/input'
+import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
@@ -494,7 +494,7 @@ export default function Subtitles() {
                 </span>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-72">
+            <PopoverContent className="w-72 [--sq-r:1.75rem]">
               <OpensubtitlesAuthentication />
             </PopoverContent>
           </Popover>

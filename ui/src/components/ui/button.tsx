@@ -18,7 +18,7 @@ const buttonVariants = cva(
           'sq:rounded-[--sq-r] sq:shadow-none sq:drop-shadow',
         ),
         destructive: clsx(
-          'hover:bg-destructive/90 bg-destructive text-destructive-foreground shadow-sm',
+          'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
         ),
         outline: clsx(
           'border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground',
@@ -26,7 +26,7 @@ const buttonVariants = cva(
           '[--offset:2px]',
         ),
         secondary: clsx(
-          'hover:bg-secondary/80 bg-secondary text-secondary-foreground shadow-sm',
+          'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
         ),
         ghost: clsx(
           'hover:bg-accent hover:text-accent-foreground',

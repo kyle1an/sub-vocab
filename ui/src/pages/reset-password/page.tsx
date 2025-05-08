@@ -13,7 +13,7 @@ import { useResetPasswordForEmail } from '@/api/user'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input, InputWrapper } from '@/components/ui/input'
+import { Input } from '@/components/ui/input'
 import { MS_PER_MINUTE } from '@/constants/time'
 import { authChangeEventAtom, sessionAtom } from '@/store/useVocab'
 

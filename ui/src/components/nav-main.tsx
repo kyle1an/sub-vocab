@@ -16,7 +16,7 @@ export function NavMain({
   items: {
     title: string
     url: string
-    icon: LucideIcon
+    icon?: LucideIcon
     isActive?: boolean
   }[]
 }) {
@@ -31,10 +31,11 @@ export function NavMain({
             {({ isActive }) => (
               <SidebarMenuButton
                 isActive={isActive}
+                tooltip={item.title}
                 asChild
               >
                 <div>
-                  <item.icon />
+                  {item.icon && <item.icon />}
                   <span>{item.title}</span>
                 </div>
               </SidebarMenuButton>

@@ -14,7 +14,7 @@ import { useSignInWithEmail, useSignInWithUsername } from '@/api/user'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input, InputWrapper } from '@/components/ui/input'
+import { Input } from '@/components/ui/input'
 import { authChangeEventAtom, sessionAtom } from '@/store/useVocab'
 
 export default function Login() {
