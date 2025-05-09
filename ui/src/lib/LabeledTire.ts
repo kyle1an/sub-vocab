@@ -178,24 +178,20 @@ export class LabeledTire {
   }
 
   add(input: string) {
-    const sentencesIterator = input.matchAll(/["'“‘[@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|\{[^}]*\})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ])|\.{3} *)*["'”’\]@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/g)
-    const sentencesMatched = [...sentencesIterator]
-    {
-      const previousLength = 0
-      this.sentences = sentencesMatched.map((s) => ({
-        text: s[0],
-        index: s.index,
-      }))
-      for (let len = 0; len < this.sentences.length; len++) {
-        const sentence = this.sentences[len]!.text
-        const wordsMatched = sentence.matchAll(/(?:[A-Za-zÀ-ÿ]['’-]?)*[A-Za-zÀ-ÿ][a-zß-ÿ]*(?:['’-]?[A-Za-zÀ-ÿ]['’]?)+/g)
-        for (let n = wordsMatched.next(); !n.done; n = wordsMatched.next()) {
-          const m = n.value
-          const matchedWord = m[0]
-          if (m.index !== undefined) {
-            this.update(matchedWord, m.index, len)
-          }
-        }
+    const sentenceRegex = /["'“‘[@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|\{[^}]*\})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ])|\.{3} *)*["'”’\]@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/g
+    const wordRegex = /(?:[A-Za-zÀ-ÿ]['’-]?)*[A-Za-zÀ-ÿ][a-zß-ÿ]*(?:['’-]?[A-Za-zÀ-ÿ]['’]?)+/g
+    const sentenceMatches = input.matchAll(sentenceRegex)
+    this.sentences = []
+    for (const sentenceMatch of sentenceMatches) {
+      const sentenceText = sentenceMatch[0]
+      const sentenceIndex = this.sentences.length
+      this.sentences.push({
+        text: sentenceText,
+        index: sentenceMatch.index,
+      })
+      const wordMatches = sentenceText.matchAll(wordRegex)
+      for (const wordMatch of wordMatches) {
+        this.update(wordMatch[0], wordMatch.index, sentenceIndex)
       }
     }
   }

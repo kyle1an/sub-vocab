@@ -203,11 +203,13 @@ export function VocabSourceTable({
   sentences,
   onPurge: purgeVocabulary,
   className = '',
+  onSentenceTrack,
 }: {
   data: LabelDisplaySource[]
   sentences: Sentence[]
   onPurge: () => void
   className?: string
+  onSentenceTrack: (sentenceId: number) => void
 }) {
   // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
@@ -476,6 +478,7 @@ ${wordsString}
                     sentences={sentences}
                     src={row.original.locations}
                     className="text-xs tracking-wide"
+                    onSentenceTrack={onSentenceTrack}
                   />
                 </TableRow>
               )

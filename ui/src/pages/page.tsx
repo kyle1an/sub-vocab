@@ -56,8 +56,10 @@ function getCount(list: LabelSourceData[]) {
 
 function SourceVocab({
   text: { text: sourceText },
+  onSentenceTrack,
 }: {
   text: { text: string }
+  onSentenceTrack: (sentenceId: Sentence | undefined) => void
 }) {
   const { data: irregulars = [] } = useIrregularMapsQuery()
   const [baseVocab] = useAtom(baseVocabAtom)
@@ -94,11 +96,16 @@ function SourceVocab({
     }))
   }
 
+  function handleLocateSentence(no: number) {
+    onSentenceTrack(sentences[no])
+  }
+
   return (
     <VocabSourceTable
       data={rows}
       sentences={sentences}
       onPurge={handlePurge}
+      onSentenceTrack={handleLocateSentence}
       className="h-full"
     />
   )
@@ -123,6 +130,7 @@ export default function ResizeVocabularyPanel() {
   })
 
   function handleTextareaChange({ name, value }: { name?: string, value: string }) {
+    console.log({ value })
     setSourceText((v) => ({
       text: value,
       version: v.version++,
@@ -163,6 +171,8 @@ export default function ResizeVocabularyPanel() {
 
   function handleFileChange({ name, value }: { name: string, value: string }) {
     setFileInfo(name)
+    console.log({ value })
+
     setSourceText((v) => ({
       text: value,
       version: v.version++,
@@ -177,6 +187,31 @@ export default function ResizeVocabularyPanel() {
         textarea.scrollTo({
           top: coords.top - textarea.clientHeight / 2,
           behavior: 'smooth',
+        })
+      })
+    }
+  }
+
+  function onSentenceTrack(sentenceId: Sentence | undefined) {
+    if (!sentenceId) {
+      return
+    }
+    console.log(`Tracking sentence with ID: ${sentenceId.index}`)
+
+    const textarea = document.querySelector('textarea')
+    if (textarea) {
+      requestAnimationFrame(() => {
+        const coords = getCaretCoordinates(textarea, sentenceId.index)
+        console.log(coords)
+
+        textarea.focus()
+        textarea.setSelectionRange(sentenceId.index, sentenceId.index + sentenceId.text.length)
+
+        requestAnimationFrame(() => {
+          textarea.scrollTo({
+            top: coords.top - textarea.clientHeight / 2,
+            behavior: 'smooth',
+          })
         })
       })
     }
@@ -242,6 +277,7 @@ export default function ResizeVocabularyPanel() {
             <ResizablePanel defaultSize={defaultSizes[1]}>
               <SourceVocab
                 text={deferredSourceText}
+                onSentenceTrack={onSentenceTrack}
               />
             </ResizablePanel>
           </ResizablePanelGroup>

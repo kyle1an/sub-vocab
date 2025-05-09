@@ -26,7 +26,7 @@ export function TextareaInput({
       .then((fileContents) => {
         const { title, content } = readEntryFiles(fileContents)
         handleChange({
-          value: content,
+          value: content.replaceAll('\r\n', '\n'),
           name: title,
         })
       })

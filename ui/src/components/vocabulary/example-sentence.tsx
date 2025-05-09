@@ -6,10 +6,12 @@ export function ExampleSentence({
   sentences,
   src,
   className = '',
+  onSentenceTrack,
 }: {
   sentences: Sentence[]
   src?: WordLocator[]
   className?: string
+  onSentenceTrack: (sentenceId: number) => void
 }) {
   const vocabPositions: [number, [number, number][]][] = []
   const srcSorted = [...src ?? []].sort((a, b) => a.sentenceId - b.sentenceId || a.startOffset - b.startOffset)
@@ -41,6 +43,7 @@ export function ExampleSentence({
         return (
           <div
             key={no}
+            onClick={() => onSentenceTrack(no)}
             className="break-words transition-colors duration-150 [word-break:break-word] hover:text-black dark:text-slate-500 dark:hover:text-slate-300"
           >
             {wordIndexes.map(([start, count], i) => {
