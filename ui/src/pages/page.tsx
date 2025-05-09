@@ -9,6 +9,7 @@ import { useDeferredValue, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import getCaretCoordinates from 'textarea-caret'
 
+import type { Sentence } from '@/lib/LabeledTire'
 import type { LabelDisplaySource, LabelSourceData } from '@/lib/vocab'
 
 import {
@@ -61,7 +62,7 @@ function SourceVocab({
   const { data: irregulars = [] } = useIrregularMapsQuery()
   const [baseVocab] = useAtom(baseVocabAtom)
   const [rows, setRows] = useState<LabelDisplaySource[]>([])
-  const [sentences, setSentences] = useState<string[]>([])
+  const [sentences, setSentences] = useState<Sentence[]>([])
   const setCount = useSetAtom(textCountAtom)
   const setNewCount = useSetAtom(newWordCountAtom)
   const setAcquaintedCount = useSetAtom(acquaintedWordCountAtom)
@@ -75,6 +76,7 @@ function SourceVocab({
       .map(formVocab)
       .filter((v) => v.locations.length >= 1)
       .sort((a, b) => (a.locations[0]?.wordOrder ?? 0) - (b.locations[0]?.wordOrder ?? 0))
+    console.log(list)
     setRows((r) => statusRetainedList(r, list))
     setSentences(trie.sentences)
     const { acquaintedCount, newCount, total } = getCount(list)

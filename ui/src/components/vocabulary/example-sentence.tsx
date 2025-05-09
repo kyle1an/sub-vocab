@@ -1,4 +1,4 @@
-import type { WordLocator } from '@/lib/LabeledTire'
+import type { Sentence, WordLocator } from '@/lib/LabeledTire'
 
 import { cn } from '@/lib/utils'
 
@@ -7,7 +7,7 @@ export function ExampleSentence({
   src,
   className = '',
 }: {
-  sentences: string[]
+  sentences: Sentence[]
   src?: WordLocator[]
   className?: string
 }) {
@@ -37,7 +37,7 @@ export function ExampleSentence({
     <div className={cn('mb-1 ml-5 mr-3 text-sm text-neutral-600', className)}>
       {vocabPositions.map(([no, wordIndexes], index) => {
         let progress = 0
-        const sentence = sentences[no] ?? ''
+        const sentence = sentences[no]?.text ?? ''
         return (
           <div
             key={no}

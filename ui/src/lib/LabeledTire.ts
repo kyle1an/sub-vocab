@@ -26,6 +26,11 @@ type NodeOf<T> = Simplify<{
   $?: T
 }>
 
+export type Sentence = {
+  text: string
+  index: number
+}
+
 export type WordLocator = {
   sentenceId: number
   startOffset: number
@@ -59,7 +64,7 @@ const isVowel = (chars: string) => ['a', 'e', 'i', 'o', 'u'].includes(chars)
 export class LabeledTire {
   root: NodeOf<TrieWordLabel> = {}
   #sequence = 0
-  sentences: string[] = []
+  sentences: Sentence[] = []
   #vocabulary = new Set<TrieWordLabel>()
 
   getNode(word: string) {
@@ -173,19 +178,23 @@ export class LabeledTire {
   }
 
   add(input: string) {
-    const sentencesMatched = input.match(/["'“‘[@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|\{[^}]*\})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ])|\.{3} *)*["'”’\]@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/g)
-    if (sentencesMatched) {
-      const previousLength = this.sentences.length
-      const newLength = previousLength + sentencesMatched.length
-      Array.prototype.push.apply(this.sentences, sentencesMatched)
-      for (let len = previousLength; len < newLength; len++) {
-        const sentence = this.sentences[len]!
+    const sentencesIterator = input.matchAll(/["'“‘[@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|\{[^}]*\})*[ \n\r]?(?:[-.](?=[A-Za-zÀ-ÿ])|\.{3} *)*["'”’\]@A-Za-zÀ-ÿ])+[^<>(){} \r\n]*/g)
+    const sentencesMatched = [...sentencesIterator]
+    {
+      const previousLength = 0
+      this.sentences = sentencesMatched.map((s) => ({
+        text: s[0],
+        index: s.index,
+      }))
+      for (let len = 0; len < this.sentences.length; len++) {
+        const sentence = this.sentences[len]!.text
         const wordsMatched = sentence.matchAll(/(?:[A-Za-zÀ-ÿ]['’-]?)*[A-Za-zÀ-ÿ][a-zß-ÿ]*(?:['’-]?[A-Za-zÀ-ÿ]['’]?)+/g)
         for (let n = wordsMatched.next(); !n.done; n = wordsMatched.next()) {
           const m = n.value
           const matchedWord = m[0]
-          if (m.index !== undefined)
+          if (m.index !== undefined) {
             this.update(matchedWord, m.index, len)
+          }
         }
       }
     }

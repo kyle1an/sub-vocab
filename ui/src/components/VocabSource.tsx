@@ -24,7 +24,7 @@ import IconIcRoundClose from '~icons/ic/round-close'
 import IconIconoirSparks from '~icons/iconoir/sparks'
 import IconLucideChevronRight from '~icons/lucide/chevron-right'
 
-import type { LearningPhase } from '@/lib/LabeledTire'
+import type { LearningPhase, Sentence } from '@/lib/LabeledTire'
 import type { ColumnFilterFn } from '@/lib/table-utils'
 import type { Category, LabelDisplaySource } from '@/lib/vocab'
 
@@ -205,7 +205,7 @@ export function VocabSourceTable({
   className = '',
 }: {
   data: LabelDisplaySource[]
-  sentences: string[]
+  sentences: Sentence[]
   onPurge: () => void
   className?: string
 }) {
