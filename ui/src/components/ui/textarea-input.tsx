@@ -4,6 +4,7 @@ import type { FileType } from '@/store/useVocab'
 
 import { Textarea } from '@/components/ui/textarea'
 import { DataTransferItemListReader, readEntryFiles } from '@/lib/filesHandler'
+import { normalizeNewlines } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
 
 export function TextareaInput({
@@ -26,7 +27,7 @@ export function TextareaInput({
       .then((fileContents) => {
         const { title, content } = readEntryFiles(fileContents)
         handleChange({
-          value: content.replaceAll('\r\n', '\n'),
+          value: normalizeNewlines(content),
           name: title,
         })
       })

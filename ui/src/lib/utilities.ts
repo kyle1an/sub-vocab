@@ -44,3 +44,5 @@ export function hasKey<T extends string>(obj: unknown, key: T): obj is { [key in
 }
 
 export const type = <T>(a: T) => a
+
+export const normalizeNewlines = (inputText: string) => inputText.replace(/\r\n?/g, '\n')
