@@ -7,7 +7,7 @@
     --background: 0 0% 100%;
     --background-active: theme(colors.stone.50);
     --foreground: 0 0% 3.9%;
-    --theme-bg: var(--background);
+    --theme-bg: hsl(var(--background));
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
@@ -50,7 +50,7 @@
     --background: 0 0% 3.9%;
     --background-active: theme(colors.slate.800);
     --foreground: 0 0% 98%;
-    --theme-bg: var(--background);
+    --theme-bg: hsl(var(--background));
     --card: 0 0% 3.9%;
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;

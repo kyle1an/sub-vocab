@@ -59,7 +59,7 @@ function SourceVocab({
   onSentenceTrack,
 }: {
   text: { text: string }
-  onSentenceTrack: (sentenceId: Sentence | undefined) => void
+  onSentenceTrack: (sentenceId: Sentence) => void
 }) {
   const { data: irregulars = [] } = useIrregularMapsQuery()
   const [baseVocab] = useAtom(baseVocabAtom)
@@ -97,7 +97,10 @@ function SourceVocab({
   }
 
   function handleLocateSentence(no: number) {
-    onSentenceTrack(sentences[no])
+    const sentence = sentences[no]
+    if (sentence) {
+      onSentenceTrack(sentence)
+    }
   }
 
   return (
@@ -130,7 +133,6 @@ export default function ResizeVocabularyPanel() {
   })
 
   function handleTextareaChange({ name, value }: { name?: string, value: string }) {
-    console.log({ value })
     setSourceText((v) => ({
       text: value,
       version: v.version++,
@@ -171,7 +173,6 @@ export default function ResizeVocabularyPanel() {
 
   function handleFileChange({ name, value }: { name: string, value: string }) {
     setFileInfo(name)
-    console.log({ value })
 
     setSourceText((v) => ({
       text: value,
@@ -179,39 +180,16 @@ export default function ResizeVocabularyPanel() {
     }))
   }
 
-  function handleCaret() {
+  function onSentenceTrack(sentence: Sentence) {
     const textarea = document.querySelector('textarea')
     if (textarea) {
       requestAnimationFrame(() => {
-        const coords = getCaretCoordinates(textarea, textarea.selectionEnd)
+        const coords = getCaretCoordinates(textarea, sentence.index)
+        textarea.focus()
+        textarea.setSelectionRange(sentence.index, sentence.index + sentence.text.length)
         textarea.scrollTo({
           top: coords.top - textarea.clientHeight / 2,
           behavior: 'smooth',
-        })
-      })
-    }
-  }
-
-  function onSentenceTrack(sentenceId: Sentence | undefined) {
-    if (!sentenceId) {
-      return
-    }
-    console.log(`Tracking sentence with ID: ${sentenceId.index}`)
-
-    const textarea = document.querySelector('textarea')
-    if (textarea) {
-      requestAnimationFrame(() => {
-        const coords = getCaretCoordinates(textarea, sentenceId.index)
-        console.log(coords)
-
-        textarea.focus()
-        textarea.setSelectionRange(sentenceId.index, sentenceId.index + sentenceId.text.length)
-
-        requestAnimationFrame(() => {
-          textarea.scrollTo({
-            top: coords.top - textarea.clientHeight / 2,
-            behavior: 'smooth',
-          })
         })
       })
     }
@@ -229,7 +207,6 @@ export default function ResizeVocabularyPanel() {
               {t('browseFiles')}
             </FileInput>
             <FileSettings />
-            <Button onClick={handleCaret} className="h-8">handleCaret</Button>
             <div className="grow" />
           </div>
         </div>
