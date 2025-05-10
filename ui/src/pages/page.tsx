@@ -17,7 +17,6 @@ import {
   useIrregularMapsQuery,
 } from '@/api/vocab-api'
 import { FileInput } from '@/components/file-input'
-import { Button } from '@/components/ui/button'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { TextareaInput } from '@/components/ui/textarea-input'
 import { VocabSourceTable } from '@/components/VocabSource'

@@ -6,8 +6,9 @@ import { ViewVerticalIcon } from '@radix-ui/react-icons'
 import { Slot } from '@radix-ui/react-slot'
 import { cva } from 'class-variance-authority'
 import clsx from 'clsx'
-import { useAbortableEffect } from 'foxact/use-abortable-effect'
 import * as React from 'react'
+import { useCallback } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -93,18 +94,10 @@ function SidebarProvider({ ref, defaultOpen = true, open: openProp, onOpenChange
   }, [isMobile, setOpen, setOpenMobile])
 
   // Adds a keyboard shortcut to toggle the sidebar.
-  useAbortableEffect((signal) => {
-    // eslint-disable-next-line react-web-api/no-leaked-event-listener
-    window.addEventListener('keydown', (event) => {
-      if (
-        event.key === SIDEBAR_KEYBOARD_SHORTCUT
-        && (event.metaKey || event.ctrlKey)
-      ) {
-        event.preventDefault()
-        toggleSidebar()
-      }
-    }, { signal })
-  }, [toggleSidebar])
+  useHotkeys(`meta+${SIDEBAR_KEYBOARD_SHORTCUT}`, useCallback((event) => {
+    event.preventDefault()
+    toggleSidebar()
+  }, [toggleSidebar]), {})
 
   // We add a state so that we can do data-state="expanded" or "collapsed".
   // This makes it easier to style the sidebar with Tailwind classes.
