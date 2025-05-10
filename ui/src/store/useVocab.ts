@@ -23,6 +23,7 @@ import { MS_PER_MINUTE } from '@/constants/time'
 import { env } from '@/env'
 import { getLanguage } from '@/i18n'
 import { SUPPORTED_FILE_EXTENSIONS } from '@/lib/filesHandler'
+import { sanitizeClassName } from '@/lib/utilities'
 import { getScrollbarWidth } from '@/lib/utils'
 
 export const sourceTextAtom = atom({
@@ -116,7 +117,7 @@ export function useDocumentInit() {
         document.documentElement.classList.add(os.name)
       }
       if (browser.name) {
-        document.documentElement.classList.add(browser.name)
+        document.documentElement.classList.add(sanitizeClassName(browser.name))
       }
       if (browser.major) {
         document.documentElement.classList.add(`v${browser.major}`)

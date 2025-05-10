@@ -46,3 +46,15 @@ export function hasKey<T extends string>(obj: unknown, key: T): obj is { [key in
 export const type = <T>(a: T) => a
 
 export const normalizeNewlines = (inputText: string) => inputText.replace(/\r\n?/g, '\n')
+
+export function sanitizeClassName(className: string) {
+  // Replace invalid characters with underscores
+  let sanitized = className.replace(/[^\w-]/g, '_')
+
+  // Ensure the first character is valid: letter, underscore, or hyphen
+  if (!/^[a-z_-]/i.test(sanitized)) {
+    sanitized = `_${sanitized}`
+  }
+
+  return sanitized
+}
