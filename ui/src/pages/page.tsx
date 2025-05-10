@@ -23,6 +23,7 @@ import { TextareaInput } from '@/components/ui/textarea-input'
 import { VocabSourceTable } from '@/components/VocabSource'
 import { VocabStatics } from '@/components/vocabulary/vocab-statics-bar'
 import { LabeledTire, LEARNING_PHASE } from '@/lib/LabeledTire'
+import { normalizeNewlines } from '@/lib/utilities'
 import {
   formVocab,
 } from '@/lib/vocab'
@@ -132,19 +133,11 @@ export default function ResizeVocabularyPanel() {
       setIsSourceTextStale(isStale)
   })
 
-  function handleTextareaChange({ name, value }: { name?: string, value: string }) {
+  function handleTextareaChange(ev: React.ChangeEvent<HTMLTextAreaElement>) {
     setSourceText((v) => ({
-      text: value,
+      text: ev.target.value,
       version: v.version++,
     }))
-    if (name)
-      setFileInfo(name)
-  }
-
-  function textareaOnChange(ev: React.ChangeEvent<HTMLTextAreaElement>) {
-    handleTextareaChange({
-      value: ev.target.value,
-    })
   }
 
   const [count] = useAtom(textCountAtom)
@@ -171,17 +164,20 @@ export default function ResizeVocabularyPanel() {
 
   const [fileTypes] = useAtom(fileTypesAtom)
 
-  function handleFileChange({ name, value }: { name: string, value: string }) {
-    setFileInfo(name)
-
+  function handleFileChange({ name, value }: { name?: string, value: string }) {
     setSourceText((v) => ({
-      text: value,
+      text: normalizeNewlines(value),
       version: v.version++,
     }))
+    if (name) {
+      setFileInfo(name)
+    }
   }
 
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
   function onSentenceTrack(sentence: Sentence) {
-    const textarea = document.querySelector('textarea')
+    const textarea = textareaRef.current
     if (textarea) {
       requestAnimationFrame(() => {
         const coords = getCaretCoordinates(textarea, sentence.index)
@@ -228,11 +224,12 @@ export default function ResizeVocabularyPanel() {
                   <div className="z-10 h-px w-full border-b border-solid border-border shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)]" />
                   <div className="size-full grow text-base text-zinc-700 md:text-sm">
                     <TextareaInput
+                      ref={textareaRef}
                       value={sourceText.text}
                       placeholder={t('inputArea')}
                       fileTypes={fileTypes}
-                      onChange={textareaOnChange}
-                      handleChange={handleTextareaChange}
+                      onChange={handleTextareaChange}
+                      onFileChange={handleFileChange}
                     />
                   </div>
                   <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">

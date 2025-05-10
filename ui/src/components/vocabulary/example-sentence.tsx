@@ -53,9 +53,9 @@ export function ExampleSentence({
               className="group/button flex h-auto min-h-4 min-w-4 items-start p-0 opacity-0 transition-opacity delay-100 group-hover:opacity-100"
               onClick={() => onSentenceTrack(no)}
             >
-              <div className="flex size-4 items-center justify-center">
+              <div className="flex size-4 items-center justify-center pl-[.5px]">
                 <IconamoonArrowRight1Bold
-                  className="size-2.5 pl-[.5px]"
+                  className="size-2.5"
                 />
               </div>
             </Button>

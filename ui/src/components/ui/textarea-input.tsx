@@ -4,17 +4,16 @@ import type { FileType } from '@/store/useVocab'
 
 import { Textarea } from '@/components/ui/textarea'
 import { DataTransferItemListReader, readEntryFiles } from '@/lib/filesHandler'
-import { normalizeNewlines } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
 
 export function TextareaInput({
   className,
   fileTypes,
-  handleChange,
+  onFileChange: handleChange,
   ...props
 }: React.ComponentProps<'textarea'> & {
   fileTypes: FileType[]
-  handleChange: (text: {
+  onFileChange: (text: {
     value: string
     name?: string
   }) => void
@@ -27,7 +26,7 @@ export function TextareaInput({
       .then((fileContents) => {
         const { title, content } = readEntryFiles(fileContents)
         handleChange({
-          value: normalizeNewlines(content),
+          value: content,
           name: title,
         })
       })
