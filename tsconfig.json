@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "forceConsistentCasingInFileNames": true,
+    "erasableSyntaxOnly": true,
 
     /* Base Options: */
     "esModuleInterop": true,

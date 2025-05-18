@@ -29,6 +29,8 @@ import { Div } from '@/components/ui/html-elements'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
 import { customFormatDistance, formatIntervalLocale } from '@/lib/date-utils'
 import { SortIcon } from '@/lib/icon-utils'
 import { getFileId } from '@/lib/subtitle'
@@ -44,7 +46,7 @@ type TVSubtitleData = SubtitleData<Episode> & RowId
 
 type RowData = ExpandableRow<TVSubtitleData>
 
-function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber = 0) {
+function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber = 0, root: React.RefObject<HTMLDivElement | null>, tbody: React.RefObject<HTMLTableSectionElement | null>) {
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
   const [osSession] = useAtom(osSessionAtom)
@@ -271,7 +273,12 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           </TableHeaderCell>
         )
       },
-      cell: ({ cell, getValue, row }) => {
+      cell({ cell, getValue, row }) {
+        /* eslint-disable react-compiler/react-compiler */
+        /* eslint-disable react-hooks/rules-of-hooks */
+        const [ref, isEllipsisActive] = useIsEllipsisActive<HTMLDivElement>()
+        /* eslint-enable react-compiler/react-compiler */
+        /* eslint-enable react-hooks/rules-of-hooks */
         let element = <></>
         if (row.depth === 0) {
           const value = getValue()
@@ -280,13 +287,49 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           )
         }
         else {
+          const className = "tracking-wider text-sm [font-feature-settings:'cv03','cv05','cv06']"
           const value = row.original.subtitle.attributes.files[0]?.file_name || ''
+          const rootRect = root.current?.getBoundingClientRect()
+          const refRect = ref.current?.getBoundingClientRect()
+          let maxWidth = 0
+          if (rootRect && refRect) {
+            maxWidth = rootRect.x + rootRect.width - refRect.x + 12 - 4
+          }
           element = (
             <div
-              title={value}
+              ref={ref}
               className="w-0 grow overflow-hidden overflow-ellipsis whitespace-nowrap"
             >
-              <span>{value}</span>
+              <Tooltip
+                delayDuration={500}
+              >
+                <TooltipTrigger asChild>
+                  <div
+                    className={clsx('truncate', className)}
+                  >
+                    {value}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent
+                  container={tbody.current}
+                  side="bottom"
+                  sideOffset={-21 - 1}
+                  align="start"
+                  alignOffset={-8 - 1}
+                  avoidCollisions={false}
+                  hidden={!isEllipsisActive}
+                  className="max-w-[var(--max-width)] border bg-background px-2 py-px text-foreground shadow-sm !zoom-in-100 !zoom-out-100 !slide-in-from-top-0 [word-wrap:break-word]"
+                  style={{
+                    '--max-width': `${maxWidth}px`,
+                  }}
+                >
+                  <div
+                    className={clsx('', className)}
+                  >
+                    {value}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
             </div>
           )
         }
@@ -481,7 +524,9 @@ export function TVSubtitleFiles({
   const highestEpisode = maxBy(subtitles, (d) => d.attributes.feature_details.episode_number)
   const highestEpisodeNumber = highestEpisode?.attributes.feature_details.episode_number
   const commonColumns = useCommonColumns<RowData>()
-  const tvColumns = useTVColumns(id, highestEpisodeNumber)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const tbodyRef = useRef<HTMLTableSectionElement>(null)
+  const tvColumns = useTVColumns(id, highestEpisodeNumber, rootRef, tbodyRef)
   const columns = [...commonColumns, ...tvColumns]
   const [rowSelection, setRowSelection] = useAtom(subtitleSelectionStateFamily(id))
   const dataRows = subtitleEpisodeData(subtitles, episodes)
@@ -515,7 +560,6 @@ export function TVSubtitleFiles({
     count: table.getPageCount(),
     page: tableState.pagination.pageIndex + 1,
   })
-  const rootRef = useRef<HTMLDivElement>(null)
   const rowsFiltered = table.getFilteredRowModel().rows.filter((row) => row.depth === 0 && row.subRows.length >= 1)
   const totalSubtitles = sum(rowsFiltered.map((row) => row.subRows.length))
   const allAvailableRowsMatch = rowsFiltered.length === totalEpisodes
@@ -578,13 +622,13 @@ export function TVSubtitleFiles({
                   </tr>
                 ))}
               </TableHeader>
-              <tbody>
+              <tbody ref={tbodyRef}>
                 {table.getRowModel().rows.map((row, index) => {
                   return (
                     <TableRow
                       key={row.id}
                       row={row}
-                      rootRef={rootRef}
+                      root={rootRef}
                       index={index + 1}
                       onRowSelectionChange={setRowSelection}
                     />

@@ -1,13 +1,13 @@
 import type { Cell, Row, SortDirection } from '@tanstack/react-table'
-import type { ReactElement, RefObject } from 'react'
+import type { ReactElement } from 'react'
 
 import { Slot } from '@radix-ui/react-slot'
+import { useIntersectionObserver } from '@react-hookz/web'
 import { flexRender } from '@tanstack/react-table'
 import clsx from 'clsx'
 import { useRetimer } from 'foxact/use-retimer'
 import { sum } from 'lodash-es'
 import React, { Fragment, useRef, useState } from 'react'
-import { useInView } from 'react-intersection-observer'
 
 import type { DivProps } from '@/components/ui/html-elements'
 import type { RowSelectionChangeFn } from '@/types/utils'
@@ -16,7 +16,6 @@ import type { GroupHeader } from '@/types/vocab'
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
 import { useRect } from '@/lib/hooks'
 import { SortIcon } from '@/lib/icon-utils'
-import { mergeRefs } from '@/lib/merge-refs'
 import { cn } from '@/lib/utils'
 
 const HEAD_HEIGHT = 30
@@ -151,7 +150,7 @@ type RowProp<T> = {
 type ExpandProp = {
   children: ReactElement
   index: number
-  rootRef: RefObject<HTMLDivElement | null>
+  root: React.RefObject<HTMLDivElement | null> | null
 }
 
 const ANIM_DURATION = 300
@@ -167,16 +166,16 @@ export function TableRow<T>({
     getIsExpanded,
     getVisibleCells,
   },
-  rootRef,
+  root: rootRef = null,
   index = 0,
   children,
   onRowSelectionChange,
 }: RowProp<T>) {
-  const rowRef = useRef<HTMLTableRowElement>(null!)
+  const rowRef = useRef<HTMLTableRowElement>(null)
   const { height: rowHeight } = useRect(rowRef)
   const detailRef = useRef<HTMLTableRowElement>(null)
   const detailElement = detailRef.current
-  const root = rootRef?.current ?? null
+  const root = rootRef?.current
   const [open, setOpen] = useState(getIsExpanded)
   const [animationOpen, setAnimationOpen] = useState(false)
   const retimerAnim = useRetimer()
@@ -201,8 +200,8 @@ export function TableRow<T>({
       retimerAnim(setTimeout(() => setAnimationOpen(false), ANIM_DURATION))
 
     retimerTransition(setTimeout(() => setTransitionOpen(false), SHADOW_DURATION))
-    if (root) {
-      const rowElement = rowRef.current
+    const rowElement = rowRef.current
+    if (root && rowElement) {
       if (rowElement.getBoundingClientRect().y - root.getBoundingClientRect().y <= HEAD_HEIGHT) {
         if (isClosing && detailElement) {
           const subRowsHeight = sum(subRows.map((subRow) => document.getElementById(subRow.id)).map((e) => e?.offsetHeight))
@@ -232,19 +231,24 @@ export function TableRow<T>({
     }
   }
 
-  const [detailRef2, , detailEntry] = useInView({
-    root,
+  const showDetail = Boolean(detailElement || open || animationOpen)
+  const detailEntry = useIntersectionObserver(showDetail ? detailRef : null, {
+    root: rootRef,
     rootMargin: `${-HEAD_HEIGHT - rowHeight}px 0% 0%`,
   })
   const isDetailAboveRoot = detailEntry && detailEntry.boundingClientRect.bottom < (detailEntry.rootBounds?.top ?? 0)
-  const [detailRef3, , detailEntry2] = useInView({
-    root,
+  const detailEntry2 = useIntersectionObserver(showDetail ? detailRef : null, {
+    root: rootRef,
     rootMargin: `${-HEAD_HEIGHT - rowHeight + 1}px 0% -100%`,
   })
   const isDetailVisibleIntersecting = Boolean(detailEntry2?.isIntersecting)
   const visibleCells = getVisibleCells()
   const state = open ? 'open' : 'closed'
 
+  let rowZIndex = index
+  if (open && subRows.length >= 1) {
+    rowZIndex += subRows.length + 1
+  }
   return (
     <>
       <tr
@@ -252,7 +256,7 @@ export function TableRow<T>({
         id={id}
         style={{
           '--top': `${HEAD_HEIGHT}px`,
-          '--z-index': index + (open && subRows.length ? 1 + subRows.length : 0),
+          '--z-index': rowZIndex,
         }}
         data-row
         className="group/tr relative z-[--z-index] bg-background transition-shadow duration-0 [content-visibility:auto] data-[state=open]:sticky data-[state=open]:top-[--top] data-[boundary]:!shadow-intersect [[data-boundary]+*:empty+&>*]:border-t-transparent [[data-detail-above]+&]:shadow-collapse [[data-detail-above]+&]:duration-200 [[data-state=closed]+&]:shadow-collapse [[data-state=closed][data-disabled]+&]:shadow-none [[data-transition-open]+&]:duration-300"
@@ -273,13 +277,9 @@ export function TableRow<T>({
           </Fragment>
         ))}
       </tr>
-      {detailElement || open || animationOpen ? (
+      {showDetail ? (
         <tr
-          ref={mergeRefs(
-            detailRef,
-            detailRef2,
-            detailRef3,
-          )}
+          ref={detailRef}
           style={{
             '--z-index': index - 1,
           }}

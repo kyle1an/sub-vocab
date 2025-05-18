@@ -21,8 +21,10 @@ import { FileInput } from '@/components/file-input'
 import { Button } from '@/components/ui/button'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { TextareaInput } from '@/components/ui/textarea-input'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { VocabSourceTable } from '@/components/VocabSource'
 import { VocabStatics } from '@/components/vocabulary/vocab-statics-bar'
+import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
 import { LabeledTire, LEARNING_PHASE } from '@/lib/LabeledTire'
 import { normalizeNewlines } from '@/lib/utilities'
 import {
@@ -191,6 +193,7 @@ export default function ResizeVocabularyPanel() {
     }
   }
 
+  const [fileInfoRef, isEllipsisActive] = useIsEllipsisActive<HTMLSpanElement>()
   return (
     (
       <div className="flex h-full flex-col">
@@ -228,7 +231,32 @@ export default function ResizeVocabularyPanel() {
               <div className="flex h-full items-center justify-center">
                 <div className="relative flex h-full grow flex-col overflow-hidden">
                   <div className="flex h-12 shrink-0 items-center bg-background py-2 pl-4 pr-2 text-xs">
-                    <span className="grow truncate">{fileInfo}</span>
+                    <Tooltip
+                      delayDuration={400}
+                    >
+                      <TooltipTrigger asChild>
+                        <span
+                          ref={fileInfoRef}
+                          className="grow truncate"
+                        >
+                          {fileInfo}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="bottom"
+                        sideOffset={-22 - 1}
+                        align="start"
+                        alignOffset={-12 - 1}
+                        avoidCollisions={false}
+                        hidden={!isEllipsisActive}
+                        className="max-w-[var(--max-width)] border bg-background text-foreground shadow-sm !zoom-in-100 !zoom-out-100 !slide-in-from-top-0 [word-wrap:break-word]"
+                        style={{
+                          '--max-width': `${window.innerWidth - (fileInfoRef.current?.getBoundingClientRect().x ?? 0) + 12 - 1}px`,
+                        }}
+                      >
+                        {fileInfo}
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                   <div className="z-10 h-px w-full border-b border-solid border-border shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)]" />
                   <div className="size-full grow text-base text-zinc-700 md:text-sm">

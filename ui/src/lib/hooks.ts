@@ -17,7 +17,7 @@ export const isDarkModeAtom = atom((get) => {
   return isDarkMode
 })
 
-export function useRect<T extends Element>(target: React.RefObject<T> | T | null) {
+export function useRect<T extends Element>(target: React.RefObject<T | null>) {
   const [width, setWidth] = useState(0)
   const [height, setHeight] = useState(0)
   useResizeObserver(target, (entry) => {
