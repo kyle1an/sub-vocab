@@ -5,6 +5,7 @@ import NumberFlow from '@number-flow/react'
 import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import clsx from 'clsx'
 import { useAtom } from 'jotai'
+import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import type { Subtitles } from '@/api/opensubtitles'
@@ -19,6 +20,8 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Div } from '@/components/ui/html-elements'
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
 import { SortIcon } from '@/lib/icon-utils'
 import { getFileId } from '@/lib/subtitle'
 import { getFilterFn, sortBySelection } from '@/lib/table-utils'
@@ -27,7 +30,7 @@ import { osLanguageAtom, subtitleSelectionStateFamily } from '@/store/useVocab'
 
 type MovieSubtitleData = SubtitleData
 
-function useMovieColumns<T extends MovieSubtitleData>() {
+function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTMLDivElement | null>, tbody: React.RefObject<HTMLTableSectionElement | null>) {
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
   return [
@@ -107,8 +110,20 @@ function useMovieColumns<T extends MovieSubtitleData>() {
           </TableHeaderCell>
         )
       },
-      cell: ({ cell, getValue }) => {
+      cell({ cell, getValue }) {
         const value = getValue()
+        /* eslint-disable react-compiler/react-compiler */
+        /* eslint-disable react-hooks/rules-of-hooks */
+        const [ref, isEllipsisActive] = useIsEllipsisActive<HTMLDivElement>()
+        /* eslint-enable react-compiler/react-compiler */
+        /* eslint-enable react-hooks/rules-of-hooks */
+        const className = "tracking-wider text-sm [font-feature-settings:'cv03','cv05','cv06']"
+        const rootRect = root.current?.getBoundingClientRect()
+        const refRect = ref.current?.getBoundingClientRect()
+        let maxWidth = 0
+        if (rootRect && refRect) {
+          maxWidth = rootRect.x + rootRect.width - refRect.x + 12 - 4
+        }
         return (
           <TableDataCell
             cell={cell}
@@ -118,10 +133,39 @@ function useMovieColumns<T extends MovieSubtitleData>() {
               onClick={(ev) => ev.stopPropagation()}
             >
               <div
-                title={value}
+                ref={ref}
                 className="w-0 grow overflow-hidden overflow-ellipsis whitespace-nowrap"
               >
-                <span>{value}</span>
+                <Tooltip
+                  delayDuration={500}
+                >
+                  <TooltipTrigger asChild>
+                    <div
+                      className={clsx('truncate', className)}
+                    >
+                      {value}
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    container={tbody.current}
+                    side="bottom"
+                    sideOffset={-21 - 1}
+                    align="start"
+                    alignOffset={-8 - 1}
+                    avoidCollisions={false}
+                    hidden={!isEllipsisActive}
+                    className="max-w-[var(--max-width)] border bg-background px-2 py-px text-foreground shadow-sm !zoom-in-100 !zoom-out-100 !slide-in-from-top-0 [word-wrap:break-word]"
+                    style={{
+                      '--max-width': `${maxWidth}px`,
+                    }}
+                  >
+                    <span
+                      className={className}
+                    >
+                      {value}
+                    </span>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </Div>
           </TableDataCell>
@@ -153,7 +197,6 @@ export function MovieSubtitleFiles({
 }: {
   id: number
 }) {
-  // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
   const [language] = useAtom(osLanguageAtom)
   const { data, isFetching, refetch } = useOpenSubtitlesSubtitles({
@@ -187,11 +230,12 @@ function SubtitleFiles({
   id: number
   subtitleData: Subtitles['Response']['data']
 }) {
-  // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
   const { t } = useTranslation()
   const commonColumns = useCommonColumns<MovieSubtitleData>()
-  const movieColumns = useMovieColumns()
+  const rootRef = useRef<HTMLDivElement>(null)
+  const tbodyRef = useRef<HTMLTableSectionElement>(null)
+  const movieColumns = useMovieColumns(rootRef, tbodyRef)
   const columns = [...commonColumns, ...movieColumns]
   const [rowSelection = {}, setRowSelection] = useAtom(subtitleSelectionStateFamily(id))
   const table = useReactTable({
@@ -225,6 +269,7 @@ function SubtitleFiles({
       <>
         <>
           <div
+            ref={rootRef}
             className="grow overflow-auto overflow-y-scroll"
           >
             <table className="relative border-separate border-spacing-0">
@@ -240,7 +285,7 @@ function SubtitleFiles({
                   </tr>
                 ))}
               </TableHeader>
-              <tbody>
+              <tbody ref={tbodyRef}>
                 {table.getRowModel().rows.map((row, index) => {
                   return (
                     <TableRow

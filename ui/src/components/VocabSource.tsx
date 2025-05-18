@@ -472,7 +472,7 @@ ${wordsString}
                 <TableRow
                   key={row.id}
                   row={row}
-                  rootRef={rootRef}
+                  root={rootRef}
                   index={index + 1}
                 >
                   <ExampleSentence

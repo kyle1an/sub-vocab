@@ -69,7 +69,7 @@ function useSyncMuiColorScheme() {
   }, [isDarkMode, mode, setMode])
 }
 
-function useSyncMetaThemeColor<T extends Element>(ref: React.RefObject<T>) {
+function useSyncMetaThemeColor<T extends Element>(ref: React.RefObject<T | null>) {
   const [isDarkMode] = useAtom(isDarkModeAtom)
   const setMetaThemeColor = useSetAtom(metaThemeColorAtom)
 
@@ -82,7 +82,8 @@ function useSyncMetaThemeColor<T extends Element>(ref: React.RefObject<T>) {
       themeColorContentValue = LIGHT_THEME_COLOR
 
     requestAnimationFrame(() => {
-      themeColorContentValue = window.getComputedStyle(ref.current, null).getPropertyValue('background-color')
+      if (ref.current)
+        themeColorContentValue = window.getComputedStyle(ref.current, null).getPropertyValue('background-color')
       if (themeColorContentValue === 'rgb(255, 255, 255)')
         themeColorContentValue = LIGHT_THEME_COLOR
 
@@ -110,7 +111,7 @@ function Header() {
 }
 
 export default function RootLayout() {
-  const ref = useRef<HTMLDivElement>(null!)
+  const ref = useRef<HTMLDivElement>(null)
   useSyncMuiColorScheme()
   useSyncDarkPreference()
   useAtom(metaThemeColorEffect)

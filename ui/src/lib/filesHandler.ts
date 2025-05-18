@@ -199,7 +199,11 @@ function isFileEntry(entry: FileSystemEntry): entry is FileSystemFileEntry {
 }
 
 export class DataTransferItemListReader {
-  constructor(private fileTypes: string[] = []) {}
+  fileTypes: string[]
+
+  constructor(fileTypes: string[] = []) {
+    this.fileTypes = fileTypes
+  }
 
   private readEntry(entry: FileSystemEntry) {
     if (isDirectoryEntry(entry))
