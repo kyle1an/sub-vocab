@@ -1,10 +1,10 @@
-import { zodResolver } from '@hookform/resolvers/zod'
+import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
 import { useAtom } from 'jotai'
 import { startTransition } from 'react'
 import { useForm } from 'react-hook-form'
 import { Navigate, useNavigate } from 'react-router'
 import { toast } from 'sonner'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import IconLucideLoader2 from '~icons/lucide/loader2'
 
 import type { ZodObj } from '@/types/utils'
@@ -47,10 +47,6 @@ export default function ResetPassword() {
       z
         .object<ZodObj<FormValues>>({
           email: z
-            .string()
-            .min(1, {
-              message: 'Email is required',
-            })
             .email(),
         }),
     ),

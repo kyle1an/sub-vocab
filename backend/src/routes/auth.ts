@@ -8,8 +8,8 @@ import { db, supabase } from '@backend/src/utils/db.ts'
 export const userRouter = router({
   signIn: publicProcedure
     .input(z.object({
-      username: z.string().nonempty(),
-      password: z.string().nonempty(),
+      username: z.string().min(1),
+      password: z.string().min(1),
     }))
     .mutation(async (opts) => {
       const { username, password } = opts.input

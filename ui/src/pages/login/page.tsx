@@ -1,9 +1,9 @@
-import { zodResolver } from '@hookform/resolvers/zod'
+import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
 import { useAtom } from 'jotai'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, Navigate } from 'react-router'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import IconLucideEye from '~icons/lucide/eye'
 import IconLucideEyeOff from '~icons/lucide/eye-off'
 import IconLucideLoader2 from '~icons/lucide/loader2'
@@ -38,12 +38,12 @@ export default function Login() {
           username: z
             .string()
             .min(1, {
-              message: 'Username is required',
+              error: 'Username is required',
             }),
           password: z
             .string()
             .min(1, {
-              message: 'Password is required',
+              error: 'Password is required',
             }),
         }),
     ),
@@ -63,7 +63,7 @@ export default function Login() {
   const isPending = isPendingEmailSignIn || isPendingUsernameSignIn
 
   function signIn({ username, password }: FormValues) {
-    if (z.string().email().safeParse(username).success) {
+    if (z.email().safeParse(username).success) {
       return signInWithEmailAsync({
         email: username,
         password,

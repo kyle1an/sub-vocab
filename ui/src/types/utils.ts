@@ -1,6 +1,6 @@
 import type { CheckedState } from '@radix-ui/react-checkbox'
 import type { Row, RowData } from '@tanstack/react-table'
-import type { z } from 'zod'
+import type z from 'zod/v4'
 
 export type RowSelectionChangeFn<TData extends RowData> = (checked: CheckedState, row: Row<TData>, mode?: 'singleRow' | 'singleSubRow') => void
 

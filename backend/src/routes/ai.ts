@@ -4,7 +4,7 @@ import { AISDKError, APICallError, generateObject } from 'ai'
 import { Result, ResultAsync } from 'neverthrow'
 import { z } from 'zod'
 
-import type { ZodObj } from '@ui/src/types/utils'
+import type { ZodObj } from '@backend/src/types/utils'
 
 import { env } from '@backend/env.ts'
 import { publicProcedure, router } from '@backend/src/routes/trpc'
@@ -30,13 +30,13 @@ const safeJsonParse = Result.fromThrowable((s: string) => errorSchema.parse(JSON
 export const aiRouter = router({
   getCategory: publicProcedure
     .input(z.object({
-      prompt: z.string().nonempty(),
+      prompt: z.string().min(1),
     }))
     .mutation(async (opts) => {
       const { prompt } = opts.input
-      const model = google('gemini-2.0-flash')
+      const languageModel = google('gemini-2.5-flash-preview-05-20')
       const result = await ResultAsync.fromPromise(generateObject({
-        model: openrouter.languageModel('meta-llama/llama-4-maverick:free'),
+        model: languageModel,
         temperature: 0,
         schema: z.object({
           properName: z.array(z.string()),

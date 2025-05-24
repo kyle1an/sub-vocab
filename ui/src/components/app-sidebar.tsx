@@ -37,12 +37,6 @@ const data = {
   ],
   navSecondary: [
     {
-      title: 'Subtitles',
-      url: '/subtitles',
-      icon: NrkMediaSubtitles,
-      badge: '10',
-    },
-    {
       title: 'Vocabulary',
       url: '/mine/vocabulary',
       icon: SolarChecklistBold,

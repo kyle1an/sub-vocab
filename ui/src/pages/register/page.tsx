@@ -1,9 +1,9 @@
-import { zodResolver } from '@hookform/resolvers/zod'
+import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
 import { useAtom } from 'jotai'
 import { startTransition, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Navigate, useNavigate } from 'react-router'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import IconLucideEye from '~icons/lucide/eye'
 import IconLucideEyeOff from '~icons/lucide/eye-off'
 import IconLucideLoader2 from '~icons/lucide/loader2'
@@ -34,18 +34,14 @@ export default function Register() {
       z
         .object<ZodObj<FormValues>>({
           email: z
-            .string()
-            .min(1, {
-              message: 'Email is required',
-            })
             .email(),
           password: z
             .string()
             .min(1, {
-              message: 'Password is required',
+              error: 'Password is required',
             })
             .min(PASSWORD_MIN_LENGTH, {
-              message: `Password should be at least ${PASSWORD_MIN_LENGTH} characters.`,
+              error: `Password should be at least ${PASSWORD_MIN_LENGTH} characters.`,
             }),
         }),
     ),
