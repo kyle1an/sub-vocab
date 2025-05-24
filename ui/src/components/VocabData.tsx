@@ -348,7 +348,7 @@ export function VocabDataTable({
           }}
         />
       </div>
-      <div className="h-px w-full border-b border-solid border-zinc-200 shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)] dark:border-slate-800" />
+      <div className="h-px w-full border-b border-solid border-zinc-200 shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)] dark:border-neutral-800" />
       <div className="w-full">
         <SegmentedControl
           value={segment}
@@ -385,7 +385,7 @@ export function VocabDataTable({
           </tbody>
         </table>
       </div>
-      <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-slate-800">
+      <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-neutral-800">
         <TablePagination
           items={items}
           table={table}
@@ -401,7 +401,7 @@ export function VocabDataTable({
           </div>
         </div>
       </div>
-      <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">
+      <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-neutral-800">
         <VocabStatics
           total={rowsFiltered.length}
           text={` ${t('vocabulary')}`}

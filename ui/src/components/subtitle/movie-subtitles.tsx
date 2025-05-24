@@ -298,7 +298,7 @@ function SubtitleFiles({
               </tbody>
             </table>
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-slate-800">
+          <div className="flex flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-neutral-800">
             <TablePagination
               items={items}
               table={table}
@@ -314,7 +314,7 @@ function SubtitleFiles({
               </div>
             </div>
           </div>
-          <div className="flex justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">
+          <div className="flex justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-neutral-800">
             <div className="flex h-7 items-center text-xs tabular-nums">
               <span>
                 <NumberFlow

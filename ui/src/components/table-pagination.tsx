@@ -27,7 +27,7 @@ export function TablePagination<T>({
         selected,
         ...item
       }) => {
-        const className = 'flex items-center min-w-[1.625rem] justify-center rounded dark:text-slate-300 dark:disabled:text-zinc-700 border border-transparent text-xs tabular-nums disabled:text-zinc-300'
+        const className = 'flex items-center min-w-[1.625rem] justify-center rounded dark:text-neutral-300 dark:disabled:text-zinc-700 border border-transparent text-xs tabular-nums disabled:text-zinc-300'
 
         if (type === 'previous') {
           return (

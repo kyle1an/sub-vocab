@@ -55,7 +55,7 @@ const checkedSegmentVariants = cva(
     variants: {
       variant: {
         default: 'border-[.5px] border-black/[.1] bg-white drop-shadow-sm dark:bg-neutral-600',
-        ghost: 'bg-neutral-200 dark:bg-slate-600',
+        ghost: 'bg-neutral-200 dark:bg-neutral-600',
       },
     },
     defaultVariants: {
@@ -142,7 +142,7 @@ export function SegmentedControl<T extends string>({
                 />
                 <label
                   htmlFor={id}
-                  className="relative block cursor-pointer bg-transparent text-center before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[.625rem] before:bg-neutral-300 before:transition-[background] before:duration-200 before:ease-[ease] before:will-change-[background] group-first-of-type/d:before:opacity-0 group-[[data-checked=true]]/d:cursor-default group-[[data-checked=true]]/d:before:z-10 group-[&[data-checked=true]+*]/d:before:bg-transparent group-[[data-checked=true]]/d:before:bg-transparent dark:before:bg-slate-700"
+                  className="relative block cursor-pointer bg-transparent text-center before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[.625rem] before:bg-neutral-300 before:transition-[background] before:duration-200 before:ease-[ease] before:will-change-[background] group-first-of-type/d:before:opacity-0 group-[[data-checked=true]]/d:cursor-default group-[[data-checked=true]]/d:before:z-10 group-[&[data-checked=true]+*]/d:before:bg-transparent group-[[data-checked=true]]/d:before:bg-transparent dark:before:bg-neutral-700"
                 >
                   <div className={clsx(
                     'flex flex-col justify-center text-sm/6',

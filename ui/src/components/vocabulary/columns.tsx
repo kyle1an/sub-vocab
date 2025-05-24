@@ -64,8 +64,8 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
                   className="inline-block cursor-text select-text pl-1.5 tracking-wider [font-feature-settings:'cv03','cv05','cv06'] first:pl-2"
                   onClick={(ev) => ev.stopPropagation()}
                 >
-                  <span className={clsx(i === 0 && src.length >= 1 ? '' : 'text-neutral-500 dark:text-slate-400')}>{w}</span>
-                  {i < last && <span className="text-neutral-500 dark:text-slate-400">, </span>}
+                  <span className={clsx(i === 0 && src.length >= 1 ? '' : 'text-neutral-500 dark:text-neutral-400')}>{w}</span>
+                  {i < last && <span className="text-neutral-500 dark:text-neutral-400">, </span>}
                 </div>
               ))}
             </>

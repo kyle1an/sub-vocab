@@ -34,7 +34,7 @@ export function SearchWidget({
   return (
     <div
       className={cn(
-        'flex max-w-48 flex-row items-center gap-1 overflow-visible rounded-md border p-1.5 pr-[.3125rem] sq:[corner-shape:squircle] dark:text-slate-400',
+        'flex max-w-48 flex-row items-center gap-1 overflow-visible rounded-md border p-1.5 pr-[.3125rem] sq:[corner-shape:squircle] dark:text-neutral-400',
         'shadow-sm [--sq-r:.75rem] has-[>:focus]:ring-1 has-[>:focus]:ring-ring sq:rounded-[--sq-r] sq:shadow-none sq:drop-shadow-sm',
       )}
     >
@@ -50,7 +50,7 @@ export function SearchWidget({
           onSearch(e.target.value)
         }}
         placeholder={t('search')}
-        className="w-[.1%] grow bg-transparent pl-0.5 leading-4 outline-none dark:placeholder:text-slate-600"
+        className="w-[.1%] grow bg-transparent pl-0.5 leading-4 outline-none dark:placeholder:text-neutral-600"
       />
       {value ? (
         <IconEpCircleCloseFilled
