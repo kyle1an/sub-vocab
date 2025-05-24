@@ -269,7 +269,7 @@ export default function ResizeVocabularyPanel() {
                       onFileChange={handleFileChange}
                     />
                   </div>
-                  <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">
+                  <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-neutral-800">
                     <VocabStatics
                       total={count}
                       text={` ${t('words')}`}

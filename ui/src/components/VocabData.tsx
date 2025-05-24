@@ -14,7 +14,7 @@ import {
 import clsx from 'clsx'
 import { useAtom, useAtomValue } from 'jotai'
 import { atomWithImmer } from 'jotai-immer'
-import { startTransition, useDeferredValue, useState } from 'react'
+import { startTransition, useDeferredValue, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
 import IconIonRefresh from '~icons/ion/refresh'
@@ -180,7 +180,8 @@ export function VocabDataTable({
   const { initialTableState, isUsingRegex, searchValue } = cacheState
   const deferredSearchValue = useDeferredValue(searchValue)
   const deferredIsUsingRegex = useDeferredValue(isUsingRegex)
-  const vocabularyCommonColumns = useVocabularyCommonColumns<TableData>()
+  const tbodyRef = useRef<HTMLTableSectionElement>(null)
+  const vocabularyCommonColumns = useVocabularyCommonColumns<TableData>(tbodyRef)
   const dataColumns = useDataColumns()
   const columns = [...vocabularyCommonColumns, ...dataColumns]
   const segments = useSegments()
@@ -348,7 +349,7 @@ export function VocabDataTable({
           }}
         />
       </div>
-      <div className="h-px w-full border-b border-solid border-zinc-200 shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)] dark:border-slate-800" />
+      <div className="h-px w-full border-b border-solid border-zinc-200 shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)] dark:border-neutral-800" />
       <div className="w-full">
         <SegmentedControl
           value={segment}
@@ -358,9 +359,9 @@ export function VocabDataTable({
         />
       </div>
       <div
-        className="w-full grow overflow-auto overflow-y-scroll overscroll-contain"
+        className="w-full grow overflow-auto overflow-y-scroll overscroll-contain [scrollbar-width:thin]"
       >
-        <table className="min-w-full border-separate border-spacing-0">
+        <table className="relative min-w-full border-separate border-spacing-0">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
@@ -373,7 +374,7 @@ export function VocabDataTable({
               </tr>
             ))}
           </TableHeader>
-          <tbody>
+          <tbody ref={tbodyRef}>
             {table.getRowModel().rows.map((row) => {
               return (
                 <TableRow
@@ -385,7 +386,7 @@ export function VocabDataTable({
           </tbody>
         </table>
       </div>
-      <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-slate-800">
+      <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-neutral-800">
         <TablePagination
           items={items}
           table={table}
@@ -401,7 +402,7 @@ export function VocabDataTable({
           </div>
         </div>
       </div>
-      <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">
+      <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-neutral-800">
         <VocabStatics
           total={rowsFiltered.length}
           text={` ${t('vocabulary')}`}

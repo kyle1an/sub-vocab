@@ -51,6 +51,7 @@ const config: Config = {
         background: {
           DEFAULT: 'hsl(var(--background))',
           active: 'var(--background-active)',
+          focus: 'var(--background-focus)',
         },
         foreground: 'hsl(var(--foreground))',
         card: {

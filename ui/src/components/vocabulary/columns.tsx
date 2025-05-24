@@ -9,15 +9,17 @@ import IconLucideCheckCircle from '~icons/lucide/check-circle'
 
 import type { LabelDisplayTable } from '@/lib/vocab'
 
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 import { Div } from '@/components/ui/html-elements'
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeaderCell } from '@/components/ui/table-element'
+import { VocabularyMenu } from '@/components/vocabulary/cells'
 import { VocabToggle } from '@/components/vocabulary/toggle-button'
 import { useVocabToggle } from '@/hooks/vocab-toggle'
 import { SortIcon } from '@/lib/icon-utils'
 import { getFilterFn } from '@/lib/table-utils'
 
-export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDisplayTable>() {
+export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDisplayTable>(tbody?: React.RefObject<HTMLTableSectionElement | null>) {
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
   const handleVocabToggle = useVocabToggle()
@@ -50,7 +52,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
           </TableHeaderCell>
         )
       },
-      cell: ({ row, cell }) => {
+      cell({ row, cell }) {
         const { wFamily } = row.original
         const last = wFamily.length - 1
         return (
@@ -61,11 +63,41 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
               {wFamily.map(({ path: w, src }, i) => (
                 <div
                   key={w}
-                  className="inline-block cursor-text select-text pl-1.5 tracking-wider [font-feature-settings:'cv03','cv05','cv06'] first:pl-2"
+                  className="inline-block cursor-text select-text pl-1 tracking-wider [font-feature-settings:'cv03','cv05','cv06'] first:pl-1.5"
                   onClick={(ev) => ev.stopPropagation()}
                 >
-                  <span className={clsx(i === 0 && src.length >= 1 ? '' : 'text-neutral-500 dark:text-slate-400')}>{w}</span>
-                  {i < last && <span className="text-neutral-500 dark:text-slate-400">, </span>}
+                  <HoverCard
+                    openDelay={200}
+                    closeDelay={100}
+                  >
+                    <HoverCardTrigger asChild>
+                      <span
+                        className={clsx(
+                          'rounded-lg px-1 py-0.5 transition-colors delay-100 [corner-shape:squircle] hover:bg-background-focus',
+                          i === 0 && src.length >= 1 ? '' : 'text-neutral-500 dark:text-neutral-400',
+                        )}
+                      >
+                        {w}
+                      </span>
+                    </HoverCardTrigger>
+                    <HoverCardContent
+                      container={tbody?.current}
+                      side="top"
+                      sideOffset={-1}
+                      align="end"
+                      style={{
+                        '--z-index': 999_999_999,
+                      }}
+                      className="z-[--z-index] flex size-6 justify-center p-0.5"
+                    >
+                      <VocabularyMenu
+                        word={w}
+                      />
+                    </HoverCardContent>
+                  </HoverCard>
+                  {i < last && (
+                    <span className="text-neutral-500 dark:text-neutral-400">, </span>
+                  )}
                 </div>
               ))}
             </>

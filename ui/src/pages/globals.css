@@ -6,6 +6,7 @@
   :root {
     --background: 0 0% 100%;
     --background-active: theme(colors.stone.50);
+    --background-focus: theme(colors.stone.100);
     --foreground: 0 0% 3.9%;
     --theme-bg: hsl(var(--background));
     --card: 0 0% 100%;
@@ -35,7 +36,7 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --collapse: 0px -4px 10px -6px theme(colors.black / 10%);
-    --intersect: 0px 2px 10px -6px theme(colors.black / 10%);
+    --intersect: 0 0 0 1px theme(colors.neutral.100), 0px 2px 10px -6px theme(colors.black / 10%);
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -48,7 +49,8 @@
 
   .dark {
     --background: 0 0% 3.9%;
-    --background-active: theme(colors.slate.800);
+    --background-active: theme(colors.neutral.800);
+    --background-focus: theme(colors.neutral.800);
     --foreground: 0 0% 98%;
     --theme-bg: hsl(var(--background));
     --card: 0 0% 3.9%;
@@ -67,7 +69,7 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14.9%;
-    --border-td: theme(colors.slate.800 / 70%);
+    --border-td: theme(colors.neutral.800 / 70%);
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
     --chart-1: 220 70% 50%;
@@ -75,8 +77,8 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    --collapse: 0px -4px 10px -6px theme(colors.slate.600);
-    --intersect: 0px 2px 10px -6px theme(colors.slate.500);
+    --collapse: 0px -4px 10px -6px theme(colors.neutral.600);
+    --intersect: 0 0 0 1px theme(colors.neutral.900), 0px 2px 10px -6px theme(colors.neutral.500);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -108,6 +110,7 @@
     outline-style: solid;
   }
 
+  [data-browser-name="Chrome"][data-browser-major="139"],
   [data-browser-name="Chrome"][data-browser-major="137"],
   [data-browser-name="Chrome"][data-browser-major="138"] {
     --exponent-modifier: 2;

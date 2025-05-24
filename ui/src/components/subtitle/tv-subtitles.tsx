@@ -283,12 +283,14 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
         if (row.depth === 0) {
           const value = getValue()
           element = (
-            <span>{value}</span>
+            <span>
+              {value}
+            </span>
           )
         }
         else {
-          const className = "tracking-wider text-sm [font-feature-settings:'cv03','cv05','cv06']"
           const value = row.original.subtitle.attributes.files[0]?.file_name || ''
+          const className = "tracking-wider text-sm [font-feature-settings:'cv03','cv05','cv06']"
           const rootRect = root.current?.getBoundingClientRect()
           const refRect = ref.current?.getBoundingClientRect()
           let maxWidth = 0
@@ -323,11 +325,11 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
                     '--max-width': `${maxWidth}px`,
                   }}
                 >
-                  <div
-                    className={clsx('', className)}
+                  <span
+                    className={className}
                   >
                     {value}
-                  </div>
+                  </span>
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -637,7 +639,7 @@ export function TVSubtitleFiles({
               </tbody>
             </table>
           </div>
-          <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-slate-800">
+          <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-neutral-800">
             <TablePagination
               items={items}
               table={table}
@@ -653,7 +655,7 @@ export function TVSubtitleFiles({
               </div>
             </div>
           </div>
-          <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">
+          <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-neutral-800">
             <div className="flex h-7 items-center gap-1.5 text-xs tabular-nums">
               <span>
                 <NumberFlow
