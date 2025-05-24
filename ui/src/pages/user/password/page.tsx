@@ -1,8 +1,8 @@
-import { zodResolver } from '@hookform/resolvers/zod'
+import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import IconLucideEye from '~icons/lucide/eye'
 import IconLucideEyeOff from '~icons/lucide/eye-off'
 import IconLucideLoader2 from '~icons/lucide/loader2'
@@ -32,10 +32,10 @@ export default function Password() {
           newPassword: z
             .string()
             .min(1, {
-              message: 'Password is required',
+              error: 'Password is required',
             })
             .min(PASSWORD_MIN_LENGTH, {
-              message: `Password should be at least ${PASSWORD_MIN_LENGTH} characters.`,
+              error: `Password should be at least ${PASSWORD_MIN_LENGTH} characters.`,
             }),
         }),
     ),

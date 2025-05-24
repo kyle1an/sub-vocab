@@ -1,11 +1,11 @@
-import { zodResolver } from '@hookform/resolvers/zod'
+import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
 import { useUnmountEffect } from '@react-hookz/web'
 import { atom, useAtom } from 'jotai'
 import { get } from 'lodash-es'
 import { ResultAsync } from 'neverthrow'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import IconLucideEye from '~icons/lucide/eye'
 import IconLucideEyeOff from '~icons/lucide/eye-off'
 import IconLucideLoader2 from '~icons/lucide/loader2'
@@ -38,12 +38,12 @@ export function OpensubtitlesAuthentication() {
           username: z
             .string()
             .min(1, {
-              message: 'Username is required',
+              error: 'Username is required',
             }),
           password: z
             .string()
             .min(1, {
-              message: 'Password is required',
+              error: 'Password is required',
             }),
         }),
     ),

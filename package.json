@@ -14,22 +14,22 @@
     "ui": "pnpm --filter @sub-vocab/ui"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.49.7",
+    "@supabase/supabase-js": "^2.49.8",
     "date-fns": "^4.1.0",
     "eslint-typegen": "^2.2.0",
     "neverthrow": "^8.2.0",
     "type-fest": "^4.41.0",
-    "zod": "^3.25.17"
+    "zod": "^3.25.28"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.13.2",
     "@eslint/eslintrc": "^3.3.1",
-    "@stylistic/eslint-plugin": "^4.2.0",
+    "@stylistic/eslint-plugin": "^4.4.0",
     "@t3-oss/env-core": "^0.13.4",
     "@total-typescript/ts-reset": "^0.6.1",
     "@types/node": "^22.15.21",
     "eslint": "^9.27.0",
-    "eslint-plugin-command": "^3.2.0",
+    "eslint-plugin-command": "^3.2.1",
     "eslint-plugin-de-morgan": "^1.2.1",
     "eslint-plugin-jsonc": "^2.20.1",
     "eslint-plugin-package-json": "^0.31.0",

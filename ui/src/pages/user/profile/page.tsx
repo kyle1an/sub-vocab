@@ -1,9 +1,9 @@
-import { zodResolver } from '@hookform/resolvers/zod'
+import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
 import clsx from 'clsx'
 import { useAtom } from 'jotai'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import IconLucideLoader2 from '~icons/lucide/loader2'
 
 import type { ZodObj } from '@ui/src/types/utils'
@@ -39,13 +39,13 @@ export default function ProfilePage() {
           newUsername: z
             .string()
             .min(1, {
-              message: 'Username is required',
+              error: 'Username is required',
             })
             .min(USERNAME_MIN_LENGTH, {
-              message: `Username should be at least ${USERNAME_MIN_LENGTH} characters.`,
+              error: `Username should be at least ${USERNAME_MIN_LENGTH} characters.`,
             })
             .refine((val) => val !== username, {
-              message: 'The new username is the same as the current username.',
+              error: 'The new username is the same as the current username.',
             }),
         }),
     ),
@@ -83,13 +83,9 @@ export default function ProfilePage() {
       z
         .object<ZodObj<EmailFormValues>>({
           newEmail: z
-            .string()
-            .min(1, {
-              message: 'Email is required',
-            })
             .email()
             .refine((val) => val !== email, {
-              message: 'The new email is the same as the current email.',
+              error: 'The new email is the same as the current email.',
             }),
         }),
     ),
