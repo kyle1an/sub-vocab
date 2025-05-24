@@ -20,9 +20,9 @@ import { startTransition, useDeferredValue, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
 import { toast } from 'sonner'
-import IconIcRoundClose from '~icons/ic/round-close'
 import IconIconoirSparks from '~icons/iconoir/sparks'
 import IconLucideChevronRight from '~icons/lucide/chevron-right'
+import IconLucideLoader from '~icons/lucide/loader'
 
 import type { LearningPhase, Sentence } from '@/lib/LabeledTire'
 import type { ColumnFilterFn } from '@/lib/table-utils'
@@ -220,7 +220,8 @@ export function VocabSourceTable({
   const { initialTableState, isUsingRegex, searchValue, filterValue } = cacheState
   const deferredSearchValue = useDeferredValue(searchValue)
   const deferredIsUsingRegex = useDeferredValue(isUsingRegex)
-  const vocabularyCommonColumns = useVocabularyCommonColumns<TableData>()
+  const tbodyRef = useRef<HTMLTableSectionElement>(null)
+  const vocabularyCommonColumns = useVocabularyCommonColumns<TableData>(tbodyRef)
   const sourceColumns = useSourceColumns<TableData>()
   const columns = [...vocabularyCommonColumns, ...sourceColumns]
   const segments = useSegments()
@@ -390,13 +391,15 @@ ${wordsString}
         <Button
           className="aspect-square h-full p-0 [--sq-r:.8125rem]"
           variant="ghost"
-          disabled={freshVocabularies.length === 0}
+          disabled={freshVocabularies.length === 0 || isPending}
           onClick={handleAiVocabCategorize}
         >
           {isPending ? (
-            <IconIcRoundClose className="size-[19px] text-neutral-700" />
+            <IconLucideLoader
+              className="size-[18px] animate-spin duration-1000 [animation-duration:2s]"
+            />
           ) : (
-            <IconIconoirSparks className="size-[18px] text-neutral-700" />
+            <IconIconoirSparks className="size-[18px]" />
           )}
         </Button>
         <div className="p-0.5"></div>
@@ -440,7 +443,7 @@ ${wordsString}
           }}
         />
       </div>
-      <div className="h-px w-full border-b border-solid border-zinc-200 shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)] dark:border-slate-800" />
+      <div className="h-px w-full border-b border-solid border-zinc-200 shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)] dark:border-neutral-800" />
       <div className="z-10 w-full outline outline-1 outline-border">
         <SegmentedControl
           value={segment}
@@ -451,7 +454,7 @@ ${wordsString}
       </div>
       <div
         ref={rootRef}
-        className="w-full grow overflow-auto overflow-y-scroll overscroll-contain"
+        className="w-full grow overflow-auto overflow-y-scroll overscroll-contain [scrollbar-width:thin]"
       >
         <table className="relative min-w-full border-separate border-spacing-0">
           <TableHeader>
@@ -466,7 +469,7 @@ ${wordsString}
               </tr>
             ))}
           </TableHeader>
-          <tbody>
+          <tbody ref={tbodyRef}>
             {table.getRowModel().rows.map((row, index) => {
               return (
                 <TableRow
@@ -486,7 +489,7 @@ ${wordsString}
           </tbody>
         </table>
       </div>
-      <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-slate-800">
+      <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-neutral-800">
         <TablePagination
           items={items}
           table={table}
@@ -502,7 +505,7 @@ ${wordsString}
           </div>
         </div>
       </div>
-      <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">
+      <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-neutral-800">
         <VocabStatics
           total={rowsFiltered.length}
           text={` ${t('vocabulary')}`}

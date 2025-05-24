@@ -623,7 +623,7 @@ export default function Subtitles() {
           </div>
           <div
             ref={rootRef}
-            className="grow overflow-auto overflow-y-scroll overscroll-contain"
+            className="grow overflow-auto overflow-y-scroll overscroll-contain [scrollbar-width:thin]"
           >
             <table className="relative border-separate border-spacing-0">
               <TableHeader>
@@ -657,7 +657,7 @@ export default function Subtitles() {
               </tbody>
             </table>
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-slate-800">
+          <div className="flex flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-neutral-800">
             <TablePagination
               items={items}
               table={table}
@@ -673,7 +673,7 @@ export default function Subtitles() {
               </div>
             </div>
           </div>
-          <div className="flex justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-slate-800">
+          <div className="flex justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-neutral-800">
             <div className="flex h-7 items-center text-xs tabular-nums">
               <span>
                 <NumberFlow

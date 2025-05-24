@@ -78,7 +78,7 @@ export function TableHeaderCell<T>({
       key={id}
       colSpan={colSpan}
       className={cn(
-        'group/th whitespace-nowrap border-y border-solid border-y-zinc-200 bg-background p-0 text-xs font-normal dark:border-slate-800',
+        'group/th whitespace-nowrap border-y border-solid border-y-zinc-200 bg-background p-0 text-xs font-normal dark:border-neutral-800',
         className,
       )}
     >
@@ -104,7 +104,7 @@ export function TableDataCell<T>({
     <td
       key={id}
       className={cn(
-        'h-8 border-y border-solid border-b-transparent border-t-border-td p-0 text-sm group-first-of-type/tr:border-t-transparent group-data-[boundary]/tr:border-b-border-td',
+        'h-8 border-t border-solid border-t-border-td p-0 text-sm group-first-of-type/tr:border-t-transparent group-data-[boundary]/tr:border-b-border-td',
         className,
       )}
     >
