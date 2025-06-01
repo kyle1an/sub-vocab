@@ -75,7 +75,7 @@ export function OpensubtitlesAuthentication() {
   return (
     <div className="grid gap-4">
       <div className="space-y-2">
-        <h4 className="font-medium leading-none">
+        <h4 className="leading-none font-medium">
           Sign In to
           {' '}
           <a
@@ -120,7 +120,7 @@ export function OpensubtitlesAuthentication() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="inline-flex w-full text-sm">
-                    <span className="flex-grow">
+                    <span className="grow">
                       Password
                     </span>
                   </FormLabel>
@@ -145,11 +145,11 @@ export function OpensubtitlesAuthentication() {
                       >
                         {passwordVisible ? (
                           <IconLucideEye
-                            className="size-[18px] text-neutral-600"
+                            className="size-4.5 text-neutral-600"
                           />
                         ) : (
                           <IconLucideEyeOff
-                            className="size-[18px] text-neutral-600"
+                            className="size-4.5 text-neutral-600"
                           />
                         )}
                       </Button>
@@ -161,7 +161,7 @@ export function OpensubtitlesAuthentication() {
             />
             <FormMessage className="break-words">{errors.root?.serverError?.message}</FormMessage>
             <Button
-              className="mt-8 gap-1.5"
+              className="gap-1.5"
               type="submit"
               disabled={isPending}
             >

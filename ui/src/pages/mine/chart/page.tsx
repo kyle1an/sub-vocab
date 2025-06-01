@@ -423,7 +423,7 @@ export default function Chart() {
         <Bar
           options={options}
           data={chartData}
-          className="w-full tabular-nums tracking-wide md:pb-0"
+          className="w-full tracking-wide tabular-nums md:pb-0"
         />
       </div>
     </div>

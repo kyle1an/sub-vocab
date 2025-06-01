@@ -42,13 +42,13 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
         return (
           <TableHeaderCell
             header={header}
-            className="w-[.1%] [&:active:has(.child:not(:active))+th]:signal/active [&:active:has(.child:not(:active))]:signal/active"
+            className="w-[.1%] [&:active:has(.child:not(:active))]:signal/active [&:active:has(.child:not(:active))+th]:signal/active"
           >
             <Div
-              className="select-none justify-between gap-1 pl-2 pr-1 signal/active:bg-background-active"
+              className="justify-between gap-1 pr-1 pl-2 select-none signal/active:bg-background-active"
               onClick={header.column.getToggleSortingHandler()}
             >
-              <div className="child flex [font-stretch:condensed]" />
+              <div className="child flex font-stretch-condensed" />
               <SortIcon isSorted={isSorted} />
             </Div>
           </TableHeaderCell>
@@ -63,7 +63,7 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
             <Div className="text-zinc-400">
               <div
                 className={clsx(
-                  'flex h-full grow items-center justify-between pl-2 pr-1',
+                  'flex h-full grow items-center justify-between pr-1 pl-2',
                   canExpand && 'cursor-pointer',
                 )}
               >
@@ -104,7 +104,7 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
               <HeaderTitle
                 title={title}
                 isSorted={isSorted}
-                className="data-[title]:*:text-left"
+                className="*:data-title:text-left"
               />
             </Div>
           </TableHeaderCell>
@@ -129,12 +129,12 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
             cell={cell}
           >
             <Div
-              className="cursor-text select-text pl-2.5 pr-px tracking-wider"
+              className="cursor-text pr-px pl-2.5 tracking-wider select-text"
               onClick={(ev) => ev.stopPropagation()}
             >
               <div
                 ref={ref}
-                className="w-0 grow overflow-hidden overflow-ellipsis whitespace-nowrap"
+                className="w-0 grow overflow-hidden text-ellipsis whitespace-nowrap"
               >
                 <Tooltip
                   delayDuration={500}
@@ -154,7 +154,7 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
                     alignOffset={-8 - 1}
                     avoidCollisions={false}
                     hidden={!isEllipsisActive}
-                    className="max-w-[var(--max-width)] border bg-background px-2 py-px text-foreground shadow-sm !zoom-in-100 !zoom-out-100 !slide-in-from-top-0 [word-wrap:break-word]"
+                    className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs !slide-in-from-top-0 !zoom-in-100 !zoom-out-100 [word-wrap:break-word]"
                     style={{
                       '--max-width': `${maxWidth}px`,
                     }}
@@ -310,7 +310,7 @@ function SubtitleFiles({
                   sizes={PAGE_SIZES}
                   value={tableState.pagination.pageSize}
                 />
-                <div className="whitespace-nowrap px-1">{`/${t('page')}`}</div>
+                <div className="px-1 whitespace-nowrap">{`/${t('page')}`}</div>
               </div>
             </div>
           </div>

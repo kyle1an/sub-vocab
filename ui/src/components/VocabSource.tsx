@@ -119,13 +119,13 @@ function useSourceColumns<T extends TableData>() {
               className="w-[.1%] active:bg-background-active"
             >
               <Div
-                className="min-w-[4.5rem] grow select-none gap-0.5 pl-2 pr-1"
+                className="min-w-18 grow gap-0.5 pr-1 pl-2 select-none"
                 onClick={header.column.getToggleSortingHandler()}
               >
                 <HeaderTitle
                   title={title}
                   isSorted={isSorted}
-                  className="data-[title]:*:text-right"
+                  className="*:data-title:text-right"
                 />
               </Div>
             </TableHeaderCell>
@@ -138,7 +138,7 @@ function useSourceColumns<T extends TableData>() {
             <TableDataCell
               cell={cell}
             >
-              <Div className="pl-0.5 pr-px text-zinc-400">
+              <Div className="pr-px pl-0.5 text-zinc-400">
                 {row.getCanExpand() ? (
                   <button
                     type="button"
@@ -149,17 +149,17 @@ function useSourceColumns<T extends TableData>() {
                   >
                     <IconLucideChevronRight
                       className={clsx(
-                        'size-[14px] text-zinc-400 transition-transform duration-200 dark:text-zinc-500',
+                        'size-3.5 text-zinc-400 transition-transform duration-200 dark:text-zinc-500',
                         isExpanded ? 'rotate-90' : '',
                       )}
                     />
-                    <span className="float-right inline-block tabular-nums [font-stretch:condensed]">
+                    <span className="float-right inline-block font-stretch-condensed tabular-nums">
                       {value}
                     </span>
                   </button>
                 ) : (
                   <div className="w-full justify-end px-3">
-                    <span className="float-right inline-block tabular-nums [font-stretch:condensed]">
+                    <span className="float-right inline-block font-stretch-condensed tabular-nums">
                       {value}
                     </span>
                   </div>
@@ -396,10 +396,10 @@ ${wordsString}
         >
           {isPending ? (
             <IconLucideLoader
-              className="size-[18px] animate-spin duration-1000 [animation-duration:2s]"
+              className="size-4.5 animate-spin duration-1000 [animation-duration:2s]"
             />
           ) : (
-            <IconIconoirSparks className="size-[18px]" />
+            <IconIconoirSparks className="size-4.5" />
           )}
         </Button>
         <div className="p-0.5"></div>
@@ -444,7 +444,7 @@ ${wordsString}
         />
       </div>
       <div className="h-px w-full border-b border-solid border-zinc-200 shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)] dark:border-neutral-800" />
-      <div className="z-10 w-full outline outline-1 outline-border">
+      <div className="z-10 w-full outline-1 outline-border outline-solid">
         <SegmentedControl
           value={segment}
           segments={segments}
@@ -501,7 +501,7 @@ ${wordsString}
               sizes={PAGE_SIZES}
               value={tableState.pagination.pageSize}
             />
-            <div className="whitespace-nowrap px-1">{`/${t('page')}`}</div>
+            <div className="px-1 whitespace-nowrap">{`/${t('page')}`}</div>
           </div>
         </div>
       </div>

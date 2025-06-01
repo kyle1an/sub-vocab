@@ -15,7 +15,7 @@ function Card({
   return (
     <div
       className={cn(
-        'rounded-xl border bg-card text-card-foreground drop-shadow sq:rounded-3xl sq:[corner-shape:squircle]',
+        'rounded-xl border bg-card text-card-foreground drop-shadow-xs sq:rounded-3xl sq:[corner-shape:squircle]',
         className,
       )}
       {...props}
@@ -41,7 +41,7 @@ function CardTitle({
 }: HeadingProps) {
   return (
     <h3
-      className={cn('font-semibold leading-none', className)}
+      className={cn('leading-none font-semibold', className)}
       {...props}
     />
   )

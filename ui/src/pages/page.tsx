@@ -201,7 +201,7 @@ export default function ResizeVocabularyPanel() {
           <div className="flex items-center gap-2">
             <FileInput
               onFileSelect={handleFileChange}
-              className="*:*:text-xs data-[slot=button]:*:*:h-8 data-[slot=button]:*:*:px-3"
+              className="*:*:text-xs *:*:data-[slot=button]:h-8 *:*:data-[slot=button]:px-3"
             >
               {t('browseFiles')}
             </FileInput>
@@ -218,7 +218,7 @@ export default function ResizeVocabularyPanel() {
             <div className="grow" />
           </div>
         </div>
-        <div className="flex grow items-center justify-center overflow-hidden rounded-xl border drop-shadow-sm sq:rounded-3xl sq:[corner-shape:squircle]">
+        <div className="flex grow items-center justify-center overflow-hidden rounded-xl border drop-shadow-xs sq:rounded-3xl sq:[corner-shape:squircle]">
           <ResizablePanelGroup
             ref={panelGroupRef}
             direction={direction}
@@ -230,7 +230,7 @@ export default function ResizeVocabularyPanel() {
             <ResizablePanel defaultSize={defaultSizes[0]}>
               <div className="flex h-full items-center justify-center">
                 <div className="relative flex h-full grow flex-col overflow-hidden">
-                  <div className="flex h-12 shrink-0 items-center bg-background py-2 pl-4 pr-2 text-xs">
+                  <div className="flex h-12 shrink-0 items-center bg-background py-2 pr-2 pl-4 text-xs">
                     <Tooltip
                       delayDuration={400}
                     >
@@ -249,7 +249,7 @@ export default function ResizeVocabularyPanel() {
                         alignOffset={-12 - 1}
                         avoidCollisions={false}
                         hidden={!isEllipsisActive}
-                        className="max-w-[var(--max-width)] border bg-background text-foreground shadow-sm !zoom-in-100 !zoom-out-100 !slide-in-from-top-0 [word-wrap:break-word]"
+                        className="max-w-(--max-width) border bg-background text-foreground shadow-xs !slide-in-from-top-0 !zoom-in-100 !zoom-out-100 [word-wrap:break-word]"
                         style={{
                           '--max-width': `${window.innerWidth - (fileInfoRef.current?.getBoundingClientRect().x ?? 0) + 12 - 1}px`,
                         }}

@@ -34,7 +34,7 @@ export function TableHeader({
         ...style,
       }}
       className={cn(
-        'sticky top-0 z-[--z-index] h-[--height] bg-background px-0',
+        'sticky top-0 z-(--z-index) h-(--height) bg-background px-0',
         className,
       )}
       {...props}
@@ -78,7 +78,7 @@ export function TableHeaderCell<T>({
       key={id}
       colSpan={colSpan}
       className={cn(
-        'group/th whitespace-nowrap border-y border-solid border-y-zinc-200 bg-background p-0 text-xs font-normal dark:border-neutral-800',
+        'group/th border-y border-solid border-y-zinc-200 bg-background p-0 text-xs font-normal whitespace-nowrap dark:border-neutral-800',
         className,
       )}
     >
@@ -104,7 +104,7 @@ export function TableDataCell<T>({
     <td
       key={id}
       className={cn(
-        'h-8 border-t border-solid border-t-border-td p-0 text-sm group-first-of-type/tr:border-t-transparent group-data-[boundary]/tr:border-b-border-td',
+        'h-8 border-t border-solid border-t-border-td p-0 text-sm group-first-of-type/tr:border-t-transparent group-data-boundary/tr:border-b-border-td',
         className,
       )}
     >
@@ -125,11 +125,11 @@ export function HeaderTitle({
   isSorted: false | SortDirection
 }) {
   return (
-    <div className={cn('flex grow select-none items-center', className)}>
+    <div className={cn('flex grow items-center select-none', className)}>
       <span
         data-title={title}
         className={clsx(
-          'grow [font-stretch:condensed] before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(data-title)]',
+          'grow font-stretch-condensed before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(data-title)]',
           isSorted ? 'font-semibold' : '',
         )}
       >
@@ -263,7 +263,7 @@ export function TableRow<T>({
           '--z-index': rowZIndex,
         }}
         data-row
-        className="group/tr relative z-[--z-index] bg-background transition-shadow duration-0 [content-visibility:auto] data-[state=open]:sticky data-[state=open]:top-[--top] data-[boundary]:!shadow-intersect [[data-boundary]+*:empty+&>*]:border-t-transparent [[data-detail-above]+&]:shadow-collapse [[data-detail-above]+&]:duration-200 [[data-state=closed]+&]:shadow-collapse [[data-state=closed][data-disabled]+&]:shadow-none [[data-transition-open]+&]:duration-300"
+        className="group/tr relative z-(--z-index) bg-background transition-shadow duration-0 [content-visibility:auto] data-boundary:shadow-intersect! data-[state=open]:sticky data-[state=open]:top-(--top) [[data-boundary]+*:empty+&>*]:border-t-transparent [[data-detail-above]+&]:shadow-collapse [[data-detail-above]+&]:duration-200 [[data-state=closed]+&]:shadow-collapse [[data-state=closed][data-disabled]+&]:shadow-none [[data-transition-open]+&]:duration-300"
         data-disabled={!getCanExpand() || undefined}
         data-state={state}
         data-boundary={(isDetailAboveRoot ? open : isDetailVisibleIntersecting) && !animationOpen ? '' : undefined}
@@ -290,7 +290,7 @@ export function TableRow<T>({
           data-state={state}
           data-detail-above={isDetailAboveRoot || undefined}
           data-transition-open={transitionOpen || undefined}
-          className="relative z-[--z-index] bg-background"
+          className="relative z-(--z-index) bg-background"
         >
           {children ? (
             <td
@@ -303,7 +303,7 @@ export function TableRow<T>({
                 <CollapsibleContent
                   data-no-anim-open={!animationOpen || undefined}
                   data-no-anim-closed={(isDetailAboveRoot && !open) || undefined}
-                  className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down data-[no-anim-closed]:data-[state=closed]:anim-duration-0 data-[no-anim-open]:data-[state=open]:anim-duration-0"
+                  className="overflow-hidden data-[state=closed]:animate-accordion-up data-[no-anim-closed]:data-[state=closed]:[animation-duration:0s] data-[state=open]:animate-accordion-down data-[no-anim-open]:data-[state=open]:[animation-duration:0s]"
                 >
                   {children}
                 </CollapsibleContent>

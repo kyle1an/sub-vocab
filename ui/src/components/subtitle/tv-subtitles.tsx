@@ -66,7 +66,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
             className="w-[.1%] active:bg-background-active active:signal/active [&:active+th]:signal/active"
           >
             <Div
-              className="group select-none gap-2 pr-1"
+              className="group gap-2 pr-1 select-none"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -76,7 +76,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
               <HeaderTitle
                 title={title}
                 isSorted={isSorted}
-                className="data-[title]:*:text-left"
+                className="*:data-title:text-left"
               />
             </Div>
           </TableHeaderCell>
@@ -88,7 +88,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center tabular-nums [font-stretch:condensed]">
+            <Div className="justify-center font-stretch-condensed tabular-nums">
               {row.depth >= 1 ? null : value}
             </Div>
           </TableDataCell>
@@ -106,13 +106,13 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
         return (
           <TableHeaderCell
             header={header}
-            className="w-[.1%] [&:active:has(.child:not(:active))+th]:signal/active [&:active:has(.child:not(:active))]:signal/active"
+            className="w-[.1%] [&:active:has(.child:not(:active))]:signal/active [&:active:has(.child:not(:active))+th]:signal/active"
           >
             <Div
-              className="select-none justify-between gap-1.5 pl-2 pr-1 signal/active:bg-background-active"
+              className="justify-between gap-1.5 pr-1 pl-2 select-none signal/active:bg-background-active"
               onClick={header.column.getToggleSortingHandler()}
             >
-              <div className="flex [font-stretch:condensed]">
+              <div className="flex font-stretch-condensed">
                 {osSession?.token ? (
                   <Checkbox
                     checked={checked}
@@ -154,7 +154,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
             <Div className="text-zinc-400">
               <div
                 className={clsx(
-                  'flex h-full grow items-center justify-between pl-2 pr-1',
+                  'flex h-full grow items-center justify-between pr-1 pl-2',
                   canExpand && 'cursor-pointer',
                 )}
                 onClick={() => {
@@ -182,7 +182,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
                 <IconLucideChevronRight
                   className={clsx(
                     canExpand ? '' : 'invisible',
-                    'size-[14px] text-zinc-400 transition-transform duration-200 dark:text-zinc-500',
+                    'size-3.5 text-zinc-400 transition-transform duration-200 dark:text-zinc-500',
                     isExpanded ? 'rotate-90' : '',
                   )}
                 />
@@ -213,7 +213,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
             className="w-[.1%] active:bg-background-active active:signal/active [&:active+th]:signal/active"
           >
             <Div
-              className="group select-none gap-2 pr-1"
+              className="group gap-2 pr-1 select-none"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -223,7 +223,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
               <HeaderTitle
                 title={title}
                 isSorted={isSorted}
-                className="data-[title]:*:text-left"
+                className="*:data-title:text-left"
               />
             </Div>
           </TableHeaderCell>
@@ -236,7 +236,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
             cell={cell}
           >
             <Div
-              className="whitespace-nowrap pl-1 pr-px capitalize tabular-nums [font-stretch:condensed] data-[value='tv']:uppercase"
+              className="pr-px pl-1 whitespace-nowrap capitalize font-stretch-condensed tabular-nums data-[value=tv]:uppercase"
               data-value={value}
             >
               {row.depth >= 1 ? null : value}
@@ -267,7 +267,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
               <HeaderTitle
                 title={title}
                 isSorted={isSorted}
-                className="data-[title]:*:text-left"
+                className="*:data-title:text-left"
               />
             </Div>
           </TableHeaderCell>
@@ -300,7 +300,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           element = (
             <div
               ref={ref}
-              className="w-0 grow overflow-hidden overflow-ellipsis whitespace-nowrap"
+              className="w-0 grow overflow-hidden text-ellipsis whitespace-nowrap"
             >
               <Tooltip
                 delayDuration={500}
@@ -320,7 +320,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
                   alignOffset={-8 - 1}
                   avoidCollisions={false}
                   hidden={!isEllipsisActive}
-                  className="max-w-[var(--max-width)] border bg-background px-2 py-px text-foreground shadow-sm !zoom-in-100 !zoom-out-100 !slide-in-from-top-0 [word-wrap:break-word]"
+                  className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs !slide-in-from-top-0 !zoom-in-100 !zoom-out-100 [word-wrap:break-word]"
                   style={{
                     '--max-width': `${maxWidth}px`,
                   }}
@@ -340,7 +340,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
             cell={cell}
           >
             <Div
-              className="cursor-text select-text pl-2.5 pr-px tracking-wider"
+              className="cursor-text pr-px pl-2.5 tracking-wider select-text"
               onClick={(ev) => ev.stopPropagation()}
             >
               {element}
@@ -360,7 +360,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
             className="w-[.1%] active:bg-background-active active:signal/active [&:active+th]:signal/active"
           >
             <Div
-              className="group select-none gap-2 pr-1"
+              className="group gap-2 pr-1 select-none"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -370,7 +370,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
               <HeaderTitle
                 title={title}
                 isSorted={isSorted}
-                className="data-[title]:*:text-left"
+                className="*:data-title:text-left"
               />
             </Div>
           </TableHeaderCell>
@@ -384,7 +384,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pl-0.5 pr-px tabular-nums [font-stretch:condensed]">
+            <Div className="justify-end pr-px pl-0.5 font-stretch-condensed tabular-nums">
               {row.depth >= 1 ? null : formatDuration(
                 intervalToDuration({ start, end }),
                 {
@@ -651,7 +651,7 @@ export function TVSubtitleFiles({
                   sizes={PAGE_SIZES}
                   value={tableState.pagination.pageSize}
                 />
-                <div className="whitespace-nowrap px-1">{`/${t('page')}`}</div>
+                <div className="px-1 whitespace-nowrap">{`/${t('page')}`}</div>
               </div>
             </div>
           </div>

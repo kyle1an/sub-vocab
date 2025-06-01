@@ -126,13 +126,13 @@ function useDataColumns<T extends TableData>() {
               className="w-[12%] active:bg-background-active"
             >
               <Div
-                className="select-none pl-2 pr-1"
+                className="pr-1 pl-2 select-none"
                 onClick={header.column.getToggleSortingHandler()}
               >
                 <HeaderTitle
                   title={title}
                   isSorted={isSorted}
-                  className="data-[title]:*:text-right"
+                  className="*:data-title:text-right"
                 />
               </Div>
             </TableHeaderCell>
@@ -144,7 +144,7 @@ function useDataColumns<T extends TableData>() {
             <TableDataCell
               cell={cell}
             >
-              <Div className="justify-end pl-0.5 pr-2 tabular-nums [font-stretch:condensed]">
+              <Div className="justify-end pr-2 pl-0.5 font-stretch-condensed tabular-nums">
                 {value ? customFormatDistanceToNowStrict(new Date(value), {
                   addSuffix: true,
                   locale: {
@@ -398,7 +398,7 @@ export function VocabDataTable({
               sizes={PAGE_SIZES}
               value={tableState.pagination.pageSize}
             />
-            <div className="whitespace-nowrap px-1">{`/${t('page')}`}</div>
+            <div className="px-1 whitespace-nowrap">{`/${t('page')}`}</div>
           </div>
         </div>
       </div>

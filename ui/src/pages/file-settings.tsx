@@ -91,7 +91,7 @@ export function FileSettings() {
       className="size-8 p-0"
     >
       <IconLucideCog
-        className="size-[14px]"
+        className="size-3.5"
       />
     </Button>
   )
@@ -159,8 +159,8 @@ export function FileSettings() {
         {Trigger}
       </DrawerTrigger>
       <DrawerContent>
-        <div className="w-full border-b pb-3 pt-1 text-lg">
-          <DialogTitle className="m-auto w-fit text-lg font-semibold leading-none">
+        <div className="w-full border-b pt-1 pb-3 text-lg">
+          <DialogTitle className="m-auto w-fit text-lg leading-none font-semibold">
             {FILE_SETTINGS_TITLE}
           </DialogTitle>
         </div>

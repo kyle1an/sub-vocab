@@ -46,7 +46,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
               <HeaderTitle
                 title={title}
                 isSorted={isSorted}
-                className="data-[title]:*:text-left"
+                className="*:data-title:text-left"
               />
             </Div>
           </TableHeaderCell>
@@ -63,7 +63,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
               {wFamily.map(({ path: w, src }, i) => (
                 <div
                   key={w}
-                  className="inline-block cursor-text select-text pl-1 tracking-wider first:pl-1.5"
+                  className="inline-block cursor-text pl-1 tracking-wider select-text first:pl-1.5"
                   onClick={(ev) => ev.stopPropagation()}
                 >
                   <HoverCard
@@ -88,7 +88,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
                       style={{
                         '--z-index': 999_999_999,
                       }}
-                      className="z-[--z-index] flex size-6 justify-center p-0.5"
+                      className="z-(--z-index) flex size-6 justify-center p-0.5 [[data-radix-popper-content-wrapper]:has(&)]:z-[1991991991]!"
                     >
                       <VocabularyMenu
                         word={w}
@@ -116,7 +116,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
             className="w-[.1%] active:bg-background-active"
           >
             <Div
-              className="group select-none gap-2 pr-1 [font-stretch:condensed]"
+              className="group gap-2 pr-1 font-stretch-condensed select-none"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -126,7 +126,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
               <HeaderTitle
                 title={title}
                 isSorted={isSorted}
-                className="data-[title]:*:text-right"
+                className="*:data-title:text-right"
               />
             </Div>
           </TableHeaderCell>
@@ -138,7 +138,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pl-0.5 pr-[9px] text-xs tabular-nums">
+            <Div className="justify-end pr-[9px] pl-0.5 text-xs tabular-nums">
               <span>
                 {value}
               </span>
@@ -160,7 +160,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
             className="w-[.1%] active:bg-background-active"
           >
             <Div
-              className="group select-none [font-stretch:condensed]"
+              className="group font-stretch-condensed select-none"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -181,7 +181,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
         <TableDataCell
           cell={cell}
         >
-          <Div className="justify-center pl-0.5 pr-px">
+          <Div className="justify-center pr-px pl-0.5">
             <VocabToggle
               vocab={row.original.vocab}
               onToggle={handleVocabToggle}
@@ -201,7 +201,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
             className="w-[.1%] active:bg-background-active"
           >
             <Div
-              className="group select-none gap-2 pr-1"
+              className="group gap-2 pr-1 select-none"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -211,7 +211,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
               <HeaderTitle
                 title={title}
                 isSorted={isSorted}
-                className="data-[title]:*:text-right"
+                className="*:data-title:text-right"
               />
             </Div>
           </TableHeaderCell>
@@ -223,7 +223,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center pl-0.5 pr-px tabular-nums [font-stretch:condensed]">
+            <Div className="justify-center pr-px pl-0.5 font-stretch-condensed tabular-nums">
               {value}
             </Div>
           </TableDataCell>

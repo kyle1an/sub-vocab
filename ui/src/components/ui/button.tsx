@@ -8,29 +8,29 @@ import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
   clsx(
-    'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors [--offset:1px] [--sq-r:1rem] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 sq:[corner-shape:squircle]',
+    'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors [--offset:1px] [--sq-r:1rem] focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 sq:[corner-shape:squircle]',
   ),
   {
     variants: {
       variant: {
         default: clsx(
-          'bg-primary text-primary-foreground shadow hover:bg-primary/90',
-          'sq:rounded-[--sq-r] sq:shadow-none sq:drop-shadow',
+          'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90',
+          'sq:rounded-(--sq-r) sq:shadow-none sq:drop-shadow-sm',
         ),
         destructive: clsx(
-          'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
+          'bg-destructive text-destructive-foreground shadow-xs hover:bg-destructive/90',
         ),
         outline: clsx(
-          'border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground',
-          'sq:rounded-[--sq-r] sq:shadow-none sq:drop-shadow-sm',
+          'border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground',
+          'sq:rounded-(--sq-r) sq:shadow-none sq:drop-shadow-xs',
           '[--offset:2px]',
         ),
         secondary: clsx(
-          'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 sq:rounded-[--sq-r]',
+          'bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80 sq:rounded-(--sq-r)',
         ),
         ghost: clsx(
           'hover:bg-accent hover:text-accent-foreground',
-          'sq:rounded-[--sq-r]',
+          'sq:rounded-(--sq-r)',
         ),
         link: clsx(
           'text-primary underline-offset-4 hover:underline',

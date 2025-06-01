@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 
 const segmentedControlVariants = cva(
   clsx(
-    `grid w-full !touch-manipulation select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-lg tracking-wide antialiased outline-none [text-rendering:geometricPrecision]`,
+    `grid w-full touch-manipulation! auto-cols-[1fr] grid-flow-col overflow-hidden rounded-lg tracking-wide antialiased outline-hidden select-none [text-rendering:geometricPrecision]`,
     'sq:rounded-[.9375rem] sq:superellipse-[3.5]',
   ),
   {
@@ -54,7 +54,7 @@ const checkedSegmentVariants = cva(
   {
     variants: {
       variant: {
-        default: 'border-[.5px] border-black/[.1] bg-white drop-shadow-sm dark:bg-neutral-600',
+        default: 'border-[.5px] border-black/[.1] bg-white drop-shadow-xs dark:bg-neutral-600',
         ghost: 'bg-neutral-200 dark:bg-neutral-600',
       },
     },
@@ -126,7 +126,7 @@ export function SegmentedControl<T extends string>({
             const label = item.label
             return (
               <div
-                className="group/d relative first-of-type:col-[1] first-of-type:row-[1] first-of-type:shadow-none"
+                className="group/d relative first-of-type:col-1 first-of-type:row-1 first-of-type:shadow-none"
                 data-checked={checked}
               >
                 <input
@@ -135,23 +135,23 @@ export function SegmentedControl<T extends string>({
                   type="radio"
                   value={item.value}
                   checked={checked}
-                  className="absolute inset-0 appearance-none opacity-0 outline-none"
+                  className="absolute inset-0 appearance-none opacity-0 outline-hidden"
                   onChange={() => {
                     handleOnChange(item.value)
                   }}
                 />
                 <label
                   htmlFor={id}
-                  className="relative block cursor-pointer bg-transparent text-center before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[.625rem] before:bg-neutral-300 before:transition-[background] before:duration-200 before:ease-[ease] before:will-change-[background] group-first-of-type/d:before:opacity-0 group-[[data-checked=true]]/d:cursor-default group-[[data-checked=true]]/d:before:z-10 group-[&[data-checked=true]+*]/d:before:bg-transparent group-[[data-checked=true]]/d:before:bg-transparent dark:before:bg-neutral-700"
+                  className="relative block cursor-pointer bg-transparent text-center group-data-[checked=true]/d:cursor-default before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[.625rem] before:bg-neutral-300 before:transition-[background] before:duration-200 before:ease-[ease] before:will-change-[background] group-first-of-type/d:before:opacity-0 group-data-[checked=true]/d:before:z-10 group-data-[checked=true]/d:before:bg-transparent group-[&[data-checked=true]+*]/d:before:bg-transparent dark:before:bg-neutral-700"
                 >
                   <div className={clsx(
                     'flex flex-col justify-center text-sm/6',
-                    variant === 'ghost' && 'leading-[1.375rem]',
+                    variant === 'ghost' && 'leading-5.5',
                   )}
                   >
                     <div
                       className={clsx(
-                        'relative z-10 flex justify-center text-black transition-all duration-200 ease-[ease] will-change-transform group-hover/d:opacity-20 group-focus/d:opacity-20 group-active/d:opacity-20 group-active/d:delay-150 group-[&:active[data-checked=false]]/d:scale-95 group-[[data-checked=true]]/d:font-medium group-[[data-checked=true]]/d:opacity-100 dark:text-white',
+                        'relative z-10 flex justify-center text-black transition-all duration-200 ease-[ease] will-change-transform group-hover/d:opacity-20 group-focus/d:opacity-20 group-active/d:opacity-20 group-active/d:delay-150 group-data-[checked=true]/d:font-medium group-data-[checked=true]/d:opacity-100 group-[&:active[data-checked=false]]/d:scale-95 dark:text-white',
                       )}
                     >
                       {label}
@@ -161,7 +161,7 @@ export function SegmentedControl<T extends string>({
                       className="before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]"
                     />
                   </div>
-                  <div className="absolute left-0 top-0 size-full">
+                  <div className="absolute top-0 left-0 size-full">
                     <div
                       ref={addToRefs(item.value)}
                       className={cn(

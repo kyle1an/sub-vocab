@@ -7,16 +7,16 @@ import clsx from 'clsx'
 import { cn } from '@/lib/utils'
 
 const toggleVariants = cva(
-  'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-muted hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground',
+  'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-muted hover:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground',
   {
     variants: {
       variant: {
         default: clsx(
           'bg-transparent',
-          '[--sq-r:.375rem] sq:rounded-[--sq-r] sq:[corner-shape:squircle]',
+          '[--sq-r:.375rem] sq:rounded-(--sq-r) sq:[corner-shape:squircle]',
         ),
         outline: clsx(
-          'border border-input shadow-sm [--sq-r:1rem] sq:rounded-[--sq-r] sq:shadow-none sq:drop-shadow-sm sq:[corner-shape:squircle]',
+          'border border-input shadow-xs [--sq-r:1rem] sq:rounded-(--sq-r) sq:shadow-none sq:drop-shadow-xs sq:[corner-shape:squircle]',
         ),
       },
       size: {

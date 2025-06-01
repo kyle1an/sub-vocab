@@ -8,13 +8,13 @@ import { cn } from '@/lib/utils'
 
 const checkboxVariants = cva(
   cn(
-    'peer size-4 shrink-0 rounded-sm border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',
+    'peer size-4 shrink-0 rounded-sm border border-primary shadow-sm focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',
   ),
   {
     variants: {
       variant: {
         default: cn(
-          'drop-shadow-md [--sq-r:.425rem] data-[state=checked]:drop-shadow sq:rounded-[--sq-r] sq:shadow-none sq:superellipse-[3.4]',
+          'drop-shadow-md [--sq-r:.425rem] data-[state=checked]:drop-shadow-xs sq:rounded-(--sq-r) sq:shadow-none sq:superellipse-[3.4]',
         ),
         radio: 'rounded-full [&_svg]:h-[15px]',
       },
