@@ -7,11 +7,11 @@ import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import clsx from 'clsx'
 import { format } from 'date-fns'
+import { uniqBy } from 'es-toolkit'
 import { useDebouncedValue } from 'foxact/use-debounced-value'
 import { useAtom, useSetAtom } from 'jotai'
 import { atomWithImmer } from 'jotai-immer'
 import { atomWithStorage } from 'jotai/utils'
-import { uniqBy } from 'lodash-es'
 import { startTransition, useEffect, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
@@ -251,7 +251,7 @@ function useColumns<T extends TableData>() {
             cell={cell}
           >
             <Div
-              className="cursor-text select-text pl-2.5 pr-px tracking-wider [font-feature-settings:'cv03','cv05','cv06']"
+              className="cursor-text select-text pl-2.5 pr-px tracking-wider"
               onClick={(ev) => ev.stopPropagation()}
             >
               <span>{value}</span>
@@ -482,7 +482,11 @@ export default function Subtitles() {
     if (document.activeElement === inputRef.current)
       return
     e.preventDefault()
-    inputRef.current?.focus()
+    const el = inputRef.current
+    if (el) {
+      el.focus()
+      el.select()
+    }
   })
   const isLoading = downloadProgressAnim || subtitleDownloadProgress.length >= 1
   const [language, setLanguage] = useAtom(osLanguageAtom)

@@ -4,7 +4,7 @@ import { startTransition } from 'react'
 import { useForm } from 'react-hook-form'
 import { Navigate, useNavigate } from 'react-router'
 import { toast } from 'sonner'
-import { z } from 'zod/v4'
+import { z } from 'zod/v4-mini'
 import IconLucideLoader2 from '~icons/lucide/loader2'
 
 import type { ZodObj } from '@/types/utils'

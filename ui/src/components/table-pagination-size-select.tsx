@@ -1,7 +1,7 @@
 /* eslint-disable react-compiler/react-compiler */
 import type { Table } from '@tanstack/react-table'
 
-import { uniq } from 'lodash-es'
+import { uniq } from 'es-toolkit'
 
 import { Select, SelectContent, SelectGroup, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select'
 

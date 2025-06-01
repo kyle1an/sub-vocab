@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Navigate } from 'react-router'
-import { z } from 'zod/v4'
+import { z } from 'zod/v4-mini'
 import IconLucideEye from '~icons/lucide/eye'
 import IconLucideEyeOff from '~icons/lucide/eye-off'
 import IconLucideLoader2 from '~icons/lucide/loader2'
@@ -38,12 +38,11 @@ export default function UpdatePassword() {
         .object<ZodObj<FormValues>>({
           newPassword: z
             .string()
-            .min(1, {
+            .check(z.minLength(1, {
               error: 'Password is required',
-            })
-            .min(PASSWORD_MIN_LENGTH, {
+            }), z.minLength(PASSWORD_MIN_LENGTH, {
               error: `Password should be at least ${PASSWORD_MIN_LENGTH} characters.`,
-            }),
+            })),
         }),
     ),
   })

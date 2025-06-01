@@ -14,6 +14,7 @@ import IconSolarLogout2Outline from '~icons/solar/logout2-outline'
 
 import { useLogOut } from '@/api/user'
 import { DEFAULT_THEME, THEMES } from '@/components/themes'
+import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Menubar, MenubarContent, MenubarMenu, MenubarRadioGroup, MenubarRadioItem, MenubarTrigger } from '@/components/ui/menubar'
 import { cn } from '@/lib/utils'
@@ -201,24 +202,22 @@ export function TopBar({ className }: { className?: string }) {
                       <DropdownMenu>
                         <DropdownMenuTrigger
                           asChild
-                          className="flex"
+                          className="flex size-8 select-none p-0 [--sq-r:.75rem]"
                         >
                           {user ? (
-                            <div className="cursor-pointer">
-                              <div className="select-none rounded-full border">
-                                <img
-                                  src={avatarSource}
-                                  alt="avatar"
-                                  className="rounded-full"
-                                />
-                              </div>
-                            </div>
+                            <Button variant="ghost">
+                              <img
+                                src={avatarSource}
+                                alt="avatar"
+                                className="rounded-full border"
+                              />
+                            </Button>
                           ) : (
-                            <div className="">
+                            <Button variant="ghost">
                               <IconMingcuteUser4Fill
                                 className="size-[22px] text-neutral-500"
                               />
-                            </div>
+                            </Button>
                           )}
                         </DropdownMenuTrigger>
                         <DropdownMenuContent

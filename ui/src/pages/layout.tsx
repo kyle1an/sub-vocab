@@ -7,7 +7,7 @@ import { useMediaQuery } from 'foxact/use-media-query'
 import { useAtom, useSetAtom } from 'jotai'
 import { DevTools } from 'jotai-devtools'
 import css from 'jotai-devtools/styles.css?inline'
-import { useEffect, useRef } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
 import { Outlet } from 'react-router'
 
 import { useVocabRealtimeSync } from '@/api/vocab-api'
@@ -132,10 +132,12 @@ export default function RootLayout() {
         <Header />
         <Outlet />
       </SidebarInset>
-      <Toaster
-        closeButton
-        richColors
-      />
+      <Suspense fallback={null}>
+        <Toaster
+          closeButton
+          richColors
+        />
+      </Suspense>
       <JotaiDevTools />
       <ReactQueryDevtools initialIsOpen={false} />
     </SidebarProvider>

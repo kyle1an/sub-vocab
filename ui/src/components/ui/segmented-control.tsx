@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 
 const segmentedControlVariants = cva(
   clsx(
-    `grid w-full !touch-manipulation select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-lg tracking-wide antialiased outline-none [font-feature-settings:'cv08'] [text-rendering:geometricPrecision]`,
+    `grid w-full !touch-manipulation select-none auto-cols-[1fr] grid-flow-col overflow-hidden rounded-lg tracking-wide antialiased outline-none [text-rendering:geometricPrecision]`,
     'sq:rounded-[.9375rem] sq:superellipse-[3.5]',
   ),
   {

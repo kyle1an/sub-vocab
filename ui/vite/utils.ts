@@ -1,4 +1,4 @@
-import type { ManualChunksOption } from 'rollup'
+import type { OutputOptions } from 'rolldown'
 import type { PluginOption } from 'vite'
 
 function removeScriptTagAttributes(scriptContent: string) {
@@ -40,7 +40,8 @@ export const htmlInlineTransform = (): PluginOption => {
           ) {
             chunk.code = chunk.code.replace(
               /import\s*["']\.\/worker-[^"']+["'];?/,
-              '')
+              '',
+            )
           }
         }
       })
@@ -48,71 +49,32 @@ export const htmlInlineTransform = (): PluginOption => {
   }
 }
 
-export const getManualChunk: ManualChunksOption = (id) => {
-  if (id.includes('/lib/worker'))
-    return 'worker'
+// https://stackoverflow.com/a/3561711
+function escapeRegex(string: string) {
+  return string.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&')
+}
 
-  if (id.includes('pdfjs-dist')) {
-    if (id.includes('pdf.worker'))
-      return 'pdfjs-dist.worker'
-
-    return 'pdfjs-dist'
-  }
-
-  if (id.includes('@sentry'))
-    return 'sentry'
-
-  if (id.includes('.pnpm/chart.js@'))
-    return 'chart.js'
-
-  if (id.includes('commonjsHelpers.js'))
-    return 'commonjsHelpers'
-
-  if (
-    [
+export const chunks: OutputOptions['advancedChunks'] = { groups: [
+  {
+    test: 'pdf.worker',
+    name: 'pdf.worker',
+  },
+  {
+    test: 'pdf.mjs',
+    name: 'pdf.mjs',
+  },
+  {
+    test: '@sentry',
+    name: 'sentry',
+  },
+  {
+    test: new RegExp([
       '.pnpm/react@',
       '.pnpm/react-dom@',
-      '.pnpm/scheduler',
-      '.pnpm/react-router@',
-    ].some((s) => id.includes(s))
-  )
-    return 'react'
-
-  if (
-    [
-      'i18next',
-      'tailwind-merge',
-      'date-fns',
-      'zod',
-      '@tanstack/table-core',
-      '@tanstack/query-core',
-      'ua-parser-js',
-      'immer',
-      'lodash-es',
-      'tailwindcss',
     ]
-      .map((s) => `.pnpm/${s.replace(/\//g, '+')}@`)
-      .some((s) => id.includes(s))
-  )
-    return 'self'
-
-  if (
-    [
-      '.pnpm/@radix-ui+',
-      '.pnpm/@supabase+',
-      ...[
-        'jotai',
-        'jotai-effect',
-        'react-hook-form',
-        'react-resizable-panels',
-        'react-aria-components',
-        'jotai-tanstack-query',
-        'sonner',
-        'vaul',
-      ]
-        .map((s) => `.pnpm/${s.replace(/\//g, '+')}@`),
-    ]
-      .some((s) => id.includes(s))
-  )
-    return 'dep'
+      .map(escapeRegex).join('|'),
+    ),
+    name: 'react',
+  },
+],
 }

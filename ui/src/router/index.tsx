@@ -2,21 +2,22 @@ import {
   createBrowserRouter,
 } from 'react-router'
 
-import Home from '@/pages/home'
-import AboutPage from '@/pages/import/page'
 import RootLayout from '@/pages/layout'
-import Login from '@/pages/login/page'
-import Chart from '@/pages/mine/chart/page'
-import MineLayout from '@/pages/mine/layout'
-import VocabularyPage from '@/pages/mine/vocabulary/page'
-import ResizeVocabularyPanel from '@/pages/page'
-import Register from '@/pages/register/page'
-import ResetPassword from '@/pages/reset-password/page'
-import Subtitles from '@/pages/subtitles/page'
-import UpdatePassword from '@/pages/update-password/page'
-import User from '@/pages/user/layout'
-import Password from '@/pages/user/password/page'
-import ProfilePage from '@/pages/user/profile/page'
+
+function convert(m: any) {
+  const {
+    clientLoader,
+    clientAction,
+    default: Component,
+    ...rest
+  } = m
+  return {
+    ...rest,
+    loader: clientLoader,
+    action: clientAction,
+    Component,
+  }
+}
 
 export const router = createBrowserRouter([
   {
@@ -25,63 +26,63 @@ export const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        Component: Home,
+        lazy: () => import('@/pages/home').then(convert),
         children: [
           {
             path: '/',
-            Component: ResizeVocabularyPanel,
+            lazy: () => import('@/pages/page').then(convert),
           },
           {
             path: '/subtitles',
-            Component: Subtitles,
+            lazy: () => import('@/pages/subtitles/page').then(convert),
           },
         ],
       },
       {
         path: '/mine',
-        Component: MineLayout,
+        lazy: () => import('@/pages/mine/layout').then(convert),
         children: [
           {
             path: '/mine/vocabulary',
-            Component: VocabularyPage,
+            lazy: () => import('@/pages/mine/vocabulary/page').then(convert),
           },
           {
             path: '/mine/chart',
-            Component: Chart,
+            lazy: () => import('@/pages/mine/chart/page').then(convert),
           },
         ],
       },
       {
         path: '/about',
-        Component: AboutPage,
+        lazy: () => import('@/pages/import/page').then(convert),
       },
       {
         path: '/login',
-        Component: Login,
+        lazy: () => import('@/pages/login/page').then(convert),
       },
       {
         path: '/reset-password',
-        Component: ResetPassword,
+        lazy: () => import('@/pages/reset-password/page').then(convert),
       },
       {
         path: '/update-password',
-        Component: UpdatePassword,
+        lazy: () => import('@/pages/update-password/page').then(convert),
       },
       {
         path: '/register',
-        Component: Register,
+        lazy: () => import('@/pages/register/page').then(convert),
       },
       {
         path: '/user',
-        Component: User,
+        lazy: () => import('@/pages/user/layout').then(convert),
         children: [
           {
             path: '/user/profile',
-            Component: ProfilePage,
+            lazy: () => import('@/pages/user/profile/page').then(convert),
           },
           {
             path: '/user/password',
-            Component: Password,
+            lazy: () => import('@/pages/user/password/page').then(convert),
           },
         ],
       },

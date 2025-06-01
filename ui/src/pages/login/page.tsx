@@ -3,7 +3,7 @@ import { useAtom } from 'jotai'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, Navigate } from 'react-router'
-import { z } from 'zod/v4'
+import { z } from 'zod/v4-mini'
 import IconLucideEye from '~icons/lucide/eye'
 import IconLucideEyeOff from '~icons/lucide/eye-off'
 import IconLucideLoader2 from '~icons/lucide/loader2'
@@ -37,14 +37,14 @@ export default function Login() {
         .object<ZodObj<FormValues>>({
           username: z
             .string()
-            .min(1, {
+            .check(z.minLength(1, {
               error: 'Username is required',
-            }),
+            })),
           password: z
             .string()
-            .min(1, {
+            .check(z.minLength(1, {
               error: 'Password is required',
-            }),
+            })),
         }),
     ),
   })

@@ -1,8 +1,8 @@
 import type { CheckedState } from '@radix-ui/react-checkbox'
 
+import { isEqual } from 'es-toolkit'
 import { useMediaQuery } from 'foxact/use-media-query'
 import { useAtom, useSetAtom } from 'jotai'
-import { isEqual } from 'lodash-es'
 import { useEffect } from 'react'
 import { useSearchParams } from 'react-router'
 import { useImmer } from 'use-immer'

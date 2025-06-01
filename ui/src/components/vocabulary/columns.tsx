@@ -63,7 +63,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
               {wFamily.map(({ path: w, src }, i) => (
                 <div
                   key={w}
-                  className="inline-block cursor-text select-text pl-1 tracking-wider [font-feature-settings:'cv03','cv05','cv06'] first:pl-1.5"
+                  className="inline-block cursor-text select-text pl-1 tracking-wider first:pl-1.5"
                   onClick={(ev) => ev.stopPropagation()}
                 >
                   <HoverCard

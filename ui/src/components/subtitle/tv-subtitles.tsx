@@ -6,8 +6,8 @@ import { useQueries, useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import clsx from 'clsx'
 import { addMinutes, formatDuration, getYear, intervalToDuration } from 'date-fns'
+import { maxBy, sum } from 'es-toolkit'
 import { useAtom, useSetAtom } from 'jotai'
-import { maxBy, sum } from 'lodash-es'
 import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import IconLucideChevronRight from '~icons/lucide/chevron-right'
@@ -290,7 +290,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
         }
         else {
           const value = row.original.subtitle.attributes.files[0]?.file_name || ''
-          const className = "tracking-wider text-sm [font-feature-settings:'cv03','cv05','cv06']"
+          const className = 'tracking-wider text-sm'
           const rootRect = root.current?.getBoundingClientRect()
           const refRect = ref.current?.getBoundingClientRect()
           let maxWidth = 0
@@ -340,7 +340,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
             cell={cell}
           >
             <Div
-              className="cursor-text select-text pl-2.5 pr-px tracking-wider [font-feature-settings:'cv03','cv05','cv06']"
+              className="cursor-text select-text pl-2.5 pr-px tracking-wider"
               onClick={(ev) => ev.stopPropagation()}
             >
               {element}
@@ -523,7 +523,7 @@ export function TVSubtitleFiles({
     },
   })
   const isPending = isSeriesDetailLoading || isSubtitlesPending
-  const highestEpisode = maxBy(subtitles, (d) => d.attributes.feature_details.episode_number)
+  const highestEpisode = maxBy(subtitles, (d) => d.attributes.feature_details.episode_number ?? 0)
   const highestEpisodeNumber = highestEpisode?.attributes.feature_details.episode_number
   const commonColumns = useCommonColumns<RowData>()
   const rootRef = useRef<HTMLDivElement>(null)

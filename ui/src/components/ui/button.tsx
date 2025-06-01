@@ -14,7 +14,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: clsx(
-          'bg-primary text-primary-foreground shadow hover:bg-primary-hover',
+          'bg-primary text-primary-foreground shadow hover:bg-primary/90',
           'sq:rounded-[--sq-r] sq:shadow-none sq:drop-shadow',
         ),
         destructive: clsx(

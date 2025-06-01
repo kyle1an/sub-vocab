@@ -5,8 +5,8 @@ import { Slot } from '@radix-ui/react-slot'
 import { useIntersectionObserver } from '@react-hookz/web'
 import { flexRender } from '@tanstack/react-table'
 import clsx from 'clsx'
+import { sum } from 'es-toolkit'
 import { useRetimer } from 'foxact/use-retimer'
-import { sum } from 'lodash-es'
 import React, { Fragment, useRef, useState } from 'react'
 
 import type { DivProps } from '@/components/ui/html-elements'
@@ -204,7 +204,11 @@ export function TableRow<T>({
     if (root && rowElement) {
       if (rowElement.getBoundingClientRect().y - root.getBoundingClientRect().y <= HEAD_HEIGHT) {
         if (isClosing && detailElement) {
-          const subRowsHeight = sum(subRows.map((subRow) => document.getElementById(subRow.id)).map((e) => e?.offsetHeight))
+          const subRowsHeight = sum(
+            subRows
+              .map((subRow) => document.getElementById(subRow.id))
+              .map((e) => e?.offsetHeight || 0),
+          )
           const overlapHeight = rowElement.offsetTop + rowHeight - detailElement.offsetTop
           const expandedHeight = detailElement.offsetHeight + subRowsHeight
           if (overlapHeight < expandedHeight) {
