@@ -38,8 +38,8 @@ export function SearchWidget({
   return (
     <div
       className={cn(
-        'flex max-w-48 flex-row items-center gap-1 overflow-visible rounded-md border p-1.5 pr-[.3125rem] sq:[corner-shape:squircle] dark:text-neutral-400',
-        'shadow-sm [--sq-r:.75rem] has-[>:focus]:ring-1 has-[>:focus]:ring-ring sq:rounded-[--sq-r] sq:shadow-none sq:drop-shadow-sm',
+        'flex max-w-48 flex-row items-center gap-1 overflow-visible rounded-md border p-1.5 pr-[.3125rem] dark:text-neutral-400 sq:[corner-shape:squircle]',
+        'shadow-xs [--sq-r:.75rem] has-[>:focus]:ring-1 has-[>:focus]:ring-ring sq:rounded-(--sq-r) sq:shadow-none sq:drop-shadow-xs',
       )}
     >
       <IconIonSearch
@@ -54,7 +54,7 @@ export function SearchWidget({
           onSearch(e.target.value)
         }}
         placeholder={t('search')}
-        className="w-[.1%] grow bg-transparent pl-0.5 leading-4 outline-none dark:placeholder:text-neutral-600"
+        className="w-[.1%] grow bg-transparent pl-0.5 leading-4 outline-hidden dark:placeholder:text-neutral-600"
       />
       {value ? (
         <IconEpCircleCloseFilled
@@ -69,13 +69,13 @@ export function SearchWidget({
           pressed={isUsingRegex}
           aria-label="Regular expression"
           // https://x.com/JohnPhamous/status/1909293861547262141
-          className="size-fit rounded-[3px] p-px text-muted-foreground [touch-action:manipulation]"
+          className="size-fit touch-manipulation rounded-[3px] p-px text-muted-foreground"
           onPressedChange={() => {
             onRegex(!isUsingRegex)
           }}
         >
           <IconCodiconRegex
-            className="size-[18px]"
+            className="size-4.5"
           />
         </Toggle>
       </div>

@@ -41,10 +41,10 @@ export function DataTableFacetedFilter({
         <Button
           variant="outline"
           size="sm"
-          className={cn('h-8 p-0 shadow-none !drop-shadow-none', className)}
+          className={cn('h-8 p-0 shadow-none drop-shadow-none!', className)}
         >
           <>
-            <div className="inline-flex h-full items-center justify-center space-x-[2.5px] px-[6px] has-[>*:nth-child(2)]:pl-[5.5px]">
+            <div className="inline-flex h-full items-center justify-center space-x-[2.5px] px-1.5 has-[>*:nth-child(2)]:pl-[5.5px]">
               {/* <IconSiFilterListDuotone className="size-[15px]" /> */}
               {/* <IconLucideFilter className="size-[16px]" /> */}
               <span className="">
@@ -87,12 +87,12 @@ export function DataTableFacetedFilter({
           </>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[12.5rem] p-0" align="start">
+      <PopoverContent className="w-50 p-0" align="start">
         <Command className="rounded-none bg-transparent">
           <CommandInput placeholder={title} />
           <CommandList className="max-h-full">
-            <CommandEmpty className="py-[26px]">No results found.</CommandEmpty>
-            <CommandGroup className="max-h-[18.75rem] overflow-y-auto overflow-x-hidden">
+            <CommandEmpty className="py-6.5">No results found.</CommandEmpty>
+            <CommandGroup className="max-h-75 overflow-x-hidden overflow-y-auto">
               {options.map((option) => {
                 const isSelected = Boolean(filterValue[option.value])
                 return (
@@ -122,7 +122,7 @@ export function DataTableFacetedFilter({
                     >
                       <Checkbox
                         checked={isSelected}
-                        className="cursor-default [&_[data-slot=check-icon]]:size-3.5"
+                        className="cursor-default **:data-[slot=check-icon]:size-3.5"
                       />
                     </div>
                     {option.icon && (

@@ -119,14 +119,13 @@ export function TopBar({ className }: { className?: string }) {
     >
       <nav
         className={clsx(
-          'group/nav z-20 w-full rounded-t-3xl bg-background tracking-wide group-has-[[data-vaul-drawer]]/body:bg-[unset]',
-          '[body:has(&[data-open])]:mr-[--scrollbar-width] [body:has(&[data-open])]:overflow-hidden',
+          'group/nav z-20 w-full rounded-t-3xl bg-background tracking-wide group-has-data-vaul-drawer/body:bg-[unset]',
         )}
       >
         <>
           <>
-            <div className={clsx('mr-[--removed-body-scroll-bar-size]')}>
-              <div className="group-data-[open]/nav:mr-[--scrollbar-width] md:group-data-[open]/nav:mr-auto">
+            <div className={clsx('mr-(--removed-body-scroll-bar-size)')}>
+              <div>
                 <div className="flex h-11 items-center justify-between">
                   <div className="flex h-full items-center gap-2">
                     <Menubar className="h-full border-0 bg-transparent p-0 shadow-none">
@@ -134,7 +133,7 @@ export function TopBar({ className }: { className?: string }) {
                         <MenubarTrigger className="size-8 justify-center p-0">
                           <div className="flex h-full items-center">
                             <Slot
-                              className="size-[1.0625rem] text-neutral-500 dark:text-neutral-400"
+                              className="size-4.25 text-neutral-500 dark:text-neutral-400"
                             >
                               {THEMES.find((theme) => theme.value === themePreference)?.icon ?? DEFAULT_THEME.icon}
                             </Slot>
@@ -147,7 +146,7 @@ export function TopBar({ className }: { className?: string }) {
                         >
                           <MenubarRadioGroup
                             value={themePreference}
-                            className={clsx(isThemeTransitioning && '[body:has(&)_*::after]:!transition-none [body:has(&)_*::before]:!transition-none [body:has(&)_*]:!transition-none')}
+                            className={clsx(isThemeTransitioning && '[body:has(&)_*]:transition-none! [body:has(&)_*::after]:transition-none! [body:has(&)_*::before]:transition-none!')}
                           >
                             {THEMES.map((theme) => (
                               <MenubarRadioItem
@@ -202,7 +201,7 @@ export function TopBar({ className }: { className?: string }) {
                       <DropdownMenu>
                         <DropdownMenuTrigger
                           asChild
-                          className="flex size-8 select-none p-0 [--sq-r:.75rem]"
+                          className="flex size-8 p-0 select-none [--sq-r:.75rem]"
                         >
                           {user ? (
                             <Button variant="ghost">
@@ -215,13 +214,13 @@ export function TopBar({ className }: { className?: string }) {
                           ) : (
                             <Button variant="ghost">
                               <IconMingcuteUser4Fill
-                                className="size-[22px] text-neutral-500"
+                                className="size-5.5 text-neutral-500"
                               />
                             </Button>
                           )}
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
-                          className="w-[unset] [&_[role=menuitem]>*]:grow [&_[role=menuitem]>*]:px-2 [&_[role=menuitem]>*]:py-1.5 [&_[role=menuitem]]:p-0 [&_[role=menuitem]_svg]:text-neutral-600"
+                          className="w-[unset] [&_[role=menuitem]]:p-0 [&_[role=menuitem]_svg]:text-neutral-600 [&_[role=menuitem]>*]:grow [&_[role=menuitem]>*]:px-2 [&_[role=menuitem]>*]:py-1.5"
                           align="end"
                         >
                           {user ? (

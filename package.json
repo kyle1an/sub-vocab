@@ -19,7 +19,7 @@
     "eslint-typegen": "^2.2.0",
     "neverthrow": "^8.2.0",
     "type-fest": "^4.41.0",
-    "zod": "^3.25.45"
+    "zod": "^3.25.46"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.13.2",
@@ -32,7 +32,7 @@
     "eslint-plugin-command": "^3.2.1",
     "eslint-plugin-de-morgan": "^1.2.1",
     "eslint-plugin-jsonc": "^2.20.1",
-    "eslint-plugin-package-json": "^0.33.0",
+    "eslint-plugin-package-json": "^0.33.1",
     "jsonc-eslint-parser": "^2.4.0",
     "openapi-typescript": "^7.8.0",
     "pathe": "^2.0.3",

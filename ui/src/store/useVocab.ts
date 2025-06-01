@@ -23,7 +23,6 @@ import { MS_PER_MINUTE } from '@/constants/time'
 import { env } from '@/env'
 import { getLanguage } from '@/i18n'
 import { SUPPORTED_FILE_EXTENSIONS } from '@/lib/filesHandler'
-import { getScrollbarWidth } from '@/lib/utils'
 
 export const sourceTextAtom = atom({
   text: '',
@@ -126,8 +125,6 @@ export function useDocumentInit() {
     if (safari) {
       document.documentElement.setAttribute('data-is-safari', '')
     }
-    const scrollbarWidth = getScrollbarWidth()
-    document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`)
   }, [])
 }
 

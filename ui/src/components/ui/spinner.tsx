@@ -51,7 +51,7 @@ function Spinner({ className, variant, size = 'default' }: SpinnerProps) {
         <div
         // eslint-disable-next-line react/no-array-index-key
           key={i}
-          className="absolute left-[46.5%] top-[4.4%] h-[28%] w-[9%] origin-[center_170%] animate-spinner rounded-full opacity-10 will-change-transform"
+          className="absolute top-[4.4%] left-[46.5%] h-[28%] w-[9%] origin-[center_170%] animate-spinner rounded-full opacity-10 will-change-transform"
           style={{
             transform: `rotate(${i * (360 / 8)}deg)`,
             animationDelay: `${(i * (1 / 8))}s`,

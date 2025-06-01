@@ -102,11 +102,11 @@ export default function Password() {
                         >
                           {newPasswordVisible ? (
                             <IconLucideEye
-                              className="size-[18px] text-neutral-600"
+                              className="size-4.5 text-neutral-600"
                             />
                           ) : (
                             <IconLucideEyeOff
-                              className="size-[18px] text-neutral-600"
+                              className="size-4.5 text-neutral-600"
                             />
                           )}
                         </Button>

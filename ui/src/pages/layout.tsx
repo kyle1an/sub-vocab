@@ -124,7 +124,7 @@ export default function RootLayout() {
   return (
     <SidebarProvider
       ref={ref}
-      className="isolate h-svh bg-[--theme-bg] pr-[--pr] antialiased sq:superellipse-[3]"
+      className="isolate h-svh bg-(--theme-bg) pr-(--pr) antialiased sq:superellipse-[3]"
       data-vaul-drawer-wrapper=""
     >
       <AppSidebar collapsible="icon" />

@@ -18,11 +18,11 @@ export function VocabularyMenu({
     <Button
       variant="ghost"
       className={cn(
-        'size-full min-w-[var(--leading)] flex-wrap content-center items-start p-0 [--sq-r:.5rem]',
+        'size-full min-w-(--leading) flex-wrap content-center items-start p-0 [--sq-r:.5rem]',
       )}
       onClick={() => copy(word)}
     >
-      <div className="flex size-[var(--leading)] items-center justify-center *:size-[12px]">
+      <div className="flex size-(--leading) items-center justify-center *:size-3">
         <MingcuteCheckFill
           className={cn('', copied ? '' : 'hidden')}
         />
@@ -30,7 +30,7 @@ export function VocabularyMenu({
           className={cn('text-red-500', error ? '' : 'hidden')}
         />
         <OouiCopyLtr
-          className={cn('transition-opacity delay-[50ms] duration-100 group-hover:opacity-100', copied || error ? 'hidden' : '')}
+          className={cn('transition-opacity delay-50 duration-100 group-hover:opacity-100', copied || error ? 'hidden' : '')}
         />
       </div>
     </Button>

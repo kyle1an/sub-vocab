@@ -21,7 +21,7 @@ function Toaster({ ...props }: ToasterProps) {
           cancelButton:
             'group-[.toast]:bg-muted group-[.toast]:text-muted-foreground',
           closeButton:
-            '!bg-background !text-muted-foreground !border-border opacity-0 group-[.toast:hover]:opacity-100',
+            'bg-background! text-muted-foreground! border-border! opacity-0 group-[.toast:hover]:opacity-100',
         },
       }}
       duration={999999999}

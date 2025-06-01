@@ -34,7 +34,7 @@ export function VocabStatics({
   const deferredRemaining = useDeferredValue(remaining) || 0
   const deferredCompleted = useDeferredValue(completed) || 0
   return (
-    <div className="flex h-7 items-center text-xs tabular-nums text-neutral-600 dark:text-neutral-400">
+    <div className="flex h-7 items-center text-xs text-neutral-600 tabular-nums dark:text-neutral-400">
       <span>
         <NumberFlow
           value={total}
@@ -64,7 +64,7 @@ export function VocabStatics({
                 />
               </span>
               <IconLucideCircle
-                className="size-[14px] text-neutral-400"
+                className="size-3.5 text-neutral-400"
               />
             </div>
           </div>
@@ -87,7 +87,7 @@ export function VocabStatics({
                 />
               </span>
               <IconLucideCheckCircle
-                className="size-[14px] text-neutral-400"
+                className="size-3.5 text-neutral-400"
               />
             </div>
           </div>
@@ -104,7 +104,7 @@ export function VocabStatics({
               />
               %
             </div>
-            <div className="flex justify-center *:![--CircularProgress-size:16px]">
+            <div className="flex justify-center *:[--CircularProgress-size:16px]!">
               <CircularProgress
                 color="neutral"
                 variant="soft"

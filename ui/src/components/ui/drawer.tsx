@@ -37,12 +37,12 @@ function DrawerContent({ className, children, ...props }: React.ComponentProps<t
       <DrawerOverlay />
       <DrawerPrimitive.Content
         className={cn(
-          'fixed inset-x-0 bottom-0 z-50 mt-24 flex h-full max-h-[calc(100%-1.475rem)] flex-col outline-none after:!top-[calc(100%-.2px)] after:!bg-[--theme-bg]',
+          'fixed inset-x-0 bottom-0 z-50 mt-24 flex h-full max-h-[calc(100%-1.475rem)] flex-col outline-hidden after:top-[calc(100%-.2px)]! after:bg-(--theme-bg)!',
           className,
         )}
         {...props}
       >
-        <div className="flex h-full flex-col rounded-t-[.625rem] bg-[--theme-bg] sq:rounded-t-2xl sq:[corner-shape:squircle]">
+        <div className="flex h-full flex-col rounded-t-[.625rem] bg-(--theme-bg) sq:rounded-t-2xl sq:[corner-shape:squircle]">
           <DrawerHandle className="mt-1.5 shrink-0" />
           {children}
         </div>
@@ -79,7 +79,7 @@ function DrawerTitle({ className, ...props }: React.ComponentProps<typeof Drawer
   return (
     <DrawerPrimitive.Title
       className={cn(
-        'text-lg font-semibold leading-none',
+        'text-lg leading-none font-semibold',
         className,
       )}
       {...props}

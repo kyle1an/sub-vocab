@@ -35,7 +35,7 @@ export function useCommonColumns<T extends SubtitleData>() {
             className="w-[.1%] active:bg-background-active active:signal/active [&:active+th]:signal/active"
           >
             <Div
-              className="group select-none gap-2 pr-1 [font-stretch:condensed]"
+              className="group gap-2 pr-1 font-stretch-condensed select-none"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -45,7 +45,7 @@ export function useCommonColumns<T extends SubtitleData>() {
               <HeaderTitle
                 title={title}
                 isSorted={isSorted}
-                className="data-[title]:*:text-right"
+                className="*:data-title:text-right"
               />
             </Div>
           </TableHeaderCell>
@@ -58,7 +58,7 @@ export function useCommonColumns<T extends SubtitleData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center whitespace-nowrap pl-1.5 pr-px tabular-nums [font-stretch:condensed]">
+            <Div className="justify-center pr-px pl-1.5 whitespace-nowrap font-stretch-condensed tabular-nums">
               <span>
                 {displayName}
               </span>
@@ -78,7 +78,7 @@ export function useCommonColumns<T extends SubtitleData>() {
             className="w-[.1%] active:bg-background-active active:signal/active [&:active+th]:signal/active"
           >
             <Div
-              className="group select-none items-center gap-2 pr-1"
+              className="group items-center gap-2 pr-1 select-none"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -88,7 +88,7 @@ export function useCommonColumns<T extends SubtitleData>() {
               <HeaderTitle
                 title={title}
                 isSorted={isSorted}
-                className="data-[title]:*:text-right"
+                className="*:data-title:text-right"
               />
             </Div>
           </TableHeaderCell>
@@ -100,7 +100,7 @@ export function useCommonColumns<T extends SubtitleData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pl-0.5 pr-4 text-xs tabular-nums">
+            <Div className="justify-end pr-4 pl-0.5 text-xs tabular-nums">
               {numberFormat.format(value)}
             </Div>
           </TableDataCell>
@@ -118,7 +118,7 @@ export function useCommonColumns<T extends SubtitleData>() {
             className="w-[.1%] active:bg-background-active active:signal/active [&:active+th]:signal/active"
           >
             <Div
-              className="group select-none gap-2 pr-1"
+              className="group gap-2 pr-1 select-none"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -128,7 +128,7 @@ export function useCommonColumns<T extends SubtitleData>() {
               <HeaderTitle
                 title={title}
                 isSorted={isSorted}
-                className="data-[title]:*:text-left"
+                className="*:data-title:text-left"
               />
             </Div>
           </TableHeaderCell>
@@ -140,7 +140,7 @@ export function useCommonColumns<T extends SubtitleData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pr-1.5 tabular-nums [font-stretch:condensed]">
+            <Div className="justify-end pr-1.5 font-stretch-condensed tabular-nums">
               {value ? customFormatDistanceToNowStrict(new Date(value), {
                 addSuffix: true,
                 locale: {

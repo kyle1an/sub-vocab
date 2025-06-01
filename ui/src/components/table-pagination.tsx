@@ -27,7 +27,7 @@ export function TablePagination<T>({
         selected,
         ...item
       }) => {
-        const className = 'flex items-center min-w-[1.625rem] justify-center rounded dark:text-neutral-300 dark:disabled:text-zinc-700 border border-transparent text-xs tabular-nums disabled:text-zinc-300'
+        const className = 'flex items-center min-w-6.5 justify-center rounded dark:text-neutral-300 dark:disabled:text-zinc-700 border border-transparent text-xs tabular-nums disabled:text-zinc-300'
 
         if (type === 'previous') {
           return (
@@ -70,7 +70,7 @@ export function TablePagination<T>({
         if (type === 'first' || type === 'page' || type === 'last') {
           return (
             <button
-              className={cn(className, selected && 'border-border font-bold [--sq-r:.5rem] disabled:text-[unset] sq:rounded-[--sq-r] sq:[corner-shape:squircle]')}
+              className={cn(className, selected && 'border-border font-bold [--sq-r:.5rem] disabled:text-[unset] sq:rounded-(--sq-r) sq:[corner-shape:squircle]')}
               type="button"
               disabled={selected}
               onClick={() => {

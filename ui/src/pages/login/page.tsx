@@ -134,7 +134,7 @@ export default function Login() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="inline-flex w-full text-sm">
-                            <span className="flex-grow">
+                            <span className="grow">
                               Password
                             </span>
                             <Link
@@ -165,11 +165,11 @@ export default function Login() {
                               >
                                 {passwordVisible ? (
                                   <IconLucideEye
-                                    className="size-[18px] text-neutral-600"
+                                    className="size-4.5 text-neutral-600"
                                   />
                                 ) : (
                                   <IconLucideEyeOff
-                                    className="size-[18px] text-neutral-600"
+                                    className="size-4.5 text-neutral-600"
                                   />
                                 )}
                               </Button>

@@ -81,11 +81,11 @@ function useColumns<T extends TableData>() {
             className="w-[.1%] active:signal/active [&:active+th]:signal/active"
           >
             <Div
-              className="min-w-10 select-none justify-center gap-2 signal/active:bg-background-active"
+              className="min-w-10 justify-center gap-2 select-none signal/active:bg-background-active"
               onClick={header.column.getToggleSortingHandler()}
             >
               <div
-                className="flex [font-stretch:condensed]"
+                className="flex font-stretch-condensed"
               >
                 <SortIcon isSorted={isSorted} />
               </div>
@@ -99,10 +99,10 @@ function useColumns<T extends TableData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="pl-0.5 pr-px text-zinc-400">
+            <Div className="pr-px pl-0.5 text-zinc-400">
               {row.getCanExpand() ? (
                 <div
-                  className="flex h-full grow cursor-pointer select-none items-center justify-center"
+                  className="flex h-full grow cursor-pointer items-center justify-center select-none"
                   onClick={() => {
                     onExpandedChange?.(isExpanded)
                   }}
@@ -116,7 +116,7 @@ function useColumns<T extends TableData>() {
                   {'\u200B'}
                   <IconLucideChevronRight
                     className={clsx(
-                      'size-[14px] text-zinc-400 transition-transform dark:text-zinc-500',
+                      'size-3.5 text-zinc-400 transition-transform dark:text-zinc-500',
                       isExpanded ? 'rotate-90' : '',
                     )}
                   />
@@ -144,7 +144,7 @@ function useColumns<T extends TableData>() {
             className="w-[.1%] active:bg-background-active active:signal/active [&:active+th]:signal/active"
           >
             <Div
-              className="group select-none gap-2 pr-1"
+              className="group gap-2 pr-1 select-none"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -154,7 +154,7 @@ function useColumns<T extends TableData>() {
               <HeaderTitle
                 title={title}
                 isSorted={isSorted}
-                className="data-[title]:*:text-left"
+                className="*:data-title:text-left"
               />
             </Div>
           </TableHeaderCell>
@@ -166,7 +166,7 @@ function useColumns<T extends TableData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center pl-0.5 pr-px tabular-nums [font-stretch:condensed]">
+            <Div className="justify-center pr-px pl-0.5 font-stretch-condensed tabular-nums">
               {value ? format(value, 'yyyy') : null}
             </Div>
           </TableDataCell>
@@ -184,7 +184,7 @@ function useColumns<T extends TableData>() {
             className="w-[.1%] active:bg-background-active active:signal/active [&:active+th]:signal/active"
           >
             <Div
-              className="group select-none gap-2 pr-1"
+              className="group gap-2 pr-1 select-none"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -194,7 +194,7 @@ function useColumns<T extends TableData>() {
               <HeaderTitle
                 title={title}
                 isSorted={isSorted}
-                className="data-[title]:*:text-right"
+                className="*:data-title:text-right"
               />
             </Div>
           </TableHeaderCell>
@@ -207,7 +207,7 @@ function useColumns<T extends TableData>() {
             cell={cell}
           >
             <Div
-              className="justify-center pl-0.5 pr-px capitalize tabular-nums [font-stretch:condensed] data-[value='tv']:uppercase"
+              className="justify-center pr-px pl-0.5 capitalize font-stretch-condensed tabular-nums data-[value=tv]:uppercase"
               data-value={value}
             >
               {value}
@@ -238,7 +238,7 @@ function useColumns<T extends TableData>() {
               <HeaderTitle
                 title={title}
                 isSorted={isSorted}
-                className="data-[title]:*:text-left"
+                className="*:data-title:text-left"
               />
             </Div>
           </TableHeaderCell>
@@ -251,7 +251,7 @@ function useColumns<T extends TableData>() {
             cell={cell}
           >
             <Div
-              className="cursor-text select-text pl-2.5 pr-px tracking-wider"
+              className="cursor-text pr-px pl-2.5 tracking-wider select-text"
               onClick={(ev) => ev.stopPropagation()}
             >
               <span>{value}</span>
@@ -271,7 +271,7 @@ function useColumns<T extends TableData>() {
             className="w-[.1%] active:bg-background-active active:signal/active [&:active+th]:signal/active"
           >
             <Div
-              className="group select-none gap-2 pr-1 [font-stretch:condensed]"
+              className="group gap-2 pr-1 font-stretch-condensed select-none"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -281,7 +281,7 @@ function useColumns<T extends TableData>() {
               <HeaderTitle
                 title={title}
                 isSorted={isSorted}
-                className="data-[title]:*:text-left"
+                className="*:data-title:text-left"
               />
             </Div>
           </TableHeaderCell>
@@ -326,7 +326,7 @@ function useColumns<T extends TableData>() {
             className="w-[.1%] active:bg-background-active active:signal/active [&:active+th]:signal/active"
           >
             <Div
-              className="group select-none gap-2 pr-1"
+              className="group gap-2 pr-1 select-none"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -336,7 +336,7 @@ function useColumns<T extends TableData>() {
               <HeaderTitle
                 title={title}
                 isSorted={isSorted}
-                className="data-[title]:*:text-right"
+                className="*:data-title:text-right"
               />
             </Div>
           </TableHeaderCell>
@@ -348,7 +348,7 @@ function useColumns<T extends TableData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pl-0.5 pr-5 tabular-nums [font-stretch:condensed]">
+            <Div className="justify-end pr-5 pl-0.5 font-stretch-condensed tabular-nums">
               <span>
                 {popularityNumberFormat.format(value)}
               </span>
@@ -496,11 +496,11 @@ export default function Subtitles() {
         <div className="flex items-center gap-2">
           <Button
             variant="secondary"
-            className="h-8 gap-0.5 pl-2.5 pr-3 text-xs"
+            className="h-8 gap-0.5 pr-3 pl-2.5 text-xs"
             asChild
           >
             <Link to="/">
-              <MiChevronLeft className="size-[1.125rem]" />
+              <MiChevronLeft className="size-4.5" />
               Home
             </Link>
           </Button>
@@ -577,7 +577,7 @@ export default function Subtitles() {
       </div>
       <div className="flex grow items-center justify-center overflow-hidden rounded-xl border sq:rounded-3xl sq:[corner-shape:squircle]">
         <div
-          className="flex size-full flex-col bg-[--theme-bg]"
+          className="flex size-full flex-col bg-(--theme-bg)"
         >
           <div>
             <div className="flex h-12 gap-2 p-2">
@@ -642,7 +642,7 @@ export default function Subtitles() {
                   </tr>
                 ))}
               </TableHeader>
-              <tbody className="data-[row]:*:h-9">
+              <tbody className="*:data-row:h-9">
                 {table.getRowModel().rows.map((row, index) => {
                   return (
                     <TableRow
@@ -673,7 +673,7 @@ export default function Subtitles() {
                   sizes={PAGE_SIZES}
                   value={tableState.pagination.pageSize}
                 />
-                <div className="whitespace-nowrap px-1">{`/${t('page')}`}</div>
+                <div className="px-1 whitespace-nowrap">{`/${t('page')}`}</div>
               </div>
             </div>
           </div>

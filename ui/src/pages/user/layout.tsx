@@ -19,7 +19,7 @@ export default function User() {
   const account = user.user_metadata?.username || user.email || ''
   return (
     <ContentRoot>
-      <div className="mx-auto flex size-full max-w-screen-lg grow flex-col p-6">
+      <div className="mx-auto flex size-full max-w-(--breakpoint-lg) grow flex-col p-6">
         <div className="flex w-full grow flex-col gap-6 sm:flex-row md:gap-0">
           <main className="w-full flex-1 md:px-6 md:py-4">
             <div className="pb-6 text-2xl">

@@ -20,7 +20,7 @@ export function VocabularyMenu({
             className="size-[19px]"
           />
           <IconLucideChevronDown
-            className="size-[14px]"
+            className="size-3.5"
           />
         </Button>
       </DropdownMenuTrigger>

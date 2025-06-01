@@ -15,7 +15,7 @@ export function LoginToast() {
         <div className="flex items-end">
           <Button
             variant="outline"
-            className="whitespace-nowrap p-0"
+            className="p-0 whitespace-nowrap"
             size="sm"
           >
             <Link
