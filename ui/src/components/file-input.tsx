@@ -1,11 +1,11 @@
 import type React from 'react'
 
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtom } from 'jotai'
 import { Button as AriaButton, FileTrigger } from 'react-aria-components'
 
 import { Button } from '@/components/ui/button'
 import { getFileContent, SUPPORTED_FILE_TYPES } from '@/lib/filesHandler'
-import { fileTypesAtom, uapAtom } from '@/store/useVocab'
+import { fileTypesAtom } from '@/store/useVocab'
 
 export function FileInput({
   onFileSelect,
@@ -19,7 +19,6 @@ export function FileInput({
   children: React.ReactNode
   className?: string
 }) {
-  const { os } = useAtomValue(uapAtom) ?? {}
   const [fileTypes] = useAtom(fileTypesAtom)
   const fileTypeNames = fileTypes.filter((fileType) => fileType.checked).map((fileType) => fileType.type)
   const acceptedFileTypes = [...SUPPORTED_FILE_TYPES, ...fileTypeNames]
@@ -43,11 +42,7 @@ export function FileInput({
     >
       <FileTrigger
         allowsMultiple
-        // https://stackoverflow.com/a/47387521/10903455
-        // https://caniuse.com/input-file-accept
-        {...(os?.name === 'iOS' ? {} : {
-          acceptedFileTypes,
-        })}
+        acceptedFileTypes={acceptedFileTypes}
         onSelect={handleFileSelect}
       >
         <div>

@@ -112,6 +112,7 @@ export function VocabStatics({
                 thickness={3.5}
                 determinate
                 value={percentage}
+                aria-label="progress"
               />
             </div>
             <span className="text-neutral-300 dark:text-neutral-600">)</span>

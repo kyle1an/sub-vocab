@@ -18,17 +18,17 @@
     "@ai-sdk/google": "^1.2.18",
     "@fastify/cors": "^11.0.1",
     "@fastify/http-proxy": "^11.1.2",
-    "@openrouter/ai-sdk-provider": "^0.5.0",
+    "@openrouter/ai-sdk-provider": "^0.7.0",
     "@trpc/server": "11.1.0",
     "ai": "^4.3.16",
-    "drizzle-orm": "^0.43.1",
+    "drizzle-orm": "^0.44.1",
     "fastify": "^5.3.3",
     "ofetch": "^1.4.1",
     "openapi-fetch": "^0.14.0",
     "postgres": "^3.4.7"
   },
   "devDependencies": {
-    "@vercel/node": "^5.2.0",
+    "@vercel/node": "^5.2.1",
     "drizzle-kit": "^0.31.1",
     "esbuild": "^0.25.5",
     "tsx": "^4.19.4"

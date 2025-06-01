@@ -10,7 +10,7 @@ import { checker } from 'vite-plugin-checker'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import Inspect from 'vite-plugin-inspect'
 
-import { getManualChunk, htmlInlineTransform } from './vite/utils'
+import { chunks, htmlInlineTransform } from './vite/utils'
 
 const ReactCompilerConfig = {
 }
@@ -39,7 +39,9 @@ export default defineConfig(({ mode }) => {
         minify: true,
       }),
       ...mode === 'production' ? [
-        visualizer(),
+        visualizer({
+          gzipSize: true,
+        }),
         htmlInlineTransform(),
       ] : [],
       checker({
@@ -55,15 +57,11 @@ export default defineConfig(({ mode }) => {
       target: 'esnext',
       rollupOptions: {
         output: {
-          manualChunks: getManualChunk,
+          advancedChunks: chunks,
         },
       },
     },
     optimizeDeps: {
-      esbuildOptions: {
-        // https://github.com/mozilla/pdf.js/issues/17245
-        target: 'esnext',
-      },
     },
   } satisfies UserConfig
 })

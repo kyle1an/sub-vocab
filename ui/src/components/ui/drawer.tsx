@@ -37,7 +37,7 @@ function DrawerContent({ className, children, ...props }: React.ComponentProps<t
       <DrawerOverlay />
       <DrawerPrimitive.Content
         className={cn(
-          'fixed inset-x-0 bottom-0 z-50 mt-24 flex h-full max-h-[calc(100%-1.475rem)] flex-col outline-none after:!top-[calc(100%-.2px)] after:!bg-[--theme-bg] dark:mx-[.5px] iOS:dark:mx-0',
+          'fixed inset-x-0 bottom-0 z-50 mt-24 flex h-full max-h-[calc(100%-1.475rem)] flex-col outline-none after:!top-[calc(100%-.2px)] after:!bg-[--theme-bg]',
           className,
         )}
         {...props}

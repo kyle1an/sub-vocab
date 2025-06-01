@@ -16,9 +16,7 @@ const config: Config = {
     fontFamily: {
       sans: [
         '-apple-system',
-        'SF Pro Text',
         'BlinkMacSystemFont',
-        'Inter',
         'ui-sans-serif',
         'system-ui',
         'sans-serif',
@@ -26,12 +24,6 @@ const config: Config = {
         'Segoe UI Emoji',
         'Segoe UI Symbol',
         'Noto Color Emoji',
-      ],
-      compact: [
-        'Karla',
-        'SF Compact Text',
-        '-apple-system',
-        'sans-serif',
       ],
     },
     container: {
@@ -65,7 +57,6 @@ const config: Config = {
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
-          hover: 'var(--primary-hover)',
         },
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
@@ -169,7 +160,7 @@ const config: Config = {
       theme,
     }) => {
       addVariant('sq', '@supports (corner-shape: squircle)')
-      addVariant('iOS', '&:is([data-os-name="iOS"] *)')
+      addVariant('Safari', '&:is([data-is-safari] *)')
       matchUtilities({
         superellipse: (value) => ({
           'corner-shape': `superellipse(calc(${value} / var(--exponent-modifier, 1)))`,

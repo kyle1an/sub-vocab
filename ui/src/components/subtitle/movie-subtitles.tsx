@@ -117,7 +117,7 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
         const [ref, isEllipsisActive] = useIsEllipsisActive<HTMLDivElement>()
         /* eslint-enable react-compiler/react-compiler */
         /* eslint-enable react-hooks/rules-of-hooks */
-        const className = "tracking-wider text-sm [font-feature-settings:'cv03','cv05','cv06']"
+        const className = 'tracking-wider text-sm'
         const rootRect = root.current?.getBoundingClientRect()
         const refRect = ref.current?.getBoundingClientRect()
         let maxWidth = 0
@@ -129,7 +129,7 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
             cell={cell}
           >
             <Div
-              className="cursor-text select-text pl-2.5 pr-px tracking-wider [font-feature-settings:'cv03','cv05','cv06']"
+              className="cursor-text select-text pl-2.5 pr-px tracking-wider"
               onClick={(ev) => ev.stopPropagation()}
             >
               <div

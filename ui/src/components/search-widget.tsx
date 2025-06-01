@@ -26,7 +26,11 @@ export function SearchWidget({
     if (document.activeElement === inputRef.current)
       return
     e.preventDefault()
-    inputRef.current?.focus()
+    const el = inputRef.current
+    if (el) {
+      el.focus()
+      el.select()
+    }
   }, {
     enableOnFormTags: ['textarea', 'input'],
   })

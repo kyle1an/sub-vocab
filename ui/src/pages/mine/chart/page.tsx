@@ -6,8 +6,8 @@ import {
   Chart as ChartJS,
 } from 'chart.js'
 import { endOfWeek, format, getMonth, isFirstDayOfMonth, isSunday, startOfMonth, startOfWeek, subDays, subMonths, subWeeks } from 'date-fns'
+import { merge, rangeRight } from 'es-toolkit'
 import { useAtom } from 'jotai'
-import { merge, rangeRight } from 'lodash-es'
 import { Bar } from 'react-chartjs-2'
 import { useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
@@ -181,8 +181,7 @@ export default function Chart() {
 
   useIsomorphicLayoutEffect(() => {
     ChartJS.defaults.font.family = [
-      ...(navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome') ? [] : ['SF Pro Rounded']),
-      ...['SF Pro Text', '-apple-system', 'Inter', 'system-ui', 'sans-serif'],
+      ...['-apple-system', 'sans-serif'],
     ].join(', ')
     ChartJS.defaults.font.weight = 500
   }, [])
@@ -424,7 +423,7 @@ export default function Chart() {
         <Bar
           options={options}
           data={chartData}
-          className="w-full tabular-nums tracking-wide [font-feature-settings:normal] md:pb-0"
+          className="w-full tabular-nums tracking-wide md:pb-0"
         />
       </div>
     </div>

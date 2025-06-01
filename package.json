@@ -19,7 +19,7 @@
     "eslint-typegen": "^2.2.0",
     "neverthrow": "^8.2.0",
     "type-fest": "^4.41.0",
-    "zod": "^3.25.32"
+    "zod": "^3.25.45"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.13.2",
@@ -27,12 +27,12 @@
     "@stylistic/eslint-plugin": "^4.4.0",
     "@t3-oss/env-core": "^0.13.6",
     "@total-typescript/ts-reset": "^0.6.1",
-    "@types/node": "^22.15.23",
-    "eslint": "^9.27.0",
+    "@types/node": "^22.15.29",
+    "eslint": "^9.28.0",
     "eslint-plugin-command": "^3.2.1",
     "eslint-plugin-de-morgan": "^1.2.1",
     "eslint-plugin-jsonc": "^2.20.1",
-    "eslint-plugin-package-json": "^0.31.0",
+    "eslint-plugin-package-json": "^0.33.0",
     "jsonc-eslint-parser": "^2.4.0",
     "openapi-typescript": "^7.8.0",
     "pathe": "^2.0.3",
@@ -55,6 +55,7 @@
       "safe-buffer": "npm:@nolyfill/safe-buffer@^1.0.44",
       "safer-buffer": "npm:@nolyfill/safer-buffer@^1.0.44",
       "side-channel": "npm:@nolyfill/side-channel@^1.0.44",
+      "vite": "npm:rolldown-vite@latest",
       "whatwg-url": "^14.2.0",
       "which-typed-array": "npm:@nolyfill/which-typed-array@^1.0.44"
     },

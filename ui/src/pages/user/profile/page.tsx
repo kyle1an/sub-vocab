@@ -3,7 +3,7 @@ import clsx from 'clsx'
 import { useAtom } from 'jotai'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { z } from 'zod/v4'
+import { z } from 'zod/v4-mini'
 import IconLucideLoader2 from '~icons/lucide/loader2'
 
 import type { ZodObj } from '@ui/src/types/utils'
@@ -38,15 +38,13 @@ export default function ProfilePage() {
         .object<ZodObj<UsernameFormValues>>({
           newUsername: z
             .string()
-            .min(1, {
+            .check(z.minLength(1, {
               error: 'Username is required',
-            })
-            .min(USERNAME_MIN_LENGTH, {
+            }), z.minLength(USERNAME_MIN_LENGTH, {
               error: `Username should be at least ${USERNAME_MIN_LENGTH} characters.`,
-            })
-            .refine((val) => val !== username, {
+            }), z.refine((val) => val !== username, {
               error: 'The new username is the same as the current username.',
-            }),
+            })),
         }),
     ),
   })
@@ -84,9 +82,9 @@ export default function ProfilePage() {
         .object<ZodObj<EmailFormValues>>({
           newEmail: z
             .email()
-            .refine((val) => val !== email, {
+            .check(z.refine((val) => val !== email, {
               error: 'The new email is the same as the current email.',
-            }),
+            })),
         }),
     ),
   })

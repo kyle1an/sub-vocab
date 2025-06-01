@@ -11,21 +11,17 @@
     />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="white" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
-    <script type="module" src="./src/lib/worker.ts"></script>
-    <% if(MODE === 'production') { %>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GXR2MV6WDS"></script>
-    <!-- prettier-ignore -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-GXR2MV6WDS');
+      {
+        const THEME_KEY = "themeAtom";
+        const theme = localStorage.getItem(THEME_KEY);
+        if (theme === '"dark"' || (theme !== '"light"' && window.matchMedia("(prefers-color-scheme: dark)")?.matches)) {
+          document.documentElement.classList.add("dark");
+          document.querySelector('meta[name="theme-color"]')?.setAttribute("content", "#0f172a");
+        }
+      }
     </script>
+    <% if(MODE === 'production') { %>
     <!-- prettier-ignore -->
     <script>
       window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };

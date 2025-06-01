@@ -4,10 +4,10 @@ import type { ArrayValues, PartialDeep } from 'type-fest'
 import { useIsomorphicLayoutEffect } from '@react-hookz/web'
 import { createClient, REALTIME_CHANNEL_STATES } from '@supabase/supabase-js'
 import { QueryClient } from '@tanstack/react-query'
-import { atom, createStore, useAtomValue } from 'jotai'
+import { isSafari } from 'foxact/is-safari'
+import { atom, createStore } from 'jotai'
 import { atomWithImmer } from 'jotai-immer'
 import { atomFamily, atomWithStorage } from 'jotai/utils'
-import { UAParser } from 'ua-parser-js'
 
 import type { Download } from '@/api/opensubtitles'
 import type { RealtimeChannelState } from '@/api/vocab-api'
@@ -120,31 +120,15 @@ export const isMdScreenAtom = atom(false)
 
 export const localeAtom = atomWithStorage('localeAtom', getLanguage(), undefined, { getOnInit })
 
-const uap = new UAParser()
-
-export const uapAtom = atom(() => {
-  if (typeof window !== 'undefined')
-    return uap.getResult()
-})
-
 export function useDocumentInit() {
-  const uap = useAtomValue(uapAtom)
   useIsomorphicLayoutEffect(() => {
-    if (uap) {
-      const { os, browser } = uap
-      if (os.name) {
-        document.documentElement.setAttribute('data-os-name', os.name)
-      }
-      if (browser.name) {
-        document.documentElement.setAttribute('data-browser-name', browser.name)
-      }
-      if (browser.major) {
-        document.documentElement.setAttribute('data-browser-major', browser.major)
-      }
-      const scrollbarWidth = getScrollbarWidth()
-      document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`)
+    const safari = isSafari()
+    if (safari) {
+      document.documentElement.setAttribute('data-is-safari', '')
     }
-  }, [uap])
+    const scrollbarWidth = getScrollbarWidth()
+    document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`)
+  }, [])
 }
 
 export type FileType = typeof fileTypes[number]

@@ -37,7 +37,7 @@ export function TextareaInput({
     <Textarea
       aria-label="Text input"
       className={cn(
-        'size-full max-h-full resize-none rounded-none bg-background px-[30px] py-3 align-top tracking-normal outline-none [font-feature-settings:normal] placeholder:tracking-[.01em] dark:text-neutral-400 dark:placeholder:text-neutral-600',
+        'size-full max-h-full resize-none rounded-none bg-background px-[30px] py-3 align-top tracking-normal outline-none placeholder:tracking-[.01em] focus-visible:ring-0 dark:text-neutral-400 dark:placeholder:text-neutral-600',
         'border-0',
         className,
       )}

@@ -14,7 +14,6 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
     --primary: 0 0% 9%;
-    --primary-hover: hsl(222.2 47.4% 11.2% / 0.9);
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
@@ -58,7 +57,6 @@
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
-    --primary-hover: hsl(210 40% 98% / 0.9);
     --primary-foreground: 0 0% 9%;
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
@@ -95,24 +93,17 @@
   button,
   [role="button"] {
     cursor: pointer;
+    &:disabled {
+      cursor: default;
+    }
   }
-  button:disabled,
-  [role="button"]:disabled {
-    cursor: default;
-  }
-}
-
-@layer base {
   * {
     min-width: 0;
   }
   :focus-visible {
     outline-style: solid;
   }
-
-  [data-browser-name="Chrome"][data-browser-major="139"],
-  [data-browser-name="Chrome"][data-browser-major="137"],
-  [data-browser-name="Chrome"][data-browser-major="138"] {
+  :root {
     --exponent-modifier: 2;
   }
 }

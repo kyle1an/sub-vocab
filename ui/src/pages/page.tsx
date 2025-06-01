@@ -223,7 +223,7 @@ export default function ResizeVocabularyPanel() {
             ref={panelGroupRef}
             direction={direction}
             className={clsx(
-              'iOS:[body:has(&)]:overflow-hidden', // prevent overscroll
+              'Safari:[body:has(&)]:overflow-hidden', // prevent overscroll
             )}
             onLayout={handleLayoutChange}
           >

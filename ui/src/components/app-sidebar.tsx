@@ -6,7 +6,6 @@ import IconBiGithub from '~icons/bi/github'
 import LucideUserRoundPen from '~icons/lucide/user-round-pen'
 import MaterialSymbolsBarChart4Bars from '~icons/material-symbols/bar-chart-4-bars'
 import MaterialSymbolsInfoOutline from '~icons/material-symbols/info-outline'
-import NrkMediaSubtitles from '~icons/nrk/media-subtitles'
 import SolarChecklistBold from '~icons/solar/checklist-bold'
 
 import { ArrowOutwardRounded } from '@/components/icons/arrow'
