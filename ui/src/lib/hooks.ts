@@ -11,10 +11,7 @@ export const COLOR_SCHEME_QUERY = '(prefers-color-scheme: dark)'
 export const isDarkModeAtom = atom((get) => {
   const themePreference = get(themeAtom)
   const isDarkOS = get(prefersDarkAtom)
-  let isDarkMode = false
-  if (themePreference === 'dark' || (themePreference === 'auto' && isDarkOS))
-    isDarkMode = true
-  return isDarkMode
+  return themePreference === 'dark' || (themePreference === 'auto' && isDarkOS)
 })
 
 export function useRect<T extends Element>(target: React.RefObject<T | null>) {

@@ -48,7 +48,7 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
               className="justify-between gap-1 pr-1 pl-2 select-none signal/active:bg-background-active"
               onClick={header.column.getToggleSortingHandler()}
             >
-              <div className="child flex font-stretch-condensed" />
+              <div className="child flex" />
               <SortIcon isSorted={isSorted} />
             </Div>
           </TableHeaderCell>
@@ -68,7 +68,7 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
                 )}
               >
                 <Checkbox
-                  variant="radio"
+                  className={clsx('rounded-full sq:rounded-full sq:[corner-shape:round]!')}
                   onClick={(e) => e.stopPropagation()}
                   checked={row.getIsSelected()}
                   onCheckedChange={(checked) => {
@@ -114,10 +114,11 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
         const value = getValue()
         /* eslint-disable react-compiler/react-compiler */
         /* eslint-disable react-hooks/rules-of-hooks */
-        const [ref, isEllipsisActive] = useIsEllipsisActive<HTMLDivElement>()
+        const ref = useRef<HTMLDivElement>(null)
+        const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
         /* eslint-enable react-compiler/react-compiler */
         /* eslint-enable react-hooks/rules-of-hooks */
-        const className = 'tracking-wider text-sm'
+        const className = 'tracking-4 text-sm'
         const rootRect = root.current?.getBoundingClientRect()
         const refRect = ref.current?.getBoundingClientRect()
         let maxWidth = 0
@@ -129,17 +130,20 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
             cell={cell}
           >
             <Div
-              className="cursor-text pr-px pl-2.5 tracking-wider select-text"
+              className="cursor-text pr-px pl-2.5 tracking-4 select-text"
               onClick={(ev) => ev.stopPropagation()}
             >
               <div
                 ref={ref}
-                className="w-0 grow overflow-hidden text-ellipsis whitespace-nowrap"
+                className="w-0 grow truncate"
               >
                 <Tooltip
                   delayDuration={500}
                 >
-                  <TooltipTrigger asChild>
+                  <TooltipTrigger
+                    onMouseOver={handleOnMouseOver}
+                    asChild
+                  >
                     <div
                       className={clsx('truncate', className)}
                     >
@@ -154,7 +158,7 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
                     alignOffset={-8 - 1}
                     avoidCollisions={false}
                     hidden={!isEllipsisActive}
-                    className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs !slide-in-from-top-0 !zoom-in-100 !zoom-out-100 [word-wrap:break-word]"
+                    className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
                     style={{
                       '--max-width': `${maxWidth}px`,
                     }}

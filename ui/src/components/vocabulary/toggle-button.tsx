@@ -29,7 +29,7 @@ export function VocabToggle<T extends VocabState>({
         aria-label="Toggle vocabulary state"
         disabled={phase === RETAINING || phase === FADING}
         className={cn(
-          'group/tgl inline-flex size-6 max-h-full grow-0 items-center justify-center rounded-full border p-[5px] text-center align-middle text-xs/3 whitespace-nowrap transition-colors not-disabled:cursor-pointer not-disabled:active:scale-95',
+          'group/tgl inline-flex size-6 max-h-full grow-0 items-center justify-center rounded-full border p-1.25 text-center align-middle text-xs/3 whitespace-nowrap transition-colors not-disabled:cursor-pointer not-disabled:active:scale-95',
           phase === NEW && 'border-zinc-300 bg-transparent text-transparent dark:border-zinc-600',
           phase === RETAINING && 'border-zinc-200/80 bg-amber-300/60 text-white duration-300 dark:border-zinc-600 dark:bg-amber-300/60 dark:text-black/60',
           phase === ACQUAINTED && 'border-amber-300 bg-amber-300 text-transparent hover:bg-amber-300/80 dark:hover:bg-amber-300/80',

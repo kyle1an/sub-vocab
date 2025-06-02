@@ -1,7 +1,7 @@
 import type { MergeDeep, PartialDeep } from 'type-fest'
 
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { atom, useAtomValue } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { ofetch } from 'ofetch'
 import createFetchClient from 'openapi-fetch'
@@ -11,8 +11,8 @@ import PQueue from 'p-queue'
 import type { paths } from '@/types/schema/opensubtitles'
 
 import { env } from '@/env'
+import { downloadFile } from '@/lib/downloadFile'
 import { omitUndefined } from '@/lib/utilities'
-import { subtitleDownloadProgressAtom } from '@/store/useVocab'
 
 const baseUrl = env.VITE_SUB_API_URL
 
@@ -171,12 +171,25 @@ function useGetFileByLink() {
   })
 }
 
-export function useOpenSubtitlesDownload() {
-  const setSubtitleDownloadProgress = useSetAtom(subtitleDownloadProgressAtom)
+function useDownloadFileByLink() {
+  return useMutation({
+    mutationKey: ['useDownloadFileByLink'] as const,
+    mutationFn: async (body: Download['Response']) => {
+      return osQueue.add(() => downloadFile(body.link, body.file_name), {
+        throwOnTimeout: true,
+        priority: 1,
+      })
+    },
+    retry: 4,
+    retryDelay: (failureCount) => 1000 * (failureCount - 1),
+  })
+}
+
+export function useOpenSubtitlesText() {
   const { mutateAsync: requestSubtitleURL } = useRequestSubtitleURL()
   const { mutateAsync: getFileByLink } = useGetFileByLink()
   return useMutation({
-    mutationKey: ['getSubtitleByFileId'] as const,
+    mutationKey: ['useOpenSubtitlesText'] as const,
     mutationFn: async (body: Download['Body']) => {
       const file = await requestSubtitleURL(body)
       return {
@@ -184,10 +197,19 @@ export function useOpenSubtitlesDownload() {
         text: await getFileByLink(file.link),
       }
     },
-    onSuccess: (data, body) => {
-      setSubtitleDownloadProgress((prev) => {
-        prev.push(body)
-      })
+    retry: 4,
+    retryDelay: (failureCount) => 1000 * (failureCount - 1),
+  })
+}
+
+export function useOpenSubtitlesDownload() {
+  const { mutateAsync: requestSubtitleURL } = useRequestSubtitleURL()
+  const { mutateAsync: downloadFileByLink } = useDownloadFileByLink()
+  return useMutation({
+    mutationKey: ['useOpenSubtitlesDownload'] as const,
+    mutationFn: async (body: Download['Body']) => {
+      const file = await requestSubtitleURL(body)
+      await downloadFileByLink(file)
     },
     retry: 4,
     retryDelay: (failureCount) => 1000 * (failureCount - 1),

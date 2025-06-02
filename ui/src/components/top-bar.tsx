@@ -119,12 +119,12 @@ export function TopBar({ className }: { className?: string }) {
     >
       <nav
         className={clsx(
-          'group/nav z-20 w-full rounded-t-3xl bg-background tracking-wide group-has-data-vaul-drawer/body:bg-[unset]',
+          'group/nav z-20 w-full rounded-t-3xl bg-background tracking-2',
         )}
       >
         <>
           <>
-            <div className={clsx('mr-(--removed-body-scroll-bar-size)')}>
+            <div>
               <div>
                 <div className="flex h-11 items-center justify-between">
                   <div className="flex h-full items-center gap-2">

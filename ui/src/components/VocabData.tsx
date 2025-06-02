@@ -144,7 +144,7 @@ function useDataColumns<T extends TableData>() {
             <TableDataCell
               cell={cell}
             >
-              <Div className="justify-end pr-2 pl-0.5 font-stretch-condensed tabular-nums">
+              <Div className="justify-end pr-2 pl-0.5 tabular-nums">
                 {value ? customFormatDistanceToNowStrict(new Date(value), {
                   addSuffix: true,
                   locale: {
@@ -349,7 +349,7 @@ export function VocabDataTable({
           }}
         />
       </div>
-      <div className="h-px w-full border-b border-solid border-zinc-200 shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)] dark:border-neutral-800" />
+      <div className="h-px w-full border-b shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)]" />
       <div className="w-full">
         <SegmentedControl
           value={segment}

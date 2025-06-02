@@ -63,7 +63,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
               {wFamily.map(({ path: w, src }, i) => (
                 <div
                   key={w}
-                  className="inline-block cursor-text pl-1 tracking-wider select-text first:pl-1.5"
+                  className="inline-block cursor-text pl-1 tracking-4 select-text first:pl-1.5"
                   onClick={(ev) => ev.stopPropagation()}
                 >
                   <HoverCard
@@ -73,7 +73,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
                     <HoverCardTrigger asChild>
                       <span
                         className={clsx(
-                          'rounded-lg px-1 py-0.5 transition-colors delay-100 [corner-shape:squircle] hover:bg-background-focus',
+                          'rounded-lg px-1 py-0.5 transition-colors delay-100 hover:bg-background-focus',
                           i === 0 && src.length >= 1 ? '' : 'text-neutral-500 dark:text-neutral-400',
                         )}
                       >
@@ -116,7 +116,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
             className="w-[.1%] active:bg-background-active"
           >
             <Div
-              className="group gap-2 pr-1 font-stretch-condensed select-none"
+              className="group gap-2 pr-1 select-none"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -138,7 +138,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pr-[9px] pl-0.5 text-xs tabular-nums">
+            <Div className="justify-end pr-[9px] pl-0.5 tabular-nums">
               <span>
                 {value}
               </span>
@@ -160,7 +160,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
             className="w-[.1%] active:bg-background-active"
           >
             <Div
-              className="group font-stretch-condensed select-none"
+              className="group select-none"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -223,7 +223,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center pr-px pl-0.5 font-stretch-condensed tabular-nums">
+            <Div className="justify-center pr-px pl-0.5 tabular-nums">
               {value}
             </Div>
           </TableDataCell>

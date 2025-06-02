@@ -28,7 +28,10 @@ export function NavSecondary({
     <SidebarGroup {...props}>
       <SidebarMenu>
         {items.map((item) => (
-          <SidebarMenuItem key={item.title}>
+          <SidebarMenuItem
+            key={item.title}
+            className="flex"
+          >
             <$ hooks={{ useReactRouterIsMatch }}>
               {({ useReactRouterIsMatch }) => (
                 <>

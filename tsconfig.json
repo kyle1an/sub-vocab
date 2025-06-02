@@ -17,6 +17,7 @@
       "@backend/*": ["./backend/*"],
       "@ui/*": ["./ui/*"]
     },
+    "noEmit": true,
     /* Strictness */
     "strict": true,
     "exactOptionalPropertyTypes": true,

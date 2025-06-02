@@ -129,7 +129,7 @@ export function HeaderTitle({
       <span
         data-title={title}
         className={clsx(
-          'grow font-stretch-condensed before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(data-title)]',
+          'grow before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(data-title)]',
           isSorted ? 'font-semibold' : '',
         )}
       >

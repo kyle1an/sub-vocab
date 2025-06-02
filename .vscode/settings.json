@@ -75,6 +75,10 @@
   // Enable eslint for all supported languages
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "html", "markdown", "json", "jsonc", "yaml", "toml", "astro"],
 
+  // https://github.com/tailwindlabs/tailwindcss/discussions/5258#discussioncomment-12273733
   "css.customData": [".vscode/tailwind.json"],
   "npm.exclude": ["**/.vercel/**"],
+  "css.lint.validProperties": [
+    "corner-shape"
+  ],
 }

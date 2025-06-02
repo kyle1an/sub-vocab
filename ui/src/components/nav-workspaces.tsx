@@ -37,7 +37,9 @@ export function NavWorkspaces({
         <SidebarMenu>
           {workspaces.map((workspace) => (
             <Collapsible key={workspace.name}>
-              <SidebarMenuItem>
+              <SidebarMenuItem
+                className="flex"
+              >
                 <SidebarMenuButton asChild>
                   <a href="#">
                     <span>{workspace.emoji}</span>

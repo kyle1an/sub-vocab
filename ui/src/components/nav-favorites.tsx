@@ -39,7 +39,10 @@ export function NavFavorites({
       <SidebarGroupLabel>Favorites</SidebarGroupLabel>
       <SidebarMenu>
         {favorites.map((item) => (
-          <SidebarMenuItem key={item.name}>
+          <SidebarMenuItem
+            key={item.name}
+            className="flex"
+          >
             <SidebarMenuButton asChild>
               <a href={item.url} title={item.name}>
                 <span>{item.emoji}</span>

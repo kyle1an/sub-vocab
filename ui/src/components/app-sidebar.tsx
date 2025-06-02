@@ -24,6 +24,7 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
+import { cn } from '@/lib/utils'
 import { sessionAtom } from '@/store/useVocab'
 
 const data = {
@@ -68,13 +69,13 @@ const accountNav = [
   },
 ]
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ className, ...props }: React.ComponentProps<typeof Sidebar>) {
   const [session] = useAtom(sessionAtom)
   const user = session?.user
   return (
-    <Sidebar className="border-r-0" {...props}>
+    <Sidebar className={cn('border-r-0', className)} {...props}>
       <SidebarHeader className="gap-1.5">
-        <SidebarTrigger />
+        <SidebarTrigger className="size-8" />
         <NavMain items={data.navMain} />
       </SidebarHeader>
       <div className="flex w-full">

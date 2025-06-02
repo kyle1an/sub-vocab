@@ -1,23 +1,19 @@
 import type { UserConfig } from 'vite'
 
 import react from '@vitejs/plugin-react'
-import process from 'node:process'
 import { resolve } from 'pathe'
 import { visualizer } from 'rollup-plugin-visualizer'
 import Icons from 'unplugin-icons/vite'
-import { defineConfig, loadEnv } from 'vite'
-import { checker } from 'vite-plugin-checker'
+import { defineConfig } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import Inspect from 'vite-plugin-inspect'
 
-import { chunks, htmlInlineTransform } from './vite/utils'
+import { chunks } from './vite/utils'
 
 const ReactCompilerConfig = {
 }
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
-
   return {
     plugins: [
       Inspect(),
@@ -42,10 +38,7 @@ export default defineConfig(({ mode }) => {
         visualizer({
           gzipSize: true,
         }),
-        htmlInlineTransform(),
       ] : [],
-      checker({
-      }),
     ],
     resolve: {
       dedupe: ['react', 'react-dom'],

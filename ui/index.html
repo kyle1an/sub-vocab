@@ -17,27 +17,16 @@
         const theme = localStorage.getItem(THEME_KEY);
         if (theme === '"dark"' || (theme !== '"light"' && window.matchMedia("(prefers-color-scheme: dark)")?.matches)) {
           document.documentElement.classList.add("dark");
-          document.querySelector('meta[name="theme-color"]')?.setAttribute("content", "#0f172a");
+          const dark = "oklch(0.145 0 0)"; // --background
+          document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark);
         }
       }
     </script>
     <% if(MODE === 'production') { %>
-    <!-- prettier-ignore -->
-    <script>
-      window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-    </script>
-    <script defer src="/_vercel/speed-insights/script.js"></script>
-    <!-- prettier-ignore -->
-    <script>
-       window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-    </script>
-    <script defer src="/_vercel/insights/script.js"></script>
     <% } %>
     <title>Subvocab</title>
   </head>
-  <body
-    class="group/body overflow-y-scroll bg-(--theme-bg) tracking-(--tracking) text-foreground [--tracking:.02em] has-data-vaul-drawer:mr-0! has-data-vaul-drawer:bg-black has-data-vaul-drawer:[--pr:var(--removed-body-scroll-bar-size)]"
-  >
+  <body class="text-foreground overflow-y-scroll tracking-2 has-data-vaul-drawer:bg-black">
     <noscript>
       <strong>We're sorry, but this app doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>

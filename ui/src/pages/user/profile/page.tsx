@@ -145,7 +145,7 @@ export default function ProfilePage() {
               />
               <FormMessage>{usernameErrors.root?.serverError?.message}</FormMessage>
               <Button
-                className="group mt-8 gap-1.5"
+                className="group gap-1.5"
                 type="submit"
                 disabled={isUsernameUpdatePending}
               >
@@ -203,7 +203,7 @@ export default function ProfilePage() {
               />
               <FormMessage>{emailErrors.root?.serverError?.message}</FormMessage>
               <Button
-                className="group mt-8 gap-1.5"
+                className="group gap-1.5"
                 type="submit"
                 disabled={isEmailUpdatePending}
               >

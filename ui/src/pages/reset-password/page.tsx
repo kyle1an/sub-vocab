@@ -112,7 +112,7 @@ export default function ResetPassword() {
                     />
                     <FormMessage>{errors.root?.serverError?.message}</FormMessage>
                     <Button
-                      className="mt-8 gap-1.5"
+                      className="gap-1.5"
                       type="submit"
                       disabled={isPending}
                     >

@@ -305,10 +305,11 @@ export class LabeledTire {
 
     if (_$) {
       this.#batchMergeTo(_e$ || _$, labelOfSuffixes(curr))
+      const _est$ = curr.e?.s?.t?.$
       const toBeMerged = [
         _s$,
-        curr.e?.r?.$,
-        curr.e?.s?.t?.$,
+        _est$ ? curr.e?.r?.$ : undefined,
+        _est$,
         curr.l?.y?.$,
         curr.l?.e?.s?.s?.$,
         curr.n?.e?.s?.s?.$,
@@ -318,17 +319,26 @@ export class LabeledTire {
         toBeMerged.push(
           parentLayer.d?.e?.n?.$,
         )
+        const _r$ = curr.r?.$
+        const _st$ = curr.s?.t?.$
+        if (_r$ && _st$) {
+          toBeMerged.push(
+            _r$,
+            _st$,
+          )
+        }
       }
       else if (isTheLastCharConsonant) {
         const wordEndsWithVowelAndConsonant = isVowel(_$.path.slice(-2, -1))
         if (wordEndsWithVowelAndConsonant) {
+          const __est$ = curr[previousChar]?.e?.s?.t?.$
           toBeMerged.push(
             curr[previousChar]?.i?.n?.g?.$,
             curr[previousChar]?.i?.n?.[`'`]?.$,
             curr[previousChar]?.i?.n?.[`’`]?.$,
             curr[previousChar]?.e?.d?.$,
-            curr[previousChar]?.e?.r?.$,
-            curr[previousChar]?.e?.s?.t?.$,
+            __est$ ? curr[previousChar]?.e?.r?.$ : undefined,
+            __est$,
           )
         }
         else {

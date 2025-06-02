@@ -12,21 +12,24 @@ import { useDebouncedValue } from 'foxact/use-debounced-value'
 import { useAtom, useSetAtom } from 'jotai'
 import { atomWithImmer } from 'jotai-immer'
 import { atomWithStorage } from 'jotai/utils'
-import { startTransition, useEffect, useRef, useState } from 'react'
+import { startTransition, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
+import { useImmer } from 'use-immer'
 import IconClarityStarSolid from '~icons/clarity/star-solid'
 import IconF7ArrowDownCircleFill from '~icons/f7/arrow-down-circle-fill'
+import F7CaptionsBubbleFill from '~icons/f7/captions-bubble-fill'
 import IconF7MultiplyCircle from '~icons/f7/multiply-circle'
 import IconLucideChevronRight from '~icons/lucide/chevron-right'
 import IconLucideLoader2 from '~icons/lucide/loader2'
 import MiChevronLeft from '~icons/mi/chevron-left'
 import IconOuiTokenKey from '~icons/oui/token-key'
 
+import type { Download } from '@/api/opensubtitles'
 import type { paths as PathsThemoviedb } from '@/types/schema/themoviedb'
 
-import { $osApi, useOpenSubtitlesDownload } from '@/api/opensubtitles'
+import { $osApi, useOpenSubtitlesDownload, useOpenSubtitlesText } from '@/api/opensubtitles'
 import { $api } from '@/api/tmdb'
 import { MediaDetails } from '@/components/media-details'
 import { OpensubtitlesAuthentication } from '@/components/subtitle/opensubtitles-authentication'
@@ -44,13 +47,14 @@ import { MS_PER_WEEK } from '@/constants/time'
 import { SortIcon } from '@/lib/icon-utils'
 import { getFilterFn } from '@/lib/table-utils'
 import { findClosest, type } from '@/lib/utilities'
-import { fileIdsAtom, mediaSubtitleStateAtom, osLanguageAtom, sourceTextAtom, subtitleDownloadProgressAtom } from '@/store/useVocab'
+import { fileIdsAtom, fileInfoAtom, mediaSubtitleStateAtom, osLanguageAtom, sourceTextAtom } from '@/store/useVocab'
 
 const mediaSearchAtom = atomWithStorage('mediaSearchAtom', '')
 
 const popularityNumberFormat = new Intl.NumberFormat('en', { maximumFractionDigits: 1, minimumFractionDigits: 1 })
 const voteNumberFormat = new Intl.NumberFormat('en', { maximumFractionDigits: 1, minimumFractionDigits: 1 })
 const voteCountFormat = new Intl.NumberFormat('en', { notation: 'compact', compactDisplay: 'short' })
+const listFormatter = new Intl.ListFormat('en', { style: 'long', type: 'conjunction' })
 
 type TableData = NonNullable<PathsThemoviedb['/3/search/multi']['get']['responses'][200]['content']['application/json']['results']>[number]
 
@@ -85,7 +89,7 @@ function useColumns<T extends TableData>() {
               onClick={header.column.getToggleSortingHandler()}
             >
               <div
-                className="flex font-stretch-condensed"
+                className="flex"
               >
                 <SortIcon isSorted={isSorted} />
               </div>
@@ -166,7 +170,7 @@ function useColumns<T extends TableData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center pr-px pl-0.5 font-stretch-condensed tabular-nums">
+            <Div className="justify-center pr-px pl-0.5 tabular-nums">
               {value ? format(value, 'yyyy') : null}
             </Div>
           </TableDataCell>
@@ -207,7 +211,7 @@ function useColumns<T extends TableData>() {
             cell={cell}
           >
             <Div
-              className="justify-center pr-px pl-0.5 capitalize font-stretch-condensed tabular-nums data-[value=tv]:uppercase"
+              className="justify-center pr-px pl-0.5 capitalize data-[value=tv]:tracking-wider data-[value=tv]:uppercase"
               data-value={value}
             >
               {value}
@@ -251,7 +255,7 @@ function useColumns<T extends TableData>() {
             cell={cell}
           >
             <Div
-              className="cursor-text pr-px pl-2.5 tracking-wider select-text"
+              className="cursor-text pr-px pl-2.5 tracking-4 select-text"
               onClick={(ev) => ev.stopPropagation()}
             >
               <span>{value}</span>
@@ -271,7 +275,7 @@ function useColumns<T extends TableData>() {
             className="w-[.1%] active:bg-background-active active:signal/active [&:active+th]:signal/active"
           >
             <Div
-              className="group gap-2 pr-1 font-stretch-condensed select-none"
+              className="group gap-2 pr-1 select-none"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -348,7 +352,7 @@ function useColumns<T extends TableData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pr-5 pl-0.5 font-stretch-condensed tabular-nums">
+            <Div className="justify-end pr-5 pl-0.5 tabular-nums">
               <span>
                 {popularityNumberFormat.format(value)}
               </span>
@@ -363,14 +367,16 @@ function useColumns<T extends TableData>() {
 export default function Subtitles() {
   // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
-  const { isPending: isDownloadPending, mutateAsync: download } = useOpenSubtitlesDownload()
+  const { isPending: isDownloadPending, mutateAsync: downloadText } = useOpenSubtitlesText()
+  const { isPending: isFileDownloadPending, mutateAsync: downloadFile } = useOpenSubtitlesDownload()
   const [query, setQuery] = useAtom(mediaSearchAtom)
   const [cacheState, setCacheState] = useAtom(cacheStateAtom)
   const { initialTableState } = cacheState
   const debouncedQuery = useDebouncedValue(query, 500)
   const columns = useColumns()
+  const setFileInfo = useSetAtom(fileInfoAtom)
   const setSourceText = useSetAtom(sourceTextAtom)
-  const [subtitleDownloadProgress, setSubtitleDownloadProgress] = useAtom(subtitleDownloadProgressAtom)
+  const [subtitleDownloadProgress, setSubtitleDownloadProgress] = useImmer<Download['Body'][]>([])
   const queryEnabled = Boolean(debouncedQuery)
   const { data: multiData, isFetching: isSearchLoading } = useQuery($api.queryOptions(
     'get',
@@ -434,33 +440,49 @@ export default function Subtitles() {
   const navigate = useNavigate()
   const setSubtitleSelectionState = useSetAtom(mediaSubtitleStateAtom)
   const [fileIds] = useAtom(fileIdsAtom)
-  const [downloadProgressAnim, setDownloadProgressAnim] = useState(false)
 
-  async function getFiles(fileIds: number[]) {
-    setDownloadProgressAnim(true)
+  async function getText(fileIds: number[]) {
     const fileTexts = await Promise.all(fileIds.map(async (id) => {
-      const { text } = await download({
+      const file = {
         file_id: id,
+      }
+      const res = await downloadText(file)
+      setSubtitleDownloadProgress((prev) => {
+        prev.push(file)
       })
-      return text
+      return res
     }))
+    const title = listFormatter.format(fileTexts.map((f) => f.file.file_name))
+    setFileInfo(title)
     setSourceText((v) => ({
-      text: fileTexts.join('\n'),
+      text: fileTexts.map((f) => f.text).join('\n'),
       version: v.version++,
     }))
+    navigate('/')
+    startTransition(() => {
+      setSubtitleDownloadProgress([])
+    })
   }
 
-  useEffect(() => {
-    if (subtitleDownloadProgress.length >= 1 && !downloadProgressAnim) {
-      navigate('/')
-      startTransition(() => {
-        setSubtitleDownloadProgress([])
+  async function downloadFiles(fileIds: number[]) {
+    await Promise.all(fileIds.map(async (id) => {
+      const file = {
+        file_id: id,
+      }
+      await downloadFile(file)
+      setSubtitleDownloadProgress((prev) => {
+        prev.push(file)
       })
-    }
-  }, [downloadProgressAnim, navigate, setSubtitleDownloadProgress, subtitleDownloadProgress.length])
+    }))
+    setSubtitleDownloadProgress([])
+  }
 
   function clearSelection() {
-    setSubtitleSelectionState({})
+    setSubtitleSelectionState((subtitleState) => {
+      Object.values(subtitleState).forEach((mediaState) => {
+        mediaState.rowSelection = {}
+      })
+    })
   }
 
   const tableState = table.getState()
@@ -488,7 +510,7 @@ export default function Subtitles() {
       el.select()
     }
   })
-  const isLoading = downloadProgressAnim || subtitleDownloadProgress.length >= 1
+  const isLoading = isDownloadPending || isFileDownloadPending
   const [language, setLanguage] = useAtom(osLanguageAtom)
   return (
     <div className="flex h-full flex-col">
@@ -522,62 +544,34 @@ export default function Subtitles() {
             </PopoverContent>
           </Popover>
           <Button
-            className="h-8 gap-1.5 px-3"
-            variant="outline"
-            disabled={fileIds.length === 0 || isDownloadPending || isLoading}
-            onClick={clearSelection}
+            className="h-8 gap-1.5 px-3 tabular-nums"
+            onClick={() => {
+              getText(fileIds)
+            }}
+            disabled={fileIds.length === 0 || isLoading}
           >
-            <IconF7MultiplyCircle className="min-w-[1em]" />
+            <F7CaptionsBubbleFill className="min-w-[1em]" />
             <span className="hidden md:block">
-              Clear
+              View Text
             </span>
           </Button>
           <Button
             className="h-8 gap-1.5 px-3 tabular-nums"
             onClick={() => {
-              getFiles(fileIds)
+              downloadFiles(fileIds)
             }}
-            disabled={fileIds.length === 0 || isDownloadPending}
+            disabled={fileIds.length === 0 || isLoading}
           >
-            {isLoading ? (
-              <IconLucideLoader2
-                className="min-w-[1em] animate-spin"
-              />
-            ) : (
-              <IconF7ArrowDownCircleFill className="min-w-[1em]" />
-            )}
+            <IconF7ArrowDownCircleFill className="min-w-[1em]" />
             <span className="hidden md:block">
               Download
             </span>
-            {isLoading ? (
-              <div className="flex items-center gap-1.5">
-                <span>
-                  <NumberFlow
-                    value={subtitleDownloadProgress.length}
-                    onAnimationsFinish={() => {
-                      if (subtitleDownloadProgress.length === fileIds.length)
-                        setDownloadProgressAnim(false)
-                    }}
-                  />
-                  {` / `}
-                  <NumberFlow
-                    value={fileIds.length}
-                  />
-                </span>
-              </div>
-            ) : (
-              <NumberFlow
-                value={fileIds.length}
-                className={clsx(fileIds.length === 0 ? 'hidden' : '')}
-                isolate
-              />
-            )}
           </Button>
         </div>
       </div>
-      <div className="flex grow items-center justify-center overflow-hidden rounded-xl border sq:rounded-3xl sq:[corner-shape:squircle]">
+      <div className="flex grow items-center justify-center overflow-hidden rounded-xl border sq:rounded-3xl">
         <div
-          className="flex size-full flex-col bg-(--theme-bg)"
+          className="flex size-full flex-col"
         >
           <div>
             <div className="flex h-12 gap-2 p-2">
@@ -598,7 +592,7 @@ export default function Subtitles() {
                   setLanguage(e)
                 }}
               >
-                <SelectTrigger className="h-full w-[unset] px-2 py-0 text-xs tabular-nums">
+                <SelectTrigger className="h-full! w-[unset] gap-0 px-2 py-0 text-xs tabular-nums">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent
@@ -622,6 +616,53 @@ export default function Subtitles() {
                     className="animate-spin"
                   />
                 ) : null}
+              </div>
+              <Button
+                className={clsx(
+                  fileIds.length === 0 ? 'hidden' : '',
+                  'h-8 gap-1.5 px-3',
+                )}
+                variant="ghost"
+                disabled={fileIds.length === 0 || isLoading}
+                onClick={clearSelection}
+              >
+                <IconF7MultiplyCircle className="min-w-[1em]" />
+                <span className="hidden md:block">
+                  Clear
+                </span>
+              </Button>
+              <div className="flex items-center gap-1.5 pr-1.5 text-sm">
+                {isLoading ? (
+                  <IconLucideLoader2
+                    className="min-w-[1em] animate-spin"
+                  />
+                ) : null}
+                {isLoading ? (
+                  <div className="flex items-center gap-1.5">
+                    <span>
+                      <NumberFlow
+                        value={subtitleDownloadProgress.length}
+                        onAnimationsFinish={() => {
+                        }}
+                      />
+                      {` / `}
+                      <NumberFlow
+                        value={fileIds.length}
+                      />
+                    </span>
+                  </div>
+                ) : (
+                  <NumberFlow
+                    value={fileIds.length}
+                    className={clsx(fileIds.length === 0 ? 'hidden' : '')}
+                    isolate
+                  />
+                )}
+                <span
+                  className={clsx(fileIds.length === 0 ? 'hidden' : '')}
+                >
+                  {fileIds.length === 1 ? 'item' : 'items'}
+                </span>
               </div>
             </div>
           </div>

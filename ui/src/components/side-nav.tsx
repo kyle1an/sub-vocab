@@ -25,7 +25,7 @@ export function SideNav({
             )}
           >
             <div
-              className="rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-600 sq:rounded-[.9375rem] sq:[corner-shape:squircle]"
+              className="rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-600 sq:rounded-[.9375rem]"
             >
               <div
                 className="flex h-full items-center px-3 py-1.5 text-stone-700 hover:text-black dark:text-stone-300"

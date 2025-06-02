@@ -1,11 +1,11 @@
-import type { RealtimePostgresInsertPayload, RealtimePostgresUpdatePayload } from '@supabase/supabase-js'
+import type { REALTIME_CHANNEL_STATES, RealtimePostgresInsertPayload, RealtimePostgresUpdatePayload } from '@supabase/supabase-js'
 import type { ValueOf } from 'type-fest'
 
 import { UTCDateMini } from '@date-fns/utc'
-import { REALTIME_CHANNEL_STATES } from '@supabase/supabase-js'
+import { REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js'
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
 import { produce } from 'immer'
-import { atom, useAtom, useAtomValue } from 'jotai'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithQuery } from 'jotai-tanstack-query'
 import { useEffect, useRef } from 'react'
 
@@ -219,120 +219,81 @@ function useRealtimeVocabUpsert<T extends Tables<'user_vocab_record'>>() {
 export type RealtimeChannelState = ValueOf<typeof REALTIME_CHANNEL_STATES>
 
 export const statusLabels = {
-  joined: 'Connected',
-  closed: 'Disconnected',
-  errored: 'Connection Error',
-  joining: 'Connecting...',
-  leaving: 'Disconnecting...',
-} as const satisfies Partial<Record<RealtimeChannelState, string>>
+  SUBSCRIBED: 'Connected',
+  CLOSED: 'Disconnected',
+  CHANNEL_ERROR: 'Connection Error',
+  TIMED_OUT: 'Connection Timeout',
+} as const satisfies Partial<Record<REALTIME_SUBSCRIBE_STATES, string>>
 
 const INACTIVITY_TIMEOUT_MS = MS_PER_MINUTE
 
 export function useVocabRealtimeSync() {
   const [session] = useAtom(sessionAtom)
-  const userId = session?.user?.id ?? ''
+  const userId = session?.user?.id
   const isTabActive = usePageVisibility()
   const { refetch } = useAtomValue(userVocabularyAtom)
-  const [vocabRealtimeSubscribeState, setVocabRealtimeSubscribeState] = useAtom(vocabRealtimeSyncStatusAtom)
+  const setVocabRealtimeSubscribeState = useSetAtom(vocabRealtimeSyncStatusAtom)
   const channelRef = useRef<ReturnType<Supabase['channel']> | null>(null)
-  const unsubscribedRef = useRef(false) // did we actually unsub?
-  const unsubscribeTimerRef = useRef<number | null>(null) // pending timer
   const upsertCallback = useRealtimeVocabUpsert()
 
   useEffect(() => {
-    if (!userId) {
+    function cleanup() {
       if (channelRef.current) {
         channelRef.current.unsubscribe()
         channelRef.current = null
+        setVocabRealtimeSubscribeState(REALTIME_SUBSCRIBE_STATES.CLOSED)
       }
-      if (unsubscribeTimerRef.current) {
-        clearTimeout(unsubscribeTimerRef.current)
-        unsubscribeTimerRef.current = null
-      }
-      unsubscribedRef.current = false
-      setVocabRealtimeSubscribeState(REALTIME_CHANNEL_STATES.closed)
+    }
+
+    if (!userId) {
+      cleanup()
       return
     }
 
-    if (isTabActive) {
-      // Cancel any pending unsubscribe if user came back quickly
-      if (unsubscribeTimerRef.current) {
-        clearTimeout(unsubscribeTimerRef.current)
-        unsubscribeTimerRef.current = null
-      }
-
-      if (unsubscribedRef.current) {
-        refetch()
-        unsubscribedRef.current = false
-      }
-
-      if (
-        !channelRef.current
-        || channelRef.current.state === 'closed'
-        || channelRef.current.state === 'errored'
-      ) {
-        const channel = supabase
-          .channel(`user_${userId}_user_vocab_record`)
-          .on(
-            'postgres_changes',
-            {
-              schema: 'public',
-              table: 'user_vocab_record',
-              event: 'INSERT',
-              filter: `user_id=eq.${userId}`,
-            },
-            upsertCallback,
-          )
-          .on(
-            'postgres_changes',
-            {
-              schema: 'public',
-              table: 'user_vocab_record',
-              event: 'UPDATE',
-              filter: `user_id=eq.${userId}`,
-            },
-            upsertCallback,
-          )
-          .subscribe(() => {
-            // Now we just read channel.state (which is effectively the same as the 'status' param)
-            if (channel.state !== vocabRealtimeSubscribeState)
-              setVocabRealtimeSubscribeState(channel.state)
-          })
-
-        channelRef.current = channel
-      }
-      else {
-        // If the channel already exists, just update the atom with the latest .state (in case it changed while we were away)
-        const currentState = channelRef.current.state
-        if (currentState !== vocabRealtimeSubscribeState)
-          setVocabRealtimeSubscribeState(currentState)
-      }
-    }
-    else {
-      unsubscribeTimerRef.current = setTimeout(() => {
-        if (channelRef.current) {
-          channelRef.current.unsubscribe()
-          channelRef.current = null
-          unsubscribedRef.current = true
-          setVocabRealtimeSubscribeState(REALTIME_CHANNEL_STATES.closed)
-        }
+    // If the tab is not active, we set a timer to unsubscribe.
+    if (!isTabActive) {
+      const timerId = setTimeout(() => {
+        cleanup()
       }, INACTIVITY_TIMEOUT_MS)
-    }
-  }, [isTabActive, refetch, setVocabRealtimeSubscribeState, upsertCallback, userId, vocabRealtimeSubscribeState])
 
-  // Cleanup on unmount or userId change
-  useEffect(() => {
-    return () => {
-      if (channelRef.current) {
-        channelRef.current.unsubscribe()
-        channelRef.current = null
+      return () => {
+        clearTimeout(timerId)
       }
-      if (unsubscribeTimerRef.current) {
-        clearTimeout(unsubscribeTimerRef.current)
-        unsubscribeTimerRef.current = null
-      }
-      unsubscribedRef.current = false
-      setVocabRealtimeSubscribeState(REALTIME_CHANNEL_STATES.closed)
     }
-  }, [setVocabRealtimeSubscribeState, userId])
+
+    if (channelRef.current === null) {
+      // Refetch data when a new subscription is about to be created after being inactive.
+      refetch()
+
+      channelRef.current = supabase
+        .channel(`user_${userId}_user_vocab_record`)
+        .on(
+          'postgres_changes',
+          {
+            schema: 'public',
+            table: 'user_vocab_record',
+            event: 'INSERT',
+            filter: `user_id=eq.${userId}`,
+          },
+          upsertCallback,
+        )
+        .on(
+          'postgres_changes',
+          {
+            schema: 'public',
+            table: 'user_vocab_record',
+            event: 'UPDATE',
+            filter: `user_id=eq.${userId}`,
+          },
+          upsertCallback,
+        )
+        .subscribe((status) => {
+          setVocabRealtimeSubscribeState(status)
+        })
+    }
+
+    return () => {
+      cleanup()
+    }
+  }, [userId, isTabActive, refetch, upsertCallback, setVocabRealtimeSubscribeState])
 }

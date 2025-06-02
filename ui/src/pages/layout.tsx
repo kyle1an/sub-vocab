@@ -3,6 +3,8 @@ import './globals.css'
 import { useColorScheme } from '@mui/joy/styles'
 import { useIsomorphicLayoutEffect } from '@react-hookz/web'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/react'
 import { useMediaQuery } from 'foxact/use-media-query'
 import { useAtom, useSetAtom } from 'jotai'
 import { DevTools } from 'jotai-devtools'
@@ -99,7 +101,7 @@ function Header() {
       <div className="flex h-full flex-1 gap-2">
         {isMobile && (
           <div className="flex p-2">
-            <SidebarTrigger />
+            <SidebarTrigger className="size-8" />
           </div>
         )}
       </div>
@@ -123,12 +125,13 @@ export default function RootLayout() {
 
   return (
     <SidebarProvider
-      ref={ref}
-      className="isolate h-svh bg-(--theme-bg) pr-(--pr) antialiased sq:superellipse-[3]"
+      className="isolate h-svh pr-(--pr) antialiased sq:superellipse-[1.5]"
       data-vaul-drawer-wrapper=""
     >
       <AppSidebar collapsible="icon" />
-      <SidebarInset>
+      <SidebarInset
+        ref={ref}
+      >
         <Header />
         <Outlet />
       </SidebarInset>
@@ -140,6 +143,12 @@ export default function RootLayout() {
       </Suspense>
       <JotaiDevTools />
       <ReactQueryDevtools initialIsOpen={false} />
+      {import.meta.env.PROD ? (
+        <>
+          <SpeedInsights />
+          <Analytics />
+        </>
+      ) : null}
     </SidebarProvider>
   )
 }

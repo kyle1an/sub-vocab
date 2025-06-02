@@ -25,7 +25,10 @@ export function NavMain({
   return (
     <SidebarMenu>
       {items.map((item) => (
-        <SidebarMenuItem key={item.title}>
+        <SidebarMenuItem
+          key={item.title}
+          className="flex"
+        >
           <$ hooks={{ useReactRouterIsMatch }}>
             {({ useReactRouterIsMatch }) => (
               <SidebarMenuButton

@@ -11,10 +11,10 @@ export function Detail({
       {...props}
     >
       <div
-        className="flex h-(--h) items-center justify-center overflow-hidden rounded-xl border sq:rounded-[1.25rem] sq:[corner-shape:squircle]"
+        className="flex h-(--h) items-center justify-center overflow-hidden rounded-xl border sq:rounded-[1.25rem]"
       >
         <div
-          className="flex size-full flex-col bg-(--theme-bg)"
+          className="flex size-full flex-col"
         >
           {children}
         </div>
