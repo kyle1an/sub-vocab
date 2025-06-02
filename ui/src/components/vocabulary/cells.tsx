@@ -22,7 +22,7 @@ export function VocabularyMenu({
       )}
       onClick={() => copy(word)}
     >
-      <div className="flex size-(--leading) items-center justify-center *:size-3">
+      <div className="flex size-(--leading) items-center justify-center *:size-3!">
         <MingcuteCheckFill
           className={cn('', copied ? '' : 'hidden')}
         />

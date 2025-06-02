@@ -34,7 +34,7 @@ export function TablePaginationSizeSelect<T>({
         table.setPageSize(Number(e))
       }}
     >
-      <SelectTrigger className="h-5 w-[unset] px-2 py-0 text-xs tabular-nums">
+      <SelectTrigger className="h-5! w-[unset] gap-0 px-2 py-0 text-xs tabular-nums">
         <SelectValue placeholder="Select" />
       </SelectTrigger>
       <SelectContent

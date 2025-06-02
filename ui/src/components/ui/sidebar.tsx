@@ -1,8 +1,6 @@
-'use client'
-
 import type { VariantProps } from 'class-variance-authority'
 
-import { ViewVerticalIcon } from '@radix-ui/react-icons'
+import { ViewVerticalIcon as PanelLeftIcon } from '@radix-ui/react-icons'
 import { Slot } from '@radix-ui/react-slot'
 import { cva } from 'class-variance-authority'
 import clsx from 'clsx'
@@ -58,7 +56,15 @@ function useSidebar() {
   return context
 }
 
-function SidebarProvider({ ref, defaultOpen = true, open: openProp, onOpenChange: setOpenProp, className, style, children, ...props }: React.ComponentProps<'div'> & {
+function SidebarProvider({
+  defaultOpen = true,
+  open: openProp,
+  onOpenChange: setOpenProp,
+  className,
+  style,
+  children,
+  ...props
+}: React.ComponentProps<'div'> & {
   defaultOpen?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
@@ -88,9 +94,7 @@ function SidebarProvider({ ref, defaultOpen = true, open: openProp, onOpenChange
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
-    return isMobile
-      ? setOpenMobile((open) => !open)
-      : setOpen((open) => !open)
+    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
   }, [isMobile, setOpen, setOpenMobile])
 
   // Adds a keyboard shortcut to toggle the sidebar.
@@ -120,6 +124,7 @@ function SidebarProvider({ ref, defaultOpen = true, open: openProp, onOpenChange
     <SidebarContext value={contextValue}>
       <TooltipProvider delayDuration={0}>
         <div
+          data-slot="sidebar-wrapper"
           style={
             {
               '--sidebar-width': SIDEBAR_WIDTH,
@@ -131,7 +136,6 @@ function SidebarProvider({ ref, defaultOpen = true, open: openProp, onOpenChange
             'group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar',
             className,
           )}
-          ref={ref}
           {...props}
         >
           {children}
@@ -141,7 +145,14 @@ function SidebarProvider({ ref, defaultOpen = true, open: openProp, onOpenChange
   )
 }
 
-function Sidebar({ ref, side = 'left', variant = 'sidebar', collapsible = 'offcanvas', className, children, ...props }: React.ComponentProps<'div'> & {
+function Sidebar({
+  side = 'left',
+  variant = 'sidebar',
+  collapsible = 'offcanvas',
+  className,
+  children,
+  ...props
+}: React.ComponentProps<'div'> & {
   side?: 'left' | 'right'
   variant?: 'sidebar' | 'floating' | 'inset'
   collapsible?: 'offcanvas' | 'icon' | 'none'
@@ -151,11 +162,11 @@ function Sidebar({ ref, side = 'left', variant = 'sidebar', collapsible = 'offca
   if (collapsible === 'none') {
     return (
       <div
+        data-slot="sidebar"
         className={cn(
           'flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground',
           className,
         )}
-        ref={ref}
         {...props}
       >
         {children}
@@ -168,6 +179,7 @@ function Sidebar({ ref, side = 'left', variant = 'sidebar', collapsible = 'offca
       <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
         <SheetContent
           data-sidebar="sidebar"
+          data-slot="sidebar"
           data-mobile="true"
           className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
           style={
@@ -181,7 +193,7 @@ function Sidebar({ ref, side = 'left', variant = 'sidebar', collapsible = 'offca
             <SheetTitle>Sidebar</SheetTitle>
             <SheetDescription>Displays the mobile sidebar.</SheetDescription>
           </SheetHeader>
-          <div className="flex size-full flex-col">{children}</div>
+          <div className="flex h-full w-full flex-col">{children}</div>
         </SheetContent>
       </Sheet>
     )
@@ -189,16 +201,16 @@ function Sidebar({ ref, side = 'left', variant = 'sidebar', collapsible = 'offca
 
   return (
     <div
-      ref={ref}
-      data-slot="sidebar"
       className="group peer hidden text-sidebar-foreground md:block"
       data-state={state}
       data-collapsible={state === 'collapsed' ? collapsible : ''}
       data-variant={variant}
       data-side={side}
+      data-slot="sidebar"
     >
       {/* This is what handles the sidebar gap on desktop */}
       <div
+        data-slot="sidebar-gap"
         className={cn(
           'relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear',
           'group-data-[collapsible=offcanvas]:w-0',
@@ -209,6 +221,7 @@ function Sidebar({ ref, side = 'left', variant = 'sidebar', collapsible = 'offca
         )}
       />
       <div
+        data-slot="sidebar-container"
         className={cn(
           'fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex',
           side === 'left'
@@ -224,7 +237,8 @@ function Sidebar({ ref, side = 'left', variant = 'sidebar', collapsible = 'offca
       >
         <div
           data-sidebar="sidebar"
-          className="flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm"
+          data-slot="sidebar-inner"
+          className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm"
         >
           {children}
         </div>
@@ -233,23 +247,27 @@ function Sidebar({ ref, side = 'left', variant = 'sidebar', collapsible = 'offca
   )
 }
 
-function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<typeof Button>) {
+function SidebarTrigger({
+  className,
+  onClick,
+  ...props
+}: React.ComponentProps<typeof Button>) {
   const { toggleSidebar } = useSidebar()
 
   return (
     <Button
-      data-slot="sidebar-trigger"
       data-sidebar="trigger"
+      data-slot="sidebar-trigger"
       variant="ghost"
       size="icon"
-      className={cn('size-8', className)}
+      className={cn('size-7', className)}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()
       }}
       {...props}
     >
-      <ViewVerticalIcon />
+      <PanelLeftIcon />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   )
@@ -260,8 +278,8 @@ function SidebarRail({ className, ...props }: React.ComponentProps<'button'>) {
 
   return (
     <button
-      data-slot="sidebar-rail"
       data-sidebar="rail"
+      data-slot="sidebar-rail"
       aria-label="Toggle Sidebar"
       tabIndex={-1}
       onClick={toggleSidebar}
@@ -295,7 +313,10 @@ function SidebarInset({ className, ...props }: React.ComponentProps<'main'>) {
   )
 }
 
-function SidebarInput({ className, ...props }: React.ComponentProps<typeof Input>) {
+function SidebarInput({
+  className,
+  ...props
+}: React.ComponentProps<typeof Input>) {
   return (
     <Input
       data-slot="sidebar-input"
@@ -309,10 +330,9 @@ function SidebarInput({ className, ...props }: React.ComponentProps<typeof Input
   )
 }
 
-function SidebarHeader({ ref, className, ...props }: React.ComponentProps<'div'>) {
+function SidebarHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
-      ref={ref}
       data-slot="sidebar-header"
       data-sidebar="header"
       className={cn('flex flex-col gap-2 p-2', className)}
@@ -321,10 +341,9 @@ function SidebarHeader({ ref, className, ...props }: React.ComponentProps<'div'>
   )
 }
 
-function SidebarFooter({ ref, className, ...props }: React.ComponentProps<'div'>) {
+function SidebarFooter({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
-      ref={ref}
       data-slot="sidebar-footer"
       data-sidebar="footer"
       className={cn('flex flex-col gap-2 p-2', className)}
@@ -333,10 +352,12 @@ function SidebarFooter({ ref, className, ...props }: React.ComponentProps<'div'>
   )
 }
 
-function SidebarSeparator({ ref, className, ...props }: React.ComponentProps<typeof Separator>) {
+function SidebarSeparator({
+  className,
+  ...props
+}: React.ComponentProps<typeof Separator>) {
   return (
     <Separator
-      ref={ref}
       data-slot="sidebar-separator"
       data-sidebar="separator"
       className={cn('mx-2 w-auto bg-sidebar-border', className)}
@@ -345,14 +366,14 @@ function SidebarSeparator({ ref, className, ...props }: React.ComponentProps<typ
   )
 }
 
-function SidebarContent({ ref, className, ...props }: React.ComponentProps<'div'>) {
+function SidebarContent({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
-      ref={ref}
       data-slot="sidebar-content"
       data-sidebar="content"
       className={cn(
         'flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden',
+        'overscroll-contain',
         className,
       )}
       {...props}
@@ -360,10 +381,9 @@ function SidebarContent({ ref, className, ...props }: React.ComponentProps<'div'
   )
 }
 
-function SidebarGroup({ ref, className, ...props }: React.ComponentProps<'div'>) {
+function SidebarGroup({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
-      ref={ref}
       data-slot="sidebar-group"
       data-sidebar="group"
       className={cn('relative flex w-full min-w-0 flex-col p-2', className)}
@@ -372,12 +392,15 @@ function SidebarGroup({ ref, className, ...props }: React.ComponentProps<'div'>)
   )
 }
 
-function SidebarGroupLabel({ ref, className, asChild = false, ...props }: React.ComponentProps<'div'> & { asChild?: boolean }) {
+function SidebarGroupLabel({
+  className,
+  asChild = false,
+  ...props
+}: React.ComponentProps<'div'> & { asChild?: boolean }) {
   const Comp = asChild ? Slot : 'div'
 
   return (
     <Comp
-      ref={ref}
       data-slot="sidebar-group-label"
       data-sidebar="group-label"
       className={cn(
@@ -390,12 +413,15 @@ function SidebarGroupLabel({ ref, className, asChild = false, ...props }: React.
   )
 }
 
-function SidebarGroupAction({ ref, className, asChild = false, ...props }: React.ComponentProps<'button'> & { asChild?: boolean } & { ref?: React.RefObject<HTMLButtonElement | null> }) {
+function SidebarGroupAction({
+  className,
+  asChild = false,
+  ...props
+}: React.ComponentProps<'button'> & { asChild?: boolean }) {
   const Comp = asChild ? Slot : 'button'
 
   return (
     <Comp
-      ref={ref}
       data-slot="sidebar-group-action"
       data-sidebar="group-action"
       className={cn(
@@ -410,10 +436,13 @@ function SidebarGroupAction({ ref, className, asChild = false, ...props }: React
   )
 }
 
-function SidebarGroupContent({ ref, className, ...props }: React.ComponentProps<'div'>) {
+function SidebarGroupContent({
+  className,
+  ...props
+}: React.ComponentProps<'div'>) {
   return (
     <div
-      ref={ref}
+      data-slot="sidebar-group-content"
       data-sidebar="group-content"
       className={cn('w-full text-sm', className)}
       {...props}
@@ -421,10 +450,10 @@ function SidebarGroupContent({ ref, className, ...props }: React.ComponentProps<
   )
 }
 
-function SidebarMenu({ ref, className, ...props }: React.ComponentProps<'ul'>) {
+function SidebarMenu({ className, ...props }: React.ComponentProps<'ul'>) {
   return (
     <ul
-      ref={ref}
+      data-slot="sidebar-menu"
       data-sidebar="menu"
       className={cn('flex w-full min-w-0 flex-col gap-1', className)}
       {...props}
@@ -432,10 +461,10 @@ function SidebarMenu({ ref, className, ...props }: React.ComponentProps<'ul'>) {
   )
 }
 
-function SidebarMenuItem({ ref, className, ...props }: React.ComponentProps<'li'>) {
+function SidebarMenuItem({ className, ...props }: React.ComponentProps<'li'>) {
   return (
     <li
-      ref={ref}
+      data-slot="sidebar-menu-item"
       data-sidebar="menu-item"
       className={cn('group/menu-item relative', className)}
       {...props}
@@ -445,9 +474,9 @@ function SidebarMenuItem({ ref, className, ...props }: React.ComponentProps<'li'
 
 const sidebarMenuButtonVariants = cva(
   clsx(
-    'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
+    'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
     'group-data-[collapsible=icon]:w-full',
-    '[corner-shape:squircle] sq:rounded-xl',
+    'sq:rounded-xl',
   ),
   {
     variants: {
@@ -469,7 +498,16 @@ const sidebarMenuButtonVariants = cva(
   },
 )
 
-function SidebarMenuButton({ ref, asChild = false, isActive = false, variant = 'default', size = 'default', tooltip, className, onClick, ...props }: React.ComponentProps<'button'> & {
+function SidebarMenuButton({
+  asChild = false,
+  isActive = false,
+  variant = 'default',
+  size = 'default',
+  tooltip,
+  className,
+  onClick,
+  ...props
+}: React.ComponentProps<'button'> & {
   asChild?: boolean
   isActive?: boolean
   tooltip?: string | React.ComponentProps<typeof TooltipContent>
@@ -479,7 +517,6 @@ function SidebarMenuButton({ ref, asChild = false, isActive = false, variant = '
 
   const button = (
     <Comp
-      ref={ref}
       data-slot="sidebar-menu-button"
       data-sidebar="menu-button"
       data-size={size}
@@ -517,7 +554,12 @@ function SidebarMenuButton({ ref, asChild = false, isActive = false, variant = '
   )
 }
 
-function SidebarMenuAction({ ref, className, asChild = false, showOnHover = false, ...props }: React.ComponentProps<'button'> & {
+function SidebarMenuAction({
+  className,
+  asChild = false,
+  showOnHover = false,
+  ...props
+}: React.ComponentProps<'button'> & {
   asChild?: boolean
   showOnHover?: boolean
 }) {
@@ -525,7 +567,6 @@ function SidebarMenuAction({ ref, className, asChild = false, showOnHover = fals
 
   return (
     <Comp
-      ref={ref}
       data-slot="sidebar-menu-action"
       data-sidebar="menu-action"
       className={cn(
@@ -545,10 +586,12 @@ function SidebarMenuAction({ ref, className, asChild = false, showOnHover = fals
   )
 }
 
-function SidebarMenuBadge({ ref, className, ...props }: React.ComponentProps<'div'>) {
+function SidebarMenuBadge({
+  className,
+  ...props
+}: React.ComponentProps<'div'>) {
   return (
     <div
-      ref={ref}
       data-slot="sidebar-menu-badge"
       data-sidebar="menu-badge"
       className={cn(
@@ -565,7 +608,11 @@ function SidebarMenuBadge({ ref, className, ...props }: React.ComponentProps<'di
   )
 }
 
-function SidebarMenuSkeleton({ ref, className, showIcon = false, ...props }: React.ComponentProps<'div'> & {
+function SidebarMenuSkeleton({
+  className,
+  showIcon = false,
+  ...props
+}: React.ComponentProps<'div'> & {
   showIcon?: boolean
 }) {
   // Random width between 50 to 90%.
@@ -575,7 +622,6 @@ function SidebarMenuSkeleton({ ref, className, showIcon = false, ...props }: Rea
 
   return (
     <div
-      ref={ref}
       data-slot="sidebar-menu-skeleton"
       data-sidebar="menu-skeleton"
       className={cn('flex h-8 items-center gap-2 rounded-md px-2', className)}
@@ -600,10 +646,9 @@ function SidebarMenuSkeleton({ ref, className, showIcon = false, ...props }: Rea
   )
 }
 
-function SidebarMenuSub({ ref, className, ...props }: React.ComponentProps<'ul'>) {
+function SidebarMenuSub({ className, ...props }: React.ComponentProps<'ul'>) {
   return (
     <ul
-      ref={ref}
       data-slot="sidebar-menu-sub"
       data-sidebar="menu-sub"
       className={cn(
@@ -616,11 +661,28 @@ function SidebarMenuSub({ ref, className, ...props }: React.ComponentProps<'ul'>
   )
 }
 
-function SidebarMenuSubItem({ ref, ...props }: React.ComponentProps<'li'>) {
-  return <li ref={ref} {...props} />
+function SidebarMenuSubItem({
+  className,
+  ...props
+}: React.ComponentProps<'li'>) {
+  return (
+    <li
+      data-slot="sidebar-menu-sub-item"
+      data-sidebar="menu-sub-item"
+      className={cn('group/menu-sub-item relative', className)}
+      {...props}
+    />
+  )
 }
 
-function SidebarMenuSubButton({ ref, asChild = false, size = 'md', isActive, className, onClick, ...props }: React.ComponentProps<'a'> & {
+function SidebarMenuSubButton({
+  asChild = false,
+  size = 'md',
+  isActive = false,
+  className,
+  onClick,
+  ...props
+}: React.ComponentProps<'a'> & {
   asChild?: boolean
   size?: 'sm' | 'md'
   isActive?: boolean
@@ -630,7 +692,6 @@ function SidebarMenuSubButton({ ref, asChild = false, size = 'md', isActive, cla
 
   return (
     <Comp
-      ref={ref}
       data-slot="sidebar-menu-sub-button"
       data-sidebar="menu-sub-button"
       data-size={size}

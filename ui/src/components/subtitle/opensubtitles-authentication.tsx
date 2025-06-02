@@ -136,7 +136,7 @@ export function OpensubtitlesAuthentication() {
                       </div>
                       <Button
                         variant="outline"
-                        className="px-2"
+                        className="px-2!"
                         aria-checked={passwordVisible}
                         onClick={(e) => {
                           e.preventDefault()

@@ -37,11 +37,14 @@ export function DataTableFacetedFilter({
   const selected = Object.values(filterValue).filter(Boolean)
   return (
     <Popover>
-      <PopoverTrigger asChild>
+      <PopoverTrigger
+        className="gap-0 border-dashed"
+        asChild
+      >
         <Button
           variant="outline"
           size="sm"
-          className={cn('h-8 p-0 shadow-none drop-shadow-none!', className)}
+          className={cn('h-8 p-0 text-xs shadow-none drop-shadow-none!', className)}
         >
           <>
             <div className="inline-flex h-full items-center justify-center space-x-[2.5px] px-1.5 has-[>*:nth-child(2)]:pl-[5.5px]">
@@ -56,7 +59,7 @@ export function DataTableFacetedFilter({
                 <Separator orientation="vertical" className="h-4" />
                 <Badge
                   variant="secondary"
-                  className="rounded-sm px-1 font-normal lg:hidden"
+                  className="px-1 font-normal [--sq-r:.5625rem] lg:hidden"
                 >
                   {selected.length}
                 </Badge>
@@ -64,7 +67,7 @@ export function DataTableFacetedFilter({
                   {selected.length >= 2 ? (
                     <Badge
                       variant="secondary"
-                      className="rounded-sm px-1 font-normal"
+                      className="px-1 font-normal [--sq-r:.5625rem]"
                     >
                       {selected.length}
                     </Badge>
@@ -75,7 +78,7 @@ export function DataTableFacetedFilter({
                         <Badge
                           variant="secondary"
                           key={option.value}
-                          className="rounded-sm px-1 font-normal"
+                          className="px-1 font-normal [--sq-r:.5625rem]"
                         >
                           {option.label}
                         </Badge>
@@ -91,7 +94,7 @@ export function DataTableFacetedFilter({
         <Command className="rounded-none bg-transparent">
           <CommandInput placeholder={title} />
           <CommandList className="max-h-full">
-            <CommandEmpty className="py-6.5">No results found.</CommandEmpty>
+            <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup className="max-h-75 overflow-x-hidden overflow-y-auto">
               {options.map((option) => {
                 const isSelected = Boolean(filterValue[option.value])

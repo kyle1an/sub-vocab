@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
@@ -38,8 +39,9 @@ export function SearchWidget({
   return (
     <div
       className={cn(
-        'flex max-w-48 flex-row items-center gap-1 overflow-visible rounded-md border p-1.5 pr-[.3125rem] dark:text-neutral-400 sq:[corner-shape:squircle]',
-        'shadow-xs [--sq-r:.75rem] has-[>:focus]:ring-1 has-[>:focus]:ring-ring sq:rounded-(--sq-r) sq:shadow-none sq:drop-shadow-xs',
+        'flex max-w-48 flex-row items-center gap-1 overflow-visible rounded-md border p-1.5 pr-[.3125rem] dark:text-neutral-400',
+        'shadow-xs [--sq-r:.75rem] sq:rounded-(--sq-r) sq:shadow-none sq:drop-shadow-xs',
+        'transition-[color,box-shadow,border-color] has-[>:focus]:border-ring has-[>:focus]:ring-[3px] has-[>:focus]:ring-ring/50',
       )}
     >
       <IconIonSearch
@@ -54,7 +56,10 @@ export function SearchWidget({
           onSearch(e.target.value)
         }}
         placeholder={t('search')}
-        className="w-[.1%] grow bg-transparent pl-0.5 leading-4 outline-hidden dark:placeholder:text-neutral-600"
+        className={clsx(
+          'w-[.1%] grow bg-transparent pl-0.5 leading-4 outline-hidden dark:placeholder:text-neutral-600',
+          !value && 'select-none',
+        )}
       />
       {value ? (
         <IconEpCircleCloseFilled
@@ -69,7 +74,7 @@ export function SearchWidget({
           pressed={isUsingRegex}
           aria-label="Regular expression"
           // https://x.com/JohnPhamous/status/1909293861547262141
-          className="size-fit touch-manipulation rounded-[3px] p-px text-muted-foreground"
+          className="size-fit min-w-0 touch-manipulation rounded-[3px] p-px text-muted-foreground"
           onPressedChange={() => {
             onRegex(!isUsingRegex)
           }}

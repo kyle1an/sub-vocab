@@ -1,18 +1,23 @@
+import type { ToasterProps } from 'sonner'
+
 import { Toaster as Sonner } from 'sonner'
 
 import { cn } from '@/lib/utils'
-
-type ToasterProps = React.ComponentProps<typeof Sonner>
-
-function Toaster({ ...props }: ToasterProps) {
+const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
       className="toaster group"
+      style={{
+        '--normal-bg': 'var(--popover)',
+        '--normal-text': 'var(--popover-foreground)',
+        '--normal-border': 'var(--border)',
+      }}
       toastOptions={{
         classNames: {
+          // eslint-disable-next-line tailwindcss/no-custom-classname
           toast: cn(
-            'toast group group-[.toaster]:border-border group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:shadow-lg',
-            '[--sq-r:1.25rem] sq:[--border-radius:--sq-r] sq:[corner-shape:squircle] sq:group-[.toaster]:shadow-none sq:group-[.toaster]:drop-shadow-lg',
+            'toast group group-[.toaster]:border-border group-[.toaster]:bg-background group-[.toaster]:text-foreground',
+            '[--sq-r:1.25rem] sq:[--border-radius:var(--sq-r)]',
           ),
           content: 'w-full',
           description: 'group-[.toast]:text-muted-foreground',
@@ -24,7 +29,6 @@ function Toaster({ ...props }: ToasterProps) {
             'bg-background! text-muted-foreground! border-border! opacity-0 group-[.toast:hover]:opacity-100',
         },
       }}
-      duration={999999999}
       position="bottom-center"
       {...props}
     />

@@ -110,7 +110,7 @@ export default function UpdatePassword() {
                               </div>
                               <Button
                                 variant="outline"
-                                className="px-2"
+                                className="px-2!"
                                 aria-checked={newPasswordVisible}
                                 onClick={(e) => {
                                   e.preventDefault()
@@ -135,7 +135,7 @@ export default function UpdatePassword() {
                     />
                     <FormMessage>{errors.root?.serverError?.message}</FormMessage>
                     <Button
-                      className="mt-8 gap-1.5"
+                      className="gap-1.5"
                       type="submit"
                       disabled={isPending}
                     >

@@ -124,7 +124,7 @@ export function FileSettings() {
             </DialogDescription>
           </DialogHeader>
           <Separator />
-          <div className="size-full overflow-y-scroll px-0.5 py-3">
+          <div className="-ml-1 size-full overflow-y-scroll px-0.5 py-3 pl-1">
             <FileSettingsContent
               fileTypes={fileTypesInterim}
               onFileTypeChange={handleFileTypeChange}
@@ -153,6 +153,7 @@ export function FileSettings() {
   return (
     <Drawer
       open={open}
+      shouldScaleBackground
       onOpenChange={handleOpenChange}
     >
       <DrawerTrigger asChild>

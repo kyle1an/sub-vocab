@@ -2,15 +2,12 @@ import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 import type { ArrayValues, PartialDeep } from 'type-fest'
 
 import { useIsomorphicLayoutEffect } from '@react-hookz/web'
-import { createClient, REALTIME_CHANNEL_STATES } from '@supabase/supabase-js'
+import { createClient, REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js'
 import { QueryClient } from '@tanstack/react-query'
-import { isSafari } from 'foxact/is-safari'
 import { atom, createStore } from 'jotai'
 import { atomWithImmer } from 'jotai-immer'
 import { atomFamily, atomWithStorage } from 'jotai/utils'
 
-import type { Download } from '@/api/opensubtitles'
-import type { RealtimeChannelState } from '@/api/vocab-api'
 import type { SubtitleData } from '@/components/subtitle/columns'
 import type { THEMES } from '@/components/themes'
 import type { ArrayConcat } from '@/lib/utilities'
@@ -24,12 +21,13 @@ import { env } from '@/env'
 import { getLanguage } from '@/i18n'
 import { SUPPORTED_FILE_EXTENSIONS } from '@/lib/filesHandler'
 
+export const fileInfoAtom = atom('')
 export const sourceTextAtom = atom({
   text: '',
   version: 0,
 })
 
-export const vocabRealtimeSyncStatusAtom = atom<RealtimeChannelState>(REALTIME_CHANNEL_STATES.closed)
+export const vocabRealtimeSyncStatusAtom = atom<REALTIME_SUBSCRIBE_STATES>(REALTIME_SUBSCRIBE_STATES.CLOSED)
 
 export const isSourceTextStaleAtom = atom(false)
 
@@ -51,8 +49,6 @@ export const fileIdsAtom = atom((get) => {
     (innerObj) => Object.keys(innerObj.rowSelection).filter((key) => innerObj.rowSelection[key]).map(Number),
   )
 })
-
-export const subtitleDownloadProgressAtom = atomWithImmer<Download['Body'][]>([])
 
 export const subtitleSelectionStateFamily = atomFamily((mediaId: number) => atom(
   (get) => get(mediaSubtitleStateAtom)[mediaId]?.rowSelection ?? {},
@@ -121,10 +117,6 @@ export const localeAtom = atomWithStorage('localeAtom', getLanguage(), undefined
 
 export function useDocumentInit() {
   useIsomorphicLayoutEffect(() => {
-    const safari = isSafari()
-    if (safari) {
-      document.documentElement.setAttribute('data-is-safari', '')
-    }
   }, [])
 }
 

@@ -88,7 +88,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center font-stretch-condensed tabular-nums">
+            <Div className="justify-center tabular-nums">
               {row.depth >= 1 ? null : value}
             </Div>
           </TableDataCell>
@@ -112,7 +112,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
               className="justify-between gap-1.5 pr-1 pl-2 select-none signal/active:bg-background-active"
               onClick={header.column.getToggleSortingHandler()}
             >
-              <div className="flex font-stretch-condensed">
+              <div className="flex">
                 {osSession?.token ? (
                   <Checkbox
                     checked={checked}
@@ -162,7 +162,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
                 }}
               >
                 <Checkbox
-                  variant={row.depth === 0 ? undefined : 'radio'}
+                  className={clsx(row.depth >= 1 && 'rounded-full sq:rounded-full sq:[corner-shape:round]!')}
                   onClick={(e) => e.stopPropagation()}
                   checked={checked}
                   onCheckedChange={(checked) => {
@@ -236,8 +236,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
             cell={cell}
           >
             <Div
-              className="pr-px pl-1 whitespace-nowrap capitalize font-stretch-condensed tabular-nums data-[value=tv]:uppercase"
-              data-value={value}
+              className="pr-px pl-1 tracking-4 whitespace-nowrap tabular-nums"
             >
               {row.depth >= 1 ? null : value}
             </Div>
@@ -276,7 +275,8 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
       cell({ cell, getValue, row }) {
         /* eslint-disable react-compiler/react-compiler */
         /* eslint-disable react-hooks/rules-of-hooks */
-        const [ref, isEllipsisActive] = useIsEllipsisActive<HTMLDivElement>()
+        const ref = useRef<HTMLDivElement>(null)
+        const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
         /* eslint-enable react-compiler/react-compiler */
         /* eslint-enable react-hooks/rules-of-hooks */
         let element = <></>
@@ -290,7 +290,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
         }
         else {
           const value = row.original.subtitle.attributes.files[0]?.file_name || ''
-          const className = 'tracking-wider text-sm'
+          const className = 'tracking-4 text-sm'
           const rootRect = root.current?.getBoundingClientRect()
           const refRect = ref.current?.getBoundingClientRect()
           let maxWidth = 0
@@ -300,12 +300,15 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           element = (
             <div
               ref={ref}
-              className="w-0 grow overflow-hidden text-ellipsis whitespace-nowrap"
+              className="w-0 grow truncate"
             >
               <Tooltip
                 delayDuration={500}
               >
-                <TooltipTrigger asChild>
+                <TooltipTrigger
+                  onMouseOver={handleOnMouseOver}
+                  asChild
+                >
                   <div
                     className={clsx('truncate', className)}
                   >
@@ -320,7 +323,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
                   alignOffset={-8 - 1}
                   avoidCollisions={false}
                   hidden={!isEllipsisActive}
-                  className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs !slide-in-from-top-0 !zoom-in-100 !zoom-out-100 [word-wrap:break-word]"
+                  className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
                   style={{
                     '--max-width': `${maxWidth}px`,
                   }}
@@ -340,7 +343,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
             cell={cell}
           >
             <Div
-              className="cursor-text pr-px pl-2.5 tracking-wider select-text"
+              className="cursor-text pr-px pl-2.5 tracking-4 select-text"
               onClick={(ev) => ev.stopPropagation()}
             >
               {element}
@@ -384,7 +387,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pr-px pl-0.5 font-stretch-condensed tabular-nums">
+            <Div className="justify-end pr-px pl-0.5 tabular-nums">
               {row.depth >= 1 ? null : formatDuration(
                 intervalToDuration({ start, end }),
                 {
@@ -577,7 +580,7 @@ export function TVSubtitleFiles({
                   setFilterEpisode(e)
                 }}
               >
-                <SelectTrigger className="h-full w-[unset] px-2 py-0 text-xs tabular-nums [--sq-r:.625rem]">
+                <SelectTrigger className="h-full! w-[unset] gap-0 px-2 py-0 text-xs tabular-nums [--sq-r:.625rem]">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent

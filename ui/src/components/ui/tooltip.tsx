@@ -1,27 +1,69 @@
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
+import clsx from 'clsx'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
-const TooltipProvider = TooltipPrimitive.Provider
+function TooltipProvider({
+  delayDuration = 0,
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
+  return (
+    // eslint-disable-next-line react/no-context-provider
+    <TooltipPrimitive.Provider
+      data-slot="tooltip-provider"
+      delayDuration={delayDuration}
+      {...props}
+    />
+  )
+}
 
-const Tooltip = TooltipPrimitive.Root
+function Tooltip({
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Root>) {
+  return (
+    <TooltipProvider>
+      <TooltipPrimitive.Root data-slot="tooltip" {...props} />
+    </TooltipProvider>
+  )
+}
 
-const TooltipTrigger = TooltipPrimitive.Trigger
+function TooltipTrigger({
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
+  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />
+}
 
-function TooltipContent({ ref, container, className, sideOffset = 4, ...props }: React.ComponentPropsWithRef<typeof TooltipPrimitive.Content> & Pick<React.ComponentPropsWithRef<typeof TooltipPrimitive.Portal>, 'container'>) {
+function TooltipContent({
+  className,
+  sideOffset = 0,
+  children,
+  container,
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Content>
+  & Pick<React.ComponentPropsWithRef<typeof TooltipPrimitive.Portal>, 'container'>,
+) {
   return (
     <TooltipPrimitive.Portal container={container}>
       <TooltipPrimitive.Content
-        ref={ref}
+        data-slot="tooltip-content"
         sideOffset={sideOffset}
         className={cn(
-          'z-50 origin-(--radix-tooltip-content-transform-origin) animate-in overflow-hidden rounded-md bg-primary px-3 py-1.5 text-xs text-primary-foreground fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
-          'sq:rounded-[.75rem] sq:[corner-shape:squircle] [[data-radix-popper-content-wrapper]:has(&)]:absolute!',
+          'z-50 w-fit origin-(--radix-tooltip-content-transform-origin) animate-in rounded-md bg-primary px-3 py-1.5 text-xs text-balance text-primary-foreground fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
+          'sq:rounded-[.6875rem] [[data-radix-popper-content-wrapper]:has(&)]:absolute!',
           className,
         )}
         {...props}
-      />
+      >
+        {children}
+        <TooltipPrimitive.Arrow
+          data-slot="tooltip-arrow"
+          className={clsx(
+            'z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] bg-primary fill-primary',
+            'sq:rounded-[.25rem]',
+          )}
+        />
+      </TooltipPrimitive.Content>
     </TooltipPrimitive.Portal>
   )
 }

@@ -1,5 +1,3 @@
-'use client'
-
 import {
   CaretSortIcon,
   CheckIcon,
@@ -7,6 +5,7 @@ import {
   ChevronUpIcon,
 } from '@radix-ui/react-icons'
 import * as SelectPrimitive from '@radix-ui/react-select'
+import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
@@ -30,17 +29,20 @@ function SelectValue({
 
 function SelectTrigger({
   className,
+  size = 'default',
   children,
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.Trigger>) {
+}: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
+  size?: 'sm' | 'default'
+}) {
   return (
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
+      data-size={size}
       className={cn(
-        'flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs ring-offset-background placeholder:text-muted-foreground focus:ring-1 focus:ring-ring focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 data-placeholder:text-muted-foreground',
-        '[--sq-r:.75rem] sq:rounded-(--sq-r) sq:shadow-none sq:[corner-shape:squircle]',
-        'relative [--offset:2px] sq:focus:ring-0 sq:focus:after:absolute sq:focus:after:-top-(--offset) sq:focus:after:-left-(--offset) sq:focus:after:size-[calc(100%+2*var(--offset))] focus:after:sq:rounded-[calc(var(--sq-r)+var(--offset)-0.3px)] sq:focus:after:sq:border focus:after:sq:border-ring focus:after:sq:[corner-shape:squircle]',
-        'tracking-wide',
+        "flex w-fit items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow,border-color] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[placeholder]:text-muted-foreground data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground",
+        '[--sq-r:.75rem] sq:rounded-(--sq-r) sq:shadow-none',
+        'tracking-2',
         className,
       )}
       {...props}
@@ -70,7 +72,7 @@ function SelectContent({
           'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
           position === 'popper'
           && 'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
-          '[--sq-r:1rem] sq:relative sq:rounded-(--sq-r) sq:shadow-none sq:drop-shadow-md sq:[corner-shape:squircle]',
+          '[--sq-r:.9375rem] sq:relative sq:rounded-(--sq-r) sq:shadow-none sq:drop-shadow-md',
           className,
         )}
         position={position}
@@ -79,7 +81,7 @@ function SelectContent({
         <SelectScrollUpButton />
         <SelectPrimitive.Viewport
           className={cn(
-            'p-[5px]',
+            'p-1',
             position === 'popper'
             && 'h-(--radix-select-trigger-height) w-full min-w-(--radix-select-trigger-width) scroll-my-1',
           )}
@@ -99,7 +101,7 @@ function SelectLabel({
   return (
     <SelectPrimitive.Label
       data-slot="select-label"
-      className={cn('px-6 text-xs leading-6 font-semibold', className)}
+      className={cn('px-2 py-1.5 text-xs text-muted-foreground', className)}
       {...props}
     />
   )
@@ -114,15 +116,14 @@ function SelectItem({
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        'relative flex h-6 w-full cursor-default items-center rounded-sm px-6 py-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50',
-        'data-highlighted:bg-accent data-highlighted:text-accent-foreground data-highlighted:outline-hidden',
-        '[--sq-r:.5rem] sq:rounded-(--sq-r) sq:[corner-shape:squircle]',
-        'tracking-wide',
+        "relative flex h-6 w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-6 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        '[--sq-r:.5rem] sq:rounded-(--sq-r)',
+        'tracking-2',
         className,
       )}
       {...props}
     >
-      <span className="absolute left-0 flex h-3.5 w-6 items-center justify-center">
+      <span className="absolute left-0 flex size-3.5 w-6 items-center justify-center">
         <SelectPrimitive.ItemIndicator>
           <CheckIcon className="size-4" />
         </SelectPrimitive.ItemIndicator>

@@ -9,8 +9,8 @@ import { cn } from '@/lib/utils'
 
 const segmentedControlVariants = cva(
   clsx(
-    `grid w-full touch-manipulation! auto-cols-[1fr] grid-flow-col overflow-hidden rounded-lg tracking-wide antialiased outline-hidden select-none [text-rendering:geometricPrecision]`,
-    'sq:rounded-[.9375rem] sq:superellipse-[3.5]',
+    `grid w-full touch-manipulation! auto-cols-[1fr] grid-flow-col overflow-hidden rounded-lg tracking-2 antialiased outline-hidden select-none [text-rendering:geometricPrecision]`,
+    'sq:rounded-[.9375rem] sq:superellipse-[1.75]',
   ),
   {
     variants: {
@@ -166,7 +166,7 @@ export function SegmentedControl<T extends string>({
                       ref={addToRefs(item.value)}
                       className={cn(
                         'flex size-full rounded-md ease-[ease] will-change-transform',
-                        'sq:rounded-[.6875rem] sq:superellipse-[3.5]',
+                        'sq:rounded-[.6875rem] sq:superellipse-[1.75]',
                         checked && checkedSegmentVariants({ variant }),
                       )}
                     />

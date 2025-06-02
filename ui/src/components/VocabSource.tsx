@@ -153,13 +153,13 @@ function useSourceColumns<T extends TableData>() {
                         isExpanded ? 'rotate-90' : '',
                       )}
                     />
-                    <span className="float-right inline-block font-stretch-condensed tabular-nums">
+                    <span className="float-right inline-block tabular-nums">
                       {value}
                     </span>
                   </button>
                 ) : (
                   <div className="w-full justify-end px-3">
-                    <span className="float-right inline-block font-stretch-condensed tabular-nums">
+                    <span className="float-right inline-block tabular-nums">
                       {value}
                     </span>
                   </div>
@@ -309,7 +309,7 @@ export function VocabSourceTable({
   const isStale = isSourceTextStale || segment !== segmentDeferredValue || searchValue !== deferredSearchValue || isUsingRegex !== deferredIsUsingRegex
   const trpc = useTRPC()
   const { mutateAsync, isPending } = useMutation(trpc.ai.getCategory.mutationOptions({
-    retry: 2,
+    retry: 1,
   }))
   const options = [
     {
@@ -332,6 +332,7 @@ export function VocabSourceTable({
   async function handleAiVocabCategorize() {
     if (!isPending) {
       const wordsString = freshVocabularies
+        .filter((d) => !d.vocab.original && !d.vocab.isUser && !d.vocab.rank)
         .map((d) => d.wFamily.map((w) => w.path))
         .flat()
         .join(',')
@@ -347,12 +348,12 @@ Acronym Identification:
 
 If the item is not a dictionary word, determine if it is an acronym.
 An acronym is a term formed from the initial letters (or a combination of letters) of a phrase. It is typically written in uppercase (or in a case-insensitive form) and does not form a standard dictionary word.
-If the item meets these criteria, include it in the output under the "acronym" category.
+If the item meets these criteria, include it in the output under the 'acronym' category.
 Proper Noun Determination:
 
 If the item is neither a dictionary word nor an acronym, decide whether it represents a specific proper noun (such as the name of a person, place, organization, or other uniquely identified entity).
 Avoid treating simply capitalized words or generic titles as proper nouns.
-If the item clearly functions as a proper noun, include it in the output under the "properName" category.
+If the item clearly functions as a proper noun, include it in the output under the 'properName' category.
 Omit Others:
 
 If the item does not satisfy any of the above criteria, omit it from the final output.
@@ -443,7 +444,7 @@ ${wordsString}
           }}
         />
       </div>
-      <div className="h-px w-full border-b border-solid border-zinc-200 shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)] dark:border-neutral-800" />
+      <div className="h-px w-full border-b border-transparent shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)]" />
       <div className="z-10 w-full outline-1 outline-border outline-solid">
         <SegmentedControl
           value={segment}

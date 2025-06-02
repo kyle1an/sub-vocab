@@ -25,7 +25,7 @@ function SentenceCopy({
       )}
       onClick={() => copy(sentence)}
     >
-      <div className="flex size-(--leading) items-center justify-center *:size-[11px]">
+      <div className="flex size-(--leading) items-center justify-center *:size-[11px]!">
         <MingcuteCheckFill
           className={cn('', copied ? '' : 'hidden')}
         />
@@ -74,7 +74,7 @@ export function ExampleSentence({
   }
 
   return (
-    <div className={cn('mr-3 mb-1 ml-2 flex flex-col gap-[.5px] text-[.8125rem] leading-(--leading) tracking-wide text-neutral-600 [--leading:1.125rem]', className)}>
+    <div className={cn('mr-3 mb-1 ml-2 flex flex-col gap-[.5px] text-[.8125rem] leading-(--leading) tracking-2 text-neutral-600 [--leading:1.125rem]', className)}>
       {vocabPositions.map(([no, wordIndexes], index) => {
         let progress = 0
         const sentence = sentences[no]?.text ?? ''

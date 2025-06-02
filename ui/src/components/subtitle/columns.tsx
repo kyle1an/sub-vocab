@@ -35,7 +35,7 @@ export function useCommonColumns<T extends SubtitleData>() {
             className="w-[.1%] active:bg-background-active active:signal/active [&:active+th]:signal/active"
           >
             <Div
-              className="group gap-2 pr-1 font-stretch-condensed select-none"
+              className="group gap-2 pr-1 select-none"
               onClick={header.column.getToggleSortingHandler()}
             >
               <Separator
@@ -58,7 +58,7 @@ export function useCommonColumns<T extends SubtitleData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center pr-px pl-1.5 whitespace-nowrap font-stretch-condensed tabular-nums">
+            <Div className="justify-center pr-px pl-1.5 whitespace-nowrap tabular-nums">
               <span>
                 {displayName}
               </span>
@@ -140,7 +140,7 @@ export function useCommonColumns<T extends SubtitleData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pr-1.5 font-stretch-condensed tabular-nums">
+            <Div className="justify-end pr-1.5 tabular-nums">
               {value ? customFormatDistanceToNowStrict(new Date(value), {
                 addSuffix: true,
                 locale: {

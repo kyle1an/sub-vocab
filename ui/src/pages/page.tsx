@@ -32,9 +32,8 @@ import {
 } from '@/lib/vocab'
 import { statusRetainedList } from '@/lib/vocab-utils'
 import { FileSettings } from '@/pages/file-settings'
-import { fileTypesAtom, isSourceTextStaleAtom, sourceTextAtom } from '@/store/useVocab'
+import { fileInfoAtom, fileTypesAtom, isSourceTextStaleAtom, sourceTextAtom } from '@/store/useVocab'
 
-const fileInfoAtom = atom('')
 const textCountAtom = atom(0)
 const acquaintedWordCountAtom = atom(0)
 const newWordCountAtom = atom(0)
@@ -193,7 +192,8 @@ export default function ResizeVocabularyPanel() {
     }
   }
 
-  const [fileInfoRef, isEllipsisActive] = useIsEllipsisActive<HTMLSpanElement>()
+  const fileInfoRef = useRef<HTMLSpanElement>(null)
+  const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive()
   return (
     (
       <div className="flex h-full flex-col">
@@ -218,12 +218,12 @@ export default function ResizeVocabularyPanel() {
             <div className="grow" />
           </div>
         </div>
-        <div className="flex grow items-center justify-center overflow-hidden rounded-xl border drop-shadow-xs sq:rounded-3xl sq:[corner-shape:squircle]">
+        <div className="flex grow items-center justify-center overflow-hidden rounded-xl border drop-shadow-xs sq:rounded-3xl">
           <ResizablePanelGroup
             ref={panelGroupRef}
             direction={direction}
             className={clsx(
-              'Safari:[body:has(&)]:overflow-hidden', // prevent overscroll
+              '[body:has(&[data-panel-group-direction=vertical])]:overflow-hidden', // prevent overscroll
             )}
             onLayout={handleLayoutChange}
           >
@@ -234,7 +234,10 @@ export default function ResizeVocabularyPanel() {
                     <Tooltip
                       delayDuration={400}
                     >
-                      <TooltipTrigger asChild>
+                      <TooltipTrigger
+                        onMouseOver={handleOnMouseOver}
+                        asChild
+                      >
                         <span
                           ref={fileInfoRef}
                           className="grow truncate"
@@ -249,7 +252,7 @@ export default function ResizeVocabularyPanel() {
                         alignOffset={-12 - 1}
                         avoidCollisions={false}
                         hidden={!isEllipsisActive}
-                        className="max-w-(--max-width) border bg-background text-foreground shadow-xs !slide-in-from-top-0 !zoom-in-100 !zoom-out-100 [word-wrap:break-word]"
+                        className="max-w-(--max-width) border bg-background text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
                         style={{
                           '--max-width': `${window.innerWidth - (fileInfoRef.current?.getBoundingClientRect().x ?? 0) + 12 - 1}px`,
                         }}
