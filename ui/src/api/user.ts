@@ -19,7 +19,7 @@ export function useRegister() {
 
 export function useUpdateUser() {
   return useMutation({
-    mutationKey: ['updateUser', 'username'],
+    mutationKey: ['updateUser'],
     mutationFn: async (attributes: UserAttributes) => {
       return supabase.auth.updateUser(attributes)
     },
@@ -28,7 +28,7 @@ export function useUpdateUser() {
 
 export function useUpdateEmail() {
   return useMutation({
-    mutationKey: ['updateUser', 'email'],
+    mutationKey: ['useUpdateEmail'],
     mutationFn: async (attributes: UserAttributes) => {
       return supabase.auth.updateUser(attributes)
     },
@@ -70,21 +70,18 @@ export function useSignInWithUsername() {
   const { mutateAsync } = useMutation({
     mutationKey: ['setSession'],
     mutationFn: async (result: SignInResponse) => {
-      if (!result) throw new Error('No session')
-      const { session } = result.data
-      if (session)
-        return await supabase.auth.setSession(session)
-
-      return result.data
+      const session = result.data?.session
+      if (session) {
+        await supabase.auth.setSession(session)
+      }
+      return result
     },
   })
 
   const trpc = useTRPC()
   // https://stackoverflow.com/a/74898111/10903455
   return useMutation(trpc.user.signIn.mutationOptions({
-    onSuccess: (credential) => {
-      return mutateAsync(credential)
-    },
+    onSuccess: (credential) => mutateAsync(credential),
     retry: 2,
   }))
 }

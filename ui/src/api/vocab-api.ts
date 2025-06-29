@@ -29,7 +29,7 @@ export const userVocabularyAtom = atomWithQuery((get) => {
 
 const sharedVocabularyAtom = atomWithQuery(() => {
   return {
-    queryKey: ['sharedVocabulary'] as const,
+    queryKey: ['sharedVocabulary'],
     queryFn: async () => {
       const { data } = await supabase
         .from('vocabulary_list')
@@ -81,7 +81,7 @@ export const baseVocabAtom = atom((get) => {
 
 function userVocabularyOptions(userId: string) {
   return omitUndefined(queryOptions({
-    queryKey: ['userVocabularyRows', userId] as const,
+    queryKey: ['userVocabularyRows', userId],
     async queryFn() {
       const { data } = await supabase
         .from('user_vocab_record')
@@ -125,7 +125,7 @@ async function getStemsMapping() {
 
 export function useIrregularMapsQuery() {
   return useQuery({
-    queryKey: ['stemsMapping'] as const,
+    queryKey: ['stemsMapping'],
     queryFn: getStemsMapping,
     placeholderData: [],
   })

@@ -81,4 +81,5 @@
   "css.lint.validProperties": [
     "corner-shape"
   ],
+  "typescript.tsdk": "node_modules/typescript/lib",
 }

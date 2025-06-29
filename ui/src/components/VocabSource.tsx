@@ -12,6 +12,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
+import { TRPCClientError } from '@trpc/client'
 import clsx from 'clsx'
 import { useAtom, useAtomValue } from 'jotai'
 import { atomWithImmer } from 'jotai-immer'
@@ -50,6 +51,7 @@ import { getFilterFn, noFilter } from '@/lib/table-utils'
 import { findClosest, type } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
 import { isSourceTextStaleAtom } from '@/store/useVocab'
+import { unionOptional } from '@/types/lib/union-optional'
 import { searchFilterValue } from '@/utils/vocabulary/filters'
 
 type TableData = LabelDisplaySource & Category
@@ -153,13 +155,13 @@ function useSourceColumns<T extends TableData>() {
                         isExpanded ? 'rotate-90' : '',
                       )}
                     />
-                    <span className="float-right inline-block tabular-nums">
+                    <span className="float-right inline-block tracking-3 tabular-nums">
                       {value}
                     </span>
                   </button>
                 ) : (
                   <div className="w-full justify-end px-3">
-                    <span className="float-right inline-block tabular-nums">
+                    <span className="float-right inline-block tracking-3 tabular-nums">
                       {value}
                     </span>
                   </div>
@@ -362,6 +364,21 @@ The input array is provided as follows:
 ${wordsString}
 `,
       })
+        .catch((e) => {
+          if (e instanceof TRPCClientError) {
+            return {
+              error: {
+                message: e.message,
+              },
+            }
+          }
+          return {
+            error: {
+              message: 'Error categorizing vocabulary:',
+            },
+          }
+        })
+        .then(unionOptional)
       if (category) {
         setCategoryAtom(category)
       }
@@ -490,7 +507,7 @@ ${wordsString}
           </tbody>
         </table>
       </div>
-      <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-neutral-800">
+      <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tracking-3 tabular-nums dark:border-neutral-800">
         <TablePagination
           items={items}
           table={table}

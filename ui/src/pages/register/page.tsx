@@ -8,8 +8,6 @@ import IconLucideEye from '~icons/lucide/eye'
 import IconLucideEyeOff from '~icons/lucide/eye-off'
 import IconLucideLoader2 from '~icons/lucide/loader2'
 
-import type { ZodObj } from '@/types/utils'
-
 import { useRegister } from '@/api/user'
 import { ContentRoot } from '@/components/content-root'
 import { Button } from '@/components/ui/button'
@@ -32,7 +30,7 @@ export default function Register() {
     mode: 'onBlur',
     resolver: zodResolver(
       z
-        .object<ZodObj<FormValues>>({
+        .object({
           email: z
             .email(),
           password: z

@@ -10,8 +10,6 @@ import IconLucideEye from '~icons/lucide/eye'
 import IconLucideEyeOff from '~icons/lucide/eye-off'
 import IconLucideLoader2 from '~icons/lucide/loader2'
 
-import type { ZodObj } from '@/types/utils'
-
 import { osSessionAtom, useOpenSubtitlesLogin } from '@/api/opensubtitles'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -34,7 +32,7 @@ export function OpensubtitlesAuthentication() {
     mode: 'onBlur',
     resolver: zodResolver(
       z
-        .object<ZodObj<FormValues>>({
+        .object({
           username: z
             .string()
             .check(z.minLength(1, {

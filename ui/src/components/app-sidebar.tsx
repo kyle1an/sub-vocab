@@ -100,7 +100,7 @@ export function AppSidebar({ className, ...props }: React.ComponentProps<typeof 
               <a
                 href="https://github.com/kyle1an/sub-vocab"
                 target="_blank"
-                className="group/bg mr-3 block px-2 *:z-10 xl:mr-0"
+                className="group/bg block px-2 *:z-10"
                 rel="noreferrer noopener"
               >
                 <span className="sr-only">Subvocab on GitHub</span>

@@ -34,7 +34,7 @@ export default function Login() {
     mode: 'onBlur',
     resolver: zodResolver(
       z
-        .object<ZodObj<FormValues>>({
+        .object({
           username: z
             .string()
             .check(z.minLength(1, {
@@ -45,7 +45,7 @@ export default function Login() {
             .check(z.minLength(1, {
               error: 'Password is required',
             })),
-        }),
+        } satisfies ZodObj<FormValues>),
     ),
   })
   const [authChangeEvent] = useAtom(authChangeEventAtom)

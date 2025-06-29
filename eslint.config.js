@@ -29,6 +29,15 @@ export default typegen(antfu(
       'prefer-arrow-callback': 'off',
       curly: ['off'],
       'jsonc/indent': ['warn', 2],
+      'style/operator-linebreak': [
+        'warn',
+        'before',
+        {
+          overrides: {
+            '=': 'after',
+          },
+        },
+      ],
     },
   },
   ...eslintPluginJsonc.configs['flat/recommended-with-jsonc'],
@@ -79,6 +88,7 @@ export default typegen(antfu(
     rules: {
       'ts/ban-ts-comment': 'off',
       'ts/consistent-type-definitions': 'off',
+      'unicorn/throw-new-error': 'off',
     },
   },
   {

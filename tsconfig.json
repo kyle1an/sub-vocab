@@ -3,6 +3,16 @@
     "forceConsistentCasingInFileNames": true,
     "erasableSyntaxOnly": true,
 
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "transform": "@effect/language-service/transform",
+        "barrelImportPackages": ["effect", "@effect"],
+        "diagnosticSeverity": {
+          "floatingEffect": "warning"
+        }
+      }
+    ],
     /* Base Options: */
     "esModuleInterop": true,
     "skipLibCheck": true,

@@ -8,3 +8,12 @@
 :is(.jotai-devtools-trigger-button, .tsqd-open-btn-container):not(:hover) {
   opacity: 0.4;
 }
+
+.tsqd-open-btn-container,
+.jotai-devtools-trigger-button {
+  corner-shape: round;
+}
+
+#jotai-devtools-root {
+  --mantine-font-family-monospace: var(--font-mono) !important;
+}

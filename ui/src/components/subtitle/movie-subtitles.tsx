@@ -130,7 +130,7 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
             cell={cell}
           >
             <Div
-              className="cursor-text pr-px pl-2.5 tracking-4 select-text"
+              className="cursor-text py-1 pr-px pl-2.5"
               onClick={(ev) => ev.stopPropagation()}
             >
               <div
@@ -302,7 +302,7 @@ function SubtitleFiles({
               </tbody>
             </table>
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-neutral-800">
+          <div className="flex flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tracking-3 tabular-nums dark:border-neutral-800">
             <TablePagination
               items={items}
               table={table}
@@ -319,7 +319,7 @@ function SubtitleFiles({
             </div>
           </div>
           <div className="flex justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-neutral-800">
-            <div className="flex h-7 items-center text-xs tabular-nums">
+            <div className="flex h-7 items-center text-xs tracking-3 tabular-nums">
               <span>
                 <NumberFlow
                   value={rowsFiltered.length}

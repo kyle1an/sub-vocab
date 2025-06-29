@@ -181,20 +181,20 @@ export class LabeledTire {
   }
 
   add(input: string) {
-    const sentenceMatches = input.matchAll(sentenceRegex)
     this.sentences = []
-    for (const sentenceMatch of sentenceMatches) {
+    for (let sentenceMatch = sentenceRegex.exec(input); sentenceMatch !== null; sentenceMatch = sentenceRegex.exec(input)) {
       const sentenceText = sentenceMatch[0]
       const sentenceIndex = this.sentences.length
       this.sentences.push({
         text: sentenceText,
         index: sentenceMatch.index,
       })
-      const wordMatches = sentenceText.matchAll(wordRegex)
-      for (const wordMatch of wordMatches) {
+      for (let wordMatch = wordRegex.exec(sentenceText); wordMatch !== null; wordMatch = wordRegex.exec(sentenceText)) {
         this.update(wordMatch[0], wordMatch.index, sentenceIndex)
       }
+      wordRegex.lastIndex = 0
     }
+    sentenceRegex.lastIndex = 0
   }
 
   update(original: string, index: number, sentenceId: number) {

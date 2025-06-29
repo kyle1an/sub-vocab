@@ -88,7 +88,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center tabular-nums">
+            <Div className="justify-center tracking-3 tabular-nums">
               {row.depth >= 1 ? null : value}
             </Div>
           </TableDataCell>
@@ -343,7 +343,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
             cell={cell}
           >
             <Div
-              className="cursor-text pr-px pl-2.5 tracking-4 select-text"
+              className="cursor-text py-1 pr-px pl-2.5 tracking-4 select-text"
               onClick={(ev) => ev.stopPropagation()}
             >
               {element}
@@ -387,7 +387,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pr-px pl-0.5 tabular-nums">
+            <Div className="justify-end pr-px pl-0.5 tracking-3 tabular-nums">
               {row.depth >= 1 ? null : formatDuration(
                 intervalToDuration({ start, end }),
                 {
@@ -580,12 +580,12 @@ export function TVSubtitleFiles({
                   setFilterEpisode(e)
                 }}
               >
-                <SelectTrigger className="h-full! w-[unset] gap-0 px-2 py-0 text-xs tabular-nums [--sq-r:.625rem]">
+                <SelectTrigger className="h-full! w-[unset] gap-0 px-2 py-0 text-xs tracking-3 tabular-nums [--sq-r:.625rem]">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent
                   position="item-aligned"
-                  className="tabular-nums"
+                  className="tracking-3 tabular-nums"
                 >
                   <SelectItem
                     className="pr-4 text-xs"
@@ -642,7 +642,7 @@ export function TVSubtitleFiles({
               </tbody>
             </table>
           </div>
-          <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-neutral-800">
+          <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tracking-3 tabular-nums dark:border-neutral-800">
             <TablePagination
               items={items}
               table={table}
@@ -659,7 +659,7 @@ export function TVSubtitleFiles({
             </div>
           </div>
           <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-neutral-800">
-            <div className="flex h-7 items-center gap-1.5 text-xs tabular-nums">
+            <div className="flex h-7 items-center gap-1.5 text-xs tracking-3 tabular-nums">
               <span>
                 <NumberFlow
                   value={rowsFiltered.length}
