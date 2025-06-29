@@ -1,79 +1,61 @@
 import { google } from '@ai-sdk/google'
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
-import { AISDKError, APICallError, generateObject } from 'ai'
-import { Result, ResultAsync } from 'neverthrow'
+import { AISDKError, generateObject } from 'ai'
+import { Data, Effect } from 'effect'
 import { z } from 'zod'
-
-import type { ZodObj } from '@backend/src/types/utils'
 
 import { env } from '@backend/env.ts'
 import { publicProcedure, router } from '@backend/src/routes/trpc'
 
+const SOME_ERROR = 'something went wrong'
+
+class AICatError extends Data.TaggedError('AICatError')<{
+  message: string
+}> {}
+
 const openrouter = createOpenRouter({
   apiKey: env.OPENROUTER_API_KEY,
 })
-
-const errorSchema = z.object<ZodObj<{
-  error: {
-    message: string
-  }
-}>>({
-  error: z.object({
-    message: z.string(),
-  }),
-})
-
-const safeJsonParse = Result.fromThrowable((s: string) => errorSchema.parse(JSON.parse(s)).error, (e) => ({
-  message: 'Parse Error',
-}))
+const languageModel = google('gemini-2.5-flash-lite-preview-06-17')
 
 export const aiRouter = router({
   getCategory: publicProcedure
     .input(z.object({
       prompt: z.string().min(1),
     }))
-    .mutation(async (opts) => {
-      const { prompt } = opts.input
-      const languageModel = google('gemini-2.5-flash-preview-05-20')
-      const result = await ResultAsync.fromPromise(generateObject({
-        model: languageModel,
-        temperature: 0,
-        schema: z.object({
-          properName: z.array(z.string()),
-          acronym: z.array(z.string()),
-        }),
-        mode: 'json',
-        prompt,
-      }), (error) => {
-        if (APICallError.isInstance(error)) {
-          const parseResult = safeJsonParse(error.responseBody ?? '')
-          if (parseResult.isOk()) {
-            return parseResult.value
+    .mutation(({ input }) => Effect.gen(function* () {
+      return (yield* Effect.tryPromise({
+        try: () => {
+          return generateObject({
+            model: languageModel,
+            temperature: 0,
+            schema: z.object({
+              properName: z.array(z.string()),
+              acronym: z.array(z.string()),
+            }),
+            mode: 'json',
+            prompt: input.prompt,
+          })
+        },
+        catch: (e) => {
+          if (AISDKError.isInstance(e)) {
+            return e
           }
-          else {
-            return parseResult.error
-          }
-        }
-        if (AISDKError.isInstance(error)) {
-          return {
-            message: error.message,
-          }
-        }
-        return {
-          message: 'Unknown error',
-        }
-      })
-      if (result.isOk()) {
-        return {
-          data: result.value.object,
-          error: null,
-        }
-      }
-      else {
-        return {
-          data: null,
-          error: result.error,
-        }
-      }
-    }),
+          return new AICatError({ message: SOME_ERROR })
+        },
+      })).object
+    }).pipe(
+      Effect.map((value) => ({
+        data: value,
+        error: null,
+      })),
+      Effect.catchAll((error) => Effect.succeed({
+        data: null,
+        error: {
+          message: error.message,
+        },
+      })),
+      Effect.mapError((e) => e satisfies never),
+      Effect.runPromise,
+    )),
 })

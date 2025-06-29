@@ -144,7 +144,7 @@ function useDataColumns<T extends TableData>() {
             <TableDataCell
               cell={cell}
             >
-              <Div className="justify-end pr-2 pl-0.5 tabular-nums">
+              <Div className="justify-end pr-2 pl-0.5 tracking-3 tabular-nums">
                 {value ? customFormatDistanceToNowStrict(new Date(value), {
                   addSuffix: true,
                   locale: {
@@ -386,7 +386,7 @@ export function VocabDataTable({
           </tbody>
         </table>
       </div>
-      <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-neutral-800">
+      <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tracking-3 tabular-nums dark:border-neutral-800">
         <TablePagination
           items={items}
           table={table}

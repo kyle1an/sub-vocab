@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectSeparator, Select
 function SizeSelectItem({ size }: { size: number }) {
   return (
     <SelectItem
-      className="pr-4 text-xs tabular-nums"
+      className="pr-4 text-xs tracking-3 tabular-nums"
       value={String(size)}
     >
       {size.toLocaleString('en-US')}
@@ -34,7 +34,7 @@ export function TablePaginationSizeSelect<T>({
         table.setPageSize(Number(e))
       }}
     >
-      <SelectTrigger className="h-5! w-[unset] gap-0 px-2 py-0 text-xs tabular-nums">
+      <SelectTrigger className="h-5! w-[unset] gap-0 px-2 py-0 text-xs tracking-3 tabular-nums">
         <SelectValue placeholder="Select" />
       </SelectTrigger>
       <SelectContent

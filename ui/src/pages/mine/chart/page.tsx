@@ -181,7 +181,7 @@ export default function Chart() {
 
   useIsomorphicLayoutEffect(() => {
     ChartJS.defaults.font.family = [
-      ...['-apple-system', 'sans-serif'],
+      '-apple-system', 'SF Compact Text', 'BlinkMacSystemFont', 'sans-serif',
     ].join(', ')
     ChartJS.defaults.font.weight = 500
   }, [])

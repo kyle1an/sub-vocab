@@ -17,7 +17,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           // eslint-disable-next-line tailwindcss/no-custom-classname
           toast: cn(
             'toast group group-[.toaster]:border-border group-[.toaster]:bg-background group-[.toaster]:text-foreground',
-            '[--sq-r:1.25rem] sq:[--border-radius:var(--sq-r)]',
+            '[--sq-r:1.25rem] sq:[--border-radius:var(--sq-r)] sq:[corner-shape:squircle]',
           ),
           content: 'w-full',
           description: 'group-[.toast]:text-muted-foreground',

@@ -58,7 +58,7 @@ export function useCommonColumns<T extends SubtitleData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center pr-px pl-1.5 whitespace-nowrap tabular-nums">
+            <Div className="justify-center pr-px pl-1.5 tracking-3 whitespace-nowrap tabular-nums">
               <span>
                 {displayName}
               </span>
@@ -100,7 +100,7 @@ export function useCommonColumns<T extends SubtitleData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pr-4 pl-0.5 text-xs tabular-nums">
+            <Div className="justify-end pr-4 pl-0.5 text-xs tracking-3 tabular-nums">
               {numberFormat.format(value)}
             </Div>
           </TableDataCell>
@@ -140,7 +140,7 @@ export function useCommonColumns<T extends SubtitleData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pr-1.5 tabular-nums">
+            <Div className="justify-end pr-1.5 tracking-3 tabular-nums">
               {value ? customFormatDistanceToNowStrict(new Date(value), {
                 addSuffix: true,
                 locale: {

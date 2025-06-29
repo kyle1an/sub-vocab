@@ -6,8 +6,6 @@ import { useTranslation } from 'react-i18next'
 import { z } from 'zod/v4-mini'
 import IconLucideLoader2 from '~icons/lucide/loader2'
 
-import type { ZodObj } from '@ui/src/types/utils'
-
 import { useUpdateEmail, useUpdateUser } from '@/api/user'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -35,7 +33,7 @@ export default function ProfilePage() {
     reValidateMode: 'onSubmit',
     resolver: zodResolver(
       z
-        .object<ZodObj<UsernameFormValues>>({
+        .object({
           newUsername: z
             .string()
             .check(z.minLength(1, {
@@ -79,7 +77,7 @@ export default function ProfilePage() {
     reValidateMode: 'onSubmit',
     resolver: zodResolver(
       z
-        .object<ZodObj<EmailFormValues>>({
+        .object({
           newEmail: z
             .email()
             .check(z.refine((val) => val !== email, {

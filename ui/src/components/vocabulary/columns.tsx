@@ -58,6 +58,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
         return (
           <TableDataCell
             cell={cell}
+            className="py-1"
           >
             <>
               {wFamily.map(({ path: w, src }, i) => (
@@ -138,7 +139,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pr-[9px] pl-0.5 tabular-nums">
+            <Div className="justify-end pr-[9px] pl-0.5 tracking-3 tabular-nums">
               <span>
                 {value}
               </span>
@@ -223,7 +224,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center pr-px pl-0.5 tabular-nums">
+            <Div className="justify-center pr-px pl-0.5 tracking-3 tabular-nums">
               {value}
             </Div>
           </TableDataCell>

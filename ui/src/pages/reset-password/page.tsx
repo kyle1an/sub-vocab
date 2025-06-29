@@ -7,8 +7,6 @@ import { toast } from 'sonner'
 import { z } from 'zod/v4-mini'
 import IconLucideLoader2 from '~icons/lucide/loader2'
 
-import type { ZodObj } from '@/types/utils'
-
 import { useResetPasswordForEmail } from '@/api/user'
 import { ContentRoot } from '@/components/content-root'
 import { Button } from '@/components/ui/button'
@@ -45,7 +43,7 @@ export default function ResetPassword() {
     mode: 'onBlur',
     resolver: zodResolver(
       z
-        .object<ZodObj<FormValues>>({
+        .object({
           email: z
             .email(),
         }),

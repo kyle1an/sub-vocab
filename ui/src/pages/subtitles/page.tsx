@@ -170,7 +170,7 @@ function useColumns<T extends TableData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center pr-px pl-0.5 tabular-nums">
+            <Div className="justify-center pr-px pl-0.5 tracking-3 tabular-nums">
               {value ? format(value, 'yyyy') : null}
             </Div>
           </TableDataCell>
@@ -255,7 +255,7 @@ function useColumns<T extends TableData>() {
             cell={cell}
           >
             <Div
-              className="cursor-text pr-px pl-2.5 tracking-4 select-text"
+              className="cursor-text py-1 pr-px pl-2.5 tracking-4 select-text"
               onClick={(ev) => ev.stopPropagation()}
             >
               <span>{value}</span>
@@ -300,7 +300,7 @@ function useColumns<T extends TableData>() {
           >
             {
               voteCount >= 1 ? (
-                <Div className="flex flex-nowrap gap-1 px-1 tabular-nums">
+                <Div className="flex flex-nowrap gap-1 px-1 tracking-3 tabular-nums">
                   <div className="flex items-center gap-1.5">
                     <IconClarityStarSolid className="text-neutral-800 dark:text-neutral-100" />
                     <span className="font-semibold">
@@ -352,7 +352,7 @@ function useColumns<T extends TableData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pr-5 pl-0.5 tabular-nums">
+            <Div className="justify-end pr-5 pl-0.5 tracking-3 tabular-nums">
               <span>
                 {popularityNumberFormat.format(value)}
               </span>
@@ -544,7 +544,7 @@ export default function Subtitles() {
             </PopoverContent>
           </Popover>
           <Button
-            className="h-8 gap-1.5 px-3 tabular-nums"
+            className="h-8 gap-1.5 px-3 tracking-3 tabular-nums"
             onClick={() => {
               getText(fileIds)
             }}
@@ -556,7 +556,7 @@ export default function Subtitles() {
             </span>
           </Button>
           <Button
-            className="h-8 gap-1.5 px-3 tabular-nums"
+            className="h-8 gap-1.5 px-3 tracking-3 tabular-nums"
             onClick={() => {
               downloadFiles(fileIds)
             }}
@@ -592,12 +592,12 @@ export default function Subtitles() {
                   setLanguage(e)
                 }}
               >
-                <SelectTrigger className="h-full! w-[unset] gap-0 px-2 py-0 text-xs tabular-nums">
+                <SelectTrigger className="h-full! w-[unset] gap-0 px-2 py-0 text-xs tracking-3 tabular-nums">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent
                   position="item-aligned"
-                  className="tabular-nums"
+                  className="tracking-3 tabular-nums"
                 >
                   {languageOptions.map((language) => (
                     <SelectItem
@@ -702,7 +702,7 @@ export default function Subtitles() {
               </tbody>
             </table>
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tabular-nums dark:border-neutral-800">
+          <div className="flex flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tracking-3 tabular-nums dark:border-neutral-800">
             <TablePagination
               items={items}
               table={table}
@@ -719,7 +719,7 @@ export default function Subtitles() {
             </div>
           </div>
           <div className="flex justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-neutral-800">
-            <div className="flex h-7 items-center text-xs tabular-nums">
+            <div className="flex h-7 items-center text-xs tracking-3 tabular-nums">
               <span>
                 <NumberFlow
                   value={rowsFiltered.length}
