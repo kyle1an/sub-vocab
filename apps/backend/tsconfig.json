@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "outDir": "./dist",
+    "lib": ["es2024"]
+  },
+  "include": [".eslintrc.js", ".eslintrc.cjs", "**/*.config.js", "**/*.config.cjs", "**/*.config.ts", "**/*.js", "**/*.ts", "src/**/*.ts", "**/*.d.ts", "src/**/*.d.ts"]
+}

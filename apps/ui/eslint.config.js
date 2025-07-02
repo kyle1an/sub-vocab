@@ -10,7 +10,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
-import configs from '../eslint.config.js'
+import configs from '../../eslint.config.js'
 
 const compat = new FlatCompat()
 
