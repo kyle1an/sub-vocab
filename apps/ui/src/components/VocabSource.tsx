@@ -2,6 +2,7 @@ import type { InitialTableState } from '@tanstack/react-table'
 
 import usePagination from '@mui/material/usePagination'
 import { useUnmountEffect } from '@react-hookz/web'
+import { unionOptional } from '@sub-vocab/utils/lib'
 import { useMutation } from '@tanstack/react-query'
 import {
   createColumnHelper,
@@ -51,7 +52,6 @@ import { getFilterFn, noFilter } from '@/lib/table-utils'
 import { findClosest, type } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
 import { isSourceTextStaleAtom } from '@/store/useVocab'
-import { unionOptional } from '@/types/lib/union-optional'
 import { searchFilterValue } from '@/utils/vocabulary/filters'
 
 type TableData = LabelDisplaySource & Category

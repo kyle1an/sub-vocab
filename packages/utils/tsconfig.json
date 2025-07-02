@@ -1,12 +1,12 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
+    "lib": ["es2024"],
     "module": "es2022",
     "moduleResolution": "bundler",
-    "outDir": "./dist",
-    "lib": ["es2024"]
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "outDir": "./dist"
   },
   "include": [".eslintrc.js", ".eslintrc.cjs", "**/*.config.js", "**/*.config.cjs", "**/*.config.ts", "**/*.js", "**/*.ts", "src/**/*.ts", "**/*.d.ts", "src/**/*.d.ts"]
 }

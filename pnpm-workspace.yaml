@@ -1,4 +1,5 @@
 packages:
-  - backend
-  - ui
+  - packages/*
+  - apps/*
+
 catalog:

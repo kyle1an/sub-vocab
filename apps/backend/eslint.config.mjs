@@ -3,7 +3,7 @@ import antfu from '@antfu/eslint-config'
 /// <reference path="./eslint-typegen.d.ts" />
 import typegen from 'eslint-typegen'
 
-import configs from '../eslint.config.js'
+import configs from '../../eslint.config.js'
 
 export default typegen(antfu(
   {
