@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
 import colors from 'tailwindcss/colors'
 
-import type { VocabState } from '@/lib/LabeledTire'
+import type { WordState } from '@/lib/LabeledTire'
 
 import { baseVocabAtom } from '@/api/vocab-api'
 import { SegmentedControl } from '@/components/ui/segmented-control'
@@ -24,19 +24,19 @@ type DataSet = {
   groupKey: string
   tooltipFooter: string
   range: [Date, Date]
-  groupValue: VocabState[]
+  groupValue: WordState[]
 }
 
-function mapWeek(userWords: VocabState[]) {
+function mapWeek(userWords: WordState[]) {
   const today = new Date()
-  const preset: Record<string, VocabState[]> = {}
+  const preset: Record<string, WordState[]> = {}
   const dataPreset: DataSet[] = []
   const getGroupKey = (date: Date) => date.toDateString()
   rangeRight(0, 7).forEach((i) => {
     const subDay = subDays(today, i)
     const groupName = format(subDay, 'EEE')
     const groupKey = getGroupKey(subDay)
-    const groupValue: VocabState[] = []
+    const groupValue: WordState[] = []
     dataPreset.push({
       groupName,
       tooltipFooter: format(subDay, 'LLL d, yyyy'),
@@ -59,9 +59,9 @@ function mapWeek(userWords: VocabState[]) {
   return dataPreset
 }
 
-function mapMonth(userWords: VocabState[]) {
+function mapMonth(userWords: WordState[]) {
   const today = new Date()
-  const preset: Record<string, VocabState[]> = {}
+  const preset: Record<string, WordState[]> = {}
   const dataPreset: DataSet[] = []
   const getGroupKey = (date: Date) => date.toDateString()
   rangeRight(0, 31).forEach((i) => {
@@ -71,7 +71,7 @@ function mapMonth(userWords: VocabState[]) {
       groupName = format(subDay, 'd')
 
     const groupKey = getGroupKey(subDay)
-    const groupValue: VocabState[] = []
+    const groupValue: WordState[] = []
     dataPreset.push({
       groupName,
       tooltipFooter: '',
@@ -94,9 +94,9 @@ function mapMonth(userWords: VocabState[]) {
   return dataPreset
 }
 
-function map6M(userWords: VocabState[]) {
+function map6M(userWords: WordState[]) {
   const today = new Date()
-  const preset: Record<string, VocabState[]> = {}
+  const preset: Record<string, WordState[]> = {}
   const dataPreset: DataSet[] = []
   const getGroupKey = (date: Date) => format(date, 'w, yyyy')
   rangeRight(0, 25).forEach((i) => {
@@ -109,7 +109,7 @@ function map6M(userWords: VocabState[]) {
       groupName = format(weekEnd, 'MMM')
 
     const groupKey = getGroupKey(subWeek)
-    const groupValue: VocabState[] = []
+    const groupValue: WordState[] = []
     dataPreset.push({
       groupName,
       groupKey,
@@ -132,9 +132,9 @@ function map6M(userWords: VocabState[]) {
   return dataPreset
 }
 
-function mapY(userWords: VocabState[]) {
+function mapY(userWords: WordState[]) {
   const today = new Date()
-  const preset: Record<string, VocabState[]> = {}
+  const preset: Record<string, WordState[]> = {}
   const dataPreset: DataSet[] = []
   const getGroupKey = (date: Date) => format(date, 'LLL')
   rangeRight(0, 12).forEach((i) => {
@@ -142,7 +142,7 @@ function mapY(userWords: VocabState[]) {
     const groupName = format(subMonth, 'LLLLL')
 
     const groupKey = getGroupKey(subMonth)
-    const groupValue: VocabState[] = []
+    const groupValue: WordState[] = []
     dataPreset.push({
       groupName,
       groupKey,
@@ -423,7 +423,7 @@ export default function Chart() {
         <Bar
           options={options}
           data={chartData}
-          className="w-full tracking-2 tabular-nums md:pb-0"
+          className="w-full tabular-nums md:pb-0"
         />
       </div>
     </div>

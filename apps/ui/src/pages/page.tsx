@@ -11,7 +11,7 @@ import { Link } from 'react-router'
 import getCaretCoordinates from 'textarea-caret'
 
 import type { Sentence } from '@/lib/LabeledTire'
-import type { LabelDisplaySource, LabelSourceData } from '@/lib/vocab'
+import type { VocabularyCoreState, VocabularySourceState } from '@/lib/vocab'
 
 import {
   baseVocabAtom,
@@ -38,17 +38,17 @@ const textCountAtom = atom(0)
 const acquaintedWordCountAtom = atom(0)
 const newWordCountAtom = atom(0)
 
-function getCount(list: LabelSourceData[]) {
+function getCount(list: VocabularyCoreState[]) {
   let acquaintedCount = 0
   let newCount = 0
   let rest = 0
   for (const item of list) {
-    if (item.vocab.learningPhase === LEARNING_PHASE.ACQUAINTED)
-      acquaintedCount += item.locations.length
-    else if (item.vocab.learningPhase === LEARNING_PHASE.NEW)
-      newCount += item.locations.length
+    if (item.lemmaState.learningPhase === LEARNING_PHASE.ACQUAINTED)
+      acquaintedCount += item.locators.length
+    else if (item.lemmaState.learningPhase === LEARNING_PHASE.NEW)
+      newCount += item.locators.length
     else
-      rest += item.locations.length
+      rest += item.locators.length
   }
   return {
     acquaintedCount,
@@ -66,7 +66,7 @@ function SourceVocab({
 }) {
   const { data: irregulars = [] } = useIrregularMapsQuery()
   const [baseVocab] = useAtom(baseVocabAtom)
-  const [rows, setRows] = useState<LabelDisplaySource[]>([])
+  const [rows, setRows] = useState<VocabularySourceState[]>([])
   const [sentences, setSentences] = useState<Sentence[]>([])
   const setCount = useSetAtom(textCountAtom)
   const setNewCount = useSetAtom(newWordCountAtom)
@@ -79,8 +79,8 @@ function SourceVocab({
     trie.mergedVocabulary(baseVocab)
     const list = trie.getVocabulary()
       .map(formVocab)
-      .filter((v) => v.locations.length >= 1)
-      .sort((a, b) => (a.locations[0]?.wordOrder ?? 0) - (b.locations[0]?.wordOrder ?? 0))
+      .filter((v) => v.locators.length >= 1)
+      .sort((a, b) => (a.locators[0]?.wordOrder ?? 0) - (b.locators[0]?.wordOrder ?? 0))
     setRows((r) => statusRetainedList(r, list))
     setSentences(trie.sentences)
     const { acquaintedCount, newCount, total } = getCount(list)
@@ -89,11 +89,15 @@ function SourceVocab({
     setCount(total)
   }, [sourceText, baseVocab, irregulars, setCount, setAcquaintedCount, setNewCount])
 
+  useEffect(() => {
+    handlePurge()
+  }, [sourceText])
+
   function handlePurge() {
     setRows(produce((draft) => {
       draft.forEach((todo) => {
-        if (todo.inertialPhase !== todo.vocab.learningPhase)
-          todo.inertialPhase = todo.vocab.learningPhase
+        if (todo.inertialPhase !== todo.lemmaState.learningPhase)
+          todo.inertialPhase = todo.lemmaState.learningPhase
       })
     }))
   }

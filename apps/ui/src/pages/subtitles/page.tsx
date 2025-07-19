@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import clsx from 'clsx'
 import { format } from 'date-fns'
+import { Duration } from 'effect'
 import { uniqBy } from 'es-toolkit'
 import { useDebouncedValue } from 'foxact/use-debounced-value'
 import { useAtom, useSetAtom } from 'jotai'
@@ -43,9 +44,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
-import { MS_PER_WEEK } from '@/constants/time'
 import { SortIcon } from '@/lib/icon-utils'
-import { getFilterFn } from '@/lib/table-utils'
+import { filterFn } from '@/lib/table-utils'
 import { findClosest, type } from '@/lib/utilities'
 import { fileIdsAtom, fileInfoAtom, mediaSubtitleStateAtom, osLanguageAtom, sourceTextAtom } from '@/store/useVocab'
 
@@ -170,7 +170,7 @@ function useColumns<T extends TableData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center pr-px pl-0.5 tracking-3 tabular-nums">
+            <Div className="justify-center pr-px pl-0.5 tracking-[.03em] tabular-nums">
               {value ? format(value, 'yyyy') : null}
             </Div>
           </TableDataCell>
@@ -211,7 +211,7 @@ function useColumns<T extends TableData>() {
             cell={cell}
           >
             <Div
-              className="justify-center pr-px pl-0.5 capitalize data-[value=tv]:tracking-wider data-[value=tv]:uppercase"
+              className="justify-center pr-px pl-0.5 capitalize data-[value=tv]:tracking-[.05em] data-[value=tv]:uppercase"
               data-value={value}
             >
               {value}
@@ -222,7 +222,7 @@ function useColumns<T extends TableData>() {
     }),
     columnHelper.accessor((row) => row.title ?? row.original_title ?? row.original_name, {
       id: 'movie_name',
-      filterFn: getFilterFn(),
+      filterFn,
       header: ({ header }) => {
         const title = 'Name'
         const isSorted = header.column.getIsSorted()
@@ -255,7 +255,7 @@ function useColumns<T extends TableData>() {
             cell={cell}
           >
             <Div
-              className="cursor-text py-1 pr-px pl-2.5 tracking-4 select-text"
+              className="cursor-text py-1 pr-px pl-2.5 tracking-[.04em] select-text"
               onClick={(ev) => ev.stopPropagation()}
             >
               <span>{value}</span>
@@ -300,7 +300,7 @@ function useColumns<T extends TableData>() {
           >
             {
               voteCount >= 1 ? (
-                <Div className="flex flex-nowrap gap-1 px-1 tracking-3 tabular-nums">
+                <Div className="flex flex-nowrap gap-1 px-1 tracking-[.03em] tabular-nums">
                   <div className="flex items-center gap-1.5">
                     <IconClarityStarSolid className="text-neutral-800 dark:text-neutral-100" />
                     <span className="font-semibold">
@@ -352,7 +352,7 @@ function useColumns<T extends TableData>() {
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pr-5 pl-0.5 tracking-3 tabular-nums">
+            <Div className="justify-end pr-5 pl-0.5 tracking-[.03em] tabular-nums">
               <span>
                 {popularityNumberFormat.format(value)}
               </span>
@@ -399,8 +399,8 @@ export default function Subtitles() {
     {
     },
     {
-      gcTime: MS_PER_WEEK,
-      staleTime: MS_PER_WEEK,
+      gcTime: Duration.toMillis('1 weeks'),
+      staleTime: Duration.toMillis('1 weeks'),
       select: ({ data }) => data,
       placeholderData: (prev) => prev,
     },
@@ -544,7 +544,7 @@ export default function Subtitles() {
             </PopoverContent>
           </Popover>
           <Button
-            className="h-8 gap-1.5 px-3 tracking-3 tabular-nums"
+            className="h-8 gap-1.5 px-3 tracking-[.03em] tabular-nums"
             onClick={() => {
               getText(fileIds)
             }}
@@ -556,7 +556,7 @@ export default function Subtitles() {
             </span>
           </Button>
           <Button
-            className="h-8 gap-1.5 px-3 tracking-3 tabular-nums"
+            className="h-8 gap-1.5 px-3 tracking-[.03em] tabular-nums"
             onClick={() => {
               downloadFiles(fileIds)
             }}
@@ -592,12 +592,12 @@ export default function Subtitles() {
                   setLanguage(e)
                 }}
               >
-                <SelectTrigger className="h-full! w-[unset] gap-0 px-2 py-0 text-xs tracking-3 tabular-nums">
+                <SelectTrigger className="h-full! w-[unset] gap-0 px-2 py-0 text-xs tracking-[.03em] tabular-nums">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent
                   position="item-aligned"
-                  className="tracking-3 tabular-nums"
+                  className="tracking-[.03em] tabular-nums"
                 >
                   {languageOptions.map((language) => (
                     <SelectItem
@@ -702,7 +702,7 @@ export default function Subtitles() {
               </tbody>
             </table>
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tracking-3 tabular-nums dark:border-neutral-800">
+          <div className="flex flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tracking-[.03em] tabular-nums dark:border-neutral-800">
             <TablePagination
               items={items}
               table={table}
@@ -719,7 +719,7 @@ export default function Subtitles() {
             </div>
           </div>
           <div className="flex justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-neutral-800">
-            <div className="flex h-7 items-center text-xs tracking-3 tabular-nums">
+            <div className="flex h-7 items-center text-xs tracking-[.03em] tabular-nums">
               <span>
                 <NumberFlow
                   value={rowsFiltered.length}

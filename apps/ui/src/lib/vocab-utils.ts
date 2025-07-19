@@ -1,17 +1,29 @@
-import type { InertialPhase, LabelData } from '@/lib/vocab'
+import type { VocabularyCoreState, VocabularySourceState } from '@/lib/vocab'
 
-export function statusRetainedList<T extends LabelData>(oldRows: (T & InertialPhase)[], newList: (T & Partial<InertialPhase>)[]) {
-  type Row = typeof oldRows[number]
-  const vocabLabel = new Map<string, Row>()
-  newList.forEach((row) => {
-    row.inertialPhase = row.vocab.learningPhase
-    vocabLabel.set(row.vocab.word, row as Row)
+export function statusRetainedList(oldRows: VocabularySourceState[], newList: VocabularyCoreState[]) {
+  const vocabLabel = new Map<string, VocabularySourceState>()
+  const newRows = newList.map((item) => {
+    const newRow = Object.assign(item, {
+      inertialPhase: item.lemmaState.learningPhase,
+    })
+    for (const w of newRow.wFamily) {
+      const path = w.path
+      vocabLabel.set(path, newRow)
+    }
+    return newRow
   })
-  oldRows.forEach((row) => {
-    const label = vocabLabel.get(row.vocab.word)
-    if (label && label.inertialPhase !== row.inertialPhase)
-      label.inertialPhase = row.inertialPhase
+  oldRows.forEach((oldRow) => {
+    for (const w of oldRow.wFamily) {
+      const path = w.path
+      const label = vocabLabel.get(path)
+      if (label) {
+        if (label.inertialPhase !== oldRow.inertialPhase) {
+          label.inertialPhase = oldRow.inertialPhase
+        }
+        break
+      }
+    }
   })
 
-  return newList as Row[]
+  return newRows
 }

@@ -27,6 +27,8 @@ interface DataTableFacetedFilterProps extends React.ComponentProps<'button'> {
   onFilterChange: (arg: Record<string, boolean>) => void
 }
 
+const numberFormat = new Intl.NumberFormat('en')
+
 export function DataTableFacetedFilter({
   title,
   filterValue,
@@ -128,15 +130,15 @@ export function DataTableFacetedFilter({
                         className="cursor-default **:data-[slot=check-icon]:size-3.5"
                       />
                     </div>
-                    {option.icon && (
+                    {option.icon ? (
                       <option.icon className="size-4 text-muted-foreground" />
-                    )}
+                    ) : null}
                     <span>{option.label}</span>
-                    {option.count && (
-                      <span className="font-mono ml-auto flex size-4 items-center justify-center text-xs">
-                        {option.count}
+                    {option.count ? (
+                      <span className="ml-auto flex size-4 items-center justify-end text-xs tracking-[0.0625em] tabular-nums">
+                        {numberFormat.format(option.count)}
                       </span>
-                    )}
+                    ) : null}
                   </CommandItem>
                 )
               })}

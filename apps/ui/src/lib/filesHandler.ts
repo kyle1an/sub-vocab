@@ -2,6 +2,8 @@ import type { FileTypeResult } from 'file-type'
 import type { PDFDocumentProxy } from 'pdfjs-dist'
 import type { TextContent } from 'pdfjs-dist/types/src/display/api'
 
+import { map } from 'es-toolkit/compat'
+
 interface FileContent {
   text: string
   error?: string
@@ -132,15 +134,15 @@ export const SUPPORTED_FILE_EXTENSIONS = [
 ]
 
 async function getFileType(file: File) {
-  const { fileTypeFromBuffer } = await import('file-type')
   return new Promise<FileTypeResult | undefined>((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = async (e) => {
       let fileType: FileTypeResult | undefined
       const document = e.target?.result
-      if (document instanceof ArrayBuffer)
+      if (document instanceof ArrayBuffer) {
+        const { fileTypeFromBuffer } = await import('file-type')
         fileType = await fileTypeFromBuffer(document)
-
+      }
       resolve(fileType)
     }
     reader.readAsArrayBuffer(file)
@@ -148,9 +150,6 @@ async function getFileType(file: File) {
 }
 
 async function readFile(file: File, { name, type }: Pick<File, 'name' | 'type'> = { name: file.name, type: file.type }) {
-  const pdfjs = await import('pdfjs-dist')
-  const { getDocument } = pdfjs
-  pdfjs.GlobalWorkerOptions.workerSrc ||= `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
   return new Promise<FileContent>((resolve, reject) => {
     const reader = new FileReader()
 
@@ -158,6 +157,8 @@ async function readFile(file: File, { name, type }: Pick<File, 'name' | 'type'> 
       reader.onload = async (e) => {
         const document = e.target?.result
         if (document instanceof ArrayBuffer) {
+          const { getDocument, GlobalWorkerOptions, version } = await import('pdfjs-dist')
+          GlobalWorkerOptions.workerSrc ||= `https://cdn.jsdelivr.net/npm/pdfjs-dist@${version}/build/pdf.worker.min.mjs`
           const pdf = await getDocument(document).promise
           const text = await getDocumentText(pdf)
           resolve({
@@ -200,7 +201,7 @@ function isFileEntry(entry: FileSystemEntry): entry is FileSystemFileEntry {
 export class DataTransferItemListReader {
   fileTypes: string[]
 
-  constructor(fileTypes: string[] = []) {
+  constructor(fileTypes: typeof this.fileTypes) {
     this.fileTypes = fileTypes
   }
 
@@ -252,22 +253,16 @@ export class DataTransferItemListReader {
     })
   }
 
-  readDataTransferItemList(list: DataTransferItemList) {
-    return Array.from(list)
-      .filter((item) => item.kind === 'file')
-      .map((item) => {
-        const fileSystemEntry = item.webkitGetAsEntry()
-        if (fileSystemEntry)
-          return this.readEntry(fileSystemEntry)
-
-        return Promise.reject(new Error('Entry is null'))
-      })
+  readDataTransferItemList(items: DataTransferItemList) {
+    return map(items, (item) => item.webkitGetAsEntry())
+      .filter(Boolean)
+      .map((fileSystemEntry) => this.readEntry(fileSystemEntry))
   }
 }
 
-export async function getFileContent(fileList: FileList) {
-  if (fileList.length === 1) {
-    const file = fileList[0]
+export async function getFileContent(files: FileList) {
+  if (files.length === 1) {
+    const file = files[0]
     if (file) {
       const fileContent = await readFile(file)
       return {
@@ -277,14 +272,10 @@ export async function getFileContent(fileList: FileList) {
     }
   }
 
-  const promises = Array.from(fileList).map((file) => readFile(file))
-
-  const files = await Promise.all(promises)
-  const combinedContent = files.reduce((pre, { text }) => pre + text, '')
-  const combinedName = `${files.length} files selected`
+  const contents = await Promise.all(map(files, (file) => readFile(file)))
   return {
-    value: combinedContent,
-    name: combinedName,
+    value: contents.reduce((pre, { text }) => pre + text, ''),
+    name: `${contents.length} files selected`,
   }
 }
 

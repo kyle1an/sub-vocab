@@ -4,6 +4,7 @@ import type { ArrayValues, PartialDeep } from 'type-fest'
 import { useIsomorphicLayoutEffect } from '@react-hookz/web'
 import { createClient, REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js'
 import { QueryClient } from '@tanstack/react-query'
+import { Duration } from 'effect'
 import { atom, createStore } from 'jotai'
 import { atomWithImmer } from 'jotai-immer'
 import { atomFamily, atomWithStorage } from 'jotai/utils'
@@ -16,7 +17,6 @@ import type { Database } from '@ui/database.types'
 
 import { DEFAULT_THEME } from '@/components/themes'
 import { THEME_KEY } from '@/constants/keys'
-import { MS_PER_MINUTE } from '@/constants/time'
 import { env } from '@/env'
 import { getLanguage } from '@/i18n'
 import { SUPPORTED_FILE_EXTENSIONS } from '@/lib/filesHandler'
@@ -85,10 +85,10 @@ export const osLanguageAtom = atomWithStorage('osLanguageAtom', 'en')
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      gcTime: 60 * MS_PER_MINUTE,
-      staleTime: 45 * MS_PER_MINUTE,
+      gcTime: Duration.toMillis('60 minutes'),
+      staleTime: Duration.toMillis('45 minutes'),
       retry: 2,
-      refetchOnWindowFocus: false,
+      retryDelay: (failureCount) => (failureCount - 1) * Duration.toMillis('1 seconds'),
     },
   },
 })
@@ -96,6 +96,8 @@ export const queryClient = new QueryClient({
 export type Supabase = typeof supabase
 
 export const supabase = createClient<Database>(env.VITE_PUBLIC_SUPABASE_URL, env.VITE_PUBLIC_SUPABASE_ANON_KEY)
+
+export const supabaseAuth = supabase.auth
 
 const getOnInit = true
 

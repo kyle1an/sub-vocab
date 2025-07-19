@@ -4,20 +4,17 @@ import {
 
 import RootLayout from '@/pages/layout'
 
-function convert(m: any) {
-  const {
-    clientLoader,
-    clientAction,
-    default: Component,
-    ...rest
-  } = m
-  return {
-    ...rest,
-    loader: clientLoader,
-    action: clientAction,
-    Component,
-  }
-}
+const convert = ({
+  clientLoader,
+  clientAction,
+  default: Component,
+  ...rest
+}: any) => ({
+  ...rest,
+  loader: clientLoader,
+  action: clientAction,
+  Component,
+})
 
 export const router = createBrowserRouter([
   {

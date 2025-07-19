@@ -4,7 +4,6 @@
     "lib": ["es2024"],
     "module": "es2022",
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
     "noEmit": true,
     "outDir": "./dist"
   },

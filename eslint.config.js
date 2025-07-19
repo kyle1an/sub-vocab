@@ -24,10 +24,15 @@ export default typegen(antfu(
       '@stylistic/no-extra-semi': 'off',
       'no-extra-semi': 'off',
       '@stylistic/switch-colon-spacing': 'warn',
-      '@stylistic/quotes': [1, 'single', { avoidEscape: true, allowTemplateLiterals: true }],
+      '@stylistic/quotes': [1, 'single', { avoidEscape: true, allowTemplateLiterals: 'always' }],
       'unused-imports/no-unused-vars': 'off',
       'prefer-arrow-callback': 'off',
       curly: ['off'],
+      'style/curly-newline': ['warn', {
+        multiline: true,
+        minElements: 1,
+        consistent: true,
+      }],
       'jsonc/indent': ['warn', 2],
       'style/operator-linebreak': [
         'warn',

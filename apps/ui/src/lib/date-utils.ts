@@ -4,12 +4,12 @@ import { enUS } from 'date-fns/locale/en-US'
 
 import { hasKey } from '@/lib/utilities'
 
-type FormatDistanceTokenValue
-  = | string
-    | {
-      one: string
-      other: string
-    }
+type FormatDistanceTokenValue =
+  | string
+  | {
+    one: string
+    other: string
+  }
 
 type DistanceLocale = FormatDistanceLocale<FormatDistanceTokenValue>
 

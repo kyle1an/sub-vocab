@@ -7,7 +7,7 @@ import {
 } from 'react-i18next'
 import IconLucideCheckCircle from '~icons/lucide/check-circle'
 
-import type { LabelDisplayTable } from '@/lib/vocab'
+import type { VocabularySourceState } from '@/lib/vocab'
 
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 import { Div } from '@/components/ui/html-elements'
@@ -17,16 +17,16 @@ import { VocabularyMenu } from '@/components/vocabulary/cells'
 import { VocabToggle } from '@/components/vocabulary/toggle-button'
 import { useVocabToggle } from '@/hooks/vocab-toggle'
 import { SortIcon } from '@/lib/icon-utils'
-import { getFilterFn } from '@/lib/table-utils'
+import { filterFn } from '@/lib/table-utils'
 
-export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDisplayTable>(tbody?: React.RefObject<HTMLTableSectionElement | null>) {
+export function useVocabularyCommonColumns<T extends VocabularySourceState = VocabularySourceState>(tbody?: React.RefObject<HTMLTableSectionElement | null>) {
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
   const handleVocabToggle = useVocabToggle()
   return [
-    columnHelper.accessor((row) => row.vocab.word, {
+    columnHelper.accessor((row) => row.lemmaState.word, {
       id: 'word',
-      filterFn: getFilterFn(),
+      filterFn,
       header: ({ header }) => {
         const isSorted = header.column.getIsSorted()
         const title = t('Word')
@@ -64,7 +64,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
               {wFamily.map(({ path: w, src }, i) => (
                 <div
                   key={w}
-                  className="inline-block cursor-text pl-1 tracking-4 select-text first:pl-1.5"
+                  className="inline-block cursor-text pl-1 tracking-[.04em] select-text"
                   onClick={(ev) => ev.stopPropagation()}
                 >
                   <HoverCard
@@ -106,7 +106,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
         )
       },
     }),
-    columnHelper.accessor((row) => row.vocab.word.length, {
+    columnHelper.accessor((row) => row.lemmaState.word.length, {
       id: 'word.length',
       header: ({ header }) => {
         const isSorted = header.column.getIsSorted()
@@ -139,7 +139,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-end pr-[9px] pl-0.5 tracking-3 tabular-nums">
+            <Div className="justify-end pr-[9px] pl-0.5 tracking-[.03em] tabular-nums">
               <span>
                 {value}
               </span>
@@ -149,10 +149,10 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
       },
     }),
     columnHelper.accessor((row) => {
-      return row.vocab.learningPhase <= 1 ? row.vocab.learningPhase : row.inertialPhase
+      return row.lemmaState.learningPhase <= 1 ? row.lemmaState.learningPhase : row.inertialPhase
     }, {
       id: 'acquaintedStatus',
-      filterFn: getFilterFn(),
+      filterFn,
       header: ({ header }) => {
         const isSorted = header.column.getIsSorted()
         return (
@@ -184,14 +184,14 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
         >
           <Div className="justify-center pr-px pl-0.5">
             <VocabToggle
-              vocab={row.original.vocab}
+              vocab={row.original.lemmaState}
               onToggle={handleVocabToggle}
             />
           </Div>
         </TableDataCell>
       ),
     }),
-    columnHelper.accessor((row) => row.vocab.rank, {
+    columnHelper.accessor((row) => row.lemmaState.rank, {
       id: 'rank',
       header: ({ header }) => {
         const isSorted = header.column.getIsSorted()
@@ -224,7 +224,7 @@ export function useVocabularyCommonColumns<T extends LabelDisplayTable = LabelDi
           <TableDataCell
             cell={cell}
           >
-            <Div className="justify-center pr-px pl-0.5 tracking-3 tabular-nums">
+            <Div className="justify-center pr-px pl-0.5 tracking-[.03em] tabular-nums">
               {value}
             </Div>
           </TableDataCell>

@@ -1,4 +1,5 @@
 import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
+import { useMutation } from '@tanstack/react-query'
 import clsx from 'clsx'
 import { useAtom } from 'jotai'
 import { useForm } from 'react-hook-form'
@@ -6,13 +7,13 @@ import { useTranslation } from 'react-i18next'
 import { z } from 'zod/v4-mini'
 import IconLucideLoader2 from '~icons/lucide/loader2'
 
-import { useUpdateEmail, useUpdateUser } from '@/api/user'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { USERNAME_MIN_LENGTH } from '@/constants/constraints'
 import { env } from '@/env'
-import { sessionAtom } from '@/store/useVocab'
+import { bindApply } from '@/lib/bindApply'
+import { sessionAtom, supabaseAuth } from '@/store/useVocab'
 
 export default function ProfilePage() {
   const { t } = useTranslation()
@@ -54,15 +55,21 @@ export default function ProfilePage() {
     setError: setUsernameFormError,
   } = usernameForm
 
-  const { mutateAsync: updateUser, isPending: isUsernameUpdatePending } = useUpdateUser()
-  const { mutateAsync: updateEmail, isPending: isEmailUpdatePending } = useUpdateEmail()
+  const { mutateAsync: updateUsername, isPending: isUsernameUpdatePending } = useMutation({
+    mutationKey: ['updateUsername'],
+    mutationFn: bindApply(supabaseAuth.updateUser, supabaseAuth),
+  })
+  const { mutateAsync: updateEmail, isPending: isEmailUpdatePending } = useMutation({
+    mutationKey: ['updateEmail'],
+    mutationFn: bindApply(supabaseAuth.updateUser, supabaseAuth),
+  })
 
   async function submitUsernameForm(values: UsernameFormValues) {
-    const { error } = await updateUser({
+    const { error } = await updateUsername([{
       data: {
         username: values.newUsername,
       },
-    })
+    }])
     if (error) {
       setUsernameFormError('newUsername', {
         message: error.message,
@@ -95,9 +102,9 @@ export default function ProfilePage() {
   } = emailForm
 
   async function submitEmailForm(values: EmailFormValues) {
-    const { error } = await updateEmail({
+    const { error } = await updateEmail([{
       email: values.newEmail,
-    })
+    }])
     if (error) {
       setEmailFormError('newEmail', {
         message: error.message,

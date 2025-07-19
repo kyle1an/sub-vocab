@@ -7,7 +7,5 @@ export default defineConfig({
     '**/test/**',
   ],
   packageMode: {
-    tailwindcss: 'minor',
-    'tailwind-merge': 'minor',
   },
 })

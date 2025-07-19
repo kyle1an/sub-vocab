@@ -1,4 +1,5 @@
 import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
+import { useMutation } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -10,20 +11,24 @@ import IconLucideLoader2 from '~icons/lucide/loader2'
 
 import type { ZodObj } from '@/types/utils'
 
-import { useSignInWithEmail, useSignInWithUsername } from '@/api/user'
+import { useSignInWithUsername } from '@/api/user'
 import { ContentRoot } from '@/components/content-root'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { authChangeEventAtom, sessionAtom } from '@/store/useVocab'
+import { bindApply } from '@/lib/bindApply'
+import { authChangeEventAtom, sessionAtom, supabaseAuth } from '@/store/useVocab'
 
 export default function Login() {
   const [session] = useAtom(sessionAtom)
   const user = session?.user
   const [passwordVisible, setPasswordVisible] = useState(false)
-  const { mutateAsync: signInWithEmailAsync, isPending: isPendingEmailSignIn } = useSignInWithEmail()
-  const { mutateAsync: signInWithUsernameAsync, isPending: isPendingUsernameSignIn } = useSignInWithUsername()
+  const { mutateAsync: signInWithPassword, isPending: isPendingEmailSignIn } = useMutation({
+    mutationKey: ['signInWithPassword'],
+    mutationFn: bindApply(supabaseAuth.signInWithPassword, supabaseAuth),
+  })
+  const { mutateAsync: signInWithUsername, isPending: isPendingUsernameSignIn } = useSignInWithUsername()
   const formDefaultValues = {
     username: '',
     password: '',
@@ -64,13 +69,13 @@ export default function Login() {
 
   function signIn({ username, password }: FormValues) {
     if (z.email().safeParse(username).success) {
-      return signInWithEmailAsync({
+      return signInWithPassword([{
         email: username,
         password,
-      })
+      }])
     }
     else {
-      return signInWithUsernameAsync({
+      return signInWithUsername({
         username,
         password,
       })

@@ -8,7 +8,7 @@
 @theme {
   --font-*: initial;
   --font-sans:
-    -apple-system, "SF Compact Text", BlinkMacSystemFont, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    -apple-system, "SF Compact Text", BlinkMacSystemFont, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-mono: SFMono-Regular, "Courier New", monospace;
 
   --radius-lg: var(--radius);
@@ -112,11 +112,11 @@
   }
 }
 
-@theme {
-  --tracking-0: 0em;
-  --tracking-2: 0.02em;
-  --tracking-3: 0.03em;
-  --tracking-4: 0.04em;
+@utility tracking-* {
+  :is(& *) {
+    --tw-tracking: --value([length]);
+    letter-spacing: --value([length]);
+  }
 }
 
 @utility container {

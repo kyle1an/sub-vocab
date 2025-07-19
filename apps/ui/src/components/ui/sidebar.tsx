@@ -1,9 +1,12 @@
 import type { VariantProps } from 'class-variance-authority'
+import type { SetStateAction } from 'react'
 
 import { ViewVerticalIcon as PanelLeftIcon } from '@radix-ui/react-icons'
 import { Slot } from '@radix-ui/react-slot'
+import { useCookieValue } from '@react-hookz/web/useCookieValue/index.js'
 import { cva } from 'class-variance-authority'
 import clsx from 'clsx'
+import { Duration } from 'effect'
 import * as React from 'react'
 import { useCallback } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
@@ -29,7 +32,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state'
-const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
+const SIDEBAR_COOKIE_MAX_AGE = Duration.toSeconds('400 days')
 const SIDEBAR_WIDTH = '16rem'
 const SIDEBAR_WIDTH_MOBILE = '18rem'
 const SIDEBAR_WIDTH_ICON = '3rem'
@@ -74,10 +77,13 @@ function SidebarProvider({
 
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
-  const [_open, _setOpen] = React.useState(defaultOpen)
+  const [sidebarCookie, setSidebarCookie] = useCookieValue(SIDEBAR_COOKIE_NAME, {
+    'Max-Age': String(SIDEBAR_COOKIE_MAX_AGE),
+  })
+  const [_open, _setOpen] = React.useState((sidebarCookie ?? String(defaultOpen)) === 'true')
   const open = openProp ?? _open
   const setOpen = React.useCallback(
-    (value: boolean | ((value: boolean) => boolean)) => {
+    (value: SetStateAction<boolean>) => {
       const openState = typeof value === 'function' ? value(open) : value
       if (setOpenProp) {
         setOpenProp(openState)
@@ -87,9 +93,9 @@ function SidebarProvider({
       }
 
       // This sets the cookie to keep the sidebar state.
-      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+      setSidebarCookie(String(openState))
     },
-    [setOpenProp, open],
+    [open, setOpenProp, setSidebarCookie],
   )
 
   // Helper to toggle the sidebar.
@@ -595,7 +601,7 @@ function SidebarMenuBadge({
       data-slot="sidebar-menu-badge"
       data-sidebar="menu-badge"
       className={cn(
-        'pointer-events-none absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium tracking-3 text-sidebar-foreground tabular-nums select-none',
+        'pointer-events-none absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium tracking-[.03em] text-sidebar-foreground tabular-nums select-none',
         'peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground',
         'peer-data-[size=sm]/menu-button:top-1',
         'peer-data-[size=default]/menu-button:top-1.5',

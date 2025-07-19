@@ -1,7 +1,7 @@
 import './main.css'
 
 import { CssVarsProvider } from '@mui/joy/styles'
-import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { createTRPCClient, httpBatchLink } from '@trpc/client'
 import { queryClientAtom } from 'jotai-tanstack-query'
@@ -24,7 +24,7 @@ if (import.meta.env.DEV) {
 }
 
 function App() {
-  const [persister] = useState(() => createSyncStoragePersister({
+  const [persister] = useState(() => createAsyncStoragePersister({
     storage: localStorage,
   }))
   useHydrateAtoms([[queryClientAtom, queryClient]])

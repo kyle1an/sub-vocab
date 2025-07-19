@@ -2,6 +2,7 @@
 import type { VariantProps } from 'class-variance-authority'
 
 import { cva } from 'class-variance-authority'
+import { createFixedArray } from 'foxact/create-fixed-array'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
@@ -47,9 +48,8 @@ function Spinner({ className, variant, size = 'default' }: SpinnerProps) {
       )}
       style={typeof size === 'number' ? { width: size, height: size } : undefined}
     >
-      {Array.from({ length: 8 }).map((_, i) => (
+      {createFixedArray(8).map((i) => (
         <div
-        // eslint-disable-next-line react/no-array-index-key
           key={i}
           className="absolute top-[4.4%] left-[46.5%] h-[28%] w-[9%] origin-[center_170%] animate-spinner rounded-full opacity-10 will-change-transform"
           style={{

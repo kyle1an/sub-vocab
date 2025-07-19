@@ -4,16 +4,17 @@ import type { ValueOf } from 'type-fest'
 import { UTCDateMini } from '@date-fns/utc'
 import { REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js'
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import { Duration } from 'effect'
 import { produce } from 'immer'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithQuery } from 'jotai-tanstack-query'
 import { useEffect, useRef } from 'react'
+import { toast } from 'sonner'
 
-import type { LearningPhase, VocabState } from '@/lib/LabeledTire'
+import type { LearningPhase, WordState } from '@/lib/LabeledTire'
 import type { Supabase } from '@/store/useVocab'
 import type { Tables } from '@ui/database.types'
 
-import { MS_PER_MINUTE } from '@/constants/time'
 import { usePageVisibility } from '@/hooks/utils'
 import { LEARNING_PHASE } from '@/lib/LabeledTire'
 import { omitUndefined } from '@/lib/utilities'
@@ -37,7 +38,7 @@ const sharedVocabularyAtom = atomWithQuery(() => {
         .eq('share', true)
         .throwOnError()
       return data.map(({ w, o, u, r }) => {
-        const vocabState: VocabState = {
+        const vocabState: WordState = {
           word: w,
           isUser: Boolean(u),
           original: Boolean(o),
@@ -85,6 +86,7 @@ function userVocabularyOptions(userId: string) {
     async queryFn() {
       const { data } = await supabase
         .from('user_vocab_record')
+        //
         .select('w:vocabulary, t:time_modified, a:acquainted')
         .eq('user_id', userId)
         .throwOnError()
@@ -137,7 +139,7 @@ export function useUserWordPhaseMutation() {
   const vocabularyOptions = userVocabularyOptions(userId)
   return useMutation({
     mutationKey: ['upsertUserVocabulary'],
-    mutationFn: async (vocab: VocabState[]) => {
+    mutationFn: async (vocab: WordState[]) => {
       const values = vocab.map((row) => ({
         user_id: userId,
         vocabulary: row.word,
@@ -184,6 +186,7 @@ export function useUserWordPhaseMutation() {
     },
     onError: (error, variables, context) => {
       console.error(error)
+      toast.error(error.message)
       queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => oldData && produce(oldData, (draft) => {
         variables.forEach((variable) => {
           const labelMutated = draft.find((label) => label.w === variable.word)
@@ -225,7 +228,7 @@ export const statusLabels = {
   TIMED_OUT: 'Connection Timeout',
 } as const satisfies Partial<Record<REALTIME_SUBSCRIBE_STATES, string>>
 
-const INACTIVITY_TIMEOUT_MS = MS_PER_MINUTE
+const INACTIVITY_TIMEOUT_MS = Duration.toMillis('1 minutes')
 
 export function useVocabRealtimeSync() {
   const [session] = useAtom(sessionAtom)
@@ -233,7 +236,7 @@ export function useVocabRealtimeSync() {
   const isTabActive = usePageVisibility()
   const { refetch } = useAtomValue(userVocabularyAtom)
   const setVocabRealtimeSubscribeState = useSetAtom(vocabRealtimeSyncStatusAtom)
-  const channelRef = useRef<ReturnType<Supabase['channel']> | null>(null)
+  const channelRef = useRef<ReturnType<Supabase['channel']>>(null)
   const upsertCallback = useRealtimeVocabUpsert()
 
   useEffect(() => {

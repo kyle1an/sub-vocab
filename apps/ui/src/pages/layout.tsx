@@ -19,7 +19,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/s
 import { Toaster } from '@/components/ui/sonner'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { COLOR_SCHEME_QUERY, isDarkModeAtom, metaThemeColorEffect } from '@/lib/hooks'
-import { authChangeEventAtom, isMdScreenAtom, LIGHT_THEME_COLOR, metaThemeColorAtom, prefersDarkAtom, sessionAtom, supabase, useDocumentInit } from '@/store/useVocab'
+import { authChangeEventAtom, isMdScreenAtom, LIGHT_THEME_COLOR, metaThemeColorAtom, prefersDarkAtom, sessionAtom, supabaseAuth, useDocumentInit } from '@/store/useVocab'
 
 const JotaiDevTools = () =>
   !import.meta.env.PROD ? (
@@ -41,7 +41,7 @@ function useSyncAtomWithUser() {
   const setAuthChangeEvent = useSetAtom(authChangeEventAtom)
   const setUser = useSetAtom(sessionAtom)
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabaseAuth.onAuthStateChange((event, session) => {
       setAuthChangeEvent(event)
       setUser(session)
     })

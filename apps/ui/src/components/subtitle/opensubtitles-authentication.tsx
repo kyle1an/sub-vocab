@@ -1,8 +1,9 @@
 import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
 import { useUnmountEffect } from '@react-hookz/web'
+import { useMutation } from '@tanstack/react-query'
 import { get } from 'es-toolkit/compat'
 import { atom, useAtom } from 'jotai'
-import { ResultAsync } from 'neverthrow'
+import { ofetch } from 'ofetch'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod/v4-mini'
@@ -10,10 +11,14 @@ import IconLucideEye from '~icons/lucide/eye'
 import IconLucideEyeOff from '~icons/lucide/eye-off'
 import IconLucideLoader2 from '~icons/lucide/loader2'
 
-import { osSessionAtom, useOpenSubtitlesLogin } from '@/api/opensubtitles'
+import type { Login } from '@/api/opensubtitles'
+
+import { osSessionAtom } from '@/api/opensubtitles'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { env } from '@/env'
+import { bindApply } from '@/lib/bindApply'
 
 const osAuthAtom = atom({
   username: '',
@@ -24,7 +29,10 @@ export function OpensubtitlesAuthentication() {
   const [passwordVisible, setPasswordVisible] = useState(false)
   const [osAuth, setOsAuth] = useAtom(osAuthAtom)
   const [osSession, setOsSession] = useAtom(osSessionAtom)
-  const { mutateAsync, isPending } = useOpenSubtitlesLogin()
+  const { mutateAsync, isPending } = useMutation({
+    mutationKey: ['subtitles-login'],
+    mutationFn: bindApply(ofetch<Login['Response']>),
+  })
   const formDefaultValues = osAuth
   type FormValues = typeof formDefaultValues
   const form = useForm<FormValues>({
@@ -55,14 +63,21 @@ export function OpensubtitlesAuthentication() {
 
   async function onSubmit(values: FormValues) {
     setPasswordVisible(false)
-    const result = await ResultAsync.fromPromise(mutateAsync(values), (e) => get(e, 'data.message') ?? get(e, 'message') ?? 'Error')
-    if (result.isOk()) {
-      setOsSession(result.value)
-    }
-    else {
+    const baseUrl = `${env.VITE_SUB_API_URL}/opensubtitles-proxy/def`
+    const result = await mutateAsync([
+      `${baseUrl}/login`,
+      {
+        method: 'POST',
+        body: values satisfies Login['Body'],
+      },
+    ]).catch((e) => {
+      const message = get(e, 'data.message') ?? get(e, 'message') ?? 'Error'
       setError('root.serverError', {
-        message: result.error,
+        message,
       })
+    })
+    if (result) {
+      setOsSession(result)
     }
   }
 
