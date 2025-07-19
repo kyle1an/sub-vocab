@@ -7,7 +7,6 @@
     ],
     "useDefineForClassFields": true,
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
     "noUnusedLocals": false,
     "noUnusedParameters": false,

@@ -2,7 +2,6 @@ import type { InitialTableState } from '@tanstack/react-table'
 
 import usePagination from '@mui/material/usePagination'
 import { useUnmountEffect } from '@react-hookz/web'
-import { unionOptional } from '@sub-vocab/utils/lib'
 import { useMutation } from '@tanstack/react-query'
 import {
   createColumnHelper,
@@ -15,6 +14,7 @@ import {
 } from '@tanstack/react-table'
 import { TRPCClientError } from '@trpc/client'
 import clsx from 'clsx'
+import { Effect } from 'effect'
 import { useAtom, useAtomValue } from 'jotai'
 import { atomWithImmer } from 'jotai-immer'
 import { atomWithStorage } from 'jotai/utils'
@@ -28,11 +28,12 @@ import IconLucideLoader from '~icons/lucide/loader'
 
 import type { LearningPhase, Sentence } from '@/lib/LabeledTire'
 import type { ColumnFilterFn } from '@/lib/table-utils'
-import type { Category, LabelDisplaySource } from '@/lib/vocab'
+import type { VocabularySourceState } from '@/lib/vocab'
 
 import { useTRPC } from '@/api/trpc'
 import { DataTableFacetedFilter } from '@/components/data-table/data-table-faceted-filter'
 import { SearchWidget } from '@/components/search-widget'
+import { TableGoToLastPage } from '@/components/table-go-to-last-page'
 import { TablePagination } from '@/components/table-pagination'
 import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
 import { Button } from '@/components/ui/button'
@@ -48,13 +49,16 @@ import { VocabularyMenu } from '@/components/vocabulary/menu'
 import { VocabStatics } from '@/components/vocabulary/vocab-statics-bar'
 import { useLastTruthy } from '@/lib/hooks'
 import { LEARNING_PHASE } from '@/lib/LabeledTire'
-import { getFilterFn, noFilter } from '@/lib/table-utils'
+import { combineFilters, filterFn, noFilter } from '@/lib/table-utils'
 import { findClosest, type } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
 import { isSourceTextStaleAtom } from '@/store/useVocab'
+import { getCategory } from '@/utils/prompts/getCategory'
 import { searchFilterValue } from '@/utils/vocabulary/filters'
 
-type TableData = LabelDisplaySource & Category
+type TableData = VocabularySourceState & {
+  category: string | null
+}
 
 /// keep-unique
 const PAGE_SIZES = [10, 20, 40, 50, 100, 200, 500, 1000] as const
@@ -84,7 +88,7 @@ function useSegments() {
 type Segment = ReturnType<typeof useSegments>[number]['value']
 const SEGMENT_NAME = 'source-table-segment'
 
-function acquaintedStatusFilter(filterSegment: Segment): (rowValue: TableData) => boolean {
+function acquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn<TableData> {
   let filteredValue: LearningPhase[] = []
   if (filterSegment === 'new')
     filteredValue = [LEARNING_PHASE.NEW, LEARNING_PHASE.RETAINING]
@@ -97,7 +101,7 @@ function acquaintedStatusFilter(filterSegment: Segment): (rowValue: TableData) =
 }
 
 function categoryFilter(filterValue: Record<string, boolean>): ColumnFilterFn<TableData> {
-  const categories = Object.entries(filterValue).filter(([k, v]) => v).map(([k]) => k)
+  const categories = Object.entries(filterValue).filter(([, v]) => v).map(([k]) => k)
   if (categories.length === 0)
     return noFilter
 
@@ -109,9 +113,9 @@ function useSourceColumns<T extends TableData>() {
   const columnHelper = createColumnHelper<T>()
   return (
     [
-      columnHelper.accessor((row) => row.locations.length, {
+      columnHelper.accessor((row) => row.locators.length, {
         id: 'frequency',
-        filterFn: getFilterFn(),
+        filterFn,
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
           const title = t('frequency')
@@ -155,13 +159,13 @@ function useSourceColumns<T extends TableData>() {
                         isExpanded ? 'rotate-90' : '',
                       )}
                     />
-                    <span className="float-right inline-block tracking-3 tabular-nums">
+                    <span className="float-right inline-block tracking-[.03em] tabular-nums">
                       {value}
                     </span>
                   </button>
                 ) : (
                   <div className="w-full justify-end px-3">
-                    <span className="float-right inline-block tracking-3 tabular-nums">
+                    <span className="float-right inline-block tracking-[.03em] tabular-nums">
                       {value}
                     </span>
                   </div>
@@ -183,7 +187,7 @@ type VocabularyCategory = {
 
 const categoryAtom = atomWithStorage<VocabularyCategory>('categoryAtom', {})
 
-function useCategorize(vocabularyCategory: VocabularyCategory, data: LabelDisplaySource[]) {
+function useCategorize(vocabularyCategory: VocabularyCategory, data: VocabularySourceState[]) {
   const { t } = useTranslation()
   const { properName = [], acronym = [] } = vocabularyCategory
 
@@ -208,13 +212,12 @@ export function VocabSourceTable({
   className = '',
   onSentenceTrack,
 }: {
-  data: LabelDisplaySource[]
+  data: VocabularySourceState[]
   sentences: Sentence[]
   onPurge: () => void
   className?: string
   onSentenceTrack: (sentenceId: number) => void
 }) {
-  // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
   const [categoryAtomValue, setCategoryAtom] = useAtom(categoryAtom)
   const { t } = useTranslation()
@@ -231,32 +234,30 @@ export function VocabSourceTable({
   const segmentDeferredValue = useDeferredValue(segment)
   const lastTruthySearchFilterValue = useLastTruthy(searchFilterValue(deferredSearchValue, deferredIsUsingRegex))
   const isSourceTextStale = useAtomValue(isSourceTextStaleAtom)
-  const [disableNumberAnim, setDisableNumberAnim] = useState(false)
   const finalData = useCategorize(categoryAtomValue, data)
 
+  const preCategoryFilters = [
+    acquaintedStatusFilter(segmentDeferredValue),
+    lastTruthySearchFilterValue ?? noFilter,
+  ]
+  const globalFilter = combineFilters(preCategoryFilters)
   const table = useReactTable({
     data: finalData,
     columns,
     state: {
+      globalFilter,
       columnFilters: [
         {
-          id: 'acquaintedStatus',
-          value: acquaintedStatusFilter(segmentDeferredValue),
-        },
-        {
           id: 'word',
-          value: lastTruthySearchFilterValue ?? noFilter,
-        },
-        {
-          id: 'frequency',
           value: categoryFilter(filterValue),
         },
       ],
     },
+    globalFilterFn: filterFn,
     initialState: initialTableState,
     autoResetPageIndex: false,
-    getRowId: (row) => row.vocab.word,
-    getRowCanExpand: (row) => sentences.length > 0 && row.original.locations.length > 0,
+    getRowId: (row) => row.lemmaState.word,
+    getRowCanExpand: (row) => sentences.length > 0 && row.original.locators.length > 0,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -267,14 +268,8 @@ export function VocabSourceTable({
 
   function handleSegmentChoose(newSegment: typeof segment) {
     setSegment(newSegment)
-    requestAnimationFrame(() => {
-      startTransition(() => {
-        setDisableNumberAnim(true)
-        requestAnimationFrame(() => {
-          setDisableNumberAnim(false)
-          purgeVocabulary()
-        })
-      })
+    startTransition(() => {
+      purgeVocabulary()
     })
   }
 
@@ -284,12 +279,13 @@ export function VocabSourceTable({
     page: tableState.pagination.pageIndex + 1,
   })
 
-  const rowsFiltered = table.getFilteredRowModel().rows
+  const filteredRows = table.getFilteredRowModel().rows
+  const preFilteredRows = table.getPreFilteredRowModel().rows
   const {
     rowsAcquainted = [],
     rowsNew = [],
-  } = Object.groupBy(rowsFiltered, (row) => {
-    switch (row.original.vocab.learningPhase) {
+  } = Object.groupBy(filteredRows, (row) => {
+    switch (row.original.lemmaState.learningPhase) {
       case LEARNING_PHASE.ACQUAINTED:
         return 'rowsAcquainted'
       case LEARNING_PHASE.NEW:
@@ -298,8 +294,23 @@ export function VocabSourceTable({
         return '_'
     }
   })
+  const preCategoryFilteredRows = preFilteredRows.filter((row) => globalFilter(row.original))
+  const {
+    properName = [],
+    acronym = [],
+    others = [],
+  } = Object.groupBy(preCategoryFilteredRows, (row) => {
+    switch (row.original.category) {
+      case 'properName':
+        return 'properName'
+      case 'acronym':
+        return 'acronym'
+      default:
+        return 'others'
+    }
+  })
   const rowsToRetain = rowsNew
-    .map((row) => row.original.vocab)
+    .map((row) => row.original.lemmaState)
 
   useUnmountEffect(() => {
     setCacheState({
@@ -317,77 +328,51 @@ export function VocabSourceTable({
     {
       label: 'Name',
       value: 'properName',
+      count: properName.length,
     },
     {
       label: 'Acronym',
       value: 'acronym',
+      count: acronym.length,
     },
     {
       label: 'Others',
       value: 'others',
+      count: others.length,
     },
   ]
 
   const freshVocabularies = data
-    .filter((d) => d.vocab.learningPhase === LEARNING_PHASE.NEW && !d.vocab.rank)
+    .filter((d) => d.lemmaState.learningPhase === LEARNING_PHASE.NEW && !d.lemmaState.rank)
 
-  async function handleAiVocabCategorize() {
+  const handleAiVocabCategorize = () => Effect.runPromise(Effect.gen(function* () {
     if (!isPending) {
-      const wordsString = freshVocabularies
-        .filter((d) => !d.vocab.original && !d.vocab.isUser && !d.vocab.rank)
+      const words = freshVocabularies
+        .filter((d) => !d.lemmaState.original && !d.lemmaState.isUser && !d.lemmaState.rank)
         .map((d) => d.wFamily.map((w) => w.path))
         .flat()
-        .join(',')
-      const { data: category, error } = await mutateAsync({
-        prompt: `
-You are a REST API that receives an array of vocabulary items (strings) and must classify each item according to the following prioritized rules:
-
-Common Word Exclusion:
-
-First, check if the item is a standard English dictionary word—that is, if it has a clear, widely recognized meaning in common usage.
-If it is a common dictionary word, exclude it from the output.
-Acronym Identification:
-
-If the item is not a dictionary word, determine if it is an acronym.
-An acronym is a term formed from the initial letters (or a combination of letters) of a phrase. It is typically written in uppercase (or in a case-insensitive form) and does not form a standard dictionary word.
-If the item meets these criteria, include it in the output under the 'acronym' category.
-Proper Noun Determination:
-
-If the item is neither a dictionary word nor an acronym, decide whether it represents a specific proper noun (such as the name of a person, place, organization, or other uniquely identified entity).
-Avoid treating simply capitalized words or generic titles as proper nouns.
-If the item clearly functions as a proper noun, include it in the output under the 'properName' category.
-Omit Others:
-
-If the item does not satisfy any of the above criteria, omit it from the final output.
-
-The input array is provided as follows:
-${wordsString}
-`,
-      })
-        .catch((e) => {
-          if (e instanceof TRPCClientError) {
-            return {
-              error: {
-                message: e.message,
-              },
-            }
+      const { data: category, error } = yield* Effect.tryPromise(() => mutateAsync({
+        prompt: getCategory(words),
+      })).pipe(
+        Effect.mapError((e) => {
+          if (e.error instanceof TRPCClientError) {
+            return e.error
           }
-          return {
-            error: {
-              message: 'Error categorizing vocabulary:',
-            },
-          }
-        })
-        .then(unionOptional)
-      if (category) {
-        setCategoryAtom(category)
+          return e
+        }),
+      )
+      if (error) {
+        return yield* Effect.fail(new Error(error.message))
       }
-      else if (error) {
-        toast.error(error.message, {
-        })
-      }
+      setCategoryAtom(category)
     }
-  }
+  }).pipe(
+    Effect.catchAll((e) => Effect.gen(function* () {
+      toast.error(e.message, {
+        duration: Infinity,
+      })
+    })),
+  ))
 
   return (
     <div className={cn('flex h-full flex-col items-center overflow-hidden bg-background will-change-transform', className)}>
@@ -498,7 +483,7 @@ ${wordsString}
                 >
                   <ExampleSentence
                     sentences={sentences}
-                    src={row.original.locations}
+                    src={row.original.locators}
                     onSentenceTrack={onSentenceTrack}
                   />
                 </TableRow>
@@ -506,8 +491,11 @@ ${wordsString}
             })}
           </tbody>
         </table>
+        <TableGoToLastPage
+          table={table}
+        />
       </div>
-      <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tracking-3 tabular-nums dark:border-neutral-800">
+      <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tracking-[.03em] tabular-nums dark:border-neutral-800">
         <TablePagination
           items={items}
           table={table}
@@ -525,11 +513,10 @@ ${wordsString}
       </div>
       <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-neutral-800">
         <VocabStatics
-          total={rowsFiltered.length}
+          total={filteredRows.length}
           text={` ${t('vocabulary')}`}
           remaining={rowsNew.length}
           completed={rowsAcquainted.length}
-          animated={!disableNumberAnim}
           progress
         />
       </div>

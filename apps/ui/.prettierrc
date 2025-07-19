@@ -14,13 +14,20 @@
       "options": {
         "printWidth": 40
       }
+    },
+    {
+      "files": ["*.html"],
+      "options": {
+        "semi": true,
+        "singleQuote": false
+      }
     }
   ],
   "proseWrap": "preserve",
   "quoteProps": "as-needed",
   "requirePragma": false,
-  "semi": true,
-  "singleQuote": false,
+  "semi": false,
+  "singleQuote": true,
   "tabWidth": 2,
   "trailingComma": "es5",
   "useTabs": false,

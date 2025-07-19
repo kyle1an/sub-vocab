@@ -2,7 +2,7 @@ import { produce } from 'immer'
 import { useAtom } from 'jotai'
 import { useEffect, useState } from 'react'
 
-import type { LabelDisplayTable } from '@/lib/vocab'
+import type { VocabularySourceState } from '@/lib/vocab'
 
 import { baseVocabAtom, useIrregularMapsQuery } from '@/api/vocab-api'
 import { VocabDataTable } from '@/components/VocabData'
@@ -13,7 +13,7 @@ import { statusRetainedList } from '@/lib/vocab-utils'
 export default function VocabularyPage() {
   const [userWords] = useAtom(baseVocabAtom)
 
-  const [rows, setRows] = useState<LabelDisplayTable[]>([])
+  const [rows, setRows] = useState<VocabularySourceState[]>([])
   const { data: irregulars = [] } = useIrregularMapsQuery()
 
   useEffect(() => {
@@ -30,14 +30,14 @@ export default function VocabularyPage() {
   function handlePurge() {
     setRows(produce((draft) => {
       draft.forEach((todo) => {
-        if (todo.inertialPhase !== todo.vocab.learningPhase)
-          todo.inertialPhase = todo.vocab.learningPhase
+        if (todo.inertialPhase !== todo.lemmaState.learningPhase)
+          todo.inertialPhase = todo.lemmaState.learningPhase
       })
     }))
   }
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col [[data-slot=content-root]:has(&)]:overflow-hidden">
       <div className="pb-3">
         <div className="flex">
           <div className="h-8 flex-auto grow" />

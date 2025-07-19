@@ -2,6 +2,7 @@
 
 import type { LucideIcon } from 'lucide-react'
 
+import { useReactRouterIsMatch } from 'foxact/use-react-router-is-match'
 import { Link } from 'react-router'
 import $ from 'render-hooks'
 
@@ -10,7 +11,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { useReactRouterIsMatch } from '@/hooks/useReactRouterIsMatch'
 
 export function NavMain({
   items,

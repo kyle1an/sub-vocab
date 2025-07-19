@@ -4,9 +4,9 @@ import { z } from 'zod'
 
 export const env = createEnv({
   server: {
-    PUBLIC_SUPABASE_URL: z.string().url(),
+    PUBLIC_SUPABASE_URL: z.url(),
     SUPABASE_ANON_KEY: z.string().min(1),
-    POSTGRES_URL: z.string().url(),
+    POSTGRES_URL: z.url(),
     TMDB_TOKEN: z.string().min(1),
     OPENSUBTITLES_TOKEN: z.string().optional(),
     OPENSUBTITLES_API_KEY: z.string().min(1),

@@ -15,7 +15,7 @@
     "immer",
     "jotai",
     "lucide",
-    "neverthrow",
+    "Millis",
     "nolyfill",
     "nums",
     "ofetch",
@@ -37,6 +37,7 @@
     "vaul",
     "vercel",
     "VITE",
+    "ying",
     "zustand"
   ],
   "i18n-ally.localesPaths": ["ui/src/i18n"],

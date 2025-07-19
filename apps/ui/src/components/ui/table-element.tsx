@@ -5,6 +5,7 @@ import { Slot } from '@radix-ui/react-slot'
 import { useIntersectionObserver } from '@react-hookz/web'
 import { flexRender } from '@tanstack/react-table'
 import clsx from 'clsx'
+import { Duration } from 'effect'
 import { sum } from 'es-toolkit'
 import { useRetimer } from 'foxact/use-retimer'
 import React, { Fragment, useRef, useState } from 'react'
@@ -18,7 +19,7 @@ import { useRect } from '@/lib/hooks'
 import { SortIcon } from '@/lib/icon-utils'
 import { cn } from '@/lib/utils'
 
-const HEAD_HEIGHT = 30
+export const HEAD_HEIGHT = 30
 
 export function TableHeader({
   children,
@@ -153,9 +154,9 @@ type ExpandProp = {
   root: React.RefObject<HTMLDivElement | null> | null
 }
 
-const ANIM_DURATION = 300
+const ANIM_DURATION = Duration.toMillis('0.3 seconds')
 
-const SHADOW_DURATION = 400
+const SHADOW_DURATION = Duration.toMillis('0.4 seconds')
 
 export function TableRow<T>({
   row: {

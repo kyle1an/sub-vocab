@@ -1,6 +1,7 @@
 import type { MergeDeep, PartialDeep } from 'type-fest'
 
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import { Duration } from 'effect'
 import { atom, useAtomValue } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { ofetch } from 'ofetch'
@@ -103,22 +104,9 @@ export type SubtitleResponseData = NonNullable<ReturnType<typeof useOpenSubtitle
 /*
   * https://opensubtitles.stoplight.io/docs/opensubtitles-api/73acf79accc0a-login
   */
-type Login = {
+export type Login = {
   Body: NonNullable<paths['/login']['post']['requestBody']>['content']['application/json']
   Response: paths['/login']['post']['responses'][200]['content']['application/json']
-}
-
-export function useOpenSubtitlesLogin() {
-  const baseUrl = `${env.VITE_SUB_API_URL}/opensubtitles-proxy/def`
-  return useMutation({
-    mutationKey: ['subtitles-login'],
-    mutationFn: (body: Login['Body']) => {
-      return ofetch<Login['Response']>(`${baseUrl}/login`, {
-        method: 'POST',
-        body,
-      })
-    },
-  })
 }
 
 /*
@@ -131,7 +119,7 @@ export type Download = {
 
 const osQueue = new PQueue({
   concurrency: 20,
-  interval: 1000,
+  interval: Duration.toMillis('1 seconds'),
   intervalCap: 20,
   carryoverConcurrencyCount: true,
 })
@@ -153,7 +141,6 @@ function useRequestSubtitleURL() {
       })
     },
     retry: 4,
-    retryDelay: (failureCount) => 1000 * (failureCount - 1),
   })
 }
 
@@ -167,7 +154,6 @@ function useGetFileByLink() {
       })
     },
     retry: 4,
-    retryDelay: (failureCount) => 1000 * (failureCount - 1),
   })
 }
 
@@ -181,7 +167,6 @@ function useDownloadFileByLink() {
       })
     },
     retry: 4,
-    retryDelay: (failureCount) => 1000 * (failureCount - 1),
   })
 }
 
@@ -192,13 +177,13 @@ export function useOpenSubtitlesText() {
     mutationKey: ['useOpenSubtitlesText'] as const,
     mutationFn: async (body: Download['Body']) => {
       const file = await requestSubtitleURL(body)
+      const text = await getFileByLink(file.link)
       return {
         file,
-        text: await getFileByLink(file.link),
+        text,
       }
     },
     retry: 4,
-    retryDelay: (failureCount) => 1000 * (failureCount - 1),
   })
 }
 
@@ -212,6 +197,5 @@ export function useOpenSubtitlesDownload() {
       await downloadFileByLink(file)
     },
     retry: 4,
-    retryDelay: (failureCount) => 1000 * (failureCount - 1),
   })
 }

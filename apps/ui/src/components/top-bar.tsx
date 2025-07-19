@@ -1,24 +1,26 @@
 import type React from 'react'
 
 import { Slot } from '@radix-ui/react-slot'
+import { useMutation } from '@tanstack/react-query'
 import clsx from 'clsx'
+import { Console, Effect } from 'effect'
 import { useAtom } from 'jotai'
-import { ResultAsync } from 'neverthrow'
 import { useEffect, useTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { toast } from 'sonner'
 import IconFaLanguage from '~icons/fa/language'
 import IconLucideCog from '~icons/lucide/cog'
 import IconMingcuteUser4Fill from '~icons/mingcute/user4-fill'
 import IconSolarLogout2Outline from '~icons/solar/logout2-outline'
 
-import { useLogOut } from '@/api/user'
 import { DEFAULT_THEME, THEMES } from '@/components/themes'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Menubar, MenubarContent, MenubarMenu, MenubarRadioGroup, MenubarRadioItem, MenubarTrigger } from '@/components/ui/menubar'
+import { bindApply } from '@/lib/bindApply'
 import { cn } from '@/lib/utils'
-import { localeAtom, sessionAtom, themeAtom } from '@/store/useVocab'
+import { localeAtom, sessionAtom, supabaseAuth, themeAtom } from '@/store/useVocab'
 
 const LOCALES = [
   {
@@ -63,21 +65,22 @@ function SignIn({ className, ...props }: React.ComponentProps<'a'>) {
 
 function SignOut({ className, ...props }: React.ComponentProps<'button'>) {
   const { t } = useTranslation()
-  const { mutateAsync: logOut } = useLogOut()
+  const { mutateAsync: signOut } = useMutation({
+    mutationKey: ['signOut'],
+    mutationFn: bindApply(supabaseAuth.signOut, supabaseAuth),
+  })
 
-  async function logout() {
-    const logOutResult = await ResultAsync.fromPromise(logOut(), (e) => e)
-    if (logOutResult.isOk()) {
-      const { error } = logOutResult.value
-      if (!error)
-        return
-
-      console.error(error)
+  const logout = () => Effect.runPromise(Effect.gen(function* () {
+    const { error } = yield* Effect.tryPromise(() => signOut([{ scope: 'local' }]))
+    if (error) {
+      return yield* Effect.fail(error)
     }
-    else {
-      console.error(logOutResult.error)
-    }
-  }
+  }).pipe(
+    Effect.tapError(Console.error),
+    Effect.catchAll((e) => Effect.gen(function* () {
+      toast.error(e.message)
+    })),
+  ))
 
   return (
     <button
@@ -119,7 +122,7 @@ export function TopBar({ className }: { className?: string }) {
     >
       <nav
         className={clsx(
-          'group/nav z-20 w-full rounded-t-3xl bg-background tracking-2',
+          'group/nav z-20 w-full rounded-t-3xl bg-background',
         )}
       >
         <>

@@ -1,4 +1,5 @@
 import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
+import { useMutation } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { startTransition, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -8,14 +9,14 @@ import IconLucideEye from '~icons/lucide/eye'
 import IconLucideEyeOff from '~icons/lucide/eye-off'
 import IconLucideLoader2 from '~icons/lucide/loader2'
 
-import { useRegister } from '@/api/user'
 import { ContentRoot } from '@/components/content-root'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PASSWORD_MIN_LENGTH } from '@/constants/constraints'
-import { authChangeEventAtom, sessionAtom } from '@/store/useVocab'
+import { bindApply } from '@/lib/bindApply'
+import { authChangeEventAtom, sessionAtom, supabaseAuth } from '@/store/useVocab'
 
 export default function Register() {
   const [session] = useAtom(sessionAtom)
@@ -51,7 +52,10 @@ export default function Register() {
   } = form
 
   const [passwordVisible, setPasswordVisible] = useState(false)
-  const { mutateAsync: signUp, isPending } = useRegister()
+  const { mutateAsync: signUp, isPending } = useMutation({
+    mutationKey: ['signUp'],
+    mutationFn: bindApply(supabaseAuth.signUp, supabaseAuth),
+  })
   const navigate = useNavigate()
   const [authChangeEvent] = useAtom(authChangeEventAtom)
   if (!authChangeEvent)
@@ -63,10 +67,10 @@ export default function Register() {
   async function onSubmit(values: FormValues) {
     const { email, password } = values
     setPasswordVisible(false)
-    const { error } = await signUp({
+    const { error } = await signUp([{
       email,
       password,
-    })
+    }])
 
     if (error) {
       setError('root.serverError', {

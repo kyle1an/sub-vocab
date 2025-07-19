@@ -22,10 +22,11 @@ import IconLucideLoader2 from '~icons/lucide/loader2'
 
 import type { LearningPhase } from '@/lib/LabeledTire'
 import type { ColumnFilterFn } from '@/lib/table-utils'
-import type { LabelDisplayTable } from '@/lib/vocab'
+import type { VocabularySourceState } from '@/lib/vocab'
 
 import { statusLabels, userVocabularyAtom } from '@/api/vocab-api'
 import { SearchWidget } from '@/components/search-widget'
+import { TableGoToLastPage } from '@/components/table-go-to-last-page'
 import { TablePagination } from '@/components/table-pagination'
 import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
@@ -41,13 +42,13 @@ import { customFormatDistance, formatDistanceLocale } from '@/lib/date-utils'
 import { customFormatDistanceToNowStrict } from '@/lib/formatDistance'
 import { useLastTruthy } from '@/lib/hooks'
 import { LEARNING_PHASE } from '@/lib/LabeledTire'
-import { getFilterFn, noFilter } from '@/lib/table-utils'
+import { combineFilters, noFilter } from '@/lib/table-utils'
 import { findClosest, getFallBack, type } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
 import { vocabRealtimeSyncStatusAtom } from '@/store/useVocab'
 import { searchFilterValue } from '@/utils/vocabulary/filters'
 
-type TableData = LabelDisplayTable
+type TableData = VocabularySourceState
 
 /// keep-unique
 const PAGE_SIZES = [10, 20, 40, 50, 100, 200, 500, 1000] as const
@@ -56,7 +57,7 @@ const cacheStateAtom = atomWithImmer({
   isUsingRegex: false,
   searchValue: '',
   initialTableState: type<InitialTableState>({
-    columnOrder: ['timeModified', 'word', 'word.length', 'acquaintedStatus', 'userOwned', 'rank'],
+    columnOrder: ['timeModified', 'word', 'word.length', 'acquaintedStatus', 'rank'],
     pagination: {
       pageSize: findClosest(100, PAGE_SIZES),
       pageIndex: 0,
@@ -68,7 +69,6 @@ const cacheStateAtom = atomWithImmer({
       },
     ],
     columnVisibility: {
-      userOwned: false,
     },
   }),
 })
@@ -107,7 +107,7 @@ function userOwnedFilter(filterSegment: Segment): ColumnFilterFn<TableData> {
   else
     return noFilter
 
-  return (row) => filteredValue.includes(row.vocab.isUser)
+  return (row) => filteredValue.includes(row.lemmaState.isUser)
 }
 
 function useDataColumns<T extends TableData>() {
@@ -115,7 +115,7 @@ function useDataColumns<T extends TableData>() {
   const columnHelper = createColumnHelper<T>()
   return (
     [
-      columnHelper.accessor((row) => row.vocab.timeModified, {
+      columnHelper.accessor((row) => row.lemmaState.timeModified, {
         id: 'timeModified',
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
@@ -144,7 +144,7 @@ function useDataColumns<T extends TableData>() {
             <TableDataCell
               cell={cell}
             >
-              <Div className="justify-end pr-2 pl-0.5 tracking-3 tabular-nums">
+              <Div className="justify-end pr-2 pl-0.5 tracking-[.03em] tabular-nums">
                 {value ? customFormatDistanceToNowStrict(new Date(value), {
                   addSuffix: true,
                   locale: {
@@ -155,10 +155,6 @@ function useDataColumns<T extends TableData>() {
             </TableDataCell>
           )
         },
-      }),
-      columnHelper.accessor((row) => row.vocab.isUser, {
-        id: 'userOwned',
-        filterFn: getFilterFn(),
       }),
     ]
   )
@@ -188,7 +184,7 @@ export function VocabDataTable({
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'allAcquainted')
   const segmentDeferredValue = useDeferredValue(segment)
   const [disableNumberAnim, setDisableNumberAnim] = useState(false)
-  const lastTruthySearchFilterValue = useLastTruthy(searchFilterValue(deferredSearchValue, deferredIsUsingRegex)) ?? noFilter
+  const lastTruthySearchFilterValue = useLastTruthy(searchFilterValue(deferredSearchValue, deferredIsUsingRegex))
   const { refetch, isFetching: isLoadingUserVocab } = useAtomValue(userVocabularyAtom)
 
   const table = useReactTable({
@@ -197,22 +193,18 @@ export function VocabDataTable({
     state: {
       columnFilters: [
         {
-          id: 'acquaintedStatus',
-          value: acquaintedStatusFilter(segmentDeferredValue),
-        },
-        {
-          id: 'userOwned',
-          value: userOwnedFilter(segmentDeferredValue),
-        },
-        {
           id: 'word',
-          value: lastTruthySearchFilterValue,
+          value: combineFilters([
+            acquaintedStatusFilter(segmentDeferredValue),
+            userOwnedFilter(segmentDeferredValue),
+            lastTruthySearchFilterValue ?? noFilter,
+          ]),
         },
       ],
     },
     initialState: initialTableState,
     autoResetPageIndex: false,
-    getRowId: (row) => row.vocab.word,
+    getRowId: (row) => row.lemmaState.word,
     getRowCanExpand: () => false,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -246,7 +238,7 @@ export function VocabDataTable({
     rowsAcquainted = [],
     rowsNew = [],
   } = Object.groupBy(rowsFiltered, (row) => {
-    switch (row.original.vocab.learningPhase) {
+    switch (row.original.lemmaState.learningPhase) {
       case LEARNING_PHASE.ACQUAINTED:
         return 'rowsAcquainted'
       case LEARNING_PHASE.NEW:
@@ -256,7 +248,7 @@ export function VocabDataTable({
     }
   })
   const rowsToRetain = rowsNew
-    .map((row) => row.original.vocab)
+    .map((row) => row.original.lemmaState)
 
   useUnmountEffect(() => {
     setCacheState({
@@ -385,8 +377,11 @@ export function VocabDataTable({
             })}
           </tbody>
         </table>
+        <TableGoToLastPage
+          table={table}
+        />
       </div>
-      <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tracking-3 tabular-nums dark:border-neutral-800">
+      <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tracking-[.03em] tabular-nums dark:border-neutral-800">
         <TablePagination
           items={items}
           table={table}

@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "allowImportingTsExtensions": true,
     "noEmit": true,
     "module": "es2022",
     "moduleResolution": "bundler",

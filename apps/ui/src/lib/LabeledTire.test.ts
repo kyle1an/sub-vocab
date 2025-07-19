@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import type { VocabState } from './LabeledTire'
+import type { WordState } from './LabeledTire'
 
 import { LabeledTire, LEARNING_PHASE } from './LabeledTire'
 
@@ -36,7 +36,7 @@ describe('labeledTire', () => {
 
   it('should merge vocabulary states into the trie with mergedVocabulary', () => {
     const tire = new LabeledTire()
-    const vocab: VocabState[] = [
+    const vocab: WordState[] = [
       {
         word: 'Test',
         learningPhase: LEARNING_PHASE.NEW,

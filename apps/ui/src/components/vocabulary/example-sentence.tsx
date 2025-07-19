@@ -1,3 +1,4 @@
+import { Duration } from 'effect'
 import { useClipboard } from 'foxact/use-clipboard'
 import BxBxsErrorCircle from '~icons/bx/bxs-error-circle'
 import IconamoonArrowRight1Bold from '~icons/iconamoon/arrow-right-1-bold'
@@ -15,7 +16,7 @@ function SentenceCopy({
   sentence: string
 }) {
   const { copy, copied, error } = useClipboard({
-    timeout: 1000,
+    timeout: Duration.toMillis('1 seconds'),
   })
   return (
     <Button
@@ -74,7 +75,7 @@ export function ExampleSentence({
   }
 
   return (
-    <div className={cn('mr-3 mb-1 ml-2 flex flex-col gap-[.5px] text-[.8125rem] leading-(--leading) tracking-2 text-neutral-600 [--leading:1.125rem]', className)}>
+    <div className={cn('mr-3 mb-1 ml-2 flex flex-col gap-[.5px] text-[.8125rem] leading-(--leading) text-neutral-600 [--leading:1.125rem]', className)}>
       {vocabPositions.map(([no, wordIndexes], index) => {
         let progress = 0
         const sentence = sentences[no]?.text ?? ''

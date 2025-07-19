@@ -15,6 +15,7 @@ export function ContentRoot({
   const Component = asChild ? Slot : 'div'
   return (
     <Component
+      data-slot="content-root"
       className={cn('z-0 flex grow flex-col items-center', className)}
       {...props}
     >

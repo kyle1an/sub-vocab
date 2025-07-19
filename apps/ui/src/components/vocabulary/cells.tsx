@@ -1,3 +1,4 @@
+import { Duration } from 'effect'
 import { useClipboard } from 'foxact/use-clipboard'
 import BxBxsErrorCircle from '~icons/bx/bxs-error-circle'
 import MingcuteCheckFill from '~icons/mingcute/check-fill'
@@ -12,7 +13,7 @@ export function VocabularyMenu({
   word: string
 }) {
   const { copy, copied, error } = useClipboard({
-    timeout: 1000,
+    timeout: Duration.toMillis('1 seconds'),
   })
   return (
     <Button

@@ -24,7 +24,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
 import { SortIcon } from '@/lib/icon-utils'
 import { getFileId } from '@/lib/subtitle'
-import { getFilterFn, sortBySelection } from '@/lib/table-utils'
+import { filterFn, sortBySelection } from '@/lib/table-utils'
 import { findClosest } from '@/lib/utilities'
 import { osLanguageAtom, subtitleSelectionStateFamily } from '@/store/useVocab'
 
@@ -84,7 +84,7 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
     }),
     columnHelper.accessor((row) => row.subtitle.attributes.files[0]?.file_name || '', {
       id: 'movie_name',
-      filterFn: getFilterFn(),
+      filterFn,
       header: ({ header }) => {
         const title = 'Name'
         const isSorted = header.column.getIsSorted()
@@ -118,7 +118,7 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
         const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
         /* eslint-enable react-compiler/react-compiler */
         /* eslint-enable react-hooks/rules-of-hooks */
-        const className = 'tracking-4 text-sm'
+        const className = 'tracking-[.04em] text-sm'
         const rootRect = root.current?.getBoundingClientRect()
         const refRect = ref.current?.getBoundingClientRect()
         let maxWidth = 0
@@ -302,7 +302,7 @@ function SubtitleFiles({
               </tbody>
             </table>
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tracking-3 tabular-nums dark:border-neutral-800">
+          <div className="flex flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tracking-[.03em] tabular-nums dark:border-neutral-800">
             <TablePagination
               items={items}
               table={table}
@@ -319,7 +319,7 @@ function SubtitleFiles({
             </div>
           </div>
           <div className="flex justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-neutral-800">
-            <div className="flex h-7 items-center text-xs tracking-3 tabular-nums">
+            <div className="flex h-7 items-center text-xs tracking-[.03em] tabular-nums">
               <span>
                 <NumberFlow
                   value={rowsFiltered.length}

@@ -1,4 +1,6 @@
 import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
+import { useMutation } from '@tanstack/react-query'
+import { Duration } from 'effect'
 import { useAtom } from 'jotai'
 import { startTransition } from 'react'
 import { useForm } from 'react-hook-form'
@@ -7,14 +9,13 @@ import { toast } from 'sonner'
 import { z } from 'zod/v4-mini'
 import IconLucideLoader2 from '~icons/lucide/loader2'
 
-import { useResetPasswordForEmail } from '@/api/user'
 import { ContentRoot } from '@/components/content-root'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { MS_PER_MINUTE } from '@/constants/time'
-import { authChangeEventAtom, sessionAtom } from '@/store/useVocab'
+import { bindApply } from '@/lib/bindApply'
+import { authChangeEventAtom, sessionAtom, supabaseAuth } from '@/store/useVocab'
 
 function ResetEmailNotification() {
   return (
@@ -31,7 +32,10 @@ function ResetEmailNotification() {
 export default function ResetPassword() {
   const [session] = useAtom(sessionAtom)
   const user = session?.user
-  const { mutateAsync: resetPasswordForEmail, isPending } = useResetPasswordForEmail()
+  const { mutateAsync: resetPasswordForEmail, isPending } = useMutation({
+    mutationKey: ['resetPasswordForEmail'],
+    mutationFn: bindApply(supabaseAuth.resetPasswordForEmail, supabaseAuth),
+  })
   const navigate = useNavigate()
 
   const formDefaultValues = {
@@ -62,10 +66,10 @@ export default function ResetPassword() {
   } = form
 
   async function onSubmit(values: FormValues) {
-    const { error } = await resetPasswordForEmail(values.email)
+    const { error } = await resetPasswordForEmail([values.email])
     if (!error) {
       toast(<ResetEmailNotification />, {
-        duration: MS_PER_MINUTE,
+        duration: Duration.toMillis('1 minutes'),
       })
       startTransition(() => {
         navigate('/login')

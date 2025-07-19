@@ -34,7 +34,7 @@ export function VocabStatics({
   const deferredRemaining = useDeferredValue(remaining) || 0
   const deferredCompleted = useDeferredValue(completed) || 0
   return (
-    <div className="flex h-7 items-center text-xs tracking-wider text-neutral-600 tabular-nums dark:text-neutral-400">
+    <div className="flex h-7 items-center text-xs tracking-[.05em] text-neutral-600 tabular-nums dark:text-neutral-400">
       <span>
         <NumberFlow
           value={total}

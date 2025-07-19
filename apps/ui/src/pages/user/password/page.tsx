@@ -1,4 +1,5 @@
 import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
+import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -7,15 +8,19 @@ import IconLucideEye from '~icons/lucide/eye'
 import IconLucideEyeOff from '~icons/lucide/eye-off'
 import IconLucideLoader2 from '~icons/lucide/loader2'
 
-import { useLogOut, useUpdateUser } from '@/api/user'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PASSWORD_MIN_LENGTH } from '@/constants/constraints'
+import { bindApply } from '@/lib/bindApply'
+import { supabaseAuth } from '@/store/useVocab'
 
 export default function Password() {
   const { t } = useTranslation()
-  const { mutateAsync: logOut } = useLogOut()
+  const { mutateAsync: signOut } = useMutation({
+    mutationKey: ['signOut'],
+    mutationFn: bindApply(supabaseAuth.signOut, supabaseAuth),
+  })
 
   const formDefaultValues = {
     newPassword: '',
@@ -45,20 +50,23 @@ export default function Password() {
   } = form
 
   const [newPasswordVisible, setNewPasswordVisible] = useState(false)
-  const { mutateAsync: updateUser, isPending } = useUpdateUser()
+  const { mutateAsync: updatePassword, isPending } = useMutation({
+    mutationKey: ['updatePassword'],
+    mutationFn: bindApply(supabaseAuth.updateUser, supabaseAuth),
+  })
 
   async function onSubmit(values: FormValues) {
     setNewPasswordVisible(false)
-    const { error } = await updateUser({
+    const { error } = await updatePassword([{
       password: values.newPassword,
-    })
+    }])
     if (error) {
       setError('root.serverError', {
         message: error.message,
       })
       return
     }
-    logOut()
+    signOut([{ scope: 'local' }])
   }
 
   return (
