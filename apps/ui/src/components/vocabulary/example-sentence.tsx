@@ -5,7 +5,8 @@ import IconamoonArrowRight1Bold from '~icons/iconamoon/arrow-right-1-bold'
 import MingcuteCheckFill from '~icons/mingcute/check-fill'
 import OouiCopyLtr from '~icons/ooui/copy-ltr'
 
-import type { Sentence, WordLocator } from '@/lib/LabeledTire'
+import type { Sentence } from '@/lib/LabeledTire'
+import type { WordOccurrencesInSentence } from '@/lib/vocab'
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -34,7 +35,7 @@ function SentenceCopy({
           className={cn('text-red-500', error ? '' : 'hidden')}
         />
         <OouiCopyLtr
-          className={cn('opacity-0 transition-opacity delay-50 duration-100 group-hover:opacity-100', copied || error ? 'hidden' : '')}
+          className={cn('opacity-0 transition-opacity delay-50 duration-100 [[data-state=open]_&]:group-hover:opacity-100', copied || error ? 'hidden' : '')}
         />
       </div>
     </Button>
@@ -43,51 +44,29 @@ function SentenceCopy({
 
 export function ExampleSentence({
   sentences,
-  src,
+  wordOccurrences,
   className = '',
   onSentenceTrack,
 }: {
   sentences: Sentence[]
-  src?: WordLocator[]
+  wordOccurrences: WordOccurrencesInSentence[]
   className?: string
   onSentenceTrack: (sentenceId: number) => void
 }) {
-  const vocabPositions: [number, [number, number][]][] = []
-  const srcSorted = [...src ?? []].sort((a, b) => a.sentenceId - b.sentenceId || a.startOffset - b.startOffset)
-
-  for (const { sentenceId, startOffset, wordLength } of srcSorted) {
-    if (vocabPositions.length === 0) {
-      vocabPositions.push([sentenceId, [[startOffset, wordLength]]])
-      continue
-    }
-
-    const adjacentSentence = vocabPositions[vocabPositions.length - 1]
-    if (!adjacentSentence)
-      continue
-
-    const adjacentSentenceIndex = adjacentSentence[0]
-    const areCurrentAndAdjacentInTheSameSentence = sentenceId === adjacentSentenceIndex
-    if (areCurrentAndAdjacentInTheSameSentence)
-      adjacentSentence[1].push([startOffset, wordLength])
-
-    else
-      vocabPositions.push([sentenceId, [[startOffset, wordLength]]])
-  }
-
   return (
     <div className={cn('mr-3 mb-1 ml-2 flex flex-col gap-[.5px] text-[.8125rem] leading-(--leading) text-neutral-600 [--leading:1.125rem]', className)}>
-      {vocabPositions.map(([no, wordIndexes], index) => {
+      {wordOccurrences.map(({ sentenceId, textSpans }) => {
         let progress = 0
-        const sentence = sentences[no]?.text ?? ''
+        const sentence = sentences[sentenceId]?.text ?? ''
         return (
           <div
-            key={no}
+            key={sentenceId}
             className="group flex items-stretch gap-1 break-words [word-break:break-word] transition-colors duration-150 hover:text-black dark:text-neutral-500 dark:hover:text-neutral-300"
           >
             <Button
               variant="ghost"
-              className="flex h-auto min-w-(--leading) items-start p-0 opacity-0 transition-opacity delay-50 duration-100 group-hover:opacity-100"
-              onClick={() => onSentenceTrack(no)}
+              className="flex h-auto min-w-(--leading) items-start p-0 opacity-0 transition-opacity delay-50 duration-100 [[data-state=open]_&]:group-hover:opacity-100"
+              onClick={() => onSentenceTrack(sentenceId)}
             >
               <div className="flex size-(--leading) items-center justify-center pl-[.5px]">
                 <IconamoonArrowRight1Bold
@@ -96,16 +75,16 @@ export function ExampleSentence({
               </div>
             </Button>
             <div>
-              {wordIndexes.map(([start, count], i) => {
+              {textSpans.map(({ startOffset, wordLength }) => {
                 const oldProgress = progress
-                progress = start + count
+                progress = startOffset + wordLength
                 return (
-                  <span key={start}>
+                  <span key={startOffset}>
                     <span>
-                      {sentence.slice(oldProgress, start)}
+                      {sentence.slice(oldProgress, startOffset)}
                     </span>
                     <span className="text-black underline underline-offset-[.145em] dark:text-neutral-300">
-                      {sentence.slice(start, progress)}
+                      {sentence.slice(startOffset, progress)}
                     </span>
                   </span>
                 )

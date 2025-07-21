@@ -25,7 +25,6 @@ export default typegen(antfu(
   {
     name: 'style/backend',
     rules: {
-      curly: ['error', 'multi-line'],
       'no-unused-vars': [0, { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       'no-return-assign': ['warn', 'except-parens'],
       'no-param-reassign': ['error', { props: false }],

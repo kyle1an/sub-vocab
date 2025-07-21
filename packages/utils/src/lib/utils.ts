@@ -1,3 +1,20 @@
-import type { Effect } from 'effect/Effect'
+import type { MergeDeep, PartialDeep, SetNonNullable } from 'type-fest'
 
-export const ensureErrorType = <E>() => <A, E2 extends E, R>(effect: Effect<A, E2, R>): Effect<A, E2, R> => effect
+import { merge } from 'es-toolkit'
+
+export const createFactory = <T extends object>() => <TDefault extends PartialDeep<T>>(getDefaults: () => TDefault) => {
+  function build(): TDefault
+  function build<TOverrides extends PartialDeep<T>>(overrides: TOverrides): MergeDeep<TDefault, TOverrides>
+  function build<TOverrides extends PartialDeep<T>>(overrides?: TOverrides) {
+    return !overrides ? getDefaults() : merge(getDefaults(), overrides)
+  }
+
+  return build
+}
+
+export const hasValue = <T extends [any, any]>(entry: T): entry is SetNonNullable<T, '1'> => entry[1]
+
+type NonEmptyArray<T> = [T, ...T[]]
+export const isNonEmptyArray = <T>(arr: T[]): arr is NonEmptyArray<T> => arr.length > 0
+
+export const isSingleItemArray = <T>(arr: ArrayLike<T>): arr is [T] => arr.length === 1

@@ -7,7 +7,8 @@
   "description": "",
   "exports": {
     ".": "./src/index.ts",
-    "./lib": "./src/lib/index.ts"
+    "./lib": "./src/lib/index.ts",
+    "./types": "./src/types/index.ts"
   },
   "main": "./src/index.ts",
   "types": "./src/index.ts",
@@ -15,6 +16,7 @@
     "ofetch": "^1.4.1"
   },
   "devDependencies": {
+    "@sub-vocab/shared-types": "workspace:*",
     "tsx": "^4.20.3"
   }
 }

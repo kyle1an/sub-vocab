@@ -54,11 +54,13 @@ export default function ResetPassword() {
     ),
   })
   const [authChangeEvent] = useAtom(authChangeEventAtom)
-  if (!authChangeEvent)
+  if (!authChangeEvent) {
     return null
+  }
 
-  if (user)
+  if (user) {
     return <Navigate to="/" />
+  }
 
   const {
     handleSubmit,

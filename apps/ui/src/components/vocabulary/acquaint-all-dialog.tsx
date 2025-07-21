@@ -1,16 +1,16 @@
 import { Trans, useTranslation } from 'react-i18next'
 import IconSolarListCheckBold from '~icons/solar/list-check-bold'
 
-import type { WordState } from '@/lib/LabeledTire'
+import type { TrackedWord } from '@/lib/LabeledTire'
 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { useAcquaintAll } from '@/hooks/vocab-toggle'
 import { transParams } from '@/i18n'
 
-export function AcquaintAllDialog<T extends WordState>({ vocabulary }: { vocabulary: T[] }) {
+export function AcquaintAllDialog<T extends TrackedWord>({ vocabulary }: { vocabulary: T[] }) {
   const { t } = useTranslation()
   const acquaintAllVocab = useAcquaintAll()
-  const rowsToRetain = vocabulary.filter((row) => row.word.length <= 32)
+  const rowsToRetain = vocabulary.filter((row) => row.form.length <= 32)
   const count = rowsToRetain.length
   return (
     <AlertDialog>
@@ -37,8 +37,9 @@ export function AcquaintAllDialog<T extends WordState>({ vocabulary }: { vocabul
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
-              if (rowsToRetain.length > 0)
+              if (rowsToRetain.length > 0) {
                 acquaintAllVocab(rowsToRetain)
+              }
             }}
           >
             Continue

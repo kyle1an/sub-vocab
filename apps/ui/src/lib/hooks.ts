@@ -3,8 +3,9 @@ import { atom } from 'jotai'
 import { atomEffect } from 'jotai-effect'
 import { useEffect, useRef, useState } from 'react'
 
+import { isAnyDrawerOpenAtom } from '@/components/ui/drawer'
 import { setMetaThemeColorAttribute } from '@/lib/utils'
-import { isDrawerOpenAtom, isMdScreenAtom, metaThemeColorAtom, prefersDarkAtom, themeAtom } from '@/store/useVocab'
+import { isMdScreenAtom, metaThemeColorAtom, prefersDarkAtom, themeAtom } from '@/store/useVocab'
 
 export const COLOR_SCHEME_QUERY = '(prefers-color-scheme: dark)'
 
@@ -32,14 +33,15 @@ export const metaThemeColorEffect = atomEffect((get) => {
   const themeColor = get(metaThemeColorAtom)
   const isDarkMode = get(isDarkModeAtom)
 
-  const open = get(isDrawerOpenAtom)
+  const open = get(isAnyDrawerOpenAtom)
   const isMdScreen = get(isMdScreenAtom)
   let newThemeColor = themeColor
   if (open && !isMdScreen) {
-    if (isDarkMode)
+    if (isDarkMode) {
       newThemeColor = 'black'
-    else
+    } else {
       newThemeColor = 'transparent'
+    }
   }
   setMetaThemeColorAttribute(newThemeColor)
 })
@@ -48,12 +50,14 @@ export function useLastTruthy<T>(value: T) {
   const lastTruthy = useRef<T>(null)
 
   useEffect(() => {
-    if (value)
+    if (value) {
       lastTruthy.current = value
+    }
   })
 
-  if (value)
+  if (value) {
     return value
+  }
 
   return lastTruthy.current
 }

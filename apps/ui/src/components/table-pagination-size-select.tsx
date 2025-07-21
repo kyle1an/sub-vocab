@@ -1,4 +1,3 @@
-/* eslint-disable react-compiler/react-compiler */
 import type { Table } from '@tanstack/react-table'
 
 import { uniq } from 'es-toolkit'
@@ -25,7 +24,6 @@ export function TablePaginationSizeSelect<T>({
   sizes: readonly number[]
   value: number
 }) {
-  'use no memo'
   const itemsNum = uniq([table.getFilteredRowModel().rows.length]).filter(Boolean).filter((n) => !sizes.includes(n) && n > Math.min(...sizes))
   return (
     <Select

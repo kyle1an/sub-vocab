@@ -6,7 +6,6 @@ import { z } from 'zod'
 
 import { env } from '@backend/env.ts'
 import { publicProcedure, router } from '@backend/src/routes/trpc'
-import { ensureErrorType } from '@sub-vocab/utils/lib'
 
 const openrouter = createOpenRouter({
   apiKey: env.OPENROUTER_API_KEY,
@@ -49,7 +48,7 @@ export const aiRouter = router({
           message: error.message,
         },
       })),
-      ensureErrorType<never>(),
+      Effect.ensureErrorType<never>(),
       Effect.runPromise,
     )),
 })

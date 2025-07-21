@@ -455,8 +455,8 @@ export default function Subtitles() {
     const title = listFormatter.format(fileTexts.map((f) => f.file.file_name))
     setFileInfo(title)
     setSourceText((v) => ({
-      text: fileTexts.map((f) => f.text).join('\n'),
-      version: v.version++,
+      value: fileTexts.map((f) => f.text).join('\n'),
+      epoch: v.epoch + 1,
     }))
     navigate('/')
     startTransition(() => {
@@ -501,8 +501,9 @@ export default function Subtitles() {
   const rootRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   useHotkeys('meta+f', (e) => {
-    if (document.activeElement === inputRef.current)
+    if (document.activeElement === inputRef.current) {
       return
+    }
     e.preventDefault()
     const el = inputRef.current
     if (el) {
@@ -642,8 +643,6 @@ export default function Subtitles() {
                     <span>
                       <NumberFlow
                         value={subtitleDownloadProgress.length}
-                        onAnimationsFinish={() => {
-                        }}
                       />
                       {` / `}
                       <NumberFlow

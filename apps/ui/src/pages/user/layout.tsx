@@ -10,11 +10,13 @@ export default function User() {
   const [session] = useAtom(sessionAtom)
   const user = session?.user
   const [authChangeEvent] = useAtom(authChangeEventAtom)
-  if (!authChangeEvent)
+  if (!authChangeEvent) {
     return null
+  }
 
-  if (!user)
+  if (!user) {
     return <Navigate to="/login" />
+  }
 
   const account = user.user_metadata?.username || user.email || ''
   return (

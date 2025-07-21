@@ -34,20 +34,22 @@ export function customFormatDistance(locale: Partial<DistanceLocale>): FormatDis
       const tokenValue = locale[token]
       if (tokenValue) {
         let result
-        if (typeof tokenValue === 'string')
+        if (typeof tokenValue === 'string') {
           result = tokenValue
-        else if (count === 1)
+        } else if (count === 1) {
           result = tokenValue.one
-        else
+        } else {
           result = tokenValue.other
+        }
 
         result = result.replace('{{count}}', String(count))
 
         if (options?.addSuffix) {
-          if (options.comparison && options.comparison > 0)
+          if (options.comparison && options.comparison > 0) {
             return `in ${result}`
-          else
+          } else {
             return `${result} ago`
+          }
         }
 
         return result

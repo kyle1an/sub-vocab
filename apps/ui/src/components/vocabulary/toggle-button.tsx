@@ -1,12 +1,12 @@
 import IconLucideCheck from '~icons/lucide/check'
 import IconLucideLoader from '~icons/lucide/loader'
 
-import type { WordState } from '@/lib/LabeledTire.ts'
+import type { TrackedWord } from '@/lib/LabeledTire'
 
-import { LEARNING_PHASE } from '@/lib/LabeledTire.ts'
+import { LEARNING_PHASE } from '@/lib/LabeledTire'
 import { cn } from '@/lib/utils'
 
-export function VocabToggle<T extends WordState>({
+export function VocabToggle<T extends TrackedWord>({
   vocab,
   onToggle,
   className = '',

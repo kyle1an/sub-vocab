@@ -7,8 +7,7 @@
 
 @theme {
   --font-*: initial;
-  --font-sans:
-    -apple-system, "SF Compact Text", BlinkMacSystemFont, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans: -apple-system, "SF Compact Text", "Graphik", BlinkMacSystemFont, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-mono: SFMono-Regular, "Courier New", monospace;
 
   --radius-lg: var(--radius);

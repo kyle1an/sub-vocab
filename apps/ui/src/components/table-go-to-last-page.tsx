@@ -1,4 +1,3 @@
-/* eslint-disable react-compiler/react-compiler */
 import type { Table } from '@tanstack/react-table'
 
 import MaterialSymbolsLightArrowBack2Outline from '~icons/material-symbols-light/arrow-back-2-outline'
@@ -11,8 +10,6 @@ export function TableGoToLastPage<T>({
 }: {
   table: Table<T>
 }) {
-  'use no memo'
-
   const dataRows = getRowModel().rows
   const canNavigateToLastPage = dataRows.length === 0 && getPageCount() > 0
 

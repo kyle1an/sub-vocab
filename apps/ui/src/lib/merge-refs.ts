@@ -5,10 +5,11 @@ export function mergeRefs<T>(
 ): React.RefCallback<T> {
   return (ref) => {
     for (const inputRef of inputRefs) {
-      if (typeof inputRef === 'function')
+      if (typeof inputRef === 'function') {
         inputRef(ref)
-      else if (inputRef)
+      } else if (inputRef) {
         inputRef.current = ref
+      }
     }
   }
 }

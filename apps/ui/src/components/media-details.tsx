@@ -28,8 +28,7 @@ export function MediaDetails({
         />
       </Detail>
     )
-  }
-  else if (media_type === 'tv') {
+  } else if (media_type === 'tv') {
     return (
       <Detail
         style={{

@@ -91,8 +91,9 @@ export function SegmentedControl<T extends string>({
     if (
       !previousIndicatorClientRect
       || !element.getBoundingClientRect
-    )
+    ) {
       return
+    }
 
     // https://github.com/angular/components/blob/a7f87a80a18a62d75a8c5621fd89dbc2cf28a865/src/material/tabs/ink-bar.ts#L114
     const currentClientRect = element.getBoundingClientRect()

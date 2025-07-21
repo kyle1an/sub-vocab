@@ -1,9 +1,7 @@
 import type { OutputOptions } from 'rolldown'
 
 // https://stackoverflow.com/a/3561711
-function escapeRegex(string: string) {
-  return string.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&')
-}
+const escapeRegex = (string: string) => string.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&')
 
 export const chunks = { groups: [
   {

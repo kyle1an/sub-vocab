@@ -14,8 +14,9 @@ if (import.meta.env.PROD) {
 }
 
 const root = document.getElementById('root')
-if (!root)
+if (!root) {
   throw new Error('No root element')
+}
 
 createRoot(root).render(
   <StrictMode>

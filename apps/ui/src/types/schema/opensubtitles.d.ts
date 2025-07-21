@@ -388,26 +388,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/ai/info/transcription": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * AI Transcription
-         * @description Available transcription APIs and languages. User doesn't need to be authentificated.
-         */
-        get: operations["transcription"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/ai/translate": {
         parameters: {
             query?: never;
@@ -420,7 +400,10 @@ export interface paths {
         /**
          * AI Translate
          * @description **Translate** subtitles using AI from one language to another language.
+         *
          *     Credits on user account are needed. [Buy Credits](../open_api.json/paths/~1ai~1credits~1buy/get)
+         *
+         *     Check following method: [Get AI Translate status](../open_api.json/paths/~1ai~1translate~1{correlation_id}/get)
          *
          *     Method is returning
          *     ```
@@ -441,46 +424,6 @@ export interface paths {
          *
          */
         post: operations["translate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ai/transcribe": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * AI Transcribe
-         * @description **Transcribe** media (audio, video) file using AI into subtitles. Max size of file: 100 MB
-         *
-         *     Credits on user account are needed. [Buy Credits](../open_api.json/paths/~1ai~1credits~1buy/get)
-         *
-         *     Method is returning
-         *     ```
-         *     {
-         *       "status": "CREATED",
-         *       "correlation_id": "67eda18f52e11"
-         *     }
-         *     ```
-         *     Status possible values:
-         *     ```
-         *     CREATED     -> Initial state`
-         *     PENDING     -> procedure is still running
-         *     COMPLETED   -> remote procedure call is completed and has a result
-         *     ERROR       -> procedure resulted in an error and is not running anymore
-         *     TIMEOUT     -> No matching procedure call found before timeout
-         *     ```
-         *     Using `correlation_id` can check status of job using GET
-         *
-         */
-        post: operations["transcribe"];
         delete?: never;
         options?: never;
         head?: never;
@@ -511,7 +454,69 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/ai/transribe/{correlation_id}_copy": {
+    "/ai/info/transcription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * AI Transcription
+         * @description Available transcription APIs and languages. User doesn't need to be authentificated.
+         */
+        get: operations["transcription"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ai/transcribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * AI Transcribe
+         * @description **Transcribe** media (audio, video) file using AI into subtitles. Max size of file: 100 MB
+         *
+         *     Credits on user account are needed. [Buy Credits](../open_api.json/paths/~1ai~1credits~1buy/get)
+         *
+         *     Check following method: [Get AI Transcribe status](../open_api.json/paths/~1ai~1transcribe~1{correlation_id}/get)
+         *
+         *     Method is returning
+         *     ```
+         *     {
+         *       "status": "CREATED",
+         *       "correlation_id": "67eda18f52e11"
+         *     }
+         *     ```
+         *     Status possible values:
+         *     ```
+         *     CREATED     -> Initial state`
+         *     PENDING     -> procedure is still running
+         *     COMPLETED   -> remote procedure call is completed and has a result
+         *     ERROR       -> procedure resulted in an error and is not running anymore
+         *     TIMEOUT     -> No matching procedure call found before timeout
+         *     ```
+         *     Using `correlation_id` can check status of job using GET
+         *
+         */
+        post: operations["transcribe"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ai/transcribe/{correlation_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -526,6 +531,111 @@ export interface paths {
          * @description Get status of **[transcribe](../open_api.json/paths/~1ai~1transcribe)** job using `correlation_id`
          */
         get: operations["transcribe-status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ai/detect_language_text": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Detect Language Text
+         * @description **Detect language** of subtitle file.
+         *
+         *     At least 1 credits on user account is needed. [Buy Credits](../open_api.json/paths/~1ai~1credits~1buy/get)
+         *
+         *     Method is returning
+         *     ```
+         *     {
+         *       "data": {
+         *         "format": "SubRip",
+         *         "type": "text",
+         *         "language": {
+         *           "W3C": "en",
+         *           "name": "english",
+         *           "native": "english",
+         *           "ISO_639_1": "en",
+         *           "ISO_639_2b": "eng"
+         *         }
+         *       }
+         *     }
+         *     ```
+         */
+        post: operations["detect_language_text"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ai/detect_language_audio": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Detect Language Audio
+         * @description **Detect language**  of media audio file. Max size of file: 100 MB
+         *
+         *     At least 1 credits on user account is needed. [Buy Credits](../open_api.json/paths/~1ai~1credits~1buy/get)
+         *
+         *     Check following method: [Get Detect Language Audio status](../open_api.json/paths/~1ai~1detect_language_audio~1{correlation_id}/get)
+         *
+         *     Method is returning
+         *     ```
+         *     {
+         *       "status": "CREATED",
+         *       "correlation_id": "67eda18f52e11"
+         *     }
+         *     ```
+         *     Status possible values:
+         *     ```
+         *     CREATED     -> Initial state`
+         *     PENDING     -> procedure is still running
+         *     COMPLETED   -> remote procedure call is completed and has a result
+         *     ERROR       -> procedure resulted in an error and is not running anymore
+         *     TIMEOUT     -> No matching procedure call found before timeout
+         *     ```
+         *     Using `correlation_id` can check status of job using GET
+         *
+         */
+        post: operations["detect_language_audio"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ai/detect_language_audio/{correlation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description correlation_id */
+                correlation_id: string;
+            };
+            cookie?: never;
+        };
+        /**
+         * Detect Language Audio Status
+         * @description Get status of **[Detect Language Audio](../open_api.json/paths/~1ai~1detect_language_audio/post)** job using `correlation_id`
+         *
+         */
+        get: operations["detect-language-audio-status"];
         put?: never;
         post?: never;
         delete?: never;
@@ -803,6 +913,19 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "user": {
+                     *         "allowed_downloads": 100,
+                     *         "allowed_translations": 5,
+                     *         "level": "Sub leecher",
+                     *         "user_id": 66,
+                     *         "ext_installed": false,
+                     *         "vip": false
+                     *       },
+                     *       "base_url": "api.opensubtitles.com",
+                     *       "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJEOU5aaWUyVjhWOU1hTnJVZWVvcEEwWUNoWEt6Wkx3NiIsImV4cCI6MTYwNDM1ODAwMH0.sMibjAFnkcs-HJ4zhdCwBeGrZ_UvzMbgl5NxYV2uALM",
+                     *       "status": 200
+                     *     } */
                     "application/json": {
                         user: {
                             allowed_translations: number;
@@ -845,6 +968,10 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "message": "token successfully destroyed",
+                     *       "status": 200
+                     *     } */
                     "application/json": Record<string, never>;
                 };
             };
@@ -895,6 +1022,306 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "data": [
+                     *         {
+                     *           "language_code": "af",
+                     *           "language_name": "Afrikaans"
+                     *         },
+                     *         {
+                     *           "language_code": "sq",
+                     *           "language_name": "Albanian"
+                     *         },
+                     *         {
+                     *           "language_code": "ar",
+                     *           "language_name": "Arabic"
+                     *         },
+                     *         {
+                     *           "language_code": "an",
+                     *           "language_name": "Aragonese"
+                     *         },
+                     *         {
+                     *           "language_code": "hy",
+                     *           "language_name": "Armenian"
+                     *         },
+                     *         {
+                     *           "language_code": "at",
+                     *           "language_name": "Asturian"
+                     *         },
+                     *         {
+                     *           "language_code": "eu",
+                     *           "language_name": "Basque"
+                     *         },
+                     *         {
+                     *           "language_code": "be",
+                     *           "language_name": "Belarusian"
+                     *         },
+                     *         {
+                     *           "language_code": "bn",
+                     *           "language_name": "Bengali"
+                     *         },
+                     *         {
+                     *           "language_code": "bs",
+                     *           "language_name": "Bosnian"
+                     *         },
+                     *         {
+                     *           "language_code": "br",
+                     *           "language_name": "Breton"
+                     *         },
+                     *         {
+                     *           "language_code": "bg",
+                     *           "language_name": "Bulgarian"
+                     *         },
+                     *         {
+                     *           "language_code": "my",
+                     *           "language_name": "Burmese"
+                     *         },
+                     *         {
+                     *           "language_code": "ca",
+                     *           "language_name": "Catalan"
+                     *         },
+                     *         {
+                     *           "language_code": "zh-cn",
+                     *           "language_name": "Chinese (simplified)"
+                     *         },
+                     *         {
+                     *           "language_code": "cs",
+                     *           "language_name": "Czech"
+                     *         },
+                     *         {
+                     *           "language_code": "da",
+                     *           "language_name": "Danish"
+                     *         },
+                     *         {
+                     *           "language_code": "nl",
+                     *           "language_name": "Dutch"
+                     *         },
+                     *         {
+                     *           "language_code": "en",
+                     *           "language_name": "English"
+                     *         },
+                     *         {
+                     *           "language_code": "eo",
+                     *           "language_name": "Esperanto"
+                     *         },
+                     *         {
+                     *           "language_code": "et",
+                     *           "language_name": "Estonian"
+                     *         },
+                     *         {
+                     *           "language_code": "fi",
+                     *           "language_name": "Finnish"
+                     *         },
+                     *         {
+                     *           "language_code": "fr",
+                     *           "language_name": "French"
+                     *         },
+                     *         {
+                     *           "language_code": "ka",
+                     *           "language_name": "Georgian"
+                     *         },
+                     *         {
+                     *           "language_code": "de",
+                     *           "language_name": "German"
+                     *         },
+                     *         {
+                     *           "language_code": "gl",
+                     *           "language_name": "Galician"
+                     *         },
+                     *         {
+                     *           "language_code": "el",
+                     *           "language_name": "Greek"
+                     *         },
+                     *         {
+                     *           "language_code": "he",
+                     *           "language_name": "Hebrew"
+                     *         },
+                     *         {
+                     *           "language_code": "hi",
+                     *           "language_name": "Hindi"
+                     *         },
+                     *         {
+                     *           "language_code": "hr",
+                     *           "language_name": "Croatian"
+                     *         },
+                     *         {
+                     *           "language_code": "hu",
+                     *           "language_name": "Hungarian"
+                     *         },
+                     *         {
+                     *           "language_code": "is",
+                     *           "language_name": "Icelandic"
+                     *         },
+                     *         {
+                     *           "language_code": "id",
+                     *           "language_name": "Indonesian"
+                     *         },
+                     *         {
+                     *           "language_code": "it",
+                     *           "language_name": "Italian"
+                     *         },
+                     *         {
+                     *           "language_code": "ja",
+                     *           "language_name": "Japanese"
+                     *         },
+                     *         {
+                     *           "language_code": "kk",
+                     *           "language_name": "Kazakh"
+                     *         },
+                     *         {
+                     *           "language_code": "km",
+                     *           "language_name": "Khmer"
+                     *         },
+                     *         {
+                     *           "language_code": "ko",
+                     *           "language_name": "Korean"
+                     *         },
+                     *         {
+                     *           "language_code": "lv",
+                     *           "language_name": "Latvian"
+                     *         },
+                     *         {
+                     *           "language_code": "lt",
+                     *           "language_name": "Lithuanian"
+                     *         },
+                     *         {
+                     *           "language_code": "lb",
+                     *           "language_name": "Luxembourgish"
+                     *         },
+                     *         {
+                     *           "language_code": "mk",
+                     *           "language_name": "Macedonian"
+                     *         },
+                     *         {
+                     *           "language_code": "ml",
+                     *           "language_name": "Malayalam"
+                     *         },
+                     *         {
+                     *           "language_code": "ms",
+                     *           "language_name": "Malay"
+                     *         },
+                     *         {
+                     *           "language_code": "ma",
+                     *           "language_name": "Manipuri"
+                     *         },
+                     *         {
+                     *           "language_code": "mn",
+                     *           "language_name": "Mongolian"
+                     *         },
+                     *         {
+                     *           "language_code": "no",
+                     *           "language_name": "Norwegian"
+                     *         },
+                     *         {
+                     *           "language_code": "oc",
+                     *           "language_name": "Occitan"
+                     *         },
+                     *         {
+                     *           "language_code": "fa",
+                     *           "language_name": "Persian"
+                     *         },
+                     *         {
+                     *           "language_code": "pl",
+                     *           "language_name": "Polish"
+                     *         },
+                     *         {
+                     *           "language_code": "pt-pt",
+                     *           "language_name": "Portuguese"
+                     *         },
+                     *         {
+                     *           "language_code": "ru",
+                     *           "language_name": "Russian"
+                     *         },
+                     *         {
+                     *           "language_code": "sr",
+                     *           "language_name": "Serbian"
+                     *         },
+                     *         {
+                     *           "language_code": "si",
+                     *           "language_name": "Sinhalese"
+                     *         },
+                     *         {
+                     *           "language_code": "sk",
+                     *           "language_name": "Slovak"
+                     *         },
+                     *         {
+                     *           "language_code": "sl",
+                     *           "language_name": "Slovenian"
+                     *         },
+                     *         {
+                     *           "language_code": "es",
+                     *           "language_name": "Spanish"
+                     *         },
+                     *         {
+                     *           "language_code": "sw",
+                     *           "language_name": "Swahili"
+                     *         },
+                     *         {
+                     *           "language_code": "sv",
+                     *           "language_name": "Swedish"
+                     *         },
+                     *         {
+                     *           "language_code": "sy",
+                     *           "language_name": "Syriac"
+                     *         },
+                     *         {
+                     *           "language_code": "ta",
+                     *           "language_name": "Tamil"
+                     *         },
+                     *         {
+                     *           "language_code": "te",
+                     *           "language_name": "Telugu"
+                     *         },
+                     *         {
+                     *           "language_code": "tl",
+                     *           "language_name": "Tagalog"
+                     *         },
+                     *         {
+                     *           "language_code": "th",
+                     *           "language_name": "Thai"
+                     *         },
+                     *         {
+                     *           "language_code": "tr",
+                     *           "language_name": "Turkish"
+                     *         },
+                     *         {
+                     *           "language_code": "uk",
+                     *           "language_name": "Ukrainian"
+                     *         },
+                     *         {
+                     *           "language_code": "ur",
+                     *           "language_name": "Urdu"
+                     *         },
+                     *         {
+                     *           "language_code": "uz",
+                     *           "language_name": "Uzbek"
+                     *         },
+                     *         {
+                     *           "language_code": "vi",
+                     *           "language_name": "Vietnamese"
+                     *         },
+                     *         {
+                     *           "language_code": "ro",
+                     *           "language_name": "Romanian"
+                     *         },
+                     *         {
+                     *           "language_code": "pt-br",
+                     *           "language_name": "Portuguese (Brazilian)"
+                     *         },
+                     *         {
+                     *           "language_code": "me",
+                     *           "language_name": "Montenegrin"
+                     *         },
+                     *         {
+                     *           "language_code": "zh-tw",
+                     *           "language_name": "Chinese (traditional)"
+                     *         },
+                     *         {
+                     *           "language_code": "ze",
+                     *           "language_name": "Chinese bilingual"
+                     *         }
+                     *       ]
+                     *     } */
                     "application/json": {
                         data: {
                             language_code: string;
@@ -923,6 +1350,17 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "data": {
+                     *         "allowed_downloads": 100,
+                     *         "level": "Sub leecher",
+                     *         "user_id": 66,
+                     *         "ext_installed": false,
+                     *         "vip": false,
+                     *         "downloads_count": 1,
+                     *         "remaining_downloads": 99
+                     *       }
+                     *     } */
                     "application/json": {
                         data: {
                             allowed_downloads: number;
@@ -1071,6 +1509,1103 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "total_pages": 1,
+                     *       "total_count": 46,
+                     *       "page": 1,
+                     *       "data": [
+                     *         {
+                     *           "id": "493023",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "493023",
+                     *             "language": "nl",
+                     *             "download_count": 3889,
+                     *             "new_download_count": 11,
+                     *             "hearing_impaired": false,
+                     *             "hd": false,
+                     *             "format": "srt",
+                     *             "fps": 29.97,
+                     *             "votes": 0,
+                     *             "points": 0,
+                     *             "ratings": 0,
+                     *             "from_trusted": false,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2010-11-15T14:55:39.000Z",
+                     *             "release": "Major League WS DVDRip",
+                     *             "comments": "",
+                     *             "legacy_subtitle_id": 3956266,
+                     *             "uploader": {
+                     *               "uploader_id": 3282,
+                     *               "name": "COF7CJpS",
+                     *               "rank": "app developer"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 518105,
+                     *               "feature_type": "Movie",
+                     *               "year": 1989,
+                     *               "title": "Major League",
+                     *               "movie_name": "1989 - Major League",
+                     *               "imdb_id": 97815,
+                     *               "tmdb_id": 9942
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/nl/subtitles/legacy/3956266",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for Major League",
+                     *                 "url": "https://www.opensubtitles.com/nl/movies/1989-major-league",
+                     *                 "img_url": "https://s9.osdb.link/features/5/0/1/518105.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 544077,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "Major League WS DVDRip.srt"
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "496423",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "496423",
+                     *             "language": "es",
+                     *             "download_count": 674,
+                     *             "new_download_count": 5,
+                     *             "hearing_impaired": false,
+                     *             "hd": false,
+                     *             "format": "",
+                     *             "fps": 29.97,
+                     *             "votes": 0,
+                     *             "points": 0,
+                     *             "ratings": 0,
+                     *             "from_trusted": false,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2008-03-23T21:04:04.000Z",
+                     *             "release": "Le mépris",
+                     *             "comments": "",
+                     *             "legacy_subtitle_id": 3264195,
+                     *             "uploader": {
+                     *               "uploader_id": 3282,
+                     *               "name": "COF7CJpS",
+                     *               "rank": "app developer"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 518020,
+                     *               "feature_type": "Movie",
+                     *               "year": 1963,
+                     *               "title": "Contempt",
+                     *               "movie_name": "1963 - Contempt",
+                     *               "imdb_id": 57345,
+                     *               "tmdb_id": 266
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/es/subtitles/legacy/3264195",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for Contempt",
+                     *                 "url": "https://www.opensubtitles.com/es/movies/1963-contempt",
+                     *                 "img_url": "https://s9.osdb.link/features/0/2/0/518020.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 6028018,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "Le mepris-es.srt"
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "495449",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "495449",
+                     *             "language": "pt-BR",
+                     *             "download_count": 189,
+                     *             "new_download_count": 1,
+                     *             "hearing_impaired": false,
+                     *             "hd": false,
+                     *             "format": "",
+                     *             "fps": 23.976,
+                     *             "votes": 0,
+                     *             "points": 0,
+                     *             "ratings": 0,
+                     *             "from_trusted": false,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2012-07-14T19:47:18.000Z",
+                     *             "release": "Gnger Snaps",
+                     *             "comments": "",
+                     *             "legacy_subtitle_id": 4617243,
+                     *             "uploader": {
+                     *               "uploader_id": 3282,
+                     *               "name": "COF7CJpS",
+                     *               "rank": "app developer"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 518342,
+                     *               "feature_type": "Movie",
+                     *               "year": 2000,
+                     *               "title": "Ginger Snaps",
+                     *               "movie_name": "2000 - Ginger Snaps",
+                     *               "imdb_id": 210070,
+                     *               "tmdb_id": 9871
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/pt-BR/subtitles/legacy/4617243",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for Ginger Snaps",
+                     *                 "url": "https://www.opensubtitles.com/pt-BR/movies/2000-ginger-snaps",
+                     *                 "img_url": "https://s9.osdb.link/features/2/4/3/518342.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 546827,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "Ginger Snaps [2000] DvDrip [Eng] Bugz.srt"
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "496964",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "496964",
+                     *             "language": "es",
+                     *             "download_count": 1190,
+                     *             "new_download_count": 7,
+                     *             "hearing_impaired": false,
+                     *             "hd": false,
+                     *             "format": "",
+                     *             "fps": 23.976,
+                     *             "votes": 1,
+                     *             "points": 10,
+                     *             "ratings": 10,
+                     *             "from_trusted": false,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2012-05-18T00:13:46.000Z",
+                     *             "release": "1963.El desprecio (subt)",
+                     *             "comments": "",
+                     *             "legacy_subtitle_id": 4552383,
+                     *             "uploader": {
+                     *               "uploader_id": 63170,
+                     *               "name": "robot2xl",
+                     *               "rank": "read only"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 518020,
+                     *               "feature_type": "Movie",
+                     *               "year": 1963,
+                     *               "title": "Contempt",
+                     *               "movie_name": "1963 - Contempt",
+                     *               "imdb_id": 57345,
+                     *               "tmdb_id": 266
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/es/subtitles/legacy/4552383",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for Contempt",
+                     *                 "url": "https://www.opensubtitles.com/es/movies/1963-contempt",
+                     *                 "img_url": "https://s9.osdb.link/features/0/2/0/518020.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 548446,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "1963.El desprecio (subt).srt"
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "492641",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "492641",
+                     *             "language": "es",
+                     *             "download_count": 1477,
+                     *             "new_download_count": 2,
+                     *             "hearing_impaired": false,
+                     *             "hd": false,
+                     *             "format": "",
+                     *             "fps": 0,
+                     *             "votes": 0,
+                     *             "points": 0,
+                     *             "ratings": 0,
+                     *             "from_trusted": false,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2005-08-19T22:00:00.000Z",
+                     *             "release": "Philadelphia Story, The (1940)",
+                     *             "comments": "",
+                     *             "legacy_subtitle_id": 101000,
+                     *             "uploader": {
+                     *               "uploader_id": 14715,
+                     *               "name": "marlowe62 (a)",
+                     *               "rank": "bronze member"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 518136,
+                     *               "feature_type": "Movie",
+                     *               "year": 1940,
+                     *               "title": "The Philadelphia Story",
+                     *               "movie_name": "1940 - The Philadelphia Story",
+                     *               "imdb_id": 32904,
+                     *               "tmdb_id": 981
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/es/subtitles/legacy/101000",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for The Philadelphia Story",
+                     *                 "url": "https://www.opensubtitles.com/es/movies/1940-the-philadelphia-story",
+                     *                 "img_url": "https://s9.osdb.link/features/6/3/1/518136.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 6026506,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "George Cukor - Historias de Filadelfia (1940) DvdRip XviD Mp3 Dual Divxclasico.Esp.srt"
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "493247",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "493247",
+                     *             "language": "el",
+                     *             "download_count": 1052,
+                     *             "new_download_count": 16,
+                     *             "hearing_impaired": false,
+                     *             "hd": true,
+                     *             "format": "",
+                     *             "fps": 23.976,
+                     *             "votes": 0,
+                     *             "points": 0,
+                     *             "ratings": 0,
+                     *             "from_trusted": false,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2011-05-17T07:28:54.000Z",
+                     *             "release": "Superman.1978.720.BluRay.x264-VarK",
+                     *             "comments": "",
+                     *             "legacy_subtitle_id": 4179141,
+                     *             "uploader": {
+                     *               "uploader_id": 3282,
+                     *               "name": "COF7CJpS",
+                     *               "rank": "app developer"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 517956,
+                     *               "feature_type": "Movie",
+                     *               "year": 1978,
+                     *               "title": "Superman",
+                     *               "movie_name": "1978 - Superman",
+                     *               "imdb_id": 78346,
+                     *               "tmdb_id": 1924
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/el/subtitles/legacy/4179141",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for Superman",
+                     *                 "url": "https://www.opensubtitles.com/el/movies/1978-superman",
+                     *                 "img_url": "https://s9.osdb.link/features/6/5/9/517956.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 544327,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "Superman.1978.720.BluRay.x264-VarK.srt"
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "496017",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "496017",
+                     *             "language": "en",
+                     *             "download_count": 24642,
+                     *             "new_download_count": 8,
+                     *             "hearing_impaired": false,
+                     *             "hd": false,
+                     *             "format": "",
+                     *             "fps": 23.98,
+                     *             "votes": 13,
+                     *             "points": 81,
+                     *             "ratings": 6.2,
+                     *             "from_trusted": false,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2002-10-10T22:00:00.000Z",
+                     *             "release": "Jingle All the Way (1996)",
+                     *             "comments": "none",
+                     *             "legacy_subtitle_id": 32268,
+                     *             "uploader": {
+                     *               "uploader_id": 6872,
+                     *               "name": "alxmota (a)",
+                     *               "rank": "bronze member"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 518213,
+                     *               "feature_type": "Movie",
+                     *               "year": 1996,
+                     *               "title": "Jingle All the Way",
+                     *               "movie_name": "1996 - Jingle All the Way",
+                     *               "imdb_id": 116705,
+                     *               "tmdb_id": 9279
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/en/subtitles/legacy/32268",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for Jingle All the Way",
+                     *                 "url": "https://www.opensubtitles.com/en/movies/1996-jingle-all-the-way",
+                     *                 "img_url": "https://s9.osdb.link/features/3/1/2/518213.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 547446,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "ingles.srt"
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "496396",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "496396",
+                     *             "language": "nl",
+                     *             "download_count": 1993,
+                     *             "new_download_count": 16,
+                     *             "hearing_impaired": false,
+                     *             "hd": false,
+                     *             "format": "",
+                     *             "fps": 25,
+                     *             "votes": 1,
+                     *             "points": 7,
+                     *             "ratings": 7,
+                     *             "from_trusted": false,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2013-10-10T22:54:26.000Z",
+                     *             "release": "Come and See (Idi i smotri) (1985)",
+                     *             "comments": "",
+                     *             "legacy_subtitle_id": 5217608,
+                     *             "uploader": {
+                     *               "uploader_id": 3282,
+                     *               "name": "COF7CJpS",
+                     *               "rank": "app developer"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 518417,
+                     *               "feature_type": "Movie",
+                     *               "year": 1985,
+                     *               "title": "Come and See",
+                     *               "movie_name": "1985 - Come and See",
+                     *               "imdb_id": 91251,
+                     *               "tmdb_id": 25237
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/nl/subtitles/legacy/5217608",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for Come and See",
+                     *                 "url": "https://www.opensubtitles.com/nl/movies/1985-come-and-see",
+                     *                 "img_url": "https://s9.osdb.link/features/7/1/4/518417.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 547857,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "Come and See (Idi i smotri) (1985)-dut(1).srt"
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "492427",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "492427",
+                     *             "language": "pt-BR",
+                     *             "download_count": 358,
+                     *             "new_download_count": 3,
+                     *             "hearing_impaired": false,
+                     *             "hd": true,
+                     *             "format": "",
+                     *             "fps": 23.98,
+                     *             "votes": 1,
+                     *             "points": 1,
+                     *             "ratings": 1,
+                     *             "from_trusted": false,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2015-12-26T15:19:56.000Z",
+                     *             "release": "Rambo.First.Blood.II.1985.Ultimate.Uncut.Remastered.Edition.1080p.BluRay.x264.AAC-ETRG",
+                     *             "comments": "PT-BR subtitle uploaded by saidleugim",
+                     *             "legacy_subtitle_id": 6437707,
+                     *             "uploader": {
+                     *               "uploader_id": 71162,
+                     *               "name": "saidleugim",
+                     *               "rank": "bronze member"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 517867,
+                     *               "feature_type": "Movie",
+                     *               "year": 1985,
+                     *               "title": "Rambo: First Blood Part II",
+                     *               "movie_name": "1985 - Rambo: First Blood Part II",
+                     *               "imdb_id": 89880,
+                     *               "tmdb_id": 1369
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/pt-BR/subtitles/legacy/6437707",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for Rambo: First Blood Part II",
+                     *                 "url": "https://www.opensubtitles.com/pt-BR/movies/1985-rambo-first-blood-part-ii",
+                     *                 "img_url": "https://s9.osdb.link/features/7/6/8/517867.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 6026410,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "Rambo.First.Blood.II.1985.Ultimate.Uncut.Remastered.Edition.1080p.BluRay.x264.AAC-ETRG.srt"
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "493721",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "493721",
+                     *             "language": "en",
+                     *             "download_count": 16956,
+                     *             "new_download_count": 4,
+                     *             "hearing_impaired": false,
+                     *             "hd": false,
+                     *             "format": "",
+                     *             "fps": 25,
+                     *             "votes": 7,
+                     *             "points": 67,
+                     *             "ratings": 9.6,
+                     *             "from_trusted": false,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2007-05-16T09:07:38.000Z",
+                     *             "release": "Hannibal",
+                     *             "comments": "",
+                     *             "legacy_subtitle_id": 3123830,
+                     *             "uploader": {
+                     *               "uploader_id": 34153,
+                     *               "name": "arkymedes",
+                     *               "rank": "bronze member"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 517991,
+                     *               "feature_type": "Movie",
+                     *               "year": 2001,
+                     *               "title": "Hannibal",
+                     *               "movie_name": "2001 - Hannibal",
+                     *               "imdb_id": 212985,
+                     *               "tmdb_id": 9740
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/en/subtitles/legacy/3123830",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for Hannibal",
+                     *                 "url": "https://www.opensubtitles.com/en/movies/2001-hannibal",
+                     *                 "img_url": "https://s9.osdb.link/features/1/9/9/517991.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 544852,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "Hannibal.en.srt"
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "496722",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "496722",
+                     *             "language": "es",
+                     *             "download_count": 544,
+                     *             "new_download_count": 21,
+                     *             "hearing_impaired": false,
+                     *             "hd": true,
+                     *             "format": "",
+                     *             "fps": 25,
+                     *             "votes": 0,
+                     *             "points": 0,
+                     *             "ratings": 0,
+                     *             "from_trusted": true,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2011-05-28T08:48:56.000Z",
+                     *             "release": "Le Mepris (1963) HDRip Dual XviD Ac3 by FitoCorleone",
+                     *             "comments": "El.Desprecio.(Le.Mepris).(1963).HDRip.Dual.(Spa.Fr.).(Xvid+2Ac3).(proteinicos.es)...FitoCorleone.avi [1.47 Gb]/ Corregidos por el GTC de DivXClasico para Proteinicos y DXC",
+                     *             "legacy_subtitle_id": 4184944,
+                     *             "uploader": {
+                     *               "uploader_id": 32127,
+                     *               "name": "marlowe62",
+                     *               "rank": "trusted"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 518020,
+                     *               "feature_type": "Movie",
+                     *               "year": 1963,
+                     *               "title": "Contempt",
+                     *               "movie_name": "1963 - Contempt",
+                     *               "imdb_id": 57345,
+                     *               "tmdb_id": 266
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/es/subtitles/legacy/4184944",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for Contempt",
+                     *                 "url": "https://www.opensubtitles.com/es/movies/1963-contempt",
+                     *                 "img_url": "https://s9.osdb.link/features/0/2/0/518020.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 548202,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "Le Mepris (1963) HDRip Dual XviD Ac3 by FitoCorleone.Esp.srt"
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "492688",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "492688",
+                     *             "language": "en",
+                     *             "download_count": 72506,
+                     *             "new_download_count": 62,
+                     *             "hearing_impaired": true,
+                     *             "hd": false,
+                     *             "format": "",
+                     *             "fps": 25,
+                     *             "votes": 2,
+                     *             "points": 20,
+                     *             "ratings": 10,
+                     *             "from_trusted": false,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2008-07-09T13:19:22.000Z",
+                     *             "release": "Rocky.I[1976]DvDrip-aXXo",
+                     *             "comments": "Rocky-The.Complete.Saga[2007]DvDrip-aXXo",
+                     *             "legacy_subtitle_id": 3302711,
+                     *             "uploader": {
+                     *               "uploader_id": 119465,
+                     *               "name": "os_robot",
+                     *               "rank": "bronze member"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 517932,
+                     *               "feature_type": "Movie",
+                     *               "year": 1976,
+                     *               "title": "Rocky",
+                     *               "movie_name": "1976 - Rocky",
+                     *               "imdb_id": 75148,
+                     *               "tmdb_id": 1366
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/en/subtitles/legacy/3302711",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for Rocky",
+                     *                 "url": "https://www.opensubtitles.com/en/movies/1976-rocky",
+                     *                 "img_url": "https://s9.osdb.link/features/2/3/9/517932.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 543715,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "Rocky.I[1976]DvDrip-aXXo.srt"
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "490625",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "490625",
+                     *             "language": "en",
+                     *             "download_count": 7989,
+                     *             "new_download_count": 20,
+                     *             "hearing_impaired": false,
+                     *             "hd": true,
+                     *             "format": "",
+                     *             "fps": 0,
+                     *             "votes": 0,
+                     *             "points": 0,
+                     *             "ratings": 0,
+                     *             "from_trusted": false,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2013-07-06T11:07:28.000Z",
+                     *             "release": "9.Songs.2004.720p.BluRay.x264.anoXmous",
+                     *             "comments": "",
+                     *             "legacy_subtitle_id": 5075303,
+                     *             "uploader": {
+                     *               "uploader_id": 3282,
+                     *               "name": "COF7CJpS",
+                     *               "rank": "app developer"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 518052,
+                     *               "feature_type": "Movie",
+                     *               "year": 2004,
+                     *               "title": "9 Songs",
+                     *               "movie_name": "2004 - 9 Songs",
+                     *               "imdb_id": 411705,
+                     *               "tmdb_id": 27
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/en/subtitles/legacy/5075303",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for 9 Songs",
+                     *                 "url": "https://www.opensubtitles.com/en/movies/2004-9-songs",
+                     *                 "img_url": "https://s9.osdb.link/features/2/5/0/518052.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 541296,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "9.Songs.2004.720p.BluRay.x264.anoXmous_eng.srt"
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "494835",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "494835",
+                     *             "language": "pt-BR",
+                     *             "download_count": 2028,
+                     *             "new_download_count": 10,
+                     *             "hearing_impaired": false,
+                     *             "hd": true,
+                     *             "format": "",
+                     *             "fps": 24,
+                     *             "votes": 2,
+                     *             "points": 20,
+                     *             "ratings": 10,
+                     *             "from_trusted": false,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2014-09-07T13:57:21.000Z",
+                     *             "release": "Red Sonja.1985.BDRip.720p.MultiLang.MultiSub-Pitt",
+                     *             "comments": "",
+                     *             "legacy_subtitle_id": 5815278,
+                     *             "uploader": {
+                     *               "uploader_id": 62530,
+                     *               "name": "fjones1979",
+                     *               "rank": "trusted"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 518067,
+                     *               "feature_type": "Movie",
+                     *               "year": 1985,
+                     *               "title": "Red Sonja",
+                     *               "movie_name": "1985 - Red Sonja",
+                     *               "imdb_id": 89893,
+                     *               "tmdb_id": 9626
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/pt-BR/subtitles/legacy/5815278",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for Red Sonja",
+                     *                 "url": "https://www.opensubtitles.com/pt-BR/movies/1985-red-sonja",
+                     *                 "img_url": "https://s9.osdb.link/features/7/6/0/518067.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 546129,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "Red Sonja.1985.BDRip.720p.MultiLang.MultiSub-Pitt.por.srt"
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "492618",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "492618",
+                     *             "language": "pl",
+                     *             "download_count": 147,
+                     *             "new_download_count": 4,
+                     *             "hearing_impaired": false,
+                     *             "hd": true,
+                     *             "format": "",
+                     *             "fps": 0,
+                     *             "votes": 0,
+                     *             "points": 0,
+                     *             "ratings": 0,
+                     *             "from_trusted": false,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2015-07-08T20:47:42.000Z",
+                     *             "release": "Presumed.Innocent.1990.720p.BRRip.XviD.AC3-RARBG",
+                     *             "comments": "",
+                     *             "legacy_subtitle_id": 6228423,
+                     *             "uploader": {
+                     *               "uploader_id": 3282,
+                     *               "name": "COF7CJpS",
+                     *               "rank": "app developer"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 517957,
+                     *               "feature_type": "Movie",
+                     *               "year": 1990,
+                     *               "title": "Presumed Innocent",
+                     *               "movie_name": "1990 - Presumed Innocent",
+                     *               "imdb_id": 100404,
+                     *               "tmdb_id": 11092
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/pl/subtitles/legacy/6228423",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for Presumed Innocent",
+                     *                 "url": "https://www.opensubtitles.com/pl/movies/1990-presumed-innocent",
+                     *                 "img_url": "https://s9.osdb.link/features/7/5/9/517957.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 6026497,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "Presumed.Innocent.1990.720p.BRRip.XviD.AC3-RARBG.txt"
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "496727",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "496727",
+                     *             "language": "en",
+                     *             "download_count": 1912,
+                     *             "new_download_count": 63,
+                     *             "hearing_impaired": false,
+                     *             "hd": true,
+                     *             "format": "",
+                     *             "fps": 23.976,
+                     *             "votes": 0,
+                     *             "points": 0,
+                     *             "ratings": 0,
+                     *             "from_trusted": false,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2016-08-12T06:53:45.000Z",
+                     *             "release": "Idi.i.smotri.AKA.Come.and.See.1985.IVC.1080p.BluRay.Remux.AVC.FLAC.2.0-oddset",
+                     *             "comments": "",
+                     *             "legacy_subtitle_id": 6708061,
+                     *             "uploader": {
+                     *               "uploader_id": 3282,
+                     *               "name": "COF7CJpS",
+                     *               "rank": "app developer"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 518417,
+                     *               "feature_type": "Movie",
+                     *               "year": 1985,
+                     *               "title": "Come and See",
+                     *               "movie_name": "1985 - Come and See",
+                     *               "imdb_id": 91251,
+                     *               "tmdb_id": 25237
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/en/subtitles/legacy/6708061",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for Come and See",
+                     *                 "url": "https://www.opensubtitles.com/en/movies/1985-come-and-see",
+                     *                 "img_url": "https://s9.osdb.link/features/7/1/4/518417.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 6028156,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "Idi.i.smotri.AKA.Come.and.See.1985.IVC.1080p.BluRay.Remux.AVC.FLAC.2.0-oddset.srt"
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "493563",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "493563",
+                     *             "language": "en",
+                     *             "download_count": 14796,
+                     *             "new_download_count": 12,
+                     *             "hearing_impaired": false,
+                     *             "hd": false,
+                     *             "format": "",
+                     *             "fps": 23.976,
+                     *             "votes": 1,
+                     *             "points": 10,
+                     *             "ratings": 10,
+                     *             "from_trusted": false,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2001-12-04T23:00:00.000Z",
+                     *             "release": "The Secret Garden",
+                     *             "comments": "",
+                     *             "legacy_subtitle_id": 106540,
+                     *             "uploader": {
+                     *               "uploader_id": 4143,
+                     *               "name": "Panayot (a)",
+                     *               "rank": "bronze member"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 518028,
+                     *               "feature_type": "Movie",
+                     *               "year": 1993,
+                     *               "title": "The Secret Garden",
+                     *               "movie_name": "1993 - The Secret Garden",
+                     *               "imdb_id": 108071,
+                     *               "tmdb_id": 11236
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/en/subtitles/legacy/106540",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for The Secret Garden",
+                     *                 "url": "https://www.opensubtitles.com/en/movies/1993-the-secret-garden",
+                     *                 "img_url": "https://s9.osdb.link/features/8/2/0/518028.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 544691,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "TheSecretGarden_EN.sub"
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "492466",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "492466",
+                     *             "language": "he",
+                     *             "download_count": 128,
+                     *             "new_download_count": 1,
+                     *             "hearing_impaired": false,
+                     *             "hd": false,
+                     *             "format": "",
+                     *             "fps": 0,
+                     *             "votes": 0,
+                     *             "points": 0,
+                     *             "ratings": 0,
+                     *             "from_trusted": false,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2008-02-08T02:00:42.000Z",
+                     *             "release": "Rocky.1976.DVDRip.XviD.AC3.iNTERNAL-QiM",
+                     *             "comments": "",
+                     *             "legacy_subtitle_id": 3246129,
+                     *             "uploader": {
+                     *               "uploader_id": 3282,
+                     *               "name": "COF7CJpS",
+                     *               "rank": "app developer"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 517932,
+                     *               "feature_type": "Movie",
+                     *               "year": 1976,
+                     *               "title": "Rocky",
+                     *               "movie_name": "1976 - Rocky",
+                     *               "imdb_id": 75148,
+                     *               "tmdb_id": 1366
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/he/subtitles/legacy/3246129",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for Rocky",
+                     *                 "url": "https://www.opensubtitles.com/he/movies/1976-rocky",
+                     *                 "img_url": "https://s9.osdb.link/features/2/3/9/517932.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 6026439,
+                     *                 "cd_number": 2,
+                     *                 "file_name": "qim-rockyb.srt"
+                     *               },
+                     *               {
+                     *                 "file_id": 6026437,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "qim-rockya.srt"
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "492560",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "492560",
+                     *             "language": "pt-BR",
+                     *             "download_count": 64,
+                     *             "new_download_count": 2,
+                     *             "hearing_impaired": false,
+                     *             "hd": false,
+                     *             "format": "",
+                     *             "fps": 0,
+                     *             "votes": 0,
+                     *             "points": 0,
+                     *             "ratings": 0,
+                     *             "from_trusted": false,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2017-07-29T22:49:40.000Z",
+                     *             "release": "jornada",
+                     *             "comments": "",
+                     *             "legacy_subtitle_id": 7052825,
+                     *             "uploader": {
+                     *               "uploader_id": 3282,
+                     *               "name": "COF7CJpS",
+                     *               "rank": "app developer"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 517867,
+                     *               "feature_type": "Movie",
+                     *               "year": 1985,
+                     *               "title": "Rambo: First Blood Part II",
+                     *               "movie_name": "1985 - Rambo: First Blood Part II",
+                     *               "imdb_id": 89880,
+                     *               "tmdb_id": 1369
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/pt-BR/subtitles/legacy/7052825",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for Rambo: First Blood Part II",
+                     *                 "url": "https://www.opensubtitles.com/pt-BR/movies/1985-rambo-first-blood-part-ii",
+                     *                 "img_url": "https://s9.osdb.link/features/7/6/8/517867.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 6026472,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "jornada.srt"
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "496159",
+                     *           "type": "subtitle",
+                     *           "attributes": {
+                     *             "subtitle_id": "496159",
+                     *             "language": "de",
+                     *             "download_count": 226,
+                     *             "new_download_count": 7,
+                     *             "hearing_impaired": false,
+                     *             "hd": false,
+                     *             "format": "",
+                     *             "fps": 25,
+                     *             "votes": 0,
+                     *             "points": 0,
+                     *             "ratings": 0,
+                     *             "from_trusted": true,
+                     *             "foreign_parts_only": false,
+                     *             "ai_translated": false,
+                     *             "machine_translated": false,
+                     *             "upload_date": "2012-07-21T17:11:45.000Z",
+                     *             "release": "Komm.und.sieh.1985.German.DVDRip.Retail",
+                     *             "comments": "RUSCICO / Russian Cinema Council",
+                     *             "legacy_subtitle_id": 4622375,
+                     *             "uploader": {
+                     *               "uploader_id": 41812,
+                     *               "name": "Ralle1",
+                     *               "rank": "administrator"
+                     *             },
+                     *             "feature_details": {
+                     *               "feature_id": 518417,
+                     *               "feature_type": "Movie",
+                     *               "year": 1985,
+                     *               "title": "Come and See",
+                     *               "movie_name": "1985 - Come and See",
+                     *               "imdb_id": 91251,
+                     *               "tmdb_id": 25237
+                     *             },
+                     *             "url": "https://www.opensubtitles.com/de/subtitles/legacy/4622375",
+                     *             "related_links": [
+                     *               {
+                     *                 "label": "All subtitles for Come and See",
+                     *                 "url": "https://www.opensubtitles.com/de/movies/1985-come-and-see",
+                     *                 "img_url": "https://s9.osdb.link/features/7/1/4/518417.jpg"
+                     *               }
+                     *             ],
+                     *             "files": [
+                     *               {
+                     *                 "file_id": 6027938,
+                     *                 "cd_number": 2,
+                     *                 "file_name": "Komm.und.sieh.1985.German.DVDRip.CD2.Retail.srt"
+                     *               },
+                     *               {
+                     *                 "file_id": 6027936,
+                     *                 "cd_number": 1,
+                     *                 "file_name": "Komm.und.sieh.1985.German.DVDRip.CD1.Retail.srt"
+                     *               }
+                     *             ]
+                     *           }
+                     *         }
+                     *       ]
+                     *     } */
                     "application/json": {
                         total_pages: number;
                         total_count: number;
@@ -1116,6 +2651,1004 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "data": [
+                     *         {
+                     *           "id": "9803",
+                     *           "type": "feature",
+                     *           "attributes": {
+                     *             "title": "Waking the Dead",
+                     *             "original_title": "",
+                     *             "year": "2000",
+                     *             "subtitles_counts": {
+                     *               "en": 68,
+                     *               "es": 41,
+                     *               "nl": 40,
+                     *               "ro": 40,
+                     *               "ru": 30,
+                     *               "sr": 21,
+                     *               "pl": 7,
+                     *               "pt-BR": 4,
+                     *               "hr": 3,
+                     *               "pt-PT": 3,
+                     *               "bg": 2,
+                     *               "el": 2,
+                     *               "he": 2,
+                     *               "fa": 2,
+                     *               "sl": 2,
+                     *               "tr": 2,
+                     *               "ar": 1,
+                     *               "bs": 1,
+                     *               "cs": 1,
+                     *               "et": 1,
+                     *               "fi": 1,
+                     *               "fr": 1,
+                     *               "hu": 1,
+                     *               "id": 1,
+                     *               "ja": 1,
+                     *               "sk": 1,
+                     *               "th": 1,
+                     *               "vi": 1
+                     *             },
+                     *             "subtitles_count": 11,
+                     *             "seasons_count": 9,
+                     *             "parent_title": "",
+                     *             "season_number": 0,
+                     *             "episode_number": "",
+                     *             "imdb_id": 259733,
+                     *             "tmdb_id": 4860,
+                     *             "parent_imdb_id": "",
+                     *             "feature_id": "9803",
+                     *             "title_aka": [
+                     *               "Waking the Dead",
+                     *               " Waking the Dead – Im Auftrag der Toten"
+                     *             ],
+                     *             "feature_type": "Tvshow",
+                     *             "url": "https://www.opensubtitles.com/en/tvshows/2000-waking-the-dead",
+                     *             "img_url": "https://s9.osdb.link/features/3/0/8/9803.jpg",
+                     *             "seasons": [
+                     *               {
+                     *                 "season_number": 1,
+                     *                 "episodes": [
+                     *                   {
+                     *                     "episode_number": 1,
+                     *                     "title": "\"Waking the Dead\" Pilot: Part 1",
+                     *                     "feature_id": 126854,
+                     *                     "feature_imdb_id": 743365
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 2,
+                     *                     "title": "\"Waking the Dead\" Pilot: Part 2",
+                     *                     "feature_id": 126863,
+                     *                     "feature_imdb_id": 936019
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 3,
+                     *                     "title": "\"Waking the Dead\" Burn Out: Part 1",
+                     *                     "feature_id": 126861,
+                     *                     "feature_imdb_id": 743355
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 4,
+                     *                     "title": "\"Waking the Dead\" Burn Out: Part 2",
+                     *                     "feature_id": 126858,
+                     *                     "feature_imdb_id": 936016
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 5,
+                     *                     "title": "\"Waking the Dead\" Blind Beggar: Part 1",
+                     *                     "feature_id": 126862,
+                     *                     "feature_imdb_id": 743353
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 6,
+                     *                     "title": "\"Waking the Dead\" Blind Beggar: Part 2",
+                     *                     "feature_id": 126859,
+                     *                     "feature_imdb_id": 936017
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 7,
+                     *                     "title": "\"Waking the Dead\" A Simple Sacrifice: Part 1",
+                     *                     "feature_id": 126860,
+                     *                     "feature_imdb_id": 743350
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 8,
+                     *                     "title": "\"Waking the Dead\" A Simple Sacrifice: Part 2",
+                     *                     "feature_id": 126864,
+                     *                     "feature_imdb_id": 936015
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 9,
+                     *                     "title": "\"Waking the Dead\" Every Breath You Take: Part 1",
+                     *                     "feature_id": 126865,
+                     *                     "feature_imdb_id": 743358
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 10,
+                     *                     "title": "\"Waking the Dead\" Every Breath You Take: Part 2",
+                     *                     "feature_id": 126869,
+                     *                     "feature_imdb_id": 936018
+                     *                   }
+                     *                 ]
+                     *               },
+                     *               {
+                     *                 "season_number": 2,
+                     *                 "episodes": [
+                     *                   {
+                     *                     "episode_number": 1,
+                     *                     "title": "\"Waking the Dead\" Life Sentence: Part 1",
+                     *                     "feature_id": 126868,
+                     *                     "feature_imdb_id": 743363
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 2,
+                     *                     "title": "\"Waking the Dead\" Life Sentence: Part 2",
+                     *                     "feature_id": 126871,
+                     *                     "feature_imdb_id": 1108804
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 3,
+                     *                     "title": "\"Waking the Dead\" Deathwatch: Part 1",
+                     *                     "feature_id": 126867,
+                     *                     "feature_imdb_id": 743357
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 4,
+                     *                     "title": "\"Waking the Dead\" Deathwatch: Part 2",
+                     *                     "feature_id": 126870,
+                     *                     "feature_imdb_id": 1108805
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 5,
+                     *                     "title": "\"Waking the Dead\" Special Relationship: Part 1",
+                     *                     "feature_id": 126872,
+                     *                     "feature_imdb_id": 743367
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 6,
+                     *                     "title": "\"Waking the Dead\" Special Relationship: Part 2",
+                     *                     "feature_id": 126878,
+                     *                     "feature_imdb_id": 1091606
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 7,
+                     *                     "title": "\"Waking the Dead\" Thin Air: Part 1",
+                     *                     "feature_id": 126875,
+                     *                     "feature_imdb_id": 743371
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 8,
+                     *                     "title": "\"Waking the Dead\" Thin Air: Part 2",
+                     *                     "feature_id": 126877,
+                     *                     "feature_imdb_id": 1167299
+                     *                   }
+                     *                 ]
+                     *               },
+                     *               {
+                     *                 "season_number": 3,
+                     *                 "episodes": [
+                     *                   {
+                     *                     "episode_number": 1,
+                     *                     "title": "\"Waking the Dead\" Multistorey: Part 1",
+                     *                     "feature_id": 126876,
+                     *                     "feature_imdb_id": 743364
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 2,
+                     *                     "title": "\"Waking the Dead\" Multistorey: Part 2",
+                     *                     "feature_id": 126883,
+                     *                     "feature_imdb_id": 1167294
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 3,
+                     *                     "title": "\"Waking the Dead\" Walking on Water: Part 1",
+                     *                     "feature_id": 126884,
+                     *                     "feature_imdb_id": 743374
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 4,
+                     *                     "title": "\"Waking the Dead\" Walking on Water: Part 2",
+                     *                     "feature_id": 126879,
+                     *                     "feature_imdb_id": 1167302
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 5,
+                     *                     "title": "\"Waking the Dead\" Breaking Glass: Part 1",
+                     *                     "feature_id": 126885,
+                     *                     "feature_imdb_id": 743354
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 6,
+                     *                     "title": "\"Waking the Dead\" Breaking Glass: Part 2",
+                     *                     "feature_id": 126881,
+                     *                     "feature_imdb_id": 1167289
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 7,
+                     *                     "title": "\"Waking the Dead\" Final Cut: Part 1",
+                     *                     "feature_id": 126887,
+                     *                     "feature_imdb_id": 743360
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 8,
+                     *                     "title": "\"Waking the Dead\" Final Cut: Part 2",
+                     *                     "feature_id": 126882,
+                     *                     "feature_imdb_id": 1167292
+                     *                   }
+                     *                 ]
+                     *               },
+                     *               {
+                     *                 "season_number": 4,
+                     *                 "episodes": [
+                     *                   {
+                     *                     "episode_number": 1,
+                     *                     "title": "\"Waking the Dead\" In Sight of the Lord: Part 1",
+                     *                     "feature_id": 126888,
+                     *                     "feature_imdb_id": 743362
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 2,
+                     *                     "title": "\"Waking the Dead\" In Sight of the Lord: Part 2",
+                     *                     "feature_id": 126866,
+                     *                     "feature_imdb_id": 1103924
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 3,
+                     *                     "title": "\"Waking the Dead\" False Flag: Part 1",
+                     *                     "feature_id": 126852,
+                     *                     "feature_imdb_id": 743359
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 4,
+                     *                     "title": "\"Waking the Dead\" False Flag: Part 2",
+                     *                     "feature_id": 126857,
+                     *                     "feature_imdb_id": 1167291
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 5,
+                     *                     "title": "\"Waking the Dead\" Fugue States: Part 1",
+                     *                     "feature_id": 126880,
+                     *                     "feature_imdb_id": 743361
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 6,
+                     *                     "title": "\"Waking the Dead\" Fugue States: Part 2",
+                     *                     "feature_id": 126886,
+                     *                     "feature_imdb_id": 1167293
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 7,
+                     *                     "title": "\"Waking the Dead\" Anger Management: Part 1",
+                     *                     "feature_id": 126889,
+                     *                     "feature_imdb_id": 743351
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 8,
+                     *                     "title": "\"Waking the Dead\" Anger Management: Part 2",
+                     *                     "feature_id": 126874,
+                     *                     "feature_imdb_id": 1167287
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 9,
+                     *                     "title": "\"Waking the Dead\" The Hardest Word: Part 1",
+                     *                     "feature_id": 126891,
+                     *                     "feature_imdb_id": 743370
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 10,
+                     *                     "title": "\"Waking the Dead\" The Hardest Word: Part 2",
+                     *                     "feature_id": 126890,
+                     *                     "feature_imdb_id": 1167298
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 11,
+                     *                     "title": "\"Waking the Dead\" Shadowplay: Part 1",
+                     *                     "feature_id": 126893,
+                     *                     "feature_imdb_id": 743366
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 12,
+                     *                     "title": "\"Waking the Dead\" Shadowplay: Part 2",
+                     *                     "feature_id": 126892,
+                     *                     "feature_imdb_id": 1167295
+                     *                   }
+                     *                 ]
+                     *               },
+                     *               {
+                     *                 "season_number": 5,
+                     *                 "episodes": [
+                     *                   {
+                     *                     "episode_number": 1,
+                     *                     "title": "\"Waking the Dead\" Towers of Silence: Part 1",
+                     *                     "feature_id": 126810,
+                     *                     "feature_imdb_id": 743372
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 2,
+                     *                     "title": "\"Waking the Dead\" Towers of Silence: Part 2",
+                     *                     "feature_id": 126811,
+                     *                     "feature_imdb_id": 1167300
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 3,
+                     *                     "title": "\"Waking the Dead\" Black Run: Part 1",
+                     *                     "feature_id": 126814,
+                     *                     "feature_imdb_id": 743352
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 4,
+                     *                     "title": "\"Waking the Dead\" Black Run: Part 2",
+                     *                     "feature_id": 126808,
+                     *                     "feature_imdb_id": 1167288
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 5,
+                     *                     "title": "\"Waking the Dead\" Subterraneans: Part 1",
+                     *                     "feature_id": 126816,
+                     *                     "feature_imdb_id": 743369
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 6,
+                     *                     "title": "\"Waking the Dead\" Subterraneans: Part 2",
+                     *                     "feature_id": 126818,
+                     *                     "feature_imdb_id": 1167297
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 7,
+                     *                     "title": "\"Waking the Dead\" Straw Dog: Part 1",
+                     *                     "feature_id": 126820,
+                     *                     "feature_imdb_id": 743368
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 8,
+                     *                     "title": "\"Waking the Dead\" Straw Dog: Part 2",
+                     *                     "feature_id": 126822,
+                     *                     "feature_imdb_id": 1167296
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 9,
+                     *                     "title": "\"Waking the Dead\" Undertow: Part 1",
+                     *                     "feature_id": 126819,
+                     *                     "feature_imdb_id": 743373
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 10,
+                     *                     "title": "\"Waking the Dead\" Undertow: Part 2",
+                     *                     "feature_id": 126821,
+                     *                     "feature_imdb_id": 1167301
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 11,
+                     *                     "title": "\"Waking the Dead\" Cold Fusion: Part 1",
+                     *                     "feature_id": 126823,
+                     *                     "feature_imdb_id": 743356
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 12,
+                     *                     "title": "\"Waking the Dead\" Cold Fusion: Part 2",
+                     *                     "feature_id": 126817,
+                     *                     "feature_imdb_id": 1167290
+                     *                   }
+                     *                 ]
+                     *               },
+                     *               {
+                     *                 "season_number": 6,
+                     *                 "episodes": [
+                     *                   {
+                     *                     "episode_number": 1,
+                     *                     "title": "\"Waking the Dead\" Wren Boys: Part 1",
+                     *                     "feature_id": 126895,
+                     *                     "feature_imdb_id": 930851
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 2,
+                     *                     "title": "\"Waking the Dead\" Wren Boys: Part 2",
+                     *                     "feature_id": 126855,
+                     *                     "feature_imdb_id": 932475
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 3,
+                     *                     "title": "\"Waking the Dead\" Deus Ex Machina: Part 1",
+                     *                     "feature_id": 126894,
+                     *                     "feature_imdb_id": 932472
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 4,
+                     *                     "title": "\"Waking the Dead\" Deus Ex Machina: Part 2",
+                     *                     "feature_id": 126896,
+                     *                     "feature_imdb_id": 932473
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 5,
+                     *                     "title": "\"Waking the Dead\" The Fall: Part 1",
+                     *                     "feature_id": 126898,
+                     *                     "feature_imdb_id": 875569
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 6,
+                     *                     "title": "\"Waking the Dead\" The Fall: Part 2",
+                     *                     "feature_id": 126873,
+                     *                     "feature_imdb_id": 938259
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 7,
+                     *                     "title": "\"Waking the Dead\" Mask of Sanity: Part 1",
+                     *                     "feature_id": 126899,
+                     *                     "feature_imdb_id": 952542
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 8,
+                     *                     "title": "\"Waking the Dead\" Mask of Sanity: Part 2",
+                     *                     "feature_id": 126902,
+                     *                     "feature_imdb_id": 952543
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 9,
+                     *                     "title": "\"Waking the Dead\" Double Bind: Part 1",
+                     *                     "feature_id": 126897,
+                     *                     "feature_imdb_id": 952540
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 10,
+                     *                     "title": "\"Waking the Dead\" Double Bind: Part 2",
+                     *                     "feature_id": 126903,
+                     *                     "feature_imdb_id": 952541
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 11,
+                     *                     "title": "\"Waking the Dead\" Yahrzeit: Part 1",
+                     *                     "feature_id": 126901,
+                     *                     "feature_imdb_id": 892727
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 12,
+                     *                     "title": "\"Waking the Dead\" Yahrzeit: Part 2",
+                     *                     "feature_id": 126900,
+                     *                     "feature_imdb_id": 942279
+                     *                   }
+                     *                 ]
+                     *               },
+                     *               {
+                     *                 "season_number": 7,
+                     *                 "episodes": [
+                     *                   {
+                     *                     "episode_number": 1,
+                     *                     "title": "\"Waking the Dead\" Missing Persons: Part 1",
+                     *                     "feature_id": 126825,
+                     *                     "feature_imdb_id": 1215441
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 2,
+                     *                     "title": "\"Waking the Dead\" Missing Persons: Part 2",
+                     *                     "feature_id": 126824,
+                     *                     "feature_imdb_id": 1215442
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 3,
+                     *                     "title": "\"Waking the Dead\" Sins: Part 1",
+                     *                     "feature_id": 126815,
+                     *                     "feature_imdb_id": 1218284
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 4,
+                     *                     "title": "\"Waking the Dead\" Sins: Part 2",
+                     *                     "feature_id": 126826,
+                     *                     "feature_imdb_id": 1218285
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 5,
+                     *                     "title": "\"Waking the Dead\" Duty and Honour: Part 1",
+                     *                     "feature_id": 126828,
+                     *                     "feature_imdb_id": 1221781
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 6,
+                     *                     "title": "\"Waking the Dead\" Duty and Honour: Part 2",
+                     *                     "feature_id": 126830,
+                     *                     "feature_imdb_id": 1221782
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 7,
+                     *                     "title": "\"Waking the Dead\" Skin: Part 1",
+                     *                     "feature_id": 126829,
+                     *                     "feature_imdb_id": 1225236
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 8,
+                     *                     "title": "\"Waking the Dead\" Skin: Part 2",
+                     *                     "feature_id": 126831,
+                     *                     "feature_imdb_id": 1225237
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 9,
+                     *                     "title": "\"Waking the Dead\" Wounds: Part 1",
+                     *                     "feature_id": 126827,
+                     *                     "feature_imdb_id": 1227115
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 10,
+                     *                     "title": "\"Waking the Dead\" Wounds: Part 2",
+                     *                     "feature_id": 126834,
+                     *                     "feature_imdb_id": 1227116
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 11,
+                     *                     "title": "\"Waking the Dead\" Pieta: Part 1",
+                     *                     "feature_id": 126833,
+                     *                     "feature_imdb_id": 1231221
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 12,
+                     *                     "title": "\"Waking the Dead\" Pietà: Part 2",
+                     *                     "feature_id": 126832,
+                     *                     "feature_imdb_id": 1231222
+                     *                   }
+                     *                 ]
+                     *               },
+                     *               {
+                     *                 "season_number": 8,
+                     *                 "episodes": [
+                     *                   {
+                     *                     "episode_number": 1,
+                     *                     "title": "\"Waking the Dead\" Magdalene 26: Part 1",
+                     *                     "feature_id": 126836,
+                     *                     "feature_imdb_id": 1506431
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 2,
+                     *                     "title": "\"Waking the Dead\" Magdalene 26: Part 2",
+                     *                     "feature_id": 126839,
+                     *                     "feature_imdb_id": 1506432
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 3,
+                     *                     "title": "\"Waking the Dead\" End of the Night: Part 1",
+                     *                     "feature_id": 126837,
+                     *                     "feature_imdb_id": 1509622
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 4,
+                     *                     "title": "\"Waking the Dead\" End of the Night: Part 2",
+                     *                     "feature_id": 126838,
+                     *                     "feature_imdb_id": 1509623
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 5,
+                     *                     "title": "\"Waking the Dead\" Substitute: Part 1",
+                     *                     "feature_id": 126840,
+                     *                     "feature_imdb_id": 1513669
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 6,
+                     *                     "title": "\"Waking the Dead\" Substitute: Part 2",
+                     *                     "feature_id": 126842,
+                     *                     "feature_imdb_id": 1514406
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 7,
+                     *                     "title": "\"Waking the Dead\" End Game: Part 1",
+                     *                     "feature_id": 126846,
+                     *                     "feature_imdb_id": 1519231
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 8,
+                     *                     "title": "\"Waking the Dead\" End Game: Part 2",
+                     *                     "feature_id": 126843,
+                     *                     "feature_imdb_id": 1519232
+                     *                   }
+                     *                 ]
+                     *               },
+                     *               {
+                     *                 "season_number": 9,
+                     *                 "episodes": [
+                     *                   {
+                     *                     "episode_number": 1,
+                     *                     "title": "\"Waking the Dead\" Harbinger: Part 1",
+                     *                     "feature_id": 126856,
+                     *                     "feature_imdb_id": 1862440
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 2,
+                     *                     "title": "\"Waking the Dead\" Harbinger: Part 2",
+                     *                     "feature_id": 126853,
+                     *                     "feature_imdb_id": 1862441
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 3,
+                     *                     "title": "\"Waking the Dead\" Care: Part 1",
+                     *                     "feature_id": 126844,
+                     *                     "feature_imdb_id": 1865234
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 4,
+                     *                     "title": "\"Waking the Dead\" Care: Part 2",
+                     *                     "feature_id": 126845,
+                     *                     "feature_imdb_id": 1865235
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 5,
+                     *                     "title": "\"Waking the Dead\" Solidarity: Part 1",
+                     *                     "feature_id": 126849,
+                     *                     "feature_imdb_id": 1869183
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 6,
+                     *                     "title": "\"Waking the Dead\" Solidarity: Part 2",
+                     *                     "feature_id": 126851,
+                     *                     "feature_imdb_id": 1869184
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 7,
+                     *                     "title": "\"Waking the Dead\" Conviction: Part 1",
+                     *                     "feature_id": 126848,
+                     *                     "feature_imdb_id": 1877523
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 8,
+                     *                     "title": "\"Waking the Dead\" Conviction: Part 2",
+                     *                     "feature_id": 126841,
+                     *                     "feature_imdb_id": 1877524
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 9,
+                     *                     "title": "\"Waking the Dead\" Waterloo, Part 1",
+                     *                     "feature_id": 126850,
+                     *                     "feature_imdb_id": 1886367
+                     *                   },
+                     *                   {
+                     *                     "episode_number": 10,
+                     *                     "title": "\"Waking the Dead\" Waterloo, Part 2",
+                     *                     "feature_id": 126847,
+                     *                     "feature_imdb_id": 1886368
+                     *                   }
+                     *                 ]
+                     *               }
+                     *             ]
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "126842",
+                     *           "type": "feature",
+                     *           "attributes": {
+                     *             "title": "\"Waking the Dead\" Substitute: Part 2",
+                     *             "original_title": "",
+                     *             "year": "2009",
+                     *             "subtitles_counts": {
+                     *               "nl": 1,
+                     *               "en": 1,
+                     *               "sr": 1,
+                     *               "es": 1
+                     *             },
+                     *             "subtitles_count": 4,
+                     *             "seasons_count": 0,
+                     *             "parent_title": "Waking the Dead",
+                     *             "season_number": 8,
+                     *             "episode_number": 6,
+                     *             "imdb_id": 1514406,
+                     *             "tmdb_id": "",
+                     *             "parent_imdb_id": 259733,
+                     *             "feature_id": "126842",
+                     *             "title_aka": [
+                     *               "\"Waking the Dead\" Substitute: Part 2"
+                     *             ],
+                     *             "feature_type": "Episode",
+                     *             "url": "https://www.opensubtitles.com/en/tvshows/2000-waking-the-dead/seasons/8/episodes/6-waking-the-dead-substitute-part-2",
+                     *             "img_url": "https://s9.osdb.link/features/2/4/8/126842.jpg",
+                     *             "seasons": []
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "126810",
+                     *           "type": "feature",
+                     *           "attributes": {
+                     *             "title": "\"Waking the Dead\" Towers of Silence: Part 1",
+                     *             "original_title": "",
+                     *             "year": "2005",
+                     *             "subtitles_counts": {
+                     *               "es": 10,
+                     *               "en": 4,
+                     *               "pl": 3,
+                     *               "pt-PT": 3,
+                     *               "bg": 2,
+                     *               "he": 2,
+                     *               "fa": 2,
+                     *               "ru": 2,
+                     *               "sr": 2,
+                     *               "tr": 2,
+                     *               "ro": 2,
+                     *               "pt-BR": 2,
+                     *               "ar": 1,
+                     *               "bs": 1,
+                     *               "cs": 1,
+                     *               "nl": 1,
+                     *               "et": 1,
+                     *               "fi": 1,
+                     *               "fr": 1,
+                     *               "el": 1,
+                     *               "hr": 1,
+                     *               "hu": 1,
+                     *               "id": 1,
+                     *               "ja": 1,
+                     *               "sk": 1,
+                     *               "sl": 1,
+                     *               "th": 1,
+                     *               "vi": 1
+                     *             },
+                     *             "subtitles_count": 52,
+                     *             "seasons_count": 0,
+                     *             "parent_title": "Waking the Dead",
+                     *             "season_number": 5,
+                     *             "episode_number": 1,
+                     *             "imdb_id": 743372,
+                     *             "tmdb_id": "",
+                     *             "parent_imdb_id": 259733,
+                     *             "feature_id": "126810",
+                     *             "title_aka": [
+                     *               "\"Waking the Dead\" Towers of Silence: Part 1"
+                     *             ],
+                     *             "feature_type": "Episode",
+                     *             "url": "https://www.opensubtitles.com/en/tvshows/2000-waking-the-dead/seasons/5/episodes/1-waking-the-dead-towers-of-silence-part-1",
+                     *             "img_url": "https://s9.osdb.link/features/0/1/8/126810.jpg",
+                     *             "seasons": []
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "646786",
+                     *           "type": "feature",
+                     *           "attributes": {
+                     *             "title": "Waking the Dead",
+                     *             "original_title": "Waking the Dead",
+                     *             "year": "2000",
+                     *             "subtitles_counts": {
+                     *               "en": 68,
+                     *               "es": 41,
+                     *               "nl": 40,
+                     *               "ro": 40,
+                     *               "ru": 30,
+                     *               "sr": 21,
+                     *               "pl": 7,
+                     *               "pt-BR": 4,
+                     *               "hr": 3,
+                     *               "pt-PT": 3,
+                     *               "bg": 2,
+                     *               "el": 2,
+                     *               "he": 2,
+                     *               "fa": 2,
+                     *               "sl": 2,
+                     *               "tr": 2,
+                     *               "ar": 1,
+                     *               "bs": 1,
+                     *               "cs": 1,
+                     *               "et": 1,
+                     *               "fi": 1,
+                     *               "fr": 1,
+                     *               "hu": 1,
+                     *               "id": 1,
+                     *               "ja": 1,
+                     *               "sk": 1,
+                     *               "th": 1,
+                     *               "vi": 1
+                     *             },
+                     *             "subtitles_count": 25,
+                     *             "seasons_count": 0,
+                     *             "parent_title": "",
+                     *             "season_number": 0,
+                     *             "episode_number": "",
+                     *             "imdb_id": 127349,
+                     *             "tmdb_id": 37722,
+                     *             "parent_imdb_id": "",
+                     *             "feature_id": "646786",
+                     *             "title_aka": [
+                     *               "Waking the Dead",
+                     *               " Resucitar un amor",
+                     *               " Le Fantôme de Sarah Williams",
+                     *               " Szerelmem szelleme",
+                     *               " Amor Maior que a Vida",
+                     *               " Пробуждая мертвецов",
+                     *               " 死亡中惊醒"
+                     *             ],
+                     *             "feature_type": "Movie",
+                     *             "url": "https://www.opensubtitles.com/en/movies/2000-waking-the-dead-5559",
+                     *             "img_url": "https://s9.osdb.link/features/6/8/7/646786.jpg",
+                     *             "seasons": []
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "126847",
+                     *           "type": "feature",
+                     *           "attributes": {
+                     *             "title": "\"Waking the Dead\" Waterloo, Part 2",
+                     *             "original_title": "",
+                     *             "year": "2011",
+                     *             "subtitles_counts": {
+                     *               "nl": 1,
+                     *               "en": 1,
+                     *               "sr": 1,
+                     *               "ro": 1
+                     *             },
+                     *             "subtitles_count": 4,
+                     *             "seasons_count": 0,
+                     *             "parent_title": "Waking the Dead",
+                     *             "season_number": 9,
+                     *             "episode_number": 10,
+                     *             "imdb_id": 1886368,
+                     *             "tmdb_id": "",
+                     *             "parent_imdb_id": 259733,
+                     *             "feature_id": "126847",
+                     *             "title_aka": [
+                     *               "\"Waking the Dead\" Waterloo",
+                     *               " Part 2"
+                     *             ],
+                     *             "feature_type": "Episode",
+                     *             "url": "https://www.opensubtitles.com/en/tvshows/2000-waking-the-dead/seasons/9/episodes/10-waking-the-dead-waterloo-part-2",
+                     *             "img_url": "",
+                     *             "seasons": []
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "126857",
+                     *           "type": "feature",
+                     *           "attributes": {
+                     *             "title": "\"Waking the Dead\" False Flag: Part 2",
+                     *             "original_title": "",
+                     *             "year": "2004",
+                     *             "subtitles_counts": {
+                     *               "ru": 2,
+                     *               "ro": 2,
+                     *               "en": 1
+                     *             },
+                     *             "subtitles_count": 5,
+                     *             "seasons_count": 0,
+                     *             "parent_title": "Waking the Dead",
+                     *             "season_number": 4,
+                     *             "episode_number": 4,
+                     *             "imdb_id": 1167291,
+                     *             "tmdb_id": "",
+                     *             "parent_imdb_id": 259733,
+                     *             "feature_id": "126857",
+                     *             "title_aka": [
+                     *               "\"Waking the Dead\" False Flag: Part 2"
+                     *             ],
+                     *             "feature_type": "Episode",
+                     *             "url": "https://www.opensubtitles.com/en/tvshows/2000-waking-the-dead/seasons/4/episodes/4-waking-the-dead-false-flag-part-2",
+                     *             "img_url": "https://s9.osdb.link/features/7/5/8/126857.jpg",
+                     *             "seasons": []
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "62212",
+                     *           "type": "feature",
+                     *           "attributes": {
+                     *             "title": "\"Point Pleasant\" Waking the Dead",
+                     *             "original_title": "",
+                     *             "year": "2005",
+                     *             "subtitles_counts": {
+                     *               "pl": 3,
+                     *               "en": 2,
+                     *               "hu": 2,
+                     *               "cs": 1,
+                     *               "nl": 1,
+                     *               "et": 1,
+                     *               "fi": 1,
+                     *               "fr": 1,
+                     *               "el": 1,
+                     *               "pt-PT": 1,
+                     *               "ro": 1,
+                     *               "pt-BR": 1
+                     *             },
+                     *             "subtitles_count": 16,
+                     *             "seasons_count": 0,
+                     *             "parent_title": "Point Pleasant",
+                     *             "season_number": 1,
+                     *             "episode_number": 9,
+                     *             "imdb_id": 676101,
+                     *             "tmdb_id": "",
+                     *             "parent_imdb_id": 435576,
+                     *             "feature_id": "62212",
+                     *             "title_aka": [
+                     *               "\"Point Pleasant\" Waking the Dead"
+                     *             ],
+                     *             "feature_type": "Episode",
+                     *             "url": "https://www.opensubtitles.com/en/tvshows/2005-point-pleasant/seasons/1/episodes/9-point-pleasant-waking-the-dead",
+                     *             "img_url": "https://s9.osdb.link/features/2/1/2/62212.jpg",
+                     *             "seasons": []
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "126869",
+                     *           "type": "feature",
+                     *           "attributes": {
+                     *             "title": "\"Waking the Dead\" Every Breath You Take: Part 2",
+                     *             "original_title": "",
+                     *             "year": "2001",
+                     *             "subtitles_counts": {
+                     *               "en": 1,
+                     *               "es": 1,
+                     *               "ro": 1
+                     *             },
+                     *             "subtitles_count": 3,
+                     *             "seasons_count": 0,
+                     *             "parent_title": "Waking the Dead",
+                     *             "season_number": 1,
+                     *             "episode_number": 10,
+                     *             "imdb_id": 936018,
+                     *             "tmdb_id": "",
+                     *             "parent_imdb_id": 259733,
+                     *             "feature_id": "126869",
+                     *             "title_aka": [
+                     *               "\"Waking the Dead\" Every Breath You Take: Part 2"
+                     *             ],
+                     *             "feature_type": "Episode",
+                     *             "url": "https://www.opensubtitles.com/en/tvshows/2000-waking-the-dead/seasons/1/episodes/10-waking-the-dead-every-breath-you-take-part-2",
+                     *             "img_url": "",
+                     *             "seasons": []
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "126826",
+                     *           "type": "feature",
+                     *           "attributes": {
+                     *             "title": "\"Waking the Dead\" Sins: Part 2",
+                     *             "original_title": "",
+                     *             "year": "2008",
+                     *             "subtitles_counts": {
+                     *               "ru": 2,
+                     *               "nl": 1,
+                     *               "en": 1
+                     *             },
+                     *             "subtitles_count": 4,
+                     *             "seasons_count": 0,
+                     *             "parent_title": "Waking the Dead",
+                     *             "season_number": 7,
+                     *             "episode_number": 4,
+                     *             "imdb_id": 1218285,
+                     *             "tmdb_id": "",
+                     *             "parent_imdb_id": 259733,
+                     *             "feature_id": "126826",
+                     *             "title_aka": [
+                     *               "\"Waking the Dead\" Sins: Part 2"
+                     *             ],
+                     *             "feature_type": "Episode",
+                     *             "url": "https://www.opensubtitles.com/en/tvshows/2000-waking-the-dead/seasons/7/episodes/4-waking-the-dead-sins-part-2",
+                     *             "img_url": "",
+                     *             "seasons": []
+                     *           }
+                     *         },
+                     *         {
+                     *           "id": "126837",
+                     *           "type": "feature",
+                     *           "attributes": {
+                     *             "title": "\"Waking the Dead\" End of the Night: Part 1",
+                     *             "original_title": "",
+                     *             "year": "2009",
+                     *             "subtitles_counts": {
+                     *               "nl": 2,
+                     *               "en": 1,
+                     *               "sr": 1,
+                     *               "es": 1
+                     *             },
+                     *             "subtitles_count": 5,
+                     *             "seasons_count": 0,
+                     *             "parent_title": "Waking the Dead",
+                     *             "season_number": 8,
+                     *             "episode_number": 3,
+                     *             "imdb_id": 1509622,
+                     *             "tmdb_id": "",
+                     *             "parent_imdb_id": 259733,
+                     *             "feature_id": "126837",
+                     *             "title_aka": [
+                     *               "\"Waking the Dead\" End of the Night: Part 1"
+                     *             ],
+                     *             "feature_type": "Episode",
+                     *             "url": "https://www.opensubtitles.com/en/tvshows/2000-waking-the-dead/seasons/8/episodes/3-waking-the-dead-end-of-the-night-part-1",
+                     *             "img_url": "https://s9.osdb.link/features/7/3/8/126837.jpg",
+                     *             "seasons": []
+                     *           }
+                     *         }
+                     *       ],
+                     *       "value": "this is test  how it is rendered"
+                     *     } */
                     "application/json": {
                         movie?: components["schemas"]["Feature-Movie"];
                         episode?: components["schemas"]["Feature-Episode"];
@@ -1385,42 +3918,6 @@ export interface operations {
             };
         };
     };
-    transcription: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description <<{{APP_NAME}} v{{APP_VERSION}}>> */
-                "User-Agent"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: {
-                            name?: string;
-                            display_name?: string;
-                            description?: string;
-                            pricing?: string;
-                            reliability?: string;
-                            price?: number;
-                            languages_supported?: {
-                                language_code?: string;
-                                language_name?: string;
-                            }[];
-                        }[];
-                    };
-                };
-            };
-        };
-    };
     translate: {
         parameters: {
             query: {
@@ -1432,33 +3929,6 @@ export interface operations {
                 translate_from?: string;
                 /** @description language ISO639 translate_from */
                 translate_to: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "multipart/form-data": Record<string, never>;
-                };
-            };
-        };
-    };
-    transcribe: {
-        parameters: {
-            query: {
-                /** @description transcribe API */
-                api: string;
-                /** @description media file */
-                file: string;
-                /** @description language of media file */
-                language: string;
             };
             header?: never;
             path?: never;
@@ -1498,7 +3968,153 @@ export interface operations {
             };
         };
     };
+    transcription: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description <<{{APP_NAME}} v{{APP_VERSION}}>> */
+                "User-Agent"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: {
+                            name?: string;
+                            display_name?: string;
+                            description?: string;
+                            pricing?: string;
+                            reliability?: string;
+                            price?: number;
+                            languages_supported?: {
+                                language_code?: string;
+                                language_name?: string;
+                            }[];
+                        }[];
+                    };
+                };
+            };
+        };
+    };
+    transcribe: {
+        parameters: {
+            query: {
+                /** @description transcribe API */
+                api: string;
+                /** @description media file */
+                file: string;
+                /** @description language of media file */
+                language: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "multipart/form-data": Record<string, never>;
+                };
+            };
+        };
+    };
     "transcribe-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description correlation_id */
+                correlation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    detect_language_text: {
+        parameters: {
+            query: {
+                /** @description subtitle file */
+                file: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "multipart/form-data": {
+                        data?: {
+                            format?: string;
+                            type?: string;
+                            language?: {
+                                W3C?: string;
+                                name?: string;
+                                native?: string;
+                                ISO_639_1?: string;
+                                ISO_639_2b?: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+    detect_language_audio: {
+        parameters: {
+            query: {
+                /** @description transcribe API */
+                api: string;
+                /** @description media file */
+                file: string;
+                /** @description language of media file */
+                language: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "multipart/form-data": Record<string, never>;
+                };
+            };
+        };
+    };
+    "detect-language-audio-status": {
         parameters: {
             query?: never;
             header?: never;

@@ -11,17 +11,17 @@
     "introspect": "drizzle-kit introspect",
     "lint": "eslint . --report-unused-disable-directives",
     "lint:fix": "eslint . --fix",
-    "start": "node --env-file=.env app.js",
+    "start": "kill -9 $(lsof -ti:5001) && node --env-file=.env app.js",
     "vercel-build": "node --run build"
   },
   "dependencies": {
-    "@ai-sdk/google": "2.0.0-beta.12",
+    "@ai-sdk/google": "2.0.0-beta.13",
     "@fastify/cors": "^11.0.1",
     "@fastify/http-proxy": "^11.3.0",
-    "@openrouter/ai-sdk-provider": "^0.7.2",
+    "@openrouter/ai-sdk-provider": "^0.7.3",
     "@sub-vocab/utils": "workspace:*",
-    "@trpc/server": "11.1.0",
-    "ai": "5.0.0-beta.23",
+    "@trpc/server": "^11.4.3",
+    "ai": "5.0.0-beta.25",
     "drizzle-orm": "^0.44.3",
     "fastify": "^5.4.0",
     "ofetch": "^1.4.1",
@@ -31,7 +31,7 @@
   "devDependencies": {
     "@vercel/node": "^5.3.6",
     "drizzle-kit": "^0.31.4",
-    "esbuild": "^0.25.6",
+    "esbuild": "^0.25.8",
     "tsx": "^4.20.3"
   }
 }

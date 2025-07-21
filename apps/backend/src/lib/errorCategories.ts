@@ -71,11 +71,9 @@ const baz = (x: number) =>
   Effect.gen(function* () {
     if (x > 2) {
       return yield* new FooError()
-    }
-    else if (x > 1) {
+    } else if (x > 1) {
       return yield* new BarError()
-    }
-    else {
+    } else {
       return yield* new BazError()
     }
   })

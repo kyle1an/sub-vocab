@@ -1,59 +1,79 @@
-import type { LearningPhase, TrieWordLabel, WordLocator, WordState } from '@/lib/LabeledTire.ts'
+import type { Leaf, LearningPhase, TrackedWord, WordLocator } from '@/lib/LabeledTire'
 
-import {
-  LEARNING_PHASE,
-} from '@/lib/LabeledTire.ts'
+import { buildTrackedWord } from '@/lib/LabeledTire'
 
-export type VocabularyCoreState = {
-  lemmaState: WordState
-  wFamily: TrieWordLabel[]
-  locators: WordLocator[]
+export type WordOccurrencesInSentence = {
+  sentenceId: number
+  textSpans: {
+    startOffset: number
+    wordLength: number
+  }[]
 }
 
-export type VocabularySourceState = VocabularyCoreState & {
+export type VocabularySourceState = {
+  trackedWord: TrackedWord
+  wordFamily: Leaf[]
+  locators: WordLocator[]
+  wordOccurrences: WordOccurrencesInSentence[]
   inertialPhase: LearningPhase
 }
 
-export function formVocab(lemma: TrieWordLabel) {
-  let locators = [...lemma.src]
-  const wFamily = [lemma]
+export function formVocab(lemma: Leaf): VocabularySourceState {
+  const locators = [...lemma.locators]
+  const wordFamily = [lemma]
 
-  if (lemma.derive?.length) {
-    function collectNestedSource(lexicalEntries: TrieWordLabel[]) {
+  if (lemma.inflectedForms?.length) {
+    const collectInflections = (lexicalEntries: Leaf[]) => {
       for (const lexicalEntry of lexicalEntries) {
-        if (lexicalEntry.src[0]) {
-          wFamily.push(lexicalEntry)
-          if (locators[0]) {
-            locators = lexicalEntry.src[0].wordOrder < locators[0].wordOrder
-              ? lexicalEntry.src.concat(locators)
-              : locators.concat(lexicalEntry.src)
-          }
-          else {
-            locators = lexicalEntry.src
-          }
+        if (lexicalEntry.locators.length >= 1) {
+          wordFamily.push(lexicalEntry)
+          locators.push(...lexicalEntry.locators)
         }
-
-        if (lexicalEntry.derive?.length)
-          collectNestedSource(lexicalEntry.derive)
+        if (lexicalEntry.inflectedForms?.length) {
+          collectInflections(lexicalEntry.inflectedForms)
+        }
       }
     }
-
-    collectNestedSource(lemma.derive)
+    collectInflections(lemma.inflectedForms)
   }
 
-  const labelDisplaySource: VocabularyCoreState = {
-    lemmaState: {
-      word: lemma.path,
-      learningPhase: LEARNING_PHASE.NEW,
-      isUser: false,
-      original: false,
-      timeModified: null,
-      rank: null,
-      ...lemma.vocab,
-    },
-    wFamily,
+  locators.sort((a, b) => a.wordOrder - b.wordOrder)
+  const wordOccurrences: WordOccurrencesInSentence[] = []
+  locators
+    .sort((a, b) => a.sentenceId - b.sentenceId || a.startOffset - b.startOffset)
+    .forEach(({ sentenceId, startOffset, wordLength }) => {
+      if (wordOccurrences.length >= 0) {
+        const adjacentSentence = wordOccurrences.at(-1)
+        if (adjacentSentence) {
+          const { sentenceId: adjacentSentenceIndex, textSpans } = adjacentSentence
+          if (sentenceId === adjacentSentenceIndex) {
+            textSpans.push({
+              startOffset,
+              wordLength,
+            })
+            return
+          }
+        }
+      }
+      wordOccurrences.push({
+        sentenceId,
+        textSpans: [
+          {
+            startOffset,
+            wordLength,
+          },
+        ],
+      })
+    })
+
+  const trackedWord = lemma.trackedWord ?? buildTrackedWord({
+    form: lemma.pathe,
+  })
+  return {
+    trackedWord,
+    wordFamily,
     locators,
+    wordOccurrences,
+    inertialPhase: trackedWord.learningPhase,
   }
-
-  return labelDisplaySource
 }

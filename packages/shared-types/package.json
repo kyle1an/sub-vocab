@@ -1,0 +1,17 @@
+{
+  "name": "@sub-vocab/shared-types",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts"
+    },
+    "./browser": {
+      "types": "./browser.d.ts"
+    },
+    "./types": "./types/index.ts"
+  },
+  "main": "index.js",
+  "types": "index.d.ts"
+}

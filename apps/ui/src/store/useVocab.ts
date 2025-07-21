@@ -23,8 +23,8 @@ import { SUPPORTED_FILE_EXTENSIONS } from '@/lib/filesHandler'
 
 export const fileInfoAtom = atom('')
 export const sourceTextAtom = atom({
-  text: '',
-  version: 0,
+  value: '',
+  epoch: 0,
 })
 
 export const vocabRealtimeSyncStatusAtom = atom<REALTIME_SUBSCRIBE_STATES>(REALTIME_SUBSCRIBE_STATES.CLOSED)
@@ -57,12 +57,12 @@ export const subtitleSelectionStateFamily = atomFamily((mediaId: number) => atom
       const state = prev[mediaId] ??= { rowSelection: {} }
       if (mode === 'singleRow') {
         state.rowSelection = {}
-      }
-      else if (mode === 'singleSubRow') {
+      } else if (mode === 'singleSubRow') {
         const parent = row.getParentRow()
         if (parent) {
-          for (const { id } of parent.subRows)
+          for (const { id } of parent.subRows) {
             state.rowSelection[id] = false
+          }
         }
       }
       state.rowSelection[row.id] = Boolean(checked)
@@ -111,7 +111,6 @@ export const sessionAtom = atomWithStorage<PartialDeep<Session> | null>('session
 export const LIGHT_THEME_COLOR = 'rgb(255,255,254)'
 
 export const metaThemeColorAtom = atomWithStorage('metaThemeColorAtom', LIGHT_THEME_COLOR, undefined, { getOnInit })
-export const isDrawerOpenAtom = atomWithStorage('isDrawerOpenAtom', false, undefined, { getOnInit })
 export const prefersDarkAtom = atomWithStorage('prefersDarkAtom', false, undefined, { getOnInit })
 export const isMdScreenAtom = atom(false)
 

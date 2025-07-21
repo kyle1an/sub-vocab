@@ -2,7 +2,7 @@ import { useNetworkState } from '@react-hookz/web'
 import { useAtom } from 'jotai'
 import { toast } from 'sonner'
 
-import type { WordState } from '@/lib/LabeledTire'
+import type { TrackedWord } from '@/lib/LabeledTire'
 
 import { useUserWordPhaseMutation } from '@/api/vocab-api'
 import { LoginToast } from '@/components/login-toast'
@@ -13,7 +13,7 @@ export function useVocabToggle() {
   const [session] = useAtom(sessionAtom)
   const user = session?.user
   const { online: isOnline } = useNetworkState()
-  return <T extends WordState>(vocab: T) => {
+  return <T extends TrackedWord>(vocab: T) => {
     if (!user) {
       toast(<LoginToast />)
       return
@@ -24,9 +24,10 @@ export function useVocabToggle() {
       return
     }
 
-    const rows2Mutate = [vocab].filter((row) => row.word.length <= 32)
-    if (rows2Mutate.length === 0)
+    const rows2Mutate = [vocab].filter((row) => row.form.length <= 32)
+    if (rows2Mutate.length === 0) {
       return
+    }
 
     userWordPhaseMutation(rows2Mutate)
       .catch(console.error)
@@ -37,7 +38,7 @@ export function useAcquaintAll() {
   const { mutateAsync: userWordPhaseMutation } = useUserWordPhaseMutation()
   const [session] = useAtom(sessionAtom)
   const user = session?.user
-  return <T extends WordState>(rows: T[]) => {
+  return <T extends TrackedWord>(rows: T[]) => {
     if (!user) {
       toast(<LoginToast />)
       return

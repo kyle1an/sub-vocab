@@ -14,7 +14,7 @@ import {
 import clsx from 'clsx'
 import { useAtom, useAtomValue } from 'jotai'
 import { atomWithImmer } from 'jotai-immer'
-import { startTransition, useDeferredValue, useRef, useState } from 'react'
+import { startTransition, useDeferredValue, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
 import IconIonRefresh from '~icons/ion/refresh'
@@ -88,26 +88,28 @@ const SEGMENT_NAME = 'data-table-segment'
 
 function acquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn<TableData> {
   let filteredValue: LearningPhase[] = []
-  if (filterSegment === 'new')
+  if (filterSegment === 'new') {
     filteredValue = [LEARNING_PHASE.NEW, LEARNING_PHASE.RETAINING]
-  else if (filterSegment === 'allAcquainted' || filterSegment === 'mine' || filterSegment === 'top')
+  } else if (filterSegment === 'allAcquainted' || filterSegment === 'mine' || filterSegment === 'top') {
     filteredValue = [LEARNING_PHASE.ACQUAINTED, LEARNING_PHASE.FADING]
-  else
+  } else {
     return noFilter
+  }
 
   return (row) => filteredValue.includes(row.inertialPhase)
 }
 
 function userOwnedFilter(filterSegment: Segment): ColumnFilterFn<TableData> {
   let filteredValue: boolean[] = []
-  if (filterSegment === 'top')
+  if (filterSegment === 'top') {
     filteredValue = [false]
-  else if (filterSegment === 'mine')
+  } else if (filterSegment === 'mine') {
     filteredValue = [true]
-  else
+  } else {
     return noFilter
+  }
 
-  return (row) => filteredValue.includes(row.lemmaState.isUser)
+  return (row) => filteredValue.includes(row.trackedWord.isUser)
 }
 
 function useDataColumns<T extends TableData>() {
@@ -115,7 +117,7 @@ function useDataColumns<T extends TableData>() {
   const columnHelper = createColumnHelper<T>()
   return (
     [
-      columnHelper.accessor((row) => row.lemmaState.timeModified, {
+      columnHelper.accessor((row) => row.trackedWord.timeModified, {
         id: 'timeModified',
         header: ({ header }) => {
           const isSorted = header.column.getIsSorted()
@@ -183,7 +185,6 @@ export function VocabDataTable({
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'allAcquainted')
   const segmentDeferredValue = useDeferredValue(segment)
-  const [disableNumberAnim, setDisableNumberAnim] = useState(false)
   const lastTruthySearchFilterValue = useLastTruthy(searchFilterValue(deferredSearchValue, deferredIsUsingRegex))
   const { refetch, isFetching: isLoadingUserVocab } = useAtomValue(userVocabularyAtom)
 
@@ -204,7 +205,7 @@ export function VocabDataTable({
     },
     initialState: initialTableState,
     autoResetPageIndex: false,
-    getRowId: (row) => row.lemmaState.word,
+    getRowId: (row) => row.trackedWord.form,
     getRowCanExpand: () => false,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -216,14 +217,8 @@ export function VocabDataTable({
 
   function handleSegmentChoose(newSegment: typeof segment) {
     setSegment(newSegment)
-    requestAnimationFrame(() => {
-      startTransition(() => {
-        setDisableNumberAnim(true)
-        requestAnimationFrame(() => {
-          setDisableNumberAnim(false)
-          onPurge()
-        })
-      })
+    startTransition(() => {
+      onPurge()
     })
   }
 
@@ -238,7 +233,7 @@ export function VocabDataTable({
     rowsAcquainted = [],
     rowsNew = [],
   } = Object.groupBy(rowsFiltered, (row) => {
-    switch (row.original.lemmaState.learningPhase) {
+    switch (row.original.trackedWord.learningPhase) {
       case LEARNING_PHASE.ACQUAINTED:
         return 'rowsAcquainted'
       case LEARNING_PHASE.NEW:
@@ -248,7 +243,7 @@ export function VocabDataTable({
     }
   })
   const rowsToRetain = rowsNew
-    .map((row) => row.original.lemmaState)
+    .map((row) => row.original.trackedWord)
 
   useUnmountEffect(() => {
     setCacheState({
@@ -403,7 +398,6 @@ export function VocabDataTable({
           text={` ${t('vocabulary')}`}
           remaining={rowsNew.length}
           completed={rowsAcquainted.length}
-          animated={!disableNumberAnim}
         />
       </div>
     </div>

@@ -201,7 +201,6 @@ export function MovieSubtitleFiles({
 }: {
   id: number
 }) {
-  'use no memo'
   const [language] = useAtom(osLanguageAtom)
   const { data, isFetching, refetch } = useOpenSubtitlesSubtitles({
     type: 'movie',

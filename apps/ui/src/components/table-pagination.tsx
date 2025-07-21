@@ -1,4 +1,3 @@
-/* eslint-disable react-compiler/react-compiler */
 import type { UsePaginationItem } from '@mui/material/usePagination'
 import type { Table } from '@tanstack/react-table'
 
@@ -17,8 +16,6 @@ export function TablePagination<T>({
   items: UsePaginationItem[]
   table: Table<T>
 }) {
-  'use no memo'
-  const tableState = getState()
   return (
     <div className="flex">
       {items.map(({
@@ -53,7 +50,7 @@ export function TablePagination<T>({
               aria-label="Start ellipsis"
               type="button"
               onClick={() => {
-                setPageIndex(Math.max(0, tableState.pagination.pageIndex - 2))
+                setPageIndex(Math.max(0, getState().pagination.pageIndex - 2))
               }}
               key={`${type}${page}`}
             >
@@ -90,7 +87,7 @@ export function TablePagination<T>({
               type="button"
               aria-label="End ellipsis"
               onClick={() => {
-                setPageIndex(Math.min(tableState.pagination.pageIndex + 2, getPageCount() - 1))
+                setPageIndex(Math.min(getState().pagination.pageIndex + 2, getPageCount() - 1))
               }}
               key={`${type}${page}`}
             >
