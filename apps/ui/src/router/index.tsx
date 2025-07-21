@@ -2,7 +2,7 @@ import {
   createBrowserRouter,
 } from 'react-router'
 
-import RootLayout from '@/pages/layout'
+import Root from '@/pages/layout'
 
 const convert = ({
   clientLoader,
@@ -19,7 +19,7 @@ const convert = ({
 export const router = createBrowserRouter([
   {
     path: '/',
-    Component: RootLayout,
+    Component: Root,
     children: [
       {
         path: '/',

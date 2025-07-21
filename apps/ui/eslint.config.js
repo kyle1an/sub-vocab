@@ -33,8 +33,7 @@ function findTailwindImportCss(dir) {
     if (entry.isDirectory()) {
       const found = findTailwindImportCss(fullPath)
       if (found) return found
-    }
-    else if (entry.isFile() && entry.name.endsWith('.css')) {
+    } else if (entry.isFile() && entry.name.endsWith('.css')) {
       // read & scan lines
       const lines = fs.readFileSync(fullPath, 'utf8').split(/\r?\n/)
       for (const line of lines) {

@@ -76,11 +76,13 @@ export default function UpdatePassword() {
   }
 
   const [authChangeEvent] = useAtom(authChangeEventAtom)
-  if (!authChangeEvent)
+  if (!authChangeEvent) {
     return null
+  }
 
-  if (!user)
+  if (!user) {
     return <Navigate to="/login" />
+  }
 
   return (
     <ContentRoot>

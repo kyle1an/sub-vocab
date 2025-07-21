@@ -55,8 +55,9 @@ function customFormatDistanceStrict(
 ) {
   const comparison = compareAsc(laterDate, earlierDate) as -1 | 0 | 1
 
-  if (Number.isNaN(comparison))
+  if (Number.isNaN(comparison)) {
     throw new RangeError('Invalid time value')
+  }
 
   const [laterDate_, earlierDate_] = normalizeDates(
     options.in,
@@ -75,22 +76,22 @@ function customFormatDistanceStrict(
   let unit: FormatDistanceStrictUnit | 'week'
   if (defaultUnit) {
     unit = defaultUnit
-  }
-  else {
-    if (minutes < 1)
+  } else {
+    if (minutes < 1) {
       unit = 'second'
-    else if (minutes < 60)
+    } else if (minutes < 60) {
       unit = 'minute'
-    else if (minutes < minutesInDay)
+    } else if (minutes < minutesInDay) {
       unit = 'hour'
-    else if (dstNormalizedMinutes < minutesInWeek)
+    } else if (dstNormalizedMinutes < minutesInWeek) {
       unit = 'day'
-    else if (dstNormalizedMinutes < minutesInMonth)
+    } else if (dstNormalizedMinutes < minutesInMonth) {
       unit = 'week'
-    else if (dstNormalizedMinutes < minutesInYear)
+    } else if (dstNormalizedMinutes < minutesInYear) {
       unit = 'month'
-    else
+    } else {
       unit = 'year'
+    }
   }
 
   const { formatDistance } = options.locale ?? enUS
@@ -128,10 +129,11 @@ function customFormatDistanceStrict(
   // 1 up to 12 months
   else if (unit === 'month') {
     const months = roundingMethod(dstNormalizedMinutes / minutesInMonth)
-    if (months === 12 && defaultUnit !== 'month')
+    if (months === 12 && defaultUnit !== 'month') {
       return formatDistance('xYears', 1, localizeOptions)
-    else
+    } else {
       return formatDistance('xMonths', months, localizeOptions)
+    }
   }
   // 1 year up to max Date
   else {

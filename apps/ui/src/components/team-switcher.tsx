@@ -27,8 +27,9 @@ export function TeamSwitcher({
 }) {
   const [activeTeam, setActiveTeam] = React.useState(teams[0])
 
-  if (!activeTeam)
+  if (!activeTeam) {
     return null
+  }
 
   return (
     <SidebarMenu>

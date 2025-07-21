@@ -1,12 +1,10 @@
-import type { UserConfig } from 'vite'
-
 import react from '@vitejs/plugin-react'
-import { resolve } from 'pathe'
 import { visualizer } from 'rollup-plugin-visualizer'
 import Icons from 'unplugin-icons/vite'
 import { defineConfig } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import Inspect from 'vite-plugin-inspect'
+import tsconfigPaths from 'vite-tsconfig-paths'
 
 import { chunks } from './vite/utils'
 
@@ -31,20 +29,22 @@ export default defineConfig(({ mode }) => {
           presets: ['jotai/babel/preset'],
         },
       }),
-      createHtmlPlugin({
-        minify: true,
-      }),
+      ...mode !== 'test' ? [
+        createHtmlPlugin({
+          minify: true,
+        }),
+      ] : [
+      ],
       ...mode === 'production' ? [
         visualizer({
           gzipSize: true,
         }),
-      ] : [],
+      ] : [
+      ],
+      tsconfigPaths(),
     ],
     resolve: {
       dedupe: ['react', 'react-dom'],
-      alias: {
-        '@/': `${resolve(__dirname, 'src')}/`,
-      },
     },
     build: {
       target: 'esnext',
@@ -56,5 +56,5 @@ export default defineConfig(({ mode }) => {
     },
     optimizeDeps: {
     },
-  } satisfies UserConfig
+  }
 })

@@ -10,26 +10,20 @@ export function VocabStatics({
   text = '',
   remaining,
   completed,
-  animated: isAnimated = true,
   progress = false,
 }: {
   total: number
   text: string
   remaining: number
   completed: number
-  animated?: boolean
   progress?: boolean
 }) {
   const [isPending, setAnimated] = useState(true)
   useEffect(() => {
-    if (isAnimated) {
-      const id = setTimeout(() => requestAnimationFrame(() => setAnimated(false)), 0)
-      return () => clearTimeout(id)
-    }
-  // eslint-disable-next-line react-compiler/react-compiler
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    const id = setTimeout(() => requestAnimationFrame(() => setAnimated(false)), 0)
+    return () => clearTimeout(id)
   }, [])
-  const animated = !isPending && isAnimated
+  const animated = !isPending
   const percentage = Number(total === 0 ? 0 : (100 * (completed / total)).toFixed(1))
   const deferredRemaining = useDeferredValue(remaining) || 0
   const deferredCompleted = useDeferredValue(completed) || 0

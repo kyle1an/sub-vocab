@@ -58,11 +58,13 @@ export default function Register() {
   })
   const navigate = useNavigate()
   const [authChangeEvent] = useAtom(authChangeEventAtom)
-  if (!authChangeEvent)
+  if (!authChangeEvent) {
     return null
+  }
 
-  if (user)
+  if (user) {
     return <Navigate to="/" />
+  }
 
   async function onSubmit(values: FormValues) {
     const { email, password } = values

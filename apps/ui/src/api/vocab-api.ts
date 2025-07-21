@@ -11,12 +11,12 @@ import { atomWithQuery } from 'jotai-tanstack-query'
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 
-import type { LearningPhase, WordState } from '@/lib/LabeledTire'
+import type { LearningPhase, TrackedWord } from '@/lib/LabeledTire'
 import type { Supabase } from '@/store/useVocab'
 import type { Tables } from '@ui/database.types'
 
 import { usePageVisibility } from '@/hooks/utils'
-import { LEARNING_PHASE } from '@/lib/LabeledTire'
+import { buildTrackedWord, LEARNING_PHASE } from '@/lib/LabeledTire'
 import { omitUndefined } from '@/lib/utilities'
 import { queryClient, sessionAtom, supabase, vocabRealtimeSyncStatusAtom } from '@/store/useVocab'
 
@@ -38,14 +38,13 @@ const sharedVocabularyAtom = atomWithQuery(() => {
         .eq('share', true)
         .throwOnError()
       return data.map(({ w, o, u, r }) => {
-        const vocabState: WordState = {
-          word: w,
+        const vocabState: TrackedWord = buildTrackedWord({
+          form: w,
           isUser: Boolean(u),
-          original: Boolean(o),
+          isBaseForm: Boolean(o),
           rank: r,
-          timeModified: null,
           learningPhase: !u ? LEARNING_PHASE.ACQUAINTED : LEARNING_PHASE.NEW,
-        }
+        })
         return [w, vocabState] as const
       })
     },
@@ -65,16 +64,13 @@ export const baseVocabAtom = atom((get) => {
         timeModified: row.time_modified,
         learningPhase: row.learningPhase,
       })
-    }
-    else {
-      map.set(row.w, {
-        word: row.w,
+    } else {
+      map.set(row.w, buildTrackedWord({
+        form: row.w,
         isUser: true,
-        original: false,
-        rank: null,
         timeModified: row.time_modified,
         learningPhase: row.learningPhase,
-      })
+      }))
     }
   })
   return Array.from(map.values())
@@ -118,8 +114,9 @@ async function getStemsMapping() {
     wordGroup.push(d)
     if (d.includes(`'`)) {
       const variant = d.replace(/'/g, `’`)
-      if (!wordGroup.includes(variant))
+      if (!wordGroup.includes(variant)) {
         wordGroup.push(variant)
+      }
     }
   })
   return Object.values(map)
@@ -139,10 +136,10 @@ export function useUserWordPhaseMutation() {
   const vocabularyOptions = userVocabularyOptions(userId)
   return useMutation({
     mutationKey: ['upsertUserVocabulary'],
-    mutationFn: async (vocab: WordState[]) => {
+    mutationFn: async (vocab: TrackedWord[]) => {
       const values = vocab.map((row) => ({
         user_id: userId,
-        vocabulary: row.word,
+        vocabulary: row.form,
         acquainted: row.learningPhase !== LEARNING_PHASE.ACQUAINTED,
         time_modified: new Date().toISOString(),
       }))
@@ -160,14 +157,13 @@ export function useUserWordPhaseMutation() {
     onMutate: (variables) => {
       queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => oldData && produce(oldData, (draft) => {
         variables.forEach((variable) => {
-          const labelMutated = draft.find((label) => label.w === variable.word)
+          const labelMutated = draft.find((label) => label.w === variable.form)
           const pendingPhase = variable.learningPhase === LEARNING_PHASE.ACQUAINTED ? LEARNING_PHASE.FADING : LEARNING_PHASE.RETAINING
           if (labelMutated) {
             labelMutated.learningPhase = pendingPhase
-          }
-          else {
+          } else {
             draft.push({
-              w: variable.word,
+              w: variable.form,
               time_modified: '',
               learningPhase: pendingPhase,
             })
@@ -179,8 +175,9 @@ export function useUserWordPhaseMutation() {
       queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => oldData && produce(oldData, (draft) => {
         data.forEach((variable) => {
           const labelMutated = draft.find((label) => label.w === variable.w)
-          if (labelMutated)
+          if (labelMutated) {
             Object.assign(labelMutated, variable)
+          }
         })
       }))
     },
@@ -189,9 +186,10 @@ export function useUserWordPhaseMutation() {
       toast.error(error.message)
       queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => oldData && produce(oldData, (draft) => {
         variables.forEach((variable) => {
-          const labelMutated = draft.find((label) => label.w === variable.word)
-          if (labelMutated)
+          const labelMutated = draft.find((label) => label.w === variable.form)
+          if (labelMutated) {
             labelMutated.learningPhase = variable.learningPhase
+          }
         })
       }))
     },
@@ -211,10 +209,11 @@ function useRealtimeVocabUpsert<T extends Tables<'user_vocab_record'>>() {
     }
     queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => oldData && produce(oldData, (draft) => {
       const labelMutated = draft.find((label) => label.w === data.w)
-      if (labelMutated)
+      if (labelMutated) {
         Object.assign(labelMutated, data)
-      else
+      } else {
         draft.push(data)
+      }
     }))
   }
 }

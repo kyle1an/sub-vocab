@@ -1,81 +1,85 @@
 import { describe, expect, it } from 'vitest'
 
-import type { WordState } from './LabeledTire'
+import { createFactory } from '@sub-vocab/utils/lib'
 
-import { LabeledTire, LEARNING_PHASE } from './LabeledTire'
+import type { Leaf, TrackedWord } from './LabeledTire'
 
-describe('labeledTire', () => {
+import { buildTrackedWord, LEARNING_PHASE, LexiconTrie } from './LabeledTire'
+
+const mockTrackedWord = createFactory<TrackedWord>()(() => ({
+  isUser: false,
+  rank: null,
+  timeModified: null,
+  learningPhase: LEARNING_PHASE.NEW,
+}))
+
+const mockLeaf = createFactory<Leaf>()(() => ({
+  locators: [],
+}))
+
+describe('lexiconTrie', () => {
   it('should create and return nodes correctly with getNode', () => {
-    const tire = new LabeledTire()
-    const node = tire.getNode('test')
+    const trie = new LexiconTrie()
+    const node = trie.getNode('test')
     expect(node).toBeDefined()
-    expect(tire.root.t?.e?.s?.t).toBe(node)
+    expect(trie.root.t?.e?.s?.t).toBe(node)
   })
 
   it('should process input sentences and update trie structure with add', () => {
-    const tire = new LabeledTire()
-    tire.add('This is a test sentence.')
-    expect(tire.sentences.length).toBe(1)
-    expect(tire.root.t?.h?.i?.s).toBeDefined()
+    const trie = new LexiconTrie()
+    trie.add('This is a test sentence.')
+    expect(trie.sentences.length).toBe(1)
+    expect(trie.root.t?.h?.i?.s).toBeDefined()
   })
 
   it('should update trie structure with word information with update', () => {
-    const tire = new LabeledTire()
-    tire.update('test', 0, 0)
-    expect(tire.root.t?.e?.s?.t?.$).toBeDefined()
-    expect(tire.root.t?.e?.s?.t?.$?.path).toBe('test')
+    const trie = new LexiconTrie()
+    trie.update('test', 0, 0)
+    expect(trie.root.t?.e?.s?.t?.$).toBeDefined()
+    expect(trie.root.t?.e?.s?.t?.$?.pathe).toBe('test')
   })
 
   it('should merge derived words into their stems with mergeDerivedWordIntoStem', () => {
-    const tire = new LabeledTire()
-    tire.update('run', 0, 0)
-    tire.update('running', 0, 0)
-    tire.mergeDerivedWordIntoStem([['run', 'running']])
-    expect(tire.root.r?.u?.n?.$?.derive?.[0]?.path).toBe('running')
+    const trie = new LexiconTrie()
+    trie.update('run', 0, 0)
+    trie.update('running', 0, 0)
+    trie.mergeDerivedWordIntoStem([['run', 'running']])
+    expect(trie.root.r?.u?.n?.$?.inflectedForms?.[0]?.pathe).toBe('running')
   })
 
   it('should merge vocabulary states into the trie with mergedVocabulary', () => {
-    const tire = new LabeledTire()
-    const vocab: WordState[] = [
-      {
-        word: 'Test',
-        learningPhase: LEARNING_PHASE.NEW,
-        isUser: false,
-        original: true,
-        rank: null,
-        timeModified: null,
-      },
-      {
-        word: 'testing',
-        learningPhase: LEARNING_PHASE.NEW,
-        isUser: false,
-        original: false,
-        rank: null,
-        timeModified: null,
-      },
-      {
-        word: 'tests',
-        learningPhase: LEARNING_PHASE.NEW,
-        isUser: false,
-        original: false,
-        rank: null,
-        timeModified: null,
-      },
-      {
-        word: 'tested',
-        learningPhase: LEARNING_PHASE.NEW,
-        isUser: false,
-        original: false,
-        rank: null,
-        timeModified: null,
-      },
+    const trie = new LexiconTrie()
+    const trackedWords: TrackedWord[] = [
+      buildTrackedWord({
+        form: 'Test',
+        isBaseForm: true,
+      }),
+      buildTrackedWord({
+        form: 'testing',
+      }),
+      buildTrackedWord({
+        form: 'tests',
+      }),
+      buildTrackedWord({
+        form: 'tested',
+      }),
     ]
-    tire.mergedVocabulary(vocab)
-    expect(tire.root.t?.e?.s?.t?.$?.vocab?.word).toBe('Test')
-    expect(tire.root.t?.e?.s?.t?.$?.derive).toStrictEqual(expect.arrayContaining([
-      expect.objectContaining({ path: 'testing' }),
-      expect.objectContaining({ path: 'tests' }),
-      expect.objectContaining({ path: 'tested' }),
-    ]))
+    trie.mergedVocabulary(trackedWords)
+    expect(trie.root.t?.e?.s?.t?.$?.trackedWord).toStrictEqual(expect.objectContaining(mockTrackedWord({
+      form: 'Test',
+    })))
+    expect(trie.root.t?.e?.s?.t?.$?.inflectedForms).toStrictEqual(
+      expect.arrayContaining([
+        expect.objectContaining(mockLeaf({
+          pathe: 'testing',
+        })),
+        expect.objectContaining(mockLeaf({
+          pathe: 'tests',
+        })),
+        expect.objectContaining(mockLeaf({
+          pathe: 'tested',
+        })),
+      ]),
+    )
   })
 })

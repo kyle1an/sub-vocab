@@ -46,8 +46,6 @@ export function TableHeader({
 }
 
 export function TableHeaderCellRender<T>({ header }: { header: GroupHeader<T> }) {
-  // eslint-disable-next-line react-compiler/react-compiler
-  'use no memo'
   return (
     header.isPlaceholder ? (
       <TableHeaderCell header={header} />
@@ -190,15 +188,15 @@ export function TableRow<T>({
     if (detailElement || !children) {
       setOpen(isOpening)
       toggleExpanded()
-    }
-    else {
+    } else {
       requestAnimationFrame(() => {
         setOpen(isOpening)
         toggleExpanded()
       })
     }
-    if (isOpening)
+    if (isOpening) {
       retimerAnim(setTimeout(() => setAnimationOpen(false), ANIM_DURATION))
+    }
 
     retimerTransition(setTimeout(() => setTransitionOpen(false), SHADOW_DURATION))
     const rowElement = rowRef.current
@@ -217,16 +215,14 @@ export function TableRow<T>({
             root.scrollTo({
               top: -HEAD_HEIGHT - rowHeight + detailElement.offsetTop,
             })
-          }
-          else {
+          } else {
             // isDetailAboveRoot
             root.scrollTo({
               top: -HEAD_HEIGHT + rowElement.offsetTop - expandedHeight,
               behavior: isClosing ? 'instant' : 'smooth',
             })
           }
-        }
-        else {
+        } else {
           root.scrollTo({
             top: -HEAD_HEIGHT + rowElement.offsetTop,
             behavior: 'smooth',

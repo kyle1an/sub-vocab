@@ -13,8 +13,9 @@ import { zh } from './zh'
 export function getLanguage() {
   if (typeof window !== 'undefined') {
     const [language] = window.navigator.languages
-    if (language && language.startsWith('zh'))
+    if (language && language.startsWith('zh')) {
       return 'zh'
+    }
   }
   return 'en'
 }

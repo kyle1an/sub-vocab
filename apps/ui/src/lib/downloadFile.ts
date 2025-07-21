@@ -24,8 +24,7 @@ export async function downloadFile(url: string, fileName: string): Promise<void>
     // Clean up by removing the link and revoking the object URL
     document.body.removeChild(link)
     window.URL.revokeObjectURL(objectUrl)
-  }
-  catch (error) {
+  } catch (error) {
     console.error('There was a problem with the fetch operation:', error)
   }
 }

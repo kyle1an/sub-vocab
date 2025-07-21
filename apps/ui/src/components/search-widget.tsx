@@ -24,8 +24,9 @@ export function SearchWidget({
   const { t } = useTranslation()
   const inputRef = useRef<HTMLInputElement>(null)
   useHotkeys('meta+f', (e) => {
-    if (document.activeElement === inputRef.current)
+    if (document.activeElement === inputRef.current) {
       return
+    }
     e.preventDefault()
     const el = inputRef.current
     if (el) {

@@ -42,8 +42,9 @@ export const osSessionAtom = atomWithStorage<PartialDeep<Login['Response']> | un
 
 export const opensubtitlesAuthorizationAtom = atom((get) => {
   const osSession = get(osSessionAtom)
-  if (osSession?.token)
+  if (osSession?.token) {
     return `Bearer ${osSession.token}`
+  }
 })
 
 export const opensubtitlesReqAtom = atom((get) => {

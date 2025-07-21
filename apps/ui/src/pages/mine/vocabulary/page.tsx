@@ -6,8 +6,7 @@ import type { VocabularySourceState } from '@/lib/vocab'
 
 import { baseVocabAtom, useIrregularMapsQuery } from '@/api/vocab-api'
 import { VocabDataTable } from '@/components/VocabData'
-import { LabeledTire } from '@/lib/LabeledTire'
-import { formVocab } from '@/lib/vocab'
+import { LexiconTrie } from '@/lib/LabeledTire'
 import { statusRetainedList } from '@/lib/vocab-utils'
 
 export default function VocabularyPage() {
@@ -15,23 +14,21 @@ export default function VocabularyPage() {
 
   const [rows, setRows] = useState<VocabularySourceState[]>([])
   const { data: irregulars = [] } = useIrregularMapsQuery()
+  const trie = new LexiconTrie()
+  trie.input(userWords.map((w) => w.form))
+  const list = trie.generate(irregulars, userWords)
 
   useEffect(() => {
-    const trie = new LabeledTire()
-    for (const word of userWords)
-      trie.update(word.word, -1, -1)
-
-    trie.mergedVocabulary(userWords)
-    trie.mergeDerivedWordIntoStem(irregulars)
-    const list = trie.getVocabulary().map(formVocab)
-    setRows((r) => statusRetainedList(r, list))
-  }, [irregulars, userWords])
+    // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
+    setRows(statusRetainedList(list))
+  }, [list])
 
   function handlePurge() {
     setRows(produce((draft) => {
-      draft.forEach((todo) => {
-        if (todo.inertialPhase !== todo.lemmaState.learningPhase)
-          todo.inertialPhase = todo.lemmaState.learningPhase
+      draft.forEach((row) => {
+        if (row.inertialPhase !== row.trackedWord.learningPhase) {
+          row.inertialPhase = row.trackedWord.learningPhase
+        }
       })
     }))
   }

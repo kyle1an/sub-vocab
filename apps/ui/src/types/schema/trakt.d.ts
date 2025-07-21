@@ -278,6 +278,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/calendars/my/streaming/{start_date}/{days}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get streaming releases
+         * @description #### &#128274; OAuth Required &#10024; Extended Info &#127898; Filters
+         *
+         *     Returns all movies with a `us` streaming release date during the time period specified.
+         */
+        get: operations["Get streaming releases"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/calendars/my/dvd/{start_date}/{days}": {
         parameters: {
             query?: never;
@@ -289,7 +311,7 @@ export interface paths {
          * Get DVD releases
          * @description #### &#128274; OAuth Required &#10024; Extended Info &#127898; Filters
          *
-         *     Returns all movies with a DVD release date during the time period specified.
+         *     Returns all movies with a `us` DVD release date during the time period specified.
          */
         get: operations["Get DVD releases"];
         put?: never;
@@ -410,6 +432,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/calendars/all/streaming/{start_date}/{days}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get streaming releases
+         * @description #### &#10024; Extended Info &#127898; Filters
+         *
+         *     Returns all movies with a `us` streaming release date during the time period specified.
+         */
+        get: operations["Get streaming releases"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/calendars/all/dvd/{start_date}/{days}": {
         parameters: {
             query?: never;
@@ -421,7 +465,7 @@ export interface paths {
          * Get DVD releases
          * @description #### &#10024; Extended Info &#127898; Filters
          *
-         *     Returns all movies with a DVD release date during the time period specified.
+         *     Returns all movies with a `us` DVD release date during the time period specified.
          */
         get: operations["Get DVD releases"];
         put?: never;
@@ -792,6 +836,10 @@ export interface paths {
         /**
          * Get genres
          * @description Get a list of all genres, including names and slugs.
+         *
+         *     #### Subgenres
+         *
+         *     Send `?extended=subgenres` to get a list of subgenres for each genre. You can get more creative with advanced filters by using the subgenres in your app.
          */
         get: operations["Get genres"];
         put?: never;
@@ -822,7 +870,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/lists/trending": {
+    "/lists/trending/{type}": {
         parameters: {
             query?: never;
             header?: never;
@@ -844,7 +892,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/lists/popular": {
+    "/lists/popular/{type}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2044,7 +2092,7 @@ export interface paths {
          *
          *     #### Special Characters
          *
-         *     Our search engine (Solr) gives the following characters special meaning when they appear in a query:
+         *     Our search engine gives the following characters special meaning when they appear in a query:
          *
          *     `+ - && || ! ( ) { } [ ] ^ " ~ * ? : /`
          *
@@ -2052,27 +2100,30 @@ export interface paths {
          *
          *     #### Search Fields
          *
-         *     By default, all text fields are used to search for the `query`. You can optionally specify the `fields` parameter with a single value or comma delimited string for multiple fields. Each `type` has specific `fields` that can be specified. This can be useful if you want to support more strict searches (i.e. title only).
+         *     By default, certain text fields are used to search for the `query`. You can optionally specify the `fields` parameter with a single value or comma delimited string for multiple fields. Each `type` has specific `fields` that can be specified. This can be useful if you want to support more strict searches (i.e. title only).
          *
-         *     | Type | Field |
-         *     |---|---|
-         *     | `movie` | `title` |
-         *     |  | `tagline` |
-         *     |  | `overview` |
-         *     |  | `people` |
-         *     |  | `translations` |
-         *     |  | `aliases` |
-         *     | `show` | `title` |
-         *     |  | `overview` |
-         *     |  | `people` |
-         *     |  | `translations` |
-         *     |  | `aliases` |
-         *     | `episode` | `title` |
-         *     |  | `overview` |
-         *     | `person` | `name` |
-         *     |  | `biography` |
-         *     | `list` | `name` |
-         *     |  | `description` |
+         *     | Type | Field | Default |
+         *     |---|---|---|
+         *     | `movie` | `title` | &#10003; |
+         *     |  | `original_title` | &#10003; |
+         *     |  | `translations` | &#10003; |
+         *     |  | `aliases` | &#10003; |
+         *     |  | `tagline` | |
+         *     |  | `overview` | |
+         *     |  | `people` | |
+         *     | `show` | `title` | &#10003; |
+         *     |  | `original_title` | &#10003; |
+         *     |  | `translations` | &#10003; |
+         *     |  | `aliases` | &#10003; |
+         *     |  | `overview` | |
+         *     |  | `people` | |
+         *     | `episode` | `title` | &#10003; |
+         *     |  | `show_title` | &#10003; |
+         *     |  | `overview` | |
+         *     | `person` | `name` | &#10003; |
+         *     |  | `biography` | |
+         *     | `list` | `name` | &#10003; |
+         *     |  | `description` | &#10003; |
          */
         get: operations["Get text query results"];
         put?: never;
@@ -5129,6 +5180,14 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "access_token": "dbaf9757982a9e738f05d249b7b5b4a266b3a139049317c4909f2f263572c781",
+                     *       "token_type": "bearer",
+                     *       "expires_in": 86400,
+                     *       "refresh_token": "76ba4c5c75c96f6087f58a4de10be6c00b29ea1ddc3b2022ee2016d1363e3a7c",
+                     *       "scope": "public",
+                     *       "created_at": 1487889741
+                     *     } */
                     "application/json": {
                         access_token?: string;
                         token_type?: string;
@@ -5145,6 +5204,10 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "error": "invalid_grant",
+                     *       "error_description": "The provided authorization grant is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client."
+                     *     } */
                     "application/json": {
                         error?: string;
                         error_description?: string;
@@ -5181,6 +5244,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {} */
                     "application/json": Record<string, never>;
                 };
             };
@@ -5210,6 +5274,13 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "device_code": "d9c126a7706328d808914cfd1e40274b6e009f684b1aca271b9b3f90b3630d64",
+                     *       "user_code": "5055CC52",
+                     *       "verification_url": "https://trakt.tv/activate",
+                     *       "expires_in": 600,
+                     *       "interval": 5
+                     *     } */
                     "application/json": {
                         device_code?: string;
                         user_code?: string;
@@ -5249,6 +5320,14 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "access_token": "dbaf9757982a9e738f05d249b7b5b4a266b3a139049317c4909f2f263572c781",
+                     *       "token_type": "bearer",
+                     *       "expires_in": 86400,
+                     *       "refresh_token": "76ba4c5c75c96f6087f58a4de10be6c00b29ea1ddc3b2022ee2016d1363e3a7c",
+                     *       "scope": "public",
+                     *       "created_at": 1487889741
+                     *     } */
                     "application/json": {
                         access_token?: string;
                         token_type?: string;
@@ -5305,6 +5384,108 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "first_aired": "2014-07-14T01:00:00.000Z",
+                     *         "episode": {
+                     *           "season": 7,
+                     *           "number": 4,
+                     *           "title": "Death is Not the End",
+                     *           "ids": {
+                     *             "trakt": 443,
+                     *             "tvdb": 4851180,
+                     *             "imdb": "tt3500614",
+                     *             "tmdb": 988123
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "True Blood",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 5,
+                     *             "slug": "true-blood",
+                     *             "tvdb": 82283,
+                     *             "imdb": "tt0844441",
+                     *             "tmdb": 10545
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "first_aired": "2014-07-14T02:00:00.000Z",
+                     *         "episode": {
+                     *           "season": 1,
+                     *           "number": 3,
+                     *           "title": "Two Boats and a Helicopter",
+                     *           "ids": {
+                     *             "trakt": 499,
+                     *             "tvdb": 4854797,
+                     *             "imdb": "tt3631218",
+                     *             "tmdb": 988346
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "The Leftovers",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 7,
+                     *             "slug": "the-leftovers",
+                     *             "tvdb": 269689,
+                     *             "imdb": "tt2699128",
+                     *             "tmdb": 54344
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "first_aired": "2014-07-21T01:00:00.000Z",
+                     *         "episode": {
+                     *           "season": 7,
+                     *           "number": 5,
+                     *           "title": "Return to Oz",
+                     *           "ids": {
+                     *             "trakt": 444,
+                     *             "tvdb": 4851181,
+                     *             "imdb": "tt3500616",
+                     *             "tmdb": 988124
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "True Blood",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 5,
+                     *             "slug": "true-blood",
+                     *             "tvdb": 82283,
+                     *             "imdb": "tt0844441",
+                     *             "tmdb": 10545
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "first_aired": "2014-07-21T02:00:00.000Z",
+                     *         "episode": {
+                     *           "season": 1,
+                     *           "number": 4,
+                     *           "title": "B.J. and the A.C.",
+                     *           "ids": {
+                     *             "trakt": 500,
+                     *             "tvdb": 4854798,
+                     *             "imdb": "tt3594942",
+                     *             "tmdb": 988347
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "The Leftovers",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 7,
+                     *             "slug": "the-leftovers",
+                     *             "tvdb": 269689,
+                     *             "imdb": "tt2699128",
+                     *             "tmdb": 54344
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         first_aired: string;
                         episode: {
@@ -5378,6 +5559,33 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "first_aired": "2014-06-30T02:00:00.000Z",
+                     *         "episode": {
+                     *           "season": 1,
+                     *           "number": 1,
+                     *           "title": "Pilot",
+                     *           "ids": {
+                     *             "trakt": 497,
+                     *             "tvdb": null,
+                     *             "imdb": "tt3203968",
+                     *             "tmdb": 983732
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "The Leftovers",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 7,
+                     *             "slug": "the-leftovers",
+                     *             "tvdb": 269689,
+                     *             "imdb": "tt2699128",
+                     *             "tmdb": 54344
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         first_aired?: string;
                         episode?: {
@@ -5451,6 +5659,58 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "first_aired": "2014-06-30T02:00:00.000Z",
+                     *         "episode": {
+                     *           "season": 1,
+                     *           "number": 1,
+                     *           "title": "Pilot",
+                     *           "ids": {
+                     *             "trakt": 497,
+                     *             "tvdb": null,
+                     *             "imdb": "tt3203968",
+                     *             "tmdb": 983732
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "The Leftovers",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 7,
+                     *             "slug": "the-leftovers",
+                     *             "tvdb": 269689,
+                     *             "imdb": "tt2699128",
+                     *             "tmdb": 54344
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "first_aired": "2014-10-13T01:00:00.000Z",
+                     *         "episode": {
+                     *           "season": 5,
+                     *           "number": 1,
+                     *           "title": "5x1",
+                     *           "ids": {
+                     *             "trakt": 163,
+                     *             "tvdb": null,
+                     *             "imdb": "",
+                     *             "tmdb": 975949
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "The Walking Dead",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 2,
+                     *             "slug": "the-walking-dead",
+                     *             "tvdb": 153021,
+                     *             "imdb": "tt1520211",
+                     *             "tmdb": 1402
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         first_aired: string;
                         episode: {
@@ -5524,6 +5784,58 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "first_aired": "2014-06-30T02:00:00.000Z",
+                     *         "episode": {
+                     *           "season": 1,
+                     *           "number": 10,
+                     *           "title": "Season Finale",
+                     *           "ids": {
+                     *             "trakt": 497,
+                     *             "tvdb": null,
+                     *             "imdb": "tt3203968",
+                     *             "tmdb": 983732
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "The Leftovers",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 7,
+                     *             "slug": "the-leftovers",
+                     *             "tvdb": 269689,
+                     *             "imdb": "tt2699128",
+                     *             "tmdb": 54344
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "first_aired": "2014-10-13T01:00:00.000Z",
+                     *         "episode": {
+                     *           "season": 5,
+                     *           "number": 10,
+                     *           "title": "5x10",
+                     *           "ids": {
+                     *             "trakt": 163,
+                     *             "tvdb": null,
+                     *             "imdb": "",
+                     *             "tmdb": 975949
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "The Walking Dead",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 2,
+                     *             "slug": "the-walking-dead",
+                     *             "tvdb": 153021,
+                     *             "imdb": "tt1520211",
+                     *             "tmdb": 1402
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         first_aired: string;
                         episode: {
@@ -5597,6 +5909,149 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "released": "2014-08-01",
+                     *         "movie": {
+                     *           "title": "Guardians of the Galaxy",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 28,
+                     *             "slug": "guardians-of-the-galaxy-2014",
+                     *             "imdb": "tt2015381",
+                     *             "tmdb": 118340
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "released": "2014-08-01",
+                     *         "movie": {
+                     *           "title": "Get On Up",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 29,
+                     *             "slug": "get-on-up-2014",
+                     *             "imdb": "tt2473602",
+                     *             "tmdb": 239566
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "released": "2014-08-08",
+                     *         "movie": {
+                     *           "title": "Teenage Mutant Ninja Turtles",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 30,
+                     *             "slug": "teenage-mutant-ninja-turtles-2014",
+                     *             "imdb": "tt1291150",
+                     *             "tmdb": 98566
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
+                    "application/json": {
+                        released: string;
+                        movie: {
+                            title?: string;
+                            year?: number;
+                            ids?: {
+                                trakt?: number;
+                                slug?: string;
+                                imdb?: string;
+                                tmdb?: number;
+                            };
+                        };
+                    }[];
+                };
+            };
+        };
+    };
+    "Get streaming releases": {
+        parameters: {
+            query?: never;
+            header?: {
+                /**
+                 * @description e.g. Bearer [access_token]
+                 * @example Bearer [access_token]
+                 */
+                Authorization?: string;
+                /**
+                 * @description e.g. 2
+                 * @example 2
+                 */
+                "trakt-api-version"?: string;
+                /**
+                 * @description e.g. [client_id]
+                 * @example [client_id]
+                 */
+                "trakt-api-key"?: string;
+            };
+            path: {
+                /**
+                 * @description Start the calendar on this date.
+                 * @example 2014-09-01
+                 */
+                start_date: string;
+                /**
+                 * @description Number of days to display.
+                 * @example 7
+                 */
+                days: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    "X-Start-Date"?: string;
+                    "X-End-Date"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    /** @example [
+                     *       {
+                     *         "released": "2014-08-01",
+                     *         "movie": {
+                     *           "title": "Guardians of the Galaxy",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 28,
+                     *             "slug": "guardians-of-the-galaxy-2014",
+                     *             "imdb": "tt2015381",
+                     *             "tmdb": 118340
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "released": "2014-08-01",
+                     *         "movie": {
+                     *           "title": "Get On Up",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 29,
+                     *             "slug": "get-on-up-2014",
+                     *             "imdb": "tt2473602",
+                     *             "tmdb": 239566
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "released": "2014-08-08",
+                     *         "movie": {
+                     *           "title": "Teenage Mutant Ninja Turtles",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 30,
+                     *             "slug": "teenage-mutant-ninja-turtles-2014",
+                     *             "imdb": "tt1291150",
+                     *             "tmdb": 98566
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         released: string;
                         movie: {
@@ -5658,6 +6113,47 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "released": "2014-08-01",
+                     *         "movie": {
+                     *           "title": "Guardians of the Galaxy",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 28,
+                     *             "slug": "guardians-of-the-galaxy-2014",
+                     *             "imdb": "tt2015381",
+                     *             "tmdb": 118340
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "released": "2014-08-01",
+                     *         "movie": {
+                     *           "title": "Get On Up",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 29,
+                     *             "slug": "get-on-up-2014",
+                     *             "imdb": "tt2473602",
+                     *             "tmdb": 239566
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "released": "2014-08-08",
+                     *         "movie": {
+                     *           "title": "Teenage Mutant Ninja Turtles",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 30,
+                     *             "slug": "teenage-mutant-ninja-turtles-2014",
+                     *             "imdb": "tt1291150",
+                     *             "tmdb": 98566
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         released: string;
                         movie: {
@@ -5714,6 +6210,108 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "first_aired": "2014-07-14T01:00:00.000Z",
+                     *         "episode": {
+                     *           "season": 7,
+                     *           "number": 4,
+                     *           "title": "Death is Not the End",
+                     *           "ids": {
+                     *             "trakt": 443,
+                     *             "tvdb": 4851180,
+                     *             "imdb": "tt3500614",
+                     *             "tmdb": 988123
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "True Blood",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 5,
+                     *             "slug": "true-blood",
+                     *             "tvdb": 82283,
+                     *             "imdb": "tt0844441",
+                     *             "tmdb": 10545
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "first_aired": "2014-07-14T02:00:00.000Z",
+                     *         "episode": {
+                     *           "season": 1,
+                     *           "number": 3,
+                     *           "title": "Two Boats and a Helicopter",
+                     *           "ids": {
+                     *             "trakt": 499,
+                     *             "tvdb": 4854797,
+                     *             "imdb": "tt3631218",
+                     *             "tmdb": 988346
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "The Leftovers",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 7,
+                     *             "slug": "the-leftovers",
+                     *             "tvdb": 269689,
+                     *             "imdb": "tt2699128",
+                     *             "tmdb": 54344
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "first_aired": "2014-07-21T01:00:00.000Z",
+                     *         "episode": {
+                     *           "season": 7,
+                     *           "number": 5,
+                     *           "title": "Return to Oz",
+                     *           "ids": {
+                     *             "trakt": 444,
+                     *             "tvdb": 4851181,
+                     *             "imdb": "tt3500616",
+                     *             "tmdb": 988124
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "True Blood",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 5,
+                     *             "slug": "true-blood",
+                     *             "tvdb": 82283,
+                     *             "imdb": "tt0844441",
+                     *             "tmdb": 10545
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "first_aired": "2014-07-21T02:00:00.000Z",
+                     *         "episode": {
+                     *           "season": 1,
+                     *           "number": 4,
+                     *           "title": "B.J. and the A.C.",
+                     *           "ids": {
+                     *             "trakt": 500,
+                     *             "tvdb": 4854798,
+                     *             "imdb": "tt3594942",
+                     *             "tmdb": 988347
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "The Leftovers",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 7,
+                     *             "slug": "the-leftovers",
+                     *             "tvdb": 269689,
+                     *             "imdb": "tt2699128",
+                     *             "tmdb": 54344
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         first_aired: string;
                         episode: {
@@ -5782,6 +6380,33 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "first_aired": "2014-06-30T02:00:00.000Z",
+                     *         "episode": {
+                     *           "season": 1,
+                     *           "number": 1,
+                     *           "title": "Pilot",
+                     *           "ids": {
+                     *             "trakt": 497,
+                     *             "tvdb": null,
+                     *             "imdb": "tt3203968",
+                     *             "tmdb": 983732
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "The Leftovers",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 7,
+                     *             "slug": "the-leftovers",
+                     *             "tvdb": 269689,
+                     *             "imdb": "tt2699128",
+                     *             "tmdb": 54344
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         first_aired?: string;
                         episode?: {
@@ -5850,6 +6475,58 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "first_aired": "2014-06-30T02:00:00.000Z",
+                     *         "episode": {
+                     *           "season": 1,
+                     *           "number": 10,
+                     *           "title": "Season Finale",
+                     *           "ids": {
+                     *             "trakt": 497,
+                     *             "tvdb": null,
+                     *             "imdb": "tt3203968",
+                     *             "tmdb": 983732
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "The Leftovers",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 7,
+                     *             "slug": "the-leftovers",
+                     *             "tvdb": 269689,
+                     *             "imdb": "tt2699128",
+                     *             "tmdb": 54344
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "first_aired": "2014-10-13T01:00:00.000Z",
+                     *         "episode": {
+                     *           "season": 5,
+                     *           "number": 10,
+                     *           "title": "5x10",
+                     *           "ids": {
+                     *             "trakt": 163,
+                     *             "tvdb": null,
+                     *             "imdb": "",
+                     *             "tmdb": 975949
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "The Walking Dead",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 2,
+                     *             "slug": "the-walking-dead",
+                     *             "tvdb": 153021,
+                     *             "imdb": "tt1520211",
+                     *             "tmdb": 1402
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         first_aired: string;
                         episode: {
@@ -5918,6 +6595,58 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "first_aired": "2014-06-30T02:00:00.000Z",
+                     *         "episode": {
+                     *           "season": 1,
+                     *           "number": 1,
+                     *           "title": "Pilot",
+                     *           "ids": {
+                     *             "trakt": 497,
+                     *             "tvdb": null,
+                     *             "imdb": "tt3203968",
+                     *             "tmdb": 983732
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "The Leftovers",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 7,
+                     *             "slug": "the-leftovers",
+                     *             "tvdb": 269689,
+                     *             "imdb": "tt2699128",
+                     *             "tmdb": 54344
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "first_aired": "2014-10-13T01:00:00.000Z",
+                     *         "episode": {
+                     *           "season": 5,
+                     *           "number": 1,
+                     *           "title": "5x1",
+                     *           "ids": {
+                     *             "trakt": 163,
+                     *             "tvdb": null,
+                     *             "imdb": "",
+                     *             "tmdb": 975949
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "The Walking Dead",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 2,
+                     *             "slug": "the-walking-dead",
+                     *             "tvdb": 153021,
+                     *             "imdb": "tt1520211",
+                     *             "tmdb": 1402
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         first_aired: string;
                         episode: {
@@ -5986,6 +6715,144 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "released": "2014-08-01",
+                     *         "movie": {
+                     *           "title": "Guardians of the Galaxy",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 28,
+                     *             "slug": "guardians-of-the-galaxy-2014",
+                     *             "imdb": "tt2015381",
+                     *             "tmdb": 118340
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "released": "2014-08-01",
+                     *         "movie": {
+                     *           "title": "Get On Up",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 29,
+                     *             "slug": "get-on-up-2014",
+                     *             "imdb": "tt2473602",
+                     *             "tmdb": 239566
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "released": "2014-08-08",
+                     *         "movie": {
+                     *           "title": "Teenage Mutant Ninja Turtles",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 30,
+                     *             "slug": "teenage-mutant-ninja-turtles-2014",
+                     *             "imdb": "tt1291150",
+                     *             "tmdb": 98566
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
+                    "application/json": {
+                        released: string;
+                        movie: {
+                            title?: string;
+                            year?: number;
+                            ids?: {
+                                trakt?: number;
+                                slug?: string;
+                                imdb?: string;
+                                tmdb?: number;
+                            };
+                        };
+                    }[];
+                };
+            };
+        };
+    };
+    "Get streaming releases": {
+        parameters: {
+            query?: never;
+            header?: {
+                /**
+                 * @description e.g. 2
+                 * @example 2
+                 */
+                "trakt-api-version"?: string;
+                /**
+                 * @description e.g. [client_id]
+                 * @example [client_id]
+                 */
+                "trakt-api-key"?: string;
+            };
+            path: {
+                /**
+                 * @description Start the calendar on this date.
+                 * @example 2014-09-01
+                 */
+                start_date: string;
+                /**
+                 * @description Number of days to display.
+                 * @example 7
+                 */
+                days: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    "X-Start-Date"?: string;
+                    "X-End-Date"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    /** @example [
+                     *       {
+                     *         "released": "2014-08-01",
+                     *         "movie": {
+                     *           "title": "Guardians of the Galaxy",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 28,
+                     *             "slug": "guardians-of-the-galaxy-2014",
+                     *             "imdb": "tt2015381",
+                     *             "tmdb": 118340
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "released": "2014-08-01",
+                     *         "movie": {
+                     *           "title": "Get On Up",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 29,
+                     *             "slug": "get-on-up-2014",
+                     *             "imdb": "tt2473602",
+                     *             "tmdb": 239566
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "released": "2014-08-08",
+                     *         "movie": {
+                     *           "title": "Teenage Mutant Ninja Turtles",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 30,
+                     *             "slug": "teenage-mutant-ninja-turtles-2014",
+                     *             "imdb": "tt1291150",
+                     *             "tmdb": 98566
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         released: string;
                         movie: {
@@ -6042,6 +6909,47 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "released": "2014-08-01",
+                     *         "movie": {
+                     *           "title": "Guardians of the Galaxy",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 28,
+                     *             "slug": "guardians-of-the-galaxy-2014",
+                     *             "imdb": "tt2015381",
+                     *             "tmdb": 118340
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "released": "2014-08-01",
+                     *         "movie": {
+                     *           "title": "Get On Up",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 29,
+                     *             "slug": "get-on-up-2014",
+                     *             "imdb": "tt2473602",
+                     *             "tmdb": 239566
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "released": "2014-08-08",
+                     *         "movie": {
+                     *           "title": "Teenage Mutant Ninja Turtles",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 30,
+                     *             "slug": "teenage-mutant-ninja-turtles-2014",
+                     *             "imdb": "tt1291150",
+                     *             "tmdb": 98566
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         released: string;
                         movie: {
@@ -6198,6 +7106,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "expires_at": "2014-10-15T22:21:29.000Z"
+                     *     } */
                     "application/json": {
                         expires_at?: string;
                     };
@@ -6268,6 +7179,35 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "us": [
+                     *         {
+                     *           "name": "G",
+                     *           "slug": "g",
+                     *           "description": "All Ages"
+                     *         },
+                     *         {
+                     *           "name": "PG",
+                     *           "slug": "pg",
+                     *           "description": "Parental Guidance Suggested"
+                     *         },
+                     *         {
+                     *           "name": "PG-13",
+                     *           "slug": "pg-13",
+                     *           "description": "Parents Strongly Cautioned - Ages 13+ Recommended"
+                     *         },
+                     *         {
+                     *           "name": "R",
+                     *           "slug": "r",
+                     *           "description": "Mature Audiences - Ages 17+ Recommended"
+                     *         },
+                     *         {
+                     *           "name": "Not Rated",
+                     *           "slug": "nr",
+                     *           "description": "Not Rated"
+                     *         }
+                     *       ]
+                     *     } */
                     "application/json": {
                         us?: {
                             name: string;
@@ -6426,6 +7366,31 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "id": 1,
+                     *       "parent_id": 0,
+                     *       "created_at": "2010-11-03T06:30:13.000Z",
+                     *       "comment": "Agreed, this show is awesome. AMC in general has awesome shows.",
+                     *       "spoiler": false,
+                     *       "review": false,
+                     *       "replies": 1,
+                     *       "likes": 0,
+                     *       "user_stats": {
+                     *         "rating": 8,
+                     *         "play_count": 1,
+                     *         "completed_count": 1
+                     *       },
+                     *       "user": {
+                     *         "username": "justin",
+                     *         "private": false,
+                     *         "name": "Justin Nemeth",
+                     *         "vip": true,
+                     *         "vip_ep": false,
+                     *         "ids": {
+                     *           "slug": "justin"
+                     *         }
+                     *       }
+                     *     } */
                     "application/json": {
                         id?: number;
                         parent_id?: number;
@@ -6503,6 +7468,32 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "id": 1,
+                     *       "parent_id": 0,
+                     *       "created_at": "2010-11-03T06:30:13.000Z",
+                     *       "updated_at": "2010-11-13T06:30:13.000Z",
+                     *       "comment": "Agreed, this show is awesome. AMC in general has awesome shows and I can't wait to see what they come up with next.",
+                     *       "spoiler": false,
+                     *       "review": false,
+                     *       "replies": 1,
+                     *       "likes": 0,
+                     *       "user_stats": {
+                     *         "rating": null,
+                     *         "play_count": 1,
+                     *         "completed_count": 1
+                     *       },
+                     *       "user": {
+                     *         "username": "justin",
+                     *         "private": false,
+                     *         "name": "Justin Nemeth",
+                     *         "vip": true,
+                     *         "vip_ep": false,
+                     *         "ids": {
+                     *           "slug": "justin"
+                     *         }
+                     *       }
+                     *     } */
                     "application/json": {
                         id?: number;
                         parent_id?: number;
@@ -6609,6 +7600,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "id": 19,
+                     *         "parent_id": 1,
+                     *         "created_at": "2014-07-27T23:06:59.000Z",
+                     *         "updated_at": "2014-07-27T23:06:59.000Z",
+                     *         "comment": "Season 2 has really picked up the action!",
+                     *         "spoiler": true,
+                     *         "review": false,
+                     *         "replies": 0,
+                     *         "likes": 0,
+                     *         "user_stats": {
+                     *           "rating": 8,
+                     *           "play_count": 1,
+                     *           "completed_count": 1
+                     *         },
+                     *         "user": {
+                     *           "username": "sean",
+                     *           "private": false,
+                     *           "name": "Sean Rudford",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "sean"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         id?: number;
                         parent_id?: number;
@@ -6687,6 +7706,32 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "id": 2,
+                     *       "parent_id": 1,
+                     *       "created_at": "2014-09-01T06:30:13.000Z",
+                     *       "updated_at": "2014-09-01T06:30:13.000Z",
+                     *       "comment": "Couldn't agree more with your review!",
+                     *       "spoiler": false,
+                     *       "review": false,
+                     *       "replies": 0,
+                     *       "likes": 0,
+                     *       "user_stats": {
+                     *         "rating": null,
+                     *         "play_count": 1,
+                     *         "completed_count": 1
+                     *       },
+                     *       "user": {
+                     *         "username": "justin",
+                     *         "private": false,
+                     *         "name": "Justin Nemeth",
+                     *         "vip": true,
+                     *         "vip_ep": false,
+                     *         "ids": {
+                     *           "slug": "justin"
+                     *         }
+                     *       }
+                     *     } */
                     "application/json": {
                         id?: number;
                         parent_id?: number;
@@ -6749,6 +7794,20 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "type": "show",
+                     *       "show": {
+                     *         "title": "Game of Thrones",
+                     *         "year": 2011,
+                     *         "ids": {
+                     *           "trakt": 353,
+                     *           "slug": "game-of-thrones",
+                     *           "tvdb": 121361,
+                     *           "imdb": "tt0944947",
+                     *           "tmdb": 1399
+                     *         }
+                     *       }
+                     *     } */
                     "application/json": {
                         type?: string;
                         show?: {
@@ -6803,6 +7862,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "liked_at": "2014-09-01T09:10:11.000Z",
+                     *         "user": {
+                     *           "username": "sean",
+                     *           "private": false,
+                     *           "name": "Sean Rudford",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "sean"
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "liked_at": "2014-09-01T09:10:11.000Z",
+                     *         "user": {
+                     *           "username": "justin",
+                     *           "private": false,
+                     *           "name": "Justin Nemeth",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "justin"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         liked_at: string;
                         user: {
@@ -6941,6 +8028,231 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "type": "movie",
+                     *         "movie": {
+                     *           "title": "Batman Begins",
+                     *           "year": 2005,
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "batman-begins-2005",
+                     *             "imdb": "tt0372784",
+                     *             "tmdb": 272
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 267,
+                     *           "comment": "Great kickoff to a new Batman trilogy!",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2015-04-25T00:14:57.000Z",
+                     *           "updated_at": "2015-04-25T00:14:57.000Z",
+                     *           "replies": 0,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": 10,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "show",
+                     *         "show": {
+                     *           "title": "Breaking Bad",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "breaking-bad",
+                     *             "tvdb": 81189,
+                     *             "imdb": "tt0903747",
+                     *             "tmdb": 1396
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 199,
+                     *           "comment": "Skyler, I AM THE DANGER.",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2015-02-18T06:02:30.000Z",
+                     *           "updated_at": "2015-02-18T06:02:30.000Z",
+                     *           "replies": 0,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": 10,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "season",
+                     *         "season": {
+                     *           "number": 1,
+                     *           "ids": {
+                     *             "trakt": 3958,
+                     *             "tvdb": 274431,
+                     *             "tmdb": 60394
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "Gotham",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 869,
+                     *             "slug": "gotham",
+                     *             "tvdb": 274431,
+                     *             "imdb": "tt3749900",
+                     *             "tmdb": 60708
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 220,
+                     *           "comment": "Kicking off season 1 for a new Batman show.",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2015-04-21T06:53:25.000Z",
+                     *           "updated_at": "2015-04-21T06:53:25.000Z",
+                     *           "replies": 0,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": 8,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "episode",
+                     *         "episode": {
+                     *           "season": 1,
+                     *           "number": 1,
+                     *           "title": "Jim Gordon",
+                     *           "ids": {
+                     *             "trakt": 63958,
+                     *             "tvdb": 4768720,
+                     *             "imdb": "tt3216414",
+                     *             "tmdb": 975968
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "Gotham",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 869,
+                     *             "slug": "gotham",
+                     *             "tvdb": 274431,
+                     *             "imdb": "tt3749900",
+                     *             "tmdb": 60708
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 229,
+                     *           "comment": "Is this the OC?",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2015-04-21T15:42:31.000Z",
+                     *           "updated_at": "2015-04-21T15:42:31.000Z",
+                     *           "replies": 1,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": 7,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "list",
+                     *         "list": {
+                     *           "name": "Star Wars",
+                     *           "description": "The complete Star Wars saga!",
+                     *           "privacy": "public",
+                     *           "share_link": "https://trakt.tv/lists/51",
+                     *           "display_numbers": false,
+                     *           "allow_comments": true,
+                     *           "updated_at": "2015-04-22T22:01:39.000Z",
+                     *           "item_count": 8,
+                     *           "comment_count": 0,
+                     *           "likes": 0,
+                     *           "ids": {
+                     *             "trakt": 51,
+                     *             "slug": "star-wars"
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 268,
+                     *           "comment": "May the 4th be with you!",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2014-12-08T17:34:51.000Z",
+                     *           "updated_at": "2014-12-08T17:34:51.000Z",
+                     *           "replies": 0,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": null,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         type: string;
                         movie?: {
@@ -7071,6 +8383,231 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "type": "movie",
+                     *         "movie": {
+                     *           "title": "Batman Begins",
+                     *           "year": 2005,
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "batman-begins-2005",
+                     *             "imdb": "tt0372784",
+                     *             "tmdb": 272
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 267,
+                     *           "comment": "Great kickoff to a new Batman trilogy!",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2015-04-25T00:14:57.000Z",
+                     *           "updated_at": "2015-04-25T00:14:57.000Z",
+                     *           "replies": 0,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": 10,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "show",
+                     *         "show": {
+                     *           "title": "Breaking Bad",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "breaking-bad",
+                     *             "tvdb": 81189,
+                     *             "imdb": "tt0903747",
+                     *             "tmdb": 1396
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 199,
+                     *           "comment": "Skyler, I AM THE DANGER.",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2015-02-18T06:02:30.000Z",
+                     *           "updated_at": "2015-02-18T06:02:30.000Z",
+                     *           "replies": 0,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": 10,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "season",
+                     *         "season": {
+                     *           "number": 1,
+                     *           "ids": {
+                     *             "trakt": 3958,
+                     *             "tvdb": 274431,
+                     *             "tmdb": 60394
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "Gotham",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 869,
+                     *             "slug": "gotham",
+                     *             "tvdb": 274431,
+                     *             "imdb": "tt3749900",
+                     *             "tmdb": 60708
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 220,
+                     *           "comment": "Kicking off season 1 for a new Batman show.",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2015-04-21T06:53:25.000Z",
+                     *           "updated_at": "2015-04-21T06:53:25.000Z",
+                     *           "replies": 0,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": 8,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "episode",
+                     *         "episode": {
+                     *           "season": 1,
+                     *           "number": 1,
+                     *           "title": "Jim Gordon",
+                     *           "ids": {
+                     *             "trakt": 63958,
+                     *             "tvdb": 4768720,
+                     *             "imdb": "tt3216414",
+                     *             "tmdb": 975968
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "Gotham",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 869,
+                     *             "slug": "gotham",
+                     *             "tvdb": 274431,
+                     *             "imdb": "tt3749900",
+                     *             "tmdb": 60708
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 229,
+                     *           "comment": "Is this the OC?",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2015-04-21T15:42:31.000Z",
+                     *           "updated_at": "2015-04-21T15:42:31.000Z",
+                     *           "replies": 1,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": 7,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "list",
+                     *         "list": {
+                     *           "name": "Star Wars",
+                     *           "description": "The complete Star Wars saga!",
+                     *           "privacy": "public",
+                     *           "share_link": "https://trakt.tv/lists/51",
+                     *           "display_numbers": false,
+                     *           "allow_comments": true,
+                     *           "updated_at": "2015-04-22T22:01:39.000Z",
+                     *           "item_count": 8,
+                     *           "comment_count": 0,
+                     *           "likes": 0,
+                     *           "ids": {
+                     *             "trakt": 51,
+                     *             "slug": "star-wars"
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 268,
+                     *           "comment": "May the 4th be with you!",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2014-12-08T17:34:51.000Z",
+                     *           "updated_at": "2014-12-08T17:34:51.000Z",
+                     *           "replies": 0,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": null,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         type: string;
                         movie?: {
@@ -7201,6 +8738,231 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "type": "movie",
+                     *         "movie": {
+                     *           "title": "Batman Begins",
+                     *           "year": 2005,
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "batman-begins-2005",
+                     *             "imdb": "tt0372784",
+                     *             "tmdb": 272
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 267,
+                     *           "comment": "Great kickoff to a new Batman trilogy!",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2015-04-25T00:14:57.000Z",
+                     *           "updated_at": "2015-04-25T00:14:57.000Z",
+                     *           "replies": 0,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": 10,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "show",
+                     *         "show": {
+                     *           "title": "Breaking Bad",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "breaking-bad",
+                     *             "tvdb": 81189,
+                     *             "imdb": "tt0903747",
+                     *             "tmdb": 1396
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 199,
+                     *           "comment": "Skyler, I AM THE DANGER.",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2015-02-18T06:02:30.000Z",
+                     *           "updated_at": "2015-02-18T06:02:30.000Z",
+                     *           "replies": 0,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": 10,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "season",
+                     *         "season": {
+                     *           "number": 1,
+                     *           "ids": {
+                     *             "trakt": 3958,
+                     *             "tvdb": 274431,
+                     *             "tmdb": 60394
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "Gotham",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 869,
+                     *             "slug": "gotham",
+                     *             "tvdb": 274431,
+                     *             "imdb": "tt3749900",
+                     *             "tmdb": 60708
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 220,
+                     *           "comment": "Kicking off season 1 for a new Batman show.",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2015-04-21T06:53:25.000Z",
+                     *           "updated_at": "2015-04-21T06:53:25.000Z",
+                     *           "replies": 0,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": 8,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "episode",
+                     *         "episode": {
+                     *           "season": 1,
+                     *           "number": 1,
+                     *           "title": "Jim Gordon",
+                     *           "ids": {
+                     *             "trakt": 63958,
+                     *             "tvdb": 4768720,
+                     *             "imdb": "tt3216414",
+                     *             "tmdb": 975968
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "Gotham",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 869,
+                     *             "slug": "gotham",
+                     *             "tvdb": 274431,
+                     *             "imdb": "tt3749900",
+                     *             "tmdb": 60708
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 229,
+                     *           "comment": "Is this the OC?",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2015-04-21T15:42:31.000Z",
+                     *           "updated_at": "2015-04-21T15:42:31.000Z",
+                     *           "replies": 1,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": 7,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "list",
+                     *         "list": {
+                     *           "name": "Star Wars",
+                     *           "description": "The complete Star Wars saga!",
+                     *           "privacy": "public",
+                     *           "share_link": "https://trakt.tv/lists/51",
+                     *           "display_numbers": false,
+                     *           "allow_comments": true,
+                     *           "updated_at": "2015-04-22T22:01:39.000Z",
+                     *           "item_count": 8,
+                     *           "comment_count": 0,
+                     *           "likes": 0,
+                     *           "ids": {
+                     *             "trakt": 51,
+                     *             "slug": "star-wars"
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 268,
+                     *           "comment": "May the 4th be with you!",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2014-12-08T17:34:51.000Z",
+                     *           "updated_at": "2014-12-08T17:34:51.000Z",
+                     *           "replies": 0,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": null,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         type: string;
                         movie?: {
@@ -7319,6 +9081,20 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "name": "Australia",
+                     *         "code": "au"
+                     *       },
+                     *       {
+                     *         "name": "Japan",
+                     *         "code": "ja"
+                     *       },
+                     *       {
+                     *         "name": "United States",
+                     *         "code": "us"
+                     *       }
+                     *     ] */
                     "application/json": {
                         name: string;
                         code: string;
@@ -7350,7 +9126,9 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
+            /** @description ```
+             *     /genres/movies?extended=subgenres
+             *     ``` */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -7359,6 +9137,13 @@ export interface operations {
                     "application/json": {
                         name: string;
                         slug: string;
+                    }[] | {
+                        name: string;
+                        slug: string;
+                        subgenres: {
+                            name: string;
+                            slug: string;
+                        }[];
                     }[];
                 };
             };
@@ -7393,6 +9178,20 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "name": "English",
+                     *         "code": "en"
+                     *       },
+                     *       {
+                     *         "name": "Italian",
+                     *         "code": "it"
+                     *       },
+                     *       {
+                     *         "name": "Polish",
+                     *         "code": "pl"
+                     *       }
+                     *     ] */
                     "application/json": {
                         name: string;
                         code: string;
@@ -7416,7 +9215,10 @@ export interface operations {
                  */
                 "trakt-api-key"?: string;
             };
-            path?: never;
+            path: {
+                /** @example personal */
+                type: "personal" | "official";
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -7431,6 +9233,76 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "like_count": 5,
+                     *         "comment_count": 5,
+                     *         "list": {
+                     *           "name": "Incredible Thoughts",
+                     *           "description": "How could my brain conceive them?",
+                     *           "privacy": "public",
+                     *           "share_link": "https://trakt.tv/lists/1337",
+                     *           "type": "personal",
+                     *           "display_numbers": true,
+                     *           "allow_comments": true,
+                     *           "sort_by": "rank",
+                     *           "sort_how": "asc",
+                     *           "created_at": "2014-10-11T17:00:54.000Z",
+                     *           "updated_at": "2014-10-11T17:00:54.000Z",
+                     *           "item_count": 50,
+                     *           "comment_count": 10,
+                     *           "likes": 99,
+                     *           "ids": {
+                     *             "trakt": 1337,
+                     *             "slug": "incredible-thoughts"
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin Nemeth",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "like_count": 4,
+                     *         "comment_count": 4,
+                     *         "list": {
+                     *           "name": "Top Chihuahua Movies",
+                     *           "description": "So cute.",
+                     *           "privacy": "public",
+                     *           "share_link": "https://trakt.tv/lists/1338",
+                     *           "type": "personal",
+                     *           "display_numbers": true,
+                     *           "allow_comments": true,
+                     *           "sort_by": "rank",
+                     *           "sort_how": "asc",
+                     *           "created_at": "2015-10-11T17:00:54.000Z",
+                     *           "updated_at": "2015-10-11T17:00:54.000Z",
+                     *           "item_count": 50,
+                     *           "comment_count": 20,
+                     *           "likes": 109,
+                     *           "ids": {
+                     *             "trakt": 1338,
+                     *             "slug": "top-chihuahua-movies"
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin Nemeth",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         like_count: number;
                         comment_count: number;
@@ -7484,7 +9356,10 @@ export interface operations {
                  */
                 "trakt-api-key"?: string;
             };
-            path?: never;
+            path: {
+                /** @example personal */
+                type: "personal" | "official";
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -7499,6 +9374,76 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "like_count": 109,
+                     *         "comment_count": 20,
+                     *         "list": {
+                     *           "name": "Top Chihuahua Movies",
+                     *           "description": "So cute.",
+                     *           "privacy": "public",
+                     *           "share_link": "https://trakt.tv/lists/1338",
+                     *           "type": "personal",
+                     *           "display_numbers": true,
+                     *           "allow_comments": true,
+                     *           "sort_by": "rank",
+                     *           "sort_how": "asc",
+                     *           "created_at": "2015-10-11T17:00:54.000Z",
+                     *           "updated_at": "2015-10-11T17:00:54.000Z",
+                     *           "item_count": 50,
+                     *           "comment_count": 20,
+                     *           "likes": 109,
+                     *           "ids": {
+                     *             "trakt": 1338,
+                     *             "slug": "top-chihuahua-movies"
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin Nemeth",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "like_count": 99,
+                     *         "comment_count": 10,
+                     *         "list": {
+                     *           "name": "Incredible Thoughts",
+                     *           "description": "How could my brain conceive them?",
+                     *           "privacy": "public",
+                     *           "share_link": "https://trakt.tv/lists/1337",
+                     *           "type": "personal",
+                     *           "display_numbers": true,
+                     *           "allow_comments": true,
+                     *           "sort_by": "rank",
+                     *           "sort_how": "asc",
+                     *           "created_at": "2014-10-11T17:00:54.000Z",
+                     *           "updated_at": "2014-10-11T17:00:54.000Z",
+                     *           "item_count": 50,
+                     *           "comment_count": 10,
+                     *           "likes": 99,
+                     *           "ids": {
+                     *             "trakt": 1337,
+                     *             "slug": "incredible-thoughts"
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin Nemeth",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         like_count: number;
                         comment_count: number;
@@ -7572,6 +9517,36 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "name": "Star Wars in machete order",
+                     *       "description": "Next time you want to introduce someone to Star Wars for the first time, watch the films with them in this order: IV, V, II, III, VI.",
+                     *       "privacy": "public",
+                     *       "share_link": "https://trakt.tv/lists/55",
+                     *       "type": "personal",
+                     *       "display_numbers": true,
+                     *       "allow_comments": true,
+                     *       "sort_by": "rank",
+                     *       "sort_how": "asc",
+                     *       "created_at": "2014-10-11T17:00:54.000Z",
+                     *       "updated_at": "2014-10-11T17:00:54.000Z",
+                     *       "item_count": 5,
+                     *       "comment_count": 0,
+                     *       "likes": 0,
+                     *       "ids": {
+                     *         "trakt": 55,
+                     *         "slug": "star-wars-in-machete-order"
+                     *       },
+                     *       "user": {
+                     *         "username": "sean",
+                     *         "private": false,
+                     *         "name": "Sean Rudford",
+                     *         "vip": true,
+                     *         "vip_ep": false,
+                     *         "ids": {
+                     *           "slug": "sean"
+                     *         }
+                     *       }
+                     *     } */
                     "application/json": {
                         name?: string;
                         description?: string;
@@ -7643,6 +9618,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "liked_at": "2014-09-01T09:10:11.000Z",
+                     *         "user": {
+                     *           "username": "sean",
+                     *           "private": false,
+                     *           "name": "Sean Rudford",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "sean"
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "liked_at": "2014-09-01T09:10:11.000Z",
+                     *         "user": {
+                     *           "username": "justin",
+                     *           "private": false,
+                     *           "name": "Justin Nemeth",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "justin"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         liked_at: string;
                         user: {
@@ -7791,6 +9794,113 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "rank": 1,
+                     *         "id": 101,
+                     *         "listed_at": "2014-06-16T06:07:12.000Z",
+                     *         "notes": null,
+                     *         "type": "movie",
+                     *         "movie": {
+                     *           "title": "Star Wars: Episode IV - A New Hope",
+                     *           "year": 1977,
+                     *           "ids": {
+                     *             "trakt": 12,
+                     *             "slug": "star-wars-episode-iv-a-new-hope-1977",
+                     *             "imdb": "tt0076759",
+                     *             "tmdb": 11
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "rank": 2,
+                     *         "id": 102,
+                     *         "listed_at": "2014-06-16T06:07:12.000Z",
+                     *         "notes": null,
+                     *         "type": "show",
+                     *         "show": {
+                     *           "title": "The Walking Dead",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 2,
+                     *             "slug": "the-walking-dead",
+                     *             "tvdb": 153021,
+                     *             "imdb": "tt1520211",
+                     *             "tmdb": 1402
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "rank": 3,
+                     *         "id": 103,
+                     *         "listed_at": "2014-06-16T06:07:12.000Z",
+                     *         "notes": null,
+                     *         "type": "season",
+                     *         "season": {
+                     *           "number": 1,
+                     *           "ids": {
+                     *             "tvdb": 30272,
+                     *             "tmdb": 3572
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "Breaking Bad",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "breaking-bad",
+                     *             "tvdb": 81189,
+                     *             "imdb": "tt0903747",
+                     *             "tmdb": 1396
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "rank": 4,
+                     *         "id": 104,
+                     *         "listed_at": "2014-06-17T06:52:03.000Z",
+                     *         "notes": null,
+                     *         "type": "episode",
+                     *         "episode": {
+                     *           "season": 0,
+                     *           "number": 2,
+                     *           "title": "Wedding Day",
+                     *           "ids": {
+                     *             "trakt": 2,
+                     *             "tvdb": 3859791,
+                     *             "imdb": null,
+                     *             "tmdb": 62133
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "Breaking Bad",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "breaking-bad",
+                     *             "tvdb": 81189,
+                     *             "imdb": "tt0903747",
+                     *             "tmdb": 1396
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "rank": 5,
+                     *         "id": 105,
+                     *         "listed_at": "2014-06-17T06:52:03.000Z",
+                     *         "notes": null,
+                     *         "type": "person",
+                     *         "person": {
+                     *           "name": "Garrett Hedlund",
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "garrett-hedlund",
+                     *             "imdb": "nm1330560",
+                     *             "tmdb": 9828
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         rank: number;
                         id: number;
@@ -7891,6 +10001,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "id": 8,
+                     *         "parent_id": 0,
+                     *         "created_at": "2011-03-25T22:35:17.000Z",
+                     *         "updated_at": "2011-03-25T22:35:17.000Z",
+                     *         "comment": "Can't wait to watch everything on this epic list!",
+                     *         "spoiler": false,
+                     *         "review": false,
+                     *         "replies": 0,
+                     *         "likes": 0,
+                     *         "user_stats": {
+                     *           "rating": null,
+                     *           "play_count": 1,
+                     *           "completed_count": 1
+                     *         },
+                     *         "user": {
+                     *           "username": "sean",
+                     *           "private": false,
+                     *           "name": "Sean Rudford",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "sean"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         id?: number;
                         parent_id?: number;
@@ -7952,6 +10090,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "watchers": 21,
+                     *         "movie": {
+                     *           "title": "TRON: Legacy",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "tron-legacy-2010",
+                     *             "imdb": "tt1104001",
+                     *             "tmdb": 20526
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watchers": 17,
+                     *         "movie": {
+                     *           "title": "The Dark Knight",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 4,
+                     *             "slug": "the-dark-knight-2008",
+                     *             "imdb": "tt0468569",
+                     *             "tmdb": 155
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         watchers: number;
                         movie: {
@@ -7999,6 +10165,108 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "title": "The Dark Knight",
+                     *         "year": 2008,
+                     *         "ids": {
+                     *           "trakt": 16,
+                     *           "slug": "the-dark-knight-2008",
+                     *           "imdb": "tt0468569",
+                     *           "tmdb": 155
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Fight Club",
+                     *         "year": 1999,
+                     *         "ids": {
+                     *           "trakt": 727,
+                     *           "slug": "fight-club-1999",
+                     *           "imdb": "tt0137523",
+                     *           "tmdb": 550
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Jurassic Park",
+                     *         "year": 1993,
+                     *         "ids": {
+                     *           "trakt": 393,
+                     *           "slug": "jurassic-park-1993",
+                     *           "imdb": "tt0107290",
+                     *           "tmdb": 329
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Back to the Future",
+                     *         "year": 1985,
+                     *         "ids": {
+                     *           "trakt": 308,
+                     *           "slug": "back-to-the-future-1985",
+                     *           "imdb": "tt0088763",
+                     *           "tmdb": 105
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "The Shawshank Redemption",
+                     *         "year": 1994,
+                     *         "ids": {
+                     *           "trakt": 231,
+                     *           "slug": "the-shawshank-redemption-1994",
+                     *           "imdb": "tt0111161",
+                     *           "tmdb": 278
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "The Social Network",
+                     *         "year": 2010,
+                     *         "ids": {
+                     *           "trakt": 98,
+                     *           "slug": "the-social-network-2010",
+                     *           "imdb": "tt1285016",
+                     *           "tmdb": 37799
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Star Wars: Episode IV - A New Hope",
+                     *         "year": 1977,
+                     *         "ids": {
+                     *           "trakt": 738,
+                     *           "slug": "star-wars-episode-iv-a-new-hope-1977",
+                     *           "imdb": "tt0076759",
+                     *           "tmdb": 11
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "The Lord of the Rings: The Return of the King",
+                     *         "year": 2003,
+                     *         "ids": {
+                     *           "trakt": 374,
+                     *           "slug": "the-lord-of-the-rings-the-return-of-the-king-2003",
+                     *           "imdb": "tt0167260",
+                     *           "tmdb": 122
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "The Lord of the Rings: The Two Towers",
+                     *         "year": 2002,
+                     *         "ids": {
+                     *           "trakt": 373,
+                     *           "slug": "the-lord-of-the-rings-the-two-towers-2002",
+                     *           "imdb": "tt0167261",
+                     *           "tmdb": 121
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "The Matrix",
+                     *         "year": 1999,
+                     *         "ids": {
+                     *           "trakt": 269,
+                     *           "slug": "the-matrix-1999",
+                     *           "imdb": "tt0133093",
+                     *           "tmdb": 603
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         title: string;
                         year: number;
@@ -8049,6 +10317,47 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "user_count": 76254,
+                     *         "movie": {
+                     *           "title": "The Dark Knight",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 120,
+                     *             "slug": "the-dark-knight-2008",
+                     *             "imdb": "tt0468569",
+                     *             "tmdb": 155
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "user_count": 61289,
+                     *         "movie": {
+                     *           "title": "The Avengers",
+                     *           "year": 2012,
+                     *           "ids": {
+                     *             "trakt": 14701,
+                     *             "slug": "the-avengers-2012",
+                     *             "imdb": "tt0848228",
+                     *             "tmdb": 24428
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "user_count": 55443,
+                     *         "movie": {
+                     *           "title": "Despicable Me",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 12496,
+                     *             "slug": "despicable-me-2010",
+                     *             "imdb": "tt1323594",
+                     *             "tmdb": 20352
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         user_count: number;
                         movie: {
@@ -8102,6 +10411,158 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "watcher_count": 66667,
+                     *         "play_count": 109736,
+                     *         "collected_count": 27584,
+                     *         "movie": {
+                     *           "title": "Frozen",
+                     *           "year": 2013,
+                     *           "ids": {
+                     *             "trakt": 77349,
+                     *             "slug": "frozen-2013",
+                     *             "imdb": "tt2294629",
+                     *             "tmdb": 109445
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 76254,
+                     *         "play_count": 104242,
+                     *         "collected_count": 31877,
+                     *         "movie": {
+                     *           "title": "The Dark Knight",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 120,
+                     *             "slug": "the-dark-knight-2008",
+                     *             "imdb": "tt0468569",
+                     *             "tmdb": 155
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 81289,
+                     *         "play_count": 102512,
+                     *         "collected_count": 33837,
+                     *         "movie": {
+                     *           "title": "The Avengers",
+                     *           "year": 2012,
+                     *           "ids": {
+                     *             "trakt": 14701,
+                     *             "slug": "the-avengers-2012",
+                     *             "imdb": "tt0848228",
+                     *             "tmdb": 24428
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 72538,
+                     *         "play_count": 97715,
+                     *         "collected_count": 26662,
+                     *         "movie": {
+                     *           "title": "Guardians of the Galaxy",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 82405,
+                     *             "slug": "guardians-of-the-galaxy-2014",
+                     *             "imdb": "tt2015381",
+                     *             "tmdb": 118340
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 8487,
+                     *         "play_count": 95830,
+                     *         "collected_count": 6252,
+                     *         "movie": {
+                     *           "title": "Begin Again",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 123759,
+                     *             "slug": "begin-again-2013",
+                     *             "imdb": "tt1980929",
+                     *             "tmdb": 198277
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 74665,
+                     *         "play_count": 88597,
+                     *         "collected_count": 32044,
+                     *         "movie": {
+                     *           "title": "Inception",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 16662,
+                     *             "slug": "inception-2010",
+                     *             "imdb": "tt1375666",
+                     *             "tmdb": 27205
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 55443,
+                     *         "play_count": 82227,
+                     *         "collected_count": 25855,
+                     *         "movie": {
+                     *           "title": "Despicable Me",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 12496,
+                     *             "slug": "despicable-me-2010",
+                     *             "imdb": "tt1323594",
+                     *             "tmdb": 20352
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 55739,
+                     *         "play_count": 81167,
+                     *         "collected_count": 27441,
+                     *         "movie": {
+                     *           "title": "Iron Man 2",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 5355,
+                     *             "slug": "iron-man-2-2010",
+                     *             "imdb": "tt1228705",
+                     *             "tmdb": 10138
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 45472,
+                     *         "play_count": 80008,
+                     *         "collected_count": 16419,
+                     *         "movie": {
+                     *           "title": "Big Hero 6",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 112404,
+                     *             "slug": "big-hero-6-2014",
+                     *             "imdb": "tt2245084",
+                     *             "tmdb": 177572
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 63920,
+                     *         "play_count": 79998,
+                     *         "collected_count": 27721,
+                     *         "movie": {
+                     *           "title": "Iron Man",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 1157,
+                     *             "slug": "iron-man-2008",
+                     *             "imdb": "tt0371746",
+                     *             "tmdb": 1726
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         watcher_count: number;
                         play_count: number;
@@ -8157,6 +10618,158 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "watcher_count": 81289,
+                     *         "play_count": 102512,
+                     *         "collected_count": 33837,
+                     *         "movie": {
+                     *           "title": "The Avengers",
+                     *           "year": 2012,
+                     *           "ids": {
+                     *             "trakt": 14701,
+                     *             "slug": "the-avengers-2012",
+                     *             "imdb": "tt0848228",
+                     *             "tmdb": 24428
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 76254,
+                     *         "play_count": 104242,
+                     *         "collected_count": 31877,
+                     *         "movie": {
+                     *           "title": "The Dark Knight",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 120,
+                     *             "slug": "the-dark-knight-2008",
+                     *             "imdb": "tt0468569",
+                     *             "tmdb": 155
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 74665,
+                     *         "play_count": 88597,
+                     *         "collected_count": 32044,
+                     *         "movie": {
+                     *           "title": "Inception",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 16662,
+                     *             "slug": "inception-2010",
+                     *             "imdb": "tt1375666",
+                     *             "tmdb": 27205
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 72538,
+                     *         "play_count": 97715,
+                     *         "collected_count": 26662,
+                     *         "movie": {
+                     *           "title": "Guardians of the Galaxy",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 82405,
+                     *             "slug": "guardians-of-the-galaxy-2014",
+                     *             "imdb": "tt2015381",
+                     *             "tmdb": 118340
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 67228,
+                     *         "play_count": 77108,
+                     *         "collected_count": 26263,
+                     *         "movie": {
+                     *           "title": "The Matrix",
+                     *           "year": 1999,
+                     *           "ids": {
+                     *             "trakt": 481,
+                     *             "slug": "the-matrix-1999",
+                     *             "imdb": "tt0133093",
+                     *             "tmdb": 603
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 66667,
+                     *         "play_count": 109736,
+                     *         "collected_count": 27584,
+                     *         "movie": {
+                     *           "title": "Frozen",
+                     *           "year": 2013,
+                     *           "ids": {
+                     *             "trakt": 77349,
+                     *             "slug": "frozen-2013",
+                     *             "imdb": "tt2294629",
+                     *             "tmdb": 109445
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 63920,
+                     *         "play_count": 79998,
+                     *         "collected_count": 27721,
+                     *         "movie": {
+                     *           "title": "Iron Man",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 1157,
+                     *             "slug": "iron-man-2008",
+                     *             "imdb": "tt0371746",
+                     *             "tmdb": 1726
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 62786,
+                     *         "play_count": 78930,
+                     *         "collected_count": 27693,
+                     *         "movie": {
+                     *           "title": "Avatar",
+                     *           "year": 2009,
+                     *           "ids": {
+                     *             "trakt": 12269,
+                     *             "slug": "avatar-2009",
+                     *             "imdb": "tt0499549",
+                     *             "tmdb": 19995
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 60803,
+                     *         "play_count": 69112,
+                     *         "collected_count": 27542,
+                     *         "movie": {
+                     *           "title": "The Lord of the Rings: The Fellowship of the Ring",
+                     *           "year": 2001,
+                     *           "ids": {
+                     *             "trakt": 88,
+                     *             "slug": "the-lord-of-the-rings-the-fellowship-of-the-ring-2001",
+                     *             "imdb": "tt0120737",
+                     *             "tmdb": 120
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 58057,
+                     *         "play_count": 67884,
+                     *         "collected_count": 25803,
+                     *         "movie": {
+                     *           "title": "Batman Begins",
+                     *           "year": 2005,
+                     *           "ids": {
+                     *             "trakt": 228,
+                     *             "slug": "batman-begins-2005",
+                     *             "imdb": "tt0372784",
+                     *             "tmdb": 272
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         watcher_count: number;
                         play_count: number;
@@ -8212,6 +10825,158 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "watcher_count": 81289,
+                     *         "play_count": 102512,
+                     *         "collected_count": 33837,
+                     *         "movie": {
+                     *           "title": "The Avengers",
+                     *           "year": 2012,
+                     *           "ids": {
+                     *             "trakt": 14701,
+                     *             "slug": "the-avengers-2012",
+                     *             "imdb": "tt0848228",
+                     *             "tmdb": 24428
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 74665,
+                     *         "play_count": 88597,
+                     *         "collected_count": 32044,
+                     *         "movie": {
+                     *           "title": "Inception",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 16662,
+                     *             "slug": "inception-2010",
+                     *             "imdb": "tt1375666",
+                     *             "tmdb": 27205
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 76254,
+                     *         "play_count": 104242,
+                     *         "collected_count": 31877,
+                     *         "movie": {
+                     *           "title": "The Dark Knight",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 120,
+                     *             "slug": "the-dark-knight-2008",
+                     *             "imdb": "tt0468569",
+                     *             "tmdb": 155
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 55355,
+                     *         "play_count": 67402,
+                     *         "collected_count": 30502,
+                     *         "movie": {
+                     *           "title": "The Hobbit: An Unexpected Journey",
+                     *           "year": 2012,
+                     *           "ids": {
+                     *             "trakt": 34097,
+                     *             "slug": "the-hobbit-an-unexpected-journey-2012",
+                     *             "imdb": "tt0903624",
+                     *             "tmdb": 49051
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 56916,
+                     *         "play_count": 71767,
+                     *         "collected_count": 29062,
+                     *         "movie": {
+                     *           "title": "The Dark Knight Rises",
+                     *           "year": 2012,
+                     *           "ids": {
+                     *             "trakt": 34073,
+                     *             "slug": "the-dark-knight-rises-2012",
+                     *             "imdb": "tt1345836",
+                     *             "tmdb": 49026
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 57603,
+                     *         "play_count": 65325,
+                     *         "collected_count": 28037,
+                     *         "movie": {
+                     *           "title": "The Hunger Games",
+                     *           "year": 2012,
+                     *           "ids": {
+                     *             "trakt": 51342,
+                     *             "slug": "the-hunger-games-2012",
+                     *             "imdb": "tt1392170",
+                     *             "tmdb": 70160
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 52662,
+                     *         "play_count": 63107,
+                     *         "collected_count": 27802,
+                     *         "movie": {
+                     *           "title": "Iron Man 3",
+                     *           "year": 2013,
+                     *           "ids": {
+                     *             "trakt": 50134,
+                     *             "slug": "iron-man-3-2013",
+                     *             "imdb": "tt1300854",
+                     *             "tmdb": 68721
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 63920,
+                     *         "play_count": 79998,
+                     *         "collected_count": 27721,
+                     *         "movie": {
+                     *           "title": "Iron Man",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 1157,
+                     *             "slug": "iron-man-2008",
+                     *             "imdb": "tt0371746",
+                     *             "tmdb": 1726
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 62786,
+                     *         "play_count": 78930,
+                     *         "collected_count": 27693,
+                     *         "movie": {
+                     *           "title": "Avatar",
+                     *           "year": 2009,
+                     *           "ids": {
+                     *             "trakt": 12269,
+                     *             "slug": "avatar-2009",
+                     *             "imdb": "tt0499549",
+                     *             "tmdb": 19995
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 49809,
+                     *         "play_count": 60086,
+                     *         "collected_count": 27661,
+                     *         "movie": {
+                     *           "title": "Django Unchained",
+                     *           "year": 2012,
+                     *           "ids": {
+                     *             "trakt": 50131,
+                     *             "slug": "django-unchained-2012",
+                     *             "imdb": "tt1853728",
+                     *             "tmdb": 68718
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         watcher_count: number;
                         play_count: number;
@@ -8261,6 +11026,138 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "list_count": 5362,
+                     *         "movie": {
+                     *           "title": "The Hunger Games: Mockingjay - Part 2",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 89543,
+                     *             "slug": "the-hunger-games-mockingjay-part-2-2015",
+                     *             "imdb": "tt1951266",
+                     *             "tmdb": 131634
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "list_count": 4405,
+                     *         "movie": {
+                     *           "title": "Batman v Superman: Dawn of Justice",
+                     *           "year": 2016,
+                     *           "ids": {
+                     *             "trakt": 129583,
+                     *             "slug": "batman-v-superman-dawn-of-justice-2016",
+                     *             "imdb": "tt2975590",
+                     *             "tmdb": 209112
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "list_count": 4185,
+                     *         "movie": {
+                     *           "title": "Star Wars: Episode VII - The Force Awakens",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 94024,
+                     *             "slug": "star-wars-episode-vii-the-force-awakens-2015",
+                     *             "imdb": "tt2488496",
+                     *             "tmdb": 140607
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "list_count": 2996,
+                     *         "movie": {
+                     *           "title": "The Martian",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 183371,
+                     *             "slug": "the-martian-2015",
+                     *             "imdb": "tt3659388",
+                     *             "tmdb": 286217
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "list_count": 2902,
+                     *         "movie": {
+                     *           "title": "Deadpool",
+                     *           "year": 2016,
+                     *           "ids": {
+                     *             "trakt": 190430,
+                     *             "slug": "deadpool-2016",
+                     *             "imdb": "tt1431045",
+                     *             "tmdb": 293660
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "list_count": 2675,
+                     *         "movie": {
+                     *           "title": "Captain America: Civil War",
+                     *           "year": 2016,
+                     *           "ids": {
+                     *             "trakt": 169105,
+                     *             "slug": "captain-america-civil-war-2016",
+                     *             "imdb": "tt3498820",
+                     *             "tmdb": 271110
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "list_count": 2629,
+                     *         "movie": {
+                     *           "title": "X-Men: Apocalypse",
+                     *           "year": 2016,
+                     *           "ids": {
+                     *             "trakt": 149999,
+                     *             "slug": "x-men-apocalypse-2016",
+                     *             "imdb": "tt3385516",
+                     *             "tmdb": 246655
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "list_count": 2184,
+                     *         "movie": {
+                     *           "title": "Suicide Squad",
+                     *           "year": 2016,
+                     *           "ids": {
+                     *             "trakt": 193079,
+                     *             "slug": "suicide-squad-2016",
+                     *             "imdb": "tt1386697",
+                     *             "tmdb": 297761
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "list_count": 2127,
+                     *         "movie": {
+                     *           "title": "SPECTRE",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 128378,
+                     *             "slug": "spectre-2015",
+                     *             "imdb": "tt2379713",
+                     *             "tmdb": 206647
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "list_count": 1951,
+                     *         "movie": {
+                     *           "title": "Justice League",
+                     *           "year": 2017,
+                     *           "ids": {
+                     *             "trakt": 94232,
+                     *             "slug": "justice-league-2017",
+                     *             "imdb": "tt0974015",
+                     *             "tmdb": 141052
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         list_count: number;
                         movie: {
@@ -8304,6 +11201,138 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "revenue": 48464322,
+                     *         "movie": {
+                     *           "title": "Hotel Transylvania 2",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 103449,
+                     *             "slug": "hotel-transylvania-2-2015",
+                     *             "imdb": "tt2510894",
+                     *             "tmdb": 159824
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "revenue": 17728313,
+                     *         "movie": {
+                     *           "title": "The Intern",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 156997,
+                     *             "slug": "the-intern-2015",
+                     *             "imdb": "tt2361509",
+                     *             "tmdb": 257211
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "revenue": 14271777,
+                     *         "movie": {
+                     *           "title": "Maze Runner: The Scorch Trials",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 190987,
+                     *             "slug": "maze-runner-the-scorch-trials-2015",
+                     *             "imdb": "tt4046784",
+                     *             "tmdb": 294254
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "revenue": 13242895,
+                     *         "movie": {
+                     *           "title": "Everest",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 153969,
+                     *             "slug": "everest-2015",
+                     *             "imdb": "tt2719848",
+                     *             "tmdb": 253412
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "revenue": 11031215,
+                     *         "movie": {
+                     *           "title": "Black Mass",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 160067,
+                     *             "slug": "black-mass-2015",
+                     *             "imdb": "tt1355683",
+                     *             "tmdb": 261023
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "revenue": 6674280,
+                     *         "movie": {
+                     *           "title": "The Visit",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 196859,
+                     *             "slug": "the-visit-2015",
+                     *             "imdb": "tt3567288",
+                     *             "tmdb": 298312
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "revenue": 4774505,
+                     *         "movie": {
+                     *           "title": "The Perfect Guy",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 207114,
+                     *             "slug": "the-perfect-guy-2015",
+                     *             "imdb": "tt3862750",
+                     *             "tmdb": 304372
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "revenue": 4242644,
+                     *         "movie": {
+                     *           "title": "War Room",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 203901,
+                     *             "slug": "war-room",
+                     *             "imdb": "tt3832914",
+                     *             "tmdb": 323272
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "revenue": 3520626,
+                     *         "movie": {
+                     *           "title": "The Green Inferno",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 109134,
+                     *             "slug": "the-green-inferno-2014",
+                     *             "imdb": "tt2403021",
+                     *             "tmdb": 171424
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "revenue": 1717301,
+                     *         "movie": {
+                     *           "title": "Sicario",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 171369,
+                     *             "slug": "sicario-2015",
+                     *             "imdb": "tt3397884",
+                     *             "tmdb": 273481
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         revenue: number;
                         movie: {
@@ -8358,6 +11387,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "updated_at": "2014-09-22T21:56:03.000Z",
+                     *         "movie": {
+                     *           "title": "TRON: Legacy",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "tron-legacy-2010",
+                     *             "imdb": "tt1104001",
+                     *             "tmdb": 20526
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "updated_at": "2014-09-23T21:56:03.000Z",
+                     *         "movie": {
+                     *           "title": "The Dark Knight",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 4,
+                     *             "slug": "the-dark-knight-2008",
+                     *             "imdb": "tt0468569",
+                     *             "tmdb": 155
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         updated_at: string;
                         movie: {
@@ -8412,6 +11469,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       1,
+                     *       20,
+                     *       34,
+                     *       50
+                     *     ] */
                     "application/json": number[];
                 };
             };
@@ -8523,6 +11586,68 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "title": "Batman 1 - Batman Begins",
+                     *         "country": "ca"
+                     *       },
+                     *       {
+                     *         "title": "Batman 5 Begins",
+                     *         "country": "br"
+                     *       },
+                     *       {
+                     *         "title": "Batman inicia",
+                     *         "country": "ar"
+                     *       },
+                     *       {
+                     *         "title": "Batman 5: Batman Begins",
+                     *         "country": "us"
+                     *       },
+                     *       {
+                     *         "title": "蝙蝠俠：開戰時刻",
+                     *         "country": "tw"
+                     *       },
+                     *       {
+                     *         "title": "Batman: Na začetku",
+                     *         "country": "si"
+                     *       },
+                     *       {
+                     *         "title": "Batman Begins",
+                     *         "country": "es"
+                     *       },
+                     *       {
+                     *         "title": "Batman Begins",
+                     *         "country": "de"
+                     *       },
+                     *       {
+                     *         "title": "Batman  - Batman Begins",
+                     *         "country": "no"
+                     *       },
+                     *       {
+                     *         "title": "Batman:Le commencement",
+                     *         "country": "ca"
+                     *       },
+                     *       {
+                     *         "title": "Batman Dark Knight 1: Batman Begins",
+                     *         "country": "us"
+                     *       },
+                     *       {
+                     *         "title": "蝙蝠侠：侠影之谜",
+                     *         "country": "cn"
+                     *       },
+                     *       {
+                     *         "title": "Бэтмен: Начало",
+                     *         "country": "ru"
+                     *       },
+                     *       {
+                     *         "title": "Бетмен: Початок",
+                     *         "country": "ua"
+                     *       },
+                     *       {
+                     *         "title": "배트맨 비긴즈",
+                     *         "country": "kr"
+                     *       }
+                     *     ] */
                     "application/json": {
                         title: string;
                         country: string;
@@ -8568,6 +11693,99 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "country": "us",
+                     *         "certification": "PG",
+                     *         "release_date": "2010-12-16",
+                     *         "release_type": "theatrical",
+                     *         "note": null
+                     *       },
+                     *       {
+                     *         "country": "gb",
+                     *         "certification": "PG",
+                     *         "release_date": "2010-12-17",
+                     *         "release_type": "theatrical",
+                     *         "note": null
+                     *       },
+                     *       {
+                     *         "country": "de",
+                     *         "certification": "12",
+                     *         "release_date": "2011-01-26",
+                     *         "release_type": "theatrical",
+                     *         "note": null
+                     *       },
+                     *       {
+                     *         "country": "fr",
+                     *         "certification": "U",
+                     *         "release_date": "2011-02-09",
+                     *         "release_type": "theatrical",
+                     *         "note": null
+                     *       },
+                     *       {
+                     *         "country": "it",
+                     *         "certification": "",
+                     *         "release_date": "2010-12-29",
+                     *         "release_type": "theatrical",
+                     *         "note": null
+                     *       },
+                     *       {
+                     *         "country": "tr",
+                     *         "certification": "PG-13",
+                     *         "release_date": "2011-01-28",
+                     *         "release_type": "theatrical",
+                     *         "note": null
+                     *       },
+                     *       {
+                     *         "country": "ca",
+                     *         "certification": "",
+                     *         "release_date": "2010-12-17",
+                     *         "release_type": "theatrical",
+                     *         "note": null
+                     *       },
+                     *       {
+                     *         "country": "nl",
+                     *         "certification": "12",
+                     *         "release_date": "2011-01-28",
+                     *         "release_type": "theatrical",
+                     *         "note": null
+                     *       },
+                     *       {
+                     *         "country": "kz",
+                     *         "certification": "Б14",
+                     *         "release_date": "2010-12-15",
+                     *         "release_type": "theatrical",
+                     *         "note": null
+                     *       },
+                     *       {
+                     *         "country": "sk",
+                     *         "certification": "12",
+                     *         "release_date": "2011-01-06",
+                     *         "release_type": "theatrical",
+                     *         "note": null
+                     *       },
+                     *       {
+                     *         "country": "kr",
+                     *         "certification": "전체 관람가",
+                     *         "release_date": "2010-12-29",
+                     *         "release_type": "theatrical",
+                     *         "note": null
+                     *       },
+                     *       {
+                     *         "country": "au",
+                     *         "certification": "PG",
+                     *         "release_date": "2010-12-16",
+                     *         "release_type": "theatrical",
+                     *         "note": null
+                     *       },
+                     *       {
+                     *         "country": "gr",
+                     *         "certification": "PG",
+                     *         "release_date": "2010-12-16",
+                     *         "release_type": "theatrical",
+                     *         "note": null
+                     *       }
+                     *     ] */
                     "application/json": {
                         country: string;
                         certification: string;
@@ -8616,6 +11834,29 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "title": "Batman Begins",
+                     *         "overview": "Driven by tragedy, billionaire Bruce Wayne dedicates his life to uncovering and defeating the corruption that plagues his home, Gotham City.  Unable to work within the system, he instead creates a new identity, a symbol of fear for the criminal underworld - The Batman.",
+                     *         "tagline": "Evil fears the knight.",
+                     *         "language": "en",
+                     *         "country": "us"
+                     *       },
+                     *       {
+                     *         "title": "Batman Begins",
+                     *         "overview": "...",
+                     *         "tagline": "Das Böse fürchtet den Ritter.",
+                     *         "language": "de",
+                     *         "country": "de"
+                     *       },
+                     *       {
+                     *         "title": "Batman Begins",
+                     *         "overview": "...",
+                     *         "tagline": "",
+                     *         "language": "da",
+                     *         "country": "da"
+                     *       }
+                     *     ] */
                     "application/json": {
                         title: string;
                         overview: string;
@@ -8668,6 +11909,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "id": 8,
+                     *         "parent_id": 0,
+                     *         "created_at": "2011-03-25T22:35:17.000Z",
+                     *         "updated_at": "2011-03-25T22:35:17.000Z",
+                     *         "comment": "Great movie!",
+                     *         "spoiler": false,
+                     *         "review": false,
+                     *         "replies": 1,
+                     *         "likes": 0,
+                     *         "user_stats": {
+                     *           "rating": 8,
+                     *           "play_count": 1,
+                     *           "completed_count": 1
+                     *         },
+                     *         "user": {
+                     *           "username": "sean",
+                     *           "private": false,
+                     *           "name": "Sean Rudford",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "sean"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         id?: number;
                         parent_id?: number;
@@ -8744,6 +12013,38 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "name": "Incredible Thoughts",
+                     *         "description": "How could my brain conceive them?",
+                     *         "privacy": "public",
+                     *         "share_link": "https://trakt.tv/lists/1337",
+                     *         "type": "personal",
+                     *         "display_numbers": true,
+                     *         "allow_comments": true,
+                     *         "sort_by": "rank",
+                     *         "sort_how": "asc",
+                     *         "created_at": "2014-10-11T17:00:54.000Z",
+                     *         "updated_at": "2014-10-11T17:00:54.000Z",
+                     *         "item_count": 50,
+                     *         "comment_count": 10,
+                     *         "likes": 99,
+                     *         "ids": {
+                     *           "trakt": 1337,
+                     *           "slug": "incredible-thoughts"
+                     *         },
+                     *         "user": {
+                     *           "username": "justin",
+                     *           "private": false,
+                     *           "name": "Justin Nemeth",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "justin"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         name?: string;
                         description?: string;
@@ -8810,6 +12111,633 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "cast": [
+                     *         {
+                     *           "characters": [
+                     *             "Sam Flynn"
+                     *           ],
+                     *           "person": {
+                     *             "name": "Garrett Hedlund",
+                     *             "ids": {
+                     *               "trakt": 1,
+                     *               "slug": "garrett-hedlund",
+                     *               "imdb": "nm1330560",
+                     *               "tmdb": 9828
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "characters": [
+                     *             "Kevin Flynn",
+                     *             "Clu"
+                     *           ],
+                     *           "person": {
+                     *             "name": "Jeff Bridges",
+                     *             "ids": {
+                     *               "trakt": 2,
+                     *               "slug": "jeff-bridges",
+                     *               "imdb": "nm0000313",
+                     *               "tmdb": 1229
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "characters": [
+                     *             "Quorra"
+                     *           ],
+                     *           "person": {
+                     *             "name": "Olivia Wilde",
+                     *             "ids": {
+                     *               "trakt": 3,
+                     *               "slug": "olivia-wilde",
+                     *               "imdb": "nm1312575",
+                     *               "tmdb": 59315
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "characters": [
+                     *             "Alan Bradley",
+                     *             "Tron"
+                     *           ],
+                     *           "person": {
+                     *             "name": "Bruce Boxleitner",
+                     *             "ids": {
+                     *               "trakt": 4,
+                     *               "slug": "bruce-boxleitner",
+                     *               "imdb": "nm0000310",
+                     *               "tmdb": 2547
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "characters": [
+                     *             "Siren"
+                     *           ],
+                     *           "person": {
+                     *             "name": "Yaya DaCosta",
+                     *             "ids": {
+                     *               "trakt": 5,
+                     *               "slug": "yaya-dacosta",
+                     *               "imdb": "",
+                     *               "tmdb": 60033
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "characters": [
+                     *             "Siren"
+                     *           ],
+                     *           "person": {
+                     *             "name": "Serinda Swan",
+                     *             "ids": {
+                     *               "trakt": 6,
+                     *               "slug": "serinda-swan",
+                     *               "imdb": "",
+                     *               "tmdb": 86268
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "characters": [
+                     *             "Siren"
+                     *           ],
+                     *           "person": {
+                     *             "name": "Beau Garrett",
+                     *             "ids": {
+                     *               "trakt": 7,
+                     *               "slug": "beau-garrett",
+                     *               "imdb": "nm1683768",
+                     *               "tmdb": 20403
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "characters": [
+                     *             "Siren"
+                     *           ],
+                     *           "person": {
+                     *             "name": "Elizabeth Mathis",
+                     *             "ids": {
+                     *               "trakt": 8,
+                     *               "slug": "elizabeth-mathis",
+                     *               "imdb": "",
+                     *               "tmdb": 130108
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "characters": [
+                     *             "Jarvis"
+                     *           ],
+                     *           "person": {
+                     *             "name": "James Frain",
+                     *             "ids": {
+                     *               "trakt": 9,
+                     *               "slug": "james-frain",
+                     *               "imdb": "nm0289656",
+                     *               "tmdb": 22063
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "characters": [
+                     *             "Young Mrs. Flynn"
+                     *           ],
+                     *           "person": {
+                     *             "name": "Amy Esterle",
+                     *             "ids": {
+                     *               "trakt": 10,
+                     *               "slug": "amy-esterle",
+                     *               "imdb": "",
+                     *               "tmdb": 86269
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "characters": [
+                     *             "Sobel"
+                     *           ],
+                     *           "person": {
+                     *             "name": "Brandon Jay McLaren",
+                     *             "ids": {
+                     *               "trakt": 11,
+                     *               "slug": "brandon-jay-mclaren",
+                     *               "imdb": "",
+                     *               "tmdb": 58371
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "characters": [
+                     *             "Castor",
+                     *             "Zuse"
+                     *           ],
+                     *           "person": {
+                     *             "name": "Michael Sheen",
+                     *             "ids": {
+                     *               "trakt": 12,
+                     *               "slug": "michael-sheen",
+                     *               "imdb": "nm0790688",
+                     *               "tmdb": 3968
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "characters": [
+                     *             "Young Sam"
+                     *           ],
+                     *           "person": {
+                     *             "name": "Owen Best",
+                     *             "ids": {
+                     *               "trakt": 13,
+                     *               "slug": "owen-best",
+                     *               "imdb": "",
+                     *               "tmdb": 109205
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "characters": [
+                     *             "Green Light Cycle Rider"
+                     *           ],
+                     *           "person": {
+                     *             "name": "Michael Teigen",
+                     *             "ids": {
+                     *               "trakt": 14,
+                     *               "slug": "michael-teigen",
+                     *               "imdb": "nm1083137",
+                     *               "tmdb": 37980
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "characters": [
+                     *             "Masked DJ's"
+                     *           ],
+                     *           "person": {
+                     *             "name": "Daft Punk",
+                     *             "ids": {
+                     *               "trakt": 15,
+                     *               "slug": "daft-punk",
+                     *               "imdb": "",
+                     *               "tmdb": 67931
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "characters": [
+                     *             "Chattering Homeless Man"
+                     *           ],
+                     *           "person": {
+                     *             "name": "Ron Selmour",
+                     *             "ids": {
+                     *               "trakt": 16,
+                     *               "slug": "ron-selmour",
+                     *               "imdb": "",
+                     *               "tmdb": 10874
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "characters": [
+                     *             "Bartik"
+                     *           ],
+                     *           "person": {
+                     *             "name": "Conrad Coates",
+                     *             "ids": {
+                     *               "trakt": 17,
+                     *               "slug": "conrad-coates",
+                     *               "imdb": "",
+                     *               "tmdb": 43263
+                     *             }
+                     *           }
+                     *         },
+                     *         {
+                     *           "characters": [
+                     *             "Half Faced Man (as Yurij Kis)"
+                     *           ],
+                     *           "person": {
+                     *             "name": "Kis Yurij",
+                     *             "ids": {
+                     *               "trakt": 18,
+                     *               "slug": "kis-yurij",
+                     *               "imdb": "",
+                     *               "tmdb": 145110
+                     *             }
+                     *           }
+                     *         }
+                     *       ],
+                     *       "crew": {
+                     *         "production": [
+                     *           {
+                     *             "jobs": [
+                     *               "Casting"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Heike Brandstatter",
+                     *               "ids": {
+                     *                 "trakt": 19,
+                     *                 "slug": "heike-brandstatter",
+                     *                 "imdb": "nm0104840",
+                     *                 "tmdb": 5362
+                     *               }
+                     *             }
+                     *           },
+                     *           {
+                     *             "jobs": [
+                     *               "Casting"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Sarah Finn",
+                     *               "ids": {
+                     *                 "trakt": 20,
+                     *                 "slug": "sarah-finn",
+                     *                 "imdb": "nm0278168",
+                     *                 "tmdb": 7232
+                     *               }
+                     *             }
+                     *           },
+                     *           {
+                     *             "jobs": [
+                     *               "Casting"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Coreen Mayrs",
+                     *               "ids": {
+                     *                 "trakt": 21,
+                     *                 "slug": "coreen-mayrs",
+                     *                 "imdb": "nm0563042",
+                     *                 "tmdb": 5363
+                     *               }
+                     *             }
+                     *           },
+                     *           {
+                     *             "jobs": [
+                     *               "Producer"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Sean Bailey",
+                     *               "ids": {
+                     *                 "trakt": 34,
+                     *                 "slug": "sean-bailey",
+                     *                 "imdb": "",
+                     *                 "tmdb": 39387
+                     *               }
+                     *             }
+                     *           },
+                     *           {
+                     *             "jobs": [
+                     *               "Producer"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Steven Lisberger",
+                     *               "ids": {
+                     *                 "trakt": 33,
+                     *                 "slug": "steven-lisberger",
+                     *                 "imdb": "",
+                     *                 "tmdb": 12859
+                     *               }
+                     *             }
+                     *           },
+                     *           {
+                     *             "jobs": [
+                     *               "Producer"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Jeffrey Silver",
+                     *               "ids": {
+                     *                 "trakt": 35,
+                     *                 "slug": "jeffrey-silver",
+                     *                 "imdb": "",
+                     *                 "tmdb": 20908
+                     *               }
+                     *             }
+                     *           },
+                     *           {
+                     *             "jobs": [
+                     *               "Producer"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Bruce Franklin",
+                     *               "ids": {
+                     *                 "trakt": 36,
+                     *                 "slug": "bruce-franklin",
+                     *                 "imdb": "",
+                     *                 "tmdb": 113981
+                     *               }
+                     *             }
+                     *           },
+                     *           {
+                     *             "jobs": [
+                     *               "Producer"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Steve Gaub",
+                     *               "ids": {
+                     *                 "trakt": 37,
+                     *                 "slug": "steve-gaub",
+                     *                 "imdb": "",
+                     *                 "tmdb": 63289
+                     *               }
+                     *             }
+                     *           },
+                     *           {
+                     *             "jobs": [
+                     *               "Producer"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Justis Greene",
+                     *               "ids": {
+                     *                 "trakt": 38,
+                     *                 "slug": "justis-greene",
+                     *                 "imdb": "",
+                     *                 "tmdb": 113982
+                     *               }
+                     *             }
+                     *           },
+                     *           {
+                     *             "jobs": [
+                     *               "Producer"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Julien Lemaitre",
+                     *               "ids": {
+                     *                 "trakt": 39,
+                     *                 "slug": "julien-lemaitre",
+                     *                 "imdb": "",
+                     *                 "tmdb": 113983
+                     *               }
+                     *             }
+                     *           },
+                     *           {
+                     *             "job": [
+                     *               "Executive Producer"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Donald Kushner",
+                     *               "ids": {
+                     *                 "trakt": 40,
+                     *                 "slug": "donald-kushner",
+                     *                 "imdb": "",
+                     *                 "tmdb": 6889
+                     *               }
+                     *             }
+                     *           }
+                     *         ],
+                     *         "art": [
+                     *           {
+                     *             "jobs": [
+                     *               "Production Design"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Darren Gilford",
+                     *               "ids": {
+                     *                 "trakt": 22,
+                     *                 "slug": "darren-gilford",
+                     *                 "imdb": "",
+                     *                 "tmdb": 411385
+                     *               }
+                     *             }
+                     *           },
+                     *           {
+                     *             "jobs": [
+                     *               "Set Decoration"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Lin MacDonald",
+                     *               "ids": {
+                     *                 "trakt": 25,
+                     *                 "slug": "lin-macdonald",
+                     *                 "imdb": "nm0003106",
+                     *                 "tmdb": 12384
+                     *               }
+                     *             }
+                     *           }
+                     *         ],
+                     *         "crew": [
+                     *           {
+                     *             "jobs": [
+                     *               "Supervising Art Director"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Kevin Ishioka",
+                     *               "ids": {
+                     *                 "trakt": 23,
+                     *                 "slug": "kevin-ishioka",
+                     *                 "imdb": "nm0411131",
+                     *                 "tmdb": 6878
+                     *               }
+                     *             }
+                     *           },
+                     *           {
+                     *             "jobs": [
+                     *               "Supervising Art Director"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Mark W. Mansbridge",
+                     *               "ids": {
+                     *                 "trakt": 24,
+                     *                 "slug": "mark-w-mansbridge",
+                     *                 "imdb": "nm0543729",
+                     *                 "tmdb": 21070
+                     *               }
+                     *             }
+                     *           }
+                     *         ],
+                     *         "costume & make-up": [
+                     *           {
+                     *             "jobs": [
+                     *               "Costume Design"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Michael Wilkinson",
+                     *               "ids": {
+                     *                 "trakt": 26,
+                     *                 "slug": "michael-wilkinson",
+                     *                 "imdb": "nm0929452",
+                     *                 "tmdb": 5392
+                     *               }
+                     *             }
+                     *           },
+                     *           {
+                     *             "jobs": [
+                     *               "Makeup Department Head"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Rosalina Da Silva",
+                     *               "ids": {
+                     *                 "trakt": 27,
+                     *                 "slug": "rosalina-da-silva",
+                     *                 "imdb": "nm0196301",
+                     *                 "tmdb": 75294
+                     *               }
+                     *             }
+                     *           },
+                     *           {
+                     *             "jobs": [
+                     *               "Costume Supervisor"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Tangi Crawford",
+                     *               "ids": {
+                     *                 "trakt": 28,
+                     *                 "slug": "tangi-crawford",
+                     *                 "imdb": "",
+                     *                 "tmdb": 1323289
+                     *               }
+                     *             }
+                     *           }
+                     *         ],
+                     *         "directing": [
+                     *           {
+                     *             "jobs": [
+                     *               "Director"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Joseph Kosinski",
+                     *               "ids": {
+                     *                 "trakt": 29,
+                     *                 "slug": "joseph-kosinski",
+                     *                 "imdb": "nm2676052",
+                     *                 "tmdb": 86270
+                     *               }
+                     *             }
+                     *           }
+                     *         ],
+                     *         "writing": [
+                     *           {
+                     *             "jobs": [
+                     *               "Screenplay"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Adam Horowitz",
+                     *               "ids": {
+                     *                 "trakt": 30,
+                     *                 "slug": "adam-horowitz",
+                     *                 "imdb": "",
+                     *                 "tmdb": 44035
+                     *               }
+                     *             }
+                     *           },
+                     *           {
+                     *             "job": [
+                     *               "Screenplay"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Richard Jefferies",
+                     *               "ids": {
+                     *                 "trakt": 31,
+                     *                 "slug": "richard-jefferies",
+                     *                 "imdb": "",
+                     *                 "tmdb": 73570
+                     *               }
+                     *             }
+                     *           },
+                     *           {
+                     *             "jobs": [
+                     *               "Screenplay"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Edward Kitsis",
+                     *               "ids": {
+                     *                 "trakt": 32,
+                     *                 "slug": "edward-kitsis",
+                     *                 "imdb": "",
+                     *                 "tmdb": 44034
+                     *               }
+                     *             }
+                     *           },
+                     *           {
+                     *             "jobs": [
+                     *               "Screenplay"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Steven Lisberger",
+                     *               "ids": {
+                     *                 "trakt": 33,
+                     *                 "slug": "steven-lisberger",
+                     *                 "imdb": "",
+                     *                 "tmdb": 12859
+                     *               }
+                     *             }
+                     *           }
+                     *         ],
+                     *         "sound": [
+                     *           {
+                     *             "jobs": [
+                     *               "Music"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Daft Punk",
+                     *               "ids": {
+                     *                 "trakt": 15,
+                     *                 "slug": "daft-punk",
+                     *                 "imdb": "",
+                     *                 "tmdb": 67931
+                     *               }
+                     *             }
+                     *           }
+                     *         ],
+                     *         "camera": [
+                     *           {
+                     *             "jobs": [
+                     *               "Director of Photography"
+                     *             ],
+                     *             "person": {
+                     *               "name": "Claudio Miranda",
+                     *               "ids": {
+                     *                 "trakt": 41,
+                     *                 "slug": "claudio-miranda",
+                     *                 "imdb": "",
+                     *                 "tmdb": 51333
+                     *               }
+                     *             }
+                     *           }
+                     *         ]
+                     *       }
+                     *     } */
                     "application/json": {
                         cast?: {
                             characters: string[];
@@ -8960,6 +12888,22 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "rating": 7.33778,
+                     *       "votes": 7866,
+                     *       "distribution": {
+                     *         "1": 298,
+                     *         "2": 46,
+                     *         "3": 87,
+                     *         "4": 178,
+                     *         "5": 446,
+                     *         "6": 1167,
+                     *         "7": 1855,
+                     *         "8": 1543,
+                     *         "9": 662,
+                     *         "10": 1583
+                     *       }
+                     *     } */
                     "application/json": {
                         rating?: number;
                         votes?: number;
@@ -9016,6 +12960,108 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "title": "Jurassic Park",
+                     *         "year": 1993,
+                     *         "ids": {
+                     *           "trakt": 393,
+                     *           "slug": "jurassic-park-1993",
+                     *           "imdb": "tt0107290",
+                     *           "tmdb": 329
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Back to the Future",
+                     *         "year": 1985,
+                     *         "ids": {
+                     *           "trakt": 308,
+                     *           "slug": "back-to-the-future-1985",
+                     *           "imdb": "tt0088763",
+                     *           "tmdb": 105
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Kick-Ass",
+                     *         "year": 2010,
+                     *         "ids": {
+                     *           "trakt": 171,
+                     *           "slug": "kick-ass-2010",
+                     *           "imdb": "tt1250777",
+                     *           "tmdb": 23483
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "The Hangover",
+                     *         "year": 2009,
+                     *         "ids": {
+                     *           "trakt": 547,
+                     *           "slug": "the-hangover-2009",
+                     *           "imdb": "tt1119646",
+                     *           "tmdb": 18785
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Back to the Future Part II",
+                     *         "year": 1989,
+                     *         "ids": {
+                     *           "trakt": 384,
+                     *           "slug": "back-to-the-future-part-ii-1989",
+                     *           "imdb": "tt0096874",
+                     *           "tmdb": 165
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Zombieland",
+                     *         "year": 2009,
+                     *         "ids": {
+                     *           "trakt": 205,
+                     *           "slug": "zombieland-2009",
+                     *           "imdb": "tt1156398",
+                     *           "tmdb": 19908
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Inception",
+                     *         "year": 2010,
+                     *         "ids": {
+                     *           "trakt": 108,
+                     *           "slug": "inception-2010",
+                     *           "imdb": "tt1375666",
+                     *           "tmdb": 27205
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Gladiator",
+                     *         "year": 2000,
+                     *         "ids": {
+                     *           "trakt": 463,
+                     *           "slug": "gladiator-2000",
+                     *           "imdb": "tt0172495",
+                     *           "tmdb": 98
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Snatch",
+                     *         "year": 2000,
+                     *         "ids": {
+                     *           "trakt": 1473,
+                     *           "slug": "snatch-2000",
+                     *           "imdb": "tt0208092",
+                     *           "tmdb": 107
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Donnie Darko",
+                     *         "year": 2001,
+                     *         "ids": {
+                     *           "trakt": 114,
+                     *           "slug": "donnie-darko-2001",
+                     *           "imdb": "tt0246578",
+                     *           "tmdb": 141
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         title: string;
                         year: number;
@@ -9062,6 +13108,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "watchers": 39204,
+                     *       "plays": 51033,
+                     *       "collectors": 27379,
+                     *       "comments": 36,
+                     *       "lists": 4561,
+                     *       "votes": 7866,
+                     *       "favorited": 54321
+                     *     } */
                     "application/json": {
                         watchers?: number;
                         plays?: number;
@@ -9107,6 +13162,53 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "name": "20th Century Fox",
+                     *         "country": "us",
+                     *         "ids": {
+                     *           "trakt": 20,
+                     *           "slug": "20th-century-fox",
+                     *           "tmdb": 25
+                     *         }
+                     *       },
+                     *       {
+                     *         "name": "Marvel Entertainment",
+                     *         "country": "us",
+                     *         "ids": {
+                     *           "trakt": 19,
+                     *           "slug": "marvel-entertainment",
+                     *           "tmdb": 7505
+                     *         }
+                     *       },
+                     *       {
+                     *         "name": "The Donners' Company",
+                     *         "country": "us",
+                     *         "ids": {
+                     *           "trakt": 25,
+                     *           "slug": "the-donners-company",
+                     *           "tmdb": 431
+                     *         }
+                     *       },
+                     *       {
+                     *         "name": "TSG Entertainment",
+                     *         "country": "us",
+                     *         "ids": {
+                     *           "trakt": 22,
+                     *           "slug": "tsg-entertainment",
+                     *           "tmdb": 22213
+                     *         }
+                     *       },
+                     *       {
+                     *         "name": "Genre Films",
+                     *         "country": "us",
+                     *         "ids": {
+                     *           "trakt": 23,
+                     *           "slug": "genre-films",
+                     *           "tmdb": 28788
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         name: string;
                         country: string;
@@ -9152,6 +13254,28 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "username": "justin",
+                     *         "private": false,
+                     *         "name": "Justin Nemeth",
+                     *         "vip": true,
+                     *         "vip_ep": false,
+                     *         "ids": {
+                     *           "slug": "justin"
+                     *         }
+                     *       },
+                     *       {
+                     *         "username": "sean",
+                     *         "private": false,
+                     *         "name": "Sean Rudford",
+                     *         "vip": true,
+                     *         "vip_ep": false,
+                     *         "ids": {
+                     *           "slug": "sean"
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         username: string;
                         private: boolean;
@@ -9198,6 +13322,19 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "title": "Official Trailer # 3",
+                     *         "url": "https://youtube.com/watch?v=d4RiUy23e9s",
+                     *         "site": "youtube",
+                     *         "type": "trailer",
+                     *         "size": 1080,
+                     *         "official": true,
+                     *         "published_at": "2010-11-09T01:07:39.000Z",
+                     *         "country": "us",
+                     *         "language": "en"
+                     *       }
+                     *     ] */
                     "application/json": {
                         title?: string;
                         url?: string;
@@ -9279,6 +13416,32 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "name": "A&E",
+                     *         "country": "us",
+                     *         "ids": {
+                     *           "trakt": 44,
+                     *           "tmdb": 129
+                     *         }
+                     *       },
+                     *       {
+                     *         "name": "ABC",
+                     *         "country": "us",
+                     *         "ids": {
+                     *           "trakt": 16,
+                     *           "tmdb": 2
+                     *         }
+                     *       },
+                     *       {
+                     *         "name": "AMC",
+                     *         "country": "us",
+                     *         "ids": {
+                     *           "trakt": 107,
+                     *           "tmdb": 174
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         name: string;
                         country: string;
@@ -9394,6 +13557,24 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "id": 193,
+                     *       "notes": "I am the danger!",
+                     *       "privacy": "private",
+                     *       "spoiler": false,
+                     *       "created_at": "2023-09-12T20:10:18.000Z",
+                     *       "updated_at": "2023-09-12T20:10:56.000Z",
+                     *       "user": {
+                     *         "username": "justin",
+                     *         "private": false,
+                     *         "name": "Justin Nemeth",
+                     *         "vip": true,
+                     *         "vip_ep": false,
+                     *         "ids": {
+                     *           "slug": "justin"
+                     *         }
+                     *       }
+                     *     } */
                     "application/json": {
                         id?: number;
                         notes?: string;
@@ -9462,6 +13643,24 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "id": 193,
+                     *       "notes": "I AM THE DANGER! I AM THE ONE WHO KNOCKS!",
+                     *       "privacy": "private",
+                     *       "spoiler": false,
+                     *       "created_at": "2023-09-12T20:10:18.000Z",
+                     *       "updated_at": "2023-09-13T06:10:56.000Z",
+                     *       "user": {
+                     *         "username": "justin",
+                     *         "private": false,
+                     *         "name": "Justin Nemeth",
+                     *         "vip": true,
+                     *         "vip_ep": false,
+                     *         "ids": {
+                     *           "slug": "justin"
+                     *         }
+                     *       }
+                     *     } */
                     "application/json": {
                         id?: number;
                         notes?: string;
@@ -9631,6 +13830,32 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "updated_at": "2022-11-03T18:58:09.000Z",
+                     *         "person": {
+                     *           "name": "Charlie Cox",
+                     *           "ids": {
+                     *             "trakt": 417084,
+                     *             "slug": "charlie-cox",
+                     *             "imdb": "nm1214435",
+                     *             "tmdb": 23458
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "updated_at": "2022-11-03T18:58:09.000Z",
+                     *         "person": {
+                     *           "name": "Deborah Ann Woll",
+                     *           "ids": {
+                     *             "trakt": 451773,
+                     *             "slug": "deborah-ann-woll",
+                     *             "imdb": "nm2832695",
+                     *             "tmdb": 212154
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         updated_at: string;
                         person: {
@@ -9684,6 +13909,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       1,
+                     *       20,
+                     *       34,
+                     *       50
+                     *     ] */
                     "application/json": number[];
                 };
             };
@@ -9790,6 +14021,78 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "cast": [
+                     *         {
+                     *           "characters": [
+                     *             "Joe Brody"
+                     *           ],
+                     *           "movie": {
+                     *             "title": "Godzilla",
+                     *             "year": 2014,
+                     *             "ids": {
+                     *               "trakt": 24,
+                     *               "slug": "godzilla-2014",
+                     *               "imdb": "tt0831387",
+                     *               "tmdb": 124905
+                     *             }
+                     *           }
+                     *         }
+                     *       ],
+                     *       "crew": {
+                     *         "directing": [
+                     *           {
+                     *             "jobs": [
+                     *               "Director"
+                     *             ],
+                     *             "movie": {
+                     *               "title": "Godzilla",
+                     *               "year": 2014,
+                     *               "ids": {
+                     *                 "trakt": 24,
+                     *                 "slug": "godzilla-2014",
+                     *                 "imdb": "tt0831387",
+                     *                 "tmdb": 124905
+                     *               }
+                     *             }
+                     *           }
+                     *         ],
+                     *         "writing": [
+                     *           {
+                     *             "jobs": [
+                     *               "Screenplay"
+                     *             ],
+                     *             "movie": {
+                     *               "title": "Godzilla",
+                     *               "year": 2014,
+                     *               "ids": {
+                     *                 "trakt": 24,
+                     *                 "slug": "godzilla-2014",
+                     *                 "imdb": "tt0831387",
+                     *                 "tmdb": 124905
+                     *               }
+                     *             }
+                     *           }
+                     *         ],
+                     *         "producing": [
+                     *           {
+                     *             "jobs": [
+                     *               "Producer"
+                     *             ],
+                     *             "movie": {
+                     *               "title": "Godzilla",
+                     *               "year": 2014,
+                     *               "ids": {
+                     *                 "trakt": 24,
+                     *                 "slug": "godzilla-2014",
+                     *                 "imdb": "tt0831387",
+                     *                 "tmdb": 124905
+                     *               }
+                     *             }
+                     *           }
+                     *         ]
+                     *       }
+                     *     } */
                     "application/json": {
                         cast?: {
                             characters?: string[];
@@ -9882,6 +14185,48 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "cast": [
+                     *         {
+                     *           "characters": [
+                     *             "Walter White"
+                     *           ],
+                     *           "episode_count": 62,
+                     *           "series_regular": true,
+                     *           "show": {
+                     *             "title": "Breaking Bad",
+                     *             "year": 2008,
+                     *             "ids": {
+                     *               "trakt": 1,
+                     *               "slug": "breaking-bad",
+                     *               "tvdb": 81189,
+                     *               "imdb": "tt0903747",
+                     *               "tmdb": 1396
+                     *             }
+                     *           }
+                     *         }
+                     *       ],
+                     *       "crew": {
+                     *         "production": [
+                     *           {
+                     *             "jobs": [
+                     *               "Producer"
+                     *             ],
+                     *             "show": {
+                     *               "title": "Breaking Bad",
+                     *               "year": 2008,
+                     *               "ids": {
+                     *                 "trakt": 1,
+                     *                 "slug": "breaking-bad",
+                     *                 "tvdb": 81189,
+                     *                 "imdb": "tt0903747",
+                     *                 "tmdb": 1396
+                     *               }
+                     *             }
+                     *           }
+                     *         ]
+                     *       }
+                     *     } */
                     "application/json": {
                         cast?: {
                             characters?: string[];
@@ -9966,6 +14311,38 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "name": "Incredible Thoughts",
+                     *         "description": "How could my brain conceive them?",
+                     *         "privacy": "public",
+                     *         "share_link": "https://trakt.tv/lists/1337",
+                     *         "type": "personal",
+                     *         "display_numbers": true,
+                     *         "allow_comments": true,
+                     *         "sort_by": "rank",
+                     *         "sort_how": "asc",
+                     *         "created_at": "2014-10-11T17:00:54.000Z",
+                     *         "updated_at": "2014-10-11T17:00:54.000Z",
+                     *         "item_count": 50,
+                     *         "comment_count": 10,
+                     *         "likes": 99,
+                     *         "ids": {
+                     *           "trakt": 1337,
+                     *           "slug": "incredible-thoughts"
+                     *         },
+                     *         "user": {
+                     *           "username": "justin",
+                     *           "private": false,
+                     *           "name": "Justin Nemeth",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "justin"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         name?: string;
                         description?: string;
@@ -10084,6 +14461,132 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "title": "Blackfish",
+                     *         "year": 2013,
+                     *         "ids": {
+                     *           "trakt": 58,
+                     *           "slug": "blackfish-2013",
+                     *           "imdb": "tt2545118",
+                     *           "tmdb": 158999
+                     *         },
+                     *         "favorited_by": [
+                     *           {
+                     *             "user": {
+                     *               "username": "justin",
+                     *               "private": false,
+                     *               "name": "Justin Nemeth",
+                     *               "vip": true,
+                     *               "vip_ep": false,
+                     *               "ids": {
+                     *                 "slug": "sean"
+                     *               }
+                     *             },
+                     *             "notes": "This is a great documentary about killer whales."
+                     *           }
+                     *         ]
+                     *       },
+                     *       {
+                     *         "title": "Waiting for Superman",
+                     *         "year": 2010,
+                     *         "ids": {
+                     *           "trakt": 289,
+                     *           "slug": "waiting-for-superman-2010",
+                     *           "imdb": "tt1566648",
+                     *           "tmdb": 39440
+                     *         },
+                     *         "favorited_by": []
+                     *       },
+                     *       {
+                     *         "title": "Inside Job",
+                     *         "year": 2010,
+                     *         "ids": {
+                     *           "trakt": 329,
+                     *           "slug": "inside-job-2010",
+                     *           "imdb": "tt1645089",
+                     *           "tmdb": 44639
+                     *         },
+                     *         "favorited_by": []
+                     *       },
+                     *       {
+                     *         "title": "School of Rock",
+                     *         "year": 2003,
+                     *         "ids": {
+                     *           "trakt": 503,
+                     *           "slug": "school-of-rock-2003",
+                     *           "imdb": "tt0332379",
+                     *           "tmdb": 1584
+                     *         },
+                     *         "favorited_by": []
+                     *       },
+                     *       {
+                     *         "title": "The Lincoln Lawyer",
+                     *         "year": 2011,
+                     *         "ids": {
+                     *           "trakt": 513,
+                     *           "slug": "the-lincoln-lawyer-2011",
+                     *           "imdb": "tt1189340",
+                     *           "tmdb": 50348
+                     *         },
+                     *         "favorited_by": []
+                     *       },
+                     *       {
+                     *         "title": "The Change-Up",
+                     *         "year": 2011,
+                     *         "ids": {
+                     *           "trakt": 822,
+                     *           "slug": "the-change-up-2011",
+                     *           "imdb": "tt1488555",
+                     *           "tmdb": 49520
+                     *         },
+                     *         "favorited_by": []
+                     *       },
+                     *       {
+                     *         "title": "50/50",
+                     *         "year": 2011,
+                     *         "ids": {
+                     *           "trakt": 907,
+                     *           "slug": "50-50-2011",
+                     *           "imdb": "tt1306980",
+                     *           "tmdb": 40807
+                     *         },
+                     *         "favorited_by": []
+                     *       },
+                     *       {
+                     *         "title": "Moneyball",
+                     *         "year": 2011,
+                     *         "ids": {
+                     *           "trakt": 945,
+                     *           "slug": "moneyball-2011",
+                     *           "imdb": "tt1210166",
+                     *           "tmdb": 60308
+                     *         },
+                     *         "favorited_by": []
+                     *       },
+                     *       {
+                     *         "title": "Killer at Large",
+                     *         "year": 2008,
+                     *         "ids": {
+                     *           "trakt": 3549,
+                     *           "slug": "killer-at-large-2008",
+                     *           "imdb": "tt0903660",
+                     *           "tmdb": 37312
+                     *         },
+                     *         "favorited_by": []
+                     *       },
+                     *       {
+                     *         "title": "Green Day: Bullet in a Bible",
+                     *         "year": 2005,
+                     *         "ids": {
+                     *           "trakt": 3770,
+                     *           "slug": "green-day-bullet-in-a-bible-2005",
+                     *           "imdb": "tt0485773",
+                     *           "tmdb": 26627
+                     *         },
+                     *         "favorited_by": []
+                     *       }
+                     *     ] */
                     "application/json": {
                         title: string;
                         year: number;
@@ -10195,6 +14698,142 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "title": "The Biggest Loser",
+                     *         "year": 2004,
+                     *         "ids": {
+                     *           "trakt": 9,
+                     *           "slug": "the-biggest-loser",
+                     *           "tvdb": 75166,
+                     *           "imdb": "tt0429318",
+                     *           "tmdb": 579
+                     *         },
+                     *         "favorited_by": [
+                     *           {
+                     *             "user": {
+                     *               "username": "justin",
+                     *               "private": false,
+                     *               "name": "Justin Nemeth",
+                     *               "vip": true,
+                     *               "vip_ep": false,
+                     *               "ids": {
+                     *                 "slug": "sean"
+                     *               }
+                     *             },
+                     *             "notes": "This show is inspiring!"
+                     *           }
+                     *         ]
+                     *       },
+                     *       {
+                     *         "title": "Shark Tank",
+                     *         "year": 2009,
+                     *         "ids": {
+                     *           "trakt": 36,
+                     *           "slug": "shark-tank",
+                     *           "tvdb": 100981,
+                     *           "imdb": "tt1442550",
+                     *           "tmdb": 30703
+                     *         },
+                     *         "favorited_by": []
+                     *       },
+                     *       {
+                     *         "title": "Hell's Kitchen",
+                     *         "year": 2005,
+                     *         "ids": {
+                     *           "trakt": 40,
+                     *           "slug": "hell-s-kitchen",
+                     *           "tvdb": 74897,
+                     *           "imdb": "tt0437005",
+                     *           "tmdb": 2370
+                     *         },
+                     *         "favorited_by": []
+                     *       },
+                     *       {
+                     *         "title": "The Big C",
+                     *         "year": 2010,
+                     *         "ids": {
+                     *           "trakt": 51,
+                     *           "slug": "the-big-c",
+                     *           "tvdb": 161501,
+                     *           "imdb": "tt1515193",
+                     *           "tmdb": 32406
+                     *         },
+                     *         "favorited_by": []
+                     *       },
+                     *       {
+                     *         "title": "United States of Tara",
+                     *         "year": 2009,
+                     *         "ids": {
+                     *           "trakt": 69,
+                     *           "slug": "united-states-of-tara",
+                     *           "tvdb": 83463,
+                     *           "imdb": "tt1001482",
+                     *           "tmdb": 7097
+                     *         },
+                     *         "favorited_by": []
+                     *       },
+                     *       {
+                     *         "title": "Hung",
+                     *         "year": 2009,
+                     *         "ids": {
+                     *           "trakt": 168,
+                     *           "slug": "hung",
+                     *           "tvdb": 82091,
+                     *           "imdb": "tt1229413",
+                     *           "tmdb": 18614
+                     *         },
+                     *         "favorited_by": []
+                     *       },
+                     *       {
+                     *         "title": "Big Love",
+                     *         "year": 2006,
+                     *         "ids": {
+                     *           "trakt": 272,
+                     *           "slug": "big-love",
+                     *           "tvdb": 74156,
+                     *           "imdb": "tt0421030",
+                     *           "tmdb": 4392
+                     *         },
+                     *         "favorited_by": []
+                     *       },
+                     *       {
+                     *         "title": "Brooklyn Nine-Nine",
+                     *         "year": 2013,
+                     *         "ids": {
+                     *           "trakt": 599,
+                     *           "slug": "brooklyn-nine-nine",
+                     *           "tvdb": 269586,
+                     *           "imdb": "tt2467372",
+                     *           "tmdb": 48891
+                     *         },
+                     *         "favorited_by": []
+                     *       },
+                     *       {
+                     *         "title": "FlashForward",
+                     *         "year": 2009,
+                     *         "ids": {
+                     *           "trakt": 677,
+                     *           "slug": "flashforward",
+                     *           "tvdb": 84024,
+                     *           "imdb": "tt1441135",
+                     *           "tmdb": 19092
+                     *         },
+                     *         "favorited_by": []
+                     *       },
+                     *       {
+                     *         "title": "Roswell",
+                     *         "year": 1999,
+                     *         "ids": {
+                     *           "trakt": 717,
+                     *           "slug": "roswell",
+                     *           "tvdb": 73965,
+                     *           "imdb": "tt0201391",
+                     *           "tmdb": 4624
+                     *         },
+                     *         "favorited_by": []
+                     *       }
+                     *     ] */
                     "application/json": {
                         title: string;
                         year: number;
@@ -10456,6 +15095,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "id": 1337,
+                     *       "action": "pause",
+                     *       "progress": 75,
+                     *       "sharing": {
+                     *         "twitter": false,
+                     *         "mastodon": false,
+                     *         "tumblr": false
+                     *       },
+                     *       "movie": {
+                     *         "title": "Guardians of the Galaxy",
+                     *         "year": 2014,
+                     *         "ids": {
+                     *           "trakt": 28,
+                     *           "slug": "guardians-of-the-galaxy-2014",
+                     *           "imdb": "tt2015381",
+                     *           "tmdb": 118340
+                     *         }
+                     *       }
+                     *     } */
                     "application/json": {
                         id?: number;
                         action?: string;
@@ -10617,6 +15276,10 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "watched_at": "2014-10-15T22:21:29.000Z",
+                     *       "expires_at": "2014-10-15T23:21:29.000Z"
+                     *     } */
                     "application/json": {
                         watched_at?: string;
                         expires_at?: string;
@@ -10674,6 +15337,110 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "type": "movie",
+                     *         "score": 26.019499,
+                     *         "movie": {
+                     *           "title": "TRON: Legacy",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 12601,
+                     *             "slug": "tron-legacy-2010",
+                     *             "imdb": "tt1104001",
+                     *             "tmdb": 20526
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "show",
+                     *         "score": 19.533358,
+                     *         "show": {
+                     *           "title": "Tron: Uprising",
+                     *           "year": 2012,
+                     *           "ids": {
+                     *             "trakt": 34209,
+                     *             "slug": "tron-uprising",
+                     *             "tvdb": 258480,
+                     *             "imdb": "tt1812523",
+                     *             "tmdb": 34356
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "episode",
+                     *         "score": 42.50835,
+                     *         "episode": {
+                     *           "season": 1,
+                     *           "number": 1,
+                     *           "title": "The Renegade (1)",
+                     *           "ids": {
+                     *             "trakt": 793693,
+                     *             "tvdb": 4318713,
+                     *             "imdb": null,
+                     *             "tmdb": 786460
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "Tron: Uprising",
+                     *           "year": 2012,
+                     *           "ids": {
+                     *             "trakt": 34209,
+                     *             "slug": "tron-uprising",
+                     *             "tvdb": 258480,
+                     *             "imdb": "tt1812523",
+                     *             "tmdb": 34356
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "person",
+                     *         "score": 53.421608,
+                     *         "person": {
+                     *           "name": "Jeff Bridges",
+                     *           "ids": {
+                     *             "trakt": 4173,
+                     *             "slug": "jeff-bridges",
+                     *             "imdb": "nm0000313",
+                     *             "tmdb": 1229
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "list",
+                     *         "score": 38.643196,
+                     *         "list": {
+                     *           "name": "Open Your Eyes",
+                     *           "description": "Let food be thy medicine and medicine be thy food.",
+                     *           "privacy": "public",
+                     *           "share_link": "https://trakt.tv/lists/2180135",
+                     *           "type": "personal",
+                     *           "display_numbers": true,
+                     *           "allow_comments": true,
+                     *           "sort_by": "rank",
+                     *           "sort_how": "asc",
+                     *           "created_at": "2016-04-22T05:54:55.000Z",
+                     *           "updated_at": "2016-06-29T09:47:40.000Z",
+                     *           "item_count": 22,
+                     *           "comment_count": 0,
+                     *           "likes": 6,
+                     *           "ids": {
+                     *             "trakt": 2180135,
+                     *             "slug": "open-your-eyes"
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin Nemeth",
+                     *             "vip": true,
+                     *             "vip_ep": true,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         type: string;
                         score: number;
@@ -10803,6 +15570,22 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "type": "movie",
+                     *         "score": null,
+                     *         "movie": {
+                     *           "title": "TRON: Legacy",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 12601,
+                     *             "slug": "tron-legacy-2010",
+                     *             "imdb": "tt1104001",
+                     *             "tmdb": 20526
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         type?: string;
                         score?: unknown;
@@ -10852,6 +15635,36 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "watchers": 541,
+                     *         "show": {
+                     *           "title": "Breaking Bad",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "breaking-bad",
+                     *             "tvdb": 81189,
+                     *             "imdb": "tt0903747",
+                     *             "tmdb": 1396
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watchers": 432,
+                     *         "show": {
+                     *           "title": "The Walking Dead",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 2,
+                     *             "slug": "the-walking-dead",
+                     *             "tvdb": 153021,
+                     *             "imdb": "tt1520211",
+                     *             "tmdb": 1402
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         watchers: number;
                         show: {
@@ -10898,6 +15711,118 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "title": "Community",
+                     *         "year": 2009,
+                     *         "ids": {
+                     *           "trakt": 41,
+                     *           "slug": "community",
+                     *           "tvdb": 94571,
+                     *           "imdb": "tt1439629",
+                     *           "tmdb": 18347
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "The Walking Dead",
+                     *         "year": 2010,
+                     *         "ids": {
+                     *           "trakt": 2,
+                     *           "slug": "the-walking-dead",
+                     *           "tvdb": 153021,
+                     *           "imdb": "tt1520211",
+                     *           "tmdb": 1402
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Dexter",
+                     *         "year": 2006,
+                     *         "ids": {
+                     *           "trakt": 19,
+                     *           "slug": "dexter",
+                     *           "tvdb": 79349,
+                     *           "imdb": "tt0773262",
+                     *           "tmdb": 1405
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "The Simpsons",
+                     *         "year": 1989,
+                     *         "ids": {
+                     *           "trakt": 91,
+                     *           "slug": "the-simpsons",
+                     *           "tvdb": 71663,
+                     *           "imdb": "tt0096697",
+                     *           "tmdb": 456
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Game of Thrones",
+                     *         "year": 2011,
+                     *         "ids": {
+                     *           "trakt": 353,
+                     *           "slug": "game-of-thrones",
+                     *           "tvdb": 121361,
+                     *           "imdb": "tt0944947",
+                     *           "tmdb": 1399
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Lost",
+                     *         "year": 2004,
+                     *         "ids": {
+                     *           "trakt": 511,
+                     *           "slug": "lost",
+                     *           "tvdb": 73739,
+                     *           "imdb": "tt0411008",
+                     *           "tmdb": 4607
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "24",
+                     *         "year": 2001,
+                     *         "ids": {
+                     *           "trakt": 460,
+                     *           "slug": "24",
+                     *           "tvdb": 76290,
+                     *           "imdb": "tt0285331",
+                     *           "tmdb": 1973
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Battlestar Galactica",
+                     *         "year": 2005,
+                     *         "ids": {
+                     *           "trakt": 331,
+                     *           "slug": "battlestar-galactica",
+                     *           "tvdb": 73545,
+                     *           "imdb": "tt0407362",
+                     *           "tmdb": 1972
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Breaking Bad",
+                     *         "year": 2008,
+                     *         "ids": {
+                     *           "trakt": 1,
+                     *           "slug": "breaking-bad",
+                     *           "tvdb": 81189,
+                     *           "imdb": "tt0903747",
+                     *           "tmdb": 1396
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Firefly",
+                     *         "year": 2002,
+                     *         "ids": {
+                     *           "trakt": 329,
+                     *           "slug": "firefly",
+                     *           "tvdb": 78874,
+                     *           "imdb": "tt0303461",
+                     *           "tmdb": 1437
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         title: string;
                         year: number;
@@ -10949,6 +15874,50 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "user_count": 155291,
+                     *         "show": {
+                     *           "title": "The Big Bang Theory",
+                     *           "year": 2007,
+                     *           "ids": {
+                     *             "trakt": 1409,
+                     *             "slug": "the-big-bang-theory",
+                     *             "tvdb": 80379,
+                     *             "imdb": "tt0898266",
+                     *             "tmdb": 1418
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "user_count": 46170,
+                     *         "show": {
+                     *           "title": "Grey's Anatomy",
+                     *           "year": 2005,
+                     *           "ids": {
+                     *             "trakt": 1407,
+                     *             "slug": "grey-s-anatomy",
+                     *             "tvdb": 73762,
+                     *             "imdb": "tt0413573",
+                     *             "tmdb": 1416
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "user_count": 203742,
+                     *         "show": {
+                     *           "title": "Game of Thrones",
+                     *           "year": 2011,
+                     *           "ids": {
+                     *             "trakt": 1390,
+                     *             "slug": "game-of-thrones",
+                     *             "tvdb": 121361,
+                     *             "imdb": "tt0944947",
+                     *             "tmdb": 1399
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         user_count: number;
                         show: {
@@ -11003,6 +15972,178 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "watcher_count": 155291,
+                     *         "play_count": 23542030,
+                     *         "collected_count": 6635583,
+                     *         "collector_count": 54953,
+                     *         "show": {
+                     *           "title": "The Big Bang Theory",
+                     *           "year": 2007,
+                     *           "ids": {
+                     *             "trakt": 1409,
+                     *             "slug": "the-big-bang-theory",
+                     *             "tvdb": 80379,
+                     *             "imdb": "tt0898266",
+                     *             "tmdb": 1418
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 100242,
+                     *         "play_count": 19787304,
+                     *         "collected_count": 4529880,
+                     *         "collector_count": 32335,
+                     *         "show": {
+                     *           "title": "How I Met Your Mother",
+                     *           "year": 2005,
+                     *           "ids": {
+                     *             "trakt": 1095,
+                     *             "slug": "how-i-met-your-mother",
+                     *             "tvdb": 75760,
+                     *             "imdb": "tt0460649",
+                     *             "tmdb": 1100
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 56216,
+                     *         "play_count": 19286818,
+                     *         "collected_count": 7427018,
+                     *         "collector_count": 23876,
+                     *         "show": {
+                     *           "title": "The Simpsons",
+                     *           "year": 1989,
+                     *           "ids": {
+                     *             "trakt": 455,
+                     *             "slug": "the-simpsons",
+                     *             "tvdb": 71663,
+                     *             "imdb": "tt0096697",
+                     *             "tmdb": 456
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 8050,
+                     *         "play_count": 17845449,
+                     *         "collected_count": 3550246,
+                     *         "collector_count": 4511,
+                     *         "show": {
+                     *           "title": "The Daily Show with Jon Stewart",
+                     *           "year": 1996,
+                     *           "ids": {
+                     *             "trakt": 2211,
+                     *             "slug": "the-daily-show-with-jon-stewart",
+                     *             "tvdb": 71256,
+                     *             "imdb": "tt0115147",
+                     *             "tmdb": 2224
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 53775,
+                     *         "play_count": 12379465,
+                     *         "collected_count": 3347336,
+                     *         "collector_count": 16230,
+                     *         "show": {
+                     *           "title": "Friends",
+                     *           "year": 1994,
+                     *           "ids": {
+                     *             "trakt": 1657,
+                     *             "slug": "friends",
+                     *             "tvdb": 79168,
+                     *             "imdb": "tt0108778",
+                     *             "tmdb": 1668
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 68267,
+                     *         "play_count": 11294835,
+                     *         "collected_count": 3119930,
+                     *         "collector_count": 24399,
+                     *         "show": {
+                     *           "title": "Supernatural",
+                     *           "year": 2005,
+                     *           "ids": {
+                     *             "trakt": 1611,
+                     *             "slug": "supernatural",
+                     *             "tvdb": 78901,
+                     *             "imdb": "tt0460681",
+                     *             "tmdb": 1622
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 163097,
+                     *         "play_count": 9945882,
+                     *         "collected_count": 2423833,
+                     *         "collector_count": 57617,
+                     *         "show": {
+                     *           "title": "The Walking Dead",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 1393,
+                     *             "slug": "the-walking-dead",
+                     *             "tvdb": 153021,
+                     *             "imdb": "tt1520211",
+                     *             "tmdb": 1402
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 46170,
+                     *         "play_count": 9766448,
+                     *         "collected_count": 2251539,
+                     *         "collector_count": 17682,
+                     *         "show": {
+                     *           "title": "Grey's Anatomy",
+                     *           "year": 2005,
+                     *           "ids": {
+                     *             "trakt": 1407,
+                     *             "slug": "grey-s-anatomy",
+                     *             "tvdb": 73762,
+                     *             "imdb": "tt0413573",
+                     *             "tmdb": 1416
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 54604,
+                     *         "play_count": 8986802,
+                     *         "collected_count": 2546116,
+                     *         "collector_count": 20113,
+                     *         "show": {
+                     *           "title": "House",
+                     *           "year": 2004,
+                     *           "ids": {
+                     *             "trakt": 1399,
+                     *             "slug": "house",
+                     *             "tvdb": 73255,
+                     *             "imdb": "tt0412142",
+                     *             "tmdb": 1408
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 203742,
+                     *         "play_count": 8784154,
+                     *         "collected_count": 2436824,
+                     *         "collector_count": 73224,
+                     *         "show": {
+                     *           "title": "Game of Thrones",
+                     *           "year": 2011,
+                     *           "ids": {
+                     *             "trakt": 1390,
+                     *             "slug": "game-of-thrones",
+                     *             "tvdb": 121361,
+                     *             "imdb": "tt0944947",
+                     *             "tmdb": 1399
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         watcher_count: number;
                         play_count: number;
@@ -11060,6 +16201,178 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "watcher_count": 203742,
+                     *         "play_count": 8784154,
+                     *         "collected_count": 2436824,
+                     *         "collector_count": 73224,
+                     *         "show": {
+                     *           "title": "Game of Thrones",
+                     *           "year": 2011,
+                     *           "ids": {
+                     *             "trakt": 1390,
+                     *             "slug": "game-of-thrones",
+                     *             "tvdb": 121361,
+                     *             "imdb": "tt0944947",
+                     *             "tmdb": 1399
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 163097,
+                     *         "play_count": 9945882,
+                     *         "collected_count": 2423833,
+                     *         "collector_count": 57617,
+                     *         "show": {
+                     *           "title": "The Walking Dead",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 1393,
+                     *             "slug": "the-walking-dead",
+                     *             "tvdb": 153021,
+                     *             "imdb": "tt1520211",
+                     *             "tmdb": 1402
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 155291,
+                     *         "play_count": 23542030,
+                     *         "collected_count": 6635583,
+                     *         "collector_count": 54953,
+                     *         "show": {
+                     *           "title": "The Big Bang Theory",
+                     *           "year": 2007,
+                     *           "ids": {
+                     *             "trakt": 1409,
+                     *             "slug": "the-big-bang-theory",
+                     *             "tvdb": 80379,
+                     *             "imdb": "tt0898266",
+                     *             "tmdb": 1418
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 140725,
+                     *         "play_count": 8576210,
+                     *         "collected_count": 2471061,
+                     *         "collector_count": 49385,
+                     *         "show": {
+                     *           "title": "Breaking Bad",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 1388,
+                     *             "slug": "breaking-bad",
+                     *             "tvdb": 81189,
+                     *             "imdb": "tt0903747",
+                     *             "tmdb": 1396
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 123797,
+                     *         "play_count": 6173692,
+                     *         "collected_count": 1856666,
+                     *         "collector_count": 43351,
+                     *         "show": {
+                     *           "title": "Arrow",
+                     *           "year": 2012,
+                     *           "ids": {
+                     *             "trakt": 1403,
+                     *             "slug": "arrow",
+                     *             "tvdb": 257655,
+                     *             "imdb": "tt2193021",
+                     *             "tmdb": 1412
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 100242,
+                     *         "play_count": 19787304,
+                     *         "collected_count": 4529880,
+                     *         "collector_count": 32335,
+                     *         "show": {
+                     *           "title": "How I Met Your Mother",
+                     *           "year": 2005,
+                     *           "ids": {
+                     *             "trakt": 1095,
+                     *             "slug": "how-i-met-your-mother",
+                     *             "tvdb": 75760,
+                     *             "imdb": "tt0460649",
+                     *             "tmdb": 1100
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 94282,
+                     *         "play_count": 912066,
+                     *         "collected_count": 260713,
+                     *         "collector_count": 34077,
+                     *         "show": {
+                     *           "title": "Sherlock",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 19792,
+                     *             "slug": "sherlock",
+                     *             "tvdb": 176941,
+                     *             "imdb": "tt1475582",
+                     *             "tmdb": 19885
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 89242,
+                     *         "play_count": 3375660,
+                     *         "collected_count": 1299956,
+                     *         "collector_count": 39724,
+                     *         "show": {
+                     *           "title": "Homeland",
+                     *           "year": 2011,
+                     *           "ids": {
+                     *             "trakt": 1398,
+                     *             "slug": "homeland",
+                     *             "tvdb": 247897,
+                     *             "imdb": "tt1796960",
+                     *             "tmdb": 1407
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 87059,
+                     *         "play_count": 7799337,
+                     *         "collected_count": 2239477,
+                     *         "collector_count": 33424,
+                     *         "show": {
+                     *           "title": "Dexter",
+                     *           "year": 2006,
+                     *           "ids": {
+                     *             "trakt": 1396,
+                     *             "slug": "dexter",
+                     *             "tvdb": 79349,
+                     *             "imdb": "tt0773262",
+                     *             "tmdb": 1405
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 83087,
+                     *         "play_count": 2795758,
+                     *         "collected_count": 881552,
+                     *         "collector_count": 31982,
+                     *         "show": {
+                     *           "title": "Marvel's Agents of S.H.I.E.L.D.",
+                     *           "year": 2013,
+                     *           "ids": {
+                     *             "trakt": 1394,
+                     *             "slug": "marvel-s-agents-of-s-h-i-e-l-d",
+                     *             "tvdb": 263365,
+                     *             "imdb": "tt2364582",
+                     *             "tmdb": 1403
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         watcher_count: number;
                         play_count: number;
@@ -11117,6 +16430,178 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "watcher_count": 56216,
+                     *         "play_count": 19286818,
+                     *         "collected_count": 7427018,
+                     *         "collector_count": 23876,
+                     *         "show": {
+                     *           "title": "The Simpsons",
+                     *           "year": 1989,
+                     *           "ids": {
+                     *             "trakt": 455,
+                     *             "slug": "the-simpsons",
+                     *             "tvdb": 71663,
+                     *             "imdb": "tt0096697",
+                     *             "tmdb": 456
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 155291,
+                     *         "play_count": 23542030,
+                     *         "collected_count": 6635583,
+                     *         "collector_count": 54953,
+                     *         "show": {
+                     *           "title": "The Big Bang Theory",
+                     *           "year": 2007,
+                     *           "ids": {
+                     *             "trakt": 1409,
+                     *             "slug": "the-big-bang-theory",
+                     *             "tvdb": 80379,
+                     *             "imdb": "tt0898266",
+                     *             "tmdb": 1418
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 100242,
+                     *         "play_count": 19787304,
+                     *         "collected_count": 4529880,
+                     *         "collector_count": 32335,
+                     *         "show": {
+                     *           "title": "How I Met Your Mother",
+                     *           "year": 2005,
+                     *           "ids": {
+                     *             "trakt": 1095,
+                     *             "slug": "how-i-met-your-mother",
+                     *             "tvdb": 75760,
+                     *             "imdb": "tt0460649",
+                     *             "tmdb": 1100
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 8050,
+                     *         "play_count": 17845449,
+                     *         "collected_count": 3550246,
+                     *         "collector_count": 4511,
+                     *         "show": {
+                     *           "title": "The Daily Show with Jon Stewart",
+                     *           "year": 1996,
+                     *           "ids": {
+                     *             "trakt": 2211,
+                     *             "slug": "the-daily-show-with-jon-stewart",
+                     *             "tvdb": 71256,
+                     *             "imdb": "tt0115147",
+                     *             "tmdb": 2224
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 53775,
+                     *         "play_count": 12379465,
+                     *         "collected_count": 3347336,
+                     *         "collector_count": 16230,
+                     *         "show": {
+                     *           "title": "Friends",
+                     *           "year": 1994,
+                     *           "ids": {
+                     *             "trakt": 1657,
+                     *             "slug": "friends",
+                     *             "tvdb": 79168,
+                     *             "imdb": "tt0108778",
+                     *             "tmdb": 1668
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 48984,
+                     *         "play_count": 7879681,
+                     *         "collected_count": 3273255,
+                     *         "collector_count": 23114,
+                     *         "show": {
+                     *           "title": "Family Guy",
+                     *           "year": 1999,
+                     *           "ids": {
+                     *             "trakt": 1425,
+                     *             "slug": "family-guy",
+                     *             "tvdb": 75978,
+                     *             "imdb": "tt0182576",
+                     *             "tmdb": 1434
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 68267,
+                     *         "play_count": 11294835,
+                     *         "collected_count": 3119930,
+                     *         "collector_count": 24399,
+                     *         "show": {
+                     *           "title": "Supernatural",
+                     *           "year": 2005,
+                     *           "ids": {
+                     *             "trakt": 1611,
+                     *             "slug": "supernatural",
+                     *             "tvdb": 78901,
+                     *             "imdb": "tt0460681",
+                     *             "tmdb": 1622
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 41844,
+                     *         "play_count": 7267474,
+                     *         "collected_count": 2965842,
+                     *         "collector_count": 19450,
+                     *         "show": {
+                     *           "title": "South Park",
+                     *           "year": 1997,
+                     *           "ids": {
+                     *             "trakt": 2177,
+                     *             "slug": "south-park",
+                     *             "tvdb": 75897,
+                     *             "imdb": "tt0121955",
+                     *             "tmdb": 2190
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 72285,
+                     *         "play_count": 7997522,
+                     *         "collected_count": 2570535,
+                     *         "collector_count": 28446,
+                     *         "show": {
+                     *           "title": "Modern Family",
+                     *           "year": 2009,
+                     *           "ids": {
+                     *             "trakt": 1412,
+                     *             "slug": "modern-family",
+                     *             "tvdb": 95011,
+                     *             "imdb": "tt1442437",
+                     *             "tmdb": 1421
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "watcher_count": 54604,
+                     *         "play_count": 8986802,
+                     *         "collected_count": 2546116,
+                     *         "collector_count": 20113,
+                     *         "show": {
+                     *           "title": "House",
+                     *           "year": 2004,
+                     *           "ids": {
+                     *             "trakt": 1399,
+                     *             "slug": "house",
+                     *             "tvdb": 73255,
+                     *             "imdb": "tt0412142",
+                     *             "tmdb": 1408
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         watcher_count: number;
                         play_count: number;
@@ -11168,6 +16653,148 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "list_count": 5383,
+                     *         "show": {
+                     *           "title": "Supergirl",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 99046,
+                     *             "slug": "supergirl",
+                     *             "tvdb": 295759,
+                     *             "imdb": "tt4016454",
+                     *             "tmdb": 62688
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "list_count": 3132,
+                     *         "show": {
+                     *           "title": "Marvel's Jessica Jones",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 79385,
+                     *             "slug": "marvel-s-jessica-jones",
+                     *             "tvdb": 284190,
+                     *             "imdb": "tt2357547",
+                     *             "tmdb": 38472
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "list_count": 3095,
+                     *         "show": {
+                     *           "title": "Lucifer",
+                     *           "year": 2016,
+                     *           "ids": {
+                     *             "trakt": 98990,
+                     *             "slug": "lucifer",
+                     *             "tvdb": 295685,
+                     *             "imdb": "tt4052886",
+                     *             "tmdb": 63174
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "list_count": 1704,
+                     *         "show": {
+                     *           "title": "Ash vs Evil Dead",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 99460,
+                     *             "slug": "ash-vs-evil-dead",
+                     *             "tvdb": 296295,
+                     *             "imdb": "tt4189022",
+                     *             "tmdb": 62264
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "list_count": 1655,
+                     *         "show": {
+                     *           "title": "The Expanse",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 77199,
+                     *             "slug": "the-expanse",
+                     *             "tvdb": 280619,
+                     *             "imdb": "tt3230854",
+                     *             "tmdb": null
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "list_count": 1481,
+                     *         "show": {
+                     *           "title": "Into the Badlands",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 82217,
+                     *             "slug": "into-the-badlands",
+                     *             "tvdb": 289079,
+                     *             "imdb": "tt3865236",
+                     *             "tmdb": 47450
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "list_count": 1332,
+                     *         "show": {
+                     *           "title": "Colony",
+                     *           "year": 2016,
+                     *           "ids": {
+                     *             "trakt": 95966,
+                     *             "slug": "colony",
+                     *             "tvdb": 284210,
+                     *             "imdb": "tt4209256",
+                     *             "tmdb": 62858
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "list_count": 1060,
+                     *         "show": {
+                     *           "title": "Wicked City",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 98888,
+                     *             "slug": "wicked-city",
+                     *             "tvdb": 295518,
+                     *             "imdb": "tt4428124",
+                     *             "tmdb": 62927
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "list_count": 982,
+                     *         "show": {
+                     *           "title": "Marvel's Luke Cage",
+                     *           "year": 2016,
+                     *           "ids": {
+                     *             "trakt": 79382,
+                     *             "slug": "marvel-s-luke-cage",
+                     *             "tvdb": 284192,
+                     *             "imdb": "tt3322314",
+                     *             "tmdb": 62126
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "list_count": 838,
+                     *         "show": {
+                     *           "title": "Dr. Ken",
+                     *           "year": 2015,
+                     *           "ids": {
+                     *             "trakt": 98913,
+                     *             "slug": "dr-ken-1969",
+                     *             "tvdb": 295557,
+                     *             "imdb": "tt3216608",
+                     *             "tmdb": 62776
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         list_count: number;
                         show: {
@@ -11223,6 +16850,36 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "updated_at": "2014-09-22T21:56:03.000Z",
+                     *         "show": {
+                     *           "title": "Breaking Bad",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "breaking-bad",
+                     *             "tvdb": 81189,
+                     *             "imdb": "tt0903747",
+                     *             "tmdb": 1396
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "updated_at": "2014-09-23T21:56:03.000Z",
+                     *         "show": {
+                     *           "title": "The Walking Dead",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 2,
+                     *             "slug": "the-walking-dead",
+                     *             "tvdb": 153021,
+                     *             "imdb": "tt1520211",
+                     *             "tmdb": 1402
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         updated_at: string;
                         show: {
@@ -11278,6 +16935,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       1,
+                     *       20,
+                     *       34,
+                     *       50
+                     *     ] */
                     "application/json": number[];
                 };
             };
@@ -11398,6 +17061,40 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "title": "冰與火之歌：權力遊戲",
+                     *         "country": "tw"
+                     *       },
+                     *       {
+                     *         "title": "A Guerra dos Tronos",
+                     *         "country": "br"
+                     *       },
+                     *       {
+                     *         "title": "Game of Thrones- Das Lied von Eis und Feuer",
+                     *         "country": "de"
+                     *       },
+                     *       {
+                     *         "title": "Παιχνίδι Του Στέμματος",
+                     *         "country": "gr"
+                     *       },
+                     *       {
+                     *         "title": "Game of Thrones - Das Lied von Eis und Feuer",
+                     *         "country": "de"
+                     *       },
+                     *       {
+                     *         "title": "Le Trône de fer",
+                     *         "country": "fr"
+                     *       },
+                     *       {
+                     *         "title": "Urzeala Tronurilor",
+                     *         "country": "ro"
+                     *       },
+                     *       {
+                     *         "title": "صراع العروش",
+                     *         "country": "sa"
+                     *       }
+                     *     ] */
                     "application/json": {
                         title: string;
                         country: string;
@@ -11438,6 +17135,36 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "certification": "TV-MA",
+                     *         "country": "us"
+                     *       },
+                     *       {
+                     *         "certification": "12",
+                     *         "country": "de"
+                     *       },
+                     *       {
+                     *         "certification": "15",
+                     *         "country": "kr"
+                     *       },
+                     *       {
+                     *         "certification": "15",
+                     *         "country": "gb"
+                     *       },
+                     *       {
+                     *         "certification": "16",
+                     *         "country": "br"
+                     *       },
+                     *       {
+                     *         "certification": "12",
+                     *         "country": "nl"
+                     *       },
+                     *       {
+                     *         "certification": "18",
+                     *         "country": "pt"
+                     *       }
+                     *     ] */
                     "application/json": {
                         certification: string;
                         country: string;
@@ -11483,6 +17210,29 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "title": "Breaking Bad",
+                     *         "overview": "Breaking Bad is an American crime drama television series created and produced by Vince Gilligan. Set and produced in Albuquerque, New Mexico, Breaking Bad is the story of Walter White, a struggling high school chemistry teacher who is diagnosed with inoperable lung cancer at the beginning of the series. He turns to a life of crime, producing and selling methamphetamine, in order to secure his family's financial future before he dies, teaming with his former student, Jesse Pinkman. Heavily serialized, the series is known for positioning its characters in seemingly inextricable corners and has been labeled a contemporary western by its creator.",
+                     *         "tagline": "Change the equation.",
+                     *         "language": "en",
+                     *         "country": "us"
+                     *       },
+                     *       {
+                     *         "title": "Breaking Bad",
+                     *         "overview": "...",
+                     *         "tagline": "...",
+                     *         "language": "tr",
+                     *         "country": "tr"
+                     *       },
+                     *       {
+                     *         "title": "Perníkový tatko",
+                     *         "overview": "",
+                     *         "tagline": null,
+                     *         "language": "sk",
+                     *         "country": "sk"
+                     *       }
+                     *     ] */
                     "application/json": {
                         title: string;
                         overview: string;
@@ -11535,6 +17285,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "id": 8,
+                     *         "parent_id": 0,
+                     *         "created_at": "2011-03-25T22:35:17.000Z",
+                     *         "updated_at": "2011-03-25T22:35:17.000Z",
+                     *         "comment": "Great show!",
+                     *         "spoiler": false,
+                     *         "review": false,
+                     *         "replies": 1,
+                     *         "likes": 0,
+                     *         "user_stats": {
+                     *           "rating": 8,
+                     *           "play_count": 1,
+                     *           "completed_count": 1
+                     *         },
+                     *         "user": {
+                     *           "username": "sean",
+                     *           "private": false,
+                     *           "name": "Sean Rudford",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "sean"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         id?: number;
                         parent_id?: number;
@@ -11611,6 +17389,38 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "name": "Incredible Thoughts",
+                     *         "description": "How could my brain conceive them?",
+                     *         "privacy": "public",
+                     *         "share_link": "https://trakt.tv/lists/1337",
+                     *         "type": "personal",
+                     *         "display_numbers": true,
+                     *         "allow_comments": true,
+                     *         "sort_by": "rank",
+                     *         "sort_how": "asc",
+                     *         "created_at": "2014-10-11T17:00:54.000Z",
+                     *         "updated_at": "2014-10-11T17:00:54.000Z",
+                     *         "item_count": 50,
+                     *         "comment_count": 10,
+                     *         "likes": 99,
+                     *         "ids": {
+                     *           "trakt": 1337,
+                     *           "slug": "incredible-thoughts"
+                     *         },
+                     *         "user": {
+                     *           "username": "justin",
+                     *           "private": false,
+                     *           "name": "Justin Nemeth",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "justin"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         name?: string;
                         description?: string;
@@ -11699,6 +17509,93 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "aired": 8,
+                     *       "completed": 6,
+                     *       "last_collected_at": "2015-03-21T19:03:58.000Z",
+                     *       "seasons": [
+                     *         {
+                     *           "number": 1,
+                     *           "title": "The first Hodor.",
+                     *           "aired": 8,
+                     *           "completed": 6,
+                     *           "episodes": [
+                     *             {
+                     *               "number": 1,
+                     *               "completed": true,
+                     *               "collected_at": "2015-03-21T19:03:58.000Z"
+                     *             },
+                     *             {
+                     *               "number": 2,
+                     *               "completed": true,
+                     *               "collected_at": "2015-03-21T19:03:58.000Z"
+                     *             },
+                     *             {
+                     *               "number": 3,
+                     *               "completed": true,
+                     *               "collected_at": "2015-03-21T19:03:58.000Z"
+                     *             },
+                     *             {
+                     *               "number": 4,
+                     *               "completed": true,
+                     *               "collected_at": "2015-03-21T19:03:58.000Z"
+                     *             },
+                     *             {
+                     *               "number": 5,
+                     *               "completed": true,
+                     *               "collected_at": "2015-03-21T19:03:58.000Z"
+                     *             },
+                     *             {
+                     *               "number": 6,
+                     *               "completed": true,
+                     *               "collected_at": "2015-03-21T19:03:58.000Z"
+                     *             },
+                     *             {
+                     *               "number": 7,
+                     *               "completed": false,
+                     *               "collected_at": null
+                     *             },
+                     *             {
+                     *               "number": 8,
+                     *               "completed": false,
+                     *               "collected_at": null
+                     *             }
+                     *           ]
+                     *         }
+                     *       ],
+                     *       "hidden_seasons": [
+                     *         {
+                     *           "number": 2,
+                     *           "ids": {
+                     *             "trakt": 3051,
+                     *             "tvdb": 498968,
+                     *             "tmdb": 53334
+                     *           }
+                     *         }
+                     *       ],
+                     *       "next_episode": {
+                     *         "season": 1,
+                     *         "number": 7,
+                     *         "title": "Water",
+                     *         "ids": {
+                     *           "trakt": 62315,
+                     *           "tvdb": 4849873,
+                     *           "imdb": null,
+                     *           "tmdb": null
+                     *         }
+                     *       },
+                     *       "last_episode": {
+                     *         "season": 1,
+                     *         "number": 6,
+                     *         "title": "Fire",
+                     *         "ids": {
+                     *           "trakt": 62314,
+                     *           "tvdb": 4849872,
+                     *           "imdb": null,
+                     *           "tmdb": null
+                     *         }
+                     *       }
+                     *     } */
                     "application/json": {
                         aired?: number;
                         completed?: number;
@@ -11803,6 +17700,94 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "aired": 8,
+                     *       "completed": 6,
+                     *       "last_watched_at": "2015-03-21T19:03:58.000Z",
+                     *       "reset_at": null,
+                     *       "seasons": [
+                     *         {
+                     *           "number": 1,
+                     *           "title": "The first Hodor.",
+                     *           "aired": 8,
+                     *           "completed": 6,
+                     *           "episodes": [
+                     *             {
+                     *               "number": 1,
+                     *               "completed": true,
+                     *               "last_watched_at": "2015-03-21T19:03:58.000Z"
+                     *             },
+                     *             {
+                     *               "number": 2,
+                     *               "completed": true,
+                     *               "last_watched_at": "2015-03-21T19:03:58.000Z"
+                     *             },
+                     *             {
+                     *               "number": 3,
+                     *               "completed": true,
+                     *               "last_watched_at": "2015-03-21T19:03:58.000Z"
+                     *             },
+                     *             {
+                     *               "number": 4,
+                     *               "completed": true,
+                     *               "last_watched_at": "2015-03-21T19:03:58.000Z"
+                     *             },
+                     *             {
+                     *               "number": 5,
+                     *               "completed": true,
+                     *               "last_watched_at": "2015-03-21T19:03:58.000Z"
+                     *             },
+                     *             {
+                     *               "number": 6,
+                     *               "completed": true,
+                     *               "last_watched_at": "2015-03-21T19:03:58.000Z"
+                     *             },
+                     *             {
+                     *               "number": 7,
+                     *               "completed": false,
+                     *               "last_watched_at": null
+                     *             },
+                     *             {
+                     *               "number": 8,
+                     *               "completed": false,
+                     *               "last_watched_at": null
+                     *             }
+                     *           ]
+                     *         }
+                     *       ],
+                     *       "hidden_seasons": [
+                     *         {
+                     *           "number": 2,
+                     *           "ids": {
+                     *             "trakt": 3051,
+                     *             "tvdb": 498968,
+                     *             "tmdb": 53334
+                     *           }
+                     *         }
+                     *       ],
+                     *       "next_episode": {
+                     *         "season": 1,
+                     *         "number": 7,
+                     *         "title": "Water",
+                     *         "ids": {
+                     *           "trakt": 62315,
+                     *           "tvdb": 4849873,
+                     *           "imdb": null,
+                     *           "tmdb": null
+                     *         }
+                     *       },
+                     *       "last_episode": {
+                     *         "season": 1,
+                     *         "number": 6,
+                     *         "title": "Fire",
+                     *         "ids": {
+                     *           "trakt": 62314,
+                     *           "tvdb": 4849872,
+                     *           "imdb": null,
+                     *           "tmdb": null
+                     *         }
+                     *       }
+                     *     } */
                     "application/json": {
                         aired?: number;
                         completed?: number;
@@ -11891,6 +17876,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "reset_at": "2021-07-01T00:00:000Z"
+                     *     } */
                     "application/json": {
                         reset_at?: string;
                     };
@@ -12236,6 +18224,22 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "rating": 9.38363,
+                     *       "votes": 51065,
+                     *       "distribution": {
+                     *         "1": 320,
+                     *         "2": 77,
+                     *         "3": 73,
+                     *         "4": 131,
+                     *         "5": 300,
+                     *         "6": 514,
+                     *         "7": 1560,
+                     *         "8": 4399,
+                     *         "9": 9648,
+                     *         "10": 34042
+                     *       }
+                     *     } */
                     "application/json": {
                         rating?: number;
                         votes?: number;
@@ -12292,6 +18296,118 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "title": "Battlestar Galactica",
+                     *         "year": 2005,
+                     *         "ids": {
+                     *           "trakt": 331,
+                     *           "slug": "battlestar-galactica",
+                     *           "tvdb": 73545,
+                     *           "imdb": "tt0407362",
+                     *           "tmdb": 1972
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Game of Thrones",
+                     *         "year": 2011,
+                     *         "ids": {
+                     *           "trakt": 353,
+                     *           "slug": "game-of-thrones",
+                     *           "tvdb": 121361,
+                     *           "imdb": "tt0944947",
+                     *           "tmdb": 1399
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Firefly",
+                     *         "year": 2002,
+                     *         "ids": {
+                     *           "trakt": 329,
+                     *           "slug": "firefly",
+                     *           "tvdb": 78874,
+                     *           "imdb": "tt0303461",
+                     *           "tmdb": 1437
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "The Newsroom",
+                     *         "year": 2012,
+                     *         "ids": {
+                     *           "trakt": 497,
+                     *           "slug": "the-newsroom",
+                     *           "tvdb": 256227,
+                     *           "imdb": "tt1870479",
+                     *           "tmdb": 15621
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Dollhouse",
+                     *         "year": 2009,
+                     *         "ids": {
+                     *           "trakt": 395,
+                     *           "slug": "dollhouse",
+                     *           "tvdb": 82046,
+                     *           "imdb": "tt1135300",
+                     *           "tmdb": 14956
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Sons of Anarchy",
+                     *         "year": 2008,
+                     *         "ids": {
+                     *           "trakt": 23,
+                     *           "slug": "sons-of-anarchy",
+                     *           "tvdb": 82696,
+                     *           "imdb": "tt1124373",
+                     *           "tmdb": 1409
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "Hannibal",
+                     *         "year": 2013,
+                     *         "ids": {
+                     *           "trakt": 567,
+                     *           "slug": "hannibal",
+                     *           "tvdb": 259063,
+                     *           "imdb": "tt2243973",
+                     *           "tmdb": 40008
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "True Blood",
+                     *         "year": 2008,
+                     *         "ids": {
+                     *           "trakt": 122,
+                     *           "slug": "true-blood",
+                     *           "tvdb": 82283,
+                     *           "imdb": "tt0844441",
+                     *           "tmdb": 10545
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "The Walking Dead",
+                     *         "year": 2010,
+                     *         "ids": {
+                     *           "trakt": 2,
+                     *           "slug": "the-walking-dead",
+                     *           "tvdb": 153021,
+                     *           "imdb": "tt1520211",
+                     *           "tmdb": 1402
+                     *         }
+                     *       },
+                     *       {
+                     *         "title": "The Shield",
+                     *         "year": 2002,
+                     *         "ids": {
+                     *           "trakt": 486,
+                     *           "slug": "the-shield",
+                     *           "tvdb": 78261,
+                     *           "imdb": "tt0286486",
+                     *           "tmdb": 1414
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         title: string;
                         year: number;
@@ -12339,6 +18455,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "watchers": 355422,
+                     *       "plays": 18278737,
+                     *       "collectors": 159266,
+                     *       "collected_episodes": 7144637,
+                     *       "comments": 257,
+                     *       "lists": 149488,
+                     *       "votes": 51065,
+                     *       "favorited": 54321
+                     *     } */
                     "application/json": {
                         watchers?: number;
                         plays?: number;
@@ -12385,6 +18511,44 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "name": "ABC Studios",
+                     *         "country": "us",
+                     *         "ids": {
+                     *           "trakt": 1,
+                     *           "slug": "abc-studios",
+                     *           "tmdb": 19366
+                     *         }
+                     *       },
+                     *       {
+                     *         "name": "DeKnight Productions",
+                     *         "country": "us",
+                     *         "ids": {
+                     *           "trakt": 2,
+                     *           "slug": "deknight-productions",
+                     *           "tmdb": 51963
+                     *         }
+                     *       },
+                     *       {
+                     *         "name": "Goddard Textiles",
+                     *         "country": "us",
+                     *         "ids": {
+                     *           "trakt": 3,
+                     *           "slug": "goddard-textiles",
+                     *           "tmdb": 51964
+                     *         }
+                     *       },
+                     *       {
+                     *         "name": "Marvel Television",
+                     *         "country": "us",
+                     *         "ids": {
+                     *           "trakt": 4,
+                     *           "slug": "marvel-television",
+                     *           "tmdb": 38679
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         name: string;
                         country: string;
@@ -12430,6 +18594,28 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "username": "justin",
+                     *         "private": false,
+                     *         "name": "Justin Nemeth",
+                     *         "vip": true,
+                     *         "vip_ep": false,
+                     *         "ids": {
+                     *           "slug": "justin"
+                     *         }
+                     *       },
+                     *       {
+                     *         "username": "sean",
+                     *         "private": false,
+                     *         "name": "Sean Rudford",
+                     *         "vip": true,
+                     *         "vip_ep": false,
+                     *         "ids": {
+                     *           "slug": "sean"
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         username: string;
                         private: boolean;
@@ -12476,6 +18662,17 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "season": 7,
+                     *       "number": 1,
+                     *       "title": "TBA",
+                     *       "ids": {
+                     *         "trakt": 2279059,
+                     *         "tvdb": 5773656,
+                     *         "imdb": null,
+                     *         "tmdb": null
+                     *       }
+                     *     } */
                     "application/json": {
                         season?: number;
                         number?: number;
@@ -12523,6 +18720,17 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "season": 6,
+                     *       "number": 10,
+                     *       "title": "The Winds of Winter",
+                     *       "ids": {
+                     *         "trakt": 1989031,
+                     *         "tvdb": 5624261,
+                     *         "imdb": "tt4283094",
+                     *         "tmdb": 1187405
+                     *       }
+                     *     } */
                     "application/json": {
                         season?: number;
                         number?: number;
@@ -12570,6 +18778,19 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "title": "Official Trailer # 3",
+                     *         "url": "https://youtube.com/watch?v=d4RiUy23e9s",
+                     *         "site": "youtube",
+                     *         "type": "trailer",
+                     *         "size": 1080,
+                     *         "official": true,
+                     *         "published_at": "2010-11-09T01:07:39.000Z",
+                     *         "country": "us",
+                     *         "language": "en"
+                     *       }
+                     *     ] */
                     "application/json": {
                         title?: string;
                         url?: string;
@@ -12817,6 +19038,118 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "season": 1,
+                     *         "number": 1,
+                     *         "title": "Winter Is Coming",
+                     *         "ids": {
+                     *           "trakt": 456,
+                     *           "tvdb": 3254641,
+                     *           "imdb": "tt1480055",
+                     *           "tmdb": 63056
+                     *         }
+                     *       },
+                     *       {
+                     *         "season": 1,
+                     *         "number": 2,
+                     *         "title": "The Kingsroad",
+                     *         "ids": {
+                     *           "trakt": 457,
+                     *           "tvdb": 3436411,
+                     *           "imdb": "tt1668746",
+                     *           "tmdb": 63057
+                     *         }
+                     *       },
+                     *       {
+                     *         "season": 1,
+                     *         "number": 3,
+                     *         "title": "Lord Snow",
+                     *         "ids": {
+                     *           "trakt": 458,
+                     *           "tvdb": 3436421,
+                     *           "imdb": "tt1829962",
+                     *           "tmdb": 63058
+                     *         }
+                     *       },
+                     *       {
+                     *         "season": 1,
+                     *         "number": 4,
+                     *         "title": "Cripples, Bastards, and Broken Things",
+                     *         "ids": {
+                     *           "trakt": 459,
+                     *           "tvdb": 3436431,
+                     *           "imdb": "tt1829963",
+                     *           "tmdb": 63059
+                     *         }
+                     *       },
+                     *       {
+                     *         "season": 1,
+                     *         "number": 5,
+                     *         "title": "The Wolf and the Lion",
+                     *         "ids": {
+                     *           "trakt": 460,
+                     *           "tvdb": 3436441,
+                     *           "imdb": "tt1829964",
+                     *           "tmdb": 63060
+                     *         }
+                     *       },
+                     *       {
+                     *         "season": 1,
+                     *         "number": 6,
+                     *         "title": "A Golden Crown",
+                     *         "ids": {
+                     *           "trakt": 461,
+                     *           "tvdb": 3436451,
+                     *           "imdb": "tt1837862",
+                     *           "tmdb": 63061
+                     *         }
+                     *       },
+                     *       {
+                     *         "season": 1,
+                     *         "number": 7,
+                     *         "title": "You Win or You Die",
+                     *         "ids": {
+                     *           "trakt": 462,
+                     *           "tvdb": 3436461,
+                     *           "imdb": "tt1837863",
+                     *           "tmdb": 63062
+                     *         }
+                     *       },
+                     *       {
+                     *         "season": 1,
+                     *         "number": 8,
+                     *         "title": "The Pointy End",
+                     *         "ids": {
+                     *           "trakt": 463,
+                     *           "tvdb": 3360391,
+                     *           "imdb": "tt1837864",
+                     *           "tmdb": 63063
+                     *         }
+                     *       },
+                     *       {
+                     *         "season": 1,
+                     *         "number": 9,
+                     *         "title": "Baelor",
+                     *         "ids": {
+                     *           "trakt": 464,
+                     *           "tvdb": 4063481,
+                     *           "imdb": "tt1851398",
+                     *           "tmdb": 63064
+                     *         }
+                     *       },
+                     *       {
+                     *         "season": 1,
+                     *         "number": 10,
+                     *         "title": "Fire and Blood",
+                     *         "ids": {
+                     *           "trakt": 465,
+                     *           "tvdb": 4063491,
+                     *           "imdb": "tt1851397",
+                     *           "tmdb": 63065
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         season: number;
                         number: number;
@@ -12874,6 +19207,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "title": "시즌 1",
+                     *         "overview": "웨스테로스 북부 지방 윈터펠을 다스리는 에다드 스타크. 스타크 가문은 '겨울이 오고 있다'를 가언으로 몇 년, 때론 남은 일생 동안 계속 될지도 모르는 혹독한 겨울을 대비하며 지낸다. 그러던 중 에다드는 현재 왕좌에 있는 바라테온 가문의 로버트 왕의 핸드로서 왕을 보좌하기 위해 수도 킹스랜딩에 오게 된다. 바라테온 가문과 라니스터 가문, 왕좌를 빼앗긴 타르가옌 가문 등 칠왕국 안의 가문들은 욕망과 명예를 향한 열망으로 피 튀기는 암투를 시작하는데...",
+                     *         "language": "ko",
+                     *         "country": "ko"
+                     *       },
+                     *       {
+                     *         "title": "Seizoen 1",
+                     *         "overview": "Het eerste seizoen van de epische fantasy tv- drama-serie Game of Thrones ging in première op HBO op 17 april 2011 en eindigde op 19 juni 2011, uitgezonden in de Verenigde Staten . Het bestaat uit 10 afleveringen , elke aflevering duurt ongeveer 55 minuten. Game of Thrones is gebaseerd op de roman A Game of Thrones , de eerste vermelding in Een Lied van IJs en Vuur serie van George RR Martin . Het verhaal speelt zich af in een fictieve wereld , in de eerste plaats op een continent genaamd Westeros . The Noble House Stark , onder leiding van Lord Eddard \" Ned \" Stark wordt betrokken in regelingen tegen koning Robert Baratheon wanneer de Hand van de Koning Jon Arryn op mysterieuze wijze sterft .",
+                     *         "language": "nl",
+                     *         "country": "nl"
+                     *       },
+                     *       {
+                     *         "title": "Sesong 1",
+                     *         "overview": "Sesong 1 av Game of Thrones hadde premiere 17 Mai, 2011.",
+                     *         "language": "no",
+                     *         "country": "no"
+                     *       }
+                     *     ] */
                     "application/json": {
                         title: string;
                         overview: string;
@@ -12930,6 +19283,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "id": 8,
+                     *         "parent_id": 0,
+                     *         "created_at": "2011-03-25T22:35:17.000Z",
+                     *         "updated_at": "2011-03-25T22:35:17.000Z",
+                     *         "comment": "Great season!",
+                     *         "spoiler": false,
+                     *         "review": false,
+                     *         "replies": 1,
+                     *         "likes": 0,
+                     *         "user_stats": {
+                     *           "rating": 8,
+                     *           "play_count": 1,
+                     *           "completed_count": 1
+                     *         },
+                     *         "user": {
+                     *           "username": "sean",
+                     *           "private": false,
+                     *           "name": "Sean Rudford",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "sean"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         id?: number;
                         parent_id?: number;
@@ -13011,6 +19392,38 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "name": "Incredible Thoughts",
+                     *         "description": "How could my brain conceive them?",
+                     *         "privacy": "public",
+                     *         "share_link": "https://trakt.tv/lists/1337",
+                     *         "type": "personal",
+                     *         "display_numbers": true,
+                     *         "allow_comments": true,
+                     *         "sort_by": "rank",
+                     *         "sort_how": "asc",
+                     *         "created_at": "2014-10-11T17:00:54.000Z",
+                     *         "updated_at": "2014-10-11T17:00:54.000Z",
+                     *         "item_count": 50,
+                     *         "comment_count": 10,
+                     *         "likes": 99,
+                     *         "ids": {
+                     *           "trakt": 1337,
+                     *           "slug": "incredible-thoughts"
+                     *         },
+                     *         "user": {
+                     *           "username": "justin",
+                     *           "private": false,
+                     *           "name": "Justin Nemeth",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "justin"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         name?: string;
                         description?: string;
@@ -13327,6 +19740,22 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "rating": 9,
+                     *       "votes": 3,
+                     *       "distribution": {
+                     *         "1": 0,
+                     *         "2": 0,
+                     *         "3": 0,
+                     *         "4": 0,
+                     *         "5": 0,
+                     *         "6": 0,
+                     *         "7": 0,
+                     *         "8": 0,
+                     *         "9": 1,
+                     *         "10": 2
+                     *       }
+                     *     } */
                     "application/json": {
                         rating?: number;
                         votes?: number;
@@ -13384,6 +19813,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "watchers": 30521,
+                     *       "plays": 37986,
+                     *       "collectors": 12899,
+                     *       "collected_episodes": 87991,
+                     *       "comments": 115,
+                     *       "lists": 309,
+                     *       "votes": 25655
+                     *     } */
                     "application/json": {
                         watchers?: number;
                         plays?: number;
@@ -13434,6 +19872,28 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "username": "justin",
+                     *         "private": false,
+                     *         "name": "Justin Nemeth",
+                     *         "vip": true,
+                     *         "vip_ep": false,
+                     *         "ids": {
+                     *           "slug": "justin"
+                     *         }
+                     *       },
+                     *       {
+                     *         "username": "sean",
+                     *         "private": false,
+                     *         "name": "Sean Rudford",
+                     *         "vip": true,
+                     *         "vip_ep": false,
+                     *         "ids": {
+                     *           "slug": "sean"
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         username: string;
                         private: boolean;
@@ -13485,6 +19945,19 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "title": "Game Of Thrones - Season 1 Recap - Official HBO UK",
+                     *         "url": "https://youtube.com/watch?v=e0Y8KpQpW8c",
+                     *         "site": "youtube",
+                     *         "type": "recap",
+                     *         "size": 1080,
+                     *         "official": true,
+                     *         "published_at": "2015-05-19T16:31:23.000Z",
+                     *         "country": "us",
+                     *         "language": "en"
+                     *       }
+                     *     ] */
                     "application/json": {
                         title?: string;
                         url?: string;
@@ -13544,6 +20017,17 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "season": 1,
+                     *       "number": 1,
+                     *       "title": "Winter Is Coming",
+                     *       "ids": {
+                     *         "trakt": 36440,
+                     *         "tvdb": 3254641,
+                     *         "imdb": "tt1480055",
+                     *         "tmdb": 63056
+                     *       }
+                     *     } */
                     "application/json": {
                         season?: number;
                         number?: number;
@@ -13606,6 +20090,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "title": "Winter Is Coming",
+                     *         "overview": "Jon Arryn, the Hand of the King, is dead. King Robert Baratheon plans to ask his oldest friend, Eddard Stark, to take Jon's place. Across the sea, Viserys Targaryen plans to wed his sister to a nomadic warlord in exchange for an army.",
+                     *         "language": "en",
+                     *         "country": "us"
+                     *       },
+                     *       {
+                     *         "title": "Se acerca el invierno",
+                     *         "overview": "El Lord Ned Stark está preocupado por los perturbantes reportes de un desertor del Nights Watch; El Rey Robert y los Lannisters llegan a Winterfell; el exiliado Viserys Targaryen forja una nueva y poderosa alianza.",
+                     *         "language": "es",
+                     *         "country": "es"
+                     *       },
+                     *       {
+                     *         "title": "凛冬将至",
+                     *         "overview": "一名守夜人军团的逃兵在临冬城外被抓获，领主艾德（奈德）·史塔克下令将其处斩。奈德对绝境长城之外的形势忧心忡忡。行刑结束后，奈德回到城中，他的夫人凯特琳带来一个令人震惊的消息：奈德的良师益友、现任首相琼恩·艾林在都城离奇死亡，罗伯特国王正启程赶往北方，希望奈德接替琼恩·艾林出任国王之手。与此同时，在狭海对岸的潘托斯，韦赛里斯·坦格利安正计划与多斯拉克游牧民族的一位重要首领卓戈卡奥结盟，凭借多斯拉克人的力量夺回本属于他的铁王座。他妹妹丹妮莉斯的终身幸福成了他手中最重要的筹码。罗伯特国王带着瑟曦·兰尼斯特王后及兰尼斯特家族的重要成员抵达临冬城。他的随行人员包括：王后的弟弟詹姆和提力昂，他们一个英俊潇洒，一个却是侏儒；12岁的乔佛里王子，王位的继承人。奈德无法拒绝国王的盛情邀请，决定南下君临城帮助国王稳定国内局势。就在罗伯特和奈德动身之前，奈德的私生子琼恩·雪诺决定北上黑城堡加盟守夜人军团，对守夜人颇为好奇的提力昂打算和雪诺一同前往。厄运突然降临到奈德的次子布兰身上，奈德和琼恩都被迫推迟了行程。",
+                     *         "language": "zh",
+                     *         "country": "tw"
+                     *       }
+                     *     ] */
                     "application/json": {
                         title: string;
                         overview: string;
@@ -13667,6 +20171,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "id": 8,
+                     *         "parent_id": 0,
+                     *         "created_at": "2011-03-25T22:35:17.000Z",
+                     *         "updated_at": "2011-03-25T22:35:17.000Z",
+                     *         "comment": "Great episode!",
+                     *         "spoiler": false,
+                     *         "review": false,
+                     *         "replies": 1,
+                     *         "likes": 0,
+                     *         "user_stats": {
+                     *           "rating": 8,
+                     *           "play_count": 1,
+                     *           "completed_count": 1
+                     *         },
+                     *         "user": {
+                     *           "username": "sean",
+                     *           "private": false,
+                     *           "name": "Sean Rudford",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "sean"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         id?: number;
                         parent_id?: number;
@@ -13753,6 +20285,38 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "name": "Incredible Thoughts",
+                     *         "description": "How could my brain conceive them?",
+                     *         "privacy": "public",
+                     *         "share_link": "https://trakt.tv/lists/1337",
+                     *         "type": "personal",
+                     *         "display_numbers": true,
+                     *         "allow_comments": true,
+                     *         "sort_by": "rank",
+                     *         "sort_how": "asc",
+                     *         "created_at": "2014-10-11T17:00:54.000Z",
+                     *         "updated_at": "2014-10-11T17:00:54.000Z",
+                     *         "item_count": 50,
+                     *         "comment_count": 10,
+                     *         "likes": 99,
+                     *         "ids": {
+                     *           "trakt": 1337,
+                     *           "slug": "incredible-thoughts"
+                     *         },
+                     *         "user": {
+                     *           "username": "justin",
+                     *           "private": false,
+                     *           "name": "Justin Nemeth",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "justin"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         name?: string;
                         description?: string;
@@ -14016,6 +20580,22 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "rating": 9,
+                     *       "votes": 3,
+                     *       "distribution": {
+                     *         "1": 0,
+                     *         "2": 0,
+                     *         "3": 0,
+                     *         "4": 0,
+                     *         "5": 0,
+                     *         "6": 0,
+                     *         "7": 0,
+                     *         "8": 0,
+                     *         "9": 1,
+                     *         "10": 2
+                     *       }
+                     *     } */
                     "application/json": {
                         rating?: number;
                         votes?: number;
@@ -14078,6 +20658,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "watchers": 30521,
+                     *       "plays": 37986,
+                     *       "collectors": 12899,
+                     *       "collected_episodes": 87991,
+                     *       "comments": 115,
+                     *       "lists": 309,
+                     *       "votes": 25655
+                     *     } */
                     "application/json": {
                         watchers?: number;
                         plays?: number;
@@ -14133,6 +20722,19 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "title": "Game of Thrones: Season 1 - Episode 2 Clip #1 (HBO)",
+                     *         "url": "https://youtube.com/watch?v=kPrW3Swrp4E",
+                     *         "site": "youtube",
+                     *         "type": "clip",
+                     *         "size": 720,
+                     *         "official": true,
+                     *         "published_at": "2011-04-21T20:16:51.000Z",
+                     *         "country": "us",
+                     *         "language": "en"
+                     *       }
+                     *     ] */
                     "application/json": {
                         title?: string;
                         url?: string;
@@ -14179,6 +20781,69 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "all": "2014-11-20T07:01:32.000Z",
+                     *       "movies": {
+                     *         "watched_at": "2014-11-19T21:42:41.000Z",
+                     *         "collected_at": "2014-11-20T06:51:30.000Z",
+                     *         "rated_at": "2014-11-19T18:32:29.000Z",
+                     *         "watchlisted_at": "2014-11-19T21:42:41.000Z",
+                     *         "favorited_at": "2014-11-19T21:42:41.000Z",
+                     *         "commented_at": "2014-11-20T06:51:30.000Z",
+                     *         "paused_at": "2014-11-20T06:51:30.000Z",
+                     *         "hidden_at": "2016-08-20T06:51:30.000Z"
+                     *       },
+                     *       "episodes": {
+                     *         "watched_at": "2014-11-20T06:51:30.000Z",
+                     *         "collected_at": "2014-11-19T22:02:41.000Z",
+                     *         "rated_at": "2014-11-20T06:51:30.000Z",
+                     *         "watchlisted_at": "2014-11-20T06:51:30.000Z",
+                     *         "commented_at": "2014-11-20T06:51:30.000Z",
+                     *         "paused_at": "2014-11-20T06:51:30.000Z"
+                     *       },
+                     *       "shows": {
+                     *         "rated_at": "2014-11-19T19:50:58.000Z",
+                     *         "watchlisted_at": "2014-11-20T06:51:30.000Z",
+                     *         "favorited_at": "2014-11-20T06:51:30.000Z",
+                     *         "commented_at": "2014-11-20T06:51:30.000Z",
+                     *         "hidden_at": "2016-08-20T06:51:30.000Z",
+                     *         "dropped_at": "2025-03-13T01:23:45.000Z"
+                     *       },
+                     *       "seasons": {
+                     *         "rated_at": "2014-11-19T19:54:24.000Z",
+                     *         "watchlisted_at": "2014-11-20T06:51:30.000Z",
+                     *         "commented_at": "2014-11-20T06:51:30.000Z",
+                     *         "hidden_at": "2016-08-20T06:51:30.000Z"
+                     *       },
+                     *       "comments": {
+                     *         "liked_at": "2014-11-20T03:38:09.000Z",
+                     *         "blocked_at": "2022-02-22T03:38:09.000Z"
+                     *       },
+                     *       "lists": {
+                     *         "liked_at": "2014-11-20T00:36:48.000Z",
+                     *         "updated_at": "2014-11-20T06:52:18.000Z",
+                     *         "commented_at": "2014-11-20T06:51:30.000Z"
+                     *       },
+                     *       "watchlist": {
+                     *         "updated_at": "2014-11-20T06:52:18.000Z"
+                     *       },
+                     *       "favorites": {
+                     *         "updated_at": "2014-11-20T06:52:18.000Z"
+                     *       },
+                     *       "account": {
+                     *         "settings_at": "2020-03-04T03:38:09.000Z",
+                     *         "followed_at": "2020-03-04T03:38:09.000Z",
+                     *         "following_at": "2020-03-04T03:38:09.000Z",
+                     *         "pending_at": "2020-03-04T03:38:09.000Z",
+                     *         "requested_at": "2022-04-27T03:38:09.000Z"
+                     *       },
+                     *       "saved_filters": {
+                     *         "updated_at": "2022-06-14T06:52:18.000Z"
+                     *       },
+                     *       "notes": {
+                     *         "updated_at": "2023-08-31T17:18:19.000Z"
+                     *       }
+                     *     } */
                     "application/json": {
                         all?: string;
                         movies?: {
@@ -14291,6 +20956,52 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "progress": 10,
+                     *         "paused_at": "2015-01-25T22:01:32.000Z",
+                     *         "id": 13,
+                     *         "type": "movie",
+                     *         "movie": {
+                     *           "title": "Batman Begins",
+                     *           "year": 2005,
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "batman-begins-2005",
+                     *             "imdb": "tt0372784",
+                     *             "tmdb": 272
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "progress": 65.5,
+                     *         "paused_at": "2015-01-25T22:01:32.000Z",
+                     *         "id": 37,
+                     *         "type": "episode",
+                     *         "episode": {
+                     *           "season": 0,
+                     *           "number": 1,
+                     *           "title": "Good Cop Bad Cop",
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "tvdb": 3859781,
+                     *             "imdb": "",
+                     *             "tmdb": 62131
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "Breaking Bad",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "breaking-bad",
+                     *             "tvdb": 81189,
+                     *             "imdb": "tt0903747",
+                     *             "tmdb": 1396
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         progress: number;
                         paused_at: string;
@@ -14687,6 +21398,32 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "added": {
+                     *         "movies": 1,
+                     *         "episodes": 12
+                     *       },
+                     *       "updated": {
+                     *         "movies": 0,
+                     *         "episodes": 0
+                     *       },
+                     *       "existing": {
+                     *         "movies": 0,
+                     *         "episodes": 0
+                     *       },
+                     *       "not_found": {
+                     *         "movies": [
+                     *           {
+                     *             "ids": {
+                     *               "imdb": "tt0000111"
+                     *             }
+                     *           }
+                     *         ],
+                     *         "shows": [],
+                     *         "seasons": [],
+                     *         "episodes": []
+                     *       }
+                     *     } */
                     "application/json": {
                         added?: {
                             movies?: number;
@@ -14884,6 +21621,24 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "deleted": {
+                     *         "movies": 1,
+                     *         "episodes": 12
+                     *       },
+                     *       "not_found": {
+                     *         "movies": [
+                     *           {
+                     *             "ids": {
+                     *               "imdb": "tt0000111"
+                     *             }
+                     *           }
+                     *         ],
+                     *         "shows": [],
+                     *         "seasons": [],
+                     *         "episodes": []
+                     *       }
+                     *     } */
                     "application/json": {
                         deleted?: {
                             movies?: number;
@@ -15318,6 +22073,24 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "added": {
+                     *         "movies": 2,
+                     *         "episodes": 72
+                     *       },
+                     *       "not_found": {
+                     *         "movies": [
+                     *           {
+                     *             "ids": {
+                     *               "imdb": "tt0000111"
+                     *             }
+                     *           }
+                     *         ],
+                     *         "shows": [],
+                     *         "seasons": [],
+                     *         "episodes": []
+                     *       }
+                     *     } */
                     "application/json": {
                         added?: {
                             movies?: number;
@@ -15516,6 +22289,28 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "deleted": {
+                     *         "movies": 2,
+                     *         "episodes": 72
+                     *       },
+                     *       "not_found": {
+                     *         "movies": [
+                     *           {
+                     *             "ids": {
+                     *               "imdb": "tt0000111"
+                     *             }
+                     *           }
+                     *         ],
+                     *         "shows": [],
+                     *         "seasons": [],
+                     *         "episodes": [],
+                     *         "ids": [
+                     *           23,
+                     *           42
+                     *         ]
+                     *       }
+                     *     } */
                     "application/json": {
                         deleted?: {
                             movies?: number;
@@ -15845,6 +22640,27 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "added": {
+                     *         "movies": 1,
+                     *         "shows": 1,
+                     *         "seasons": 1,
+                     *         "episodes": 2
+                     *       },
+                     *       "not_found": {
+                     *         "movies": [
+                     *           {
+                     *             "rating": 10,
+                     *             "ids": {
+                     *               "imdb": "tt0000111"
+                     *             }
+                     *           }
+                     *         ],
+                     *         "shows": [],
+                     *         "seasons": [],
+                     *         "episodes": []
+                     *       }
+                     *     } */
                     "application/json": {
                         added?: {
                             movies?: number;
@@ -16037,6 +22853,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "deleted": {
+                     *         "movies": 1,
+                     *         "shows": 1,
+                     *         "seasons": 1,
+                     *         "episodes": 2
+                     *       },
+                     *       "not_found": {
+                     *         "movies": [
+                     *           {
+                     *             "ids": {
+                     *               "imdb": "tt0000111"
+                     *             }
+                     *           }
+                     *         ],
+                     *         "shows": [],
+                     *         "seasons": [],
+                     *         "episodes": []
+                     *       }
+                     *     } */
                     "application/json": {
                         deleted?: {
                             movies?: number;
@@ -16245,6 +23081,36 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "name": "Watchlist",
+                     *       "description": "This is my watchlist!",
+                     *       "privacy": "public",
+                     *       "share_link": "https://trakt.tv/lists/1",
+                     *       "type": "watchlist",
+                     *       "display_numbers": false,
+                     *       "allow_comments": false,
+                     *       "sort_by": "runtime",
+                     *       "sort_how": "desc",
+                     *       "created_at": "2014-10-11T17:00:54.000Z",
+                     *       "updated_at": "2023-10-11T17:00:54.000Z",
+                     *       "item_count": 5,
+                     *       "comment_count": 0,
+                     *       "likes": 0,
+                     *       "ids": {
+                     *         "trakt": 1,
+                     *         "slug": null
+                     *       },
+                     *       "user": {
+                     *         "username": "sean",
+                     *         "private": false,
+                     *         "name": "Sean Rudford",
+                     *         "vip": true,
+                     *         "vip_ep": false,
+                     *         "ids": {
+                     *           "slug": "sean"
+                     *         }
+                     *       }
+                     *     } */
                     "application/json": {
                         name?: string;
                         description?: string;
@@ -16452,6 +23318,36 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "added": {
+                     *         "movies": 1,
+                     *         "shows": 1,
+                     *         "seasons": 1,
+                     *         "episodes": 2
+                     *       },
+                     *       "existing": {
+                     *         "movies": 0,
+                     *         "shows": 0,
+                     *         "seasons": 0,
+                     *         "episodes": 0
+                     *       },
+                     *       "not_found": {
+                     *         "movies": [
+                     *           {
+                     *             "ids": {
+                     *               "imdb": "tt0000111"
+                     *             }
+                     *           }
+                     *         ],
+                     *         "shows": [],
+                     *         "seasons": [],
+                     *         "episodes": []
+                     *       },
+                     *       "list": {
+                     *         "updated_at": "2022-04-27T21:40:41.000Z",
+                     *         "item_count": 5
+                     *       }
+                     *     } */
                     "application/json": {
                         added?: {
                             movies?: number;
@@ -16662,6 +23558,30 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "deleted": {
+                     *         "movies": 1,
+                     *         "shows": 1,
+                     *         "seasons": 1,
+                     *         "episodes": 2
+                     *       },
+                     *       "not_found": {
+                     *         "movies": [
+                     *           {
+                     *             "ids": {
+                     *               "imdb": "tt0000111"
+                     *             }
+                     *           }
+                     *         ],
+                     *         "shows": [],
+                     *         "seasons": [],
+                     *         "episodes": []
+                     *       },
+                     *       "list": {
+                     *         "updated_at": "2022-04-27T21:40:41.000Z",
+                     *         "item_count": 0
+                     *       }
+                     *     } */
                     "application/json": {
                         deleted?: {
                             movies?: number;
@@ -16736,6 +23656,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "updated": 6,
+                     *       "skipped_ids": [
+                     *         12
+                     *       ],
+                     *       "list": {
+                     *         "updated_at": "2022-04-27T21:40:41.000Z",
+                     *         "item_count": 5
+                     *       }
+                     *     } */
                     "application/json": {
                         updated?: number;
                         skipped_ids?: number[];
@@ -16931,6 +23861,36 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "name": "Favorites",
+                     *       "description": "These are my favorites!",
+                     *       "privacy": "public",
+                     *       "share_link": "https://trakt.tv/lists/2",
+                     *       "type": "favorites",
+                     *       "display_numbers": false,
+                     *       "allow_comments": false,
+                     *       "sort_by": "runtime",
+                     *       "sort_how": "desc",
+                     *       "created_at": "2014-10-11T17:00:54.000Z",
+                     *       "updated_at": "2023-10-11T17:00:54.000Z",
+                     *       "item_count": 5,
+                     *       "comment_count": 0,
+                     *       "likes": 0,
+                     *       "ids": {
+                     *         "trakt": 2,
+                     *         "slug": null
+                     *       },
+                     *       "user": {
+                     *         "username": "sean",
+                     *         "private": false,
+                     *         "name": "Sean Rudford",
+                     *         "vip": true,
+                     *         "vip_ep": false,
+                     *         "ids": {
+                     *           "slug": "sean"
+                     *         }
+                     *       }
+                     *     } */
                     "application/json": {
                         name?: string;
                         description?: string;
@@ -17069,6 +24029,30 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "added": {
+                     *         "movies": 1,
+                     *         "shows": 2
+                     *       },
+                     *       "existing": {
+                     *         "movies": 0,
+                     *         "shows": 0
+                     *       },
+                     *       "not_found": {
+                     *         "movies": [
+                     *           {
+                     *             "ids": {
+                     *               "imdb": "tt0000111"
+                     *             }
+                     *           }
+                     *         ],
+                     *         "shows": []
+                     *       },
+                     *       "list": {
+                     *         "updated_at": "2022-04-27T21:40:41.000Z",
+                     *         "item_count": 3
+                     *       }
+                     *     } */
                     "application/json": {
                         added?: {
                             movies?: number;
@@ -17184,6 +24168,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "deleted": {
+                     *         "movies": 1,
+                     *         "shows": 1
+                     *       },
+                     *       "not_found": {
+                     *         "movies": [
+                     *           {
+                     *             "ids": {
+                     *               "imdb": "tt0000111"
+                     *             }
+                     *           }
+                     *         ],
+                     *         "shows": []
+                     *       },
+                     *       "list": {
+                     *         "updated_at": "2022-04-27T21:40:41.000Z",
+                     *         "item_count": 0
+                     *       }
+                     *     } */
                     "application/json": {
                         deleted?: {
                             movies?: number;
@@ -17254,6 +24258,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "updated": 6,
+                     *       "skipped_ids": [
+                     *         12
+                     *       ],
+                     *       "list": {
+                     *         "updated_at": "2022-04-27T21:40:41.000Z",
+                     *         "item_count": 3
+                     *       }
+                     *     } */
                     "application/json": {
                         updated?: number;
                         skipped_ids?: number[];
@@ -17346,6 +24360,80 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "user": {
+                     *         "username": "justin",
+                     *         "private": false,
+                     *         "name": "Justin Nemeth",
+                     *         "vip": true,
+                     *         "vip_ep": false,
+                     *         "ids": {
+                     *           "slug": "justin",
+                     *           "uuid": "b6589fc6ab0dc82cf12099d1c2d40ab994e8410c"
+                     *         },
+                     *         "joined_at": "2010-09-25T17:49:25.000Z",
+                     *         "location": "San Diego, CA",
+                     *         "about": "Co-founder of trakt.",
+                     *         "gender": "male",
+                     *         "age": 32,
+                     *         "images": {
+                     *           "avatar": {
+                     *             "full": "https://secure.gravatar.com/avatar/30c2f0dfbc39e48656f40498aa871e33?r=pg&s=256"
+                     *           }
+                     *         },
+                     *         "vip_og": true,
+                     *         "vip_years": 5
+                     *       },
+                     *       "account": {
+                     *         "timezone": "America/Los_Angeles",
+                     *         "date_format": "mdy",
+                     *         "time_24hr": false,
+                     *         "cover_image": "https://walter-r2.trakt.tv/images/movies/000/001/545/fanarts/original/0abb604492.jpg"
+                     *       },
+                     *       "connections": {
+                     *         "facebook": false,
+                     *         "twitter": true,
+                     *         "mastodon": true,
+                     *         "google": true,
+                     *         "tumblr": false,
+                     *         "medium": false,
+                     *         "slack": false,
+                     *         "apple": false,
+                     *         "dropbox": false,
+                     *         "microsoft": false
+                     *       },
+                     *       "sharing_text": {
+                     *         "watching": "I'm watching [item]",
+                     *         "watched": "I just watched [item]",
+                     *         "rated": "[item] [stars]"
+                     *       },
+                     *       "limits": {
+                     *         "list": {
+                     *           "count": 2,
+                     *           "item_count": 100
+                     *         },
+                     *         "watchlist": {
+                     *           "item_count": 100
+                     *         },
+                     *         "favorites": {
+                     *           "item_count": 100
+                     *         },
+                     *         "search": {
+                     *           "recent_count": 5
+                     *         },
+                     *         "collection": {
+                     *           "item_count": 100
+                     *         },
+                     *         "notes": {
+                     *           "item_count": 100
+                     *         }
+                     *       },
+                     *       "permissions": {
+                     *         "commenting": true,
+                     *         "liking": true,
+                     *         "following": true
+                     *       }
+                     *     } */
                     "application/json": {
                         user?: {
                             username?: string;
@@ -17455,6 +24543,22 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "id": 3,
+                     *         "requested_at": "2014-09-22T04:23:48.000Z",
+                     *         "user": {
+                     *           "username": "sean",
+                     *           "private": false,
+                     *           "name": "Sean Rudford",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "sean"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         id?: number;
                         requested_at?: string;
@@ -17504,6 +24608,22 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "id": 3,
+                     *         "requested_at": "2014-09-22T04:23:48.000Z",
+                     *         "user": {
+                     *           "username": "sean",
+                     *           "private": false,
+                     *           "name": "Sean Rudford",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "sean"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         id?: number;
                         requested_at?: string;
@@ -17559,6 +24679,19 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "followed_at": "2014-09-22T05:38:54.083Z",
+                     *       "user": {
+                     *         "username": "sean",
+                     *         "private": false,
+                     *         "name": "Sean Rudford",
+                     *         "vip": true,
+                     *         "vip_ep": false,
+                     *         "ids": {
+                     *           "slug": "sean"
+                     *         }
+                     *       }
+                     *     } */
                     "application/json": {
                         followed_at?: string;
                         user?: {
@@ -17654,6 +24787,44 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "rank": 1,
+                     *         "id": 101,
+                     *         "section": "movies",
+                     *         "name": "Movies: IMDB + TMDB ratings",
+                     *         "path": "/movies/favorited/weekly",
+                     *         "query": "imdb_ratings=6.9-10.0&tmdb_ratings=4.2-10.0",
+                     *         "updated_at": "2022-06-15T11:15:06.000Z"
+                     *       },
+                     *       {
+                     *         "rank": 2,
+                     *         "id": 102,
+                     *         "section": "shows",
+                     *         "name": "Shows: US + Disney+",
+                     *         "path": "/shows/popular",
+                     *         "query": "watchnow=disney_plus&countries=us",
+                     *         "updated_at": "2022-06-15T12:15:06.000Z"
+                     *       },
+                     *       {
+                     *         "rank": 3,
+                     *         "id": 103,
+                     *         "section": "calendars",
+                     *         "name": "On Netflix",
+                     *         "path": "/calendars/my/shows",
+                     *         "query": "network_ids=53",
+                     *         "updated_at": "2022-06-15T13:15:06.000Z"
+                     *       },
+                     *       {
+                     *         "rank": 4,
+                     *         "id": 104,
+                     *         "section": "search",
+                     *         "name": "Action & Adventure",
+                     *         "path": "/search/movie,show",
+                     *         "query": "genres=+action,+adventure",
+                     *         "updated_at": "2022-06-15T14:15:06.000Z"
+                     *       }
+                     *     ] */
                     "application/json": {
                         rank: number;
                         id: number;
@@ -17708,6 +24879,38 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "hidden_at": "2015-03-30T23:18:42.000Z",
+                     *         "type": "show",
+                     *         "show": {
+                     *           "title": "Gossip Girl",
+                     *           "year": 2007,
+                     *           "ids": {
+                     *             "trakt": 48,
+                     *             "slug": "gossip-girl",
+                     *             "tvdb": 80547,
+                     *             "imdb": "tt0397442",
+                     *             "tmdb": 1395
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "hidden_at": "2015-03-30T23:19:33.000Z",
+                     *         "type": "show",
+                     *         "show": {
+                     *           "title": "Bitten",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 839,
+                     *             "slug": "bitten",
+                     *             "tvdb": 269550,
+                     *             "imdb": "tt2365946",
+                     *             "tmdb": 60556
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         hidden_at: string;
                         type: string;
@@ -17852,6 +25055,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "added": {
+                     *         "movies": 1,
+                     *         "shows": 2,
+                     *         "seasons": 2,
+                     *         "users": 0
+                     *       },
+                     *       "not_found": {
+                     *         "movies": [
+                     *           {
+                     *             "ids": {
+                     *               "imdb": "tt0000111"
+                     *             }
+                     *           }
+                     *         ],
+                     *         "shows": [],
+                     *         "seasons": [],
+                     *         "users": []
+                     *       }
+                     *     } */
                     "application/json": {
                         added?: {
                             movies?: number;
@@ -17997,6 +25220,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "deleted": {
+                     *         "movies": 1,
+                     *         "shows": 2,
+                     *         "seasons": 2,
+                     *         "users": 0
+                     *       },
+                     *       "not_found": {
+                     *         "movies": [
+                     *           {
+                     *             "ids": {
+                     *               "imdb": "tt0000111"
+                     *             }
+                     *           }
+                     *         ],
+                     *         "shows": [],
+                     *         "seasons": [],
+                     *         "users": []
+                     *       }
+                     *     } */
                     "application/json": {
                         deleted?: {
                             movies?: number;
@@ -18424,6 +25667,231 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "type": "movie",
+                     *         "movie": {
+                     *           "title": "Batman Begins",
+                     *           "year": 2005,
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "batman-begins-2005",
+                     *             "imdb": "tt0372784",
+                     *             "tmdb": 272
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 267,
+                     *           "comment": "Great kickoff to a new Batman trilogy!",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2015-04-25T00:14:57.000Z",
+                     *           "updated_at": "2015-04-25T00:14:57.000Z",
+                     *           "replies": 0,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": 10,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "show",
+                     *         "show": {
+                     *           "title": "Breaking Bad",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "breaking-bad",
+                     *             "tvdb": 81189,
+                     *             "imdb": "tt0903747",
+                     *             "tmdb": 1396
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 199,
+                     *           "comment": "Skyler, I AM THE DANGER.",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2015-02-18T06:02:30.000Z",
+                     *           "updated_at": "2015-02-18T06:02:30.000Z",
+                     *           "replies": 0,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": 10,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "season",
+                     *         "season": {
+                     *           "number": 1,
+                     *           "ids": {
+                     *             "trakt": 3958,
+                     *             "tvdb": 274431,
+                     *             "tmdb": 60394
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "Gotham",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 869,
+                     *             "slug": "gotham",
+                     *             "tvdb": 274431,
+                     *             "imdb": "tt3749900",
+                     *             "tmdb": 60708
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 220,
+                     *           "comment": "Kicking off season 1 for a new Batman show.",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2015-04-21T06:53:25.000Z",
+                     *           "updated_at": "2015-04-21T06:53:25.000Z",
+                     *           "replies": 0,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": 8,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "episode",
+                     *         "episode": {
+                     *           "season": 1,
+                     *           "number": 1,
+                     *           "title": "Jim Gordon",
+                     *           "ids": {
+                     *             "trakt": 63958,
+                     *             "tvdb": 4768720,
+                     *             "imdb": "tt3216414",
+                     *             "tmdb": 975968
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "Gotham",
+                     *           "year": 2014,
+                     *           "ids": {
+                     *             "trakt": 869,
+                     *             "slug": "gotham",
+                     *             "tvdb": 274431,
+                     *             "imdb": "tt3749900",
+                     *             "tmdb": 60708
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 229,
+                     *           "comment": "Is this the OC?",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2015-04-21T15:42:31.000Z",
+                     *           "updated_at": "2015-04-21T15:42:31.000Z",
+                     *           "replies": 1,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": 7,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "type": "list",
+                     *         "list": {
+                     *           "name": "Star Wars",
+                     *           "description": "The complete Star Wars saga!",
+                     *           "privacy": "public",
+                     *           "share_link": "https://trakt.tv/lists/51",
+                     *           "display_numbers": false,
+                     *           "allow_comments": true,
+                     *           "updated_at": "2015-04-22T22:01:39.000Z",
+                     *           "item_count": 8,
+                     *           "comment_count": 0,
+                     *           "likes": 0,
+                     *           "ids": {
+                     *             "trakt": 51,
+                     *             "slug": "star-wars"
+                     *           }
+                     *         },
+                     *         "comment": {
+                     *           "id": 268,
+                     *           "comment": "May the 4th be with you!",
+                     *           "spoiler": false,
+                     *           "review": false,
+                     *           "parent_id": 0,
+                     *           "created_at": "2014-12-08T17:34:51.000Z",
+                     *           "updated_at": "2014-12-08T17:34:51.000Z",
+                     *           "replies": 0,
+                     *           "likes": 0,
+                     *           "user_stats": {
+                     *             "rating": null,
+                     *             "play_count": 1,
+                     *             "completed_count": 1
+                     *           },
+                     *           "user": {
+                     *             "username": "justin",
+                     *             "private": false,
+                     *             "name": "Justin N.",
+                     *             "vip": true,
+                     *             "vip_ep": false,
+                     *             "ids": {
+                     *               "slug": "justin"
+                     *             }
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         type: string;
                         movie?: {
@@ -18715,6 +26183,48 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "name": "Star Wars in machete order",
+                     *         "description": "Next time you want to introduce someone to Star Wars for the first time, watch the films with them in this order: IV, V, II, III, VI.",
+                     *         "privacy": "public",
+                     *         "share_link": "https://trakt.tv/lists/55",
+                     *         "type": "personal",
+                     *         "display_numbers": true,
+                     *         "allow_comments": true,
+                     *         "sort_by": "rank",
+                     *         "sort_how": "asc",
+                     *         "created_at": "2014-10-11T17:00:54.000Z",
+                     *         "updated_at": "2014-10-11T17:00:54.000Z",
+                     *         "item_count": 5,
+                     *         "comment_count": 0,
+                     *         "likes": 0,
+                     *         "ids": {
+                     *           "trakt": 55,
+                     *           "slug": "star-wars-in-machete-order"
+                     *         }
+                     *       },
+                     *       {
+                     *         "name": "Vampires FTW",
+                     *         "description": "These suck, but in a good way!",
+                     *         "privacy": "link",
+                     *         "share_link": "https://trakt.tv/lists/share/83cea6a8252e6ec9cc74e72ce9d8fde7",
+                     *         "type": "personal",
+                     *         "display_numbers": false,
+                     *         "allow_comments": true,
+                     *         "sort_by": "rank",
+                     *         "sort_how": "asc",
+                     *         "created_at": "2014-10-11T17:00:54.000Z",
+                     *         "updated_at": "2014-10-11T17:00:54.000Z",
+                     *         "item_count": 5,
+                     *         "comment_count": 0,
+                     *         "likes": 0,
+                     *         "ids": {
+                     *           "trakt": 52,
+                     *           "slug": "vampires-ftw"
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         name: string;
                         description: string;
@@ -18797,6 +26307,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "name": "Star Wars in machete order",
+                     *       "description": "Next time you want to introduce someone to Star Wars for the first time, watch the films with them in this order: IV, V, II, III, VI.",
+                     *       "privacy": "public",
+                     *       "share_link": "https://trakt.tv/lists/55",
+                     *       "type": "personal",
+                     *       "display_numbers": true,
+                     *       "allow_comments": true,
+                     *       "sort_by": "rank",
+                     *       "sort_how": "asc",
+                     *       "created_at": "2014-10-11T17:00:54.000Z",
+                     *       "updated_at": "2014-10-11T17:00:54.000Z",
+                     *       "item_count": 0,
+                     *       "comment_count": 0,
+                     *       "likes": 0,
+                     *       "ids": {
+                     *         "trakt": 55,
+                     *         "slug": "star-wars-in-machete-order"
+                     *       }
+                     *     } */
                     "application/json": {
                         name?: string;
                         description?: string;
@@ -18884,6 +26414,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "updated": 6,
+                     *       "skipped_ids": [
+                     *         2
+                     *       ]
+                     *     } */
                     "application/json": {
                         updated?: number;
                         skipped_ids?: number[];
@@ -18924,6 +26460,39 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "name": "Our Favorite Movies",
+                     *         "description": "Hey everyone, add your favorite movies we've all enjoyed together over the years!",
+                     *         "privacy": "private",
+                     *         "share_link": "https://trakt.tv/lists/2612438",
+                     *         "type": "personal",
+                     *         "display_numbers": false,
+                     *         "allow_comments": true,
+                     *         "sort_by": "rank",
+                     *         "sort_how": "asc",
+                     *         "created_at": "2022-02-16T21:48:18.000Z",
+                     *         "updated_at": "2022-06-10T21:55:05.000Z",
+                     *         "item_count": 6,
+                     *         "comment_count": 0,
+                     *         "likes": 1,
+                     *         "ids": {
+                     *           "trakt": 2612438,
+                     *           "slug": "our-favorite-movies"
+                     *         },
+                     *         "user": {
+                     *           "username": "sean",
+                     *           "private": false,
+                     *           "name": "Sean",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "sean",
+                     *             "trakt": 2
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         name?: string;
                         description?: string;
@@ -18999,6 +26568,36 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "name": "Star Wars in machete order",
+                     *       "description": "Next time you want to introduce someone to Star Wars for the first time, watch the films with them in this order: IV, V, II, III, VI.",
+                     *       "privacy": "public",
+                     *       "share_link": "https://trakt.tv/lists/55",
+                     *       "type": "personal",
+                     *       "display_numbers": true,
+                     *       "allow_comments": true,
+                     *       "sort_by": "rank",
+                     *       "sort_how": "asc",
+                     *       "created_at": "2014-10-11T17:00:54.000Z",
+                     *       "updated_at": "2014-10-11T17:00:54.000Z",
+                     *       "item_count": 5,
+                     *       "comment_count": 0,
+                     *       "likes": 0,
+                     *       "ids": {
+                     *         "trakt": 55,
+                     *         "slug": "star-wars-in-machete-order"
+                     *       },
+                     *       "user": {
+                     *         "username": "sean",
+                     *         "private": false,
+                     *         "name": "Sean Rudford",
+                     *         "vip": true,
+                     *         "vip_ep": false,
+                     *         "ids": {
+                     *           "slug": "sean"
+                     *         }
+                     *       }
+                     *     } */
                     "application/json": {
                         name?: string;
                         description?: string;
@@ -19092,6 +26691,36 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "name": "Star Wars in NEW machete order",
+                     *       "description": "Next time you want to introduce someone to Star Wars for the first time, watch the films with them in this order: IV, V, II, III, VI.",
+                     *       "privacy": "private",
+                     *       "share_link": "https://trakt.tv/lists/55",
+                     *       "type": "personal",
+                     *       "display_numbers": true,
+                     *       "allow_comments": false,
+                     *       "sort_by": "rank",
+                     *       "sort_how": "asc",
+                     *       "created_at": "2014-10-11T17:00:54.000Z",
+                     *       "updated_at": "2014-10-11T17:00:54.000Z",
+                     *       "item_count": 5,
+                     *       "comment_count": 0,
+                     *       "likes": 0,
+                     *       "ids": {
+                     *         "trakt": 55,
+                     *         "slug": "star-wars-in-machete-order"
+                     *       },
+                     *       "user": {
+                     *         "username": "sean",
+                     *         "private": false,
+                     *         "name": "Sean Rudford",
+                     *         "vip": true,
+                     *         "vip_ep": false,
+                     *         "ids": {
+                     *           "slug": "sean"
+                     *         }
+                     *       }
+                     *     } */
                     "application/json": {
                         name?: string;
                         description?: string;
@@ -19213,6 +26842,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "liked_at": "2014-09-01T09:10:11.000Z",
+                     *         "user": {
+                     *           "username": "sean",
+                     *           "private": false,
+                     *           "name": "Sean Rudford",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "sean"
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "liked_at": "2014-09-01T09:10:11.000Z",
+                     *         "user": {
+                     *           "username": "justin",
+                     *           "private": false,
+                     *           "name": "Justin Nemeth",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "justin"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         liked_at: string;
                         user: {
@@ -19376,6 +27033,113 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "rank": 1,
+                     *         "id": 101,
+                     *         "listed_at": "2014-06-16T06:07:12.000Z",
+                     *         "notes": "You are part of the rebel alliance and a spy!",
+                     *         "type": "movie",
+                     *         "movie": {
+                     *           "title": "Star Wars: Episode IV - A New Hope",
+                     *           "year": 1977,
+                     *           "ids": {
+                     *             "trakt": 12,
+                     *             "slug": "star-wars-episode-iv-a-new-hope-1977",
+                     *             "imdb": "tt0076759",
+                     *             "tmdb": 11
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "rank": 2,
+                     *         "id": 102,
+                     *         "listed_at": "2014-06-16T06:07:12.000Z",
+                     *         "notes": null,
+                     *         "type": "show",
+                     *         "show": {
+                     *           "title": "The Walking Dead",
+                     *           "year": 2010,
+                     *           "ids": {
+                     *             "trakt": 2,
+                     *             "slug": "the-walking-dead",
+                     *             "tvdb": 153021,
+                     *             "imdb": "tt1520211",
+                     *             "tmdb": 1402
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "rank": 3,
+                     *         "id": 103,
+                     *         "listed_at": "2014-06-16T06:07:12.000Z",
+                     *         "notes": null,
+                     *         "type": "season",
+                     *         "season": {
+                     *           "number": 1,
+                     *           "ids": {
+                     *             "tvdb": 30272,
+                     *             "tmdb": 3572
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "Breaking Bad",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "breaking-bad",
+                     *             "tvdb": 81189,
+                     *             "imdb": "tt0903747",
+                     *             "tmdb": 1396
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "rank": 4,
+                     *         "id": 104,
+                     *         "listed_at": "2014-06-17T06:52:03.000Z",
+                     *         "notes": null,
+                     *         "type": "episode",
+                     *         "episode": {
+                     *           "season": 0,
+                     *           "number": 2,
+                     *           "title": "Wedding Day",
+                     *           "ids": {
+                     *             "trakt": 2,
+                     *             "tvdb": 3859791,
+                     *             "imdb": null,
+                     *             "tmdb": 62133
+                     *           }
+                     *         },
+                     *         "show": {
+                     *           "title": "Breaking Bad",
+                     *           "year": 2008,
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "breaking-bad",
+                     *             "tvdb": 81189,
+                     *             "imdb": "tt0903747",
+                     *             "tmdb": 1396
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "rank": 5,
+                     *         "id": 105,
+                     *         "listed_at": "2014-06-17T06:52:03.000Z",
+                     *         "notes": null,
+                     *         "type": "person",
+                     *         "person": {
+                     *           "name": "Garrett Hedlund",
+                     *           "ids": {
+                     *             "trakt": 1,
+                     *             "slug": "garrett-hedlund",
+                     *             "imdb": "nm1330560",
+                     *             "tmdb": 9828
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         rank: number;
                         id: number;
@@ -19606,6 +27370,39 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "added": {
+                     *         "movies": 1,
+                     *         "shows": 1,
+                     *         "seasons": 1,
+                     *         "episodes": 2,
+                     *         "people": 1
+                     *       },
+                     *       "existing": {
+                     *         "movies": 0,
+                     *         "shows": 0,
+                     *         "seasons": 0,
+                     *         "episodes": 0,
+                     *         "people": 0
+                     *       },
+                     *       "not_found": {
+                     *         "movies": [
+                     *           {
+                     *             "ids": {
+                     *               "imdb": "tt0000111"
+                     *             }
+                     *           }
+                     *         ],
+                     *         "shows": [],
+                     *         "seasons": [],
+                     *         "episodes": [],
+                     *         "people": []
+                     *       },
+                     *       "list": {
+                     *         "updated_at": "2022-04-27T21:40:41.000Z",
+                     *         "item_count": 6
+                     *       }
+                     *     } */
                     "application/json": {
                         added?: {
                             movies?: number;
@@ -19817,6 +27614,32 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "deleted": {
+                     *         "movies": 1,
+                     *         "shows": 1,
+                     *         "seasons": 1,
+                     *         "episodes": 2,
+                     *         "people": 1
+                     *       },
+                     *       "not_found": {
+                     *         "movies": [
+                     *           {
+                     *             "ids": {
+                     *               "imdb": "tt0000111"
+                     *             }
+                     *           }
+                     *         ],
+                     *         "shows": [],
+                     *         "seasons": [],
+                     *         "episodes": [],
+                     *         "people": []
+                     *       },
+                     *       "list": {
+                     *         "updated_at": "2022-04-27T21:40:41.000Z",
+                     *         "item_count": 0
+                     *       }
+                     *     } */
                     "application/json": {
                         deleted?: {
                             movies?: number;
@@ -19904,6 +27727,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "updated": 6,
+                     *       "skipped_ids": [
+                     *         12
+                     *       ],
+                     *       "list": {
+                     *         "updated_at": "2022-04-27T21:40:41.000Z",
+                     *         "item_count": 6
+                     *       }
+                     *     } */
                     "application/json": {
                         updated?: number;
                         skipped_ids?: number[];
@@ -20022,6 +27855,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "id": 8,
+                     *         "parent_id": 0,
+                     *         "created_at": "2011-03-25T22:35:17.000Z",
+                     *         "updated_at": "2011-03-25T22:35:17.000Z",
+                     *         "comment": "Can't wait to watch everything on this epic list!",
+                     *         "spoiler": false,
+                     *         "review": false,
+                     *         "replies": 0,
+                     *         "likes": 0,
+                     *         "user_stats": {
+                     *           "rating": null,
+                     *           "play_count": 1,
+                     *           "completed_count": 1
+                     *         },
+                     *         "user": {
+                     *           "username": "sean",
+                     *           "private": false,
+                     *           "name": "Sean Rudford",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "sean"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         id?: number;
                         parent_id?: number;
@@ -20089,6 +27950,19 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "approved_at": "2014-11-15T09:41:34.704Z",
+                     *       "user": {
+                     *         "username": "sean",
+                     *         "private": false,
+                     *         "name": "Sean Rudford",
+                     *         "vip": true,
+                     *         "vip_ep": false,
+                     *         "ids": {
+                     *           "slug": "sean"
+                     *         }
+                     *       }
+                     *     } */
                     "application/json": {
                         approved_at?: string;
                         user?: {
@@ -20178,6 +28052,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "followed_at": "2014-09-01T09:10:11.000Z",
+                     *         "user": {
+                     *           "username": "sean",
+                     *           "private": false,
+                     *           "name": "Sean Rudford",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "sean"
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "followed_at": "2014-09-01T09:10:11.000Z",
+                     *         "user": {
+                     *           "username": "justin",
+                     *           "private": false,
+                     *           "name": "Justin Nemeth",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "justin"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         followed_at: string;
                         user: {
@@ -20227,6 +28129,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "followed_at": "2014-09-01T09:10:11.000Z",
+                     *         "user": {
+                     *           "username": "sean",
+                     *           "private": false,
+                     *           "name": "Sean Rudford",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "sean"
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "followed_at": "2014-09-01T09:10:11.000Z",
+                     *         "user": {
+                     *           "username": "justin",
+                     *           "private": false,
+                     *           "name": "Justin Nemeth",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "justin"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         followed_at: string;
                         user: {
@@ -20276,6 +28206,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "friends_at": "2014-09-01T09:10:11.000Z",
+                     *         "user": {
+                     *           "username": "sean",
+                     *           "private": false,
+                     *           "name": "Sean Rudford",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "sean"
+                     *           }
+                     *         }
+                     *       },
+                     *       {
+                     *         "friends_at": "2014-09-01T09:10:11.000Z",
+                     *         "user": {
+                     *           "username": "justin",
+                     *           "private": false,
+                     *           "name": "Justin Nemeth",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "justin"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         friends_at: string;
                         user: {
@@ -20739,6 +28697,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "id": 8,
+                     *         "parent_id": 0,
+                     *         "created_at": "2011-03-25T22:35:17.000Z",
+                     *         "updated_at": "2011-03-25T22:35:17.000Z",
+                     *         "comment": "Can't wait to watch everything on this epic list!",
+                     *         "spoiler": false,
+                     *         "review": false,
+                     *         "replies": 0,
+                     *         "likes": 0,
+                     *         "user_stats": {
+                     *           "rating": null,
+                     *           "play_count": 1,
+                     *           "completed_count": 1
+                     *         },
+                     *         "user": {
+                     *           "username": "sean",
+                     *           "private": false,
+                     *           "name": "Sean Rudford",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "sean"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         id?: number;
                         parent_id?: number;
@@ -20904,6 +28890,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [
+                     *       {
+                     *         "id": 8,
+                     *         "parent_id": 0,
+                     *         "created_at": "2011-03-25T22:35:17.000Z",
+                     *         "updated_at": "2011-03-25T22:35:17.000Z",
+                     *         "comment": "Can't wait to watch everything on this epic list!",
+                     *         "spoiler": false,
+                     *         "review": false,
+                     *         "replies": 0,
+                     *         "likes": 0,
+                     *         "user_stats": {
+                     *           "rating": null,
+                     *           "play_count": 1,
+                     *           "completed_count": 1
+                     *         },
+                     *         "user": {
+                     *           "username": "sean",
+                     *           "private": false,
+                     *           "name": "Sean Rudford",
+                     *           "vip": true,
+                     *           "vip_ep": false,
+                     *           "ids": {
+                     *             "slug": "sean"
+                     *           }
+                     *         }
+                     *       }
+                     *     ] */
                     "application/json": {
                         id?: number;
                         parent_id?: number;
@@ -21147,6 +29161,54 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example {
+                     *       "movies": {
+                     *         "plays": 155,
+                     *         "watched": 114,
+                     *         "minutes": 15650,
+                     *         "collected": 933,
+                     *         "ratings": 256,
+                     *         "comments": 28
+                     *       },
+                     *       "shows": {
+                     *         "watched": 16,
+                     *         "collected": 7,
+                     *         "ratings": 63,
+                     *         "comments": 20
+                     *       },
+                     *       "seasons": {
+                     *         "ratings": 6,
+                     *         "comments": 1
+                     *       },
+                     *       "episodes": {
+                     *         "plays": 552,
+                     *         "watched": 534,
+                     *         "minutes": 17330,
+                     *         "collected": 117,
+                     *         "ratings": 64,
+                     *         "comments": 14
+                     *       },
+                     *       "network": {
+                     *         "friends": 1,
+                     *         "followers": 4,
+                     *         "following": 11
+                     *       },
+                     *       "ratings": {
+                     *         "total": 389,
+                     *         "distribution": {
+                     *           "1": 18,
+                     *           "2": 1,
+                     *           "3": 4,
+                     *           "4": 1,
+                     *           "5": 10,
+                     *           "6": 9,
+                     *           "7": 37,
+                     *           "8": 37,
+                     *           "9": 57,
+                     *           "10": 215
+                     *         }
+                     *       }
+                     *     } */
                     "application/json": {
                         movies?: {
                             plays?: number;

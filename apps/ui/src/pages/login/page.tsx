@@ -54,11 +54,13 @@ export default function Login() {
     ),
   })
   const [authChangeEvent] = useAtom(authChangeEventAtom)
-  if (!authChangeEvent)
+  if (!authChangeEvent) {
     return null
+  }
 
-  if (user)
+  if (user) {
     return <Navigate to="/" />
+  }
 
   const {
     handleSubmit,
@@ -73,8 +75,7 @@ export default function Login() {
         email: username,
         password,
       }])
-    }
-    else {
+    } else {
       return signInWithUsername({
         username,
         password,

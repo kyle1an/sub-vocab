@@ -1,4 +1,7 @@
-import type { Simplify, ValueOf } from 'type-fest'
+import type { ValueOf } from 'type-fest'
+
+import { formVocab } from '@/lib/vocab'
+import { createFactory, isNonEmptyArray } from '@sub-vocab/utils/lib'
 
 export const LEARNING_PHASE = {
   NEW: 0,
@@ -9,51 +12,59 @@ export const LEARNING_PHASE = {
 
 export type LearningPhase = ValueOf<typeof LEARNING_PHASE>
 
-interface WordEntry {
-  word: string
-  original: boolean
+export interface TrackedWord {
+  form: string
+  isBaseForm: boolean
   rank: number | null
-}
-
-export interface WordState extends WordEntry {
+  // ^ entry v state
   learningPhase: LearningPhase
   isUser: boolean
   timeModified: string | null
 }
 
+export const buildTrackedWord = createFactory<TrackedWord>()(() => ({
+  isUser: false,
+  isBaseForm: false,
+  rank: null,
+  timeModified: null,
+  learningPhase: LEARNING_PHASE.NEW,
+}))
+
 type Char = `'` | '’' | '-' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z'
 
-type NodeOf<T> = Simplify<{
-  [K in Char]?: K extends Char ? NodeOf<T> : never
+type LexiconNode<T = Leaf> = {
+  [K in Char]?: K extends Char ? LexiconNode<T> : never
 } & {
   $?: T
-}>
+}
 
-export type Sentence = {
+export interface Sentence {
   text: string
   index: number
 }
 
-export type WordLocator = {
+export interface WordLocator {
   sentenceId: number
   startOffset: number
   wordLength: number
   wordOrder: number
 }
 
-export interface TrieWordLabel {
-  path: string
-  src: WordLocator[]
-  vocab?: WordState
-  // inflectionRecords
-  derive?: TrieWordLabel[]
-  // isInflected
-  variant?: boolean
+export interface Leaf {
+  pathe: string
+  locators: WordLocator[]
+  trackedWord?: TrackedWord
+  inflectedForms?: Leaf[]
+  isInflectedForm?: true
 }
 
-function caseOr(a: string, b: string) {
-  const r = []
+const buildLeaf = createFactory<Leaf>()(() => ({
+  locators: [],
+  inflectedForms: [],
+}))
 
+const caseOr = (a: string, b: string) => {
+  const r: number[] = []
   for (let i = 0; i < a.length; i++) {
     r.push(a.charCodeAt(i) | b.charCodeAt(i))
   }
@@ -62,110 +73,111 @@ function caseOr(a: string, b: string) {
 
 const UPPERCASE_LETTER_REGEX = /[A-ZÀ-Þ]/
 const hasUppercaseLetter = UPPERCASE_LETTER_REGEX.test.bind(UPPERCASE_LETTER_REGEX)
+
 const VOWELS = ['a', 'e', 'i', 'o', 'u']
 const isVowel = VOWELS.includes.bind(VOWELS)
 
 const SENTENCE_REGEX = /["'“‘[@A-Za-zÀ-ÿ](?:[^<>{};.?!]*(?:<[^>]*>|\{[^}]*\})*[ \n]?(?:[-.](?=[A-Za-zÀ-ÿ])|\.{3} *)*["'”’\]@A-Za-zÀ-ÿ])+[^<>(){} \n]*/g
 const WORD_REGEX = /(?:[A-Za-zÀ-ÿ]['’-]?)*[A-Za-zÀ-ÿ][a-zß-ÿ]*(?:['’-]?[A-Za-zÀ-ÿ]['’]?)+/g
 
-export class LabeledTire {
-  root: NodeOf<TrieWordLabel> = {}
-  private sequence = 0
-  sentences: Sentence[] = []
-  private vocabulary = new Set<TrieWordLabel>()
+const getInflectedForms = (node: LexiconNode) => [
+  node.e?.s?.$,
+  node.e?.s?.[`'`]?.$,
+  node.e?.s?.[`’`]?.$,
+  node.e?.d?.$,
+  node.i?.n?.[`'`]?.$,
+  node.i?.n?.[`’`]?.$,
+  node.i?.n?.g?.$,
+  node.i?.n?.g?.s?.$,
+]
+const getApostropheInflectedForms = (apostropheNode?: LexiconNode) => [
+  apostropheNode?.d?.$,
+  apostropheNode?.l?.l?.$,
+  apostropheNode?.r?.e?.$,
+  apostropheNode?.s?.$,
+  apostropheNode?.v?.e?.$,
+]
 
-  getNode(word: string) {
-    let node = this.root
-    for (const c of word.split('')) {
+class Trie {
+  public readonly root: LexiconNode = {}
+  private sequence = 0
+  public readonly sentences: Sentence[] = []
+  private readonly nodeMap = new Map<string, LexiconNode>()
+  public getNode(path: string) {
+    path = path.toLowerCase()
+    let node = this.nodeMap.get(path)
+    if (node) {
+      return node
+    }
+    node = this.root
+    for (const c of path.split('')) {
       node = node[c as Char] ??= {}
     }
+    this.nodeMap.set(path, node)
     return node
   }
-
-  private createBasePath(sieve: WordState) {
-    const sieveWord = sieve.word
-    const node = this.getNode(sieveWord.toLowerCase())
-
+  private createBasePath(sieve: TrackedWord) {
+    const sieveForm = sieve.form
+    const node = this.getNode(sieveForm)
     if (!node.$) {
       node.$ = {
-        path: sieveWord,
-        src: [],
-        vocab: sieve,
+        pathe: sieveForm,
+        locators: [],
+        trackedWord: sieve,
       }
-    }
-    else {
-      if (node.$.vocab) {
-        node.$.vocab.learningPhase = sieve.learningPhase
-        node.$.vocab.timeModified = sieve.timeModified
-        node.$.vocab.isUser = sieve.isUser
-        node.$.vocab.rank = sieve.rank
+    } else {
+      if (node.$.trackedWord) {
+        node.$.trackedWord.learningPhase = sieve.learningPhase
+        node.$.trackedWord.timeModified = sieve.timeModified
+        node.$.trackedWord.isUser = sieve.isUser
+        node.$.trackedWord.rank = sieve.rank
+      } else {
+        node.$.trackedWord = sieve
       }
-      else {
-        node.$.vocab = sieve
-      }
-      if (hasUppercaseLetter(node.$.path)) {
-        if (hasUppercaseLetter(sieveWord)) {
-          if (node.$.vocab.rank) {
-            if (sieve.rank && sieve.rank < node.$.vocab.rank) {
-              node.$.vocab = sieve
+      if (hasUppercaseLetter(node.$.pathe)) {
+        if (!hasUppercaseLetter(sieveForm)) {
+          node.$.pathe = sieveForm
+          node.$.trackedWord = sieve
+        } else {
+          if (node.$.trackedWord.rank) {
+            if (sieve.rank && sieve.rank < node.$.trackedWord.rank) {
+              node.$.trackedWord = sieve
             }
-          }
-          else if (sieve.rank) {
-            node.$.vocab = sieve
-          }
-        }
-        else {
-          node.$.path = sieveWord
-          node.$.vocab = sieve
-        }
-      }
-    }
-  }
-
-  mergeDerivedWordIntoStem(irregularMaps: string[][]) {
-    for (const irregulars of irregularMaps) {
-      const [lemma, ...inflections] = irregulars
-      if (lemma) {
-        const stemNode = this.getNode(lemma.toLowerCase())
-
-        stemNode.$ ??= {
-          path: lemma,
-          src: [],
-          vocab: {
-            word: lemma,
-            learningPhase: LEARNING_PHASE.NEW,
-            isUser: false,
-            original: true,
-            rank: null,
-            timeModified: null,
-          },
-        }
-        for (const irregular of inflections) {
-          const deriveNode = this.getNode(irregular.toLowerCase())
-          deriveNode.$ ??= {
-            path: irregular,
-            src: [],
-            vocab: {
-              word: lemma,
-              learningPhase: LEARNING_PHASE.NEW,
-              isUser: false,
-              original: false,
-              rank: null,
-              timeModified: null,
-            },
-          }
-          if (
-            !deriveNode.$.variant
-          ) {
-            this.mergeTo(stemNode.$, deriveNode.$)
+          } else if (sieve.rank) {
+            node.$.trackedWord = sieve
           }
         }
       }
     }
   }
-
-  add(input: string) {
-    this.sentences = []
+  public mergeDerivedWordIntoStem(irregularMaps: string[][]) {
+    for (const [lemma, ...inflections] of irregularMaps.filter(isNonEmptyArray)) {
+      const lemmaNode = this.getNode(lemma)
+      lemmaNode.$ ??= {
+        pathe: lemma,
+        locators: [],
+        trackedWord: buildTrackedWord({
+          form: lemma,
+          isBaseForm: true,
+        }),
+      }
+      for (const inflection of inflections) {
+        const inflectedNode = this.getNode(inflection)
+        inflectedNode.$ ??= {
+          pathe: inflection,
+          locators: [],
+          trackedWord: buildTrackedWord({
+            form: lemma,
+          }),
+        }
+        Trie.trySetAsInflections(
+          lemmaNode.$,
+          inflectedNode.$,
+        )
+      }
+    }
+  }
+  public add(input: string) {
     for (let sentenceMatch = SENTENCE_REGEX.exec(input); sentenceMatch !== null; sentenceMatch = SENTENCE_REGEX.exec(input)) {
       const sentenceText = sentenceMatch[0]
       const sentenceIndex = this.sentences.length
@@ -180,262 +192,199 @@ export class LabeledTire {
     }
     SENTENCE_REGEX.lastIndex = 0
   }
-
-  update(original: string, index: number, sentenceId: number) {
-    const branch = this.getNode(original.toLowerCase())
-
-    if (!branch.$) {
-      branch.$ = {
-        path: original,
-        src: [{
-          sentenceId,
-          startOffset: index,
-          wordLength: original.length,
-          wordOrder: ++this.sequence,
-        }],
+  public update(original: string, index: number, sentenceId: number) {
+    const node = this.getNode(original)
+    if (!node.$) {
+      node.$ = {
+        pathe: original,
+        locators: [
+          {
+            sentenceId,
+            startOffset: index,
+            wordLength: original.length,
+            wordOrder: ++this.sequence,
+          },
+        ],
       }
-    }
-    else {
-      branch.$.src.push(
+    } else {
+      node.$.locators.push(
         {
           sentenceId,
           startOffset: index,
           wordLength: original.length,
-          wordOrder: branch.$.src.length ? this.sequence : ++this.sequence,
+          wordOrder: node.$.locators.length ? this.sequence : ++this.sequence,
         },
       )
-
-      if (hasUppercaseLetter(branch.$.path) && !branch.$.vocab) {
-        if (hasUppercaseLetter(original)) {
-          branch.$.path = caseOr(branch.$.path, original)
-        }
-        else {
-          branch.$.path = original
-        }
+      if (hasUppercaseLetter(node.$.pathe) && !node.$.trackedWord) {
+        node.$.pathe = caseOr(node.$.pathe, original)
       }
     }
   }
-
-  mergedVocabulary(baseVocab: WordState[]) {
+  public mergedVocabulary(baseVocab: TrackedWord[]) {
     for (const sieve of baseVocab) {
       this.createBasePath(sieve)
     }
-    this.mergeRecursive(this.root)
+    Trie.mergeRecursive(this.root)
   }
-
-  private mergeRecursive(layer: NodeOf<TrieWordLabel>) {
-    let key: keyof typeof layer
-    for (key in layer) {
-      if (key === '$') {
-        continue
+  private static mergeRecursive(node: LexiconNode) {
+    for (const [key, value] of Object.entries(node)) {
+      if (key !== '$') {
+        // deep first traverse eg: beings(being) vs bee
+        Trie.mergeRecursive(value)
+        Trie.mergeVocabOfDifferentSuffixes(value, key, node)
       }
-      const innerLayer = layer[key]!
-      // deep first traverse eg: beings(being) vs bee
-      this.mergeRecursive(innerLayer)
-      this.mergeVocabOfDifferentSuffixes(innerLayer, key, layer)
     }
   }
-
-  private mergeVocabOfDifferentSuffixes(curr: NodeOf<TrieWordLabel>, previousChar: Char, parentLayer: NodeOf<TrieWordLabel>) {
-    const isPreviousCharS = previousChar === 's'
-    const _$ = curr.$
-    const _e$ = curr.e?.$
-    const _s$ = isPreviousCharS ? undefined : curr.s?.$
-    const isTheLastCharConsonant = !isVowel(previousChar)
-    const _in = curr.i?.n
-    const _ing = _in?.g
-    const _ing$ = _ing?.$
-    const _ying$ = isTheLastCharConsonant ? curr.y?.i?.n?.g?.$ : undefined
-
-    function labelOfSuffixes(node: NodeOf<TrieWordLabel>) {
-      const labels = [
-        node.e?.s?.$,
-        node.e?.s?.[`'`]?.$,
-        node.e?.d?.$,
-      ]
-
-      if (_in) {
-        labels.push(
-          _in[`'`]?.$,
-          _in[`’`]?.$,
-        )
-        if (_ing) {
-          labels.push(
-            _ing$,
-            _ing.s?.$,
-          )
-        }
-      }
-
-      return labels
+  private static mergeVocabOfDifferentSuffixes(node: LexiconNode, char: Char, nodeParent: LexiconNode) {
+    const node_s_$ = char !== 's' ? node.s?.$ : undefined
+    const isConsonantChar = !isVowel(char)
+    const node_y_i_n_g_$ = isConsonantChar ? node.y?.i?.n?.g?.$ : undefined
+    if (node.i?.n?.g?.$) {
+      Trie.trySetAsInflections(
+        node.i?.n?.g?.$,
+        node.i?.n?.[`'`]?.$,
+        node.i?.n?.[`’`]?.$,
+      )
     }
-
-    const getApostropheSuffixes = (apostrophe: NodeOf<TrieWordLabel>) => [
-      apostrophe.d?.$,
-      apostrophe.l?.l?.$,
-      apostrophe.r?.e?.$,
-      apostrophe.s?.$,
-      apostrophe.v?.e?.$,
-    ]
-
-    if (_ing$) {
-      this.batchMergeTo(_ing$, [
-        _in?.[`'`]?.$,
-        _in?.[`’`]?.$,
-      ])
-    }
-
-    if (_$) {
-      this.batchMergeTo(_e$ || _$, labelOfSuffixes(curr))
-      const _est$ = curr.e?.s?.t?.$
-      const toBeMerged = [
-        _s$,
-        _est$ ? curr.e?.r?.$ : undefined,
-        _est$,
-        curr.l?.y?.$,
-        curr.l?.e?.s?.s?.$,
-        curr.n?.e?.s?.s?.$,
+    if (node.$) {
+      Trie.trySetAsInflections(
+        node.e?.$ || node.$,
+        ...getInflectedForms(node),
+      )
+      const maybeInflectedForms = [
+        node_s_$,
+        node.e?.s?.t?.$ ? node.e?.r?.$ : undefined,
+        node.e?.s?.t?.$,
+        node.l?.y?.$,
+        node.l?.e?.s?.s?.$,
+        node.n?.e?.s?.s?.$,
       ]
-
-      if (previousChar === 'e') {
-        toBeMerged.push(
-          parentLayer.d?.e?.n?.$,
+      if (char === 'e') {
+        maybeInflectedForms.push(
+          nodeParent.d?.e?.n?.$,
         )
-        const _r$ = curr.r?.$
-        const _st$ = curr.s?.t?.$
-        if (_r$ && _st$) {
-          toBeMerged.push(
-            _r$,
-            _st$,
+        if (node.r?.$ && node.s?.t?.$) {
+          maybeInflectedForms.push(
+            node.r?.$,
+            node.s?.t?.$,
           )
         }
-      }
-      else if (isTheLastCharConsonant) {
-        const wordEndsWithVowelAndConsonant = isVowel(_$.path.slice(-2, -1))
-        if (wordEndsWithVowelAndConsonant) {
-          const __est$ = curr[previousChar]?.e?.s?.t?.$
-          toBeMerged.push(
-            curr[previousChar]?.i?.n?.g?.$,
-            curr[previousChar]?.i?.n?.[`'`]?.$,
-            curr[previousChar]?.i?.n?.[`’`]?.$,
-            curr[previousChar]?.e?.d?.$,
-            __est$ ? curr[previousChar]?.e?.r?.$ : undefined,
-            __est$,
+      } else if (isConsonantChar) {
+        const isEndsWithVowelAndConsonant = isVowel(node.$.pathe.slice(-2, -1))
+        if (isEndsWithVowelAndConsonant) {
+          maybeInflectedForms.push(
+            node[char]?.i?.n?.g?.$,
+            node[char]?.i?.n?.[`'`]?.$,
+            node[char]?.i?.n?.[`’`]?.$,
+            node[char]?.e?.d?.$,
+            node[char]?.e?.s?.t?.$ ? node[char]?.e?.r?.$ : undefined,
+            node[char]?.e?.s?.t?.$,
           )
-        }
-        else {
-          const wordEndsWithConsonantAndConsonantY = previousChar === 'y'
-          if (wordEndsWithConsonantAndConsonantY) {
-            toBeMerged.push(
-              parentLayer.i?.e?.s?.$,
-              parentLayer.i?.e?.s?.[`'`]?.$,
-              parentLayer.i?.e?.d?.$,
-              parentLayer.i?.e?.r?.$,
-              parentLayer.i?.e?.s?.t?.$,
-              parentLayer.i?.l?.y?.$,
+        } else {
+          const isEndsWithConsonantAndY = char === 'y'
+          if (isEndsWithConsonantAndY) {
+            maybeInflectedForms.push(
+              nodeParent.i?.e?.s?.$,
+              nodeParent.i?.e?.s?.[`'`]?.$,
+              nodeParent.i?.e?.s?.[`’`]?.$,
+              nodeParent.i?.e?.d?.$,
+              nodeParent.i?.e?.r?.$,
+              nodeParent.i?.e?.s?.t?.$,
+              nodeParent.i?.l?.y?.$,
             )
           }
         }
       }
-
-      if (!isPreviousCharS) {
-        toBeMerged.push(
-          curr.s?.[`'`]?.$,
-          curr.s?.[`’`]?.$,
+      if (char !== 's') {
+        maybeInflectedForms.push(
+          node.s?.[`'`]?.$,
+          node.s?.[`’`]?.$,
         )
       }
-      this.batchMergeTo(_$, toBeMerged)
-      if (curr[`'`]) {
-        this.batchMergeTo(_$, getApostropheSuffixes(curr[`'`]))
+      Trie.trySetAsInflections(
+        node.$,
+        ...maybeInflectedForms,
+        ...getApostropheInflectedForms(node[`'`]),
+        ...getApostropheInflectedForms(node[`’`]),
+      )
+    } else if (node.e?.$) {
+      Trie.trySetAsInflections(
+        node.e?.$,
+        ...getInflectedForms(node),
+      )
+    } else if (node_s_$) {
+      const $ = buildLeaf({
+        pathe: node_s_$.pathe.slice(0, -1),
+      })
+      Trie.trySetAsInflections(
+        $,
+        ...getInflectedForms(node),
+        ...getApostropheInflectedForms(node[`'`]),
+        ...getApostropheInflectedForms(node[`’`]),
+      )
+      if ($.inflectedForms.length >= 1) {
+        Trie.trySetAsInflections(
+          $,
+          node_s_$,
+        )
+        node.$ = $
       }
-
-      if (curr[`’`]) {
-        this.batchMergeTo(_$, getApostropheSuffixes(curr[`’`]))
-      }
-    }
-    else if (_e$) {
-      this.batchMergeTo(_e$, labelOfSuffixes(curr))
-    }
-    else if (_s$) {
-      const $ = {
-        path: _s$.path.slice(0, -1),
-        src: [],
-        derive: [],
-      } satisfies TrieWordLabel
-      this.batchMergeTo($, labelOfSuffixes(curr))
-
-      if (curr[`'`]) {
-        this.batchMergeTo($, getApostropheSuffixes(curr[`'`]))
-      }
-      if (curr[`’`]) {
-        this.batchMergeTo($, getApostropheSuffixes(curr[`’`]))
-      }
-      if ($.derive.length) {
-        this.mergeNodes($, _s$)
-        curr.$ = $
-      }
-    }
-    else if (_ying$) {
-      const $ = {
-        path: _ying$.path.slice(0, -3),
-        src: [],
-        derive: [],
-      } satisfies TrieWordLabel
-      this.batchMergeTo($, [
-        curr.i?.e?.s?.$,
-        curr.i?.e?.d?.$,
-      ])
-
-      if ($.derive.length) {
-        this.mergeNodes($, _ying$)
-        curr.y ??= {}
-        curr.y.$ = $
+    } else if (node_y_i_n_g_$) {
+      const $ = buildLeaf({
+        pathe: node_y_i_n_g_$.pathe.slice(0, -3),
+      })
+      Trie.trySetAsInflections(
+        $,
+        node.i?.e?.s?.$,
+        node.i?.e?.d?.$,
+      )
+      if ($.inflectedForms.length >= 1) {
+        Trie.trySetAsInflections(
+          $,
+          node_y_i_n_g_$,
+        )
+        node.y ??= {}
+        node.y.$ = $
       }
     }
   }
-
-  private batchMergeTo($: TrieWordLabel, next_$$: Array<TrieWordLabel | undefined>) {
-    for (const next_$ of next_$$) {
-      if (next_$) {
-        this.mergeNodes($, next_$)
-      }
-    }
-  }
-
-  private mergeNodes(targetWord: TrieWordLabel, latterWord: TrieWordLabel) {
-    if (
-      latterWord.vocab?.original
-      || latterWord.variant
-    ) {
-      return
-    }
-    this.mergeTo(targetWord, latterWord)
-  }
-
-  private mergeTo(targetWord: TrieWordLabel, latterWord: TrieWordLabel) {
-    targetWord.derive ??= []
-    targetWord.derive.push(latterWord)
-    latterWord.variant = true
-  }
-
-  getVocabulary() {
-    const vocabulary = this.vocabulary = new Set()
-    this.collectRecursive(this.root)
-    this.vocabulary = new Set()
-    return Array.from(vocabulary)
-  }
-
-  private collectRecursive(layer: NodeOf<TrieWordLabel>) {
-    let key: keyof typeof layer
-    for (key in layer) {
-      if (key === '$') {
-        if (!layer.$!.variant) {
-          this.vocabulary.add(layer.$!)
+  private static trySetAsInflections(baseForm: Leaf, ...maybeInflectedForms: Array<Leaf | undefined>) {
+    for (const inflectedForm of maybeInflectedForms) {
+      if (inflectedForm) {
+        if (!inflectedForm.trackedWord?.isBaseForm && !inflectedForm.isInflectedForm) {
+          baseForm.inflectedForms ??= []
+          baseForm.inflectedForms.push(inflectedForm)
+          inflectedForm.isInflectedForm = true
         }
       }
-      else {
-        this.collectRecursive(layer[key]!)
-      }
     }
   }
+  private static getVocabulary(root: LexiconNode) {
+    const vocabulary = new Set<Leaf>()
+    const collectVocabulary = (node: LexiconNode) => {
+      Object.entries(node).forEach(([key, value]) => {
+        if (key !== '$') {
+          collectVocabulary(value)
+        } else if (!value.isInflectedForm) {
+          vocabulary.add(value)
+        }
+      })
+    }
+    collectVocabulary(root)
+    return Array.from(vocabulary)
+  }
+  public input(words: string[]) {
+    words.forEach((word) => {
+      this.update(word, -1, -1)
+    })
+  }
+  public generate(irregulars: string[][], baseVocab: TrackedWord[]) {
+    this.mergeDerivedWordIntoStem(irregulars)
+    this.mergedVocabulary(baseVocab)
+    return Trie
+      .getVocabulary(this.root)
+      .map(formVocab)
+  }
 }
+
+export { Trie as LexiconTrie }

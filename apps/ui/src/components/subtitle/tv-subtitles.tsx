@@ -124,8 +124,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
                         parentRows.forEach(({ subRows, id }) => {
                           if (subRows.length === 0) {
                             state.rowSelection[id] = !checked
-                          }
-                          else {
+                          } else {
                             subRows.forEach(({ id }, index) => {
                               state.rowSelection[id] = !checked && index === 0
                             })
@@ -168,12 +167,12 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
                   onCheckedChange={(checked) => {
                     if (row.depth === 0) {
                       const [row1] = row.subRows
-                      if (row1)
+                      if (row1) {
                         onRowSelectionChange?.(checked, row1, 'singleSubRow')
-                      else
+                      } else {
                         onRowSelectionChange?.(checked, row)
-                    }
-                    else {
+                      }
+                    } else {
                       onRowSelectionChange?.(checked, row, 'singleSubRow')
                     }
                   }}
@@ -194,8 +193,9 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
     }),
     columnHelper.accessor((row) => {
       const { season_number, episode_number } = row.subtitle.attributes.feature_details
-      if (season_number && episode_number)
+      if (season_number && episode_number) {
         return `S${season_number} E${String(episode_number).padStart(Math.min(naturalNumLength(highestEpisodeNumber), 2), '0')}`
+      }
     }, {
       id: 'season_episode',
       filterFn,
@@ -287,8 +287,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
               {value}
             </span>
           )
-        }
-        else {
+        } else {
           const value = row.original.subtitle.attributes.files[0]?.file_name || ''
           const className = 'tracking-[.04em] text-sm'
           const rootRect = root.current?.getBoundingClientRect()
@@ -455,10 +454,11 @@ function subtitleEpisodeData(subtitles: Subtitles['Response']['data'], episodes:
 }
 
 function episodeFilter(filterEpisode: string): ColumnFilterFn<RowData> {
-  if (filterEpisode === 'all')
+  if (filterEpisode === 'all') {
     return noFilter
-  else
+  } else {
     return (row) => row.subtitle.attributes.feature_details.season_number === Number(filterEpisode)
+  }
 }
 
 export function TVSubtitleFiles({

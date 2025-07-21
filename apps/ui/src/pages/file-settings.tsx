@@ -2,8 +2,7 @@ import type { CheckedState } from '@radix-ui/react-checkbox'
 
 import { isEqual } from 'es-toolkit'
 import { useMediaQuery } from 'foxact/use-media-query'
-import { useAtom, useSetAtom } from 'jotai'
-import { useEffect } from 'react'
+import { useAtom } from 'jotai'
 import { useSearchParams } from 'react-router'
 import { useImmer } from 'use-immer'
 import IconLucideCog from '~icons/lucide/cog'
@@ -15,7 +14,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTrigger } from '@/components/ui/drawer'
 import { Separator } from '@/components/ui/separator'
 import { Toggle } from '@/components/ui/toggle'
-import { fileTypesAtom, isDrawerOpenAtom } from '@/store/useVocab'
+import { fileTypesAtom } from '@/store/useVocab'
 
 function FileSettingsContent({
   className,
@@ -62,19 +61,15 @@ export function FileSettings() {
   const isMdScreen = useMediaQuery('(min-width: 768px)')
   const [searchParams, setSearchParams] = useSearchParams()
   const open = searchParams.get('popup') === 'file-settings'
-  const setIsDrawerOpen = useSetAtom(isDrawerOpenAtom)
   const [fileTypes, setFileTypes] = useAtom(fileTypesAtom)
   const [fileTypesInterim, setFileTypesInterim] = useImmer(fileTypes)
-
-  useEffect(() => {
-    setIsDrawerOpen(open)
-  }, [open, setIsDrawerOpen])
 
   function handleFileTypeChange({ type }: FileType, checkedState: CheckedState) {
     setFileTypesInterim((draft) => {
       const fileType = draft.find((ft) => ft.type === type)
-      if (fileType)
+      if (fileType) {
         fileType.checked = checkedState === true
+      }
     })
   }
 
@@ -99,8 +94,7 @@ export function FileSettings() {
   function handleOpenChange(open: boolean) {
     if (open) {
       searchParams.set('popup', 'file-settings')
-    }
-    else {
+    } else {
       searchParams.delete('popup')
       setFileTypesInterim(fileTypes)
     }

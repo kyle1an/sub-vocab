@@ -4,6 +4,7 @@ import { CssVarsProvider } from '@mui/joy/styles'
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { createTRPCClient, httpBatchLink } from '@trpc/client'
+import { enableMapSet } from 'immer'
 import { queryClientAtom } from 'jotai-tanstack-query'
 import { useHydrateAtoms } from 'jotai/utils'
 import { useState } from 'react'
@@ -22,6 +23,8 @@ import { queryClient } from '@/store/useVocab'
 if (import.meta.env.DEV) {
   import('./styles/devtools.css')
 }
+
+enableMapSet()
 
 function App() {
   const [persister] = useState(() => createAsyncStoragePersister({

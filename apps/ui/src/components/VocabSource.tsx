@@ -18,7 +18,7 @@ import { Effect } from 'effect'
 import { useAtom, useAtomValue } from 'jotai'
 import { atomWithImmer } from 'jotai-immer'
 import { atomWithStorage } from 'jotai/utils'
-import { startTransition, useDeferredValue, useRef, useState } from 'react'
+import { startTransition, useDeferredValue, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
 import { toast } from 'sonner'
@@ -90,20 +90,22 @@ const SEGMENT_NAME = 'source-table-segment'
 
 function acquaintedStatusFilter(filterSegment: Segment): ColumnFilterFn<TableData> {
   let filteredValue: LearningPhase[] = []
-  if (filterSegment === 'new')
+  if (filterSegment === 'new') {
     filteredValue = [LEARNING_PHASE.NEW, LEARNING_PHASE.RETAINING]
-  else if (filterSegment === 'acquainted')
+  } else if (filterSegment === 'acquainted') {
     filteredValue = [LEARNING_PHASE.ACQUAINTED, LEARNING_PHASE.FADING]
-  else
+  } else {
     return noFilter
+  }
 
   return (row) => filteredValue.includes(row.inertialPhase)
 }
 
 function categoryFilter(filterValue: Record<string, boolean>): ColumnFilterFn<TableData> {
   const categories = Object.entries(filterValue).filter(([, v]) => v).map(([k]) => k)
-  if (categories.length === 0)
+  if (categories.length === 0) {
     return noFilter
+  }
 
   return (row) => categories.includes(row.category || 'others')
 }
@@ -193,10 +195,11 @@ function useCategorize(vocabularyCategory: VocabularyCategory, data: VocabularyS
 
   return data.map((d) => {
     let category: string | null = null
-    if (d.wFamily.some((w) => properName.includes(w.path)))
+    if (d.wordFamily.some((w) => properName.includes(w.pathe))) {
       category = 'properName'
-    else if (d.wFamily.some((w) => acronym.includes(w.path)))
+    } else if (d.wordFamily.some((w) => acronym.includes(w.pathe))) {
       category = 'acronym'
+    }
 
     return {
       ...d,
@@ -256,7 +259,7 @@ export function VocabSourceTable({
     globalFilterFn: filterFn,
     initialState: initialTableState,
     autoResetPageIndex: false,
-    getRowId: (row) => row.lemmaState.word,
+    getRowId: (row) => row.trackedWord.form,
     getRowCanExpand: (row) => sentences.length > 0 && row.original.locators.length > 0,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -285,7 +288,7 @@ export function VocabSourceTable({
     rowsAcquainted = [],
     rowsNew = [],
   } = Object.groupBy(filteredRows, (row) => {
-    switch (row.original.lemmaState.learningPhase) {
+    switch (row.original.trackedWord.learningPhase) {
       case LEARNING_PHASE.ACQUAINTED:
         return 'rowsAcquainted'
       case LEARNING_PHASE.NEW:
@@ -310,7 +313,7 @@ export function VocabSourceTable({
     }
   })
   const rowsToRetain = rowsNew
-    .map((row) => row.original.lemmaState)
+    .map((row) => row.original.trackedWord)
 
   useUnmountEffect(() => {
     setCacheState({
@@ -343,13 +346,13 @@ export function VocabSourceTable({
   ]
 
   const freshVocabularies = data
-    .filter((d) => d.lemmaState.learningPhase === LEARNING_PHASE.NEW && !d.lemmaState.rank)
+    .filter((d) => d.trackedWord.learningPhase === LEARNING_PHASE.NEW && !d.trackedWord.rank)
 
   const handleAiVocabCategorize = () => Effect.runPromise(Effect.gen(function* () {
     if (!isPending) {
       const words = freshVocabularies
-        .filter((d) => !d.lemmaState.original && !d.lemmaState.isUser && !d.lemmaState.rank)
-        .map((d) => d.wFamily.map((w) => w.path))
+        .filter((d) => !d.trackedWord.isBaseForm && !d.trackedWord.isUser && !d.trackedWord.rank)
+        .map((d) => d.wordFamily.map((w) => w.pathe))
         .flat()
       const { data: category, error } = yield* Effect.tryPromise(() => mutateAsync({
         prompt: getCategory(words),
@@ -483,7 +486,7 @@ export function VocabSourceTable({
                 >
                   <ExampleSentence
                     sentences={sentences}
-                    src={row.original.locators}
+                    wordOccurrences={row.original.wordOccurrences}
                     onSentenceTrack={onSentenceTrack}
                   />
                 </TableRow>

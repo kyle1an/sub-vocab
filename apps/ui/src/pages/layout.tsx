@@ -21,14 +21,6 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { COLOR_SCHEME_QUERY, isDarkModeAtom, metaThemeColorEffect } from '@/lib/hooks'
 import { authChangeEventAtom, isMdScreenAtom, LIGHT_THEME_COLOR, metaThemeColorAtom, prefersDarkAtom, sessionAtom, supabaseAuth, useDocumentInit } from '@/store/useVocab'
 
-const JotaiDevTools = () =>
-  !import.meta.env.PROD ? (
-    <>
-      <style>{css}</style>
-      <DevTools />
-    </>
-  ) : null
-
 function useSyncAtomWithHooks() {
   const isMdScreen = useMediaQuery('(min-width: 768px)')
   const setIsMdScreen = useSetAtom(isMdScreenAtom)
@@ -56,8 +48,9 @@ function useSyncDarkPreference() {
   const isDarkOS = useMediaQuery(COLOR_SCHEME_QUERY)
   const [prefersDark, setPrefersDark] = useAtom(prefersDarkAtom)
   useEffect(() => {
-    if (prefersDark !== isDarkOS)
+    if (prefersDark !== isDarkOS) {
       setPrefersDark(isDarkOS)
+    }
   }, [prefersDark, isDarkOS, setPrefersDark])
 }
 
@@ -66,8 +59,9 @@ function useSyncMuiColorScheme() {
   const { mode, setMode } = useColorScheme()
   useIsomorphicLayoutEffect(() => {
     const nextMode = isDarkMode ? 'dark' : 'light'
-    if (nextMode !== mode)
+    if (nextMode !== mode) {
       setMode(nextMode)
+    }
   }, [isDarkMode, mode, setMode])
 }
 
@@ -78,16 +72,19 @@ function useSyncMetaThemeColor<T extends Element>(ref: React.RefObject<T | null>
   useIsomorphicLayoutEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode)
     let themeColorContentValue: string
-    if (isDarkMode)
+    if (isDarkMode) {
       themeColorContentValue = 'black'
-    else
+    } else {
       themeColorContentValue = LIGHT_THEME_COLOR
+    }
 
     requestAnimationFrame(() => {
-      if (ref.current)
+      if (ref.current) {
         themeColorContentValue = window.getComputedStyle(ref.current, null).getPropertyValue('background-color')
-      if (themeColorContentValue === 'rgb(255, 255, 255)')
+      }
+      if (themeColorContentValue === 'rgb(255, 255, 255)') {
         themeColorContentValue = LIGHT_THEME_COLOR
+      }
 
       setMetaThemeColor(themeColorContentValue)
     })
@@ -112,7 +109,7 @@ function Header() {
   )
 }
 
-export default function RootLayout() {
+export default function Root() {
   const ref = useRef<HTMLDivElement>(null)
   useSyncMuiColorScheme()
   useSyncDarkPreference()
@@ -141,12 +138,16 @@ export default function RootLayout() {
           richColors
         />
       </Suspense>
-      <JotaiDevTools />
       <ReactQueryDevtools initialIsOpen={false} />
       {import.meta.env.PROD ? (
         <>
           <SpeedInsights />
           <Analytics />
+        </>
+      ) : import.meta.env.DEV ? (
+        <>
+          <style>{css}</style>
+          <DevTools />
         </>
       ) : null}
     </SidebarProvider>

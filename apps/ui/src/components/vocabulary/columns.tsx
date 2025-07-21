@@ -24,7 +24,7 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
   const columnHelper = createColumnHelper<T>()
   const handleVocabToggle = useVocabToggle()
   return [
-    columnHelper.accessor((row) => row.lemmaState.word, {
+    columnHelper.accessor((row) => row.trackedWord.form, {
       id: 'word',
       filterFn,
       header: ({ header }) => {
@@ -53,15 +53,15 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
         )
       },
       cell({ row, cell }) {
-        const { wFamily } = row.original
-        const last = wFamily.length - 1
+        const { wordFamily } = row.original
+        const last = wordFamily.length - 1
         return (
           <TableDataCell
             cell={cell}
             className="py-1"
           >
             <>
-              {wFamily.map(({ path: w, src }, i) => (
+              {wordFamily.map(({ pathe: w, locators: src }, i) => (
                 <div
                   key={w}
                   className="inline-block cursor-text pl-1 tracking-[.04em] select-text"
@@ -106,7 +106,7 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
         )
       },
     }),
-    columnHelper.accessor((row) => row.lemmaState.word.length, {
+    columnHelper.accessor((row) => row.trackedWord.form.length, {
       id: 'word.length',
       header: ({ header }) => {
         const isSorted = header.column.getIsSorted()
@@ -149,7 +149,7 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
       },
     }),
     columnHelper.accessor((row) => {
-      return row.lemmaState.learningPhase <= 1 ? row.lemmaState.learningPhase : row.inertialPhase
+      return row.trackedWord.learningPhase <= 1 ? row.trackedWord.learningPhase : row.inertialPhase
     }, {
       id: 'acquaintedStatus',
       filterFn,
@@ -184,14 +184,14 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
         >
           <Div className="justify-center pr-px pl-0.5">
             <VocabToggle
-              vocab={row.original.lemmaState}
+              vocab={row.original.trackedWord}
               onToggle={handleVocabToggle}
             />
           </Div>
         </TableDataCell>
       ),
     }),
-    columnHelper.accessor((row) => row.lemmaState.rank, {
+    columnHelper.accessor((row) => row.trackedWord.rank, {
       id: 'rank',
       header: ({ header }) => {
         const isSorted = header.column.getIsSorted()

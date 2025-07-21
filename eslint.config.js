@@ -14,7 +14,7 @@ export default typegen(antfu(
   },
   stylistic.configs.customize({
     arrowParens: true,
-    braceStyle: 'stroustrup',
+    braceStyle: '1tbs',
     quoteProps: 'as-needed',
   }),
   {
@@ -27,7 +27,7 @@ export default typegen(antfu(
       '@stylistic/quotes': [1, 'single', { avoidEscape: true, allowTemplateLiterals: 'always' }],
       'unused-imports/no-unused-vars': 'off',
       'prefer-arrow-callback': 'off',
-      curly: ['off'],
+      curly: ['error', 'multi-line'],
       'style/curly-newline': ['warn', {
         multiline: true,
         minElements: 1,
@@ -43,6 +43,7 @@ export default typegen(antfu(
           },
         },
       ],
+      'style/lines-between-class-members': ['off'],
     },
   },
   ...eslintPluginJsonc.configs['flat/recommended-with-jsonc'],

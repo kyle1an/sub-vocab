@@ -109,8 +109,7 @@ export function DataTableFacetedFilter({
                           ...filterValue,
                           [option.value]: false,
                         })
-                      }
-                      else {
+                      } else {
                         onFilterChange({
                           ...filterValue,
                           [option.value]: true,

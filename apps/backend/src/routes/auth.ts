@@ -5,7 +5,6 @@ import { z } from 'zod'
 import { profiles, usersInAuth } from '@backend/drizzle/schema.ts'
 import { publicProcedure, router } from '@backend/src/routes/trpc'
 import { db, supabase } from '@backend/src/utils/db.ts'
-import { ensureErrorType } from '@sub-vocab/utils/lib'
 
 const LOGIN_ERROR = 'Invalid username or password.'
 
@@ -81,7 +80,7 @@ export const userRouter = router({
           message: error.message,
         },
       })),
-      ensureErrorType<never>(),
+      Effect.ensureErrorType<never>(),
       Effect.runPromise,
     )),
 })
