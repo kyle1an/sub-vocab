@@ -5,20 +5,25 @@ import { UTCDateMini } from '@date-fns/utc'
 import { REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js'
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
 import { Duration } from 'effect'
+import { uniq } from 'es-toolkit'
 import { produce } from 'immer'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithQuery } from 'jotai-tanstack-query'
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 
-import type { LearningPhase, TrackedWord } from '@/lib/LabeledTire'
-import type { Supabase } from '@/store/useVocab'
+import type { LearningPhase, TrackedWord } from '@/lib/LexiconTrie'
+import type { Supabase } from '@/lib/supabase'
 import type { Tables } from '@ui/database.types'
 
+import { sessionAtom } from '@/atoms/auth'
+import { vocabRealtimeSyncStatusAtom } from '@/atoms/vocabulary'
 import { usePageVisibility } from '@/hooks/utils'
-import { buildTrackedWord, LEARNING_PHASE } from '@/lib/LabeledTire'
-import { omitUndefined } from '@/lib/utilities'
-import { queryClient, sessionAtom, supabase, vocabRealtimeSyncStatusAtom } from '@/store/useVocab'
+import { buildTrackedWord, LEARNING_PHASE } from '@/lib/LexiconTrie'
+import { queryClient } from '@/lib/query-client'
+import { supabase } from '@/lib/supabase'
+import { hasValue } from '@sub-vocab/utils/lib'
+import { narrow } from '@sub-vocab/utils/types'
 
 const getLearningPhase = (acquainted: boolean | null): LearningPhase => acquainted ? LEARNING_PHASE.ACQUAINTED : LEARNING_PHASE.NEW
 
@@ -30,7 +35,7 @@ export const userVocabularyAtom = atomWithQuery((get) => {
 
 const sharedVocabularyAtom = atomWithQuery(() => {
   return {
-    queryKey: ['sharedVocabulary'],
+    queryKey: ['sharedVocabularyAtom'],
     queryFn: async () => {
       const { data } = await supabase
         .from('vocabulary_list')
@@ -57,36 +62,28 @@ export const baseVocabAtom = atom((get) => {
   const { data: sharedVocab = [] } = get(sharedVocabularyAtom)
   const map = new Map(sharedVocab)
   userVocab.forEach((row) => {
-    const existing = map.get(row.w)
-    if (existing) {
-      map.set(row.w, {
-        ...existing,
-        timeModified: row.time_modified,
-        learningPhase: row.learningPhase,
-      })
-    } else {
-      map.set(row.w, buildTrackedWord({
-        form: row.w,
-        isUser: true,
-        timeModified: row.time_modified,
-        learningPhase: row.learningPhase,
-      }))
-    }
+    const existing = map.get(row.w) ?? buildTrackedWord({
+      form: row.w,
+      isUser: true,
+    })
+    map.set(row.w, {
+      ...existing,
+      timeModified: row.time_modified,
+      learningPhase: row.learningPhase,
+    })
   })
   return Array.from(map.values())
 })
 
 function userVocabularyOptions(userId: string) {
-  return omitUndefined(queryOptions({
+  return queryOptions({
     queryKey: ['userVocabularyRows', userId],
     async queryFn() {
       const { data } = await supabase
         .from('user_vocab_record')
-        //
         .select('w:vocabulary, t:time_modified, a:acquainted')
         .eq('user_id', userId)
         .throwOnError()
-
       return data.map(({ w, t, a }) => ({
         w,
         time_modified: new UTCDateMini(t).toISOString(),
@@ -95,37 +92,24 @@ function userVocabularyOptions(userId: string) {
     },
     placeholderData: [],
     enabled: Boolean(userId),
-  }))
-}
-
-async function getStemsMapping() {
-  const { data } = await supabase
-    .from('derivation')
-    .select('s:stem_word, d:derived_word')
-    .order('stem_word')
-    .throwOnError()
-  const map: Record<string, string[]> = {}
-  data.forEach(({ s, d }) => {
-    let wordGroup = map[s]
-    if (!wordGroup) {
-      wordGroup = [s]
-      map[s] = wordGroup
-    }
-    wordGroup.push(d)
-    if (d.includes(`'`)) {
-      const variant = d.replace(/'/g, `’`)
-      if (!wordGroup.includes(variant)) {
-        wordGroup.push(variant)
-      }
-    }
   })
-  return Object.values(map)
 }
 
-export function useIrregularMapsQuery() {
+export function useIrregularWordsQuery() {
   return useQuery({
-    queryKey: ['stemsMapping'],
-    queryFn: getStemsMapping,
+    queryKey: ['useIrregularWordsQuery'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('derivation')
+        .select('l:stem_word, i:derived_word')
+        .order('stem_word')
+        .throwOnError()
+      return Object.entries(Object.groupBy(data, (d) => d.l)).filter(hasValue).map(([key, value]) => {
+        const inflectedForms = value.map((v) => v.i)
+        const additional = inflectedForms.filter((i) => i.includes(`'`)).map((i) => i.replace(/'/g, `’`))
+        return narrow([key, ...uniq([...inflectedForms, ...additional])])
+      })
+    },
     placeholderData: [],
   })
 }
@@ -200,7 +184,6 @@ function useRealtimeVocabUpsert<T extends Tables<'user_vocab_record'>>() {
   const [session] = useAtom(sessionAtom)
   const userId = session?.user?.id ?? ''
   const vocabularyOptions = userVocabularyOptions(userId)
-
   return (payload: RealtimePostgresInsertPayload<T> | RealtimePostgresUpdatePayload<T>) => {
     const data = {
       w: payload.new.vocabulary,

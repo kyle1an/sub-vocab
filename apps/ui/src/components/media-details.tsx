@@ -1,9 +1,8 @@
 import { useUnmountEffect } from '@react-hookz/web'
 
 import { Detail } from '@/components/subtitle/detail'
-import { MovieSubtitleFiles } from '@/components/subtitle/movie-subtitles'
-import { TVSubtitleFiles } from '@/components/subtitle/tv-subtitles'
-import { subtitleSelectionStateFamily } from '@/store/useVocab'
+import { MovieSubtitleFiles } from '@/components/subtitle/movie'
+import { TVSubtitleFiles } from '@/components/subtitle/tv'
 
 export function MediaDetails({
   id,
@@ -13,7 +12,8 @@ export function MediaDetails({
   media_type?: string | undefined
 }) {
   useUnmountEffect(() => {
-    subtitleSelectionStateFamily.remove(id)
+    // TODO
+    // mediaSubtitleStateAtomFamily.remove(id)
   })
 
   if (media_type === 'movie') {

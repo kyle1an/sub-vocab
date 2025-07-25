@@ -14,9 +14,9 @@ import type { DivProps } from '@/components/ui/html-elements'
 import type { RowSelectionChangeFn } from '@/types/utils'
 import type { GroupHeader } from '@/types/vocab'
 
+import { SortIcon } from '@/components/my-icon/sort-icon'
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
 import { useRect } from '@/lib/hooks'
-import { SortIcon } from '@/lib/icon-utils'
 import { cn } from '@/lib/utils'
 
 export const HEAD_HEIGHT = 30
@@ -46,6 +46,8 @@ export function TableHeader({
 }
 
 export function TableHeaderCellRender<T>({ header }: { header: GroupHeader<T> }) {
+  // eslint-disable-next-line react-compiler/react-compiler
+  'use no memo'
   return (
     header.isPlaceholder ? (
       <TableHeaderCell header={header} />
@@ -144,7 +146,7 @@ export function HeaderTitle({
 type RowProp<T> = {
   row: Row<T>
   onRowSelectionChange?: RowSelectionChangeFn<T>
-} & (ExpandProp | Partial<ExpandProp>)
+} & Partial<ExpandProp>
 
 type ExpandProp = {
   children: ReactElement

@@ -4,16 +4,16 @@ import { useEffect, useState } from 'react'
 
 import type { VocabularySourceState } from '@/lib/vocab'
 
-import { baseVocabAtom, useIrregularMapsQuery } from '@/api/vocab-api'
-import { VocabDataTable } from '@/components/VocabData'
-import { LexiconTrie } from '@/lib/LabeledTire'
+import { baseVocabAtom, useIrregularWordsQuery } from '@/api/vocab-api'
+import { VocabDataTable } from '@/components/vocabulary/data'
+import { LexiconTrie } from '@/lib/LexiconTrie'
 import { statusRetainedList } from '@/lib/vocab-utils'
 
 export default function VocabularyPage() {
   const [userWords] = useAtom(baseVocabAtom)
 
   const [rows, setRows] = useState<VocabularySourceState[]>([])
-  const { data: irregulars = [] } = useIrregularMapsQuery()
+  const { data: irregulars = [] } = useIrregularWordsQuery()
   const trie = new LexiconTrie()
   trie.input(userWords.map((w) => w.form))
   const list = trie.generate(irregulars, userWords)

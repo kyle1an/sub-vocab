@@ -35,3 +35,19 @@ export function bindApply<T, A extends any[], R>(
    */
   return (argArray: A) => fn.apply(thisArg, argArray)
 }
+
+export function bindCall<T, A extends any[], R>(
+  fn: (this: T, ...args: A) => R,
+  thisArg: T
+): (args: A) => R
+
+export function bindCall<A extends any[], R>(
+  fn: (this: void, ...args: A) => R
+): (args: A) => R
+
+export function bindCall<T, A extends any[], R>(
+  fn: (this: T | void, ...args: A) => R,
+  thisArg?: T,
+) {
+  return (argArray: A) => fn.call(thisArg, ...argArray)
+}

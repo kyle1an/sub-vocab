@@ -1,12 +1,12 @@
 import clsx from 'clsx'
-import { atom, useSetAtom } from 'jotai'
-import { atomWithImmer } from 'jotai-immer'
+import { atom } from 'jotai'
+import { useSetImmerAtom } from 'jotai-immer'
 import * as React from 'react'
 import { Drawer as DrawerPrimitive } from 'vaul'
 
 import { cn } from '@/lib/utils'
 
-export const drawersStateAtom = atomWithImmer(new Map<string, boolean>())
+export const drawersStateAtom = atom(new Map<string, boolean>())
 
 export const isAnyDrawerOpenAtom = atom((get) => get(drawersStateAtom).values().some(Boolean))
 
@@ -14,7 +14,7 @@ function Drawer({
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
   const { open = false } = props
-  const setDrawers = useSetAtom(drawersStateAtom)
+  const setDrawers = useSetImmerAtom(drawersStateAtom)
   const id = React.useId()
 
   React.useEffect(() => {

@@ -1,133 +1,30 @@
-import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
-import type { ArrayValues, PartialDeep } from 'type-fest'
+import type { ArrayValues } from 'type-fest'
 
-import { useIsomorphicLayoutEffect } from '@react-hookz/web'
-import { createClient, REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js'
-import { QueryClient } from '@tanstack/react-query'
-import { Duration } from 'effect'
-import { atom, createStore } from 'jotai'
-import { atomWithImmer } from 'jotai-immer'
-import { atomFamily, atomWithStorage } from 'jotai/utils'
+import { enableMapSet } from 'immer'
+import { createStore } from 'jotai'
+import { withAtomEffect } from 'jotai-effect'
+import { atomWithStorage } from 'jotai/utils'
 
-import type { SubtitleData } from '@/components/subtitle/columns'
 import type { THEMES } from '@/components/themes'
-import type { ArrayConcat } from '@/lib/utilities'
-import type { RowSelectionChangeFn } from '@/types/utils'
-import type { Database } from '@ui/database.types'
 
 import { DEFAULT_THEME } from '@/components/themes'
 import { THEME_KEY } from '@/constants/keys'
-import { env } from '@/env'
-import { getLanguage } from '@/i18n'
-import { SUPPORTED_FILE_EXTENSIONS } from '@/lib/filesHandler'
+import { LIGHT_THEME_COLOR } from '@/constants/theme'
+import i18n, { getLanguage } from '@/i18n'
 
-export const fileInfoAtom = atom('')
-export const sourceTextAtom = atom({
-  value: '',
-  epoch: 0,
-})
+enableMapSet()
 
-export const vocabRealtimeSyncStatusAtom = atom<REALTIME_SUBSCRIBE_STATES>(REALTIME_SUBSCRIBE_STATES.CLOSED)
-
-export const isSourceTextStaleAtom = atom(false)
-
-type RowSelection = {
-  [fileId: string]: boolean
-}
-
-type MediaSubtitleState = {
-  [mediaId: string]: {
-    rowSelection: RowSelection
-    episodeFilter?: 'all' | string
-  }
-}
-
-export const mediaSubtitleStateAtom = atomWithImmer<MediaSubtitleState>({})
-
-export const fileIdsAtom = atom((get) => {
-  return Object.values(get(mediaSubtitleStateAtom)).flatMap(
-    (innerObj) => Object.keys(innerObj.rowSelection).filter((key) => innerObj.rowSelection[key]).map(Number),
-  )
-})
-
-export const subtitleSelectionStateFamily = atomFamily((mediaId: number) => atom(
-  (get) => get(mediaSubtitleStateAtom)[mediaId]?.rowSelection ?? {},
-  (get, set, ...[checked, row, mode]: ArrayConcat<Parameters<RowSelectionChangeFn<SubtitleData>>, []>) => {
-    set(mediaSubtitleStateAtom, (prev) => {
-      const state = prev[mediaId] ??= { rowSelection: {} }
-      if (mode === 'singleRow') {
-        state.rowSelection = {}
-      } else if (mode === 'singleSubRow') {
-        const parent = row.getParentRow()
-        if (parent) {
-          for (const { id } of parent.subRows) {
-            state.rowSelection[id] = false
-          }
-        }
-      }
-      state.rowSelection[row.id] = Boolean(checked)
-    })
-  },
-))
-
-export const episodeFilterStateFamily = atomFamily((mediaId: number) => atom(
-  (get) => get(mediaSubtitleStateAtom)[mediaId]?.episodeFilter ?? 'all',
-  (get, set, filter: string) => {
-    set(mediaSubtitleStateAtom, (prev) => {
-      const state = prev[mediaId] ??= { rowSelection: {} }
-      state.episodeFilter = filter
-    })
-  },
-))
+export const myStore = createStore()
 
 export const osLanguageAtom = atomWithStorage('osLanguageAtom', 'en')
+export const themeAtom = atomWithStorage<ArrayValues<typeof THEMES>['value']>(THEME_KEY, DEFAULT_THEME.value, undefined, { getOnInit: true })
+export const bodyBgColorAtom = atomWithStorage('bodyBgColorAtom', LIGHT_THEME_COLOR, undefined, { getOnInit: true })
+export const mainBgColorAtom = atomWithStorage('mainBgColorAtom', LIGHT_THEME_COLOR, undefined, { getOnInit: true })
+export const prefersDarkAtom = atomWithStorage('prefersDarkAtom', false, undefined, { getOnInit: true })
 
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      gcTime: Duration.toMillis('60 minutes'),
-      staleTime: Duration.toMillis('45 minutes'),
-      retry: 2,
-      retryDelay: (failureCount) => (failureCount - 1) * Duration.toMillis('1 seconds'),
-    },
+export const localeAtom = withAtomEffect(
+  atomWithStorage('localeAtom', getLanguage(), undefined, { getOnInit: true }),
+  (get) => {
+    i18n.changeLanguage(get(localeAtom)).catch(console.error)
   },
-})
-
-export type Supabase = typeof supabase
-
-export const supabase = createClient<Database>(env.VITE_PUBLIC_SUPABASE_URL, env.VITE_PUBLIC_SUPABASE_ANON_KEY)
-
-export const supabaseAuth = supabase.auth
-
-const getOnInit = true
-
-export const store = createStore()
-
-export const themeAtom = atomWithStorage<ArrayValues<typeof THEMES>['value']>(THEME_KEY, DEFAULT_THEME.value, undefined, { getOnInit })
-
-export const authChangeEventAtom = atom<AuthChangeEvent>()
-export const sessionAtom = atomWithStorage<PartialDeep<Session> | null>('sessionAtom', null, undefined, { getOnInit })
-
-export const LIGHT_THEME_COLOR = 'rgb(255,255,254)'
-
-export const metaThemeColorAtom = atomWithStorage('metaThemeColorAtom', LIGHT_THEME_COLOR, undefined, { getOnInit })
-export const prefersDarkAtom = atomWithStorage('prefersDarkAtom', false, undefined, { getOnInit })
-export const isMdScreenAtom = atom(false)
-
-export const localeAtom = atomWithStorage('localeAtom', getLanguage(), undefined, { getOnInit })
-
-export function useDocumentInit() {
-  useIsomorphicLayoutEffect(() => {
-  }, [])
-}
-
-export type FileType = typeof fileTypes[number]
-
-const fileTypes = SUPPORTED_FILE_EXTENSIONS.sort((a, b) => a.localeCompare(b)).map((type) => {
-  return {
-    type,
-    checked: true,
-  }
-})
-
-export const fileTypesAtom = atomWithStorage('fileTypesAtom', fileTypes)
+)

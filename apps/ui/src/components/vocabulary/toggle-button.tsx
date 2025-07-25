@@ -1,9 +1,9 @@
 import IconLucideCheck from '~icons/lucide/check'
 import IconLucideLoader from '~icons/lucide/loader'
 
-import type { TrackedWord } from '@/lib/LabeledTire'
+import type { TrackedWord } from '@/lib/LexiconTrie'
 
-import { LEARNING_PHASE } from '@/lib/LabeledTire'
+import { LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { cn } from '@/lib/utils'
 
 export function VocabToggle<T extends TrackedWord>({

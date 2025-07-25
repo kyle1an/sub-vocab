@@ -2,12 +2,15 @@ import type { InitialTableState } from '@tanstack/react-table'
 
 import usePagination from '@mui/material/usePagination'
 import NumberFlow from '@number-flow/react'
+import { useUnmountEffect } from '@react-hookz/web'
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import clsx from 'clsx'
 import { addMinutes, formatDuration, getYear, intervalToDuration } from 'date-fns'
-import { maxBy, sum } from 'es-toolkit'
-import { useAtom, useSetAtom } from 'jotai'
+import { maxBy, merge, sum } from 'es-toolkit'
+import { produce } from 'immer'
+import { useAtom } from 'jotai'
+import { useImmerAtom } from 'jotai-immer'
 import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import IconLucideChevronRight from '~icons/lucide/chevron-right'
@@ -17,13 +20,17 @@ import type { SubtitleData } from '@/components/subtitle/columns'
 import type { RowId } from '@/lib/subtitle'
 import type { ColumnFilterFn } from '@/lib/table-utils'
 import type { paths } from '@/types/schema/themoviedb'
+import type { RowSelectionChangeFn } from '@/types/utils'
 
 import { osSessionAtom, useOpenSubtitlesQueryOptions } from '@/api/opensubtitles'
 import { $api } from '@/api/tmdb'
+import { mediaSubtitleAtomFamily } from '@/atoms/subtitles'
+import { SortIcon } from '@/components/my-icon/sort-icon'
+import { TableGoToLastPage } from '@/components/my-table/go-to-last-page'
+import { TablePagination } from '@/components/my-table/pagination'
+import { TablePaginationSizeSelect } from '@/components/my-table/pagination-size-select'
 import { useCommonColumns } from '@/components/subtitle/columns'
 import { RefetchButton } from '@/components/subtitle/menu-items'
-import { TablePagination } from '@/components/table-pagination'
-import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Div } from '@/components/ui/html-elements'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -32,11 +39,10 @@ import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCe
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
 import { customFormatDistance, formatIntervalLocale } from '@/lib/date-utils'
-import { SortIcon } from '@/lib/icon-utils'
 import { getFileId } from '@/lib/subtitle'
 import { filterFn, noFilter, sortBySelection } from '@/lib/table-utils'
-import { findClosest, naturalNumLength } from '@/lib/utilities'
-import { episodeFilterStateFamily, mediaSubtitleStateAtom, osLanguageAtom, subtitleSelectionStateFamily } from '@/store/useVocab'
+import { findClosest, naturalNumLength, omitUndefined } from '@/lib/utilities'
+import { myStore, osLanguageAtom } from '@/store/useVocab'
 
 type ExpandableRow<T> = T & { subRows?: T[] }
 
@@ -50,7 +56,6 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
   const [osSession] = useAtom(osSessionAtom)
-  const setSubtitleSelectionState = useSetAtom(mediaSubtitleStateAtom)
   return [
     columnHelper.accessor((row) => {
       const air_date = row.media?.air_date
@@ -119,8 +124,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
                     className="child"
                     onClick={(e) => {
                       e.stopPropagation()
-                      setSubtitleSelectionState((selection) => {
-                        const state = selection[mediaId] ??= { rowSelection: {} }
+                      myStore.set(mediaSubtitleAtomFamily(mediaId), produce((state) => {
                         parentRows.forEach(({ subRows, id }) => {
                           if (subRows.length === 0) {
                             state.rowSelection[id] = !checked
@@ -130,7 +134,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
                             })
                           }
                         })
-                      })
+                      }))
                     }}
                   />
                 ) : (
@@ -272,13 +276,11 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           </TableHeaderCell>
         )
       },
-      cell({ cell, getValue, row }) {
+      cell: function Cell({ cell, getValue, row }) {
         /* eslint-disable react-compiler/react-compiler */
-        /* eslint-disable react-hooks/rules-of-hooks */
         const ref = useRef<HTMLDivElement>(null)
         const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
         /* eslint-enable react-compiler/react-compiler */
-        /* eslint-enable react-hooks/rules-of-hooks */
         let element = <></>
         if (row.depth === 0) {
           const value = getValue()
@@ -533,13 +535,12 @@ export function TVSubtitleFiles({
   const tbodyRef = useRef<HTMLTableSectionElement>(null)
   const tvColumns = useTVColumns(id, highestEpisodeNumber, rootRef, tbodyRef)
   const columns = [...commonColumns, ...tvColumns]
-  const [rowSelection, setRowSelection] = useAtom(subtitleSelectionStateFamily(id))
   const dataRows = subtitleEpisodeData(subtitles, episodes)
-  const [filterEpisode, setFilterEpisode] = useAtom(episodeFilterStateFamily(id))
+  const [{ rowSelection, pagination, episodeFilter: filterEpisode = 'all' }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleAtomFamily(id))
   const table = useReactTable({
     data: dataRows,
     columns,
-    initialState: initialTableState,
+    initialState: omitUndefined(merge(initialTableState, omitUndefined({ pagination }))),
     state: {
       rowSelection,
       columnFilters: [
@@ -558,7 +559,6 @@ export function TVSubtitleFiles({
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    debugTable: true,
   })
   const tableState = table.getState()
   const { items } = usePagination({
@@ -568,6 +568,24 @@ export function TVSubtitleFiles({
   const rowsFiltered = table.getFilteredRowModel().rows.filter((row) => row.depth === 0 && row.subRows.length >= 1)
   const totalSubtitles = sum(rowsFiltered.map((row) => row.subRows.length))
   const allAvailableRowsMatch = rowsFiltered.length === totalEpisodes
+  function handleRowSelectionChange(...[checked, row, mode]: Parameters<RowSelectionChangeFn<SubtitleData>>) {
+    setMediaSubtitleState((prev) => {
+      if (mode === 'singleRow') {
+        prev.rowSelection = {}
+      } else if (mode === 'singleSubRow') {
+        const subRows = row.getParentRow()?.subRows ?? []
+        subRows.forEach(({ id }) => {
+          prev.rowSelection[id] = false
+        })
+      }
+      prev.rowSelection[row.id] = Boolean(checked)
+    })
+  }
+  useUnmountEffect(() => {
+    setMediaSubtitleState((draft) => {
+      draft.pagination = tableState.pagination
+    })
+  })
   return (
     <>
       <>
@@ -577,7 +595,9 @@ export function TVSubtitleFiles({
               <Select
                 value={filterEpisode}
                 onValueChange={(e) => {
-                  setFilterEpisode(e)
+                  setMediaSubtitleState((draft) => {
+                    draft.episodeFilter = e
+                  })
                 }}
               >
                 <SelectTrigger className="h-full! w-[unset] gap-0 px-2 py-0 text-xs tracking-[.03em] tabular-nums [--sq-r:.625rem]">
@@ -635,12 +655,15 @@ export function TVSubtitleFiles({
                       row={row}
                       root={rootRef}
                       index={index + 1}
-                      onRowSelectionChange={setRowSelection}
+                      onRowSelectionChange={handleRowSelectionChange}
                     />
                   )
                 })}
               </tbody>
             </table>
+            <TableGoToLastPage
+              table={table}
+            />
           </div>
           <div className="flex w-full flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tracking-[.03em] tabular-nums dark:border-neutral-800">
             <TablePagination

@@ -1,7 +1,11 @@
+import { flow } from 'effect'
+
 import type { ColumnFilterFn } from '@/lib/table-utils'
 import type { VocabularySourceState } from '@/lib/vocab'
 
+import { useLastTruthy } from '@/lib/hooks'
 import { tryGetRegex } from '@/lib/regex'
+import { noFilter } from '@/lib/table-utils'
 
 export function searchFilterValue<T extends VocabularySourceState>(search: string, usingRegex: boolean): ColumnFilterFn<T> | undefined {
   if (usingRegex) {
@@ -14,3 +18,5 @@ export function searchFilterValue<T extends VocabularySourceState>(search: strin
     return (row) => row.wordFamily.some((word) => word.pathe.toLowerCase().includes(search))
   }
 }
+
+export const useLastSearchFilterValue = flow(searchFilterValue, useLastTruthy, (v) => v ?? noFilter)

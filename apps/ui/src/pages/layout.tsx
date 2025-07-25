@@ -5,90 +5,79 @@ import { useIsomorphicLayoutEffect } from '@react-hookz/web'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
+import { isSafari } from 'foxact/is-safari'
 import { useMediaQuery } from 'foxact/use-media-query'
-import { useAtom, useSetAtom } from 'jotai'
+import { atom, useAtom } from 'jotai'
 import { DevTools } from 'jotai-devtools'
 import css from 'jotai-devtools/styles.css?inline'
+import { atomWithStorage } from 'jotai/utils'
 import { Suspense, useEffect, useRef } from 'react'
 import { Outlet } from 'react-router'
+import { useCallbackOne as useStableCallback } from 'use-memo-one'
 
 import { useVocabRealtimeSync } from '@/api/vocab-api'
+import { authChangeEventAtom, sessionAtom } from '@/atoms/auth'
+import { isDarkModeAtom } from '@/atoms/ui'
 import { AppSidebar } from '@/components/app-sidebar'
 import { NavActions } from '@/components/nav-actions'
+import { isAnyDrawerOpenAtom } from '@/components/ui/drawer'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/sonner'
+import { LIGHT_THEME_COLOR } from '@/constants/theme'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { COLOR_SCHEME_QUERY, isDarkModeAtom, metaThemeColorEffect } from '@/lib/hooks'
-import { authChangeEventAtom, isMdScreenAtom, LIGHT_THEME_COLOR, metaThemeColorAtom, prefersDarkAtom, sessionAtom, supabaseAuth, useDocumentInit } from '@/store/useVocab'
+import { useAtomEffect } from '@/hooks/useAtomEffect'
+import { useStyleObserver } from '@/hooks/useStyleObserver'
+import { supabaseAuth } from '@/lib/supabase'
+import { normalizeThemeColor } from '@/lib/utilities'
+import { bodyBgColorAtom, mainBgColorAtom, myStore, prefersDarkAtom } from '@/store/useVocab'
+import devtoolsCss from '@/styles/devtools.css?inline'
 
-function useSyncAtomWithHooks() {
-  const isMdScreen = useMediaQuery('(min-width: 768px)')
-  const setIsMdScreen = useSetAtom(isMdScreenAtom)
-  useEffect(() => {
-    setIsMdScreen(isMdScreen)
-  }, [isMdScreen, setIsMdScreen])
-}
+const isSafariAtom = atomWithStorage('isSafariAtom', isSafari())
 
-function useSyncAtomWithUser() {
-  const setAuthChangeEvent = useSetAtom(authChangeEventAtom)
-  const setUser = useSetAtom(sessionAtom)
+const metaThemeColorAtom = atom((get) => {
+  if (get(isAnyDrawerOpenAtom)) {
+    if (get(isSafariAtom) && !get(isDarkModeAtom)) {
+      return 'transparent'
+    }
+    return get(bodyBgColorAtom)
+  }
+  return get(mainBgColorAtom)
+})
+
+function useAppEffects() {
   useEffect(() => {
     const { data: { subscription } } = supabaseAuth.onAuthStateChange((event, session) => {
-      setAuthChangeEvent(event)
-      setUser(session)
+      myStore.set(authChangeEventAtom, event)
+      myStore.set(sessionAtom, session)
     })
-
     return () => {
       subscription.unsubscribe()
     }
-  }, [setAuthChangeEvent, setUser])
-}
-
-function useSyncDarkPreference() {
-  const isDarkOS = useMediaQuery(COLOR_SCHEME_QUERY)
-  const [prefersDark, setPrefersDark] = useAtom(prefersDarkAtom)
-  useEffect(() => {
-    if (prefersDark !== isDarkOS) {
-      setPrefersDark(isDarkOS)
-    }
-  }, [prefersDark, isDarkOS, setPrefersDark])
-}
-
-function useSyncMuiColorScheme() {
-  const [isDarkMode] = useAtom(isDarkModeAtom)
-  const { mode, setMode } = useColorScheme()
-  useIsomorphicLayoutEffect(() => {
-    const nextMode = isDarkMode ? 'dark' : 'light'
-    if (nextMode !== mode) {
-      setMode(nextMode)
-    }
-  }, [isDarkMode, mode, setMode])
-}
-
-function useSyncMetaThemeColor<T extends Element>(ref: React.RefObject<T | null>) {
-  const [isDarkMode] = useAtom(isDarkModeAtom)
-  const setMetaThemeColor = useSetAtom(metaThemeColorAtom)
-
-  useIsomorphicLayoutEffect(() => {
-    document.documentElement.classList.toggle('dark', isDarkMode)
-    let themeColorContentValue: string
-    if (isDarkMode) {
-      themeColorContentValue = 'black'
-    } else {
-      themeColorContentValue = LIGHT_THEME_COLOR
-    }
-
-    requestAnimationFrame(() => {
-      if (ref.current) {
-        themeColorContentValue = window.getComputedStyle(ref.current, null).getPropertyValue('background-color')
-      }
-      if (themeColorContentValue === 'rgb(255, 255, 255)') {
-        themeColorContentValue = LIGHT_THEME_COLOR
-      }
-
-      setMetaThemeColor(themeColorContentValue)
-    })
-  }, [isDarkMode, ref, setMetaThemeColor])
+  }, [])
+  useAtomEffect(useStableCallback((get) => {
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', normalizeThemeColor(get(metaThemeColorAtom)))
+  }, []))
+  {
+    const isDarkOS = useMediaQuery('(prefers-color-scheme: dark)')
+    useEffect(() => {
+      myStore.set(prefersDarkAtom, isDarkOS)
+    }, [isDarkOS])
+  }
+  {
+    const [isDarkMode] = useAtom(isDarkModeAtom)
+    const { setMode } = useColorScheme()
+    useIsomorphicLayoutEffect(() => {
+      setMode(isDarkMode ? 'dark' : 'light')
+    }, [isDarkMode, setMode])
+  }
+  useAtomEffect(useStableCallback((get) => {
+    document.documentElement.classList.toggle('dark', get(isDarkModeAtom))
+  }, []))
+  useStyleObserver(document.body, (values) => {
+    myStore.set(bodyBgColorAtom, values['background-color'].value)
+  }, {
+    properties: ['background-color'],
+  })
 }
 
 function Header() {
@@ -111,13 +100,13 @@ function Header() {
 
 export default function Root() {
   const ref = useRef<HTMLDivElement>(null)
-  useSyncMuiColorScheme()
-  useSyncDarkPreference()
-  useAtom(metaThemeColorEffect)
-  useSyncAtomWithHooks()
-  useSyncMetaThemeColor(ref)
-  useDocumentInit()
-  useSyncAtomWithUser()
+  useAppEffects()
+  useStyleObserver(ref, (values) => {
+    myStore.set(mainBgColorAtom, values['background-color'].value || LIGHT_THEME_COLOR)
+  }, {
+    properties: ['background-color'],
+  })
+  const [isDarkMode] = useAtom(isDarkModeAtom)
   useVocabRealtimeSync()
 
   return (
@@ -147,7 +136,11 @@ export default function Root() {
       ) : import.meta.env.DEV ? (
         <>
           <style>{css}</style>
-          <DevTools />
+          <style>{devtoolsCss}</style>
+          <DevTools
+            store={myStore}
+            theme={isDarkMode ? 'dark' : 'light'}
+          />
         </>
       ) : null}
     </SidebarProvider>

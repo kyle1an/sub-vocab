@@ -13,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import { PASSWORD_MIN_LENGTH } from '@/constants/constraints'
 import { bindApply } from '@/lib/bindApply'
-import { supabaseAuth } from '@/store/useVocab'
+import { supabaseAuth } from '@/lib/supabase'
 
 export default function Password() {
   const { t } = useTranslation()

@@ -8,6 +8,7 @@ import MaterialSymbolsBarChart4Bars from '~icons/material-symbols/bar-chart-4-ba
 import MaterialSymbolsInfoOutline from '~icons/material-symbols/info-outline'
 import SolarChecklistBold from '~icons/solar/checklist-bold'
 
+import { sessionAtom } from '@/atoms/auth'
 import { ArrowOutwardRounded } from '@/components/icons/arrow'
 import { NavMain } from '@/components/nav-main'
 import { NavSecondary } from '@/components/nav-secondary'
@@ -25,7 +26,6 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
-import { sessionAtom } from '@/store/useVocab'
 
 const data = {
   navMain: [

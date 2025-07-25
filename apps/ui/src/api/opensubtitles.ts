@@ -1,7 +1,7 @@
-import type { MergeDeep, PartialDeep } from 'type-fest'
+import type { PartialDeep } from 'type-fest'
 
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import { Duration } from 'effect'
+import { Duration, identity } from 'effect'
 import { atom, useAtomValue } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { ofetch } from 'ofetch'
@@ -12,6 +12,7 @@ import PQueue from 'p-queue'
 import type { paths } from '@/types/schema/opensubtitles'
 
 import { env } from '@/env'
+import { bindApply } from '@/lib/bindApply'
 import { downloadFile } from '@/lib/downloadFile'
 import { omitUndefined } from '@/lib/utilities'
 
@@ -21,22 +22,6 @@ const fetchClient = createFetchClient<paths>({
   baseUrl: `${baseUrl}/opensubtitles-proxy/def`,
 })
 export const $osApi = createClient(fetchClient)
-
-type subtitles_parameters_query = {
-  // https://forum.opensubtitles.org/viewtopic.php?t=17146&start=105#p48222
-  per_page?: number
-}
-
-type attributes_feature_details = {
-  data: {
-    attributes: {
-      feature_details: {
-        season_number?: number
-        episode_number?: number
-      }
-    }
-  }[]
-}
 
 export const osSessionAtom = atomWithStorage<PartialDeep<Login['Response']> | undefined>('osSessionAtom', undefined)
 
@@ -71,8 +56,8 @@ export const opensubtitlesReqAtom = atom((get) => {
   * https://opensubtitles.stoplight.io/docs/opensubtitles-api/a172317bd5ccc-search-for-subtitles
   */
 export type Subtitles = {
-  Query: MergeDeep<NonNullable<paths['/subtitles']['get']['parameters']['query']>, subtitles_parameters_query>
-  Response: MergeDeep<attributes_feature_details, paths['/discover/most_downloaded']['get']['responses'][200]['content']['application/json'], { recurseIntoArrays: true }>
+  Query: NonNullable<paths['/subtitles']['get']['parameters']['query']>
+  Response: paths['/discover/most_downloaded']['get']['responses'][200]['content']['application/json']
 }
 
 export const useOpenSubtitlesQueryOptions = () => {
@@ -83,13 +68,11 @@ export const useOpenSubtitlesQueryOptions = () => {
     return queryOptions({
       // eslint-disable-next-line @tanstack/query/exhaustive-deps
       queryKey: ['opensubtitles-subtitles', sortedQuery],
-      queryFn() {
-        return ofetch<Subtitles['Response']>(`${baseUrl}/subtitles`, {
-          method: 'GET',
-          query: sortedQuery,
-          headers,
-        })
-      },
+      queryFn: () => ofetch<Subtitles['Response']>(`${baseUrl}/subtitles`, {
+        method: 'GET',
+        query: sortedQuery,
+        headers,
+      }),
       select: (data) => data.data,
     })
   }
@@ -125,22 +108,31 @@ const osQueue = new PQueue({
   carryoverConcurrencyCount: true,
 })
 
+const withHighPriorityOsQueue = <A extends any[], R>(f: (...a: A) => R) => (...a: A) => {
+  return osQueue.add(() => f(...a), {
+    throwOnTimeout: true,
+  })
+}
+
+const withNormalPriorityOsQueue = <A extends any[], R>(f: (...a: A) => R) => (...a: A) => {
+  return osQueue.add(() => f(...a), {
+    throwOnTimeout: true,
+    priority: 2,
+  })
+}
+
 function useRequestSubtitleURL() {
   const { baseUrl } = useAtomValue(opensubtitlesReqAtom)
   const Authorization = useAtomValue(opensubtitlesAuthorizationAtom)
   return useMutation({
     mutationKey: ['requestSubtitleDownloadURL'],
-    mutationFn: (body: Download['Body']) => {
-      return osQueue.add(() => ofetch<Download['Response']>(`${baseUrl}/download`, {
-        method: 'POST',
-        body,
-        headers: omitUndefined({
-          Authorization,
-        }),
-      }), {
-        throwOnTimeout: true,
-      })
-    },
+    mutationFn: (body: Download['Body']) => ofetch<Download['Response']>(`${baseUrl}/download`, {
+      method: 'POST',
+      body,
+      headers: omitUndefined({
+        Authorization,
+      }),
+    }),
     retry: 4,
   })
 }
@@ -148,12 +140,7 @@ function useRequestSubtitleURL() {
 function useGetFileByLink() {
   return useMutation({
     mutationKey: ['getFileByLink'] as const,
-    mutationFn: async (link: string) => {
-      return osQueue.add(() => ofetch<string>(link), {
-        throwOnTimeout: true,
-        priority: 1,
-      })
-    },
+    mutationFn: identity(bindApply(ofetch<string, 'text'>)),
     retry: 4,
   })
 }
@@ -161,12 +148,7 @@ function useGetFileByLink() {
 function useDownloadFileByLink() {
   return useMutation({
     mutationKey: ['useDownloadFileByLink'] as const,
-    mutationFn: async (body: Download['Response']) => {
-      return osQueue.add(() => downloadFile(body.link, body.file_name), {
-        throwOnTimeout: true,
-        priority: 1,
-      })
-    },
+    mutationFn: identity(bindApply(downloadFile)),
     retry: 4,
   })
 }
@@ -177,8 +159,8 @@ export function useOpenSubtitlesText() {
   return useMutation({
     mutationKey: ['useOpenSubtitlesText'] as const,
     mutationFn: async (body: Download['Body']) => {
-      const file = await requestSubtitleURL(body)
-      const text = await getFileByLink(file.link)
+      const file = await withHighPriorityOsQueue(requestSubtitleURL)(body)
+      const text = await withNormalPriorityOsQueue(getFileByLink)([file.link, { responseType: 'text' }])
       return {
         file,
         text,
@@ -194,8 +176,8 @@ export function useOpenSubtitlesDownload() {
   return useMutation({
     mutationKey: ['useOpenSubtitlesDownload'] as const,
     mutationFn: async (body: Download['Body']) => {
-      const file = await requestSubtitleURL(body)
-      await downloadFileByLink(file)
+      const file = await withHighPriorityOsQueue(requestSubtitleURL)(body)
+      await withNormalPriorityOsQueue(downloadFileByLink)([file.link, file.file_name])
     },
     retry: 4,
   })

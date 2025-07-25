@@ -16,7 +16,6 @@
     "ofetch": "^1.4.1"
   },
   "devDependencies": {
-    "@sub-vocab/shared-types": "workspace:*",
-    "tsx": "^4.20.3"
+    "@sub-vocab/shared-types": "workspace:*"
   }
 }

@@ -1,3 +1,4 @@
+import { useNetworkState } from '@react-hookz/web'
 import {
   createColumnHelper,
 } from '@tanstack/react-table'
@@ -5,24 +6,46 @@ import clsx from 'clsx'
 import {
   useTranslation,
 } from 'react-i18next'
+import { toast } from 'sonner'
 import IconLucideCheckCircle from '~icons/lucide/check-circle'
 
+import type { TrackedWord } from '@/lib/LexiconTrie'
 import type { VocabularySourceState } from '@/lib/vocab'
 
+import { useUserWordPhaseMutation } from '@/api/vocab-api'
+import { sessionAtom } from '@/atoms/auth'
+import { LoginToast } from '@/components/login-toast'
+import { SortIcon } from '@/components/my-icon/sort-icon'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 import { Div } from '@/components/ui/html-elements'
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeaderCell } from '@/components/ui/table-element'
 import { VocabularyMenu } from '@/components/vocabulary/cells'
 import { VocabToggle } from '@/components/vocabulary/toggle-button'
-import { useVocabToggle } from '@/hooks/vocab-toggle'
-import { SortIcon } from '@/lib/icon-utils'
 import { filterFn } from '@/lib/table-utils'
+import { myStore } from '@/store/useVocab'
 
 export function useVocabularyCommonColumns<T extends VocabularySourceState = VocabularySourceState>(tbody?: React.RefObject<HTMLTableSectionElement | null>) {
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
-  const handleVocabToggle = useVocabToggle()
+  const { mutateAsync: userWordPhaseMutation } = useUserWordPhaseMutation()
+  const { online: isOnline } = useNetworkState()
+  const handleVocabToggle = (vocab: TrackedWord) => {
+    if (!myStore.get(sessionAtom)?.user) {
+      toast(<LoginToast />)
+      return
+    }
+    if (!isOnline) {
+      toast('You must be online to save your progress.')
+      return
+    }
+    const rows2Mutate = [vocab].filter((row) => row.form.length <= 32)
+    if (rows2Mutate.length === 0) {
+      return
+    }
+    userWordPhaseMutation(rows2Mutate)
+      .catch(console.error)
+  }
   return [
     columnHelper.accessor((row) => row.trackedWord.form, {
       id: 'word',

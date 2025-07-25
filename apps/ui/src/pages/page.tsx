@@ -11,26 +11,27 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import getCaretCoordinates from 'textarea-caret'
 
-import type { Sentence } from '@/lib/LabeledTire'
+import type { Sentence } from '@/lib/LexiconTrie'
 import type { VocabularySourceState } from '@/lib/vocab'
 
 import {
   baseVocabAtom,
-  useIrregularMapsQuery,
+  useIrregularWordsQuery,
 } from '@/api/vocab-api'
+import { fileTypesAtom } from '@/atoms/file-types'
+import { fileInfoAtom, isSourceTextStaleAtom, sourceTextAtom } from '@/atoms/vocabulary'
 import { FileInput } from '@/components/file-input'
 import { Button } from '@/components/ui/button'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { TextareaInput } from '@/components/ui/textarea-input'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { VocabSourceTable } from '@/components/VocabSource'
-import { VocabStatics } from '@/components/vocabulary/vocab-statics-bar'
+import { VocabSourceTable } from '@/components/vocabulary/source'
+import { VocabStatics } from '@/components/vocabulary/statics-bar'
 import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
-import { LEARNING_PHASE, LexiconTrie } from '@/lib/LabeledTire'
+import { LEARNING_PHASE, LexiconTrie } from '@/lib/LexiconTrie'
 import { normalizeNewlines } from '@/lib/utilities'
 import { statusRetainedList } from '@/lib/vocab-utils'
 import { FileSettings } from '@/pages/file-settings'
-import { fileInfoAtom, fileTypesAtom, isSourceTextStaleAtom, sourceTextAtom } from '@/store/useVocab'
 
 const sourceCountAtom = atom({
   totalText: 0,
@@ -70,7 +71,7 @@ function SourceVocab({
   onSentenceTrack: (sentenceId: Sentence) => void
   key: React.Key
 }) {
-  const { data: irregulars = [] } = useIrregularMapsQuery()
+  const { data: irregulars = [] } = useIrregularWordsQuery()
   const [baseVocab] = useAtom(baseVocabAtom)
   const [rows, setRows] = useState<VocabularySourceState[]>([])
   const setSourceCountAtom = useSetAtom(sourceCountAtom)

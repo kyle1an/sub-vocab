@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query'
 import clsx from 'clsx'
 import { Console, Effect } from 'effect'
 import { useAtom } from 'jotai'
-import { useEffect, useTransition } from 'react'
+import { useTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
@@ -14,13 +14,15 @@ import IconLucideCog from '~icons/lucide/cog'
 import IconMingcuteUser4Fill from '~icons/mingcute/user4-fill'
 import IconSolarLogout2Outline from '~icons/solar/logout2-outline'
 
+import { sessionAtom } from '@/atoms/auth'
 import { DEFAULT_THEME, THEMES } from '@/components/themes'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Menubar, MenubarContent, MenubarMenu, MenubarRadioGroup, MenubarRadioItem, MenubarTrigger } from '@/components/ui/menubar'
 import { bindApply } from '@/lib/bindApply'
+import { supabaseAuth } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
-import { localeAtom, sessionAtom, supabaseAuth, themeAtom } from '@/store/useVocab'
+import { localeAtom, themeAtom } from '@/store/useVocab'
 
 const LOCALES = [
   {
@@ -107,11 +109,6 @@ export function TopBar({ className }: { className?: string }) {
   const [locale, updateLocale] = useAtom(localeAtom)
   const [themePreference, setThemePreference] = useAtom(themeAtom)
   const [isThemeTransitioning, startThemeTransition] = useTransition()
-
-  useEffect(() => {
-    i18n.changeLanguage(locale).catch(console.error)
-  }, [locale, i18n, updateLocale])
-
   const avatarSource = `https://avatar.vercel.sh/${account}?size=${22}`
 
   return (
@@ -149,7 +146,8 @@ export function TopBar({ className }: { className?: string }) {
                         >
                           <MenubarRadioGroup
                             value={themePreference}
-                            className={clsx(isThemeTransitioning && '[body:has(&)_*]:transition-none! [body:has(&)_*::after]:transition-none! [body:has(&)_*::before]:transition-none!')}
+                            // Potential conflict with style-observer.
+                            className={clsx(isThemeTransitioning && '[body:has(&)_*::after]:transition-none! [body:has(&)_*::before]:transition-none! [body:has(&)_*:not(main)]:transition-none!')}
                           >
                             {THEMES.map((theme) => (
                               <MenubarRadioItem
