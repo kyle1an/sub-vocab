@@ -13,11 +13,11 @@ import { useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
 import colors from 'tailwindcss/colors'
 
-import type { TrackedWord } from '@/lib/LabeledTire'
+import type { TrackedWord } from '@/lib/LexiconTrie'
 
 import { baseVocabAtom } from '@/api/vocab-api'
 import { SegmentedControl } from '@/components/ui/segmented-control'
-import { LEARNING_PHASE } from '@/lib/LabeledTire'
+import { LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { createFactory } from '@sub-vocab/utils/lib'
 
 type DataSet = {
@@ -424,23 +424,25 @@ export default function Chart() {
   }
 
   return (
-    <div>
-      <div className="flex h-14">
-        <div className="flex flex-auto grow items-center justify-center font-bold text-neutral-700 dark:text-stone-300">
-          Acquainted Vocabulary
+    <div className="flex justify-center">
+      <div className="max-w-3xl grow">
+        <div className="flex h-14">
+          <div className="flex flex-auto grow items-center justify-center font-bold text-neutral-700 dark:text-stone-300">
+            Acquainted Vocabulary
+          </div>
         </div>
-      </div>
-      <div className="flex flex-col gap-3">
-        <SegmentedControl
-          segments={segments}
-          value={segment}
-          onValueChange={setSegment}
-        />
-        <Bar
-          options={options}
-          data={chartData}
-          className="w-full tabular-nums md:pb-0"
-        />
+        <div className="flex flex-col gap-3">
+          <SegmentedControl
+            segments={segments}
+            value={segment}
+            onValueChange={setSegment}
+          />
+          <Bar
+            options={options}
+            data={chartData}
+            className="w-full tabular-nums md:pb-0"
+          />
+        </div>
       </div>
     </div>
   )

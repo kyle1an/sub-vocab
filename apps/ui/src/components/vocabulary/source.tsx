@@ -14,7 +14,7 @@ import {
 } from '@tanstack/react-table'
 import { TRPCClientError } from '@trpc/client'
 import clsx from 'clsx'
-import { Effect } from 'effect'
+import { Effect, identity } from 'effect'
 import { useAtom, useAtomValue } from 'jotai'
 import { atomWithImmer } from 'jotai-immer'
 import { atomWithStorage } from 'jotai/utils'
@@ -26,16 +26,17 @@ import IconIconoirSparks from '~icons/iconoir/sparks'
 import IconLucideChevronRight from '~icons/lucide/chevron-right'
 import IconLucideLoader from '~icons/lucide/loader'
 
-import type { LearningPhase, Sentence } from '@/lib/LabeledTire'
+import type { LearningPhase, Sentence } from '@/lib/LexiconTrie'
 import type { ColumnFilterFn } from '@/lib/table-utils'
 import type { VocabularySourceState } from '@/lib/vocab'
 
 import { useTRPC } from '@/api/trpc'
+import { isSourceTextStaleAtom } from '@/atoms/vocabulary'
 import { DataTableFacetedFilter } from '@/components/data-table/data-table-faceted-filter'
+import { TableGoToLastPage } from '@/components/my-table/go-to-last-page'
+import { TablePagination } from '@/components/my-table/pagination'
+import { TablePaginationSizeSelect } from '@/components/my-table/pagination-size-select'
 import { SearchWidget } from '@/components/search-widget'
-import { TableGoToLastPage } from '@/components/table-go-to-last-page'
-import { TablePagination } from '@/components/table-pagination'
-import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
 import { Button } from '@/components/ui/button'
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
 import { Div } from '@/components/ui/html-elements'
@@ -46,15 +47,13 @@ import { AcquaintAllDialog } from '@/components/vocabulary/acquaint-all-dialog'
 import { useVocabularyCommonColumns } from '@/components/vocabulary/columns'
 import { ExampleSentence } from '@/components/vocabulary/example-sentence'
 import { VocabularyMenu } from '@/components/vocabulary/menu'
-import { VocabStatics } from '@/components/vocabulary/vocab-statics-bar'
-import { useLastTruthy } from '@/lib/hooks'
-import { LEARNING_PHASE } from '@/lib/LabeledTire'
+import { VocabStatics } from '@/components/vocabulary/statics-bar'
+import { LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { combineFilters, filterFn, noFilter } from '@/lib/table-utils'
-import { findClosest, type } from '@/lib/utilities'
+import { findClosest } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
-import { isSourceTextStaleAtom } from '@/store/useVocab'
 import { getCategory } from '@/utils/prompts/getCategory'
-import { searchFilterValue } from '@/utils/vocabulary/filters'
+import { useLastSearchFilterValue } from '@/utils/vocabulary/filters'
 
 type TableData = VocabularySourceState & {
   category: string | null
@@ -66,14 +65,14 @@ const PAGE_SIZES = [10, 20, 40, 50, 100, 200, 500, 1000] as const
 const cacheStateAtom = atomWithImmer({
   isUsingRegex: false,
   searchValue: '',
-  initialTableState: type<InitialTableState>({
+  initialTableState: identity<InitialTableState>({
     columnOrder: ['frequency', 'word', 'word.length', 'acquaintedStatus', 'rank'],
     pagination: {
       pageSize: findClosest(100, PAGE_SIZES),
       pageIndex: 0,
     },
   }),
-  filterValue: type<Record<string, boolean>>({}),
+  filterValue: identity<Record<string, boolean>>({}),
 })
 
 function useSegments() {
@@ -224,8 +223,7 @@ export function VocabSourceTable({
   'use no memo'
   const [categoryAtomValue, setCategoryAtom] = useAtom(categoryAtom)
   const { t } = useTranslation()
-  const [cacheState, setCacheState] = useAtom(cacheStateAtom)
-  const { initialTableState, isUsingRegex, searchValue, filterValue } = cacheState
+  const [{ initialTableState, isUsingRegex, searchValue, filterValue }, setCacheState] = useAtom(cacheStateAtom)
   const deferredSearchValue = useDeferredValue(searchValue)
   const deferredIsUsingRegex = useDeferredValue(isUsingRegex)
   const tbodyRef = useRef<HTMLTableSectionElement>(null)
@@ -235,13 +233,13 @@ export function VocabSourceTable({
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'all')
   const segmentDeferredValue = useDeferredValue(segment)
-  const lastTruthySearchFilterValue = useLastTruthy(searchFilterValue(deferredSearchValue, deferredIsUsingRegex))
+  const lastTruthySearchFilterValue = useLastSearchFilterValue(deferredSearchValue, deferredIsUsingRegex)
   const isSourceTextStale = useAtomValue(isSourceTextStaleAtom)
   const finalData = useCategorize(categoryAtomValue, data)
 
   const preCategoryFilters = [
     acquaintedStatusFilter(segmentDeferredValue),
-    lastTruthySearchFilterValue ?? noFilter,
+    lastTruthySearchFilterValue,
   ]
   const globalFilter = combineFilters(preCategoryFilters)
   const table = useReactTable({
@@ -266,7 +264,6 @@ export function VocabSourceTable({
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    debugTable: true,
   })
 
   function handleSegmentChoose(newSegment: typeof segment) {
@@ -316,9 +313,8 @@ export function VocabSourceTable({
     .map((row) => row.original.trackedWord)
 
   useUnmountEffect(() => {
-    setCacheState({
-      ...cacheState,
-      initialTableState: tableState,
+    setCacheState((draft) => {
+      draft.initialTableState = tableState
     })
   })
   const rootRef = useRef<HTMLDivElement>(null)

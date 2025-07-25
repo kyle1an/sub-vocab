@@ -12,13 +12,14 @@ import IconLucideLoader2 from '~icons/lucide/loader2'
 import type { ZodObj } from '@/types/utils'
 
 import { useSignInWithUsername } from '@/api/user'
+import { authChangeEventAtom, sessionAtom } from '@/atoms/auth'
 import { ContentRoot } from '@/components/content-root'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { bindApply } from '@/lib/bindApply'
-import { authChangeEventAtom, sessionAtom, supabaseAuth } from '@/store/useVocab'
+import { supabaseAuth } from '@/lib/supabase'
 
 export default function Login() {
   const [session] = useAtom(sessionAtom)

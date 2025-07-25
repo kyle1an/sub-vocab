@@ -7,6 +7,9 @@ export default defineConfig((configEnv) => mergeConfig(
   defineConfig({
     test: {
       exclude: [...configDefaults.exclude, 'packages/template/*'],
+      coverage: {
+        enabled: true,
+      },
     },
   }),
 ))

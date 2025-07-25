@@ -1,6 +1,6 @@
 import type React from 'react'
 
-import type { FileType } from '@/store/useVocab'
+import type { FileType } from '@/atoms/file-types'
 
 import { Textarea } from '@/components/ui/textarea'
 import { DataTransferItemListReader, readEntryFiles } from '@/lib/filesHandler'

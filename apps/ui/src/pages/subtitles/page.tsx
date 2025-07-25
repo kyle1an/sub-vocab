@@ -7,9 +7,10 @@ import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import clsx from 'clsx'
 import { format } from 'date-fns'
-import { Duration } from 'effect'
+import { Duration, identity } from 'effect'
 import { uniqBy } from 'es-toolkit'
 import { useDebouncedValue } from 'foxact/use-debounced-value'
+import { produce } from 'immer'
 import { useAtom, useSetAtom } from 'jotai'
 import { atomWithImmer } from 'jotai-immer'
 import { atomWithStorage } from 'jotai/utils'
@@ -32,10 +33,14 @@ import type { paths as PathsThemoviedb } from '@/types/schema/themoviedb'
 
 import { $osApi, useOpenSubtitlesDownload, useOpenSubtitlesText } from '@/api/opensubtitles'
 import { $api } from '@/api/tmdb'
+import { fileIdsAtom, mediaSubtitleAtomFamily } from '@/atoms/subtitles'
+import { fileInfoAtom, sourceTextAtom } from '@/atoms/vocabulary'
 import { MediaDetails } from '@/components/media-details'
+import { SortIcon } from '@/components/my-icon/sort-icon'
+import { TableGoToLastPage } from '@/components/my-table/go-to-last-page'
+import { TablePagination } from '@/components/my-table/pagination'
+import { TablePaginationSizeSelect } from '@/components/my-table/pagination-size-select'
 import { OpensubtitlesAuthentication } from '@/components/subtitle/opensubtitles-authentication'
-import { TablePagination } from '@/components/table-pagination'
-import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Div } from '@/components/ui/html-elements'
@@ -44,10 +49,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
-import { SortIcon } from '@/lib/icon-utils'
 import { filterFn } from '@/lib/table-utils'
-import { findClosest, type } from '@/lib/utilities'
-import { fileIdsAtom, fileInfoAtom, mediaSubtitleStateAtom, osLanguageAtom, sourceTextAtom } from '@/store/useVocab'
+import { findClosest } from '@/lib/utilities'
+import { myStore, osLanguageAtom } from '@/store/useVocab'
 
 const mediaSearchAtom = atomWithStorage('mediaSearchAtom', '')
 
@@ -62,7 +66,7 @@ type TableData = NonNullable<PathsThemoviedb['/3/search/multi']['get']['response
 const PAGE_SIZES = [5, 10, 20] as const
 
 const cacheStateAtom = atomWithImmer({
-  initialTableState: type<InitialTableState>({
+  initialTableState: identity<InitialTableState>({
     pagination: {
       pageSize: findClosest(100, PAGE_SIZES),
       pageIndex: 0,
@@ -370,8 +374,7 @@ export default function Subtitles() {
   const { isPending: isDownloadPending, mutateAsync: downloadText } = useOpenSubtitlesText()
   const { isPending: isFileDownloadPending, mutateAsync: downloadFile } = useOpenSubtitlesDownload()
   const [query, setQuery] = useAtom(mediaSearchAtom)
-  const [cacheState, setCacheState] = useAtom(cacheStateAtom)
-  const { initialTableState } = cacheState
+  const [{ initialTableState }, setCacheState] = useAtom(cacheStateAtom)
   const debouncedQuery = useDebouncedValue(query, 500)
   const columns = useColumns()
   const setFileInfo = useSetAtom(fileInfoAtom)
@@ -434,11 +437,9 @@ export default function Subtitles() {
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    debugTable: true,
   })
   const rowsFiltered = table.getFilteredRowModel().rows
   const navigate = useNavigate()
-  const setSubtitleSelectionState = useSetAtom(mediaSubtitleStateAtom)
   const [fileIds] = useAtom(fileIdsAtom)
 
   async function getText(fileIds: number[]) {
@@ -478,10 +479,10 @@ export default function Subtitles() {
   }
 
   function clearSelection() {
-    setSubtitleSelectionState((subtitleState) => {
-      Object.values(subtitleState).forEach((mediaState) => {
+    [...mediaSubtitleAtomFamily.getParams()].forEach((key) => {
+      myStore.set(mediaSubtitleAtomFamily(key), produce((mediaState) => {
         mediaState.rowSelection = {}
-      })
+      }))
     })
   }
 
@@ -493,9 +494,8 @@ export default function Subtitles() {
   const { t } = useTranslation()
 
   useUnmountEffect(() => {
-    setCacheState({
-      ...cacheState,
-      initialTableState: tableState,
+    setCacheState((draft) => {
+      draft.initialTableState = tableState
     })
   })
   const rootRef = useRef<HTMLDivElement>(null)
@@ -700,6 +700,9 @@ export default function Subtitles() {
                 })}
               </tbody>
             </table>
+            <TableGoToLastPage
+              table={table}
+            />
           </div>
           <div className="flex flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tracking-[.03em] tabular-nums dark:border-neutral-800">
             <TablePagination

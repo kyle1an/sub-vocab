@@ -3635,6 +3635,10 @@ export interface operations {
                          */
                         page: number;
                         results?: {
+                            // additional
+                            first_air_date?: string;
+                            // additional
+                            original_name?: string;
                             /**
                              * @default true
                              * @example false
@@ -3653,8 +3657,6 @@ export interface operations {
                             original_language?: string;
                             /** @example Star Wars */
                             original_title?: string;
-                            // additional
-                            original_name?: string
                             /** @example Princess Leia is captured and held hostage by the evil Imperial forces in their effort to take over the galactic Empire. Venturesome Luke Skywalker and dashing captain Han Solo team together with the loveable robot duo R2-D2 and C-3PO to rescue the beautiful princess and restore peace and justice in the Empire. */
                             overview?: string;
                             /** @example /6FfCtAuVAW8XJjZ7eWeLibRLWTw.jpg */
@@ -3669,8 +3671,6 @@ export interface operations {
                             popularity: number;
                             /** @example 1977-05-25 */
                             release_date?: string;
-                            // additional
-                            first_air_date?: string;
                             /**
                              * @default true
                              * @example false

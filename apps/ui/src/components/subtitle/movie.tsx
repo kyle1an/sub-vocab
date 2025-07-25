@@ -2,31 +2,37 @@ import type { InitialTableState } from '@tanstack/react-table'
 
 import usePagination from '@mui/material/usePagination'
 import NumberFlow from '@number-flow/react'
+import { useUnmountEffect } from '@react-hookz/web'
 import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import clsx from 'clsx'
+import { merge } from 'es-toolkit'
 import { useAtom } from 'jotai'
+import { useImmerAtom } from 'jotai-immer'
 import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import type { Subtitles } from '@/api/opensubtitles'
 import type { SubtitleData } from '@/components/subtitle/columns'
+import type { RowSelectionChangeFn } from '@/types/utils'
 
 import { useOpenSubtitlesSubtitles } from '@/api/opensubtitles'
+import { mediaSubtitleAtomFamily } from '@/atoms/subtitles'
+import { SortIcon } from '@/components/my-icon/sort-icon'
+import { TableGoToLastPage } from '@/components/my-table/go-to-last-page'
+import { TablePagination } from '@/components/my-table/pagination'
+import { TablePaginationSizeSelect } from '@/components/my-table/pagination-size-select'
 import { useCommonColumns } from '@/components/subtitle/columns'
 import { RefetchButton } from '@/components/subtitle/menu-items'
-import { TablePagination } from '@/components/table-pagination'
-import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Div } from '@/components/ui/html-elements'
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
-import { SortIcon } from '@/lib/icon-utils'
 import { getFileId } from '@/lib/subtitle'
 import { filterFn, sortBySelection } from '@/lib/table-utils'
-import { findClosest } from '@/lib/utilities'
-import { osLanguageAtom, subtitleSelectionStateFamily } from '@/store/useVocab'
+import { findClosest, omitUndefined } from '@/lib/utilities'
+import { osLanguageAtom } from '@/store/useVocab'
 
 type MovieSubtitleData = SubtitleData
 
@@ -110,14 +116,13 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
           </TableHeaderCell>
         )
       },
-      cell({ cell, getValue }) {
+      // https://github.com/TanStack/table/discussions/5164#discussioncomment-9478554
+      cell: function Cell({ cell, getValue }) {
         const value = getValue()
         /* eslint-disable react-compiler/react-compiler */
-        /* eslint-disable react-hooks/rules-of-hooks */
         const ref = useRef<HTMLDivElement>(null)
         const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
         /* eslint-enable react-compiler/react-compiler */
-        /* eslint-enable react-hooks/rules-of-hooks */
         const className = 'tracking-[.04em] text-sm'
         const rootRect = root.current?.getBoundingClientRect()
         const refRect = ref.current?.getBoundingClientRect()
@@ -240,13 +245,13 @@ function SubtitleFiles({
   const tbodyRef = useRef<HTMLTableSectionElement>(null)
   const movieColumns = useMovieColumns(rootRef, tbodyRef)
   const columns = [...commonColumns, ...movieColumns]
-  const [rowSelection = {}, setRowSelection] = useAtom(subtitleSelectionStateFamily(id))
+  const [{ pagination, rowSelection }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleAtomFamily(id))
   const table = useReactTable({
     data: subtitleData.map((subtitle) => ({
       subtitle,
     })),
     columns,
-    initialState: initialTableState,
+    initialState: omitUndefined(merge(initialTableState, omitUndefined({ pagination }))),
     state: {
       rowSelection,
     },
@@ -258,7 +263,6 @@ function SubtitleFiles({
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    debugTable: true,
   })
   const rowsFiltered = table.getFilteredRowModel().rows
   const tableState = table.getState()
@@ -266,7 +270,24 @@ function SubtitleFiles({
     count: table.getPageCount(),
     page: tableState.pagination.pageIndex + 1,
   })
-
+  function handleRowSelectionChange(...[checked, row, mode]: Parameters<RowSelectionChangeFn<SubtitleData>>) {
+    setMediaSubtitleState((prev) => {
+      if (mode === 'singleRow') {
+        prev.rowSelection = {}
+      } else if (mode === 'singleSubRow') {
+        const subRows = row.getParentRow()?.subRows ?? []
+        subRows.forEach(({ id }) => {
+          prev.rowSelection[id] = false
+        })
+      }
+      prev.rowSelection[row.id] = Boolean(checked)
+    })
+  }
+  useUnmountEffect(() => {
+    setMediaSubtitleState((draft) => {
+      draft.pagination = tableState.pagination
+    })
+  })
   return (
     <>
       <>
@@ -294,12 +315,15 @@ function SubtitleFiles({
                     <TableRow
                       key={row.id}
                       row={row}
-                      onRowSelectionChange={setRowSelection}
+                      onRowSelectionChange={handleRowSelectionChange}
                     />
                   )
                 })}
               </tbody>
             </table>
+            <TableGoToLastPage
+              table={table}
+            />
           </div>
           <div className="flex flex-wrap items-center justify-between gap-0.5 border-t border-t-zinc-200 py-1 pr-0.5 tracking-[.03em] tabular-nums dark:border-neutral-800">
             <TablePagination

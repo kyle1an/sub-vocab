@@ -43,6 +43,13 @@ export function hasKey<T extends string>(obj: unknown, key: T): obj is { [key in
   return Boolean(typeof obj === 'object' && obj && key in obj)
 }
 
-export const type = <T>(a: T) => a
-
 export const normalizeNewlines = (inputText: string) => inputText.replace(/\r\n?/g, '\n')
+
+export function normalizeThemeColor(color: string) {
+  if (color === 'rgb(0, 0, 0)') {
+    return 'rgb(1,1,1)'
+  } else if (color === 'rgb(255, 255, 255)') {
+    return 'rgb(254,254,254)'
+  }
+  return color
+}

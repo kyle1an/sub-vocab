@@ -5,7 +5,7 @@ import IconamoonArrowRight1Bold from '~icons/iconamoon/arrow-right-1-bold'
 import MingcuteCheckFill from '~icons/mingcute/check-fill'
 import OouiCopyLtr from '~icons/ooui/copy-ltr'
 
-import type { Sentence } from '@/lib/LabeledTire'
+import type { Sentence } from '@/lib/LexiconTrie'
 import type { WordOccurrencesInSentence } from '@/lib/vocab'
 
 import { Button } from '@/components/ui/button'

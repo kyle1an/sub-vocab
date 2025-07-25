@@ -9,11 +9,20 @@
   opacity: 0.4;
 }
 
-.tsqd-open-btn-container,
-.jotai-devtools-trigger-button {
-  corner-shape: round;
-}
-
 #jotai-devtools-root {
   --mantine-font-family-monospace: var(--font-mono) !important;
+}
+
+.tsqd-parent-container,
+#jotai-devtools-root {
+  :is(& *) {
+    corner-shape: superellipse(1.5);
+  }
+}
+
+#root {
+  .tsqd-open-btn-container,
+  .jotai-devtools-trigger-button {
+    corner-shape: round;
+  }
 }

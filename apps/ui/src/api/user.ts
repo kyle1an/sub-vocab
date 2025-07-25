@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query'
 import type { AppRouter } from '@backend/app'
 
 import { useTRPC } from '@/api/trpc'
-import { supabaseAuth } from '@/store/useVocab'
+import { supabaseAuth } from '@/lib/supabase'
 
 type SignInResponse = Awaited<ReturnType<TRPCClient<AppRouter>['user']['signIn']['mutate']>>
 

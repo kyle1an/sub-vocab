@@ -1,7 +1,8 @@
+import type { NonEmptyArray } from 'effect/Array'
 import type { ValueOf } from 'type-fest'
 
 import { formVocab } from '@/lib/vocab'
-import { createFactory, isNonEmptyArray } from '@sub-vocab/utils/lib'
+import { createFactory } from '@sub-vocab/utils/lib'
 
 export const LEARNING_PHASE = {
   NEW: 0,
@@ -150,8 +151,8 @@ class Trie {
       }
     }
   }
-  public mergeDerivedWordIntoStem(irregularMaps: string[][]) {
-    for (const [lemma, ...inflections] of irregularMaps.filter(isNonEmptyArray)) {
+  public mergeDerivedWordIntoStem(irregulars: NonEmptyArray<string>[]) {
+    for (const [lemma, ...inflections] of irregulars) {
       const lemmaNode = this.getNode(lemma)
       lemmaNode.$ ??= {
         pathe: lemma,
@@ -378,7 +379,7 @@ class Trie {
       this.update(word, -1, -1)
     })
   }
-  public generate(irregulars: string[][], baseVocab: TrackedWord[]) {
+  public generate(irregulars: NonEmptyArray<string>[], baseVocab: TrackedWord[]) {
     this.mergeDerivedWordIntoStem(irregulars)
     this.mergedVocabulary(baseVocab)
     return Trie

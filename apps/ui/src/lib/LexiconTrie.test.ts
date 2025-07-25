@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 
 import { createFactory } from '@sub-vocab/utils/lib'
 
-import type { Leaf, TrackedWord } from './LabeledTire'
+import type { Leaf, TrackedWord } from './LexiconTrie'
 
-import { buildTrackedWord, LEARNING_PHASE, LexiconTrie } from './LabeledTire'
+import { buildTrackedWord, LEARNING_PHASE, LexiconTrie } from './LexiconTrie'
 
 const mockTrackedWord = createFactory<TrackedWord>()(() => ({
   isUser: false,

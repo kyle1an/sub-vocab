@@ -2,8 +2,8 @@ import { useAtom } from 'jotai'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Outlet } from 'react-router'
 
+import { authChangeEventAtom, sessionAtom } from '@/atoms/auth'
 import { ContentRoot } from '@/components/content-root'
-import { authChangeEventAtom, sessionAtom } from '@/store/useVocab'
 
 export default function User() {
   const { t } = useTranslation()

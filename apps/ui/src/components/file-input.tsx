@@ -3,9 +3,9 @@ import type React from 'react'
 import { useAtom } from 'jotai'
 import { Button as AriaButton, FileTrigger } from 'react-aria-components'
 
+import { fileTypesAtom } from '@/atoms/file-types'
 import { Button } from '@/components/ui/button'
 import { getFileContent, SUPPORTED_FILE_TYPES } from '@/lib/filesHandler'
-import { fileTypesAtom } from '@/store/useVocab'
 
 export function FileInput({
   onFileSelect,

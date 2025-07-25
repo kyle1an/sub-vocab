@@ -12,23 +12,25 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import clsx from 'clsx'
-import { useAtom, useAtomValue } from 'jotai'
-import { atomWithImmer } from 'jotai-immer'
+import { identity } from 'effect'
+import { atom, useAtom, useAtomValue } from 'jotai'
+import { useImmerAtom } from 'jotai-immer'
 import { startTransition, useDeferredValue, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSessionStorage } from 'react-use'
 import IconIonRefresh from '~icons/ion/refresh'
 import IconLucideLoader2 from '~icons/lucide/loader2'
 
-import type { LearningPhase } from '@/lib/LabeledTire'
+import type { LearningPhase } from '@/lib/LexiconTrie'
 import type { ColumnFilterFn } from '@/lib/table-utils'
 import type { VocabularySourceState } from '@/lib/vocab'
 
 import { statusLabels, userVocabularyAtom } from '@/api/vocab-api'
+import { vocabRealtimeSyncStatusAtom } from '@/atoms/vocabulary'
+import { TableGoToLastPage } from '@/components/my-table/go-to-last-page'
+import { TablePagination } from '@/components/my-table/pagination'
+import { TablePaginationSizeSelect } from '@/components/my-table/pagination-size-select'
 import { SearchWidget } from '@/components/search-widget'
-import { TableGoToLastPage } from '@/components/table-go-to-last-page'
-import { TablePagination } from '@/components/table-pagination'
-import { TablePaginationSizeSelect } from '@/components/table-pagination-size-select'
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
 import { Div } from '@/components/ui/html-elements'
 import { SegmentedControl } from '@/components/ui/segmented-control'
@@ -37,26 +39,24 @@ import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCe
 import { AcquaintAllDialog } from '@/components/vocabulary/acquaint-all-dialog'
 import { useVocabularyCommonColumns } from '@/components/vocabulary/columns'
 import { VocabularyMenu } from '@/components/vocabulary/menu'
-import { VocabStatics } from '@/components/vocabulary/vocab-statics-bar'
+import { VocabStatics } from '@/components/vocabulary/statics-bar'
 import { customFormatDistance, formatDistanceLocale } from '@/lib/date-utils'
 import { customFormatDistanceToNowStrict } from '@/lib/formatDistance'
-import { useLastTruthy } from '@/lib/hooks'
-import { LEARNING_PHASE } from '@/lib/LabeledTire'
+import { LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { combineFilters, noFilter } from '@/lib/table-utils'
-import { findClosest, getFallBack, type } from '@/lib/utilities'
+import { findClosest, getFallBack } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
-import { vocabRealtimeSyncStatusAtom } from '@/store/useVocab'
-import { searchFilterValue } from '@/utils/vocabulary/filters'
+import { useLastSearchFilterValue } from '@/utils/vocabulary/filters'
 
 type TableData = VocabularySourceState
 
 /// keep-unique
 const PAGE_SIZES = [10, 20, 40, 50, 100, 200, 500, 1000] as const
 
-const cacheStateAtom = atomWithImmer({
+const cacheStateAtom = atom({
   isUsingRegex: false,
   searchValue: '',
-  initialTableState: type<InitialTableState>({
+  initialTableState: identity<InitialTableState>({
     columnOrder: ['timeModified', 'word', 'word.length', 'acquaintedStatus', 'rank'],
     pagination: {
       pageSize: findClosest(100, PAGE_SIZES),
@@ -174,8 +174,7 @@ export function VocabDataTable({
   // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
   const { t } = useTranslation()
-  const [cacheState, setCacheState] = useAtom(cacheStateAtom)
-  const { initialTableState, isUsingRegex, searchValue } = cacheState
+  const [{ initialTableState, isUsingRegex, searchValue }, setCacheState] = useImmerAtom(cacheStateAtom)
   const deferredSearchValue = useDeferredValue(searchValue)
   const deferredIsUsingRegex = useDeferredValue(isUsingRegex)
   const tbodyRef = useRef<HTMLTableSectionElement>(null)
@@ -185,7 +184,7 @@ export function VocabDataTable({
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'allAcquainted')
   const segmentDeferredValue = useDeferredValue(segment)
-  const lastTruthySearchFilterValue = useLastTruthy(searchFilterValue(deferredSearchValue, deferredIsUsingRegex))
+  const lastTruthySearchFilterValue = useLastSearchFilterValue(deferredSearchValue, deferredIsUsingRegex)
   const { refetch, isFetching: isLoadingUserVocab } = useAtomValue(userVocabularyAtom)
 
   const table = useReactTable({
@@ -198,7 +197,7 @@ export function VocabDataTable({
           value: combineFilters([
             acquaintedStatusFilter(segmentDeferredValue),
             userOwnedFilter(segmentDeferredValue),
-            lastTruthySearchFilterValue ?? noFilter,
+            lastTruthySearchFilterValue,
           ]),
         },
       ],
@@ -212,7 +211,6 @@ export function VocabDataTable({
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    debugTable: true,
   })
 
   function handleSegmentChoose(newSegment: typeof segment) {
@@ -246,9 +244,8 @@ export function VocabDataTable({
     .map((row) => row.original.trackedWord)
 
   useUnmountEffect(() => {
-    setCacheState({
-      ...cacheState,
-      initialTableState: tableState,
+    setCacheState((draft) => {
+      draft.initialTableState = tableState
     })
   })
   const isStale = segment !== segmentDeferredValue || searchValue !== deferredSearchValue || isUsingRegex !== deferredIsUsingRegex

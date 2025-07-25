@@ -7,13 +7,14 @@ import { useTranslation } from 'react-i18next'
 import { z } from 'zod/v4-mini'
 import IconLucideLoader2 from '~icons/lucide/loader2'
 
+import { sessionAtom } from '@/atoms/auth'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { USERNAME_MIN_LENGTH } from '@/constants/constraints'
 import { env } from '@/env'
 import { bindApply } from '@/lib/bindApply'
-import { sessionAtom, supabaseAuth } from '@/store/useVocab'
+import { supabaseAuth } from '@/lib/supabase'
 
 export default function ProfilePage() {
   const { t } = useTranslation()

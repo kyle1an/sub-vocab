@@ -1,6 +1,6 @@
-import type { Leaf, LearningPhase, TrackedWord, WordLocator } from '@/lib/LabeledTire'
+import type { Leaf, LearningPhase, TrackedWord, WordLocator } from '@/lib/LexiconTrie'
 
-import { buildTrackedWord } from '@/lib/LabeledTire'
+import { buildTrackedWord } from '@/lib/LexiconTrie'
 
 export type WordOccurrencesInSentence = {
   sentenceId: number

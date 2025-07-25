@@ -7,14 +7,14 @@ import { useSearchParams } from 'react-router'
 import { useImmer } from 'use-immer'
 import IconLucideCog from '~icons/lucide/cog'
 
-import type { FileType } from '@/store/useVocab'
+import type { FileType } from '@/atoms/file-types'
 
+import { fileTypesAtom } from '@/atoms/file-types'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTrigger } from '@/components/ui/drawer'
 import { Separator } from '@/components/ui/separator'
 import { Toggle } from '@/components/ui/toggle'
-import { fileTypesAtom } from '@/store/useVocab'
 
 function FileSettingsContent({
   className,

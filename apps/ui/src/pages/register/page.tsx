@@ -9,6 +9,7 @@ import IconLucideEye from '~icons/lucide/eye'
 import IconLucideEyeOff from '~icons/lucide/eye-off'
 import IconLucideLoader2 from '~icons/lucide/loader2'
 
+import { authChangeEventAtom, sessionAtom } from '@/atoms/auth'
 import { ContentRoot } from '@/components/content-root'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -16,7 +17,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import { PASSWORD_MIN_LENGTH } from '@/constants/constraints'
 import { bindApply } from '@/lib/bindApply'
-import { authChangeEventAtom, sessionAtom, supabaseAuth } from '@/store/useVocab'
+import { supabaseAuth } from '@/lib/supabase'
 
 export default function Register() {
   const [session] = useAtom(sessionAtom)

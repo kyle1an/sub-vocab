@@ -676,6 +676,10 @@ export interface components {
                     rank?: string;
                 };
                 feature_details: {
+                    // additional
+                    season_number?: number
+                    // additional
+                    episode_number?: number
                     feature_id: number;
                     feature_type: string;
                     year?: number;
@@ -3661,6 +3665,8 @@ export interface operations {
     subtitles: {
         parameters: {
             query?: {
+                // additional https://forum.opensubtitles.org/viewtopic.php?t=17146&start=105#p48222
+                per_page?: number;
                 /** @description ID of the movie or episode */
                 id?: number;
                 /** @description IMDB ID of the movie or episode */
@@ -3929,6 +3935,8 @@ export interface operations {
                 translate_from?: string;
                 /** @description language ISO639 translate_from */
                 translate_to: string;
+                /** @description file_id from /subtitles endpoint */
+                file_id?: number;
             };
             header?: never;
             path?: never;
