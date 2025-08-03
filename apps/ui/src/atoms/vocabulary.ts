@@ -7,6 +7,6 @@ export const sourceTextAtom = atom({
   epoch: 0,
 })
 
-export const vocabRealtimeSyncStatusAtom = atom<REALTIME_SUBSCRIBE_STATES>(REALTIME_SUBSCRIBE_STATES.CLOSED)
+export const vocabSubscriptionAtom = atom<REALTIME_SUBSCRIBE_STATES>(REALTIME_SUBSCRIBE_STATES.CLOSED)
 
 export const isSourceTextStaleAtom = atom(false)

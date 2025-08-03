@@ -3,6 +3,8 @@ import {
   createColumnHelper,
 } from '@tanstack/react-table'
 import clsx from 'clsx'
+import { useStore } from 'jotai'
+import { Fragment } from 'react'
 import {
   useTranslation,
 } from 'react-i18next'
@@ -23,15 +25,15 @@ import { HeaderTitle, TableDataCell, TableHeaderCell } from '@/components/ui/tab
 import { VocabularyMenu } from '@/components/vocabulary/cells'
 import { VocabToggle } from '@/components/vocabulary/toggle-button'
 import { filterFn } from '@/lib/table-utils'
-import { myStore } from '@/store/useVocab'
 
 export function useVocabularyCommonColumns<T extends VocabularySourceState = VocabularySourceState>(tbody?: React.RefObject<HTMLTableSectionElement | null>) {
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
   const { mutateAsync: userWordPhaseMutation } = useUserWordPhaseMutation()
   const { online: isOnline } = useNetworkState()
+  const store = useStore()
   const handleVocabToggle = (vocab: TrackedWord) => {
-    if (!myStore.get(sessionAtom)?.user) {
+    if (!store.get(sessionAtom)?.user) {
       toast(<LoginToast />)
       return
     }
@@ -83,7 +85,7 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
             cell={cell}
             className="py-1"
           >
-            <>
+            <Fragment>
               {wordFamily.map(({ pathe: w, locators: src }, i) => (
                 <div
                   key={w}
@@ -124,7 +126,7 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
                   )}
                 </div>
               ))}
-            </>
+            </Fragment>
           </TableDataCell>
         )
       },

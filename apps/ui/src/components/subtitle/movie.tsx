@@ -5,18 +5,18 @@ import NumberFlow from '@number-flow/react'
 import { useUnmountEffect } from '@react-hookz/web'
 import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import clsx from 'clsx'
-import { merge } from 'es-toolkit'
-import { useAtom } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
-import { useRef } from 'react'
+import { Fragment, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import type { Subtitles } from '@/api/opensubtitles'
 import type { SubtitleData } from '@/components/subtitle/columns'
 import type { RowSelectionChangeFn } from '@/types/utils'
 
-import { useOpenSubtitlesSubtitles } from '@/api/opensubtitles'
-import { mediaSubtitleAtomFamily } from '@/atoms/subtitles'
+import { openSubtitlesSubtitlesAtom } from '@/api/opensubtitles'
+import { buildMediaSubtitleState, mediaSubtitleAtomFamily } from '@/atoms/subtitles'
+import { useFamily } from '@/atoms/utils'
 import { SortIcon } from '@/components/my-icon/sort-icon'
 import { TableGoToLastPage } from '@/components/my-table/go-to-last-page'
 import { TablePagination } from '@/components/my-table/pagination'
@@ -29,9 +29,10 @@ import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
+import { useRect } from '@/lib/hooks'
 import { getFileId } from '@/lib/subtitle'
 import { filterFn, sortBySelection } from '@/lib/table-utils'
-import { findClosest, omitUndefined } from '@/lib/utilities'
+import { findClosest } from '@/lib/utilities'
 import { osLanguageAtom } from '@/store/useVocab'
 
 type MovieSubtitleData = SubtitleData
@@ -122,14 +123,11 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
         /* eslint-disable react-compiler/react-compiler */
         const ref = useRef<HTMLDivElement>(null)
         const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
+        const { x: rootX, width: rootWidth } = useRect(root)
+        const { x: refX } = useRect(ref)
         /* eslint-enable react-compiler/react-compiler */
         const className = 'tracking-[.04em] text-sm'
-        const rootRect = root.current?.getBoundingClientRect()
-        const refRect = ref.current?.getBoundingClientRect()
-        let maxWidth = 0
-        if (rootRect && refRect) {
-          maxWidth = rootRect.x + rootRect.width - refRect.x + 12 - 4
-        }
+        const maxWidth = rootX + rootWidth - refX + 12 - 4
         return (
           <TableDataCell
             cell={cell}
@@ -187,34 +185,20 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
 /// keep-unique
 const PAGE_SIZES = [4, 5, 10, 20, 40, 50, 100, 200] as const
 
-const initialTableState: InitialTableState = {
-  sorting: [
-    {
-      id: 'download_count',
-      desc: true,
-    },
-  ],
-  columnOrder: ['action', 'movie_name', 'language', 'upload_date', 'download_count'],
-  pagination: {
-    pageSize: findClosest(10, PAGE_SIZES),
-    pageIndex: 0,
-  },
-}
-
 export function MovieSubtitleFiles({
   id,
 }: {
   id: number
 }) {
   const [language] = useAtom(osLanguageAtom)
-  const { data, isFetching, refetch } = useOpenSubtitlesSubtitles({
+  const { data, isFetching, refetch } = useAtomValue(openSubtitlesSubtitlesAtom({
     type: 'movie',
     tmdb_id: id,
     languages: language,
     per_page: 100,
-  })
+  }))
   return (
-    <>
+    <Fragment>
       <div>
         <div className="flex h-9 gap-2 p-1.5">
           <RefetchButton
@@ -227,7 +211,7 @@ export function MovieSubtitleFiles({
         id={id}
         subtitleData={data ?? []}
       />
-    </>
+    </Fragment>
   )
 }
 
@@ -245,16 +229,30 @@ function SubtitleFiles({
   const tbodyRef = useRef<HTMLTableSectionElement>(null)
   const movieColumns = useMovieColumns(rootRef, tbodyRef)
   const columns = [...commonColumns, ...movieColumns]
-  const [{ pagination, rowSelection }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleAtomFamily(id))
+  const [{ initialTableState: mediaInitialTableState, tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(useFamily(mediaSubtitleAtomFamily, {
+    key: id,
+    initialValue: buildMediaSubtitleState({
+      initialTableState: {
+        sorting: [
+          {
+            id: 'download_count',
+            desc: true,
+          },
+        ],
+        columnOrder: ['action', 'movie_name', 'language', 'upload_date', 'download_count'],
+        pagination: {
+          pageSize: findClosest(10, PAGE_SIZES),
+        },
+      } satisfies InitialTableState,
+    }),
+  }))
   const table = useReactTable({
     data: subtitleData.map((subtitle) => ({
       subtitle,
     })),
     columns,
-    initialState: omitUndefined(merge(initialTableState, omitUndefined({ pagination }))),
-    state: {
-      rowSelection,
-    },
+    initialState: mediaInitialTableState,
+    state: mediaTableState,
     autoResetPageIndex: false,
     getRowId: getFileId,
     getRowCanExpand: () => false,
@@ -271,27 +269,27 @@ function SubtitleFiles({
     page: tableState.pagination.pageIndex + 1,
   })
   function handleRowSelectionChange(...[checked, row, mode]: Parameters<RowSelectionChangeFn<SubtitleData>>) {
-    setMediaSubtitleState((prev) => {
+    setMediaSubtitleState(({ tableState }) => {
       if (mode === 'singleRow') {
-        prev.rowSelection = {}
+        tableState.rowSelection = {}
       } else if (mode === 'singleSubRow') {
         const subRows = row.getParentRow()?.subRows ?? []
         subRows.forEach(({ id }) => {
-          prev.rowSelection[id] = false
+          tableState.rowSelection[id] = false
         })
       }
-      prev.rowSelection[row.id] = Boolean(checked)
+      tableState.rowSelection[row.id] = Boolean(checked)
     })
   }
   useUnmountEffect(() => {
     setMediaSubtitleState((draft) => {
-      draft.pagination = tableState.pagination
+      draft.initialTableState = table.getState()
     })
   })
   return (
-    <>
-      <>
-        <>
+    <Fragment>
+      <Fragment>
+        <Fragment>
           <div
             ref={rootRef}
             className="grow overflow-auto overflow-y-scroll"
@@ -356,8 +354,8 @@ function SubtitleFiles({
               </span>
             </div>
           </div>
-        </>
-      </>
-    </>
+        </Fragment>
+      </Fragment>
+    </Fragment>
   )
 }

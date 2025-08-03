@@ -1,3 +1,4 @@
+import { useStore } from 'jotai'
 import { Trans, useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import IconSolarListCheckBold from '~icons/solar/list-check-bold'
@@ -9,7 +10,6 @@ import { sessionAtom } from '@/atoms/auth'
 import { LoginToast } from '@/components/login-toast'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { transParams } from '@/i18n'
-import { myStore } from '@/store/useVocab'
 
 export function AcquaintAllDialog<T extends TrackedWord>({
   vocabulary,
@@ -18,8 +18,9 @@ export function AcquaintAllDialog<T extends TrackedWord>({
 }) {
   const { t } = useTranslation()
   const { mutateAsync: userWordPhaseMutation } = useUserWordPhaseMutation()
+  const store = useStore()
   const acquaintAllVocab = (rows: T[]) => {
-    if (!myStore.get(sessionAtom)?.user) {
+    if (!store.get(sessionAtom)?.user) {
       toast(<LoginToast />)
       return
     }

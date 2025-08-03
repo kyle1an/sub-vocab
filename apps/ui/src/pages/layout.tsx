@@ -1,6 +1,7 @@
+import { useColorScheme } from '@mui/joy/styles'
+
 import './globals.css'
 
-import { useColorScheme } from '@mui/joy/styles'
 import { useIsomorphicLayoutEffect } from '@react-hookz/web'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Analytics } from '@vercel/analytics/react'
@@ -11,11 +12,11 @@ import { atom, useAtom } from 'jotai'
 import { DevTools } from 'jotai-devtools'
 import css from 'jotai-devtools/styles.css?inline'
 import { atomWithStorage } from 'jotai/utils'
-import { Suspense, useEffect, useRef } from 'react'
+import { Fragment, Suspense, useEffect, useRef } from 'react'
 import { Outlet } from 'react-router'
 import { useCallbackOne as useStableCallback } from 'use-memo-one'
 
-import { useVocabRealtimeSync } from '@/api/vocab-api'
+import { useVocabularySubscription } from '@/api/vocab-api'
 import { authChangeEventAtom, sessionAtom } from '@/atoms/auth'
 import { isDarkModeAtom } from '@/atoms/ui'
 import { AppSidebar } from '@/components/app-sidebar'
@@ -28,7 +29,6 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { useAtomEffect } from '@/hooks/useAtomEffect'
 import { useStyleObserver } from '@/hooks/useStyleObserver'
 import { supabaseAuth } from '@/lib/supabase'
-import { normalizeThemeColor } from '@/lib/utilities'
 import { bodyBgColorAtom, mainBgColorAtom, myStore, prefersDarkAtom } from '@/store/useVocab'
 import devtoolsCss from '@/styles/devtools.css?inline'
 
@@ -54,8 +54,13 @@ function useAppEffects() {
       subscription.unsubscribe()
     }
   }, [])
+  useStyleObserver(document.body, (values) => {
+    myStore.set(bodyBgColorAtom, values['background-color'].value)
+  }, {
+    properties: ['background-color'],
+  })
   useAtomEffect(useStableCallback((get) => {
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', normalizeThemeColor(get(metaThemeColorAtom)))
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', get(metaThemeColorAtom))
   }, []))
   {
     const isDarkOS = useMediaQuery('(prefers-color-scheme: dark)')
@@ -73,11 +78,6 @@ function useAppEffects() {
   useAtomEffect(useStableCallback((get) => {
     document.documentElement.classList.toggle('dark', get(isDarkModeAtom))
   }, []))
-  useStyleObserver(document.body, (values) => {
-    myStore.set(bodyBgColorAtom, values['background-color'].value)
-  }, {
-    properties: ['background-color'],
-  })
 }
 
 function Header() {
@@ -100,14 +100,14 @@ function Header() {
 
 export default function Root() {
   const ref = useRef<HTMLDivElement>(null)
-  useAppEffects()
   useStyleObserver(ref, (values) => {
     myStore.set(mainBgColorAtom, values['background-color'].value || LIGHT_THEME_COLOR)
   }, {
     properties: ['background-color'],
   })
+  useAppEffects()
   const [isDarkMode] = useAtom(isDarkModeAtom)
-  useVocabRealtimeSync()
+  useVocabularySubscription()
 
   return (
     <SidebarProvider
@@ -129,19 +129,19 @@ export default function Root() {
       </Suspense>
       <ReactQueryDevtools initialIsOpen={false} />
       {import.meta.env.PROD ? (
-        <>
+        <Fragment>
           <SpeedInsights />
           <Analytics />
-        </>
+        </Fragment>
       ) : import.meta.env.DEV ? (
-        <>
+        <Fragment>
           <style>{css}</style>
           <style>{devtoolsCss}</style>
           <DevTools
             store={myStore}
             theme={isDarkMode ? 'dark' : 'light'}
           />
-        </>
+        </Fragment>
       ) : null}
     </SidebarProvider>
   )

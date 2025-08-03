@@ -267,8 +267,8 @@ function SidebarTrigger({
       size="icon"
       className={cn('size-7', className)}
       onClick={(event) => {
-        onClick?.(event)
         toggleSidebar()
+        onClick?.(event)
       }}
       {...props}
     >
@@ -529,8 +529,8 @@ function SidebarMenuButton({
       className={cn('grow', sidebarMenuButtonVariants({ variant, size }), className)}
       // https://github.com/shadcn-ui/ui/issues/5561#issuecomment-2461329627
       onClick={(event) => {
-        onClick?.(event)
         setOpenMobile(false)
+        onClick?.(event)
       }}
       {...props}
     />
@@ -711,8 +711,8 @@ function SidebarMenuSubButton({
       )}
       // https://github.com/shadcn-ui/ui/issues/5561#issuecomment-2461329627
       onClick={(event) => {
-        onClick?.(event)
         setOpenMobile(false)
+        onClick?.(event)
       }}
       {...props}
     />

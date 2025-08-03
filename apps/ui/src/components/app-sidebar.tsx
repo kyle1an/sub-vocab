@@ -1,5 +1,6 @@
 import { useAtom } from 'jotai'
 import { Home } from 'lucide-react'
+import { Fragment } from 'react'
 import * as React from 'react'
 import AkarIconsKey from '~icons/akar-icons/key'
 import IconBiGithub from '~icons/bi/github'
@@ -83,10 +84,10 @@ export function AppSidebar({ className, ...props }: React.ComponentProps<typeof 
       </div>
       <SidebarContent className="p-2">
         <NavMain items={data.navSecondary} />
-        {user ? (<>
+        {user ? (<Fragment>
           <Separator className="min-h-px shrink" />
           <NavMain items={accountNav} />
-        </>) : null}
+        </Fragment>) : null}
       </SidebarContent>
       <div className="flex w-full">
         <Separator className="mx-3 shrink" />

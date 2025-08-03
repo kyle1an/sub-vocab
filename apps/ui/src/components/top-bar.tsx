@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query'
 import clsx from 'clsx'
 import { Console, Effect } from 'effect'
 import { useAtom } from 'jotai'
-import { useTransition } from 'react'
+import { Fragment, useTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
@@ -122,8 +122,8 @@ export function TopBar({ className }: { className?: string }) {
           'group/nav z-20 w-full rounded-t-3xl bg-background',
         )}
       >
-        <>
-          <>
+        <Fragment>
+          <Fragment>
             <div>
               <div>
                 <div className="flex h-11 items-center justify-between">
@@ -225,7 +225,7 @@ export function TopBar({ className }: { className?: string }) {
                           align="end"
                         >
                           {user ? (
-                            <>
+                            <Fragment>
                               <DropdownMenuLabel>
                                 {account}
                               </DropdownMenuLabel>
@@ -235,9 +235,9 @@ export function TopBar({ className }: { className?: string }) {
                                   <SignOut />
                                 </DropdownMenuItem>
                               </DropdownMenuGroup>
-                            </>
+                            </Fragment>
                           ) : (
-                            <>
+                            <Fragment>
                               <DropdownMenuGroup>
                                 <DropdownMenuItem>
                                   <Account />
@@ -249,7 +249,7 @@ export function TopBar({ className }: { className?: string }) {
                                   <SignIn />
                                 </DropdownMenuItem>
                               </DropdownMenuGroup>
-                            </>
+                            </Fragment>
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -258,8 +258,8 @@ export function TopBar({ className }: { className?: string }) {
                 </div>
               </div>
             </div>
-          </>
-        </>
+          </Fragment>
+        </Fragment>
       </nav>
     </div>
   )

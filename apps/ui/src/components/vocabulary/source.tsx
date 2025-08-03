@@ -15,8 +15,8 @@ import {
 import { TRPCClientError } from '@trpc/client'
 import clsx from 'clsx'
 import { Effect, identity } from 'effect'
-import { useAtom, useAtomValue } from 'jotai'
-import { atomWithImmer } from 'jotai-immer'
+import { atom, useAtom, useAtomValue } from 'jotai'
+import { useImmerAtom } from 'jotai-immer'
 import { atomWithStorage } from 'jotai/utils'
 import { startTransition, useDeferredValue, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -62,7 +62,7 @@ type TableData = VocabularySourceState & {
 /// keep-unique
 const PAGE_SIZES = [10, 20, 40, 50, 100, 200, 500, 1000] as const
 
-const cacheStateAtom = atomWithImmer({
+const cacheStateAtom = atom({
   isUsingRegex: false,
   searchValue: '',
   initialTableState: identity<InitialTableState>({
@@ -223,7 +223,7 @@ export function VocabSourceTable({
   'use no memo'
   const [categoryAtomValue, setCategoryAtom] = useAtom(categoryAtom)
   const { t } = useTranslation()
-  const [{ initialTableState, isUsingRegex, searchValue, filterValue }, setCacheState] = useAtom(cacheStateAtom)
+  const [{ initialTableState, isUsingRegex, searchValue, filterValue }, setCacheState] = useImmerAtom(cacheStateAtom)
   const deferredSearchValue = useDeferredValue(searchValue)
   const deferredIsUsingRegex = useDeferredValue(isUsingRegex)
   const tbodyRef = useRef<HTMLTableSectionElement>(null)

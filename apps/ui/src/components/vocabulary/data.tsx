@@ -25,8 +25,8 @@ import type { LearningPhase } from '@/lib/LexiconTrie'
 import type { ColumnFilterFn } from '@/lib/table-utils'
 import type { VocabularySourceState } from '@/lib/vocab'
 
-import { statusLabels, userVocabularyAtom } from '@/api/vocab-api'
-import { vocabRealtimeSyncStatusAtom } from '@/atoms/vocabulary'
+import { STATUS_LABELS, userVocabularyAtom } from '@/api/vocab-api'
+import { vocabSubscriptionAtom } from '@/atoms/vocabulary'
 import { TableGoToLastPage } from '@/components/my-table/go-to-last-page'
 import { TablePagination } from '@/components/my-table/pagination'
 import { TablePaginationSizeSelect } from '@/components/my-table/pagination-size-select'
@@ -249,7 +249,7 @@ export function VocabDataTable({
     })
   })
   const isStale = segment !== segmentDeferredValue || searchValue !== deferredSearchValue || isUsingRegex !== deferredIsUsingRegex
-  const [vocabRealtimeSubscribeState] = useAtom(vocabRealtimeSyncStatusAtom)
+  const [vocabRealtimeSubscribeState] = useAtom(vocabSubscriptionAtom)
 
   return (
     <div className={cn('flex h-full flex-col items-center overflow-hidden bg-background will-change-transform', className)}>
@@ -291,7 +291,7 @@ export function VocabDataTable({
                 className="size-3.5"
               />
               <div>
-                {getFallBack(vocabRealtimeSubscribeState ?? '', statusLabels)}
+                {getFallBack(vocabRealtimeSubscribeState ?? '', STATUS_LABELS)}
               </div>
             </DropdownMenuItem>
             <DropdownMenuItem

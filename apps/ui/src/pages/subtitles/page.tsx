@@ -11,10 +11,10 @@ import { Duration, identity } from 'effect'
 import { uniqBy } from 'es-toolkit'
 import { useDebouncedValue } from 'foxact/use-debounced-value'
 import { produce } from 'immer'
-import { useAtom, useSetAtom } from 'jotai'
-import { atomWithImmer } from 'jotai-immer'
+import { atom, useAtom, useAtomValue, useSetAtom, useStore } from 'jotai'
+import { useImmerAtom } from 'jotai-immer'
 import { atomWithStorage } from 'jotai/utils'
-import { startTransition, useRef } from 'react'
+import { Fragment, startTransition, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
@@ -31,7 +31,7 @@ import IconOuiTokenKey from '~icons/oui/token-key'
 import type { Download } from '@/api/opensubtitles'
 import type { paths as PathsThemoviedb } from '@/types/schema/themoviedb'
 
-import { $osApi, useOpenSubtitlesDownload, useOpenSubtitlesText } from '@/api/opensubtitles'
+import { $osApi, openSubtitlesDownloadAtom, openSubtitlesTextAtom } from '@/api/opensubtitles'
 import { $api } from '@/api/tmdb'
 import { fileIdsAtom, mediaSubtitleAtomFamily } from '@/atoms/subtitles'
 import { fileInfoAtom, sourceTextAtom } from '@/atoms/vocabulary'
@@ -51,7 +51,7 @@ import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { filterFn } from '@/lib/table-utils'
 import { findClosest } from '@/lib/utilities'
-import { myStore, osLanguageAtom } from '@/store/useVocab'
+import { osLanguageAtom } from '@/store/useVocab'
 
 const mediaSearchAtom = atomWithStorage('mediaSearchAtom', '')
 
@@ -65,7 +65,7 @@ type TableData = NonNullable<PathsThemoviedb['/3/search/multi']['get']['response
 /// keep-unique
 const PAGE_SIZES = [5, 10, 20] as const
 
-const cacheStateAtom = atomWithImmer({
+const cacheStateAtom = atom({
   initialTableState: identity<InitialTableState>({
     pagination: {
       pageSize: findClosest(100, PAGE_SIZES),
@@ -316,7 +316,7 @@ function useColumns<T extends TableData>() {
                   </span>
                 </Div>
               ) : (
-                <></>
+                <Fragment></Fragment>
               )
             }
           </TableDataCell>
@@ -371,10 +371,11 @@ function useColumns<T extends TableData>() {
 export default function Subtitles() {
   // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
-  const { isPending: isDownloadPending, mutateAsync: downloadText } = useOpenSubtitlesText()
-  const { isPending: isFileDownloadPending, mutateAsync: downloadFile } = useOpenSubtitlesDownload()
+  const store = useStore()
+  const { isPending: isDownloadPending, mutateAsync: downloadText } = useAtomValue(openSubtitlesTextAtom)
+  const { isPending: isFileDownloadPending, mutateAsync: downloadFile } = useAtomValue(openSubtitlesDownloadAtom)
   const [query, setQuery] = useAtom(mediaSearchAtom)
-  const [{ initialTableState }, setCacheState] = useAtom(cacheStateAtom)
+  const [{ initialTableState }, setCacheState] = useImmerAtom(cacheStateAtom)
   const debouncedQuery = useDebouncedValue(query, 500)
   const columns = useColumns()
   const setFileInfo = useSetAtom(fileInfoAtom)
@@ -479,9 +480,9 @@ export default function Subtitles() {
   }
 
   function clearSelection() {
-    [...mediaSubtitleAtomFamily.getParams()].forEach((key) => {
-      myStore.set(mediaSubtitleAtomFamily(key), produce((mediaState) => {
-        mediaState.rowSelection = {}
+    Array.from(mediaSubtitleAtomFamily.getParams(), mediaSubtitleAtomFamily).forEach((a) => {
+      store.set(a, produce(({ tableState }) => {
+        tableState.rowSelection = {}
       }))
     })
   }

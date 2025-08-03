@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.3.0",
   "private": true,
-  "packageManager": "pnpm@10.13.1",
+  "packageManager": "pnpm@10.14.0",
   "description": "",
   "scripts": {
     "backend": "pnpm --filter @sub-vocab/backend",
@@ -17,7 +17,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.53.0",
     "date-fns": "^4.1.0",
-    "effect": "^3.17.4",
+    "effect": "^3.17.6",
     "es-toolkit": "^1.39.8",
     "eslint-typegen": "^2.3.0",
     "ts-toolbelt": "^9.6.0",
@@ -25,18 +25,19 @@
     "zod": "^4.0.14"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^5.0.0",
-    "@effect/language-service": "^0.32.0",
+    "@antfu/eslint-config": "^5.1.0",
+    "@effect/language-service": "^0.34.0",
     "@eslint/eslintrc": "^3.3.1",
     "@stylistic/eslint-plugin": "^5.2.2",
     "@t3-oss/env-core": "^0.13.8",
     "@total-typescript/ts-reset": "^0.6.1",
-    "@types/node": "^24.1.0",
+    "@types/node": "^24.2.0",
     "eslint": "^9.32.0",
     "eslint-plugin-command": "^3.3.1",
-    "eslint-plugin-de-morgan": "^1.3.0",
+    "eslint-plugin-de-morgan": "^1.3.1",
     "eslint-plugin-jsonc": "^2.20.1",
     "eslint-plugin-package-json": "^0.48.0",
+    "eslint-plugin-react-hooks": "0.0.0-experimental-e6dc25da-20250709",
     "jsonc-eslint-parser": "^2.4.0",
     "openapi-typescript": "^7.8.0",
     "pathe": "^2.0.3",
@@ -44,7 +45,7 @@
     "taze": "^19.1.0",
     "ts-node": "^10.9.2",
     "ts-patch": "^3.3.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "pnpm": {
     "overrides": {
@@ -52,6 +53,7 @@
       "@vercel/node>typescript": "$typescript",
       "array-flatten": "npm:@nolyfill/array-flatten@^1.0.44",
       "es-set-tostringtag": "npm:@nolyfill/es-set-tostringtag@^1.0.44",
+      "eslint-plugin-react-hooks": "$eslint-plugin-react-hooks",
       "hasown": "npm:@nolyfill/hasown@^1.0.44",
       "is-arguments": "npm:@nolyfill/is-arguments@^1.0.44",
       "is-core-module": "npm:@nolyfill/is-core-module@^1.0.39",

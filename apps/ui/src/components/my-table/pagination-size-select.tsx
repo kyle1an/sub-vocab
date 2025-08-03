@@ -1,6 +1,7 @@
 import type { Table } from '@tanstack/react-table'
 
 import { uniq } from 'es-toolkit'
+import { Fragment } from 'react'
 
 import { Select, SelectContent, SelectGroup, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select'
 
@@ -47,7 +48,7 @@ export function TablePaginationSizeSelect<T>({
           ))}
         </SelectGroup>
         {![...sizes, ...itemsNum].includes(pageSize) ? (
-          <>
+          <Fragment>
             <SelectSeparator />
             <SelectGroup>
               {[pageSize].map((size) => (
@@ -57,10 +58,10 @@ export function TablePaginationSizeSelect<T>({
                 />
               ))}
             </SelectGroup>
-          </>
+          </Fragment>
         ) : null}
         {itemsNum.length > 0 ? (
-          <>
+          <Fragment>
             <SelectSeparator />
             <SelectGroup>
               {itemsNum.map((size) => (
@@ -70,7 +71,7 @@ export function TablePaginationSizeSelect<T>({
                 />
               ))}
             </SelectGroup>
-          </>
+          </Fragment>
         ) : null}
       </SelectContent>
     </Select>

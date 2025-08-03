@@ -1,7 +1,7 @@
 import CircularProgress from '@mui/joy/CircularProgress'
 import NumberFlow from '@number-flow/react'
 import clsx from 'clsx'
-import { useDeferredValue, useEffect, useState } from 'react'
+import { Fragment, useDeferredValue, useEffect, useState } from 'react'
 import IconLucideCheckCircle from '~icons/lucide/check-circle'
 import IconLucideCircle from '~icons/lucide/circle'
 
@@ -41,7 +41,7 @@ export function VocabStatics({
         </span>
       </span>
       <div className="flex items-center gap-0.5">
-        <>
+        <Fragment>
           <div className={clsx(
             'flex items-center gap-2.5',
             remaining > 0 ? '' : 'hidden',
@@ -62,8 +62,8 @@ export function VocabStatics({
               />
             </div>
           </div>
-        </>
-        <>
+        </Fragment>
+        <Fragment>
           <div
             className={clsx(
               'flex items-center gap-2.5',
@@ -85,7 +85,7 @@ export function VocabStatics({
               />
             </div>
           </div>
-        </>
+        </Fragment>
         {progress ? (
           <div className="flex items-center gap-0.5 pl-1">
             <span className="text-neutral-300 dark:text-neutral-600">(</span>

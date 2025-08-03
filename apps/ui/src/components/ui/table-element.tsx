@@ -7,7 +7,6 @@ import { flexRender } from '@tanstack/react-table'
 import clsx from 'clsx'
 import { Duration } from 'effect'
 import { sum } from 'es-toolkit'
-import { useRetimer } from 'foxact/use-retimer'
 import React, { Fragment, useRef, useState } from 'react'
 
 import type { DivProps } from '@/components/ui/html-elements'
@@ -16,6 +15,7 @@ import type { GroupHeader } from '@/types/vocab'
 
 import { SortIcon } from '@/components/my-icon/sort-icon'
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
+import { useRetimer } from '@/hooks/useRetimer'
 import { useRect } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
 
@@ -52,12 +52,12 @@ export function TableHeaderCellRender<T>({ header }: { header: GroupHeader<T> })
     header.isPlaceholder ? (
       <TableHeaderCell header={header} />
     ) : (
-      <>
+      <Fragment>
         {flexRender(
           header.column.columnDef.header,
           header.getContext(),
         )}
-      </>
+      </Fragment>
     )
   )
 }
@@ -176,7 +176,6 @@ export function TableRow<T>({
   const { height: rowHeight } = useRect(rowRef)
   const detailRef = useRef<HTMLTableRowElement>(null)
   const detailElement = detailRef.current
-  const root = rootRef?.current
   const [open, setOpen] = useState(getIsExpanded)
   const [animationOpen, setAnimationOpen] = useState(false)
   const retimerAnim = useRetimer()
@@ -197,10 +196,11 @@ export function TableRow<T>({
       })
     }
     if (isOpening) {
-      retimerAnim(setTimeout(() => setAnimationOpen(false), ANIM_DURATION))
+      retimerAnim(ANIM_DURATION, () => setAnimationOpen(false))
     }
 
-    retimerTransition(setTimeout(() => setTransitionOpen(false), SHADOW_DURATION))
+    retimerTransition(SHADOW_DURATION, () => setTransitionOpen(false))
+    const root = rootRef?.current
     const rowElement = rowRef.current
     if (root && rowElement) {
       if (rowElement.getBoundingClientRect().y - root.getBoundingClientRect().y <= HEAD_HEIGHT) {
@@ -253,7 +253,7 @@ export function TableRow<T>({
     rowZIndex += subRows.length + 1
   }
   return (
-    <>
+    <Fragment>
       <tr
         ref={rowRef}
         id={id}
@@ -311,6 +311,6 @@ export function TableRow<T>({
           ) : null}
         </tr>
       ) : null}
-    </>
+    </Fragment>
   )
 }

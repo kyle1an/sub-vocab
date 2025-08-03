@@ -1,5 +1,6 @@
 import type { Table } from '@tanstack/react-table'
 
+import { Fragment } from 'react'
 import MaterialSymbolsLightArrowBack2Outline from '~icons/material-symbols-light/arrow-back-2-outline'
 
 import { Button } from '@/components/ui/button'
@@ -18,7 +19,7 @@ export function TableGoToLastPage<T>({
   }
 
   return (
-    <>
+    <Fragment>
       {canNavigateToLastPage ? (
         <div
           style={{
@@ -37,6 +38,6 @@ export function TableGoToLastPage<T>({
           </Button>
         </div>
       ) : null}
-    </>
+    </Fragment>
   )
 }

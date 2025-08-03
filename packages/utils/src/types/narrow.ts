@@ -1,3 +1,3 @@
-import type { F } from 'ts-toolbelt'
+import type { NarrowRaw } from '@sub-vocab/shared-types/types'
 
-export const narrow = <T>(t: F.Narrow<T>) => t
+export const narrow = <T>(t: NarrowRaw<T>) => t

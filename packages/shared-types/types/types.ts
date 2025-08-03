@@ -9,3 +9,11 @@ export type Entry<T> = NonNullable<{
 }[keyof T]>
 
 export type LooseAutocomplete<T extends string> = T | (string & {})
+
+export type AnyFunc = (...args: any) => any
+
+// from ts-toolbelt `F.Narrow`
+type Narrowable = string | number | bigint | boolean
+export type NarrowRaw<A> = (A extends [] ? [] : never) | (A extends Narrowable ? A : never) | ({
+  [K in keyof A]: A[K] extends AnyFunc ? A[K] : NarrowRaw<A[K]>;
+})
