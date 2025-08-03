@@ -1,8 +1,10 @@
+import type { ExtractAtomValue } from 'jotai'
 import type { PartialDeep } from 'type-fest'
 
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import { queryOptions } from '@tanstack/react-query'
 import { Duration, identity } from 'effect'
-import { atom, useAtomValue } from 'jotai'
+import { atom } from 'jotai'
+import { atomWithMutation, atomWithQuery } from 'jotai-tanstack-query'
 import { atomWithStorage } from 'jotai/utils'
 import { ofetch } from 'ofetch'
 import createFetchClient from 'openapi-fetch'
@@ -60,8 +62,8 @@ export type Subtitles = {
   Response: paths['/discover/most_downloaded']['get']['responses'][200]['content']['application/json']
 }
 
-export const useOpenSubtitlesQueryOptions = () => {
-  const { baseUrl, headers } = useAtomValue(opensubtitlesReqAtom)
+export const openSubtitlesQueryOptionsAtom = atom((get) => {
+  const { baseUrl, headers } = get(opensubtitlesReqAtom)
   return (query: Subtitles['Query']) => {
     // https://opensubtitles.stoplight.io/docs/opensubtitles-api/6ef2e232095c7-best-practices
     const sortedQuery = Object.fromEntries(Object.entries(query).sort())
@@ -76,14 +78,11 @@ export const useOpenSubtitlesQueryOptions = () => {
       select: (data) => data.data,
     })
   }
-}
+})
 
-export function useOpenSubtitlesSubtitles(query: Subtitles['Query']) {
-  const openSubtitlesQueryOptions = useOpenSubtitlesQueryOptions()
-  return useQuery(openSubtitlesQueryOptions(query))
-}
+export const openSubtitlesSubtitlesAtom = (query: Subtitles['Query']) => atomWithQuery((get) => get(openSubtitlesQueryOptionsAtom)(query))
 
-export type SubtitleResponseData = NonNullable<ReturnType<typeof useOpenSubtitlesSubtitles>['data']>[number]
+export type SubtitleResponseData = NonNullable<ExtractAtomValue<ReturnType<typeof openSubtitlesSubtitlesAtom>>['data']>[number]
 
 /*
   * https://opensubtitles.stoplight.io/docs/opensubtitles-api/73acf79accc0a-login
@@ -121,46 +120,42 @@ const withNormalPriorityOsQueue = <A extends any[], R>(f: (...a: A) => R) => (..
   })
 }
 
-function useRequestSubtitleURL() {
-  const { baseUrl } = useAtomValue(opensubtitlesReqAtom)
-  const Authorization = useAtomValue(opensubtitlesAuthorizationAtom)
-  return useMutation({
+const requestSubtitleURLAtom = atomWithMutation((get) => {
+  return {
     mutationKey: ['requestSubtitleDownloadURL'],
-    mutationFn: (body: Download['Body']) => ofetch<Download['Response']>(`${baseUrl}/download`, {
+    mutationFn: (body: Download['Body']) => ofetch<Download['Response']>(`${get(opensubtitlesReqAtom).baseUrl}/download`, {
       method: 'POST',
       body,
       headers: omitUndefined({
-        Authorization,
+        Authorization: get(opensubtitlesAuthorizationAtom),
       }),
     }),
     retry: 4,
-  })
-}
+  }
+})
 
-function useGetFileByLink() {
-  return useMutation({
+const fileAtom = atomWithMutation(() => {
+  return {
     mutationKey: ['getFileByLink'] as const,
     mutationFn: identity(bindApply(ofetch<string, 'text'>)),
     retry: 4,
-  })
-}
+  }
+})
 
-function useDownloadFileByLink() {
-  return useMutation({
+const downloadFileByLinkAtom = atomWithMutation(() => {
+  return {
     mutationKey: ['useDownloadFileByLink'] as const,
     mutationFn: identity(bindApply(downloadFile)),
     retry: 4,
-  })
-}
+  }
+})
 
-export function useOpenSubtitlesText() {
-  const { mutateAsync: requestSubtitleURL } = useRequestSubtitleURL()
-  const { mutateAsync: getFileByLink } = useGetFileByLink()
-  return useMutation({
+export const openSubtitlesTextAtom = atomWithMutation((get) => {
+  return ({
     mutationKey: ['useOpenSubtitlesText'] as const,
     mutationFn: async (body: Download['Body']) => {
-      const file = await withHighPriorityOsQueue(requestSubtitleURL)(body)
-      const text = await withNormalPriorityOsQueue(getFileByLink)([file.link, { responseType: 'text' }])
+      const file = await withHighPriorityOsQueue(get(requestSubtitleURLAtom).mutateAsync)(body)
+      const text = await withNormalPriorityOsQueue(get(fileAtom).mutateAsync)([file.link, { responseType: 'text' }])
       return {
         file,
         text,
@@ -168,17 +163,15 @@ export function useOpenSubtitlesText() {
     },
     retry: 4,
   })
-}
+})
 
-export function useOpenSubtitlesDownload() {
-  const { mutateAsync: requestSubtitleURL } = useRequestSubtitleURL()
-  const { mutateAsync: downloadFileByLink } = useDownloadFileByLink()
-  return useMutation({
+export const openSubtitlesDownloadAtom = atomWithMutation((get) => {
+  return ({
     mutationKey: ['useOpenSubtitlesDownload'] as const,
     mutationFn: async (body: Download['Body']) => {
-      const file = await withHighPriorityOsQueue(requestSubtitleURL)(body)
-      await withNormalPriorityOsQueue(downloadFileByLink)([file.link, file.file_name])
+      const file = await withHighPriorityOsQueue(get(requestSubtitleURLAtom).mutateAsync)(body)
+      await withNormalPriorityOsQueue(get(downloadFileByLinkAtom).mutateAsync)([file.link, file.file_name])
     },
     retry: 4,
   })
-}
+})

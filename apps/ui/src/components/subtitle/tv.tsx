@@ -7,11 +7,12 @@ import { useQueries, useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import clsx from 'clsx'
 import { addMinutes, formatDuration, getYear, intervalToDuration } from 'date-fns'
-import { maxBy, merge, sum } from 'es-toolkit'
+import { pipe } from 'effect'
+import { maxBy, sum } from 'es-toolkit'
 import { produce } from 'immer'
-import { useAtom } from 'jotai'
+import { useAtom, useAtomValue, useStore } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
-import { useRef } from 'react'
+import { Fragment, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import IconLucideChevronRight from '~icons/lucide/chevron-right'
 
@@ -22,9 +23,10 @@ import type { ColumnFilterFn } from '@/lib/table-utils'
 import type { paths } from '@/types/schema/themoviedb'
 import type { RowSelectionChangeFn } from '@/types/utils'
 
-import { osSessionAtom, useOpenSubtitlesQueryOptions } from '@/api/opensubtitles'
+import { openSubtitlesQueryOptionsAtom, osSessionAtom } from '@/api/opensubtitles'
 import { $api } from '@/api/tmdb'
-import { mediaSubtitleAtomFamily } from '@/atoms/subtitles'
+import { buildMediaSubtitleState, mediaSubtitleAtomFamily } from '@/atoms/subtitles'
+import { useFamily } from '@/atoms/utils'
 import { SortIcon } from '@/components/my-icon/sort-icon'
 import { TableGoToLastPage } from '@/components/my-table/go-to-last-page'
 import { TablePagination } from '@/components/my-table/pagination'
@@ -41,8 +43,9 @@ import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
 import { customFormatDistance, formatIntervalLocale } from '@/lib/date-utils'
 import { getFileId } from '@/lib/subtitle'
 import { filterFn, noFilter, sortBySelection } from '@/lib/table-utils'
-import { findClosest, naturalNumLength, omitUndefined } from '@/lib/utilities'
-import { myStore, osLanguageAtom } from '@/store/useVocab'
+import { findClosest, naturalNumLength } from '@/lib/utilities'
+import { osLanguageAtom } from '@/store/useVocab'
+import { isNonEmptyArray } from '@sub-vocab/utils/lib'
 
 type ExpandableRow<T> = T & { subRows?: T[] }
 
@@ -55,6 +58,7 @@ type RowData = ExpandableRow<TVSubtitleData>
 function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber = 0, root: React.RefObject<HTMLDivElement | null>, tbody: React.RefObject<HTMLTableSectionElement | null>) {
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
+  const store = useStore()
   const [osSession] = useAtom(osSessionAtom)
   return [
     columnHelper.accessor((row) => {
@@ -124,13 +128,13 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
                     className="child"
                     onClick={(e) => {
                       e.stopPropagation()
-                      myStore.set(mediaSubtitleAtomFamily(mediaId), produce((state) => {
+                      store.set(mediaSubtitleAtomFamily({ key: mediaId }), produce(({ tableState }) => {
                         parentRows.forEach(({ subRows, id }) => {
                           if (subRows.length === 0) {
-                            state.rowSelection[id] = !checked
+                            tableState.rowSelection[id] = !checked
                           } else {
                             subRows.forEach(({ id }, index) => {
-                              state.rowSelection[id] = !checked && index === 0
+                              tableState.rowSelection[id] = !checked && index === 0
                             })
                           }
                         })
@@ -281,7 +285,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
         const ref = useRef<HTMLDivElement>(null)
         const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
         /* eslint-enable react-compiler/react-compiler */
-        let element = <></>
+        let element = <Fragment></Fragment>
         if (row.depth === 0) {
           const value = getValue()
           element = (
@@ -408,51 +412,40 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
 /// keep-unique
 const PAGE_SIZES = [5, 6, 10, 20, 40, 50, 100, 200] as const
 
-const initialTableState: InitialTableState = {
-  sorting: [
-    {
-      id: 'season_episode',
-      desc: false,
-    },
-  ],
-  columnOrder: ['action', 'year', 'season_episode', 'movie_name', 'runtime', 'language', 'upload_date', 'download_count'],
-  pagination: {
-    pageSize: findClosest(10, PAGE_SIZES),
-    pageIndex: 0,
-  },
-}
-
 type Season = paths['/3/tv/{series_id}/season/{season_number}']['get']['responses'][200]['content']['application/json']
 
 function subtitleEpisodeData(subtitles: Subtitles['Response']['data'], episodes: Season['episodes'] = []) {
-  const subtitleRows = subtitles.map((subtitle) => {
-    const { season_number, episode_number } = subtitle.attributes.feature_details
-    const media = episodes.find((episode) => episode.episode_number === episode_number && episode.season_number === season_number)
-    return {
-      media,
-      subtitle,
-    }
-  }).filter((row) => {
-    const { season_number, episode_number } = row.subtitle.attributes.feature_details
-    return season_number && episode_number
-  })
-  const episodeGroup = Object.groupBy(subtitleRows, (row) => {
-    const { season_number, episode_number } = row.subtitle.attributes.feature_details
-    return `${season_number}0${episode_number}`
-  })
-  return Object.values(episodeGroup).map((group) => {
-    if (group?.[0]) {
-      group.sort((a, b) => b.subtitle.attributes.download_count - a.subtitle.attributes.download_count)
-      const [parent] = group
-      const { season_number, episode_number } = parent.subtitle.attributes.feature_details
-      return {
-        ...parent,
-        '~rowId': `${season_number}0${episode_number}`,
-        subRows: group,
-      }
-    }
-    return undefined
-  }).filter(Boolean)
+  return pipe(
+    subtitles
+      .map((subtitle) => {
+        const { season_number, episode_number } = subtitle.attributes.feature_details
+        if (season_number && episode_number) {
+          return {
+            media: episodes.find((episode) => episode.episode_number === episode_number && episode.season_number === season_number),
+            subtitle,
+          }
+        }
+        return undefined
+      })
+      .filter(Boolean),
+    (v) => Object.groupBy(v, ({ subtitle }) => {
+      const { season_number, episode_number } = subtitle.attributes.feature_details
+      return `${season_number}0${episode_number}`
+    }),
+    (v) => Object.values(v)
+      .filter(Boolean)
+      .filter(isNonEmptyArray)
+      .map((group) => {
+        group.sort((a, b) => b.subtitle.attributes.download_count - a.subtitle.attributes.download_count)
+        const [parent] = group
+        const { season_number, episode_number } = parent.subtitle.attributes.feature_details
+        return {
+          ...parent,
+          '~rowId': `${season_number}0${episode_number}`,
+          subRows: group,
+        }
+      }),
+  )
 }
 
 function episodeFilter(filterEpisode: string): ColumnFilterFn<RowData> {
@@ -506,7 +499,7 @@ export function TVSubtitleFiles({
     },
   })
   const totalEpisodes = sum(seasons.map((season) => season.episode_count))
-  const openSubtitlesQueryOptions = useOpenSubtitlesQueryOptions()
+  const openSubtitlesQueryOptions = useAtomValue(openSubtitlesQueryOptionsAtom)
   const [language] = useAtom(osLanguageAtom)
   const { data: subtitles, isPending: isSubtitlesPending, refetchAll } = useQueries({
     queries: seasons.map((season) => {
@@ -536,13 +529,29 @@ export function TVSubtitleFiles({
   const tvColumns = useTVColumns(id, highestEpisodeNumber, rootRef, tbodyRef)
   const columns = [...commonColumns, ...tvColumns]
   const dataRows = subtitleEpisodeData(subtitles, episodes)
-  const [{ rowSelection, pagination, episodeFilter: filterEpisode = 'all' }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleAtomFamily(id))
+  const [{ episodeFilter: filterEpisode = 'all', initialTableState: mediaInitialTableState, tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(useFamily(mediaSubtitleAtomFamily, {
+    key: id,
+    initialValue: buildMediaSubtitleState({
+      initialTableState: {
+        sorting: [
+          {
+            id: 'season_episode',
+            desc: false,
+          },
+        ],
+        columnOrder: ['action', 'year', 'season_episode', 'movie_name', 'runtime', 'language', 'upload_date', 'download_count'],
+        pagination: {
+          pageSize: findClosest(10, PAGE_SIZES),
+        },
+      } satisfies InitialTableState,
+    }),
+  }))
   const table = useReactTable({
     data: dataRows,
     columns,
-    initialState: omitUndefined(merge(initialTableState, omitUndefined({ pagination }))),
+    initialState: mediaInitialTableState,
     state: {
-      rowSelection,
+      ...mediaTableState,
       columnFilters: [
         {
           id: 'season_episode',
@@ -569,27 +578,27 @@ export function TVSubtitleFiles({
   const totalSubtitles = sum(rowsFiltered.map((row) => row.subRows.length))
   const allAvailableRowsMatch = rowsFiltered.length === totalEpisodes
   function handleRowSelectionChange(...[checked, row, mode]: Parameters<RowSelectionChangeFn<SubtitleData>>) {
-    setMediaSubtitleState((prev) => {
+    setMediaSubtitleState(({ tableState }) => {
       if (mode === 'singleRow') {
-        prev.rowSelection = {}
+        tableState.rowSelection = {}
       } else if (mode === 'singleSubRow') {
         const subRows = row.getParentRow()?.subRows ?? []
         subRows.forEach(({ id }) => {
-          prev.rowSelection[id] = false
+          tableState.rowSelection[id] = false
         })
       }
-      prev.rowSelection[row.id] = Boolean(checked)
+      tableState.rowSelection[row.id] = Boolean(checked)
     })
   }
   useUnmountEffect(() => {
     setMediaSubtitleState((draft) => {
-      draft.pagination = tableState.pagination
+      draft.initialTableState = table.getState()
     })
   })
   return (
-    <>
-      <>
-        <>
+    <Fragment>
+      <Fragment>
+        <Fragment>
           <div>
             <div className="flex h-9 gap-1.5 p-1.5">
               <Select
@@ -720,8 +729,8 @@ export function TVSubtitleFiles({
               </span>
             </div>
           </div>
-        </>
-      </>
-    </>
+        </Fragment>
+      </Fragment>
+    </Fragment>
   )
 }

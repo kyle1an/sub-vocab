@@ -1,45 +1,48 @@
-import type { PaginationState, RowSelectionState } from '@tanstack/react-table'
+import type { InitialTableState, RowSelectionState } from '@tanstack/react-table'
 import type { Draft } from 'immer'
 import type { LiteralUnion } from 'type-fest'
 
-import { flow, identity } from 'effect'
-import { produce } from 'immer'
 import { atom } from 'jotai'
-import { withAtomEffect } from 'jotai-effect'
-import { atomFamily } from 'jotai/utils'
 
+import { myAtomFamily } from '@/atoms/utils'
 import { createFactory } from '@sub-vocab/utils/lib'
 
 type Recipe<Base, D = Draft<Base>> = (draft: D) => D | void | undefined
 
 export type MediaSubtitleState = {
-  rowSelection: RowSelectionState
   episodeFilter?: LiteralUnion<'all', string>
-  pagination?: PaginationState
+  initialTableState: InitialTableState
+  tableState: {
+    rowSelection: RowSelectionState
+  }
 }
 
 export const buildMediaSubtitleState = createFactory<MediaSubtitleState>()(() => ({
-  rowSelection: {},
+  initialTableState: {
+    pagination: {
+      pageSize: 10,
+      pageIndex: 0,
+    },
+  },
+  tableState: {
+    rowSelection: {},
+  },
 }))
 
-const mediaSubtitleKeysAtom = atom(new Set<number>())
-
-export const mediaSubtitleAtomFamily = atomFamily((mediaId: number) => {
-  const mediaSubtitleAtom = atom(identity<MediaSubtitleState>(buildMediaSubtitleState()))
-  return withAtomEffect(
-    mediaSubtitleAtom,
-    ({ peek }, set) => {
-      if (!peek(mediaSubtitleKeysAtom).has(mediaId)) {
-        set(mediaSubtitleKeysAtom, produce((currentKeySet) => {
-          currentKeySet.add(mediaId)
-        }))
-      }
-    },
-  )
-})
+export const mediaSubtitleAtomFamily = myAtomFamily(
+  `mediaSubtitleAtomFamily`,
+  ({
+    key,
+    initialValue = buildMediaSubtitleState(),
+  }: {
+    key: number
+    initialValue?: MediaSubtitleState
+  }) => atom(initialValue),
+  (a, b) => a.key === b.key,
+)
 
 export const fileIdsAtom = atom((get) => {
-  return [...get(mediaSubtitleKeysAtom)]
-    .map(flow(mediaSubtitleAtomFamily, get))
-    .flatMap(({ rowSelection }) => Object.entries(rowSelection).filter(([,v]) => v).map(([k]) => Number(k)))
+  return get(mediaSubtitleAtomFamily.paramsAtom)
+    .map((param) => get(mediaSubtitleAtomFamily(param)))
+    .flatMap(({ tableState }) => Object.entries(tableState.rowSelection).filter(([, v]) => v).map(([k]) => Number(k)))
 })

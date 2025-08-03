@@ -2,8 +2,6 @@ import type { FileTypeResult } from 'file-type'
 import type { PDFDocumentProxy } from 'pdfjs-dist'
 import type { TextContent } from 'pdfjs-dist/types/src/display/api'
 
-import { map } from 'es-toolkit/compat'
-
 import { isSingleItemArray } from '@sub-vocab/utils/lib'
 
 interface FileContent {
@@ -256,7 +254,7 @@ export class DataTransferItemListReader {
   }
 
   readDataTransferItemList(items: DataTransferItemList) {
-    return map(items, (item) => item.webkitGetAsEntry())
+    return Array.from(items, (item) => item.webkitGetAsEntry())
       .filter(Boolean)
       .map((fileSystemEntry) => this.readEntry(fileSystemEntry))
   }
@@ -272,7 +270,7 @@ export async function getFileContent(files: FileList) {
     }
   }
 
-  const contents = await Promise.all(map(files, (file) => readFile(file)))
+  const contents = await Promise.all(Array.from(files, (file) => readFile(file)))
   return {
     value: contents.reduce((pre, { text }) => pre + text, ''),
     name: `${contents.length} files selected`,

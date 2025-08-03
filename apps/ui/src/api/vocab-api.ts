@@ -3,7 +3,7 @@ import type { ValueOf } from 'type-fest'
 
 import { UTCDateMini } from '@date-fns/utc'
 import { REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js'
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import { queryOptions, useMutation } from '@tanstack/react-query'
 import { Duration } from 'effect'
 import { uniq } from 'es-toolkit'
 import { produce } from 'immer'
@@ -17,7 +17,7 @@ import type { Supabase } from '@/lib/supabase'
 import type { Tables } from '@ui/database.types'
 
 import { sessionAtom } from '@/atoms/auth'
-import { vocabRealtimeSyncStatusAtom } from '@/atoms/vocabulary'
+import { vocabSubscriptionAtom } from '@/atoms/vocabulary'
 import { usePageVisibility } from '@/hooks/utils'
 import { buildTrackedWord, LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { queryClient } from '@/lib/query-client'
@@ -27,11 +27,28 @@ import { narrow } from '@sub-vocab/utils/types'
 
 const getLearningPhase = (acquainted: boolean | null): LearningPhase => acquainted ? LEARNING_PHASE.ACQUAINTED : LEARNING_PHASE.NEW
 
-export const userVocabularyAtom = atomWithQuery((get) => {
-  const session = get(sessionAtom)
-  const userId = session?.user?.id ?? ''
-  return userVocabularyOptions(userId)
+const userVocabularyOptionsAtom = atom((get) => {
+  const userId = get(sessionAtom)?.user?.id ?? ''
+  return queryOptions({
+    queryKey: ['userVocabularyRows', userId],
+    async queryFn() {
+      const { data } = await supabase
+        .from('user_vocab_record')
+        .select('w:vocabulary, t:time_modified, a:acquainted')
+        .eq('user_id', userId)
+        .throwOnError()
+      return data.map(({ w, t, a }) => ({
+        w,
+        time_modified: new UTCDateMini(t).toISOString(),
+        learningPhase: getLearningPhase(a),
+      }))
+    },
+    placeholderData: [],
+    enabled: Boolean(userId),
+  })
 })
+
+export const userVocabularyAtom = atomWithQuery((get) => get(userVocabularyOptionsAtom))
 
 const sharedVocabularyAtom = atomWithQuery(() => {
   return {
@@ -75,28 +92,8 @@ export const baseVocabAtom = atom((get) => {
   return Array.from(map.values())
 })
 
-function userVocabularyOptions(userId: string) {
-  return queryOptions({
-    queryKey: ['userVocabularyRows', userId],
-    async queryFn() {
-      const { data } = await supabase
-        .from('user_vocab_record')
-        .select('w:vocabulary, t:time_modified, a:acquainted')
-        .eq('user_id', userId)
-        .throwOnError()
-      return data.map(({ w, t, a }) => ({
-        w,
-        time_modified: new UTCDateMini(t).toISOString(),
-        learningPhase: getLearningPhase(a),
-      }))
-    },
-    placeholderData: [],
-    enabled: Boolean(userId),
-  })
-}
-
-export function useIrregularWordsQuery() {
-  return useQuery({
+export const irregularWordsQueryAtom = atomWithQuery(() => {
+  return {
     queryKey: ['useIrregularWordsQuery'],
     queryFn: async () => {
       const { data } = await supabase
@@ -106,30 +103,37 @@ export function useIrregularWordsQuery() {
         .throwOnError()
       return Object.entries(Object.groupBy(data, (d) => d.l)).filter(hasValue).map(([key, value]) => {
         const inflectedForms = value.map((v) => v.i)
-        const additional = inflectedForms.filter((i) => i.includes(`'`)).map((i) => i.replace(/'/g, `’`))
-        return narrow([key, ...uniq([...inflectedForms, ...additional])])
+        return narrow([
+          key,
+          ...uniq([
+            ...inflectedForms,
+            ...inflectedForms.filter((i) => i.includes(`'`)).map((i) => i.replace(/'/g, `’`)),
+          ]),
+        ])
       })
     },
     placeholderData: [],
-  })
-}
+  }
+})
 
 export function useUserWordPhaseMutation() {
-  const [session] = useAtom(sessionAtom)
+  const session = useAtomValue(sessionAtom)
   const userId = session?.user?.id ?? ''
-  const vocabularyOptions = userVocabularyOptions(userId)
+  const vocabularyOptions = useAtomValue(userVocabularyOptionsAtom)
   return useMutation({
     mutationKey: ['upsertUserVocabulary'],
     mutationFn: async (vocab: TrackedWord[]) => {
-      const values = vocab.map((row) => ({
-        user_id: userId,
-        vocabulary: row.form,
-        acquainted: row.learningPhase !== LEARNING_PHASE.ACQUAINTED,
-        time_modified: new Date().toISOString(),
-      }))
       const { data } = await supabase
         .from('user_vocab_record')
-        .upsert(values, { onConflict: 'user_id, vocabulary' })
+        .upsert(
+          vocab.map((row) => ({
+            user_id: userId,
+            vocabulary: row.form,
+            acquainted: row.learningPhase !== LEARNING_PHASE.ACQUAINTED,
+            time_modified: new Date().toISOString(),
+          })),
+          { onConflict: 'user_id, vocabulary' },
+        )
         .select('w:vocabulary, time_modified, acquainted')
         .throwOnError()
       return data.map((row) => ({
@@ -180,17 +184,14 @@ export function useUserWordPhaseMutation() {
   })
 }
 
-function useRealtimeVocabUpsert<T extends Tables<'user_vocab_record'>>() {
-  const [session] = useAtom(sessionAtom)
-  const userId = session?.user?.id ?? ''
-  const vocabularyOptions = userVocabularyOptions(userId)
+const realtimeVocabUpsertAtom = atom((get) => function <T extends Tables<'user_vocab_record'>>() {
   return (payload: RealtimePostgresInsertPayload<T> | RealtimePostgresUpdatePayload<T>) => {
     const data = {
       w: payload.new.vocabulary,
       time_modified: payload.new.time_modified,
       learningPhase: getLearningPhase(payload.new.acquainted),
     }
-    queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => oldData && produce(oldData, (draft) => {
+    queryClient.setQueryData(get(userVocabularyOptionsAtom).queryKey, (oldData) => oldData && produce(oldData, (draft) => {
       const labelMutated = draft.find((label) => label.w === data.w)
       if (labelMutated) {
         Object.assign(labelMutated, data)
@@ -199,11 +200,11 @@ function useRealtimeVocabUpsert<T extends Tables<'user_vocab_record'>>() {
       }
     }))
   }
-}
+})
 
 export type RealtimeChannelState = ValueOf<typeof REALTIME_CHANNEL_STATES>
 
-export const statusLabels = {
+export const STATUS_LABELS = {
   SUBSCRIBED: 'Connected',
   CLOSED: 'Disconnected',
   CHANNEL_ERROR: 'Connection Error',
@@ -212,21 +213,21 @@ export const statusLabels = {
 
 const INACTIVITY_TIMEOUT_MS = Duration.toMillis('1 minutes')
 
-export function useVocabRealtimeSync() {
+export function useVocabularySubscription() {
   const [session] = useAtom(sessionAtom)
   const userId = session?.user?.id
   const isTabActive = usePageVisibility()
   const { refetch } = useAtomValue(userVocabularyAtom)
-  const setVocabRealtimeSubscribeState = useSetAtom(vocabRealtimeSyncStatusAtom)
+  const setVocabSubscription = useSetAtom(vocabSubscriptionAtom)
   const channelRef = useRef<ReturnType<Supabase['channel']>>(null)
-  const upsertCallback = useRealtimeVocabUpsert()
+  const upsertCallback = useAtomValue(realtimeVocabUpsertAtom)
 
   useEffect(() => {
     function cleanup() {
       if (channelRef.current) {
         channelRef.current.unsubscribe()
         channelRef.current = null
-        setVocabRealtimeSubscribeState(REALTIME_SUBSCRIBE_STATES.CLOSED)
+        setVocabSubscription(REALTIME_SUBSCRIBE_STATES.CLOSED)
       }
     }
 
@@ -273,12 +274,12 @@ export function useVocabRealtimeSync() {
           upsertCallback,
         )
         .subscribe((status) => {
-          setVocabRealtimeSubscribeState(status)
+          setVocabSubscription(status)
         })
     }
 
     return () => {
       cleanup()
     }
-  }, [userId, isTabActive, refetch, upsertCallback, setVocabRealtimeSubscribeState])
+  }, [userId, isTabActive, refetch, upsertCallback, setVocabSubscription])
 }

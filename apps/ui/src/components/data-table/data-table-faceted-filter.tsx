@@ -1,3 +1,5 @@
+import { Fragment } from 'react'
+
 import type { Option } from '@/types'
 
 import { Badge } from '@/components/ui/badge'
@@ -48,7 +50,7 @@ export function DataTableFacetedFilter({
           size="sm"
           className={cn('h-8 p-0 text-xs shadow-none drop-shadow-none!', className)}
         >
-          <>
+          <Fragment>
             <div className="inline-flex h-full items-center justify-center space-x-[2.5px] px-1.5 has-[>*:nth-child(2)]:pl-[5.5px]">
               {/* <IconSiFilterListDuotone className="size-[15px]" /> */}
               {/* <IconLucideFilter className="size-[16px]" /> */}
@@ -56,40 +58,42 @@ export function DataTableFacetedFilter({
                 {title}
               </span>
             </div>
-            {selected.length > 0 && (
-              <>
-                <Separator orientation="vertical" className="h-4" />
+            {selected.length > 0 && (() => {
+              const badge = (
                 <Badge
                   variant="secondary"
-                  className="px-1 font-normal [--sq-r:.5625rem] lg:hidden"
+                  className="px-1 font-normal [--sq-r:.5625rem]"
                 >
                   {selected.length}
                 </Badge>
-                <div className="hidden space-x-1 px-1 lg:flex">
-                  {selected.length >= 2 ? (
-                    <Badge
-                      variant="secondary"
-                      className="px-1 font-normal [--sq-r:.5625rem]"
-                    >
-                      {selected.length}
-                    </Badge>
-                  ) : (
-                    options
-                      .filter((option) => filterValue[option.value])
-                      .map((option) => (
-                        <Badge
-                          variant="secondary"
-                          key={option.value}
-                          className="px-1 font-normal [--sq-r:.5625rem]"
-                        >
-                          {option.label}
-                        </Badge>
-                      ))
-                  )}
-                </div>
-              </>
-            )}
-          </>
+              )
+              return (
+                <Fragment>
+                  <Separator orientation="vertical" className="h-4" />
+                  <div className="flex space-x-1 px-1 lg:hidden">
+                    {badge}
+                  </div>
+                  <div className="hidden space-x-1 px-1 lg:flex">
+                    {selected.length >= 2 ? (
+                      badge
+                    ) : (
+                      options
+                        .filter((option) => filterValue[option.value])
+                        .map((option) => (
+                          <Badge
+                            variant="secondary"
+                            key={option.value}
+                            className="px-1 font-normal [--sq-r:.5625rem]"
+                          >
+                            {option.label}
+                          </Badge>
+                        ))
+                    )}
+                  </div>
+                </Fragment>
+              )
+            })()}
+          </Fragment>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-50 p-0" align="start">
@@ -143,7 +147,7 @@ export function DataTableFacetedFilter({
               })}
             </CommandGroup>
             {Object.values(filterValue).some(Boolean) && (
-              <>
+              <Fragment>
                 <CommandSeparator />
                 <CommandGroup>
                   <CommandItem
@@ -153,7 +157,7 @@ export function DataTableFacetedFilter({
                     Clear filters
                   </CommandItem>
                 </CommandGroup>
-              </>
+              </Fragment>
             )}
           </CommandList>
         </Command>

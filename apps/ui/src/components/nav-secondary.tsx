@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react'
 
 import { useReactRouterIsMatch } from 'foxact/use-react-router-is-match'
-import React from 'react'
+import React, { Fragment } from 'react'
 import { Link } from 'react-router'
 import $ from 'render-hooks'
 
@@ -34,7 +34,7 @@ export function NavSecondary({
           >
             <$ hooks={{ useReactRouterIsMatch }}>
               {({ useReactRouterIsMatch }) => (
-                <>
+                <Fragment>
                   <SidebarMenuButton
                     // eslint-disable-next-line react-compiler/react-compiler, react-hooks/rules-of-hooks
                     isActive={useReactRouterIsMatch(item.url)}
@@ -49,7 +49,7 @@ export function NavSecondary({
                     </Link>
                   </SidebarMenuButton>
                   {item.badge && <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>}
-                </>
+                </Fragment>
               )}
             </$>
           </SidebarMenuItem>

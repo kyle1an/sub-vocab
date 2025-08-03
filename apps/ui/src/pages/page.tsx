@@ -5,18 +5,19 @@ import { useIsomorphicLayoutEffect } from '@react-hookz/web'
 import clsx from 'clsx'
 import { useMediaQuery } from 'foxact/use-media-query'
 import { produce } from 'immer'
-import { atom, useAtom, useSetAtom } from 'jotai'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import React, { useDeferredValue, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import getCaretCoordinates from 'textarea-caret'
+import { useEffectEvent } from 'use-effect-event'
 
 import type { Sentence } from '@/lib/LexiconTrie'
 import type { VocabularySourceState } from '@/lib/vocab'
 
 import {
   baseVocabAtom,
-  useIrregularWordsQuery,
+  irregularWordsQueryAtom,
 } from '@/api/vocab-api'
 import { fileTypesAtom } from '@/atoms/file-types'
 import { fileInfoAtom, isSourceTextStaleAtom, sourceTextAtom } from '@/atoms/vocabulary'
@@ -28,6 +29,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { VocabSourceTable } from '@/components/vocabulary/source'
 import { VocabStatics } from '@/components/vocabulary/statics-bar'
 import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
+import { useRect } from '@/lib/hooks'
 import { LEARNING_PHASE, LexiconTrie } from '@/lib/LexiconTrie'
 import { normalizeNewlines } from '@/lib/utilities'
 import { statusRetainedList } from '@/lib/vocab-utils'
@@ -71,7 +73,7 @@ function SourceVocab({
   onSentenceTrack: (sentenceId: Sentence) => void
   key: React.Key
 }) {
-  const { data: irregulars = [] } = useIrregularWordsQuery()
+  const { data: irregulars = [] } = useAtomValue(irregularWordsQueryAtom)
   const [baseVocab] = useAtom(baseVocabAtom)
   const [rows, setRows] = useState<VocabularySourceState[]>([])
   const setSourceCountAtom = useSetAtom(sourceCountAtom)
@@ -151,13 +153,14 @@ export default function ResizeVocabularyPanel() {
   const direction = isMdScreen ? 'horizontal' : 'vertical'
   const defaultSizes = direction === 'vertical' ? verticalDefaultSizes : horizontalDefaultSizes
   const panelGroupRef = useRef<ImperativePanelGroupHandle>(null)
-  useIsomorphicLayoutEffect(() => {
+  const resetPanelLayout = useEffectEvent(() => {
     const panelGroup = panelGroupRef.current
     if (panelGroup) {
       panelGroup.setLayout(defaultSizes)
     }
-  // eslint-disable-next-line react-compiler/react-compiler
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  })
+  useIsomorphicLayoutEffect(() => {
+    resetPanelLayout()
   }, [direction])
 
   function handleLayoutChange(sizes: number[]) {
@@ -198,6 +201,7 @@ export default function ResizeVocabularyPanel() {
   }
 
   const fileInfoRef = useRef<HTMLSpanElement>(null)
+  const { x: fileInfoX } = useRect(fileInfoRef)
   const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive()
   return (
     (
@@ -259,7 +263,7 @@ export default function ResizeVocabularyPanel() {
                         hidden={!isEllipsisActive}
                         className="max-w-(--max-width) border bg-background text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
                         style={{
-                          '--max-width': `${window.innerWidth - (fileInfoRef.current?.getBoundingClientRect().x ?? 0) + 12 - 1}px`,
+                          '--max-width': `${window.innerWidth - fileInfoX + 12 - 1}px`,
                         }}
                       >
                         {fileInfo}
