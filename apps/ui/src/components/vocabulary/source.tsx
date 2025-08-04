@@ -183,7 +183,7 @@ function useSourceColumns<T extends TableData>() {
 type CategoryValue = 'properName' | 'acronym'
 
 type VocabularyCategory = {
-  [key in CategoryValue]?: string[]
+  [K in CategoryValue]?: string[]
 }
 
 const categoryAtom = atomWithStorage<VocabularyCategory>('categoryAtom', {})

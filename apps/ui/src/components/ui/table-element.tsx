@@ -196,10 +196,10 @@ export function TableRow<T>({
       })
     }
     if (isOpening) {
-      retimerAnim(ANIM_DURATION, () => setAnimationOpen(false))
+      retimerAnim(() => setAnimationOpen(false), ANIM_DURATION)
     }
 
-    retimerTransition(SHADOW_DURATION, () => setTransitionOpen(false))
+    retimerTransition(() => setTransitionOpen(false), SHADOW_DURATION)
     const root = rootRef?.current
     const rowElement = rowRef.current
     if (root && rowElement) {

@@ -2,12 +2,10 @@ import { useColorScheme } from '@mui/joy/styles'
 
 import './globals.css'
 
-import { useIsomorphicLayoutEffect } from '@react-hookz/web'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import { isSafari } from 'foxact/is-safari'
-import { useMediaQuery } from 'foxact/use-media-query'
 import { atom, useAtom } from 'jotai'
 import { DevTools } from 'jotai-devtools'
 import css from 'jotai-devtools/styles.css?inline'
@@ -21,7 +19,6 @@ import { authChangeEventAtom, sessionAtom } from '@/atoms/auth'
 import { isDarkModeAtom } from '@/atoms/ui'
 import { AppSidebar } from '@/components/app-sidebar'
 import { NavActions } from '@/components/nav-actions'
-import { isAnyDrawerOpenAtom } from '@/components/ui/drawer'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/sonner'
 import { LIGHT_THEME_COLOR } from '@/constants/theme'
@@ -29,19 +26,16 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { useAtomEffect } from '@/hooks/useAtomEffect'
 import { useStyleObserver } from '@/hooks/useStyleObserver'
 import { supabaseAuth } from '@/lib/supabase'
-import { bodyBgColorAtom, mainBgColorAtom, myStore, prefersDarkAtom } from '@/store/useVocab'
+import { bodyBgColorAtom, mainBgColorAtom, myStore } from '@/store/useVocab'
 import devtoolsCss from '@/styles/devtools.css?inline'
 
 const isSafariAtom = atomWithStorage('isSafariAtom', isSafari())
 
 const metaThemeColorAtom = atom((get) => {
-  if (get(isAnyDrawerOpenAtom)) {
-    if (get(isSafariAtom) && !get(isDarkModeAtom)) {
-      return 'transparent'
-    }
-    return get(bodyBgColorAtom)
+  if (get(isSafariAtom) && !get(isDarkModeAtom)) {
+    return 'transparent'
   }
-  return get(mainBgColorAtom)
+  return get(bodyBgColorAtom)
 })
 
 function useAppEffects() {
@@ -63,17 +57,10 @@ function useAppEffects() {
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', get(metaThemeColorAtom))
   }, []))
   {
-    const isDarkOS = useMediaQuery('(prefers-color-scheme: dark)')
-    useEffect(() => {
-      myStore.set(prefersDarkAtom, isDarkOS)
-    }, [isDarkOS])
-  }
-  {
-    const [isDarkMode] = useAtom(isDarkModeAtom)
     const { setMode } = useColorScheme()
-    useIsomorphicLayoutEffect(() => {
-      setMode(isDarkMode ? 'dark' : 'light')
-    }, [isDarkMode, setMode])
+    useAtomEffect(useStableCallback((get) => {
+      setMode(get(isDarkModeAtom) ? 'dark' : 'light')
+    }, [setMode]))
   }
   useAtomEffect(useStableCallback((get) => {
     document.documentElement.classList.toggle('dark', get(isDarkModeAtom))

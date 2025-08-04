@@ -1,41 +1,12 @@
 import clsx from 'clsx'
-import { Duration } from 'effect'
-import { atom, useSetAtom } from 'jotai'
 import * as React from 'react'
-import { useEffect } from 'react'
 import { Drawer as DrawerPrimitive } from 'vaul'
 
-import { createTimerFamily, myAtomFamily, sweepStaleTimers, useFamily } from '@/atoms/utils'
 import { cn } from '@/lib/utils'
-
-const drawersStateAtomFamily = myAtomFamily(`drawersStateAtomFamily`, (id: string) => atom(false))
-
-export const isAnyDrawerOpenAtom = atom((get) => {
-  return get(drawersStateAtomFamily.paramsAtom).map((p) => get(drawersStateAtomFamily(p))).some(Boolean)
-})
-
-const TIMEOUT_DURATION_IN_SECONDS = Duration.toMillis('0.36 seconds')
-
-const retimerAtomFamily = createTimerFamily(`drawersRetimerAtomFamily`)
 
 function Drawer({
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
-  const { open = false } = props
-  const id = React.useId()
-  const retimer = useSetAtom(useFamily(retimerAtomFamily, id))
-  const setDrawersState = useSetAtom(useFamily(drawersStateAtomFamily, id))
-  useEffect(() => {
-    retimer(open ? null : TIMEOUT_DURATION_IN_SECONDS, () => {
-      setDrawersState(open)
-    })
-    return () => {
-      retimer(TIMEOUT_DURATION_IN_SECONDS * 5, () => {
-        drawersStateAtomFamily.remove(id)
-      })
-      sweepStaleTimers(retimerAtomFamily)
-    }
-  }, [id, open, retimer, setDrawersState])
   return <DrawerPrimitive.Root data-slot="drawer" {...props} />
 }
 

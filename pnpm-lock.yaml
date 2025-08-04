@@ -316,20 +316,20 @@ importers:
         specifier: ^10.1.1
         version: 10.1.1
       jotai:
-        specifier: ^2.12.5
-        version: 2.12.5(react@19.1.1)(types-react@19.0.0-rc.1)
+        specifier: ^2.13.0
+        version: 2.13.0(@babel/core@7.27.4)(@babel/template@7.27.2)(react@19.1.1)(types-react@19.0.0-rc.1)
       jotai-devtools:
         specifier: ^0.12.0
-        version: 0.12.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(redux@5.0.1)(storybook@8.6.14(prettier@3.6.2))(types-react@19.0.0-rc.1)
+        version: 0.12.0(@babel/core@7.27.4)(@babel/template@7.27.2)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(redux@5.0.1)(storybook@8.6.14(prettier@3.6.2))(types-react@19.0.0-rc.1)
       jotai-effect:
         specifier: ^2.0.5
-        version: 2.0.5(jotai@2.12.5(react@19.1.1)(types-react@19.0.0-rc.1))
+        version: 2.0.5(jotai@2.13.0(@babel/core@7.27.4)(@babel/template@7.27.2)(react@19.1.1)(types-react@19.0.0-rc.1))
       jotai-immer:
         specifier: ^0.4.1
-        version: 0.4.1(immer@10.1.1)(jotai@2.12.5(react@19.1.1)(types-react@19.0.0-rc.1))
+        version: 0.4.1(immer@10.1.1)(jotai@2.13.0(@babel/core@7.27.4)(@babel/template@7.27.2)(react@19.1.1)(types-react@19.0.0-rc.1))
       jotai-tanstack-query:
         specifier: ^0.11.0
-        version: 0.11.0(@tanstack/query-core@5.83.1)(@tanstack/react-query@5.84.1(react@19.1.1))(jotai@2.12.5(react@19.1.1)(types-react@19.0.0-rc.1))(react@19.1.1)
+        version: 0.11.0(@tanstack/query-core@5.83.1)(@tanstack/react-query@5.84.1(react@19.1.1))(jotai@2.13.0(@babel/core@7.27.4)(@babel/template@7.27.2)(react@19.1.1)(types-react@19.0.0-rc.1))(react@19.1.1)
       lucide-react:
         specifier: ^0.536.0
         version: 0.536.0(react@19.1.1)
@@ -5462,13 +5462,19 @@ packages:
       react:
         optional: true
 
-  jotai@2.12.5:
-    resolution: {integrity: sha512-G8m32HW3lSmcz/4mbqx0hgJIQ0ekndKWiYP7kWVKi0p6saLXdSoye+FZiOFyonnd7Q482LCzm8sMDl7Ar1NWDw==}
+  jotai@2.13.0:
+    resolution: {integrity: sha512-H43zXdanNTdpfOEJ4NVbm4hgmrctpXLZagjJNcqAywhUv+sTE7esvFjwm5oBg/ywT9Qw63lIkM6fjrhFuW8UDg==}
     engines: {node: '>=12.20.0'}
     peerDependencies:
+      '@babel/core': '>=7.0.0'
+      '@babel/template': '>=7.0.0'
       '@types/react': '>=17.0.0'
       react: '>=17.0.0'
     peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@babel/template':
+        optional: true
       '@types/react':
         optional: true
       react:
@@ -13023,7 +13029,7 @@ snapshots:
 
   jiti@2.5.1: {}
 
-  jotai-devtools@0.12.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(redux@5.0.1)(storybook@8.6.14(prettier@3.6.2))(types-react@19.0.0-rc.1):
+  jotai-devtools@0.12.0(@babel/core@7.27.4)(@babel/template@7.27.2)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(redux@5.0.1)(storybook@8.6.14(prettier@3.6.2))(types-react@19.0.0-rc.1):
     dependencies:
       '@mantine/code-highlight': 7.17.8(@mantine/core@7.17.8(@mantine/hooks@7.17.8(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(types-react@19.0.0-rc.1))(@mantine/hooks@7.17.8(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@mantine/core': 7.17.8(@mantine/hooks@7.17.8(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(types-react@19.0.0-rc.1)
@@ -13032,7 +13038,7 @@ snapshots:
       '@storybook/test': 8.6.14(storybook@8.6.14(prettier@3.6.2))
       clsx: 2.1.1
       javascript-stringify: 2.1.0
-      jotai: 2.12.5(react@19.1.1)(types-react@19.0.0-rc.1)
+      jotai: 2.13.0(@babel/core@7.27.4)(@babel/template@7.27.2)(react@19.1.1)(types-react@19.0.0-rc.1)
       jsondiffpatch: 0.5.0
       react: 19.1.1
       react-base16-styling: 0.9.1
@@ -13040,30 +13046,34 @@ snapshots:
       react-json-tree: 0.18.0(react@19.1.1)(types-react@19.0.0-rc.1)
       react-resizable-panels: 2.1.7(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
     transitivePeerDependencies:
+      - '@babel/core'
+      - '@babel/template'
       - '@types/react'
       - react-dom
       - redux
       - storybook
 
-  jotai-effect@2.0.5(jotai@2.12.5(react@19.1.1)(types-react@19.0.0-rc.1)):
+  jotai-effect@2.0.5(jotai@2.13.0(@babel/core@7.27.4)(@babel/template@7.27.2)(react@19.1.1)(types-react@19.0.0-rc.1)):
     dependencies:
-      jotai: 2.12.5(react@19.1.1)(types-react@19.0.0-rc.1)
+      jotai: 2.13.0(@babel/core@7.27.4)(@babel/template@7.27.2)(react@19.1.1)(types-react@19.0.0-rc.1)
 
-  jotai-immer@0.4.1(immer@10.1.1)(jotai@2.12.5(react@19.1.1)(types-react@19.0.0-rc.1)):
+  jotai-immer@0.4.1(immer@10.1.1)(jotai@2.13.0(@babel/core@7.27.4)(@babel/template@7.27.2)(react@19.1.1)(types-react@19.0.0-rc.1)):
     dependencies:
       immer: 10.1.1
-      jotai: 2.12.5(react@19.1.1)(types-react@19.0.0-rc.1)
+      jotai: 2.13.0(@babel/core@7.27.4)(@babel/template@7.27.2)(react@19.1.1)(types-react@19.0.0-rc.1)
 
-  jotai-tanstack-query@0.11.0(@tanstack/query-core@5.83.1)(@tanstack/react-query@5.84.1(react@19.1.1))(jotai@2.12.5(react@19.1.1)(types-react@19.0.0-rc.1))(react@19.1.1):
+  jotai-tanstack-query@0.11.0(@tanstack/query-core@5.83.1)(@tanstack/react-query@5.84.1(react@19.1.1))(jotai@2.13.0(@babel/core@7.27.4)(@babel/template@7.27.2)(react@19.1.1)(types-react@19.0.0-rc.1))(react@19.1.1):
     dependencies:
       '@tanstack/query-core': 5.83.1
-      jotai: 2.12.5(react@19.1.1)(types-react@19.0.0-rc.1)
+      jotai: 2.13.0(@babel/core@7.27.4)(@babel/template@7.27.2)(react@19.1.1)(types-react@19.0.0-rc.1)
     optionalDependencies:
       '@tanstack/react-query': 5.84.1(react@19.1.1)
       react: 19.1.1
 
-  jotai@2.12.5(react@19.1.1)(types-react@19.0.0-rc.1):
+  jotai@2.13.0(@babel/core@7.27.4)(@babel/template@7.27.2)(react@19.1.1)(types-react@19.0.0-rc.1):
     optionalDependencies:
+      '@babel/core': 7.27.4
+      '@babel/template': 7.27.2
       '@types/react': types-react@19.0.0-rc.1
       react: 19.1.1
 

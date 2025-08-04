@@ -18,7 +18,7 @@ import type { Tables } from '@ui/database.types'
 
 import { sessionAtom } from '@/atoms/auth'
 import { vocabSubscriptionAtom } from '@/atoms/vocabulary'
-import { usePageVisibility } from '@/hooks/utils'
+import { pageVisibilityAtom } from '@/hooks/utils'
 import { buildTrackedWord, LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { queryClient } from '@/lib/query-client'
 import { supabase } from '@/lib/supabase'
@@ -216,7 +216,7 @@ const INACTIVITY_TIMEOUT_MS = Duration.toMillis('1 minutes')
 export function useVocabularySubscription() {
   const [session] = useAtom(sessionAtom)
   const userId = session?.user?.id
-  const isTabActive = usePageVisibility()
+  const isTabActive = useAtomValue(pageVisibilityAtom)
   const { refetch } = useAtomValue(userVocabularyAtom)
   const setVocabSubscription = useSetAtom(vocabSubscriptionAtom)
   const channelRef = useRef<ReturnType<Supabase['channel']>>(null)
@@ -238,12 +238,12 @@ export function useVocabularySubscription() {
 
     // If the tab is not active, we set a timer to unsubscribe.
     if (!isTabActive) {
-      const timerId = setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         cleanup()
       }, INACTIVITY_TIMEOUT_MS)
 
       return () => {
-        clearTimeout(timerId)
+        clearTimeout(timeoutId)
       }
     }
 
