@@ -1,6 +1,9 @@
+# Subvocab
+
 Subvocab transforms your preparation for watching movies or reading books in English. Just input any text, such as subtitles, articles, or books, and Subvocab will efficiently categorize words into familiar and new groups, enhancing both your understanding and enjoyment.
 
-<img width="1422" alt="Screenshot" src="https://github.com/user-attachments/assets/f277f541-ceb1-46ff-adb0-c6791dc5190d" />
+<!-- window.resizeTo(1260, 900); -->
+<img width="1328" height="968" alt="Screenshot" src="https://github.com/user-attachments/assets/aeb67d22-cb54-410b-a9ca-f83720983d56" />
 
 [Visualization of this repo](https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=kyle1an%2Fsub-vocab)
 
@@ -19,7 +22,7 @@ Subvocab transforms your preparation for watching movies or reading books in Eng
 
 ## Credits
 
-<img height="50px" src="./public/tmdb.svg">
+<img height="50px" src="./public/tmdb.svg" alt="TMDB">
 
 Data provided by [The Movie Database](https://www.themoviedb.org).
 

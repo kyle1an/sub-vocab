@@ -28,10 +28,10 @@ import { TextareaInput } from '@/components/ui/textarea-input'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { VocabSourceTable } from '@/components/vocabulary/source'
 import { VocabStatics } from '@/components/vocabulary/statics-bar'
+import { useRect } from '@/hooks'
 import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
-import { useRect } from '@/lib/hooks'
 import { LEARNING_PHASE, LexiconTrie } from '@/lib/LexiconTrie'
-import { normalizeNewlines } from '@/lib/utilities'
+import { compareBy, normalizeNewlines } from '@/lib/utilities'
 import { statusRetainedList } from '@/lib/vocab-utils'
 import { FileSettings } from '@/pages/file-settings'
 
@@ -81,8 +81,8 @@ function SourceVocab({
   trie.add(text)
   const list = trie
     .generate(irregulars, baseVocab)
-    .filter((v) => v.locators.length >= 1)
-    .sort((a, b) => (a.locators[0]?.wordOrder ?? 0) - (b.locators[0]?.wordOrder ?? 0))
+    .filter((v) => v.locators.length > 0)
+    .sort(compareBy((i) => [i.locators[0]!.sentenceId, i.locators[0]!.startOffset]))
   const sentences = trie.sentences
   useEffect(() => {
     // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
@@ -137,7 +137,7 @@ export default function ResizeVocabularyPanel() {
     if (isSourceTextStale !== isStale) {
       setIsSourceTextStale(isStale)
     }
-  })
+  }, [deferredSourceText.epoch, isSourceTextStale, setIsSourceTextStale, sourceText.epoch])
 
   function handleTextareaChange(ev: React.ChangeEvent<HTMLTextAreaElement>) {
     setSourceText((v) => ({

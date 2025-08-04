@@ -13,16 +13,58 @@
   --mantine-font-family-monospace: var(--font-mono) !important;
 }
 
-.tsqd-parent-container,
 #jotai-devtools-root {
   :is(& *) {
     corner-shape: superellipse(1.5);
   }
+  .jotai-devtools-trigger-button {
+    corner-shape: round;
+  }
+
+  .jotai-devtools-focus.internal-jotai-devtools-navlink {
+    span p {
+      overflow-wrap: break-word;
+    }
+  }
+
+  #jotai-devtools-atom-debug-search-input-label {
+    display: none;
+  }
+  #jotai-devtools-panel-resize-handle {
+    + [data-panel] {
+      h1 {
+        display: none;
+        + div > p:first-child {
+          display: none;
+        }
+        /* Dependents */
+        ~ div:last-child {
+          > p:first-child {
+            margin-top: 0 !important;
+          }
+        }
+      }
+      .internal-jotai-devtools-json-tree-wrapper {
+        margin-bottom: calc(0.625rem * var(--mantine-scale));
+      }
+      > div > div {
+        gap: 0.25rem;
+      }
+    }
+  }
+  .internal-jotai-devtools-panel-resize-handle-content {
+    margin: 0 !important;
+  }
+  p:has(+ #jotai-devtools-atom-viewer-value-tabs) {
+    display: none;
+  }
 }
 
-#root {
-  .tsqd-open-btn-container,
-  .jotai-devtools-trigger-button {
+.tsqd-parent-container {
+  :is(& *) {
+    corner-shape: superellipse(1.5);
+  }
+  .tsqd-open-btn-container {
     corner-shape: round;
   }
 }

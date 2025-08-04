@@ -1,13 +1,13 @@
 import { QueryClient } from '@tanstack/react-query'
-import { Duration } from 'effect'
+import ms from 'ms'
 
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      gcTime: Duration.toMillis('60 minutes'),
-      staleTime: Duration.toMillis('45 minutes'),
+      gcTime: ms('60min'),
+      staleTime: ms('45min'),
       retry: 2,
-      retryDelay: (failureCount) => (failureCount - 1) * Duration.toMillis('1 seconds'),
+      retryDelay: (failureCount) => (failureCount - 1) * ms('1s'),
     },
   },
 })

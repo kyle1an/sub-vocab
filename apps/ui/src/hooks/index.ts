@@ -1,5 +1,5 @@
 import { useResizeObserver } from '@react-hookz/web'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 
 const DOM_RECT: Omit<DOMRect, 'toJSON'> = { x: 0, y: 0, width: 0, height: 0, top: 0, right: 0, bottom: 0, left: 0 }
 
@@ -13,17 +13,9 @@ export function useRect<T extends Element>(target: React.RefObject<T | null>) {
 }
 
 export function useLastTruthy<T>(value: T) {
-  const lastTruthy = useRef<T>(null)
-
-  useEffect(() => {
-    if (value) {
-      lastTruthy.current = value
-    }
-  })
-
-  if (value) {
-    return value
+  const lastTruthy = useRef<T>(value)
+  if (lastTruthy.current !== value && value) {
+    lastTruthy.current = value
   }
-
   return lastTruthy.current
 }

@@ -20,8 +20,8 @@ export function VocabStatics({
 }) {
   const [isPending, setAnimated] = useState(true)
   useEffect(() => {
-    const id = setTimeout(() => requestAnimationFrame(() => setAnimated(false)), 0)
-    return () => clearTimeout(id)
+    const timeoutId = setTimeout(() => requestAnimationFrame(() => setAnimated(false)), 0)
+    return () => clearTimeout(timeoutId)
   }, [])
   const animated = !isPending
   const percentage = Number(total === 0 ? 0 : (100 * (completed / total)).toFixed(1))

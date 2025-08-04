@@ -48,7 +48,6 @@ export interface WordLocator {
   sentenceId: number
   startOffset: number
   wordLength: number
-  wordOrder: number
 }
 
 export interface Leaf {
@@ -101,7 +100,6 @@ const getApostropheInflectedForms = (apostropheNode?: LexiconNode) => [
 
 class Trie {
   public readonly root: LexiconNode = {}
-  private sequence = 0
   public readonly sentences: Sentence[] = []
   private readonly nodeMap = new Map<string, LexiconNode>()
   public getNode(path: string) {
@@ -195,27 +193,18 @@ class Trie {
   }
   public update(original: string, index: number, sentenceId: number) {
     const node = this.getNode(original)
+    const locator = {
+      sentenceId,
+      startOffset: index,
+      wordLength: original.length,
+    }
     if (!node.$) {
       node.$ = {
         pathe: original,
-        locators: [
-          {
-            sentenceId,
-            startOffset: index,
-            wordLength: original.length,
-            wordOrder: ++this.sequence,
-          },
-        ],
+        locators: [locator],
       }
     } else {
-      node.$.locators.push(
-        {
-          sentenceId,
-          startOffset: index,
-          wordLength: original.length,
-          wordOrder: node.$.locators.length ? this.sequence : ++this.sequence,
-        },
-      )
+      node.$.locators.push(locator)
       if (hasUppercaseLetter(node.$.pathe) && !node.$.trackedWord) {
         node.$.pathe = caseOr(node.$.pathe, original)
       }

@@ -4,11 +4,11 @@ import type { ValueOf } from 'type-fest'
 import { UTCDateMini } from '@date-fns/utc'
 import { REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js'
 import { queryOptions, useMutation } from '@tanstack/react-query'
-import { Duration } from 'effect'
 import { uniq } from 'es-toolkit'
 import { produce } from 'immer'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithQuery } from 'jotai-tanstack-query'
+import ms from 'ms'
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 
@@ -18,7 +18,7 @@ import type { Tables } from '@ui/database.types'
 
 import { sessionAtom } from '@/atoms/auth'
 import { vocabSubscriptionAtom } from '@/atoms/vocabulary'
-import { usePageVisibility } from '@/hooks/utils'
+import { pageVisibilityAtom } from '@/hooks/utils'
 import { buildTrackedWord, LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { queryClient } from '@/lib/query-client'
 import { supabase } from '@/lib/supabase'
@@ -30,7 +30,7 @@ const getLearningPhase = (acquainted: boolean | null): LearningPhase => acquaint
 const userVocabularyOptionsAtom = atom((get) => {
   const userId = get(sessionAtom)?.user?.id ?? ''
   return queryOptions({
-    queryKey: ['userVocabularyRows', userId],
+    queryKey: ['userVocabularyOptionsAtom', userId],
     async queryFn() {
       const { data } = await supabase
         .from('user_vocab_record')
@@ -94,7 +94,7 @@ export const baseVocabAtom = atom((get) => {
 
 export const irregularWordsQueryAtom = atomWithQuery(() => {
   return {
-    queryKey: ['useIrregularWordsQuery'],
+    queryKey: ['irregularWordsQueryAtom'],
     queryFn: async () => {
       const { data } = await supabase
         .from('derivation')
@@ -121,7 +121,7 @@ export function useUserWordPhaseMutation() {
   const userId = session?.user?.id ?? ''
   const vocabularyOptions = useAtomValue(userVocabularyOptionsAtom)
   return useMutation({
-    mutationKey: ['upsertUserVocabulary'],
+    mutationKey: ['useUserWordPhaseMutation'],
     mutationFn: async (vocab: TrackedWord[]) => {
       const { data } = await supabase
         .from('user_vocab_record')
@@ -143,7 +143,7 @@ export function useUserWordPhaseMutation() {
       }))
     },
     onMutate: (variables) => {
-      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => oldData && produce(oldData, (draft) => {
+      queryClient.setQueryData(vocabularyOptions.queryKey, (prevData) => prevData && produce(prevData, (draft) => {
         variables.forEach((variable) => {
           const labelMutated = draft.find((label) => label.w === variable.form)
           const pendingPhase = variable.learningPhase === LEARNING_PHASE.ACQUAINTED ? LEARNING_PHASE.FADING : LEARNING_PHASE.RETAINING
@@ -160,7 +160,7 @@ export function useUserWordPhaseMutation() {
       }))
     },
     onSuccess: (data, variables, context) => {
-      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => oldData && produce(oldData, (draft) => {
+      queryClient.setQueryData(vocabularyOptions.queryKey, (prevData) => prevData && produce(prevData, (draft) => {
         data.forEach((variable) => {
           const labelMutated = draft.find((label) => label.w === variable.w)
           if (labelMutated) {
@@ -172,7 +172,7 @@ export function useUserWordPhaseMutation() {
     onError: (error, variables, context) => {
       console.error(error)
       toast.error(error.message)
-      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => oldData && produce(oldData, (draft) => {
+      queryClient.setQueryData(vocabularyOptions.queryKey, (prevData) => prevData && produce(prevData, (draft) => {
         variables.forEach((variable) => {
           const labelMutated = draft.find((label) => label.w === variable.form)
           if (labelMutated) {
@@ -191,7 +191,7 @@ const realtimeVocabUpsertAtom = atom((get) => function <T extends Tables<'user_v
       time_modified: payload.new.time_modified,
       learningPhase: getLearningPhase(payload.new.acquainted),
     }
-    queryClient.setQueryData(get(userVocabularyOptionsAtom).queryKey, (oldData) => oldData && produce(oldData, (draft) => {
+    queryClient.setQueryData(get(userVocabularyOptionsAtom).queryKey, (prevData) => prevData && produce(prevData, (draft) => {
       const labelMutated = draft.find((label) => label.w === data.w)
       if (labelMutated) {
         Object.assign(labelMutated, data)
@@ -211,12 +211,12 @@ export const STATUS_LABELS = {
   TIMED_OUT: 'Connection Timeout',
 } as const satisfies Partial<Record<REALTIME_SUBSCRIBE_STATES, string>>
 
-const INACTIVITY_TIMEOUT_MS = Duration.toMillis('1 minutes')
+const INACTIVITY_TIMEOUT_MS = ms('1min')
 
 export function useVocabularySubscription() {
   const [session] = useAtom(sessionAtom)
   const userId = session?.user?.id
-  const isTabActive = usePageVisibility()
+  const isTabActive = useAtomValue(pageVisibilityAtom)
   const { refetch } = useAtomValue(userVocabularyAtom)
   const setVocabSubscription = useSetAtom(vocabSubscriptionAtom)
   const channelRef = useRef<ReturnType<Supabase['channel']>>(null)
@@ -238,12 +238,12 @@ export function useVocabularySubscription() {
 
     // If the tab is not active, we set a timer to unsubscribe.
     if (!isTabActive) {
-      const timerId = setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         cleanup()
       }, INACTIVITY_TIMEOUT_MS)
 
       return () => {
-        clearTimeout(timerId)
+        clearTimeout(timeoutId)
       }
     }
 

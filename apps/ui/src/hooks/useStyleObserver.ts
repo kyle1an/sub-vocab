@@ -2,7 +2,6 @@ import type { StyleObserverCallback, StyleObserverChanges, StyleObserverConfig }
 import type { ArrayValues, OverrideProperties, ValueOf } from 'type-fest'
 
 import StyleObserver, { NotificationMode, ReturnFormat } from '@bramus/style-observer'
-import { useSyncedRef } from '@react-hookz/web'
 import { useEffect } from 'react'
 
 type StyleObserverChangeObject = Exclude<ValueOf<StyleObserverChanges>, string>
@@ -30,14 +29,13 @@ export const useStyleObserver = <
   callback: GenericStyleObserverCallback<T, ArrayValues<Props>, Format>,
   config: GenericStyleObserverConfig<Props, Format>,
 ) => {
-  const cb = useSyncedRef(callback as StyleObserverCallback)
   const tgt = target && 'current' in target ? target.current : target
   useEffect(() => {
     const tgt = target && 'current' in target ? target.current : target
     if (!tgt) {
       return
     }
-    const observer = new StyleObserver(cb.current, {
+    const observer = new StyleObserver(callback as StyleObserverCallback, {
       returnFormat: ReturnFormat.OBJECT,
       notificationMode: NotificationMode.ALL,
       ...config,
@@ -46,5 +44,5 @@ export const useStyleObserver = <
     return () => {
       observer.unobserve(tgt)
     }
-  }, [cb, config, target, tgt])
+  }, [callback, config, target, tgt])
 }

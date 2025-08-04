@@ -1,41 +1,72 @@
 import clsx from 'clsx'
-import { Duration } from 'effect'
-import { atom, useSetAtom } from 'jotai'
+import { atom, useAtomValue } from 'jotai'
+import { useSetImmerAtom } from 'jotai-immer'
+import ms from 'ms'
 import * as React from 'react'
 import { useEffect } from 'react'
 import { Drawer as DrawerPrimitive } from 'vaul'
 
-import { createTimerFamily, myAtomFamily, sweepStaleTimers, useFamily } from '@/atoms/utils'
+import { myAtomFamily, retimerAtomFamily, useFamily } from '@/atoms/utils'
+import { equalBy } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
 
-const drawersStateAtomFamily = myAtomFamily(`drawersStateAtomFamily`, (id: string) => atom(false))
+const TRANSITIONS_DURATION = ms('0.5s')
+
+const drawerStateFamily = myAtomFamily(
+  `drawerStateFamily`,
+  (param: {
+    key: string
+    open?: boolean
+    openAnimationEnd?: boolean
+    shouldScaleBackground?: boolean
+  }) => atom({
+    open: false,
+    openAnimationEnd: false,
+    shouldScaleBackground: false,
+    ...param,
+  }),
+  equalBy((i) => i.key),
+)
 
 export const isAnyDrawerOpenAtom = atom((get) => {
-  return get(drawersStateAtomFamily.paramsAtom).map((p) => get(drawersStateAtomFamily(p))).some(Boolean)
+  return get(drawerStateFamily.paramsAtom)
+    .map((p) => get(drawerStateFamily(p)))
+    .some(({ shouldScaleBackground, open, openAnimationEnd }) => shouldScaleBackground && (open || openAnimationEnd))
 })
 
-const TIMEOUT_DURATION_IN_SECONDS = Duration.toMillis('0.36 seconds')
-
-const retimerAtomFamily = createTimerFamily(`drawersRetimerAtomFamily`)
+const animRetimerFamily = retimerAtomFamily(`animRetimerFamily`)
+const removeRetimerFamily = retimerAtomFamily(`removeRetimerFamily`)
 
 function Drawer({
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
-  const { open = false } = props
+  const { shouldScaleBackground = false, open = false } = props
   const id = React.useId()
-  const retimer = useSetAtom(useFamily(retimerAtomFamily, id))
-  const setDrawersState = useSetAtom(useFamily(drawersStateAtomFamily, id))
+  const retimeAnim = useAtomValue(useFamily(animRetimerFamily, id))
+  const retimeRemove = useAtomValue(useFamily(removeRetimerFamily, id))
+  const setDrawerState = useSetImmerAtom(useFamily(drawerStateFamily, {
+    key: id,
+    open,
+    shouldScaleBackground,
+  }))
   useEffect(() => {
-    retimer(open ? null : TIMEOUT_DURATION_IN_SECONDS, () => {
-      setDrawersState(open)
+    setDrawerState((d) => {
+      d.open = open
     })
-    return () => {
-      retimer(TIMEOUT_DURATION_IN_SECONDS * 5, () => {
-        drawersStateAtomFamily.remove(id)
+    retimeAnim(() => {
+      setDrawerState((d) => {
+        d.openAnimationEnd = open
       })
-      sweepStaleTimers(retimerAtomFamily)
+    }, TRANSITIONS_DURATION)
+  }, [open, retimeAnim, setDrawerState])
+  useEffect(() => {
+    retimeRemove()
+    return () => {
+      retimeRemove(() => {
+        drawerStateFamily.remove({ key: id })
+      }, TRANSITIONS_DURATION)
     }
-  }, [id, open, retimer, setDrawersState])
+  }, [id, retimeRemove])
   return <DrawerPrimitive.Root data-slot="drawer" {...props} />
 }
 
