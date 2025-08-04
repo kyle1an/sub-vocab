@@ -1,5 +1,5 @@
-import { Duration } from 'effect'
 import { useClipboard } from 'foxact/use-clipboard'
+import ms from 'ms'
 import BxBxsErrorCircle from '~icons/bx/bxs-error-circle'
 import IconamoonArrowRight1Bold from '~icons/iconamoon/arrow-right-1-bold'
 import MingcuteCheckFill from '~icons/mingcute/check-fill'
@@ -17,7 +17,7 @@ function SentenceCopy({
   sentence: string
 }) {
   const { copy, copied, error } = useClipboard({
-    timeout: Duration.toMillis('1 seconds'),
+    timeout: ms('1s'),
   })
   return (
     <Button

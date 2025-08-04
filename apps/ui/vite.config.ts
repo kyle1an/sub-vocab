@@ -10,6 +10,7 @@ import { chunks } from './vite/utils'
 
 const ReactCompilerConfig = {
 }
+// https://github.com/facebook/react/issues/29078#issuecomment-2828508350
 
 export default defineConfig(({ mode }) => {
   return {

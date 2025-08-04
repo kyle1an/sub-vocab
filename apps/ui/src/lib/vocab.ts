@@ -1,6 +1,7 @@
 import type { Leaf, LearningPhase, TrackedWord, WordLocator } from '@/lib/LexiconTrie'
 
 import { buildTrackedWord } from '@/lib/LexiconTrie'
+import { compareBy } from '@/lib/utilities'
 
 export type WordOccurrencesInSentence = {
   sentenceId: number
@@ -17,7 +18,6 @@ export type VocabularySourceState = {
   wordOccurrences: WordOccurrencesInSentence[]
   inertialPhase: LearningPhase
 }
-
 export function formVocab(lemma: Leaf): VocabularySourceState {
   const locators = [...lemma.locators]
   const wordFamily = [lemma]
@@ -37,10 +37,9 @@ export function formVocab(lemma: Leaf): VocabularySourceState {
     collectInflections(lemma.inflectedForms)
   }
 
-  locators.sort((a, b) => a.wordOrder - b.wordOrder)
   const wordOccurrences: WordOccurrencesInSentence[] = []
   locators
-    .sort((a, b) => a.sentenceId - b.sentenceId || a.startOffset - b.startOffset)
+    .sort(compareBy((i) => [i.sentenceId, i.startOffset]))
     .forEach(({ sentenceId, startOffset, wordLength }) => {
       if (wordOccurrences.length >= 0) {
         const adjacentSentence = wordOccurrences.at(-1)

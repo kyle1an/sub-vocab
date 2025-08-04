@@ -18,3 +18,10 @@ type NonEmptyArray<T> = [T, ...T[]]
 export const isNonEmptyArray = <T>(arr: T[]): arr is NonEmptyArray<T> => arr.length > 0
 
 export const isSingleItemArray = <T>(arr: ArrayLike<T>): arr is [T] => arr.length === 1
+
+export function tap<T>(fn: (a: T) => void | undefined) {
+  return (a: T) => {
+    fn(a)
+    return a
+  }
+}

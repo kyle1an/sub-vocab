@@ -1,15 +1,19 @@
-import { useAbortableEffect } from 'foxact/use-abortable-effect'
-import { useState } from 'react'
+import { pipe } from 'effect'
+import { atom } from 'jotai'
 
-export function usePageVisibility() {
-  const [isVisible, setIsVisible] = useState(() => document.visibilityState === 'visible')
+import { withAbortableMount, withReadonly } from '@/atoms/utils'
 
-  useAbortableEffect((signal) => {
-    // eslint-disable-next-line react-web-api/no-leaked-event-listener
-    document.addEventListener('visibilitychange', () => {
-      setIsVisible(document.visibilityState === 'visible')
-    }, { signal })
-  }, [])
-
-  return isVisible
-}
+export const pageVisibilityAtom = (() => {
+  const isVisible = () => document.visibilityState === 'visible'
+  return pipe(
+    atom(isVisible()),
+    (v) => withAbortableMount(v, (setAtom, signal) => {
+      const listener = () => {
+        setAtom(isVisible())
+      }
+      document.addEventListener('visibilitychange', listener, { signal })
+      listener()
+    }),
+    withReadonly,
+  )
+})()

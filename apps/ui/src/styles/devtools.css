@@ -13,16 +13,26 @@
   --mantine-font-family-monospace: var(--font-mono) !important;
 }
 
-.tsqd-parent-container,
 #jotai-devtools-root {
   :is(& *) {
     corner-shape: superellipse(1.5);
   }
+  .jotai-devtools-trigger-button {
+    corner-shape: round;
+  }
+
+  .jotai-devtools-focus.internal-jotai-devtools-navlink {
+    span p {
+      overflow-wrap: break-word;
+    }
+  }
 }
 
-#root {
-  .tsqd-open-btn-container,
-  .jotai-devtools-trigger-button {
+.tsqd-parent-container {
+  :is(& *) {
+    corner-shape: superellipse(1.5);
+  }
+  .tsqd-open-btn-container {
     corner-shape: round;
   }
 }

@@ -2,7 +2,7 @@
   "name": "@sub-vocab/shared-types",
   "type": "module",
   "version": "1.0.0",
-  "description": "",
+  "description": "description",
   "exports": {
     ".": {
       "types": "./index.d.ts"

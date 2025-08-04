@@ -13,8 +13,9 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { TRPCClientError } from '@trpc/client'
+import { $trycatch } from '@tszen/trycatch'
 import clsx from 'clsx'
-import { Effect, identity } from 'effect'
+import { identity } from 'es-toolkit'
 import { atom, useAtom, useAtomValue } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 import { atomWithStorage } from 'jotai/utils'
@@ -40,7 +41,7 @@ import { SearchWidget } from '@/components/search-widget'
 import { Button } from '@/components/ui/button'
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
 import { Div } from '@/components/ui/html-elements'
-import { SegmentedControl } from '@/components/ui/segmented-control'
+import { SegmentedControl, SegmentItem } from '@/components/ui/segmented-control'
 import { Spinner } from '@/components/ui/spinner'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { AcquaintAllDialog } from '@/components/vocabulary/acquaint-all-dialog'
@@ -48,12 +49,14 @@ import { useVocabularyCommonColumns } from '@/components/vocabulary/columns'
 import { ExampleSentence } from '@/components/vocabulary/example-sentence'
 import { VocabularyMenu } from '@/components/vocabulary/menu'
 import { VocabStatics } from '@/components/vocabulary/statics-bar'
+import { useLastTruthy } from '@/hooks'
 import { LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { combineFilters, filterFn, noFilter } from '@/lib/table-utils'
-import { findClosest } from '@/lib/utilities'
+import { findClosest, isRegexValid } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
 import { getCategory } from '@/utils/prompts/getCategory'
-import { useLastSearchFilterValue } from '@/utils/vocabulary/filters'
+import { searchFilterValue } from '@/utils/vocabulary/filters'
+import { narrow } from '@sub-vocab/utils/types'
 
 type TableData = VocabularySourceState & {
   category: string | null
@@ -77,11 +80,11 @@ const cacheStateAtom = atom({
 
 function useSegments() {
   const { t } = useTranslation()
-  return [
+  return narrow([
     { value: 'all', label: t('all') },
     { value: 'new', label: t('new') },
     { value: 'acquainted', label: t('acquainted') },
-  ] as const
+  ])
 }
 
 type Segment = ReturnType<typeof useSegments>[number]['value']
@@ -183,7 +186,7 @@ function useSourceColumns<T extends TableData>() {
 type CategoryValue = 'properName' | 'acronym'
 
 type VocabularyCategory = {
-  [key in CategoryValue]?: string[]
+  [K in CategoryValue]?: string[]
 }
 
 const categoryAtom = atomWithStorage<VocabularyCategory>('categoryAtom', {})
@@ -220,6 +223,7 @@ export function VocabSourceTable({
   className?: string
   onSentenceTrack: (sentenceId: number) => void
 }) {
+  // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
   const [categoryAtomValue, setCategoryAtom] = useAtom(categoryAtom)
   const { t } = useTranslation()
@@ -233,7 +237,8 @@ export function VocabSourceTable({
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'all')
   const segmentDeferredValue = useDeferredValue(segment)
-  const lastTruthySearchFilterValue = useLastSearchFilterValue(deferredSearchValue, deferredIsUsingRegex)
+  const lastTruthySearchFilterValue = useLastTruthy(searchFilterValue(deferredSearchValue, deferredIsUsingRegex)) ?? noFilter
+  const inValidSearch = deferredIsUsingRegex && !isRegexValid(deferredSearchValue)
   const isSourceTextStale = useAtomValue(isSourceTextStaleAtom)
   const finalData = useCategorize(categoryAtomValue, data)
 
@@ -344,34 +349,34 @@ export function VocabSourceTable({
   const freshVocabularies = data
     .filter((d) => d.trackedWord.learningPhase === LEARNING_PHASE.NEW && !d.trackedWord.rank)
 
-  const handleAiVocabCategorize = () => Effect.runPromise(Effect.gen(function* () {
-    if (!isPending) {
-      const words = freshVocabularies
-        .filter((d) => !d.trackedWord.isBaseForm && !d.trackedWord.isUser && !d.trackedWord.rank)
-        .map((d) => d.wordFamily.map((w) => w.pathe))
-        .flat()
-      const { data: category, error } = yield* Effect.tryPromise(() => mutateAsync({
-        prompt: getCategory(words),
-      })).pipe(
-        Effect.mapError((e) => {
-          if (e.error instanceof TRPCClientError) {
-            return e.error
-          }
-          return e
-        }),
-      )
-      if (error) {
-        return yield* Effect.fail(new Error(error.message))
+  const handleAiVocabCategorize = async () => {
+    const words = freshVocabularies
+      .filter((d) => !d.trackedWord.isBaseForm && !d.trackedWord.isUser && !d.trackedWord.rank)
+      .map((d) => d.wordFamily.map((w) => w.pathe))
+      .flat()
+    const [value, error] = await $trycatch(mutateAsync({
+      prompt: getCategory(words),
+    }))
+    let message: string
+    if (error) {
+      if (error.cause instanceof TRPCClientError) {
+        message = error.cause.message
+      } else {
+        message = error.message
       }
-      setCategoryAtom(category)
+    } else {
+      const { data: category, error } = value
+      if (error) {
+        message = error.message
+      } else {
+        setCategoryAtom(category)
+        return
+      }
     }
-  }).pipe(
-    Effect.catchAll((e) => Effect.gen(function* () {
-      toast.error(e.message, {
-        duration: Infinity,
-      })
-    })),
-  ))
+    toast.error(message, {
+      duration: Infinity,
+    })
+  }
 
   return (
     <div className={cn('flex h-full flex-col items-center overflow-hidden bg-background will-change-transform', className)}>
@@ -390,6 +395,19 @@ export function VocabSourceTable({
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </VocabularyMenu>
+        <div className="p-px"></div>
+        <DataTableFacetedFilter
+          title="Category"
+          className="[--sq-r:.875rem]"
+          options={options}
+          filterValue={filterValue}
+          onFilterChange={(v) => {
+            setCacheState((draft) => {
+              draft.filterValue = v
+            })
+          }}
+        />
+        <div className="p-0.5"></div>
         <Button
           className="aspect-square h-full p-0 [--sq-r:.8125rem]"
           variant="ghost"
@@ -404,22 +422,10 @@ export function VocabSourceTable({
             <IconIconoirSparks className="size-4.5" />
           )}
         </Button>
-        <div className="p-0.5"></div>
-        <DataTableFacetedFilter
-          title="Category"
-          className="[--sq-r:.875rem]"
-          options={options}
-          filterValue={filterValue}
-          onFilterChange={(v) => {
-            setCacheState((draft) => {
-              draft.filterValue = v
-            })
-          }}
-        />
         <div className="flex items-center px-2.5 text-base">
           <div
             className={clsx(
-              'flex justify-center transition-all delay-300 duration-200',
+              'flex justify-center transition-opacity delay-300 duration-200',
               isStale ? '' : 'opacity-0',
             )}
           >
@@ -443,16 +449,23 @@ export function VocabSourceTable({
               draft.isUsingRegex = v
             })
           }}
+          className={inValidSearch ? '!border-red-500' : ''}
         />
       </div>
       <div className="h-px w-full border-b border-transparent shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)]" />
       <div className="z-10 w-full outline-1 outline-border outline-solid">
         <SegmentedControl
           value={segment}
-          segments={segments}
           onValueChange={handleSegmentChoose}
           variant="ghost"
-        />
+        >
+          {segments.map((segment) => (
+            <SegmentItem
+              key={segment.value}
+              segment={segment}
+            />
+          ))}
+        </SegmentedControl>
       </div>
       <div
         ref={rootRef}
