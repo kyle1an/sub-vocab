@@ -1,4 +1,5 @@
-import type { InitialTableState } from '@tanstack/react-table'
+import type { CellContext, InitialTableState } from '@tanstack/react-table'
+import type { RefObject } from 'react'
 
 import usePagination from '@mui/material/usePagination'
 import NumberFlow from '@number-flow/react'
@@ -26,7 +27,6 @@ import type { RowSelectionChangeFn } from '@/types/utils'
 import { openSubtitlesQueryOptionsAtom, osSessionAtom } from '@/api/opensubtitles'
 import { $api } from '@/api/tmdb'
 import { buildMediaSubtitleState, mediaSubtitleAtomFamily } from '@/atoms/subtitles'
-import { useFamily } from '@/atoms/utils'
 import { SortIcon } from '@/components/my-icon/sort-icon'
 import { TableGoToLastPage } from '@/components/my-table/go-to-last-page'
 import { TablePagination } from '@/components/my-table/pagination'
@@ -39,11 +39,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { useRect } from '@/hooks'
 import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
 import { customFormatDistance, formatIntervalLocale } from '@/lib/date-utils'
 import { getFileId } from '@/lib/subtitle'
 import { filterFn, noFilter, sortBySelection } from '@/lib/table-utils'
-import { findClosest, naturalNumLength } from '@/lib/utilities'
+import { compareBy, findClosest, naturalNumLength } from '@/lib/utilities'
 import { osLanguageAtom } from '@/store/useVocab'
 import { isNonEmptyArray } from '@sub-vocab/utils/lib'
 
@@ -207,11 +208,10 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
     }, {
       id: 'season_episode',
       filterFn,
-      sortingFn: (rowA, rowB) => {
-        const a = [rowA.original.subtitle.attributes.feature_details.season_number || 0, rowA.original.subtitle.attributes.feature_details.episode_number || 0] as const
-        const b = [rowB.original.subtitle.attributes.feature_details.season_number || 0, rowB.original.subtitle.attributes.feature_details.episode_number || 0] as const
-        return a[0] - b[0] || a[1] - b[1]
-      },
+      sortingFn: compareBy((row) => {
+        const { season_number = 0, episode_number = 0 } = row.original.subtitle.attributes.feature_details
+        return [season_number, episode_number]
+      }),
       header: ({ header }) => {
         const title = 'Ep'
         const isSorted = header.column.getIsSorted()
@@ -280,80 +280,13 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           </TableHeaderCell>
         )
       },
-      cell: function Cell({ cell, getValue, row }) {
-        /* eslint-disable react-compiler/react-compiler */
-        const ref = useRef<HTMLDivElement>(null)
-        const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
-        /* eslint-enable react-compiler/react-compiler */
-        let element = <Fragment></Fragment>
-        if (row.depth === 0) {
-          const value = getValue()
-          element = (
-            <span>
-              {value}
-            </span>
-          )
-        } else {
-          const value = row.original.subtitle.attributes.files[0]?.file_name || ''
-          const className = 'tracking-[.04em] text-sm'
-          const rootRect = root.current?.getBoundingClientRect()
-          const refRect = ref.current?.getBoundingClientRect()
-          let maxWidth = 0
-          if (rootRect && refRect) {
-            maxWidth = rootRect.x + rootRect.width - refRect.x + 12 - 4
-          }
-          element = (
-            <div
-              ref={ref}
-              className="w-0 grow truncate"
-            >
-              <Tooltip
-                delayDuration={500}
-              >
-                <TooltipTrigger
-                  onMouseOver={handleOnMouseOver}
-                  asChild
-                >
-                  <div
-                    className={clsx('truncate', className)}
-                  >
-                    {value}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent
-                  container={tbody.current}
-                  side="bottom"
-                  sideOffset={-21 - 1}
-                  align="start"
-                  alignOffset={-8 - 1}
-                  avoidCollisions={false}
-                  hidden={!isEllipsisActive}
-                  className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
-                  style={{
-                    '--max-width': `${maxWidth}px`,
-                  }}
-                >
-                  <span
-                    className={className}
-                  >
-                    {value}
-                  </span>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          )
-        }
+      cell: (ctx) => {
         return (
-          <TableDataCell
-            cell={cell}
-          >
-            <Div
-              className="cursor-text py-1 pr-px pl-2.5 tracking-[.04em] select-text"
-              onClick={(ev) => ev.stopPropagation()}
-            >
-              {element}
-            </Div>
-          </TableDataCell>
+          <TvNameCell
+            {...ctx}
+            root={root}
+            tbody={tbody}
+          />
         )
       },
     }),
@@ -409,6 +342,101 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
   ]
 }
 
+function TvNameSubRow<TData extends RowData>({
+  root,
+  tbody,
+  row,
+}: {
+  root: RefObject<HTMLDivElement | null>
+  tbody: React.RefObject<HTMLTableSectionElement | null>
+} & Pick<CellContext<TData, string>, 'row'>) {
+  const ref = useRef<HTMLDivElement>(null)
+  const value = row.original.subtitle.attributes.files[0]?.file_name || ''
+  const className = 'tracking-[.04em] text-sm'
+  const rootRect = useRect(root)
+  const refRect = useRect(ref)
+  const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
+  let maxWidth = 0
+  if (rootRect && refRect) {
+    maxWidth = rootRect.x + rootRect.width - refRect.x + 12 - 4
+  }
+  return (
+    <div
+      ref={ref}
+      className="w-0 grow truncate"
+    >
+      <Tooltip
+        delayDuration={500}
+      >
+        <TooltipTrigger
+          onMouseOver={handleOnMouseOver}
+          asChild
+        >
+          <div
+            className={clsx('truncate', className)}
+          >
+            {value}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent
+          container={tbody.current}
+          side="bottom"
+          sideOffset={-21 - 1}
+          align="start"
+          alignOffset={-8 - 1}
+          avoidCollisions={false}
+          hidden={!isEllipsisActive}
+          className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
+          style={{
+            '--max-width': `${maxWidth}px`,
+          }}
+        >
+          <span
+            className={className}
+          >
+            {value}
+          </span>
+        </TooltipContent>
+      </Tooltip>
+    </div>
+  )
+}
+
+function TvNameCell<TData extends RowData>({
+  root,
+  tbody,
+  cell,
+  getValue,
+  row,
+}: {
+  root: RefObject<HTMLDivElement | null>
+  tbody: React.RefObject<HTMLTableSectionElement | null>
+} & CellContext<TData, string>) {
+  const value = getValue()
+  return (
+    <TableDataCell
+      cell={cell}
+    >
+      <Div
+        className="cursor-text py-1 pr-px pl-2.5 tracking-[.04em] select-text"
+        onClick={(ev) => ev.stopPropagation()}
+      >
+        {row.depth === 0 ? (
+          <span>
+            {value}
+          </span>
+        ) : (
+          <TvNameSubRow
+            root={root}
+            tbody={tbody}
+            row={row}
+          />
+        )}
+      </Div>
+    </TableDataCell>
+  )
+}
+
 /// keep-unique
 const PAGE_SIZES = [5, 6, 10, 20, 40, 50, 100, 200] as const
 
@@ -461,6 +489,7 @@ export function TVSubtitleFiles({
 }: {
   id: number
 }) {
+  // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
   const { t } = useTranslation()
   const { data: seriesDetail, isLoading: isSeriesDetailLoading } = useQuery($api.queryOptions(
@@ -529,7 +558,7 @@ export function TVSubtitleFiles({
   const tvColumns = useTVColumns(id, highestEpisodeNumber, rootRef, tbodyRef)
   const columns = [...commonColumns, ...tvColumns]
   const dataRows = subtitleEpisodeData(subtitles, episodes)
-  const [{ episodeFilter: filterEpisode = 'all', initialTableState: mediaInitialTableState, tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(useFamily(mediaSubtitleAtomFamily, {
+  const [{ episodeFilter: filterEpisode = 'all', initialTableState: mediaInitialTableState, tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleAtomFamily({
     key: id,
     initialValue: buildMediaSubtitleState({
       initialTableState: {

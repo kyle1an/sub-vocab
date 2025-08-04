@@ -1,7 +1,7 @@
 import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
 import { useMutation } from '@tanstack/react-query'
-import { Duration } from 'effect'
 import { useAtom } from 'jotai'
+import ms from 'ms'
 import { startTransition } from 'react'
 import { useForm } from 'react-hook-form'
 import { Navigate, useNavigate } from 'react-router'
@@ -72,7 +72,7 @@ export default function ResetPassword() {
     const { error } = await resetPasswordForEmail([values.email])
     if (!error) {
       toast(<ResetEmailNotification />, {
-        duration: Duration.toMillis('1 minutes'),
+        duration: ms('1min'),
       })
       startTransition(() => {
         navigate('/login')

@@ -12,7 +12,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import clsx from 'clsx'
-import { identity } from 'effect'
+import { identity } from 'es-toolkit'
 import { atom, useAtom, useAtomValue } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 import { startTransition, useDeferredValue, useRef } from 'react'
@@ -33,20 +33,22 @@ import { TablePaginationSizeSelect } from '@/components/my-table/pagination-size
 import { SearchWidget } from '@/components/search-widget'
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
 import { Div } from '@/components/ui/html-elements'
-import { SegmentedControl } from '@/components/ui/segmented-control'
+import { SegmentedControl, SegmentItem } from '@/components/ui/segmented-control'
 import { Spinner } from '@/components/ui/spinner'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { AcquaintAllDialog } from '@/components/vocabulary/acquaint-all-dialog'
 import { useVocabularyCommonColumns } from '@/components/vocabulary/columns'
 import { VocabularyMenu } from '@/components/vocabulary/menu'
 import { VocabStatics } from '@/components/vocabulary/statics-bar'
+import { useLastTruthy } from '@/hooks'
 import { customFormatDistance, formatDistanceLocale } from '@/lib/date-utils'
 import { customFormatDistanceToNowStrict } from '@/lib/formatDistance'
 import { LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { combineFilters, noFilter } from '@/lib/table-utils'
-import { findClosest, getFallBack } from '@/lib/utilities'
+import { findClosest, getFallBack, isRegexValid } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
-import { useLastSearchFilterValue } from '@/utils/vocabulary/filters'
+import { searchFilterValue } from '@/utils/vocabulary/filters'
+import { narrow } from '@sub-vocab/utils/types'
 
 type TableData = VocabularySourceState
 
@@ -75,12 +77,12 @@ const cacheStateAtom = atom({
 
 function useSegments() {
   const { t } = useTranslation()
-  return [
+  return narrow([
     { value: 'new', label: t('recent') },
     { value: 'allAcquainted', label: t('all') },
     { value: 'mine', label: t('mine') },
     { value: 'top', label: t('top') },
-  ] as const
+  ])
 }
 
 type Segment = ReturnType<typeof useSegments>[number]['value']
@@ -184,7 +186,8 @@ export function VocabDataTable({
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'allAcquainted')
   const segmentDeferredValue = useDeferredValue(segment)
-  const lastTruthySearchFilterValue = useLastSearchFilterValue(deferredSearchValue, deferredIsUsingRegex)
+  const lastTruthySearchFilterValue = useLastTruthy(searchFilterValue(deferredSearchValue, deferredIsUsingRegex)) ?? noFilter
+  const inValidSearch = deferredIsUsingRegex && !isRegexValid(deferredSearchValue)
   const { refetch, isFetching: isLoadingUserVocab } = useAtomValue(userVocabularyAtom)
 
   const table = useReactTable({
@@ -307,7 +310,7 @@ export function VocabDataTable({
         <div className="flex items-center px-2.5 text-base">
           <div
             className={clsx(
-              'flex justify-center transition-all delay-300 duration-200',
+              'flex justify-center transition-opacity delay-300 duration-200',
               isStale ? '' : 'opacity-0',
             )}
           >
@@ -331,16 +334,23 @@ export function VocabDataTable({
               draft.isUsingRegex = v
             })
           }}
+          className={inValidSearch ? '!border-red-500' : ''}
         />
       </div>
       <div className="h-px w-full border-b shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)]" />
       <div className="w-full">
         <SegmentedControl
           value={segment}
-          segments={segments}
           onValueChange={handleSegmentChoose}
           variant="ghost"
-        />
+        >
+          {segments.map((segment) => (
+            <SegmentItem
+              key={segment.value}
+              segment={segment}
+            />
+          ))}
+        </SegmentedControl>
       </div>
       <div
         className="w-full grow overflow-auto overflow-y-scroll overscroll-contain [scrollbar-width:thin]"

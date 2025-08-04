@@ -58,41 +58,41 @@ export function DataTableFacetedFilter({
                 {title}
               </span>
             </div>
-            {selected.length > 0 && (() => {
-              const badge = (
-                <Badge
-                  variant="secondary"
-                  className="px-1 font-normal [--sq-r:.5625rem]"
-                >
-                  {selected.length}
-                </Badge>
-              )
-              return (
-                <Fragment>
-                  <Separator orientation="vertical" className="h-4" />
-                  <div className="flex space-x-1 px-1 lg:hidden">
-                    {badge}
-                  </div>
-                  <div className="hidden space-x-1 px-1 lg:flex">
-                    {selected.length >= 2 ? (
-                      badge
-                    ) : (
-                      options
-                        .filter((option) => filterValue[option.value])
-                        .map((option) => (
-                          <Badge
-                            variant="secondary"
-                            key={option.value}
-                            className="px-1 font-normal [--sq-r:.5625rem]"
-                          >
-                            {option.label}
-                          </Badge>
-                        ))
-                    )}
-                  </div>
-                </Fragment>
-              )
-            })()}
+            {selected.length > 0 && (
+              <Fragment>
+                <Separator orientation="vertical" className="h-4" />
+                <div className="flex space-x-1 px-1 lg:hidden">
+                  <Badge
+                    variant="secondary"
+                    className="px-1 font-normal [--sq-r:.5625rem]"
+                  >
+                    {selected.length}
+                  </Badge>
+                </div>
+                <div className="hidden space-x-1 px-1 lg:flex">
+                  {selected.length >= 2 ? (
+                    <Badge
+                      variant="secondary"
+                      className="px-1 font-normal [--sq-r:.5625rem]"
+                    >
+                      {selected.length}
+                    </Badge>
+                  ) : (
+                    options
+                      .filter((option) => filterValue[option.value])
+                      .map((option) => (
+                        <Badge
+                          variant="secondary"
+                          key={option.value}
+                          className="px-1 font-normal [--sq-r:.5625rem]"
+                        >
+                          {option.label}
+                        </Badge>
+                      ))
+                  )}
+                </div>
+              </Fragment>
+            )}
           </Fragment>
         </Button>
       </PopoverTrigger>

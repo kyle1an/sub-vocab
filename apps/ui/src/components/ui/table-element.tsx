@@ -1,12 +1,12 @@
-import type { Cell, Row, SortDirection } from '@tanstack/react-table'
+import type { Cell, Renderable, Row, SortDirection } from '@tanstack/react-table'
 import type { ReactElement } from 'react'
 
 import { Slot } from '@radix-ui/react-slot'
 import { useIntersectionObserver } from '@react-hookz/web'
 import { flexRender } from '@tanstack/react-table'
 import clsx from 'clsx'
-import { Duration } from 'effect'
 import { sum } from 'es-toolkit'
+import ms from 'ms'
 import React, { Fragment, useRef, useState } from 'react'
 
 import type { DivProps } from '@/components/ui/html-elements'
@@ -15,11 +15,22 @@ import type { GroupHeader } from '@/types/vocab'
 
 import { SortIcon } from '@/components/my-icon/sort-icon'
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
+import { useRect } from '@/hooks'
 import { useRetimer } from '@/hooks/useRetimer'
-import { useRect } from '@/lib/hooks'
+import { useStickyValue } from '@/hooks/useStickyValue'
 import { cn } from '@/lib/utils'
 
 export const HEAD_HEIGHT = 30
+
+function FlexRender<TProps extends object>({
+  comp,
+  props,
+}: {
+  comp: Renderable<TProps>
+  props: TProps
+}) {
+  return flexRender(comp, props)
+}
 
 export function TableHeader({
   children,
@@ -52,12 +63,10 @@ export function TableHeaderCellRender<T>({ header }: { header: GroupHeader<T> })
     header.isPlaceholder ? (
       <TableHeaderCell header={header} />
     ) : (
-      <Fragment>
-        {flexRender(
-          header.column.columnDef.header,
-          header.getContext(),
-        )}
-      </Fragment>
+      <FlexRender
+        comp={header.column.columnDef.header}
+        props={header.getContext()}
+      />
     )
   )
 }
@@ -154,9 +163,9 @@ type ExpandProp = {
   root: React.RefObject<HTMLDivElement | null> | null
 }
 
-const ANIM_DURATION = Duration.toMillis('0.3 seconds')
+const ANIM_DURATION = ms('0.3s')
 
-const SHADOW_DURATION = Duration.toMillis('0.4 seconds')
+const SHADOW_DURATION = ms('0.4s')
 
 export function TableRow<T>({
   row: {
@@ -178,9 +187,9 @@ export function TableRow<T>({
   const detailElement = detailRef.current
   const [open, setOpen] = useState(getIsExpanded)
   const [animationOpen, setAnimationOpen] = useState(false)
-  const retimerAnim = useRetimer()
+  const retimeAnim = useRetimer()
   const [transitionOpen, setTransitionOpen] = useState(false)
-  const retimerTransition = useRetimer()
+  const retimeTransition = useRetimer()
 
   function handleToggleExpanded(isClosing: boolean) {
     const isOpening = !isClosing
@@ -196,37 +205,35 @@ export function TableRow<T>({
       })
     }
     if (isOpening) {
-      retimerAnim(ANIM_DURATION, () => setAnimationOpen(false))
+      retimeAnim(() => setAnimationOpen(false), ANIM_DURATION)
     }
 
-    retimerTransition(SHADOW_DURATION, () => setTransitionOpen(false))
-    const root = rootRef?.current
-    const rowElement = rowRef.current
-    if (root && rowElement) {
-      if (rowElement.getBoundingClientRect().y - root.getBoundingClientRect().y <= HEAD_HEIGHT) {
-        if (isClosing && detailElement) {
+    retimeTransition(() => setTransitionOpen(false), SHADOW_DURATION)
+    if (rootRef?.current && rowRef.current) {
+      if (rowRef.current.getBoundingClientRect().y - rootRef.current.getBoundingClientRect().y <= HEAD_HEIGHT) {
+        if (isClosing && detailRef.current) {
           const subRowsHeight = sum(
             subRows
               .map((subRow) => document.getElementById(subRow.id))
               .map((e) => e?.offsetHeight || 0),
           )
-          const overlapHeight = rowElement.offsetTop + rowHeight - detailElement.offsetTop
-          const expandedHeight = detailElement.offsetHeight + subRowsHeight
+          const overlapHeight = rowRef.current.offsetTop + rowHeight - detailRef.current.offsetTop
+          const expandedHeight = detailRef.current.offsetHeight + subRowsHeight
           if (overlapHeight < expandedHeight) {
             // subRow / isDetailVisibleIntersecting
-            root.scrollTo({
-              top: -HEAD_HEIGHT - rowHeight + detailElement.offsetTop,
+            rootRef?.current.scrollTo({
+              top: -HEAD_HEIGHT - rowHeight + detailRef.current.offsetTop,
             })
           } else {
             // isDetailAboveRoot
-            root.scrollTo({
-              top: -HEAD_HEIGHT + rowElement.offsetTop - expandedHeight,
+            rootRef.current.scrollTo({
+              top: -HEAD_HEIGHT + rowRef.current.offsetTop - expandedHeight,
               behavior: isClosing ? 'instant' : 'smooth',
             })
           }
         } else {
-          root.scrollTo({
-            top: -HEAD_HEIGHT + rowElement.offsetTop,
+          rootRef.current.scrollTo({
+            top: -HEAD_HEIGHT + rowRef.current.offsetTop,
             behavior: 'smooth',
           })
         }
@@ -234,7 +241,8 @@ export function TableRow<T>({
     }
   }
 
-  const showDetail = Boolean(detailElement || open || animationOpen)
+  const opened = useStickyValue(open)
+  const showDetail = Boolean(opened || open || animationOpen)
   const detailEntry = useIntersectionObserver(showDetail ? detailRef : null, {
     root: rootRef,
     rootMargin: `${-HEAD_HEIGHT - rowHeight}px 0% 0%`,
@@ -268,16 +276,15 @@ export function TableRow<T>({
         data-boundary={(isDetailAboveRoot ? open : isDetailVisibleIntersecting) && !animationOpen ? '' : undefined}
       >
         {visibleCells.map((cell) => (
-          <Fragment key={cell.id}>
-            {flexRender(
-              cell.column.columnDef.cell,
-              {
-                ...cell.getContext(),
-                onExpandedChange: handleToggleExpanded,
-                onRowSelectionChange,
-              },
-            )}
-          </Fragment>
+          <FlexRender
+            key={cell.id}
+            comp={cell.column.columnDef.cell}
+            props={{
+              ...cell.getContext(),
+              onExpandedChange: handleToggleExpanded,
+              onRowSelectionChange,
+            }}
+          />
         ))}
       </tr>
       {showDetail ? (

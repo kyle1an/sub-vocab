@@ -38,6 +38,8 @@ export function getFallBack<P extends string, T extends Record<string, string>>(
 
 export type ArrayConcat<T extends UnknownArray, Item extends UnknownArray> = ArraySplice<T, T['length'], 0, Item>
 
+export type AppendParameters<T extends (...args: any) => any, A extends UnknownArray> = (...arg: ArrayConcat<Parameters<T>, A>) => ReturnType<T>
+
 // https://www.reddit.com/r/typescript/comments/s1rdbp/comment/ihh0hyx/
 export function hasKey<T extends string>(obj: unknown, key: T): obj is { [key in T]: unknown } {
   return Boolean(typeof obj === 'object' && obj && key in obj)
@@ -52,4 +54,42 @@ export function normalizeThemeColor(color: string) {
     return 'rgb(254,254,254)'
   }
   return color
+}
+
+export function isRegexValid(pattern: string) {
+  try {
+    return new RegExp(pattern)
+  } catch (e) {
+    return false
+  }
+}
+
+export function arrayCompare<
+  const A extends readonly number[],
+  const B extends readonly number[] & { length: A['length'] },
+>(a: A, b: B) {
+  const len = Math.min(a.length, b.length)
+
+  for (let i = 0; i < len; i++) {
+    // If we find a difference at any index, we can return it immediately.
+    const diff = a[i]! - b[i]!
+    if (diff !== 0) {
+      return diff
+    }
+  }
+
+  // If all common elements are the same, the longer array is "greater".
+  return a.length - b.length
+}
+
+export function compareBy<T>(map: (i: T) => number[]) {
+  return (a: T, b: T) => {
+    return arrayCompare(map(a), map(b))
+  }
+}
+
+export function equalBy<T>(map: (i: T) => any) {
+  return (a: T, b: T) => {
+    return map(a) === map(b)
+  }
 }

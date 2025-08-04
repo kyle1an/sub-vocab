@@ -1,6 +1,6 @@
 import antfu from '@antfu/eslint-config'
-import { FlatCompat } from '@eslint/eslintrc'
 import pluginQuery from '@tanstack/eslint-plugin-query'
+import reactCompiler from 'eslint-plugin-react-compiler'
 import eslintPluginTailwindCss from 'eslint-plugin-tailwindcss'
 import valtio from 'eslint-plugin-valtio'
 // @ts-check
@@ -12,7 +12,6 @@ import { fileURLToPath } from 'node:url'
 import configs from '../../eslint.config.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const compat = new FlatCompat()
 
 export default typegen(antfu(
   {
@@ -51,6 +50,7 @@ export default typegen(antfu(
       'style/jsx-one-expression-per-line': ['warn', { allow: 'single-line' }],
     },
   },
+  reactCompiler.configs.recommended,
   {
     name: 'react',
     rules: {
@@ -69,14 +69,6 @@ export default typegen(antfu(
       'react-refresh/only-export-components': 'off',
     },
   },
-  compat.config({
-    plugins: [
-      'eslint-plugin-react-compiler',
-    ],
-    rules: {
-      'react-compiler/react-compiler': 2,
-    },
-  }),
   ...pluginQuery.configs['flat/recommended'],
   ...eslintPluginTailwindCss.configs['flat/recommended'],
   {
