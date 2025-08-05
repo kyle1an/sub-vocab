@@ -20,7 +20,7 @@
     "@fastify/http-proxy": "^11.3.0",
     "@openrouter/ai-sdk-provider": "^0.7.3",
     "@sub-vocab/utils": "workspace:*",
-    "@trpc/server": "^11.4.3",
+    "@trpc/server": "^11.4.4",
     "ai": "^5.0.2",
     "drizzle-orm": "^0.44.4",
     "fastify": "^5.4.0",
@@ -29,7 +29,7 @@
     "postgres": "^3.4.7"
   },
   "devDependencies": {
-    "@vercel/node": "^5.3.10",
+    "@vercel/node": "^5.3.11",
     "drizzle-kit": "^0.31.4",
     "esbuild": "^0.25.8",
     "tsx": "^4.20.3"
