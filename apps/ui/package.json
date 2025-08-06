@@ -55,6 +55,7 @@
     "@tanstack/react-table": "^8.21.3",
     "@trpc/client": "^11.4.4",
     "@trpc/tanstack-react-query": "^11.4.4",
+    "@tszen/trycatch": "^0.1.0",
     "@types/textarea-caret": "^3.0.4",
     "@vercel/analytics": "^1.5.0",
     "@vercel/edge": "^1.2.2",

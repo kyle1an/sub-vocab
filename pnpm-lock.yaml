@@ -279,6 +279,9 @@ importers:
       '@trpc/tanstack-react-query':
         specifier: ^11.4.4
         version: 11.4.4(@tanstack/react-query@5.84.1(react@19.1.1))(@trpc/client@11.4.4(@trpc/server@11.4.4(typescript@5.9.2))(typescript@5.9.2))(@trpc/server@11.4.4(typescript@5.9.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(typescript@5.9.2)
+      '@tszen/trycatch':
+        specifier: ^0.1.0
+        version: 0.1.0
       '@types/textarea-caret':
         specifier: ^3.0.4
         version: 3.0.4
@@ -3460,6 +3463,9 @@ packages:
 
   '@tsconfig/node16@1.0.4':
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
+
+  '@tszen/trycatch@0.1.0':
+    resolution: {integrity: sha512-EhDcT1nmtTbdf7i8SsxwCrUnoIvQmlLiv6OMG31CwBJ8wkvOrGVuvgE/twm2xHxjmxT0J4cDXClU13ms7j6POQ==}
 
   '@tybys/wasm-util@0.10.0':
     resolution: {integrity: sha512-VyyPYFlOMNylG45GoAe0xDoLwWuowvf92F9kySqzYh8vmYm7D2u4iUJKa1tOUpS70Ku13ASrOkS4ScXFsTaCNQ==}
@@ -11068,6 +11074,8 @@ snapshots:
   '@tsconfig/node14@1.0.3': {}
 
   '@tsconfig/node16@1.0.4': {}
+
+  '@tszen/trycatch@0.1.0': {}
 
   '@tybys/wasm-util@0.10.0':
     dependencies:

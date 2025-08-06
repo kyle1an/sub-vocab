@@ -2,8 +2,8 @@ import type React from 'react'
 
 import { Slot } from '@radix-ui/react-slot'
 import { useMutation } from '@tanstack/react-query'
+import { $trycatch } from '@tszen/trycatch'
 import clsx from 'clsx'
-import { Console, Effect } from 'effect'
 import { useAtom } from 'jotai'
 import { Fragment, useTransition } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -72,17 +72,17 @@ function SignOut({ className, ...props }: React.ComponentProps<'button'>) {
     mutationFn: bindApply(supabaseAuth.signOut, supabaseAuth),
   })
 
-  const logout = () => Effect.runPromise(Effect.gen(function* () {
-    const { error } = yield* Effect.tryPromise(() => signOut([{ scope: 'local' }]))
-    if (error) {
-      return yield* Effect.fail(error)
+  async function logout() {
+    const [value, error] = await $trycatch(signOut([{ scope: 'local' }]))
+    if (error !== null) {
+      toast.error(error.message)
+    } else {
+      const { error } = value
+      if (error) {
+        toast.error(error.message)
+      }
     }
-  }).pipe(
-    Effect.tapError(Console.error),
-    Effect.catchAll((e) => Effect.gen(function* () {
-      toast.error(e.message)
-    })),
-  ))
+  }
 
   return (
     <button
