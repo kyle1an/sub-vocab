@@ -19,6 +19,7 @@ import { baseVocabAtom } from '@/api/vocab-api'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import { LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { createFactory } from '@sub-vocab/utils/lib'
+import { narrow } from '@sub-vocab/utils/types'
 
 type DataSet = {
   groupName: string
@@ -234,12 +235,12 @@ export default function Chart() {
   const { t } = useTranslation()
   const [userWords] = useAtom(baseVocabAtom)
 
-  const segments = [
+  const segments = narrow([
     { value: 'W', label: t('W') },
     { value: 'M', label: t('M') },
     { value: '6M', label: t('6M') },
     { value: 'Y', label: t('Y') },
-  ] as const
+  ])
   type Segment = typeof segments[number]['value']
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'W')
 

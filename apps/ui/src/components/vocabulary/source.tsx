@@ -13,6 +13,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { TRPCClientError } from '@trpc/client'
+import { $trycatch } from '@tszen/trycatch'
 import clsx from 'clsx'
 import { Effect } from 'effect'
 import { identity } from 'es-toolkit'
@@ -222,6 +223,7 @@ export function VocabSourceTable({
   className?: string
   onSentenceTrack: (sentenceId: number) => void
 }) {
+  // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
   const [categoryAtomValue, setCategoryAtom] = useAtom(categoryAtom)
   const { t } = useTranslation()
@@ -346,34 +348,34 @@ export function VocabSourceTable({
   const freshVocabularies = data
     .filter((d) => d.trackedWord.learningPhase === LEARNING_PHASE.NEW && !d.trackedWord.rank)
 
-  const handleAiVocabCategorize = () => Effect.runPromise(Effect.gen(function* () {
-    if (isPending) return
-
+  const handleAiVocabCategorize = async () => {
     const words = freshVocabularies
       .filter((d) => !d.trackedWord.isBaseForm && !d.trackedWord.isUser && !d.trackedWord.rank)
       .map((d) => d.wordFamily.map((w) => w.pathe))
       .flat()
-    const { data: category, error } = yield* Effect.tryPromise(() => mutateAsync({
+    const [value, error] = await $trycatch(mutateAsync({
       prompt: getCategory(words),
-    })).pipe(
-      Effect.mapError((e) => {
-        if (e.error instanceof TRPCClientError) {
-          return e.error
-        }
-        return e
-      }),
-    )
+    }))
+    let message: string
     if (error) {
-      return yield* Effect.fail(new Error(error.message))
+      if (error.cause instanceof TRPCClientError) {
+        message = error.cause.message
+      } else {
+        message = error.message
+      }
+    } else {
+      const { data: category, error } = value
+      if (error) {
+        message = error.message
+      } else {
+        setCategoryAtom(category)
+        return
+      }
     }
-    setCategoryAtom(category)
-  }).pipe(
-    Effect.catchAll((e) => Effect.gen(function* () {
-      toast.error(e.message, {
-        duration: Infinity,
-      })
-    })),
-  ))
+    toast.error(message, {
+      duration: Infinity,
+    })
+  }
 
   return (
     <div className={cn('flex h-full flex-col items-center overflow-hidden bg-background will-change-transform', className)}>

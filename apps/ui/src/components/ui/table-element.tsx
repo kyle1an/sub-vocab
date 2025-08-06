@@ -172,6 +172,8 @@ export function TableRow<T>({
   children,
   onRowSelectionChange,
 }: RowProp<T>) {
+  // eslint-disable-next-line react-compiler/react-compiler
+  'use no memo'
   const rowRef = useRef<HTMLTableRowElement>(null)
   const { height: rowHeight } = useRect(rowRef)
   const detailRef = useRef<HTMLTableRowElement>(null)

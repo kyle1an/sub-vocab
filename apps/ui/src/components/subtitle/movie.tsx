@@ -1,4 +1,5 @@
-import type { InitialTableState } from '@tanstack/react-table'
+import type { CellContext, InitialTableState, RowData } from '@tanstack/react-table'
+import type { RefObject } from 'react'
 
 import usePagination from '@mui/material/usePagination'
 import NumberFlow from '@number-flow/react'
@@ -116,69 +117,84 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
           </TableHeaderCell>
         )
       },
-      // https://github.com/TanStack/table/discussions/5164#discussioncomment-9478554
-      cell: function Cell({ cell, getValue }) {
-        const value = getValue()
-        /* eslint-disable react-compiler/react-compiler */
-        const ref = useRef<HTMLDivElement>(null)
-        const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
-        const { x: rootX, width: rootWidth } = useRect(root)
-        const { x: refX } = useRect(ref)
-        /* eslint-enable react-compiler/react-compiler */
-        const className = 'tracking-[.04em] text-sm'
-        const maxWidth = rootX + rootWidth - refX + 12 - 4
+      cell: (ctx) => {
         return (
-          <TableDataCell
-            cell={cell}
-          >
-            <Div
-              className="cursor-text py-1 pr-px pl-2.5"
-              onClick={(ev) => ev.stopPropagation()}
-            >
-              <div
-                ref={ref}
-                className="w-0 grow truncate"
-              >
-                <Tooltip
-                  delayDuration={500}
-                >
-                  <TooltipTrigger
-                    onMouseOver={handleOnMouseOver}
-                    asChild
-                  >
-                    <div
-                      className={clsx('truncate', className)}
-                    >
-                      {value}
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    container={tbody.current}
-                    side="bottom"
-                    sideOffset={-21 - 1}
-                    align="start"
-                    alignOffset={-8 - 1}
-                    avoidCollisions={false}
-                    hidden={!isEllipsisActive}
-                    className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
-                    style={{
-                      '--max-width': `${maxWidth}px`,
-                    }}
-                  >
-                    <span
-                      className={className}
-                    >
-                      {value}
-                    </span>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-            </Div>
-          </TableDataCell>
+          <MovieNameCell
+            {...ctx}
+            root={root}
+            tbody={tbody}
+          />
         )
       },
     }),
   ]
+}
+
+function MovieNameCell<TData extends RowData>({
+  root,
+  tbody,
+  cell,
+  getValue,
+}: {
+  root: RefObject<HTMLDivElement | null>
+  tbody: React.RefObject<HTMLTableSectionElement | null>
+} & CellContext<TData, string>) {
+  const value = getValue()
+  const ref = useRef<HTMLDivElement>(null)
+  const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
+  const { x: rootX, width: rootWidth } = useRect(root)
+  const { x: refX } = useRect(ref)
+  const className = 'tracking-[.04em] text-sm'
+  const maxWidth = rootX + rootWidth - refX + 12 - 4
+  return (
+    <TableDataCell
+      cell={cell}
+    >
+      <Div
+        className="cursor-text py-1 pr-px pl-2.5"
+        onClick={(ev) => ev.stopPropagation()}
+      >
+        <div
+          ref={ref}
+          className="w-0 grow truncate"
+        >
+          <Tooltip
+            delayDuration={500}
+          >
+            <TooltipTrigger
+              onMouseOver={handleOnMouseOver}
+              asChild
+            >
+              <div
+                className={clsx('truncate', className)}
+              >
+                {value}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent
+              container={tbody.current}
+              side="bottom"
+              sideOffset={-21 - 1}
+              align="start"
+              alignOffset={-8 - 1}
+              avoidCollisions={false}
+              hidden={!isEllipsisActive}
+              className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
+              style={{
+                '--max-width': `${maxWidth}px`,
+              }}
+            >
+              <span
+                className={className}
+              >
+                {value}
+              </span>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+      </Div>
+    </TableDataCell>
+  )
 }
 
 /// keep-unique
@@ -221,6 +237,7 @@ function SubtitleFiles({
   id: number
   subtitleData: Subtitles['Response']['data']
 }) {
+  // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
   const { t } = useTranslation()
   const commonColumns = useCommonColumns<MovieSubtitleData>()

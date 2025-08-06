@@ -1,4 +1,5 @@
-import type { InitialTableState } from '@tanstack/react-table'
+import type { CellContext, InitialTableState } from '@tanstack/react-table'
+import type { RefObject } from 'react'
 
 import usePagination from '@mui/material/usePagination'
 import NumberFlow from '@number-flow/react'
@@ -279,80 +280,13 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           </TableHeaderCell>
         )
       },
-      cell: function Cell({ cell, getValue, row }) {
-        /* eslint-disable react-compiler/react-compiler */
-        const ref = useRef<HTMLDivElement>(null)
-        const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
-        /* eslint-enable react-compiler/react-compiler */
-        let element = <Fragment></Fragment>
-        if (row.depth === 0) {
-          const value = getValue()
-          element = (
-            <span>
-              {value}
-            </span>
-          )
-        } else {
-          const value = row.original.subtitle.attributes.files[0]?.file_name || ''
-          const className = 'tracking-[.04em] text-sm'
-          const rootRect = root.current?.getBoundingClientRect()
-          const refRect = ref.current?.getBoundingClientRect()
-          let maxWidth = 0
-          if (rootRect && refRect) {
-            maxWidth = rootRect.x + rootRect.width - refRect.x + 12 - 4
-          }
-          element = (
-            <div
-              ref={ref}
-              className="w-0 grow truncate"
-            >
-              <Tooltip
-                delayDuration={500}
-              >
-                <TooltipTrigger
-                  onMouseOver={handleOnMouseOver}
-                  asChild
-                >
-                  <div
-                    className={clsx('truncate', className)}
-                  >
-                    {value}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent
-                  container={tbody.current}
-                  side="bottom"
-                  sideOffset={-21 - 1}
-                  align="start"
-                  alignOffset={-8 - 1}
-                  avoidCollisions={false}
-                  hidden={!isEllipsisActive}
-                  className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
-                  style={{
-                    '--max-width': `${maxWidth}px`,
-                  }}
-                >
-                  <span
-                    className={className}
-                  >
-                    {value}
-                  </span>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          )
-        }
+      cell: (ctx) => {
         return (
-          <TableDataCell
-            cell={cell}
-          >
-            <Div
-              className="cursor-text py-1 pr-px pl-2.5 tracking-[.04em] select-text"
-              onClick={(ev) => ev.stopPropagation()}
-            >
-              {element}
-            </Div>
-          </TableDataCell>
+          <TvNameCell
+            {...ctx}
+            root={root}
+            tbody={tbody}
+          />
         )
       },
     }),
@@ -408,6 +342,90 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
   ]
 }
 
+function TvNameCell<TData extends RowData>({
+  root,
+  tbody,
+  cell,
+  getValue,
+  row,
+}: {
+  root: RefObject<HTMLDivElement | null>
+  tbody: React.RefObject<HTMLTableSectionElement | null>
+} & CellContext<TData, string>) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
+  let element = <Fragment></Fragment>
+  if (row.depth === 0) {
+    const value = getValue()
+    element = (
+      <span>
+        {value}
+      </span>
+    )
+  } else {
+    const value = row.original.subtitle.attributes.files[0]?.file_name || ''
+    const className = 'tracking-[.04em] text-sm'
+    const rootRect = root.current?.getBoundingClientRect()
+    const refRect = ref.current?.getBoundingClientRect()
+    let maxWidth = 0
+    if (rootRect && refRect) {
+      maxWidth = rootRect.x + rootRect.width - refRect.x + 12 - 4
+    }
+    element = (
+      <div
+        ref={ref}
+        className="w-0 grow truncate"
+      >
+        <Tooltip
+          delayDuration={500}
+        >
+          <TooltipTrigger
+            onMouseOver={handleOnMouseOver}
+            asChild
+          >
+            <div
+              className={clsx('truncate', className)}
+            >
+              {value}
+            </div>
+          </TooltipTrigger>
+          <TooltipContent
+            container={tbody.current}
+            side="bottom"
+            sideOffset={-21 - 1}
+            align="start"
+            alignOffset={-8 - 1}
+            avoidCollisions={false}
+            hidden={!isEllipsisActive}
+            className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
+            style={{
+              '--max-width': `${maxWidth}px`,
+            }}
+          >
+            <span
+              className={className}
+            >
+              {value}
+            </span>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    )
+  }
+  return (
+    <TableDataCell
+      cell={cell}
+    >
+      <Div
+        className="cursor-text py-1 pr-px pl-2.5 tracking-[.04em] select-text"
+        onClick={(ev) => ev.stopPropagation()}
+      >
+        {element}
+      </Div>
+    </TableDataCell>
+  )
+}
+
 /// keep-unique
 const PAGE_SIZES = [5, 6, 10, 20, 40, 50, 100, 200] as const
 
@@ -460,6 +478,7 @@ export function TVSubtitleFiles({
 }: {
   id: number
 }) {
+  // eslint-disable-next-line react-compiler/react-compiler
   'use no memo'
   const { t } = useTranslation()
   const { data: seriesDetail, isLoading: isSeriesDetailLoading } = useQuery($api.queryOptions(
