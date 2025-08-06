@@ -2,8 +2,7 @@ import type { VariantProps } from 'class-variance-authority'
 
 import { cva } from 'class-variance-authority'
 import clsx from 'clsx'
-import { useRef } from 'react'
-import $ from 'render-hooks'
+import { useId, useRef } from 'react'
 
 import { cn } from '@/lib/utils'
 
@@ -45,9 +44,11 @@ interface SegmentedControlProps<T extends string> extends
   React.ComponentProps<'div'>,
   VariantProps<typeof segmentedControlVariants> {
   value: NoInfer<T>
-  segments: Readonly<{ value: T, label: string }[]>
+  segments: Segment<T>[]
   onValueChange: (value: T) => void
 }
+
+type Segment<T> = { value: T, label: string }
 
 const checkedSegmentVariants = cva(
   'bg-white transition-transform duration-300',
@@ -63,6 +64,8 @@ const checkedSegmentVariants = cva(
     },
   },
 )
+
+type Variant = VariantProps<typeof checkedSegmentVariants>['variant']
 
 export function SegmentedControl<T extends string>({
   value,
@@ -118,66 +121,86 @@ export function SegmentedControl<T extends string>({
       className={cn(segmentedControlVariants({ variant, size, className }))}
       {...props}
     >
-      {segments.map((item) => (
-        <$ key={item.value}>
-          {({ useId }) => {
-            // eslint-disable-next-line react-compiler/react-compiler, react-hooks/rules-of-hooks
-            const id = useId()
-            const checked = item.value === value
-            const label = item.label
-            return (
-              <div
-                className="group/d relative first-of-type:col-1 first-of-type:row-1 first-of-type:shadow-none"
-                data-checked={checked}
-              >
-                <input
-                  id={id}
-                  aria-label="Segmented control"
-                  type="radio"
-                  value={item.value}
-                  checked={checked}
-                  className="absolute inset-0 appearance-none opacity-0 outline-hidden"
-                  onChange={() => {
-                    handleOnChange(item.value)
-                  }}
-                />
-                <label
-                  htmlFor={id}
-                  className="relative block cursor-pointer bg-transparent text-center group-data-[checked=true]/d:cursor-default before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[.625rem] before:bg-neutral-300 before:transition-[background] before:duration-200 before:ease-[ease] before:will-change-[background] group-first-of-type/d:before:opacity-0 group-data-[checked=true]/d:before:z-10 group-data-[checked=true]/d:before:bg-transparent group-[&[data-checked=true]+*]/d:before:bg-transparent dark:before:bg-neutral-700"
-                >
-                  <div className={clsx(
-                    'flex flex-col justify-center text-sm/6',
-                    variant === 'ghost' && 'leading-5.5',
-                  )}
-                  >
-                    <div
-                      className={clsx(
-                        'relative z-10 flex justify-center text-black transition-all duration-200 ease-[ease] will-change-transform group-hover/d:opacity-20 group-focus/d:opacity-20 group-active/d:opacity-20 group-active/d:delay-150 group-data-[checked=true]/d:font-medium group-data-[checked=true]/d:opacity-100 group-[&:active[data-checked=false]]/d:scale-95 dark:text-white',
-                      )}
-                    >
-                      {label}
-                    </div>
-                    <div
-                      title={label}
-                      className="before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]"
-                    />
-                  </div>
-                  <div className="absolute top-0 left-0 size-full">
-                    <div
-                      ref={addToRefs(item.value)}
-                      className={cn(
-                        'flex size-full rounded-md ease-[ease] will-change-transform',
-                        'sq:rounded-[.6875rem] sq:superellipse-[1.75]',
-                        checked && checkedSegmentVariants({ variant }),
-                      )}
-                    />
-                  </div>
-                </label>
-              </div>
-            )
-          }}
-        </$>
-      ))}
+      {segments.map((item) => {
+        return (
+          <SegmentItem
+            key={item.value}
+            item={item}
+            onChange={handleOnChange}
+            value={value}
+            variant={variant}
+            addToRefs={addToRefs}
+          />
+        )
+      })}
+    </div>
+  )
+}
+
+function SegmentItem<T extends string>({
+  item,
+  onChange,
+  value,
+  variant,
+  addToRefs,
+}: {
+  item: Segment<T>
+  onChange: (v: T) => void
+  value: T
+  variant: Variant
+  addToRefs: (v: T) => (el: HTMLDivElement) => void
+}) {
+  const id = useId()
+  const checked = item.value === value
+  const label = item.label
+  return (
+    <div
+      className="group/d relative first-of-type:col-1 first-of-type:row-1 first-of-type:shadow-none"
+      data-checked={checked}
+    >
+      <input
+        id={id}
+        aria-label="Segmented control"
+        type="radio"
+        value={item.value}
+        checked={checked}
+        className="absolute inset-0 appearance-none opacity-0 outline-hidden"
+        onChange={() => {
+          onChange(item.value)
+        }}
+      />
+      <label
+        htmlFor={id}
+        className="relative block cursor-pointer bg-transparent text-center group-data-[checked=true]/d:cursor-default before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[.625rem] before:bg-neutral-300 before:transition-[background] before:duration-200 before:ease-[ease] before:will-change-[background] group-first-of-type/d:before:opacity-0 group-data-[checked=true]/d:before:z-10 group-data-[checked=true]/d:before:bg-transparent group-[&[data-checked=true]+*]/d:before:bg-transparent dark:before:bg-neutral-700"
+      >
+        <div className={clsx(
+          'flex flex-col justify-center text-sm/6',
+          variant === 'ghost' && 'leading-5.5',
+        )}
+        >
+          <div
+            className={clsx(
+              'relative z-10 flex justify-center text-black transition-all duration-200 ease-[ease] will-change-transform group-hover/d:opacity-20 group-focus/d:opacity-20 group-active/d:opacity-20 group-active/d:delay-150 group-data-[checked=true]/d:font-medium group-data-[checked=true]/d:opacity-100 group-[&:active[data-checked=false]]/d:scale-95 dark:text-white',
+            )}
+          >
+            {label}
+          </div>
+          <div
+            title={label}
+            className="before:invisible before:block before:h-0 before:overflow-hidden before:font-bold before:content-[attr(title)]"
+          />
+        </div>
+        <div className="absolute top-0 left-0 size-full">
+          <div
+            ref={addToRefs(item.value)}
+            className={cn(
+              'flex size-full rounded-md ease-[ease] will-change-transform',
+              'sq:rounded-[.6875rem] sq:superellipse-[1.75]',
+              checked && checkedSegmentVariants({ variant }),
+            )}
+          />
+        </div>
+      </label>
     </div>
   )
 }

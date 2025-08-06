@@ -54,6 +54,7 @@ import { findClosest } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
 import { getCategory } from '@/utils/prompts/getCategory'
 import { useLastSearchFilterValue } from '@/utils/vocabulary/filters'
+import { narrow } from '@sub-vocab/utils/types'
 
 type TableData = VocabularySourceState & {
   category: string | null
@@ -77,11 +78,11 @@ const cacheStateAtom = atom({
 
 function useSegments() {
   const { t } = useTranslation()
-  return [
+  return narrow([
     { value: 'all', label: t('all') },
     { value: 'new', label: t('new') },
     { value: 'acquainted', label: t('acquainted') },
-  ] as const
+  ])
 }
 
 type Segment = ReturnType<typeof useSegments>[number]['value']

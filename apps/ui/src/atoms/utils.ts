@@ -4,7 +4,6 @@ import type { AtomFamily } from 'jotai/vanilla/utils/atomFamily'
 import { pipe } from 'effect'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai/utils'
-import { useSyncExternalStore } from 'react'
 
 import type { AppendParameters } from '@/lib/utilities'
 
@@ -34,13 +33,6 @@ export function myAtomFamily<Param, AtomType extends Atom<unknown>>(label: strin
       })
     }),
     (v) => Object.assign(v, { paramsAtom }),
-  )
-}
-
-export const useFamily = <Param, AtomType>(atomFamily: AtomFamily<Param, AtomType>, param: Param) => {
-  return useSyncExternalStore(
-    atomFamily.unstable_listen,
-    () => atomFamily(param),
   )
 }
 

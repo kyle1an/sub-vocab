@@ -6,11 +6,11 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import { isSafari } from 'foxact/is-safari'
-import { atom, useAtom } from 'jotai'
+import { atom, useAtomValue } from 'jotai'
 import { DevTools } from 'jotai-devtools'
 import css from 'jotai-devtools/styles.css?inline'
 import { atomWithStorage } from 'jotai/utils'
-import { Fragment, Suspense, useEffect, useRef } from 'react'
+import { Fragment, Suspense, useEffect } from 'react'
 import { Outlet } from 'react-router'
 import { useCallbackOne as useStableCallback } from 'use-memo-one'
 
@@ -21,12 +21,11 @@ import { AppSidebar } from '@/components/app-sidebar'
 import { NavActions } from '@/components/nav-actions'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/sonner'
-import { LIGHT_THEME_COLOR } from '@/constants/theme'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useAtomEffect } from '@/hooks/useAtomEffect'
 import { useStyleObserver } from '@/hooks/useStyleObserver'
 import { supabaseAuth } from '@/lib/supabase'
-import { bodyBgColorAtom, mainBgColorAtom, myStore } from '@/store/useVocab'
+import { bodyBgColorAtom, myStore } from '@/store/useVocab'
 import devtoolsCss from '@/styles/devtools.css?inline'
 
 const isSafariAtom = atomWithStorage('isSafariAtom', isSafari())
@@ -86,14 +85,8 @@ function Header() {
 }
 
 export default function Root() {
-  const ref = useRef<HTMLDivElement>(null)
-  useStyleObserver(ref, (values) => {
-    myStore.set(mainBgColorAtom, values['background-color'].value || LIGHT_THEME_COLOR)
-  }, {
-    properties: ['background-color'],
-  })
   useAppEffects()
-  const [isDarkMode] = useAtom(isDarkModeAtom)
+  const isDarkMode = useAtomValue(isDarkModeAtom)
   useVocabularySubscription()
 
   return (
@@ -102,9 +95,7 @@ export default function Root() {
       data-vaul-drawer-wrapper=""
     >
       <AppSidebar collapsible="icon" />
-      <SidebarInset
-        ref={ref}
-      >
+      <SidebarInset>
         <Header />
         <Outlet />
       </SidebarInset>

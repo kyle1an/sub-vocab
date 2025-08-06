@@ -26,7 +26,6 @@ import type { RowSelectionChangeFn } from '@/types/utils'
 import { openSubtitlesQueryOptionsAtom, osSessionAtom } from '@/api/opensubtitles'
 import { $api } from '@/api/tmdb'
 import { buildMediaSubtitleState, mediaSubtitleAtomFamily } from '@/atoms/subtitles'
-import { useFamily } from '@/atoms/utils'
 import { SortIcon } from '@/components/my-icon/sort-icon'
 import { TableGoToLastPage } from '@/components/my-table/go-to-last-page'
 import { TablePagination } from '@/components/my-table/pagination'
@@ -529,7 +528,7 @@ export function TVSubtitleFiles({
   const tvColumns = useTVColumns(id, highestEpisodeNumber, rootRef, tbodyRef)
   const columns = [...commonColumns, ...tvColumns]
   const dataRows = subtitleEpisodeData(subtitles, episodes)
-  const [{ episodeFilter: filterEpisode = 'all', initialTableState: mediaInitialTableState, tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(useFamily(mediaSubtitleAtomFamily, {
+  const [{ episodeFilter: filterEpisode = 'all', initialTableState: mediaInitialTableState, tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleAtomFamily({
     key: id,
     initialValue: buildMediaSubtitleState({
       initialTableState: {

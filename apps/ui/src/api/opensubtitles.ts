@@ -122,7 +122,7 @@ const withNormalPriorityOsQueue = <A extends any[], R>(f: (...a: A) => R) => (..
 
 const requestSubtitleURLAtom = atomWithMutation((get) => {
   return {
-    mutationKey: ['requestSubtitleDownloadURL'],
+    mutationKey: ['requestSubtitleURLAtom'],
     mutationFn: (body: Download['Body']) => ofetch<Download['Response']>(`${get(opensubtitlesReqAtom).baseUrl}/download`, {
       method: 'POST',
       body,
@@ -136,7 +136,7 @@ const requestSubtitleURLAtom = atomWithMutation((get) => {
 
 const fileAtom = atomWithMutation(() => {
   return {
-    mutationKey: ['getFileByLink'] as const,
+    mutationKey: ['fileAtom'] as const,
     mutationFn: identity(bindApply(ofetch<string, 'text'>)),
     retry: 4,
   }
@@ -144,15 +144,15 @@ const fileAtom = atomWithMutation(() => {
 
 const downloadFileByLinkAtom = atomWithMutation(() => {
   return {
-    mutationKey: ['useDownloadFileByLink'] as const,
+    mutationKey: ['downloadFileByLinkAtom'] as const,
     mutationFn: identity(bindApply(downloadFile)),
     retry: 4,
   }
 })
 
 export const openSubtitlesTextAtom = atomWithMutation((get) => {
-  return ({
-    mutationKey: ['useOpenSubtitlesText'] as const,
+  return {
+    mutationKey: ['openSubtitlesTextAtom'] as const,
     mutationFn: async (body: Download['Body']) => {
       const file = await withHighPriorityOsQueue(get(requestSubtitleURLAtom).mutateAsync)(body)
       const text = await withNormalPriorityOsQueue(get(fileAtom).mutateAsync)([file.link, { responseType: 'text' }])
@@ -162,16 +162,16 @@ export const openSubtitlesTextAtom = atomWithMutation((get) => {
       }
     },
     retry: 4,
-  })
+  }
 })
 
 export const openSubtitlesDownloadAtom = atomWithMutation((get) => {
-  return ({
-    mutationKey: ['useOpenSubtitlesDownload'] as const,
+  return {
+    mutationKey: ['openSubtitlesDownloadAtom'] as const,
     mutationFn: async (body: Download['Body']) => {
       const file = await withHighPriorityOsQueue(get(requestSubtitleURLAtom).mutateAsync)(body)
       await withNormalPriorityOsQueue(get(downloadFileByLinkAtom).mutateAsync)([file.link, file.file_name])
     },
     retry: 4,
-  })
+  }
 })

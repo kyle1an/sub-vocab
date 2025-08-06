@@ -30,7 +30,7 @@ const getLearningPhase = (acquainted: boolean | null): LearningPhase => acquaint
 const userVocabularyOptionsAtom = atom((get) => {
   const userId = get(sessionAtom)?.user?.id ?? ''
   return queryOptions({
-    queryKey: ['userVocabularyRows', userId],
+    queryKey: ['userVocabularyOptionsAtom', userId],
     async queryFn() {
       const { data } = await supabase
         .from('user_vocab_record')
@@ -94,7 +94,7 @@ export const baseVocabAtom = atom((get) => {
 
 export const irregularWordsQueryAtom = atomWithQuery(() => {
   return {
-    queryKey: ['useIrregularWordsQuery'],
+    queryKey: ['irregularWordsQueryAtom'],
     queryFn: async () => {
       const { data } = await supabase
         .from('derivation')
@@ -121,7 +121,7 @@ export function useUserWordPhaseMutation() {
   const userId = session?.user?.id ?? ''
   const vocabularyOptions = useAtomValue(userVocabularyOptionsAtom)
   return useMutation({
-    mutationKey: ['upsertUserVocabulary'],
+    mutationKey: ['useUserWordPhaseMutation'],
     mutationFn: async (vocab: TrackedWord[]) => {
       const { data } = await supabase
         .from('user_vocab_record')
@@ -143,7 +143,7 @@ export function useUserWordPhaseMutation() {
       }))
     },
     onMutate: (variables) => {
-      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => oldData && produce(oldData, (draft) => {
+      queryClient.setQueryData(vocabularyOptions.queryKey, (prevData) => prevData && produce(prevData, (draft) => {
         variables.forEach((variable) => {
           const labelMutated = draft.find((label) => label.w === variable.form)
           const pendingPhase = variable.learningPhase === LEARNING_PHASE.ACQUAINTED ? LEARNING_PHASE.FADING : LEARNING_PHASE.RETAINING
@@ -160,7 +160,7 @@ export function useUserWordPhaseMutation() {
       }))
     },
     onSuccess: (data, variables, context) => {
-      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => oldData && produce(oldData, (draft) => {
+      queryClient.setQueryData(vocabularyOptions.queryKey, (prevData) => prevData && produce(prevData, (draft) => {
         data.forEach((variable) => {
           const labelMutated = draft.find((label) => label.w === variable.w)
           if (labelMutated) {
@@ -172,7 +172,7 @@ export function useUserWordPhaseMutation() {
     onError: (error, variables, context) => {
       console.error(error)
       toast.error(error.message)
-      queryClient.setQueryData(vocabularyOptions.queryKey, (oldData) => oldData && produce(oldData, (draft) => {
+      queryClient.setQueryData(vocabularyOptions.queryKey, (prevData) => prevData && produce(prevData, (draft) => {
         variables.forEach((variable) => {
           const labelMutated = draft.find((label) => label.w === variable.form)
           if (labelMutated) {
@@ -191,7 +191,7 @@ const realtimeVocabUpsertAtom = atom((get) => function <T extends Tables<'user_v
       time_modified: payload.new.time_modified,
       learningPhase: getLearningPhase(payload.new.acquainted),
     }
-    queryClient.setQueryData(get(userVocabularyOptionsAtom).queryKey, (oldData) => oldData && produce(oldData, (draft) => {
+    queryClient.setQueryData(get(userVocabularyOptionsAtom).queryKey, (prevData) => prevData && produce(prevData, (draft) => {
       const labelMutated = draft.find((label) => label.w === data.w)
       if (labelMutated) {
         Object.assign(labelMutated, data)
