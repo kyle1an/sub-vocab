@@ -15,13 +15,13 @@
     "vercel-build": "node --run build"
   },
   "dependencies": {
-    "@ai-sdk/google": "^2.0.1",
+    "@ai-sdk/google": "^2.0.2",
     "@fastify/cors": "^11.1.0",
     "@fastify/http-proxy": "^11.3.0",
     "@openrouter/ai-sdk-provider": "^0.7.3",
     "@sub-vocab/utils": "workspace:*",
     "@trpc/server": "^11.4.4",
-    "ai": "^5.0.2",
+    "ai": "^5.0.5",
     "drizzle-orm": "^0.44.4",
     "fastify": "^5.4.0",
     "ofetch": "^1.4.1",

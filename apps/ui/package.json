@@ -25,7 +25,7 @@
     "@emotion/styled": "^11.14.1",
     "@hookform/resolvers": "^5.2.1",
     "@mui/joy": "^5.0.0-beta.52",
-    "@mui/material": "^7.3.0",
+    "@mui/material": "^7.3.1",
     "@number-flow/react": "^0.5.10",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
