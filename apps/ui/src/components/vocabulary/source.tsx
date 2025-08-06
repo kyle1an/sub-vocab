@@ -347,26 +347,26 @@ export function VocabSourceTable({
     .filter((d) => d.trackedWord.learningPhase === LEARNING_PHASE.NEW && !d.trackedWord.rank)
 
   const handleAiVocabCategorize = () => Effect.runPromise(Effect.gen(function* () {
-    if (!isPending) {
-      const words = freshVocabularies
-        .filter((d) => !d.trackedWord.isBaseForm && !d.trackedWord.isUser && !d.trackedWord.rank)
-        .map((d) => d.wordFamily.map((w) => w.pathe))
-        .flat()
-      const { data: category, error } = yield* Effect.tryPromise(() => mutateAsync({
-        prompt: getCategory(words),
-      })).pipe(
-        Effect.mapError((e) => {
-          if (e.error instanceof TRPCClientError) {
-            return e.error
-          }
-          return e
-        }),
-      )
-      if (error) {
-        return yield* Effect.fail(new Error(error.message))
-      }
-      setCategoryAtom(category)
+    if (isPending) return
+
+    const words = freshVocabularies
+      .filter((d) => !d.trackedWord.isBaseForm && !d.trackedWord.isUser && !d.trackedWord.rank)
+      .map((d) => d.wordFamily.map((w) => w.pathe))
+      .flat()
+    const { data: category, error } = yield* Effect.tryPromise(() => mutateAsync({
+      prompt: getCategory(words),
+    })).pipe(
+      Effect.mapError((e) => {
+        if (e.error instanceof TRPCClientError) {
+          return e.error
+        }
+        return e
+      }),
+    )
+    if (error) {
+      return yield* Effect.fail(new Error(error.message))
     }
+    setCategoryAtom(category)
   }).pipe(
     Effect.catchAll((e) => Effect.gen(function* () {
       toast.error(e.message, {
