@@ -384,9 +384,6 @@ importers:
       react-use:
         specifier: ^17.6.0
         version: 17.6.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      render-hooks:
-        specifier: ^0.2.0
-        version: 0.2.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       rolldown:
         specifier: ^1.0.0-beta.31
         version: 1.0.0-beta.31
@@ -5635,6 +5632,7 @@ packages:
     resolution: {integrity: sha512-Quz3MvAwHxVYNXsOByL7xI5EB2WYOeFswqaHIA3qOK3isRWTxiplBEocmmru6XmxDB2L7jDNYtYA4FyimoAFEw==}
     engines: {node: '>=8.17.0'}
     hasBin: true
+    bundledDependencies: []
 
   jsonfile@6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
@@ -6621,12 +6619,6 @@ packages:
   relateurl@0.2.7:
     resolution: {integrity: sha512-G08Dxvm4iDN3MLM0EsP62EDV9IuhXPR6blNz6Utcp7zyV3tr4HVNINt6MpaRWbxoOHT3Q7YN2P+jaHX8vUbgog==}
     engines: {node: '>= 0.10'}
-
-  render-hooks@0.2.0:
-    resolution: {integrity: sha512-+uwyz2c6uUNdgihtV6h70s4e0srEb5mxFuUrOBWONJBB7ST+IW7HkQXchbZxsVRuEjfwJ8Rf9qilwrgRU6l0Wg==}
-    peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
 
   require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
@@ -14519,11 +14511,6 @@ snapshots:
       jsesc: 3.0.2
 
   relateurl@0.2.7: {}
-
-  render-hooks@0.2.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
-    dependencies:
-      react: 19.1.1
-      react-dom: 19.1.1(react@19.1.1)
 
   require-directory@2.1.1: {}
 

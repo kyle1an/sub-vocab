@@ -1,4 +1,4 @@
-import { flow } from 'effect'
+import { flow } from 'es-toolkit'
 
 import type { ColumnFilterFn } from '@/lib/table-utils'
 import type { VocabularySourceState } from '@/lib/vocab'

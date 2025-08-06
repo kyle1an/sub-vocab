@@ -12,7 +12,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import clsx from 'clsx'
-import { identity } from 'effect'
+import { identity } from 'es-toolkit'
 import { atom, useAtom, useAtomValue } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 import { startTransition, useDeferredValue, useRef } from 'react'
@@ -47,6 +47,7 @@ import { combineFilters, noFilter } from '@/lib/table-utils'
 import { findClosest, getFallBack } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
 import { useLastSearchFilterValue } from '@/utils/vocabulary/filters'
+import { narrow } from '@sub-vocab/utils/types'
 
 type TableData = VocabularySourceState
 
@@ -75,12 +76,12 @@ const cacheStateAtom = atom({
 
 function useSegments() {
   const { t } = useTranslation()
-  return [
+  return narrow([
     { value: 'new', label: t('recent') },
     { value: 'allAcquainted', label: t('all') },
     { value: 'mine', label: t('mine') },
     { value: 'top', label: t('top') },
-  ] as const
+  ])
 }
 
 type Segment = ReturnType<typeof useSegments>[number]['value']
