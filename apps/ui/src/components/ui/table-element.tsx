@@ -1,4 +1,4 @@
-import type { Cell, Row, SortDirection } from '@tanstack/react-table'
+import type { Cell, Renderable, Row, SortDirection } from '@tanstack/react-table'
 import type { ReactElement } from 'react'
 
 import { Slot } from '@radix-ui/react-slot'
@@ -7,7 +7,7 @@ import { flexRender } from '@tanstack/react-table'
 import clsx from 'clsx'
 import { Duration } from 'effect'
 import { sum } from 'es-toolkit'
-import React, { Fragment, useRef, useState } from 'react'
+import React, { Fragment, useEffect, useRef, useState } from 'react'
 
 import type { DivProps } from '@/components/ui/html-elements'
 import type { RowSelectionChangeFn } from '@/types/utils'
@@ -46,18 +46,14 @@ export function TableHeader({
 }
 
 export function TableHeaderCellRender<T>({ header }: { header: GroupHeader<T> }) {
-  // eslint-disable-next-line react-compiler/react-compiler
-  'use no memo'
   return (
     header.isPlaceholder ? (
       <TableHeaderCell header={header} />
     ) : (
-      <Fragment>
-        {flexRender(
-          header.column.columnDef.header,
-          header.getContext(),
-        )}
-      </Fragment>
+      <FlexRender
+        comp={header.column.columnDef.header}
+        props={header.getContext()}
+      />
     )
   )
 }
@@ -158,6 +154,18 @@ const ANIM_DURATION = Duration.toMillis('0.3 seconds')
 
 const SHADOW_DURATION = Duration.toMillis('0.4 seconds')
 
+export const useLatch = (trigger: boolean) => {
+  const [isLatched, setIsLatched] = useState(trigger)
+
+  useEffect(() => {
+    if (trigger) {
+      setIsLatched(true)
+    }
+  }, [trigger])
+
+  return isLatched
+}
+
 export function TableRow<T>({
   row: {
     id,
@@ -202,33 +210,31 @@ export function TableRow<T>({
     }
 
     retimerTransition(() => setTransitionOpen(false), SHADOW_DURATION)
-    const root = rootRef?.current
-    const rowElement = rowRef.current
-    if (root && rowElement) {
-      if (rowElement.getBoundingClientRect().y - root.getBoundingClientRect().y <= HEAD_HEIGHT) {
-        if (isClosing && detailElement) {
+    if (rootRef?.current && rowRef.current) {
+      if (rowRef.current.getBoundingClientRect().y - rootRef.current.getBoundingClientRect().y <= HEAD_HEIGHT) {
+        if (isClosing && detailRef.current) {
           const subRowsHeight = sum(
             subRows
               .map((subRow) => document.getElementById(subRow.id))
               .map((e) => e?.offsetHeight || 0),
           )
-          const overlapHeight = rowElement.offsetTop + rowHeight - detailElement.offsetTop
-          const expandedHeight = detailElement.offsetHeight + subRowsHeight
+          const overlapHeight = rowRef.current.offsetTop + rowHeight - detailRef.current.offsetTop
+          const expandedHeight = detailRef.current.offsetHeight + subRowsHeight
           if (overlapHeight < expandedHeight) {
             // subRow / isDetailVisibleIntersecting
-            root.scrollTo({
-              top: -HEAD_HEIGHT - rowHeight + detailElement.offsetTop,
+            rootRef?.current.scrollTo({
+              top: -HEAD_HEIGHT - rowHeight + detailRef.current.offsetTop,
             })
           } else {
             // isDetailAboveRoot
-            root.scrollTo({
-              top: -HEAD_HEIGHT + rowElement.offsetTop - expandedHeight,
+            rootRef.current.scrollTo({
+              top: -HEAD_HEIGHT + rowRef.current.offsetTop - expandedHeight,
               behavior: isClosing ? 'instant' : 'smooth',
             })
           }
         } else {
-          root.scrollTo({
-            top: -HEAD_HEIGHT + rowElement.offsetTop,
+          rootRef.current.scrollTo({
+            top: -HEAD_HEIGHT + rowRef.current.offsetTop,
             behavior: 'smooth',
           })
         }
@@ -236,7 +242,8 @@ export function TableRow<T>({
     }
   }
 
-  const showDetail = Boolean(detailElement || open || animationOpen)
+  const opened = useLatch(open)
+  const showDetail = Boolean(opened || open || animationOpen)
   const detailEntry = useIntersectionObserver(showDetail ? detailRef : null, {
     root: rootRef,
     rootMargin: `${-HEAD_HEIGHT - rowHeight}px 0% 0%`,
@@ -270,19 +277,18 @@ export function TableRow<T>({
         data-boundary={(isDetailAboveRoot ? open : isDetailVisibleIntersecting) && !animationOpen ? '' : undefined}
       >
         {visibleCells.map((cell) => (
-          <Fragment key={cell.id}>
-            {flexRender(
-              cell.column.columnDef.cell,
-              {
-                ...cell.getContext(),
-                onExpandedChange: handleToggleExpanded,
-                onRowSelectionChange,
-              },
-            )}
-          </Fragment>
+          <FlexRender
+            key={cell.id}
+            comp={cell.column.columnDef.cell}
+            props={{
+              ...cell.getContext(),
+              onExpandedChange: handleToggleExpanded,
+              onRowSelectionChange,
+            }}
+          />
         ))}
       </tr>
-      {showDetail ? (
+      {open || animationOpen ? (
         <tr
           ref={detailRef}
           style={{
@@ -315,4 +321,14 @@ export function TableRow<T>({
       ) : null}
     </Fragment>
   )
+}
+
+function FlexRender<TProps extends object>({
+  comp,
+  props,
+}: {
+  comp: Renderable<TProps>
+  props: TProps
+}) {
+  return flexRender(comp, props)
 }

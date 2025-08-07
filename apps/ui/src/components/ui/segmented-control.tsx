@@ -2,7 +2,8 @@ import type { VariantProps } from 'class-variance-authority'
 
 import { cva } from 'class-variance-authority'
 import clsx from 'clsx'
-import { useId, useRef } from 'react'
+import { identity, once } from 'es-toolkit'
+import { createContext, use, useId, useRef } from 'react'
 
 import { cn } from '@/lib/utils'
 
@@ -44,11 +45,8 @@ interface SegmentedControlProps<T extends string> extends
   React.ComponentProps<'div'>,
   VariantProps<typeof segmentedControlVariants> {
   value: NoInfer<T>
-  segments: Segment<T>[]
   onValueChange: (value: T) => void
 }
-
-type Segment<T> = { value: T, label: string }
 
 const checkedSegmentVariants = cva(
   'bg-white transition-transform duration-300',
@@ -65,28 +63,31 @@ const checkedSegmentVariants = cva(
   },
 )
 
-type Variant = VariantProps<typeof checkedSegmentVariants>['variant']
+type SegmentContextProps<T> = {
+  value: T
+  onValueChange: (value: T) => void
+  variant: VariantProps<typeof segmentedControlVariants>['variant']
+  addToRefs: (key: T) => (el: HTMLDivElement) => void
+}
+
+// https://stackoverflow.com/a/61020816
+const createSegmentContext = once(<T,>() => createContext<SegmentContextProps<T> | null>(null))
+const useSegmentContext = <T,>() => use(createSegmentContext<T>())
+
+// https://github.com/reactwg/react-compiler/discussions/18
+const useIdentity = identity
 
 export function SegmentedControl<T extends string>({
   value,
-  segments,
   onValueChange: setValue,
   variant,
   size,
   className,
+  children,
   ...props
 }: SegmentedControlProps<T>) {
   const pillRefs = useRef<Partial<Record<T, HTMLSpanElement>>>({})
-
-  function handleOnChange(newValue: T) {
-    const pillRef = pillRefs.current[newValue]
-    if (pillRef) {
-      const previousPill = pillRefs.current[value]
-      const domRect = previousPill?.getBoundingClientRect()
-      activatePill(pillRef, domRect)
-      setValue(newValue)
-    }
-  }
+  const SegmentContext = createSegmentContext<T>()
 
   function activatePill(pillRef: HTMLElement, previousIndicatorClientRect?: DOMRect) {
     const element = pillRef
@@ -110,49 +111,44 @@ export function SegmentedControl<T extends string>({
     element.style.setProperty('transform', '')
   }
 
-  function addToRefs(key: T) {
-    return (el: HTMLDivElement) => {
+  const segmentContextValue: SegmentContextProps<T> = useIdentity({
+    value,
+    onValueChange: (newValue) => {
+      const pillRef = pillRefs.current[newValue]
+      if (pillRef) {
+        const previousPill = pillRefs.current[value]
+        const domRect = previousPill?.getBoundingClientRect()
+        activatePill(pillRef, domRect)
+        setValue(newValue)
+      }
+    },
+    variant,
+    addToRefs: (key) => (el: HTMLDivElement) => {
       pillRefs.current[key] = el
-    }
-  }
+    },
+  })
 
   return (
-    <div
-      className={cn(segmentedControlVariants({ variant, size, className }))}
-      {...props}
-    >
-      {segments.map((item) => {
-        return (
-          <SegmentItem
-            key={item.value}
-            item={item}
-            onChange={handleOnChange}
-            value={value}
-            variant={variant}
-            addToRefs={addToRefs}
-          />
-        )
-      })}
-    </div>
+    <SegmentContext value={segmentContextValue}>
+      <div
+        className={cn(segmentedControlVariants({ variant, size, className }))}
+        {...props}
+      >
+        {children}
+      </div>
+    </SegmentContext>
   )
 }
 
-function SegmentItem<T extends string>({
-  item,
-  onChange,
-  value,
-  variant,
-  addToRefs,
+export function SegmentItem<T extends string>({
+  segment,
 }: {
-  item: Segment<T>
-  onChange: (v: T) => void
-  value: T
-  variant: Variant
-  addToRefs: (v: T) => (el: HTMLDivElement) => void
+  segment: { value: T, label: string }
 }) {
+  const segmentContextValue = useSegmentContext<T>()
   const id = useId()
-  const checked = item.value === value
-  const label = item.label
+  const checked = segment.value === segmentContextValue?.value
+  const label = segment.label
   return (
     <div
       className="group/d relative first-of-type:col-1 first-of-type:row-1 first-of-type:shadow-none"
@@ -162,27 +158,24 @@ function SegmentItem<T extends string>({
         id={id}
         aria-label="Segmented control"
         type="radio"
-        value={item.value}
+        value={segment.value}
         checked={checked}
         className="absolute inset-0 appearance-none opacity-0 outline-hidden"
         onChange={() => {
-          onChange(item.value)
+          segmentContextValue?.onValueChange(segment.value)
         }}
       />
       <label
         htmlFor={id}
         className="relative block cursor-pointer bg-transparent text-center group-data-[checked=true]/d:cursor-default before:absolute before:inset-y-[14%] before:left-0 before:w-px before:translate-x-[-.5px] before:rounded-[.625rem] before:bg-neutral-300 before:transition-[background] before:duration-200 before:ease-[ease] before:will-change-[background] group-first-of-type/d:before:opacity-0 group-data-[checked=true]/d:before:z-10 group-data-[checked=true]/d:before:bg-transparent group-[&[data-checked=true]+*]/d:before:bg-transparent dark:before:bg-neutral-700"
       >
-        <div className={clsx(
-          'flex flex-col justify-center text-sm/6',
-          variant === 'ghost' && 'leading-5.5',
-        )}
+        <div
+          className={clsx(
+            'flex flex-col justify-center text-sm/6',
+            segmentContextValue?.variant === 'ghost' && 'leading-5.5',
+          )}
         >
-          <div
-            className={clsx(
-              'relative z-10 flex justify-center text-black transition-all duration-200 ease-[ease] will-change-transform group-hover/d:opacity-20 group-focus/d:opacity-20 group-active/d:opacity-20 group-active/d:delay-150 group-data-[checked=true]/d:font-medium group-data-[checked=true]/d:opacity-100 group-[&:active[data-checked=false]]/d:scale-95 dark:text-white',
-            )}
-          >
+          <div className="relative z-10 flex justify-center text-black transition-all duration-200 ease-[ease] will-change-transform group-hover/d:opacity-20 group-focus/d:opacity-20 group-active/d:opacity-20 group-active/d:delay-150 group-data-[checked=true]/d:font-medium group-data-[checked=true]/d:opacity-100 group-[&:active[data-checked=false]]/d:scale-95 dark:text-white">
             {label}
           </div>
           <div
@@ -192,11 +185,11 @@ function SegmentItem<T extends string>({
         </div>
         <div className="absolute top-0 left-0 size-full">
           <div
-            ref={addToRefs(item.value)}
+            ref={segmentContextValue?.addToRefs(segment.value)}
             className={cn(
               'flex size-full rounded-md ease-[ease] will-change-transform',
               'sq:rounded-[.6875rem] sq:superellipse-[1.75]',
-              checked && checkedSegmentVariants({ variant }),
+              checked && checkedSegmentVariants({ variant: segmentContextValue.variant }),
             )}
           />
         </div>

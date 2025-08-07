@@ -50,6 +50,7 @@ export default typegen(antfu(
       'style/jsx-one-expression-per-line': ['warn', { allow: 'single-line' }],
     },
   },
+  reactCompiler.configs.recommended,
   {
     name: 'react',
     rules: {
@@ -68,7 +69,6 @@ export default typegen(antfu(
       'react-refresh/only-export-components': 'off',
     },
   },
-  reactCompiler.configs.recommended,
   ...pluginQuery.configs['flat/recommended'],
   ...eslintPluginTailwindCss.configs['flat/recommended'],
   {

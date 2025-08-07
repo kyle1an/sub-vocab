@@ -15,7 +15,6 @@ import {
 import { TRPCClientError } from '@trpc/client'
 import { $trycatch } from '@tszen/trycatch'
 import clsx from 'clsx'
-import { Effect } from 'effect'
 import { identity } from 'es-toolkit'
 import { atom, useAtom, useAtomValue } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
@@ -42,7 +41,7 @@ import { SearchWidget } from '@/components/search-widget'
 import { Button } from '@/components/ui/button'
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
 import { Div } from '@/components/ui/html-elements'
-import { SegmentedControl } from '@/components/ui/segmented-control'
+import { SegmentedControl, SegmentItem } from '@/components/ui/segmented-control'
 import { Spinner } from '@/components/ui/spinner'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { AcquaintAllDialog } from '@/components/vocabulary/acquaint-all-dialog'
@@ -453,10 +452,16 @@ export function VocabSourceTable({
       <div className="z-10 w-full outline-1 outline-border outline-solid">
         <SegmentedControl
           value={segment}
-          segments={segments}
           onValueChange={handleSegmentChoose}
           variant="ghost"
-        />
+        >
+          {segments.map((segment) => (
+            <SegmentItem
+              key={segment.value}
+              segment={segment}
+            />
+          ))}
+        </SegmentedControl>
       </div>
       <div
         ref={rootRef}
