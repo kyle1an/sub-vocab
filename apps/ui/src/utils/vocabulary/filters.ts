@@ -1,5 +1,3 @@
-import { flow } from 'es-toolkit'
-
 import type { ColumnFilterFn } from '@/lib/table-utils'
 import type { VocabularySourceState } from '@/lib/vocab'
 
@@ -19,4 +17,7 @@ export function searchFilterValue<T extends VocabularySourceState>(search: strin
   }
 }
 
-export const useLastSearchFilterValue = flow(searchFilterValue, useLastTruthy, (v) => v ?? noFilter)
+export function useLastSearchFilterValue(search: string, usingRegex: boolean) {
+  const lastTruthyRef = useLastTruthy(searchFilterValue(search, usingRegex))
+  return lastTruthyRef ?? noFilter
+}

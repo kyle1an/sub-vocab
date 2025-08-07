@@ -7,7 +7,7 @@ import { flexRender } from '@tanstack/react-table'
 import clsx from 'clsx'
 import { Duration } from 'effect'
 import { sum } from 'es-toolkit'
-import React, { Fragment, useEffect, useRef, useState } from 'react'
+import React, { Fragment, useRef, useState } from 'react'
 
 import type { DivProps } from '@/components/ui/html-elements'
 import type { RowSelectionChangeFn } from '@/types/utils'
@@ -16,6 +16,7 @@ import type { GroupHeader } from '@/types/vocab'
 import { SortIcon } from '@/components/my-icon/sort-icon'
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
 import { useRetimer } from '@/hooks/useRetimer'
+import { useLatch } from '@/hooks/utils'
 import { useRect } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
 
@@ -46,6 +47,8 @@ export function TableHeader({
 }
 
 export function TableHeaderCellRender<T>({ header }: { header: GroupHeader<T> }) {
+  // eslint-disable-next-line react-compiler/react-compiler
+  'use no memo'
   return (
     header.isPlaceholder ? (
       <TableHeaderCell header={header} />
@@ -154,18 +157,6 @@ const ANIM_DURATION = Duration.toMillis('0.3 seconds')
 
 const SHADOW_DURATION = Duration.toMillis('0.4 seconds')
 
-export const useLatch = (trigger: boolean) => {
-  const [isLatched, setIsLatched] = useState(trigger)
-
-  useEffect(() => {
-    if (trigger) {
-      setIsLatched(true)
-    }
-  }, [trigger])
-
-  return isLatched
-}
-
 export function TableRow<T>({
   row: {
     id,
@@ -180,8 +171,6 @@ export function TableRow<T>({
   children,
   onRowSelectionChange,
 }: RowProp<T>) {
-  // eslint-disable-next-line react-compiler/react-compiler
-  'use no memo'
   const rowRef = useRef<HTMLTableRowElement>(null)
   const { height: rowHeight } = useRect(rowRef)
   const detailRef = useRef<HTMLTableRowElement>(null)
@@ -288,7 +277,7 @@ export function TableRow<T>({
           />
         ))}
       </tr>
-      {open || animationOpen ? (
+      {showDetail ? (
         <tr
           ref={detailRef}
           style={{

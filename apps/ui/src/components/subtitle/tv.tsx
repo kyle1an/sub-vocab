@@ -41,6 +41,7 @@ import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCe
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
 import { customFormatDistance, formatIntervalLocale } from '@/lib/date-utils'
+import { useRect } from '@/lib/hooks'
 import { getFileId } from '@/lib/subtitle'
 import { filterFn, noFilter, sortBySelection } from '@/lib/table-utils'
 import { findClosest, naturalNumLength } from '@/lib/utilities'
@@ -342,6 +343,66 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
   ]
 }
 
+function TvNameSubRow<TData extends RowData>({
+  root,
+  tbody,
+  row,
+}: {
+  root: RefObject<HTMLDivElement | null>
+  tbody: React.RefObject<HTMLTableSectionElement | null>
+} & Pick<CellContext<TData, string>, 'row'>) {
+  const ref = useRef<HTMLDivElement>(null)
+  const value = row.original.subtitle.attributes.files[0]?.file_name || ''
+  const className = 'tracking-[.04em] text-sm'
+  const rootRect = useRect(root)
+  const refRect = useRect(ref)
+  const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
+  let maxWidth = 0
+  if (rootRect && refRect) {
+    maxWidth = rootRect.x + rootRect.width - refRect.x + 12 - 4
+  }
+  return (
+    <div
+      ref={ref}
+      className="w-0 grow truncate"
+    >
+      <Tooltip
+        delayDuration={500}
+      >
+        <TooltipTrigger
+          onMouseOver={handleOnMouseOver}
+          asChild
+        >
+          <div
+            className={clsx('truncate', className)}
+          >
+            {value}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent
+          container={tbody.current}
+          side="bottom"
+          sideOffset={-21 - 1}
+          align="start"
+          alignOffset={-8 - 1}
+          avoidCollisions={false}
+          hidden={!isEllipsisActive}
+          className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
+          style={{
+            '--max-width': `${maxWidth}px`,
+          }}
+        >
+          <span
+            className={className}
+          >
+            {value}
+          </span>
+        </TooltipContent>
+      </Tooltip>
+    </div>
+  )
+}
+
 function TvNameCell<TData extends RowData>({
   root,
   tbody,
@@ -352,66 +413,7 @@ function TvNameCell<TData extends RowData>({
   root: RefObject<HTMLDivElement | null>
   tbody: React.RefObject<HTMLTableSectionElement | null>
 } & CellContext<TData, string>) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
-  let element = <Fragment></Fragment>
-  if (row.depth === 0) {
-    const value = getValue()
-    element = (
-      <span>
-        {value}
-      </span>
-    )
-  } else {
-    const value = row.original.subtitle.attributes.files[0]?.file_name || ''
-    const className = 'tracking-[.04em] text-sm'
-    const rootRect = root.current?.getBoundingClientRect()
-    const refRect = ref.current?.getBoundingClientRect()
-    let maxWidth = 0
-    if (rootRect && refRect) {
-      maxWidth = rootRect.x + rootRect.width - refRect.x + 12 - 4
-    }
-    element = (
-      <div
-        ref={ref}
-        className="w-0 grow truncate"
-      >
-        <Tooltip
-          delayDuration={500}
-        >
-          <TooltipTrigger
-            onMouseOver={handleOnMouseOver}
-            asChild
-          >
-            <div
-              className={clsx('truncate', className)}
-            >
-              {value}
-            </div>
-          </TooltipTrigger>
-          <TooltipContent
-            container={tbody.current}
-            side="bottom"
-            sideOffset={-21 - 1}
-            align="start"
-            alignOffset={-8 - 1}
-            avoidCollisions={false}
-            hidden={!isEllipsisActive}
-            className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
-            style={{
-              '--max-width': `${maxWidth}px`,
-            }}
-          >
-            <span
-              className={className}
-            >
-              {value}
-            </span>
-          </TooltipContent>
-        </Tooltip>
-      </div>
-    )
-  }
+  const value = getValue()
   return (
     <TableDataCell
       cell={cell}
@@ -420,7 +422,17 @@ function TvNameCell<TData extends RowData>({
         className="cursor-text py-1 pr-px pl-2.5 tracking-[.04em] select-text"
         onClick={(ev) => ev.stopPropagation()}
       >
-        {element}
+        {row.depth === 0 ? (
+          <span>
+            {value}
+          </span>
+        ) : (
+          <TvNameSubRow
+            root={root}
+            tbody={tbody}
+            row={row}
+          />
+        )}
       </Div>
     </TableDataCell>
   )

@@ -13,7 +13,7 @@ export function useRect<T extends Element>(target: React.RefObject<T | null>) {
 }
 
 export function useLastTruthy<T>(value: T) {
-  const lastTruthy = useRef<T>(null)
+  const lastTruthy = useRef<T>(value)
 
   useEffect(() => {
     if (value) {

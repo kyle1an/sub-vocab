@@ -55,3 +55,12 @@ export function normalizeThemeColor(color: string) {
   }
   return color
 }
+
+export function isRegexValid(pattern: string) {
+  try {
+    new RegExp(pattern)
+    return true
+  } catch (e) {
+    return false
+  }
+}

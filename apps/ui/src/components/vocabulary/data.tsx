@@ -44,7 +44,7 @@ import { customFormatDistance, formatDistanceLocale } from '@/lib/date-utils'
 import { customFormatDistanceToNowStrict } from '@/lib/formatDistance'
 import { LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { combineFilters, noFilter } from '@/lib/table-utils'
-import { findClosest, getFallBack } from '@/lib/utilities'
+import { findClosest, getFallBack, isRegexValid } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
 import { useLastSearchFilterValue } from '@/utils/vocabulary/filters'
 import { narrow } from '@sub-vocab/utils/types'
@@ -186,6 +186,7 @@ export function VocabDataTable({
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'allAcquainted')
   const segmentDeferredValue = useDeferredValue(segment)
   const lastTruthySearchFilterValue = useLastSearchFilterValue(deferredSearchValue, deferredIsUsingRegex)
+  const inValidSearch = deferredIsUsingRegex && !isRegexValid(deferredSearchValue)
   const { refetch, isFetching: isLoadingUserVocab } = useAtomValue(userVocabularyAtom)
 
   const table = useReactTable({
@@ -332,6 +333,7 @@ export function VocabDataTable({
               draft.isUsingRegex = v
             })
           }}
+          className={inValidSearch ? '!border-red-500' : ''}
         />
       </div>
       <div className="h-px w-full border-b shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)]" />
