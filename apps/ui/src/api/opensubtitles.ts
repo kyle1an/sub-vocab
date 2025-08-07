@@ -2,11 +2,11 @@ import type { ExtractAtomValue } from 'jotai'
 import type { PartialDeep } from 'type-fest'
 
 import { queryOptions } from '@tanstack/react-query'
-import { Duration } from 'effect'
 import { identity } from 'es-toolkit'
 import { atom } from 'jotai'
 import { atomWithMutation, atomWithQuery } from 'jotai-tanstack-query'
 import { atomWithStorage } from 'jotai/utils'
+import ms from 'ms'
 import { ofetch } from 'ofetch'
 import createFetchClient from 'openapi-fetch'
 import createClient from 'openapi-react-query'
@@ -103,7 +103,7 @@ export type Download = {
 
 const osQueue = new PQueue({
   concurrency: 20,
-  interval: Duration.toMillis('1 seconds'),
+  interval: ms('1s'),
   intervalCap: 20,
   carryoverConcurrencyCount: true,
 })

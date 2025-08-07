@@ -43,6 +43,9 @@ importers:
       eslint-typegen:
         specifier: ^2.3.0
         version: 2.3.0(eslint@9.32.0(jiti@2.5.1))
+      ms:
+        specifier: ^2.1.3
+        version: 2.1.3
       ts-toolbelt:
         specifier: ^9.6.0
         version: 9.6.0
@@ -68,6 +71,9 @@ importers:
       '@total-typescript/ts-reset':
         specifier: ^0.6.1
         version: 0.6.1
+      '@types/ms':
+        specifier: ^2.1.0
+        version: 2.1.0
       '@types/node':
         specifier: ^24.2.0
         version: 24.2.0

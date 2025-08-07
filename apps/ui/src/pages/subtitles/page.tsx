@@ -7,13 +7,13 @@ import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import clsx from 'clsx'
 import { format } from 'date-fns'
-import { Duration } from 'effect'
 import { identity, uniqBy } from 'es-toolkit'
 import { useDebouncedValue } from 'foxact/use-debounced-value'
 import { produce } from 'immer'
 import { atom, useAtom, useAtomValue, useSetAtom, useStore } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 import { atomWithStorage } from 'jotai/utils'
+import ms from 'ms'
 import { Fragment, startTransition, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
@@ -403,8 +403,8 @@ export default function Subtitles() {
     {
     },
     {
-      gcTime: Duration.toMillis('1 weeks'),
-      staleTime: Duration.toMillis('1 weeks'),
+      gcTime: ms('1 weeks'),
+      staleTime: ms('1 weeks'),
       select: ({ data }) => data,
       placeholderData: (prev) => prev,
     },

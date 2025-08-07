@@ -6,7 +6,7 @@ import { Slot } from '@radix-ui/react-slot'
 import { useCookieValue } from '@react-hookz/web/useCookieValue/index.js'
 import { cva } from 'class-variance-authority'
 import clsx from 'clsx'
-import { Duration } from 'effect'
+import ms from 'ms'
 import * as React from 'react'
 import { useCallback } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
@@ -32,7 +32,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state'
-const SIDEBAR_COOKIE_MAX_AGE = Duration.toSeconds('400 days')
+const SIDEBAR_COOKIE_MAX_AGE = ms('400 days')
 const SIDEBAR_WIDTH = '16rem'
 const SIDEBAR_WIDTH_MOBILE = '18rem'
 const SIDEBAR_WIDTH_ICON = '3rem'

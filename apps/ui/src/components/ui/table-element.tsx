@@ -5,8 +5,8 @@ import { Slot } from '@radix-ui/react-slot'
 import { useIntersectionObserver } from '@react-hookz/web'
 import { flexRender } from '@tanstack/react-table'
 import clsx from 'clsx'
-import { Duration } from 'effect'
 import { sum } from 'es-toolkit'
+import ms from 'ms'
 import React, { Fragment, useRef, useState } from 'react'
 
 import type { DivProps } from '@/components/ui/html-elements'
@@ -153,9 +153,9 @@ type ExpandProp = {
   root: React.RefObject<HTMLDivElement | null> | null
 }
 
-const ANIM_DURATION = Duration.toMillis('0.3 seconds')
+const ANIM_DURATION = ms('0.3s')
 
-const SHADOW_DURATION = Duration.toMillis('0.4 seconds')
+const SHADOW_DURATION = ms('0.4s')
 
 export function TableRow<T>({
   row: {

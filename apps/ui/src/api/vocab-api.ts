@@ -4,11 +4,11 @@ import type { ValueOf } from 'type-fest'
 import { UTCDateMini } from '@date-fns/utc'
 import { REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js'
 import { queryOptions, useMutation } from '@tanstack/react-query'
-import { Duration } from 'effect'
 import { uniq } from 'es-toolkit'
 import { produce } from 'immer'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithQuery } from 'jotai-tanstack-query'
+import ms from 'ms'
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 
@@ -211,7 +211,7 @@ export const STATUS_LABELS = {
   TIMED_OUT: 'Connection Timeout',
 } as const satisfies Partial<Record<REALTIME_SUBSCRIBE_STATES, string>>
 
-const INACTIVITY_TIMEOUT_MS = Duration.toMillis('1 minutes')
+const INACTIVITY_TIMEOUT_MS = ms('1min')
 
 export function useVocabularySubscription() {
   const [session] = useAtom(sessionAtom)

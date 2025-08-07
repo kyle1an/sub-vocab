@@ -394,6 +394,19 @@ export function VocabSourceTable({
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </VocabularyMenu>
+        <div className="p-px"></div>
+        <DataTableFacetedFilter
+          title="Category"
+          className="[--sq-r:.875rem]"
+          options={options}
+          filterValue={filterValue}
+          onFilterChange={(v) => {
+            setCacheState((draft) => {
+              draft.filterValue = v
+            })
+          }}
+        />
+        <div className="p-0.5"></div>
         <Button
           className="aspect-square h-full p-0 [--sq-r:.8125rem]"
           variant="ghost"
@@ -408,18 +421,6 @@ export function VocabSourceTable({
             <IconIconoirSparks className="size-4.5" />
           )}
         </Button>
-        <div className="p-0.5"></div>
-        <DataTableFacetedFilter
-          title="Category"
-          className="[--sq-r:.875rem]"
-          options={options}
-          filterValue={filterValue}
-          onFilterChange={(v) => {
-            setCacheState((draft) => {
-              draft.filterValue = v
-            })
-          }}
-        />
         <div className="flex items-center px-2.5 text-base">
           <div
             className={clsx(
