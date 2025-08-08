@@ -63,7 +63,7 @@
       "safe-buffer": "npm:@nolyfill/safe-buffer@^1.0.44",
       "safer-buffer": "npm:@nolyfill/safer-buffer@^1.0.44",
       "side-channel": "npm:@nolyfill/side-channel@^1.0.44",
-      "vite": "npm:rolldown-vite@^7.0.12",
+      "vite": "npm:rolldown-vite@^7.1.0",
       "whatwg-url": "^14.2.0",
       "which-typed-array": "npm:@nolyfill/which-typed-array@^1.0.44"
     },

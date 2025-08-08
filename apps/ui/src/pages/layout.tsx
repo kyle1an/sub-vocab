@@ -10,7 +10,7 @@ import { atom, useAtomValue } from 'jotai'
 import { DevTools } from 'jotai-devtools'
 import css from 'jotai-devtools/styles.css?inline'
 import { atomWithStorage } from 'jotai/utils'
-import { Fragment, Suspense, useEffect } from 'react'
+import { Fragment, Suspense, useEffect, useRef } from 'react'
 import { Outlet } from 'react-router'
 import { useCallbackOne as useStableCallback } from 'use-memo-one'
 
@@ -29,6 +29,8 @@ import { bodyBgColorAtom, myStore } from '@/store/useVocab'
 import devtoolsCss from '@/styles/devtools.css?inline'
 
 const isSafariAtom = atomWithStorage('isSafariAtom', isSafari())
+
+const isRootTransform = atom('')
 
 const metaThemeColorAtom = atom((get) => {
   if (get(isSafariAtom) && !get(isDarkModeAtom)) {
@@ -85,6 +87,14 @@ function Header() {
 }
 
 export default function Root() {
+  const ref = useRef<HTMLDivElement>(null)
+  useStyleObserver(ref, (values) => {
+    console.log(values.transform.value)
+
+    myStore.set(isRootTransform, values.transform.value)
+  }, {
+    properties: ['transform'],
+  })
   useAppEffects()
   const isDarkMode = useAtomValue(isDarkModeAtom)
   useVocabularySubscription()
@@ -93,6 +103,7 @@ export default function Root() {
     <SidebarProvider
       className="isolate h-svh pr-(--pr) antialiased sq:superellipse-[1.5]"
       data-vaul-drawer-wrapper=""
+      ref={ref}
     >
       <AppSidebar collapsible="icon" />
       <SidebarInset>
