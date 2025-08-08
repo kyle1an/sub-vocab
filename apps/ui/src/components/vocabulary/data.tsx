@@ -42,11 +42,12 @@ import { VocabularyMenu } from '@/components/vocabulary/menu'
 import { VocabStatics } from '@/components/vocabulary/statics-bar'
 import { customFormatDistance, formatDistanceLocale } from '@/lib/date-utils'
 import { customFormatDistanceToNowStrict } from '@/lib/formatDistance'
+import { useLastTruthy } from '@/lib/hooks'
 import { LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { combineFilters, noFilter } from '@/lib/table-utils'
 import { findClosest, getFallBack, isRegexValid } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
-import { useLastSearchFilterValue } from '@/utils/vocabulary/filters'
+import { searchFilterValue } from '@/utils/vocabulary/filters'
 import { narrow } from '@sub-vocab/utils/types'
 
 type TableData = VocabularySourceState
@@ -185,7 +186,7 @@ export function VocabDataTable({
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'allAcquainted')
   const segmentDeferredValue = useDeferredValue(segment)
-  const lastTruthySearchFilterValue = useLastSearchFilterValue(deferredSearchValue, deferredIsUsingRegex)
+  const lastTruthySearchFilterValue = useLastTruthy(searchFilterValue(deferredSearchValue, deferredIsUsingRegex)) ?? noFilter
   const inValidSearch = deferredIsUsingRegex && !isRegexValid(deferredSearchValue)
   const { refetch, isFetching: isLoadingUserVocab } = useAtomValue(userVocabularyAtom)
 

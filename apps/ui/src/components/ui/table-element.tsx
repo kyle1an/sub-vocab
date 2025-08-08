@@ -16,7 +16,7 @@ import type { GroupHeader } from '@/types/vocab'
 import { SortIcon } from '@/components/my-icon/sort-icon'
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
 import { useRetimer } from '@/hooks/useRetimer'
-import { useLatch } from '@/hooks/utils'
+import { useStickyValue } from '@/hooks/useStickyValue'
 import { useRect } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
 
@@ -231,7 +231,7 @@ export function TableRow<T>({
     }
   }
 
-  const opened = useLatch(open)
+  const opened = useStickyValue(open)
   const showDetail = Boolean(opened || open || animationOpen)
   const detailEntry = useIntersectionObserver(showDetail ? detailRef : null, {
     root: rootRef,

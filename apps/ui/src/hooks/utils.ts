@@ -1,6 +1,5 @@
 import { pipe } from 'effect'
 import { atom } from 'jotai'
-import { useEffect, useState } from 'react'
 
 import { withAbortableMount, withReadonly } from '@/atoms/utils'
 
@@ -18,15 +17,3 @@ export const pageVisibilityAtom = (() => {
     withReadonly,
   )
 })()
-
-export const useLatch = (trigger: boolean) => {
-  const [isLatched, setIsLatched] = useState(trigger)
-
-  useEffect(() => {
-    if (trigger) {
-      setIsLatched(true)
-    }
-  }, [trigger])
-
-  return isLatched
-}

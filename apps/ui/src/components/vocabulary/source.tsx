@@ -49,12 +49,13 @@ import { useVocabularyCommonColumns } from '@/components/vocabulary/columns'
 import { ExampleSentence } from '@/components/vocabulary/example-sentence'
 import { VocabularyMenu } from '@/components/vocabulary/menu'
 import { VocabStatics } from '@/components/vocabulary/statics-bar'
+import { useLastTruthy } from '@/lib/hooks'
 import { LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { combineFilters, filterFn, noFilter } from '@/lib/table-utils'
 import { findClosest, isRegexValid } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
 import { getCategory } from '@/utils/prompts/getCategory'
-import { useLastSearchFilterValue } from '@/utils/vocabulary/filters'
+import { searchFilterValue } from '@/utils/vocabulary/filters'
 import { narrow } from '@sub-vocab/utils/types'
 
 type TableData = VocabularySourceState & {
@@ -236,7 +237,7 @@ export function VocabSourceTable({
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'all')
   const segmentDeferredValue = useDeferredValue(segment)
-  const lastTruthySearchFilterValue = useLastSearchFilterValue(deferredSearchValue, deferredIsUsingRegex)
+  const lastTruthySearchFilterValue = useLastTruthy(searchFilterValue(deferredSearchValue, deferredIsUsingRegex)) ?? noFilter
   const inValidSearch = deferredIsUsingRegex && !isRegexValid(deferredSearchValue)
   const isSourceTextStale = useAtomValue(isSourceTextStaleAtom)
   const finalData = useCategorize(categoryAtomValue, data)
