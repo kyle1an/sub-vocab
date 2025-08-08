@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "private": true,
   "packageManager": "pnpm@10.14.0",
-  "description": "",
+  "description": "description",
   "exports": {
     ".": "./src/index.ts",
     "./lib": "./src/lib/index.ts",
