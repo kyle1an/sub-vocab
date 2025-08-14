@@ -380,7 +380,7 @@ export default function Subtitles() {
   const columns = useColumns()
   const setFileInfo = useSetAtom(fileInfoAtom)
   const setSourceText = useSetAtom(sourceTextAtom)
-  const [subtitleDownloadProgress, setSubtitleDownloadProgress] = useImmer<Download['Body'][]>([])
+  const [subtitleDownloadProgress, setSubtitleDownloadProgress] = useImmer([] as Download['Body'][])
   const queryEnabled = Boolean(debouncedQuery)
   const { data: multiData, isFetching: isSearchLoading } = useQuery($api.queryOptions(
     'get',

@@ -44,7 +44,7 @@ const segmentedControlVariants = cva(
 interface SegmentedControlProps<T extends string> extends
   React.ComponentProps<'div'>,
   VariantProps<typeof segmentedControlVariants> {
-  value: NoInfer<T>
+  value: T
   onValueChange: (value: T) => void
 }
 

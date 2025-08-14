@@ -16,12 +16,12 @@ import { TRPCClientError } from '@trpc/client'
 import { $trycatch } from '@tszen/trycatch'
 import clsx from 'clsx'
 import { identity } from 'es-toolkit'
+import { useSessionStorage } from 'foxact/use-session-storage'
 import { atom, useAtom, useAtomValue } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 import { atomWithStorage } from 'jotai/utils'
 import { startTransition, useDeferredValue, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSessionStorage } from 'react-use'
 import { toast } from 'sonner'
 import IconIconoirSparks from '~icons/iconoir/sparks'
 import IconLucideChevronRight from '~icons/lucide/chevron-right'
@@ -237,7 +237,7 @@ export function VocabSourceTable({
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'all')
   const segmentDeferredValue = useDeferredValue(segment)
-  const lastTruthySearchFilterValue = useLastTruthy(searchFilterValue(deferredSearchValue, deferredIsUsingRegex)) ?? noFilter
+  const lastTruthySearchFilterValue = useLastTruthy(searchFilterValue(deferredSearchValue, deferredIsUsingRegex))() ?? noFilter
   const inValidSearch = deferredIsUsingRegex && !isRegexValid(deferredSearchValue)
   const isSourceTextStale = useAtomValue(isSourceTextStaleAtom)
   const finalData = useCategorize(categoryAtomValue, data)
@@ -270,13 +270,6 @@ export function VocabSourceTable({
     getExpandedRowModel: getExpandedRowModel(),
     getSortedRowModel: getSortedRowModel(),
   })
-
-  function handleSegmentChoose(newSegment: typeof segment) {
-    setSegment(newSegment)
-    startTransition(() => {
-      purgeVocabulary()
-    })
-  }
 
   const tableState = table.getState()
   const { items } = usePagination({
@@ -456,7 +449,12 @@ export function VocabSourceTable({
       <div className="z-10 w-full outline-1 outline-border outline-solid">
         <SegmentedControl
           value={segment}
-          onValueChange={handleSegmentChoose}
+          onValueChange={(newSegment) => {
+            setSegment(newSegment)
+            startTransition(() => {
+              purgeVocabulary()
+            })
+          }}
           variant="ghost"
         >
           {segments.map((segment) => (

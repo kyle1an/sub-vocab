@@ -1,5 +1,4 @@
-import type { REALTIME_CHANNEL_STATES, RealtimePostgresInsertPayload, RealtimePostgresUpdatePayload } from '@supabase/supabase-js'
-import type { ValueOf } from 'type-fest'
+import type { RealtimePostgresInsertPayload, RealtimePostgresUpdatePayload } from '@supabase/supabase-js'
 
 import { UTCDateMini } from '@date-fns/utc'
 import { REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js'
@@ -201,8 +200,6 @@ const realtimeVocabUpsertAtom = atom((get) => function <T extends Tables<'user_v
     }))
   }
 })
-
-export type RealtimeChannelState = ValueOf<typeof REALTIME_CHANNEL_STATES>
 
 export const STATUS_LABELS = {
   SUBSCRIBED: 'Connected',

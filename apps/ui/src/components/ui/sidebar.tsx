@@ -82,20 +82,17 @@ function SidebarProvider({
   })
   const [_open, _setOpen] = React.useState((sidebarCookie ?? String(defaultOpen)) === 'true')
   const open = openProp ?? _open
-  const setOpen = React.useCallback(
-    (value: SetStateAction<boolean>) => {
-      const openState = typeof value === 'function' ? value(open) : value
-      if (setOpenProp) {
-        setOpenProp(openState)
-      } else {
-        _setOpen(openState)
-      }
+  const setOpen = React.useCallback((value: SetStateAction<boolean>) => {
+    const openState = typeof value === 'function' ? value(open) : value
+    if (setOpenProp) {
+      setOpenProp(openState)
+    } else {
+      _setOpen(openState)
+    }
 
-      // This sets the cookie to keep the sidebar state.
-      setSidebarCookie(String(openState))
-    },
-    [open, setOpenProp, setSidebarCookie],
-  )
+    // This sets the cookie to keep the sidebar state.
+    setSidebarCookie(String(openState))
+  }, [open, setOpenProp, setSidebarCookie])
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
@@ -135,7 +132,7 @@ function SidebarProvider({
               '--sidebar-width': SIDEBAR_WIDTH,
               '--sidebar-width-icon': SIDEBAR_WIDTH_ICON,
               ...style,
-            } as React.CSSProperties
+            }
           }
           className={cn(
             'group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar',
@@ -190,7 +187,7 @@ function Sidebar({
           style={
             {
               '--sidebar-width': SIDEBAR_WIDTH_MOBILE,
-            } as React.CSSProperties
+            }
           }
           side={side}
         >
@@ -644,7 +641,7 @@ function SidebarMenuSkeleton({
         style={
           {
             '--skeleton-width': width,
-          } as React.CSSProperties
+          }
         }
       />
     </div>

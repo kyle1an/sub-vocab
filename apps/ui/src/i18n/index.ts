@@ -1,24 +1,12 @@
 import type { Resource } from 'i18next'
 
 import i18n from 'i18next'
-import { useAtom } from 'jotai'
-import { useState } from 'react'
-import { initReactI18next } from 'react-i18next'
-
-import { localeAtom } from '@/store/useVocab'
+import LanguageDetector from 'i18next-browser-languagedetector'
+import { withAtomEffect } from 'jotai-effect'
+import { atomWithStorage } from 'jotai/utils'
 
 import { en } from './en'
 import { zh } from './zh'
-
-export function getLanguage() {
-  if (typeof window !== 'undefined') {
-    const [language] = window.navigator.languages
-    if (language && language.startsWith('zh')) {
-      return 'zh'
-    }
-  }
-  return 'en'
-}
 
 export const resources = {
   en: {
@@ -29,22 +17,23 @@ export const resources = {
   },
 } as const satisfies Resource
 
-export function useI18n() {
-  const [locale] = useAtom(localeAtom)
-  useState(() => {
-    i18n.use(initReactI18next)
-      .init({
-        resources,
-        lng: locale,
-        fallbackLng: 'en',
-        interpolation: {
-          escapeValue: false, // react already safes from xss => https://www.i18next.com/translation-function/interpolation#unescape
-        },
-      })
-      .catch(console.error)
-  })
-  return i18n
-}
+i18n.use(LanguageDetector).init({
+  resources,
+  interpolation: {
+    escapeValue: false, // react already safes from xss => https://www.i18next.com/translation-function/interpolation#unescape
+  },
+})
+
+export const localeAtom = withAtomEffect(
+  (() => {
+    const newAtom = atomWithStorage('localeAtom', i18n.language, undefined, { getOnInit: true })
+    newAtom.debugLabel = `localeAtom`
+    return newAtom
+  })(),
+  (get) => {
+    i18n.changeLanguage(get(localeAtom)).catch(console.error)
+  },
+)
 
 // https://github.com/i18next/react-i18next/issues/1483#issuecomment-2351003452
 export const transParams = (s: Record<string, unknown>) => s as unknown as React.ReactNode

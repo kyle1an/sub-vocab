@@ -10,10 +10,8 @@ import type { AppendParameters } from '@/lib/utilities'
 import { myStore } from '@/store/useVocab'
 import { tap } from '@sub-vocab/utils/lib'
 
-type WithParamsAtomFamily<Param, AtomType> = AtomFamily<Param, AtomType> & { paramsAtom: ReturnType<typeof atom<Param[]>> }
-
 export function myAtomFamily<Param, AtomType extends Atom<unknown>>(label: string, initializeAtom: (param: Param) => AtomType, areEqual?: (a: Param, b: Param) => boolean) {
-  const paramsAtom = atom<Param[]>([])
+  const paramsAtom = atom([] as Param[])
   paramsAtom.debugLabel = `${label}.paramsAtom`
   return pipe(
     atomFamily((param: NonNullable<Param>) => {
@@ -21,13 +19,13 @@ export function myAtomFamily<Param, AtomType extends Atom<unknown>>(label: strin
       newAtom.debugLabel = `${label}-${typeof param === 'object' && 'key' in param ? param.key : param}`
       return newAtom
     }, areEqual),
-    tap((v) => {
-      let latestEvent: Parameters<Parameters<typeof v['unstable_listen']>[0]>[0]
-      v.unstable_listen((event) => {
+    tap(({ unstable_listen, getParams }) => {
+      let latestEvent: Parameters<Parameters<typeof unstable_listen>[0]>[0]
+      unstable_listen((event) => {
         latestEvent = event
         queueMicrotask(() => {
           if (event === latestEvent) {
-            myStore.set(paramsAtom, [...v.getParams()])
+            myStore.set(paramsAtom, [...getParams()])
           }
         })
       })
@@ -93,6 +91,7 @@ export const retimerAtomFamily = (label: string) => {
             timeoutId = setTimeout(() => {
               timeoutId = undefined
               handler()
+
               if (isMounted) return
               family.remove(id)
             }, timeout)
@@ -105,6 +104,7 @@ export const retimerAtomFamily = (label: string) => {
         isMounted = true
         return () => {
           isMounted = false
+
           if (timeoutId) return
           queueMicrotask(() => {
             if (timeoutId) return

@@ -22,6 +22,5 @@ const isMobileAtom = (() => {
 })()
 
 export function useIsMobile() {
-  const isMobile = useAtomValue(isMobileAtom)
-  return isMobile
+  return useAtomValue(isMobileAtom)
 }

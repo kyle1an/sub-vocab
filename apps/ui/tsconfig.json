@@ -27,6 +27,7 @@
     "**/*.config.js",
     "**/*.config.cjs",
     "**/*.config.ts",
+    "src/**/*",
     "src/**/*.ts",
     "src/**/*.tsx",
     "/**/*.d.ts",

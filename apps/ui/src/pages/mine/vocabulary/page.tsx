@@ -12,7 +12,7 @@ import { statusRetainedList } from '@/lib/vocab-utils'
 export default function VocabularyPage() {
   const [userWords] = useAtom(baseVocabAtom)
 
-  const [rows, setRows] = useState<VocabularySourceState[]>([])
+  const [rows, setRows] = useState([] as VocabularySourceState[])
   const { data: irregulars = [] } = useAtomValue(irregularWordsQueryAtom)
   const trie = new LexiconTrie()
   trie.input(userWords.map((w) => w.form))

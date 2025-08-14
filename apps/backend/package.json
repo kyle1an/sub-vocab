@@ -11,27 +11,27 @@
     "introspect": "drizzle-kit introspect",
     "lint": "eslint . --report-unused-disable-directives",
     "lint:fix": "eslint . --fix",
-    "start": "kill -9 $(lsof -ti:5001) && node --env-file=.env app.js",
+    "start": "node --env-file=.env app.js",
     "vercel-build": "node --run build"
   },
   "dependencies": {
-    "@ai-sdk/google": "^2.0.3",
+    "@ai-sdk/google": "^2.0.6",
     "@fastify/cors": "^11.1.0",
     "@fastify/http-proxy": "^11.3.0",
     "@openrouter/ai-sdk-provider": "^1.1.2",
     "@sub-vocab/utils": "workspace:*",
     "@trpc/server": "^11.4.4",
-    "ai": "^5.0.9",
+    "ai": "^5.0.14",
     "drizzle-orm": "^0.44.4",
-    "fastify": "^5.4.0",
+    "fastify": "^5.5.0",
     "ofetch": "^1.4.1",
     "openapi-fetch": "^0.14.0",
     "postgres": "^3.4.7"
   },
   "devDependencies": {
-    "@vercel/node": "^5.3.11",
+    "@vercel/node": "^5.3.12",
     "drizzle-kit": "^0.31.4",
-    "esbuild": "^0.25.8",
-    "tsx": "^4.20.3"
+    "esbuild": "^0.25.9",
+    "tsx": "^4.20.4"
   }
 }

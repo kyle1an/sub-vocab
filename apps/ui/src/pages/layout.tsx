@@ -1,16 +1,9 @@
 import './globals.css'
 
-import { useColorScheme } from '@mui/joy/styles'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { Analytics } from '@vercel/analytics/react'
-import { SpeedInsights } from '@vercel/speed-insights/react'
 import { isSafari } from 'foxact/is-safari'
-import { atom, useAtomValue } from 'jotai'
-import { DevTools } from 'jotai-devtools'
-import css from 'jotai-devtools/styles.css?inline'
+import { atom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
-import { Fragment, Suspense, useEffect, useRef } from 'react'
-import { createPortal } from 'react-dom'
+import { Suspense, useEffect, useRef } from 'react'
 import { Outlet } from 'react-router'
 import { useCallbackOne as useStableCallback } from 'use-memo-one'
 
@@ -28,25 +21,6 @@ import { useAtomEffect } from '@/hooks/useAtomEffect'
 import { useStyleObserver } from '@/hooks/useStyleObserver'
 import { supabaseAuth } from '@/lib/supabase'
 import { bodyBgColorAtom, mainBgColorAtom, myStore } from '@/store/useVocab'
-import devtoolsCss from '@/styles/devtools.css?inline'
-
-const jotaiDevtoolsIsShellOpenAtom = atomWithStorage(`jotai-devtools-is-shell-open-V0`, false, undefined, { getOnInit: true })
-
-function JotaiDevtools() {
-  const jotaiDevtoolsIsShellOpen = useAtomValue(jotaiDevtoolsIsShellOpenAtom)
-  const isDarkMode = useAtomValue(isDarkModeAtom)
-  return (
-    <Fragment>
-      <style>{css}</style>
-      <style>{devtoolsCss}</style>
-      <DevTools
-        store={myStore}
-        isInitialOpen={jotaiDevtoolsIsShellOpen}
-        theme={isDarkMode ? 'dark' : 'light'}
-      />
-    </Fragment>
-  )
-}
 
 const isSafariAtom = atomWithStorage('isSafariAtom', isSafari())
 
@@ -70,20 +44,14 @@ function useAppEffects() {
       subscription.unsubscribe()
     }
   }, [])
-  useStyleObserver(document.body, (values) => {
-    myStore.set(bodyBgColorAtom, values['background-color'].value)
+  useStyleObserver(document.body, ([{ value }]) => {
+    myStore.set(bodyBgColorAtom, value)
   }, {
     properties: ['background-color'],
   })
   useAtomEffect(useStableCallback((get) => {
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', get(metaThemeColorAtom))
   }, []))
-  {
-    const { setMode } = useColorScheme()
-    useAtomEffect(useStableCallback((get) => {
-      setMode(get(isDarkModeAtom) ? 'dark' : 'light')
-    }, [setMode]))
-  }
   useAtomEffect(useStableCallback((get) => {
     document.documentElement.classList.toggle('dark', get(isDarkModeAtom))
   }, []))
@@ -109,8 +77,8 @@ function Header() {
 
 export default function Root() {
   const ref = useRef<HTMLDivElement>(null)
-  useStyleObserver(ref, (values) => {
-    myStore.set(mainBgColorAtom, values['background-color'].value || LIGHT_THEME_COLOR)
+  useStyleObserver(ref, ([{ value }]) => {
+    myStore.set(mainBgColorAtom, value || LIGHT_THEME_COLOR)
   }, {
     properties: ['background-color'],
   })
@@ -135,20 +103,6 @@ export default function Root() {
           richColors
         />
       </Suspense>
-      {createPortal(
-        <Fragment>
-          <ReactQueryDevtools initialIsOpen={false} />
-          {import.meta.env.PROD ? (
-            <Fragment>
-              <SpeedInsights />
-              <Analytics />
-            </Fragment>
-          ) : import.meta.env.DEV ? (
-            <JotaiDevtools />
-          ) : null}
-        </Fragment>,
-        document.body,
-      )}
     </SidebarProvider>
   )
 }
