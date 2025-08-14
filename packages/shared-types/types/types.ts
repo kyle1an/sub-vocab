@@ -17,3 +17,5 @@ type Narrowable = string | number | bigint | boolean
 export type NarrowRaw<A> = (A extends [] ? [] : never) | (A extends Narrowable ? A : never) | ({
   [K in keyof A]: A[K] extends AnyFunc ? A[K] : NarrowRaw<A[K]>;
 })
+
+export type NonArrayObject = object & { [Symbol.iterator]?: never }

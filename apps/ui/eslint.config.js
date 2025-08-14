@@ -2,7 +2,6 @@ import antfu from '@antfu/eslint-config'
 import pluginQuery from '@tanstack/eslint-plugin-query'
 import reactCompiler from 'eslint-plugin-react-compiler'
 import eslintPluginTailwindCss from 'eslint-plugin-tailwindcss'
-import valtio from 'eslint-plugin-valtio'
 // @ts-check
 /// <reference path="./eslint-typegen.d.ts" />
 import typegen from 'eslint-typegen'
@@ -26,7 +25,7 @@ export default typegen(antfu(
         'error',
         {
           type: 'natural',
-          internalPattern: ['^@/.+', '^@ui/.+', '^@backend/.+', '^@sub-vocab/'],
+          internalPattern: ['^@/.+', '^@backend/.+', '^@ui/.+', '^@sub-vocab/'],
         },
       ],
     },
@@ -89,7 +88,6 @@ export default typegen(antfu(
       },
     },
   },
-  valtio.configs['flat/recommended'],
   {
     ignores: [
       'database.types.ts',

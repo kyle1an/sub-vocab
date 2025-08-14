@@ -1,3 +1,4 @@
+import type { NonEmptyArray } from 'effect/Array'
 import type { MergeDeep, PartialDeep, SetNonNullable } from 'type-fest'
 
 import { merge } from 'es-toolkit'
@@ -14,7 +15,6 @@ export const createFactory = <T extends object>() => <TDefault extends PartialDe
 
 export const hasValue = <T extends [any, any]>(entry: T): entry is SetNonNullable<T, '1'> => entry[1]
 
-type NonEmptyArray<T> = [T, ...T[]]
 export const isNonEmptyArray = <T>(arr: T[]): arr is NonEmptyArray<T> => arr.length > 0
 
 export const isSingleItemArray = <T>(arr: ArrayLike<T>): arr is [T] => arr.length === 1

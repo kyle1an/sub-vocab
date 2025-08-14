@@ -1,11 +1,11 @@
 import react from '@vitejs/plugin-react'
+import { resolve } from 'node:path'
 import { visualizer } from 'rollup-plugin-visualizer'
 import Icons from 'unplugin-icons/vite'
 import { defineConfig } from 'vite'
 import babel from 'vite-plugin-babel'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import Inspect from 'vite-plugin-inspect'
-import tsconfigPaths from 'vite-tsconfig-paths'
 
 import { chunks } from './vite/utils'
 
@@ -51,8 +51,13 @@ export default defineConfig(({ mode }) => {
         }),
       ] : [
       ],
-      tsconfigPaths(),
     ],
+    resolve: {
+      alias: {
+        '@': resolve(__dirname, './src/'),
+        '@ui': resolve(__dirname, '../ui'),
+      },
+    },
     build: {
       target: 'esnext',
       rollupOptions: {

@@ -1,9 +1,10 @@
-import CircularProgress from '@mui/joy/CircularProgress'
 import NumberFlow from '@number-flow/react'
 import clsx from 'clsx'
 import { Fragment, useDeferredValue, useEffect, useState } from 'react'
 import IconLucideCheckCircle from '~icons/lucide/check-circle'
 import IconLucideCircle from '~icons/lucide/circle'
+
+import { AnimatedCircularProgressBar } from '@/components/magicui/animated-circular-progress-bar'
 
 export function VocabStatics({
   total,
@@ -99,14 +100,9 @@ export function VocabStatics({
               %
             </div>
             <div className="flex justify-center *:[--CircularProgress-size:16px]!">
-              <CircularProgress
-                color="neutral"
-                variant="soft"
-                size="sm"
-                thickness={3.5}
-                determinate
+              <AnimatedCircularProgressBar
                 value={percentage}
-                aria-label="progress"
+                className="text-md size-3 [--stroke-primary:var(--muted-foreground)] [--stroke-secondary:var(--border)] *:[[data-current-value]]:hidden"
               />
             </div>
             <span className="text-neutral-300 dark:text-neutral-600">)</span>

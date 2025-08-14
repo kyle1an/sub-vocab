@@ -1,4 +1,16 @@
 {
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
   "cSpell.words": [
     "AISDK",
     "Auths",
@@ -40,7 +52,6 @@
     "toolbelt",
     "trycatch",
     "unplugin",
-    "valtio",
     "vaul",
     "vercel",
     "VITE",
@@ -86,8 +97,6 @@
   // https://github.com/tailwindlabs/tailwindcss/discussions/5258#discussioncomment-12273733
   "css.customData": [".vscode/tailwind.json"],
   "npm.exclude": ["**/.vercel/**"],
-  "css.lint.validProperties": [
-    "corner-shape"
-  ],
-  "typescript.tsdk": "node_modules/typescript/lib",
+  "css.lint.validProperties": ["corner-shape"],
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

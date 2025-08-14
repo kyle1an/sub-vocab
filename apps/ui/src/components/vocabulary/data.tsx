@@ -13,11 +13,11 @@ import {
 } from '@tanstack/react-table'
 import clsx from 'clsx'
 import { identity } from 'es-toolkit'
+import { useSessionStorage } from 'foxact/use-session-storage'
 import { atom, useAtom, useAtomValue } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 import { startTransition, useDeferredValue, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSessionStorage } from 'react-use'
 import IconIonRefresh from '~icons/ion/refresh'
 import IconLucideLoader2 from '~icons/lucide/loader2'
 
@@ -186,7 +186,7 @@ export function VocabDataTable({
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'allAcquainted')
   const segmentDeferredValue = useDeferredValue(segment)
-  const lastTruthySearchFilterValue = useLastTruthy(searchFilterValue(deferredSearchValue, deferredIsUsingRegex)) ?? noFilter
+  const lastTruthySearchFilterValue = useLastTruthy(searchFilterValue(deferredSearchValue, deferredIsUsingRegex))() ?? noFilter
   const inValidSearch = deferredIsUsingRegex && !isRegexValid(deferredSearchValue)
   const { refetch, isFetching: isLoadingUserVocab } = useAtomValue(userVocabularyAtom)
 
@@ -215,13 +215,6 @@ export function VocabDataTable({
     getExpandedRowModel: getExpandedRowModel(),
     getSortedRowModel: getSortedRowModel(),
   })
-
-  function handleSegmentChoose(newSegment: typeof segment) {
-    setSegment(newSegment)
-    startTransition(() => {
-      onPurge()
-    })
-  }
 
   const tableState = table.getState()
   const { items } = usePagination({
@@ -341,7 +334,12 @@ export function VocabDataTable({
       <div className="w-full">
         <SegmentedControl
           value={segment}
-          onValueChange={handleSegmentChoose}
+          onValueChange={(newSegment) => {
+            setSegment(newSegment)
+            startTransition(() => {
+              onPurge()
+            })
+          }}
           variant="ghost"
         >
           {segments.map((segment) => (

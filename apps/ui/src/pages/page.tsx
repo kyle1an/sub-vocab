@@ -75,7 +75,7 @@ function SourceVocab({
 }) {
   const { data: irregulars = [] } = useAtomValue(irregularWordsQueryAtom)
   const [baseVocab] = useAtom(baseVocabAtom)
-  const [rows, setRows] = useState<VocabularySourceState[]>([])
+  const [rows, setRows] = useState([] as VocabularySourceState[])
   const setSourceCountAtom = useSetAtom(sourceCountAtom)
   const trie = new LexiconTrie()
   trie.add(text)
@@ -102,19 +102,17 @@ function SourceVocab({
     }))
   }
 
-  function handleLocateSentence(no: number) {
-    const sentence = sentences[no]
-    if (sentence) {
-      onSentenceTrack(sentence)
-    }
-  }
-
   return (
     <VocabSourceTable
       data={rows}
       sentences={sentences}
       onPurge={handlePurge}
-      onSentenceTrack={handleLocateSentence}
+      onSentenceTrack={(no) => {
+        const sentence = sentences[no]
+        if (sentence) {
+          onSentenceTrack(sentence)
+        }
+      }}
       className="h-full"
     />
   )

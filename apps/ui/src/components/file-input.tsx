@@ -23,29 +23,25 @@ export function FileInput({
   const fileTypeNames = fileTypes.filter((fileType) => fileType.checked).map((fileType) => fileType.type)
   const acceptedFileTypes = [...SUPPORTED_FILE_TYPES, ...fileTypeNames]
 
-  function handleFileSelect(fileList: FileList | null) {
-    if (fileList) {
-      getFileContent(fileList).then(onFileSelect).catch(console.error)
-    }
-  }
-
-  function dropFile(ev: React.DragEvent<HTMLDivElement>) {
-    ev.preventDefault()
-    const files = ev.dataTransfer.files
-    if (files) {
-      getFileContent(files).then(onFileSelect).catch(console.error)
-    }
-  }
-
   return (
     <div
-      onDrop={dropFile}
+      onDrop={(ev) => {
+        ev.preventDefault()
+        const files = ev.dataTransfer.files
+        if (files) {
+          getFileContent(files).then(onFileSelect).catch(console.error)
+        }
+      }}
       className={className}
     >
       <FileTrigger
         allowsMultiple
         acceptedFileTypes={acceptedFileTypes}
-        onSelect={handleFileSelect}
+        onSelect={(fileList) => {
+          if (fileList) {
+            getFileContent(fileList).then(onFileSelect).catch(console.error)
+          }
+        }}
       >
         <div>
           <Button

@@ -1,7 +1,6 @@
 import type { ArrayValues } from 'type-fest'
 
 import { getDefaultStore } from 'jotai'
-import { withAtomEffect } from 'jotai-effect'
 import { atomWithStorage } from 'jotai/utils'
 
 import type { THEMES } from '@/components/themes'
@@ -10,7 +9,6 @@ import { atomWithMediaQuery } from '@/atoms/utils'
 import { DEFAULT_THEME } from '@/components/themes'
 import { THEME_KEY } from '@/constants/keys'
 import { LIGHT_THEME_COLOR } from '@/constants/theme'
-import i18n, { getLanguage } from '@/i18n'
 
 export const myStore = getDefaultStore()
 
@@ -19,14 +17,3 @@ export const themeAtom = atomWithStorage<ArrayValues<typeof THEMES>['value']>(TH
 export const bodyBgColorAtom = atomWithStorage('bodyBgColorAtom', LIGHT_THEME_COLOR, undefined, { getOnInit: true })
 export const mainBgColorAtom = atomWithStorage('mainBgColorAtom', LIGHT_THEME_COLOR, undefined, { getOnInit: true })
 export const prefersDarkAtom = atomWithMediaQuery('(prefers-color-scheme: dark)')
-
-export const localeAtom = withAtomEffect(
-  (() => {
-    const newAtom = atomWithStorage('localeAtom', getLanguage(), undefined, { getOnInit: true })
-    newAtom.debugLabel = `localeAtom`
-    return newAtom
-  })(),
-  (get) => {
-    i18n.changeLanguage(get(localeAtom)).catch(console.error)
-  },
-)

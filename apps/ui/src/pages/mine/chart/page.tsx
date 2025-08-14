@@ -7,10 +7,10 @@ import {
 } from 'chart.js'
 import { endOfWeek, format, getMonth, isFirstDayOfMonth, isSunday, startOfMonth, startOfWeek, subDays, subMonths, subWeeks } from 'date-fns'
 import { rangeRight } from 'es-toolkit'
+import { useSessionStorage } from 'foxact/use-session-storage'
 import { useAtom } from 'jotai'
 import { Bar } from 'react-chartjs-2'
 import { useTranslation } from 'react-i18next'
-import { useSessionStorage } from 'react-use'
 import colors from 'tailwindcss/colors'
 
 import type { TrackedWord } from '@/lib/LexiconTrie'
