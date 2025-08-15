@@ -1,23 +1,25 @@
-import type { RealtimePostgresInsertPayload, RealtimePostgresUpdatePayload } from '@supabase/supabase-js'
+import type { REALTIME_SUBSCRIBE_STATES, RealtimePostgresInsertPayload, RealtimePostgresUpdatePayload } from '@supabase/supabase-js'
 
 import { UTCDateMini } from '@date-fns/utc'
-import { REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js'
+import { REALTIME_POSTGRES_CHANGES_LISTEN_EVENT } from '@supabase/supabase-js'
 import { queryOptions, useMutation } from '@tanstack/react-query'
+import { pipe } from 'effect'
 import { uniq } from 'es-toolkit'
 import { produce } from 'immer'
-import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { atom, useAtomValue } from 'jotai'
+import { withAtomEffect } from 'jotai-effect'
 import { atomWithQuery } from 'jotai-tanstack-query'
 import ms from 'ms'
-import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 
 import type { LearningPhase, TrackedWord } from '@/lib/LexiconTrie'
 import type { Supabase } from '@/lib/supabase'
 import type { Tables } from '@ui/database.types'
 
-import { sessionAtom } from '@/atoms/auth'
+import { sessionAtom, userIdAtom } from '@/atoms/auth'
+import { retimerAtomFamily } from '@/atoms/utils'
 import { vocabSubscriptionAtom } from '@/atoms/vocabulary'
-import { pageVisibilityAtom } from '@/hooks/utils'
+import { documentVisibilityStateAtom } from '@/hooks/utils'
 import { buildTrackedWord, LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { queryClient } from '@/lib/query-client'
 import { supabase } from '@/lib/supabase'
@@ -47,8 +49,6 @@ const userVocabularyOptionsAtom = atom((get) => {
   })
 })
 
-export const userVocabularyAtom = atomWithQuery((get) => get(userVocabularyOptionsAtom))
-
 const sharedVocabularyAtom = atomWithQuery(() => {
   return {
     queryKey: ['sharedVocabularyAtom'],
@@ -74,6 +74,7 @@ const sharedVocabularyAtom = atomWithQuery(() => {
 })
 
 export const baseVocabAtom = atom((get) => {
+  // eslint-disable-next-line ts/no-use-before-define
   const { data: userVocab = [] } = get(userVocabularyAtom)
   const { data: sharedVocab = [] } = get(sharedVocabularyAtom)
   const map = new Map(sharedVocab)
@@ -183,14 +184,17 @@ export function useUserWordPhaseMutation() {
   })
 }
 
-const realtimeVocabUpsertAtom = atom((get) => function <T extends Tables<'user_vocab_record'>>() {
-  return (payload: RealtimePostgresInsertPayload<T> | RealtimePostgresUpdatePayload<T>) => {
+type user_vocab_record = Tables<'user_vocab_record'>
+
+const upsertVocabularyCallbackAtom = atom((get) => {
+  const { queryKey } = get(userVocabularyOptionsAtom)
+  return <T extends user_vocab_record>(payload: RealtimePostgresInsertPayload<T> | RealtimePostgresUpdatePayload<T>) => {
     const data = {
       w: payload.new.vocabulary,
       time_modified: payload.new.time_modified,
       learningPhase: getLearningPhase(payload.new.acquainted),
     }
-    queryClient.setQueryData(get(userVocabularyOptionsAtom).queryKey, (prevData) => prevData && produce(prevData, (draft) => {
+    queryClient.setQueryData(queryKey, (prevData) => prevData && produce(prevData, (draft) => {
       const labelMutated = draft.find((label) => label.w === data.w)
       if (labelMutated) {
         Object.assign(labelMutated, data)
@@ -208,75 +212,69 @@ export const STATUS_LABELS = {
   TIMED_OUT: 'Connection Timeout',
 } as const satisfies Partial<Record<REALTIME_SUBSCRIBE_STATES, string>>
 
-const INACTIVITY_TIMEOUT_MS = ms('1min')
+const INACTIVITY_TIMEOUT = ms('1min')
 
-export function useVocabularySubscription() {
-  const [session] = useAtom(sessionAtom)
-  const userId = session?.user?.id
-  const isTabActive = useAtomValue(pageVisibilityAtom)
-  const { refetch } = useAtomValue(userVocabularyAtom)
-  const setVocabSubscription = useSetAtom(vocabSubscriptionAtom)
-  const channelRef = useRef<ReturnType<Supabase['channel']>>(null)
-  const upsertCallback = useAtomValue(realtimeVocabUpsertAtom)
+const channelRetimerFamily = retimerAtomFamily(`channelRetimerFamily`)
 
-  useEffect(() => {
-    function cleanup() {
-      if (channelRef.current) {
-        channelRef.current.unsubscribe()
-        channelRef.current = null
-        setVocabSubscription(REALTIME_SUBSCRIBE_STATES.CLOSED)
+export const userVocabularyAtom = pipe(
+  atomWithQuery((get) => get(userVocabularyOptionsAtom)),
+  (v) => {
+    let channel: ReturnType<Supabase['channel']> | null
+    return withAtomEffect(v, (get, set) => {
+      const userId = get(userIdAtom)
+      if (!userId) {
+        return
       }
-    }
 
-    if (!userId) {
-      cleanup()
-      return
-    }
+      if (get(documentVisibilityStateAtom) === 'hidden') {
+        return
+      }
 
-    // If the tab is not active, we set a timer to unsubscribe.
-    if (!isTabActive) {
-      const timeoutId = setTimeout(() => {
-        cleanup()
-      }, INACTIVITY_TIMEOUT_MS)
+      const retimeCleanup = get(channelRetimerFamily(``))
+      if (channel) {
+        retimeCleanup()
+      } else {
+        get.peek(userVocabularyAtom).refetch()
+
+        channel = supabase
+          .channel(`user_${userId}_user_vocab_record`)
+          .on<user_vocab_record>(
+            'postgres_changes',
+            {
+              schema: 'public',
+              table: 'user_vocab_record',
+              event: REALTIME_POSTGRES_CHANGES_LISTEN_EVENT.INSERT,
+              filter: `user_id=eq.${userId}`,
+            },
+            get(upsertVocabularyCallbackAtom),
+          )
+          .on<user_vocab_record>(
+            'postgres_changes',
+            {
+              schema: 'public',
+              table: 'user_vocab_record',
+              event: REALTIME_POSTGRES_CHANGES_LISTEN_EVENT.UPDATE,
+              filter: `user_id=eq.${userId}`,
+            },
+            get(upsertVocabularyCallbackAtom),
+          )
+          .subscribe((status) => {
+            set(vocabSubscriptionAtom, status)
+          })
+      }
 
       return () => {
-        clearTimeout(timeoutId)
+        retimeCleanup(
+          () => {
+            if (!channel) return
+            channel.unsubscribe()
+            channel = null
+          },
+          userId === get(userIdAtom) && get(documentVisibilityStateAtom) === 'hidden'
+            ? INACTIVITY_TIMEOUT
+            : null,
+        )
       }
-    }
-
-    if (channelRef.current === null) {
-      // Refetch data when a new subscription is about to be created after being inactive.
-      refetch()
-
-      channelRef.current = supabase
-        .channel(`user_${userId}_user_vocab_record`)
-        .on(
-          'postgres_changes',
-          {
-            schema: 'public',
-            table: 'user_vocab_record',
-            event: 'INSERT',
-            filter: `user_id=eq.${userId}`,
-          },
-          upsertCallback,
-        )
-        .on(
-          'postgres_changes',
-          {
-            schema: 'public',
-            table: 'user_vocab_record',
-            event: 'UPDATE',
-            filter: `user_id=eq.${userId}`,
-          },
-          upsertCallback,
-        )
-        .subscribe((status) => {
-          setVocabSubscription(status)
-        })
-    }
-
-    return () => {
-      cleanup()
-    }
-  }, [userId, isTabActive, refetch, upsertCallback, setVocabSubscription])
-}
+    })
+  },
+)

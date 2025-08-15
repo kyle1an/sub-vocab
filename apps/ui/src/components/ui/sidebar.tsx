@@ -8,7 +8,6 @@ import { cva } from 'class-variance-authority'
 import clsx from 'clsx'
 import ms from 'ms'
 import * as React from 'react'
-import { useCallback } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import { Button } from '@/components/ui/button'
@@ -28,6 +27,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { useIdentity } from '@/hooks'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 
@@ -82,7 +82,7 @@ function SidebarProvider({
   })
   const [_open, _setOpen] = React.useState((sidebarCookie ?? String(defaultOpen)) === 'true')
   const open = openProp ?? _open
-  const setOpen = React.useCallback((value: SetStateAction<boolean>) => {
+  const setOpen = (value: SetStateAction<boolean>) => {
     const openState = typeof value === 'function' ? value(open) : value
     if (setOpenProp) {
       setOpenProp(openState)
@@ -92,38 +92,35 @@ function SidebarProvider({
 
     // This sets the cookie to keep the sidebar state.
     setSidebarCookie(String(openState))
-  }, [open, setOpenProp, setSidebarCookie])
+  }
 
   // Helper to toggle the sidebar.
-  const toggleSidebar = React.useCallback(() => {
+  const toggleSidebar = () => {
     return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
-  }, [isMobile, setOpen, setOpenMobile])
+  }
 
   // Adds a keyboard shortcut to toggle the sidebar.
-  useHotkeys(`meta+${SIDEBAR_KEYBOARD_SHORTCUT}`, useCallback((event) => {
+  useHotkeys(`meta+${SIDEBAR_KEYBOARD_SHORTCUT}`, (event) => {
     event.preventDefault()
     toggleSidebar()
-  }, [toggleSidebar]), {})
+  }, {})
 
   // We add a state so that we can do data-state="expanded" or "collapsed".
   // This makes it easier to style the sidebar with Tailwind classes.
   const state = open ? 'expanded' : 'collapsed'
 
-  const contextValue = React.useMemo<SidebarContextProps>(
-    () => ({
-      state,
-      open,
-      setOpen,
-      isMobile,
-      openMobile,
-      setOpenMobile,
-      toggleSidebar,
-    }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar],
-  )
-
   return (
-    <SidebarContext value={contextValue}>
+    <SidebarContext
+      value={useIdentity({
+        state,
+        open,
+        setOpen,
+        isMobile,
+        openMobile,
+        setOpenMobile,
+        toggleSidebar,
+      })}
+    >
       <TooltipProvider delayDuration={0}>
         <div
           data-slot="sidebar-wrapper"

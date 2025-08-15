@@ -3,11 +3,9 @@ import './globals.css'
 import { isSafari } from 'foxact/is-safari'
 import { atom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
-import { Suspense, useEffect, useRef } from 'react'
+import { Suspense, useRef } from 'react'
 import { Outlet } from 'react-router'
-import { useCallbackOne as useStableCallback } from 'use-memo-one'
 
-import { useVocabularySubscription } from '@/api/vocab-api'
 import { authChangeEventAtom, sessionAtom } from '@/atoms/auth'
 import { isDarkModeAtom } from '@/atoms/ui'
 import { AppSidebar } from '@/components/app-sidebar'
@@ -17,7 +15,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/s
 import { Toaster } from '@/components/ui/sonner'
 import { LIGHT_THEME_COLOR } from '@/constants/theme'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { useAtomEffect } from '@/hooks/useAtomEffect'
+import { useAtomEffect, useStableCallback } from '@/hooks/useAtomEffect'
 import { useStyleObserver } from '@/hooks/useStyleObserver'
 import { supabaseAuth } from '@/lib/supabase'
 import { bodyBgColorAtom, mainBgColorAtom, myStore } from '@/store/useVocab'
@@ -35,15 +33,15 @@ const metaThemeColorAtom = atom((get) => {
 })
 
 function useAppEffects() {
-  useEffect(() => {
+  useAtomEffect(useStableCallback((get, set) => {
     const { data: { subscription } } = supabaseAuth.onAuthStateChange((event, session) => {
-      myStore.set(authChangeEventAtom, event)
-      myStore.set(sessionAtom, session)
+      set(authChangeEventAtom, event)
+      set(sessionAtom, session)
     })
     return () => {
       subscription.unsubscribe()
     }
-  }, [])
+  }, []))
   useStyleObserver(document.body, ([{ value }]) => {
     myStore.set(bodyBgColorAtom, value)
   }, {
@@ -83,7 +81,6 @@ export default function Root() {
     properties: ['background-color'],
   })
   useAppEffects()
-  useVocabularySubscription()
 
   return (
     <SidebarProvider
