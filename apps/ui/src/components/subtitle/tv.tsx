@@ -129,7 +129,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
                     className="child"
                     onClick={(e) => {
                       e.stopPropagation()
-                      store.set(mediaSubtitleAtomFamily({ key: mediaId }), produce(({ tableState }) => {
+                      store.set(mediaSubtitleAtomFamily([mediaId]), produce(({ tableState }) => {
                         parentRows.forEach(({ subRows, id }) => {
                           if (subRows.length === 0) {
                             tableState.rowSelection[id] = !checked
@@ -456,15 +456,15 @@ function subtitleEpisodeData(subtitles: Subtitles['Response']['data'], episodes:
         return undefined
       })
       .filter(Boolean),
-    (v) => Object.groupBy(v, ({ subtitle }) => {
+    (x) => Object.groupBy(x, ({ subtitle }) => {
       const { season_number, episode_number } = subtitle.attributes.feature_details
       return `${season_number}0${episode_number}`
     }),
-    (v) => Object.values(v)
+    (x) => Object.values(x)
       .filter(Boolean)
       .filter(isNonEmptyArray)
       .map((group) => {
-        group.sort((a, b) => b.subtitle.attributes.download_count - a.subtitle.attributes.download_count)
+        group.sort(compareBy((i) => [i.subtitle.attributes.download_count], -1))
         const [parent] = group
         const { season_number, episode_number } = parent.subtitle.attributes.feature_details
         return {
@@ -558,9 +558,9 @@ export function TVSubtitleFiles({
   const tvColumns = useTVColumns(id, highestEpisodeNumber, rootRef, tbodyRef)
   const columns = [...commonColumns, ...tvColumns]
   const dataRows = subtitleEpisodeData(subtitles, episodes)
-  const [{ episodeFilter: filterEpisode = 'all', initialTableState: mediaInitialTableState, tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleAtomFamily({
-    key: id,
-    initialValue: buildMediaSubtitleState({
+  const [{ episodeFilter: filterEpisode = 'all', initialTableState: mediaInitialTableState, tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleAtomFamily([
+    id,
+    buildMediaSubtitleState({
       initialTableState: {
         sorting: [
           {
@@ -574,7 +574,7 @@ export function TVSubtitleFiles({
         },
       } satisfies InitialTableState,
     }),
-  }))
+  ]))
   const table = useReactTable({
     data: dataRows,
     columns,

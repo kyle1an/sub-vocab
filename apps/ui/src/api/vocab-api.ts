@@ -1,23 +1,23 @@
-import type { RealtimePostgresInsertPayload, RealtimePostgresUpdatePayload } from '@supabase/supabase-js'
+import type { RealtimeChannel, RealtimePostgresInsertPayload, RealtimePostgresUpdatePayload } from '@supabase/supabase-js'
 
 import { UTCDateMini } from '@date-fns/utc'
-import { REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js'
+import { REALTIME_POSTGRES_CHANGES_LISTEN_EVENT, REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js'
 import { queryOptions, useMutation } from '@tanstack/react-query'
 import { uniq } from 'es-toolkit'
 import { produce } from 'immer'
-import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { atom, useAtomValue } from 'jotai'
+import { withAtomEffect } from 'jotai-effect'
 import { atomWithQuery } from 'jotai-tanstack-query'
 import ms from 'ms'
-import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 
 import type { LearningPhase, TrackedWord } from '@/lib/LexiconTrie'
-import type { Supabase } from '@/lib/supabase'
 import type { Tables } from '@ui/database.types'
 
-import { sessionAtom } from '@/atoms/auth'
+import { sessionAtom, userIdAtom } from '@/atoms/auth'
+import { createRetimer } from '@/atoms/utils'
 import { vocabSubscriptionAtom } from '@/atoms/vocabulary'
-import { pageVisibilityAtom } from '@/hooks/utils'
+import { documentVisibilityStateAtom } from '@/hooks/utils'
 import { buildTrackedWord, LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { queryClient } from '@/lib/query-client'
 import { supabase } from '@/lib/supabase'
@@ -44,10 +44,10 @@ const userVocabularyOptionsAtom = atom((get) => {
     },
     placeholderData: [],
     enabled: Boolean(userId),
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   })
 })
-
-export const userVocabularyAtom = atomWithQuery((get) => get(userVocabularyOptionsAtom))
 
 const sharedVocabularyAtom = atomWithQuery(() => {
   return {
@@ -74,6 +74,7 @@ const sharedVocabularyAtom = atomWithQuery(() => {
 })
 
 export const baseVocabAtom = atom((get) => {
+  // eslint-disable-next-line ts/no-use-before-define
   const { data: userVocab = [] } = get(userVocabularyAtom)
   const { data: sharedVocab = [] } = get(sharedVocabularyAtom)
   const map = new Map(sharedVocab)
@@ -183,14 +184,17 @@ export function useUserWordPhaseMutation() {
   })
 }
 
-const realtimeVocabUpsertAtom = atom((get) => function <T extends Tables<'user_vocab_record'>>() {
-  return (payload: RealtimePostgresInsertPayload<T> | RealtimePostgresUpdatePayload<T>) => {
+type user_vocab_record = Tables<'user_vocab_record'>
+
+const upsertVocabularyCallbackAtom = atom((get) => {
+  const { queryKey } = get(userVocabularyOptionsAtom)
+  return <T extends user_vocab_record>(payload: RealtimePostgresInsertPayload<T> | RealtimePostgresUpdatePayload<T>) => {
     const data = {
       w: payload.new.vocabulary,
       time_modified: payload.new.time_modified,
       learningPhase: getLearningPhase(payload.new.acquainted),
     }
-    queryClient.setQueryData(get(userVocabularyOptionsAtom).queryKey, (prevData) => prevData && produce(prevData, (draft) => {
+    queryClient.setQueryData(queryKey, (prevData) => prevData && produce(prevData, (draft) => {
       const labelMutated = draft.find((label) => label.w === data.w)
       if (labelMutated) {
         Object.assign(labelMutated, data)
@@ -208,75 +212,95 @@ export const STATUS_LABELS = {
   TIMED_OUT: 'Connection Timeout',
 } as const satisfies Partial<Record<REALTIME_SUBSCRIBE_STATES, string>>
 
-const INACTIVITY_TIMEOUT_MS = ms('1min')
+const INACTIVITY_TIMEOUT = ms('1min')
+const COMPONENT_DEBOUNCE = ms('3s')
+const retimeRefetchVocabulary = createRetimer()
+const channelBaseAtom = atom(undefined as RealtimeChannel | undefined)
+const initChannelAtom = atom(null, (get, set, userId: string) => {
+  const prevChannel = get(channelBaseAtom)
 
-export function useVocabularySubscription() {
-  const [session] = useAtom(sessionAtom)
-  const userId = session?.user?.id
-  const isTabActive = useAtomValue(pageVisibilityAtom)
-  const { refetch } = useAtomValue(userVocabularyAtom)
-  const setVocabSubscription = useSetAtom(vocabSubscriptionAtom)
-  const channelRef = useRef<ReturnType<Supabase['channel']>>(null)
-  const upsertCallback = useAtomValue(realtimeVocabUpsertAtom)
+  if (prevChannel && (prevChannel.state === 'joined' || prevChannel.state === 'joining')) {
+    return
+  }
 
-  useEffect(() => {
-    function cleanup() {
-      if (channelRef.current) {
-        channelRef.current.unsubscribe()
-        channelRef.current = null
-        setVocabSubscription(REALTIME_SUBSCRIBE_STATES.CLOSED)
-      }
+  const channel = supabase.channel(`user_${userId}_user_vocab_record`)
+  channel.on<user_vocab_record>(
+    'postgres_changes',
+    {
+      schema: 'public',
+      table: 'user_vocab_record',
+      event: REALTIME_POSTGRES_CHANGES_LISTEN_EVENT.INSERT,
+      filter: `user_id=eq.${userId}`,
+    },
+    get(upsertVocabularyCallbackAtom),
+  )
+  channel.on<user_vocab_record>(
+    'postgres_changes',
+    {
+      schema: 'public',
+      table: 'user_vocab_record',
+      event: REALTIME_POSTGRES_CHANGES_LISTEN_EVENT.UPDATE,
+      filter: `user_id=eq.${userId}`,
+    },
+    get(upsertVocabularyCallbackAtom),
+  )
+  channel.subscribe((status) => {
+    set(vocabSubscriptionAtom, status)
+    if (status === REALTIME_SUBSCRIBE_STATES.SUBSCRIBED) {
+      retimeRefetchVocabulary(() => {
+        // eslint-disable-next-line ts/no-use-before-define
+        const userVocabulary = get(userVocabularyAtom)
+        if (!userVocabulary.isFetching) {
+          userVocabulary.refetch()
+        }
+      })
     }
+  })
 
-    if (!userId) {
-      cleanup()
-      return
-    }
+  set(channelBaseAtom, channel)
+})
+const removeChannelAtom = atom(null, (get, set) => {
+  const channel = get(channelBaseAtom)
+  if (channel) {
+    channel.unsubscribe()
+    set(channelBaseAtom, undefined)
+  }
+})
+const retimeChannel = createRetimer()
 
-    // If the tab is not active, we set a timer to unsubscribe.
-    if (!isTabActive) {
-      const timeoutId = setTimeout(() => {
-        cleanup()
-      }, INACTIVITY_TIMEOUT_MS)
+export const userVocabularyAtom = withAtomEffect(
+  atomWithQuery((get) => get(userVocabularyOptionsAtom)),
+  (get, set) => {
+    if (get(documentVisibilityStateAtom) === 'hidden') {
+      retimeChannel(() => {
+        set(removeChannelAtom)
+      }, INACTIVITY_TIMEOUT)
 
       return () => {
-        clearTimeout(timeoutId)
+        retimeChannel()
       }
     }
 
-    if (channelRef.current === null) {
-      // Refetch data when a new subscription is about to be created after being inactive.
-      refetch()
+    const userId = get(userIdAtom)
+    if (userId) {
+      const controller = new AbortController()
+      retimeChannel()
+      // https://github.com/supabase/realtime/issues/282#issuecomment-2630983759
+      supabase.realtime.setAuth().then(() => {
+        if (controller.signal.aborted) return
+        retimeChannel()
+        set(initChannelAtom, userId)
+      })
 
-      channelRef.current = supabase
-        .channel(`user_${userId}_user_vocab_record`)
-        .on(
-          'postgres_changes',
-          {
-            schema: 'public',
-            table: 'user_vocab_record',
-            event: 'INSERT',
-            filter: `user_id=eq.${userId}`,
-          },
-          upsertCallback,
-        )
-        .on(
-          'postgres_changes',
-          {
-            schema: 'public',
-            table: 'user_vocab_record',
-            event: 'UPDATE',
-            filter: `user_id=eq.${userId}`,
-          },
-          upsertCallback,
-        )
-        .subscribe((status) => {
-          setVocabSubscription(status)
-        })
+      return () => {
+        controller.abort()
+        retimeChannel(() => {
+          set(removeChannelAtom)
+        }, COMPONENT_DEBOUNCE)
+      }
     }
 
-    return () => {
-      cleanup()
-    }
-  }, [userId, isTabActive, refetch, upsertCallback, setVocabSubscription])
-}
+    retimeChannel()
+    set(removeChannelAtom)
+  },
+)

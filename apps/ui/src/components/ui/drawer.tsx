@@ -3,10 +3,10 @@ import { atom, useAtomValue } from 'jotai'
 import { useSetImmerAtom } from 'jotai-immer'
 import ms from 'ms'
 import * as React from 'react'
-import { useEffect } from 'react'
+import { useEffect, useId } from 'react'
 import { Drawer as DrawerPrimitive } from 'vaul'
 
-import { myAtomFamily, retimerAtomFamily, useFamily } from '@/atoms/utils'
+import { myAtomFamily, retimerAtomFamily, useCall } from '@/atoms/utils'
 import { equalBy } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
 
@@ -14,18 +14,22 @@ const TRANSITIONS_DURATION = ms('0.5s')
 
 const drawerStateFamily = myAtomFamily(
   `drawerStateFamily`,
-  (param: {
-    key: string
-    open?: boolean
-    openAnimationEnd?: boolean
-    shouldScaleBackground?: boolean
-  }) => atom({
-    open: false,
-    openAnimationEnd: false,
-    shouldScaleBackground: false,
-    ...param,
-  }),
-  equalBy((i) => i.key),
+  ([
+    ,
+    initialValue = {
+      open: false,
+      openAnimationEnd: false,
+      shouldScaleBackground: false,
+    },
+  ]: [
+    key: string,
+    initialValue?: {
+      open: boolean
+      openAnimationEnd?: boolean
+      shouldScaleBackground: boolean
+    },
+  ]) => atom(initialValue),
+  equalBy(([key]) => key),
 )
 
 export const isAnyDrawerOpenAtom = atom((get) => {
@@ -41,14 +45,16 @@ function Drawer({
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
   const { shouldScaleBackground = false, open = false } = props
-  const id = React.useId()
-  const retimeAnim = useAtomValue(useFamily(animRetimerFamily, id))
-  const retimeRemove = useAtomValue(useFamily(removeRetimerFamily, id))
-  const setDrawerState = useSetImmerAtom(useFamily(drawerStateFamily, {
-    key: id,
-    open,
-    shouldScaleBackground,
-  }))
+  const id = useId()
+  const retimeAnim = useAtomValue(useCall(animRetimerFamily, id))
+  const retimeRemoveDrawer = useAtomValue(useCall(removeRetimerFamily, id))
+  const setDrawerState = useSetImmerAtom(useCall(drawerStateFamily, [
+    id,
+    {
+      open,
+      shouldScaleBackground,
+    },
+  ]))
   useEffect(() => {
     setDrawerState((d) => {
       d.open = open
@@ -57,16 +63,21 @@ function Drawer({
       setDrawerState((d) => {
         d.openAnimationEnd = open
       })
+      retimeAnim.tryRemove()
     }, TRANSITIONS_DURATION)
+    return () => {
+      retimeAnim.tryRemove()
+    }
   }, [open, retimeAnim, setDrawerState])
   useEffect(() => {
-    retimeRemove()
+    retimeRemoveDrawer()
     return () => {
-      retimeRemove(() => {
-        drawerStateFamily.remove({ key: id })
+      retimeRemoveDrawer(() => {
+        drawerStateFamily.remove([id])
+        retimeRemoveDrawer.tryRemove()
       }, TRANSITIONS_DURATION)
     }
-  }, [id, retimeRemove])
+  }, [id, retimeRemoveDrawer])
   return <DrawerPrimitive.Root data-slot="drawer" {...props} />
 }
 

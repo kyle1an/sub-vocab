@@ -214,7 +214,7 @@ export function TableRow<T>({
         if (isClosing && detailRef.current) {
           const subRowsHeight = sum(
             subRows
-              .map((subRow) => document.getElementById(subRow.id))
+              .map((subRow) => document.querySelector(`tr[data-id="${subRow.id}"]`))
               .map((e) => e?.offsetHeight || 0),
           )
           const overlapHeight = rowRef.current.offsetTop + rowHeight - detailRef.current.offsetTop
@@ -264,7 +264,7 @@ export function TableRow<T>({
     <Fragment>
       <tr
         ref={rowRef}
-        id={id}
+        data-id={id}
         style={{
           '--top': `${HEAD_HEIGHT}px`,
           '--z-index': rowZIndex,

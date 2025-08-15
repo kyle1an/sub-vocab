@@ -1,8 +1,8 @@
-import { useCallback, useRef } from 'react'
+import { useRef } from 'react'
 
 export function useRetimer() {
   const timeoutIdRef = useRef<number>(undefined)
-  return useCallback((handler?: () => void, timeout?: number | null) => {
+  return (handler?: () => void, timeout?: number | null) => {
     if (typeof timeoutIdRef.current === 'number') {
       clearTimeout(timeoutIdRef.current)
     }
@@ -14,5 +14,5 @@ export function useRetimer() {
         handler()
       }
     }
-  }, [])
+  }
 }

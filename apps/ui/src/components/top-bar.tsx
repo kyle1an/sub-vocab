@@ -88,6 +88,7 @@ function SignOut({ className, ...props }: React.ComponentProps<'button'>) {
   return (
     <button
       type="button"
+      aria-label="logout"
       className={cn('inline-flex items-center gap-3', className)}
       {...props}
       onClick={logout}
@@ -131,7 +132,10 @@ export function TopBar({ className }: { className?: string }) {
                   <div className="flex h-full items-center gap-2">
                     <Menubar className="h-full border-0 bg-transparent p-0 shadow-none">
                       <MenubarMenu>
-                        <MenubarTrigger className="size-8 justify-center p-0">
+                        <MenubarTrigger
+                          aria-label="theme"
+                          className="size-8 justify-center p-0"
+                        >
                           <div className="flex h-full items-center">
                             <Slot
                               className="size-4.25 text-neutral-500 dark:text-neutral-400"
@@ -170,7 +174,10 @@ export function TopBar({ className }: { className?: string }) {
 
                     <Menubar className="h-full border-0 bg-transparent p-0 shadow-none">
                       <MenubarMenu>
-                        <MenubarTrigger className="size-8 justify-center p-0">
+                        <MenubarTrigger
+                          aria-label="language"
+                          className="size-8 justify-center p-0"
+                        >
                           <div className="flex h-full items-center">
                             <IconFaLanguage
                               className="size-4 text-neutral-500 dark:text-neutral-400"
@@ -203,6 +210,7 @@ export function TopBar({ className }: { className?: string }) {
                       <DropdownMenu>
                         <DropdownMenuTrigger
                           asChild
+                          aria-label="user"
                           className="flex size-8 p-0 select-none [--sq-r:.75rem]"
                         >
                           {user ? (

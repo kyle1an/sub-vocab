@@ -82,9 +82,9 @@ export function arrayCompare<
   return a.length - b.length
 }
 
-export function compareBy<T>(map: (i: T) => number[]) {
+export function compareBy<T>(map: (i: T) => number[], order: -1 | 1 = 1) {
   return (a: T, b: T) => {
-    return arrayCompare(map(a), map(b))
+    return arrayCompare(map(a), map(b)) * order
   }
 }
 

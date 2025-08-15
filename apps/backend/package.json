@@ -21,7 +21,7 @@
     "@openrouter/ai-sdk-provider": "^1.1.2",
     "@sub-vocab/utils": "workspace:*",
     "@trpc/server": "^11.4.4",
-    "ai": "^5.0.14",
+    "ai": "^5.0.15",
     "drizzle-orm": "^0.44.4",
     "fastify": "^5.5.0",
     "ofetch": "^1.4.1",
@@ -29,7 +29,7 @@
     "postgres": "^3.4.7"
   },
   "devDependencies": {
-    "@vercel/node": "^5.3.12",
+    "@vercel/node": "^5.3.13",
     "drizzle-kit": "^0.31.4",
     "esbuild": "^0.25.9",
     "tsx": "^4.20.4"

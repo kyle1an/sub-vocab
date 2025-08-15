@@ -2,9 +2,10 @@ import type { VariantProps } from 'class-variance-authority'
 
 import { cva } from 'class-variance-authority'
 import clsx from 'clsx'
-import { identity, once } from 'es-toolkit'
+import { once } from 'es-toolkit'
 import { createContext, use, useId, useRef } from 'react'
 
+import { useIdentity } from '@/hooks'
 import { cn } from '@/lib/utils'
 
 const segmentedControlVariants = cva(
@@ -73,9 +74,6 @@ type SegmentContextProps<T> = {
 // https://stackoverflow.com/a/61020816
 const createSegmentContext = once(<T,>() => createContext<SegmentContextProps<T> | null>(null))
 const useSegmentContext = <T,>() => use(createSegmentContext<T>())
-
-// https://github.com/reactwg/react-compiler/discussions/18
-const useIdentity = identity
 
 export function SegmentedControl<T extends string>({
   value,

@@ -107,7 +107,10 @@ export function FileSettings() {
         open={open}
         onOpenChange={handleOpenChange}
       >
-        <DialogTrigger asChild>
+        <DialogTrigger
+          aria-label="file-settings"
+          asChild
+        >
           {Trigger}
         </DialogTrigger>
         <DialogContent className="flex max-h-[calc(100vh-1rem)] flex-col gap-0 sm:max-w-[425px]">

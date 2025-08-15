@@ -245,9 +245,9 @@ function SubtitleFiles({
   const tbodyRef = useRef<HTMLTableSectionElement>(null)
   const movieColumns = useMovieColumns(rootRef, tbodyRef)
   const columns = [...commonColumns, ...movieColumns]
-  const [{ initialTableState: mediaInitialTableState, tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleAtomFamily({
-    key: id,
-    initialValue: buildMediaSubtitleState({
+  const [{ initialTableState: mediaInitialTableState, tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleAtomFamily([
+    id,
+    buildMediaSubtitleState({
       initialTableState: {
         sorting: [
           {
@@ -261,7 +261,7 @@ function SubtitleFiles({
         },
       } satisfies InitialTableState,
     }),
-  }))
+  ]))
   const table = useReactTable({
     data: subtitleData.map((subtitle) => ({
       subtitle,

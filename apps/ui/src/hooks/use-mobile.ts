@@ -10,7 +10,7 @@ const isMobileAtom = (() => {
   const mediaQueryList = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
   return pipe(
     atom(getSnapshot()),
-    (v) => withAbortableMount(v, (setAtom, signal) => {
+    (x) => withAbortableMount(x, (setAtom, signal) => {
       const listener = () => {
         setAtom(getSnapshot())
       }
