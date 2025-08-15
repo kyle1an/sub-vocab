@@ -3,13 +3,12 @@ import { atom } from 'jotai'
 
 import { withAbortableMount, withReadonly } from '@/atoms/utils'
 
-export const pageVisibilityAtom = (() => {
-  const isVisible = () => document.visibilityState === 'visible'
+export const documentVisibilityStateAtom = (() => {
   return pipe(
-    atom(isVisible()),
-    (v) => withAbortableMount(v, (setAtom, signal) => {
+    atom(document.visibilityState),
+    (x) => withAbortableMount(x, (setAtom, signal) => {
       const listener = () => {
-        setAtom(isVisible())
+        setAtom(document.visibilityState)
       }
       document.addEventListener('visibilitychange', listener, { signal })
       listener()

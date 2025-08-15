@@ -5,6 +5,7 @@ import type { LiteralUnion } from 'type-fest'
 import { atom } from 'jotai'
 
 import { myAtomFamily } from '@/atoms/utils'
+import { equalBy } from '@/lib/utilities'
 import { createFactory } from '@sub-vocab/utils/lib'
 
 type Recipe<Base, D = Draft<Base>> = (draft: D) => D | void | undefined
@@ -31,14 +32,14 @@ export const buildMediaSubtitleState = createFactory<MediaSubtitleState>()(() =>
 
 export const mediaSubtitleAtomFamily = myAtomFamily(
   `mediaSubtitleAtomFamily`,
-  ({
-    key,
+  ([
+    ,
     initialValue = buildMediaSubtitleState(),
-  }: {
-    key: number
-    initialValue?: MediaSubtitleState
-  }) => atom(initialValue),
-  (a, b) => a.key === b.key,
+  ]: [
+    key: number,
+    initialValue?: MediaSubtitleState,
+  ]) => atom(initialValue),
+  equalBy(([key]) => key),
 )
 
 export const fileIdsAtom = atom((get) => {

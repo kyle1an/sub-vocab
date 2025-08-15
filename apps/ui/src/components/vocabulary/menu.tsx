@@ -11,7 +11,10 @@ export function VocabularyMenu({
 }) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger
+        aria-label="vocabulary menu"
+        asChild
+      >
         <Button
           className="flex max-h-full gap-1 p-2! [--sq-r:.75rem]"
           variant="ghost"

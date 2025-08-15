@@ -8,3 +8,5 @@ type EffectFn = Parameters<typeof atomEffect>[0]
 export function useAtomEffect(effectFn: EffectFn) {
   useAtomValue(useStableMemo(() => atomEffect(effectFn), [effectFn]))
 }
+
+export { useCallbackOne as useStableCallback } from 'use-memo-one'

@@ -1,5 +1,6 @@
 import { useResizeObserver } from '@react-hookz/web'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { identity } from 'es-toolkit'
+import { useEffect, useRef, useState } from 'react'
 
 const DOM_RECT: Omit<DOMRect, 'toJSON'> = { x: 0, y: 0, width: 0, height: 0, top: 0, right: 0, bottom: 0, left: 0 }
 
@@ -19,5 +20,8 @@ export function useLastTruthy<T>(value: T) {
       lastTruthy.current = value
     }
   }, [value])
-  return useCallback(() => lastTruthy.current, [])
+  return () => value || lastTruthy.current
 }
+
+// https://github.com/reactwg/react-compiler/discussions/18
+export const useIdentity = identity

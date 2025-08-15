@@ -240,7 +240,7 @@ export function VocabSourceTable({
   const lastTruthySearchFilterValue = useLastTruthy(searchFilterValue(deferredSearchValue, deferredIsUsingRegex))() ?? noFilter
   const inValidSearch = deferredIsUsingRegex && !isRegexValid(deferredSearchValue)
   const isSourceTextStale = useAtomValue(isSourceTextStaleAtom)
-  const finalData = useCategorize(categoryAtomValue, data)
+  const categorizedData = useCategorize(categoryAtomValue, data)
 
   const preCategoryFilters = [
     acquaintedStatusFilter(segmentDeferredValue),
@@ -248,7 +248,7 @@ export function VocabSourceTable({
   ]
   const globalFilter = combineFilters(preCategoryFilters)
   const table = useReactTable({
-    data: finalData,
+    data: categorizedData,
     columns,
     state: {
       globalFilter,
@@ -406,6 +406,7 @@ export function VocabSourceTable({
           variant="ghost"
           disabled={freshVocabularies.length === 0 || isPending}
           onClick={handleAiVocabCategorize}
+          aria-label="ai categorize"
         >
           {isPending ? (
             <IconLucideLoader

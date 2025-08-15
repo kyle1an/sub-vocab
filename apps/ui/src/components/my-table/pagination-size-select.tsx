@@ -33,7 +33,10 @@ export function TablePaginationSizeSelect<T>({
         table.setPageSize(Number(e))
       }}
     >
-      <SelectTrigger className="h-5! w-[unset] gap-0 px-2 py-0 text-xs tracking-[.03em] tabular-nums">
+      <SelectTrigger
+        aria-label="pagination size"
+        className="h-5! w-[unset] gap-0 px-2 py-0 text-xs tracking-[.03em] tabular-nums"
+      >
         <SelectValue placeholder="Select" />
       </SelectTrigger>
       <SelectContent

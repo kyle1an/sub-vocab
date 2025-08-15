@@ -14,11 +14,13 @@ export function myAtomFamily<Param, AtomType extends Atom<unknown>>(label: strin
   const paramsAtom = atom([] as Param[])
   paramsAtom.debugLabel = `${label}.paramsAtom`
   return pipe(
-    atomFamily((param: NonNullable<Param>) => {
-      const newAtom = initializeAtom(param)
-      newAtom.debugLabel = `${label}-${typeof param === 'object' && 'key' in param ? param.key : param}`
-      return newAtom
-    }, areEqual),
+    atomFamily((param: NonNullable<Param>) => pipe(
+      initializeAtom(param),
+      tap((x) => {
+        const key = Array.isArray(param) ? param[0] : typeof param === 'object' && 'key' in param ? param.key : param
+        x.debugLabel = `${label}-${key}`
+      }),
+    ), areEqual),
     tap(({ unstable_listen, getParams }) => {
       let latestEvent: Parameters<Parameters<typeof unstable_listen>[0]>[0]
       unstable_listen((event) => {
@@ -30,14 +32,16 @@ export function myAtomFamily<Param, AtomType extends Atom<unknown>>(label: strin
         })
       })
     }),
-    (v) => Object.assign(v, { paramsAtom }),
+    (x) => Object.assign(x, { paramsAtom }),
   )
 }
 
-// eslint-disable-next-line react-hooks-extra/no-unnecessary-use-prefix
-export const useFamily = <Param, AtomType>(family: AtomFamily<Param, AtomType>, param: Param) => {
-  return family(param)
+function call<Param, AtomType>(family: AtomFamily<Param, AtomType>, param: Param): AtomType
+function call<A extends any[], R>(fn: (...args: A) => R, ...args: A): R {
+  return fn(...args)
 }
+
+export const useCall = call
 
 export function withMount<Value, Args extends unknown[], Result>(anAtom: WritableAtom<Value, Args, Result>, onMount: NonNullable<typeof anAtom['onMount']>) {
   anAtom.onMount = onMount
@@ -63,7 +67,7 @@ export const atomWithMediaQuery = (query: string) => {
   const mql = window.matchMedia(query)
   return pipe(
     atom(mql.matches),
-    (v) => withAbortableMount(v, (setAtom, signal) => {
+    (x) => withAbortableMount(x, (setAtom, signal) => {
       const listener = () => {
         setAtom(mql.matches)
       }
@@ -74,48 +78,52 @@ export const atomWithMediaQuery = (query: string) => {
   )
 }
 
+export const createRetimer = () => {
+  let timeoutId: undefined | number
+  return (handler?: () => void, timeout?: number) => {
+    clearTimeout(timeoutId)
+    if (handler) {
+      timeoutId = setTimeout(handler, timeout)
+    }
+  }
+}
+
 export const retimerAtomFamily = (label: string) => {
   const family = atomFamily((id: string) => {
     let timeoutId: undefined | number
     let isMounted = false
+    let isRetiming = false
+
+    const retime = (handler?: () => void, timeout?: number) => {
+      clearTimeout(timeoutId)
+      isRetiming = false
+
+      if (handler) {
+        timeoutId = setTimeout(() => {
+          isRetiming = false
+          handler()
+        }, timeout)
+        isRetiming = true
+      }
+    }
+
+    const tryRemove = () => {
+      if (!isMounted && !isRetiming) {
+        family.remove(id)
+      }
+    }
 
     return pipe(
-      atom(() => (handler?: () => void, timeout?: number | null) => {
-        if (typeof timeoutId === 'number') {
-          clearTimeout(timeoutId)
-          timeoutId = undefined
-        }
-
-        if (handler) {
-          if (typeof timeout === 'number' || typeof timeout === 'undefined') {
-            timeoutId = setTimeout(() => {
-              timeoutId = undefined
-              handler()
-
-              if (isMounted) return
-              family.remove(id)
-            }, timeout)
-          } else {
-            handler()
-          }
-        }
-      }, () => {}),
-      (v) => withMount(v, () => {
+      atom(() => Object.assign(retime, { tryRemove }), () => {}),
+      (x) => withMount(x, () => {
         isMounted = true
         return () => {
           isMounted = false
-
-          if (timeoutId) return
-          queueMicrotask(() => {
-            if (timeoutId) return
-            if (isMounted) return
-            family.remove(id)
-          })
         }
       }),
       withReadonly,
-      tap((v) => {
-        v.debugLabel = `${label}-${id}`
+      tap((x) => {
+        x.debugLabel = `${label}-${id}`
       }),
     )
   })
