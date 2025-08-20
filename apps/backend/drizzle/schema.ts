@@ -133,6 +133,18 @@ export const auditLogEntriesInAuth = auth.table("audit_log_entries", {
 	index("audit_logs_instance_id_idx").using("btree", table.instanceId.asc().nullsLast().op("uuid_ops")),
 ]);
 
+export const ssoProvidersInAuth = auth.table("sso_providers", {
+	id: uuid().primaryKey().notNull(),
+	resourceId: text("resource_id"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }),
+	disabled: boolean(),
+}, (table) => [
+	uniqueIndex("sso_providers_resource_id_idx").using("btree", sql`lower(resource_id)`),
+	index("sso_providers_resource_id_pattern_idx").using("btree", table.resourceId.asc().nullsLast().op("text_pattern_ops")),
+	check("resource_id not empty", sql`(resource_id = NULL::text) OR (char_length(resource_id) > 0)`),
+]);
+
 export const vocabularyList = pgTable("vocabulary_list", {
 	id: serial().primaryKey().notNull(),
 	word: varchar({ length: 32 }).notNull(),
@@ -195,16 +207,6 @@ export const usersInAuth = auth.table("users", {
 	index("users_is_anonymous_idx").using("btree", table.isAnonymous.asc().nullsLast().op("bool_ops")),
 	unique("users_phone_key").on(table.phone),
 	check("users_email_change_confirm_status_check", sql`(email_change_confirm_status >= 0) AND (email_change_confirm_status <= 2)`),
-]);
-
-export const ssoProvidersInAuth = auth.table("sso_providers", {
-	id: uuid().primaryKey().notNull(),
-	resourceId: text("resource_id"),
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }),
-	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }),
-}, (table) => [
-	uniqueIndex("sso_providers_resource_id_idx").using("btree", sql`lower(resource_id)`),
-	check("resource_id not empty", sql`(resource_id = NULL::text) OR (char_length(resource_id) > 0)`),
 ]);
 
 export const userVocabRecord = pgTable("user_vocab_record", {

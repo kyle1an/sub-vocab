@@ -2,6 +2,7 @@ import type { ExtractAtomValue } from 'jotai'
 import type { PartialDeep } from 'type-fest'
 
 import { queryOptions } from '@tanstack/react-query'
+import { pipe } from 'effect'
 import { identity } from 'es-toolkit'
 import { atom } from 'jotai'
 import { atomWithMutation, atomWithQuery } from 'jotai-tanstack-query'
@@ -67,7 +68,10 @@ export const openSubtitlesQueryOptionsAtom = atom((get) => {
   const { baseUrl, headers } = get(opensubtitlesReqAtom)
   return (query: Subtitles['Query']) => {
     // https://opensubtitles.stoplight.io/docs/opensubtitles-api/6ef2e232095c7-best-practices
-    const sortedQuery = Object.fromEntries(Object.entries(query).sort())
+    const sortedQuery = pipe(
+      Object.entries(query).sort(),
+      (x) => Object.fromEntries(x),
+    )
     return queryOptions({
       // eslint-disable-next-line @tanstack/query/exhaustive-deps
       queryKey: ['opensubtitles-subtitles', sortedQuery],

@@ -8,6 +8,7 @@ import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRo
 import clsx from 'clsx'
 import { useAtom, useAtomValue } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
+import nstr from 'nstr'
 import { Fragment, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -28,7 +29,7 @@ import { Div } from '@/components/ui/html-elements'
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useRect } from '@/hooks'
+import { useClone, useRect } from '@/hooks'
 import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
 import { getFileId } from '@/lib/subtitle'
 import { filterFn, sortBySelection } from '@/lib/table-utils'
@@ -181,7 +182,7 @@ function MovieNameCell<TData extends RowData>({
               hidden={!isEllipsisActive}
               className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
               style={{
-                '--max-width': `${maxWidth}px`,
+                '--max-width': `${nstr(maxWidth)}px`,
               }}
             >
               <span
@@ -237,8 +238,6 @@ function SubtitleFiles({
   id: number
   subtitleData: Subtitles['Response']['data']
 }) {
-  // eslint-disable-next-line react-compiler/react-compiler
-  'use no memo'
   const { t } = useTranslation()
   const commonColumns = useCommonColumns<MovieSubtitleData>()
   const rootRef = useRef<HTMLDivElement>(null)
@@ -262,7 +261,7 @@ function SubtitleFiles({
       } satisfies InitialTableState,
     }),
   ]))
-  const table = useReactTable({
+  const table = useClone(useReactTable({
     data: subtitleData.map((subtitle) => ({
       subtitle,
     })),
@@ -277,14 +276,14 @@ function SubtitleFiles({
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getSortedRowModel: getSortedRowModel(),
-  })
+  }))
   const rowsFiltered = table.getFilteredRowModel().rows
   const tableState = table.getState()
   const { items } = usePagination({
     count: table.getPageCount(),
     page: tableState.pagination.pageIndex + 1,
   })
-  function handleRowSelectionChange(...[checked, row, mode]: Parameters<RowSelectionChangeFn<SubtitleData>>) {
+  const handleRowSelectionChange: RowSelectionChangeFn<SubtitleData> = (checked, row, mode) => {
     setMediaSubtitleState(({ tableState }) => {
       if (mode === 'singleRow') {
         tableState.rowSelection = {}
@@ -312,7 +311,7 @@ function SubtitleFiles({
           >
             <table className="relative border-separate border-spacing-0">
               <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
+                {useClone(table.getHeaderGroups()).map((headerGroup) => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
                       <TableHeaderCellRender
@@ -324,7 +323,7 @@ function SubtitleFiles({
                 ))}
               </TableHeader>
               <tbody ref={tbodyRef}>
-                {table.getRowModel().rows.map((row, index) => {
+                {useClone(table.getRowModel().rows).map((row) => {
                   return (
                     <TableRow
                       key={row.id}

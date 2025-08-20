@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import clsx from 'clsx'
 import { format } from 'date-fns'
+import { pipe } from 'effect'
 import { identity, uniqBy } from 'es-toolkit'
 import { useDebouncedValue } from 'foxact/use-debounced-value'
 import { produce } from 'immer'
@@ -49,9 +50,11 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
+import { useClone } from '@/hooks'
 import { filterFn } from '@/lib/table-utils'
 import { findClosest } from '@/lib/utilities'
 import { osLanguageAtom } from '@/store/useVocab'
+import { tap } from '@sub-vocab/utils/lib'
 
 const mediaSearchAtom = atomWithStorage('mediaSearchAtom', '')
 
@@ -369,8 +372,6 @@ function useColumns<T extends TableData>() {
 }
 
 export default function Subtitles() {
-  // eslint-disable-next-line react-compiler/react-compiler
-  'use no memo'
   const store = useStore()
   const { isPending: isDownloadPending, mutateAsync: downloadText } = useAtomValue(openSubtitlesTextAtom)
   const { isPending: isFileDownloadPending, mutateAsync: downloadFile } = useAtomValue(openSubtitlesDownloadAtom)
@@ -426,7 +427,7 @@ export default function Subtitles() {
     ).sort((a, b) => a.language_name.localeCompare(b.language_name)),
   ]
   const tvAndMovieResults = queryEnabled ? (multiData?.results ?? []).filter(({ media_type }) => media_type === 'tv' || media_type === 'movie') : []
-  const table = useReactTable({
+  const table = useClone(useReactTable({
     data: tvAndMovieResults,
     columns,
     initialState: initialTableState,
@@ -438,28 +439,36 @@ export default function Subtitles() {
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getSortedRowModel: getSortedRowModel(),
-  })
+  }))
   const rowsFiltered = table.getFilteredRowModel().rows
   const navigate = useNavigate()
   const [fileIds] = useAtom(fileIdsAtom)
 
   async function getText(fileIds: number[]) {
-    const fileTexts = await Promise.all(fileIds.map(async (id) => {
-      const file = {
-        file_id: id,
-      }
-      const res = await downloadText(file)
-      setSubtitleDownloadProgress((prev) => {
-        prev.push(file)
-      })
-      return res
-    }))
-    const title = listFormatter.format(fileTexts.map((f) => f.file.file_name))
-    setFileInfo(title)
-    setSourceText((v) => ({
-      value: fileTexts.map((f) => f.text).join('\n'),
-      epoch: v.epoch + 1,
-    }))
+    pipe(
+      await Promise.all(
+        fileIds.map((id) => {
+          const file = {
+            file_id: id,
+          }
+          return downloadText(file)
+            .then(tap(() => {
+              setSubtitleDownloadProgress((prev) => {
+                prev.push(file)
+              })
+            }))
+        }),
+      ),
+      tap((x) => {
+        setFileInfo(listFormatter.format(x.map((f) => f.file.file_name)))
+      }),
+      tap((x) => {
+        setSourceText((v) => ({
+          value: x.map((f) => f.text).join('\n'),
+          epoch: v.epoch + 1,
+        }))
+      }),
+    )
     navigate('/')
     startTransition(() => {
       setSubtitleDownloadProgress([])

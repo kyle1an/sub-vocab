@@ -11,15 +11,18 @@ export type WordOccurrencesInSentence = {
   }[]
 }
 
-export type VocabularySourceState = {
+export type VocabularySourceData = {
   trackedWord: TrackedWord
   wordFamily: Leaf[]
   locators: WordLocator[]
   wordOccurrences: WordOccurrencesInSentence[]
+}
+
+export type VocabularySourceState = VocabularySourceData & {
   inertialPhase: LearningPhase
 }
 
-export function formVocab(lemma: Leaf): VocabularySourceState {
+export function formVocab(lemma: Leaf): VocabularySourceData {
   const locators = [...lemma.locators]
   const wordFamily = [lemma]
 
@@ -74,6 +77,5 @@ export function formVocab(lemma: Leaf): VocabularySourceState {
     wordFamily,
     locators,
     wordOccurrences,
-    inertialPhase: trackedWord.learningPhase,
   }
 }

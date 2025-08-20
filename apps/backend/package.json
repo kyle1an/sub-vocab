@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@10.14.0",
+  "packageManager": "pnpm@10.15.0",
   "description": "description",
   "scripts": {
     "build": "tsc && node esbuild.config.js",
@@ -15,13 +15,13 @@
     "vercel-build": "node --run build"
   },
   "dependencies": {
-    "@ai-sdk/google": "^2.0.6",
+    "@ai-sdk/google": "^2.0.8",
     "@fastify/cors": "^11.1.0",
     "@fastify/http-proxy": "^11.3.0",
     "@openrouter/ai-sdk-provider": "^1.1.2",
     "@sub-vocab/utils": "workspace:*",
-    "@trpc/server": "^11.4.4",
-    "ai": "^5.0.15",
+    "@trpc/server": "^11.5.0",
+    "ai": "^5.0.22",
     "drizzle-orm": "^0.44.4",
     "fastify": "^5.5.0",
     "ofetch": "^1.4.1",
@@ -32,6 +32,6 @@
     "@vercel/node": "^5.3.13",
     "drizzle-kit": "^0.31.4",
     "esbuild": "^0.25.9",
-    "tsx": "^4.20.4"
+    "tsx": "^4.20.5"
   }
 }

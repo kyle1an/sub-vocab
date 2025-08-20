@@ -57,7 +57,7 @@ export default typegen(antfu(
       'react-hooks/exhaustive-deps': [
         'warn',
         {
-          additionalHooks: '(useIsomorphicLayoutEffect|useAbortableEffect|useMemoOne|useStableMemo|useCallbackOne|useStableCallback)',
+          additionalHooks: '(useIsomorphicLayoutEffect|useAbortableEffect|useMemoOne|useStableMemo|useCallbackOne|useStableCallback_|useAtomEffect|useUpdateEffect)',
         },
       ],
     },

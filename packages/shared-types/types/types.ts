@@ -18,4 +18,8 @@ export type NarrowRaw<A> = (A extends [] ? [] : never) | (A extends Narrowable ?
   [K in keyof A]: A[K] extends AnyFunc ? A[K] : NarrowRaw<A[K]>;
 })
 
+export type NarrowShallow<A> = (A extends [] ? [] : never) | (A extends Narrowable ? A : never) | ({
+  [K in keyof A]: A[K] extends Narrowable ? NarrowRaw<A[K]> : A[K];
+})
+
 export type NonArrayObject = object & { [Symbol.iterator]?: never }

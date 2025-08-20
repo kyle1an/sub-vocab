@@ -3,7 +3,8 @@ import type { RealtimeChannel, RealtimePostgresInsertPayload, RealtimePostgresUp
 import { UTCDateMini } from '@date-fns/utc'
 import { REALTIME_POSTGRES_CHANGES_LISTEN_EVENT, REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js'
 import { queryOptions, useMutation } from '@tanstack/react-query'
-import { uniq } from 'es-toolkit'
+import { pipe } from 'effect'
+import { identity, uniq } from 'es-toolkit'
 import { produce } from 'immer'
 import { atom, useAtomValue } from 'jotai'
 import { withAtomEffect } from 'jotai-effect'
@@ -22,7 +23,7 @@ import { buildTrackedWord, LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { queryClient } from '@/lib/query-client'
 import { supabase } from '@/lib/supabase'
 import { hasValue } from '@sub-vocab/utils/lib'
-import { narrow } from '@sub-vocab/utils/types'
+import { narrow, narrowShallow } from '@sub-vocab/utils/types'
 
 const getLearningPhase = (acquainted: boolean | null): LearningPhase => acquainted ? LEARNING_PHASE.ACQUAINTED : LEARNING_PHASE.NEW
 
@@ -30,18 +31,18 @@ const userVocabularyOptionsAtom = atom((get) => {
   const userId = get(sessionAtom)?.user?.id ?? ''
   return queryOptions({
     queryKey: ['userVocabularyOptionsAtom', userId],
-    async queryFn() {
-      const { data } = await supabase
+    queryFn: async () => pipe(
+      await supabase
         .from('user_vocab_record')
         .select('w:vocabulary, t:time_modified, a:acquainted')
         .eq('user_id', userId)
-        .throwOnError()
-      return data.map(({ w, t, a }) => ({
+        .throwOnError(),
+      (x) => x.data.map(({ w, t, a }) => ({
         w,
         time_modified: new UTCDateMini(t).toISOString(),
         learningPhase: getLearningPhase(a),
-      }))
-    },
+      })),
+    ),
     placeholderData: [],
     enabled: Boolean(userId),
     refetchOnWindowFocus: false,
@@ -52,23 +53,23 @@ const userVocabularyOptionsAtom = atom((get) => {
 const sharedVocabularyAtom = atomWithQuery(() => {
   return {
     queryKey: ['sharedVocabularyAtom'],
-    queryFn: async () => {
-      const { data } = await supabase
+    queryFn: async () => pipe(
+      await supabase
         .from('vocabulary_list')
         .select('w:word, o:original, u:is_user, r:word_rank')
         .eq('share', true)
-        .throwOnError()
-      return data.map(({ w, o, u, r }) => {
-        const vocabState: TrackedWord = buildTrackedWord({
+        .throwOnError(),
+      (x) => x.data.map(({ w, o, u, r }) => narrowShallow([
+        w,
+        identity<TrackedWord>(buildTrackedWord({
           form: w,
           isUser: Boolean(u),
           isBaseForm: Boolean(o),
           rank: r,
           learningPhase: !u ? LEARNING_PHASE.ACQUAINTED : LEARNING_PHASE.NEW,
-        })
-        return [w, vocabState] as const
-      })
-    },
+        })),
+      ])),
+    ),
     placeholderData: [],
   }
 })
@@ -79,39 +80,41 @@ export const baseVocabAtom = atom((get) => {
   const { data: sharedVocab = [] } = get(sharedVocabularyAtom)
   const map = new Map(sharedVocab)
   userVocab.forEach((row) => {
-    const existing = map.get(row.w) ?? buildTrackedWord({
-      form: row.w,
-      isUser: true,
-    })
     map.set(row.w, {
-      ...existing,
+      ...map.get(row.w) ?? buildTrackedWord({
+        form: row.w,
+        isUser: true,
+      }),
       timeModified: row.time_modified,
       learningPhase: row.learningPhase,
     })
   })
-  return Array.from(map.values())
+  return map.values().toArray()
 })
 
 export const irregularWordsQueryAtom = atomWithQuery(() => {
   return {
     queryKey: ['irregularWordsQueryAtom'],
-    queryFn: async () => {
-      const { data } = await supabase
+    queryFn: async () => pipe(
+      await supabase
         .from('derivation')
         .select('l:stem_word, i:derived_word')
         .order('stem_word')
-        .throwOnError()
-      return Object.entries(Object.groupBy(data, (d) => d.l)).filter(hasValue).map(([key, value]) => {
-        const inflectedForms = value.map((v) => v.i)
-        return narrow([
-          key,
-          ...uniq([
-            ...inflectedForms,
-            ...inflectedForms.filter((i) => i.includes(`'`)).map((i) => i.replace(/'/g, `’`)),
+        .throwOnError(),
+      (x) => Object.groupBy(x.data, ({ l }) => l),
+      (x) => Object.entries(x)
+        .filter(hasValue)
+        .map(([key, value]) => pipe(
+          value.map(({ i }) => i),
+          (x) => narrow([
+            key,
+            ...uniq([
+              ...x,
+              ...x.filter((i) => i.includes(`'`)).map((i) => i.replace(/'/g, `’`)),
+            ]),
           ]),
-        ])
-      })
-    },
+        )),
+    ),
     placeholderData: [],
   }
 })
@@ -122,8 +125,8 @@ export function useUserWordPhaseMutation() {
   const vocabularyOptions = useAtomValue(userVocabularyOptionsAtom)
   return useMutation({
     mutationKey: ['useUserWordPhaseMutation'],
-    mutationFn: async (vocab: TrackedWord[]) => {
-      const { data } = await supabase
+    mutationFn: async (vocab: TrackedWord[]) => pipe(
+      await supabase
         .from('user_vocab_record')
         .upsert(
           vocab.map((row) => ({
@@ -135,13 +138,13 @@ export function useUserWordPhaseMutation() {
           { onConflict: 'user_id, vocabulary' },
         )
         .select('w:vocabulary, time_modified, acquainted')
-        .throwOnError()
-      return data.map((row) => ({
+        .throwOnError(),
+      (x) => x.data.map((row) => ({
         w: row.w,
         time_modified: row.time_modified,
         learningPhase: getLearningPhase(row.acquainted),
-      }))
-    },
+      })),
+    ),
     onMutate: (variables) => {
       queryClient.setQueryData(vocabularyOptions.queryKey, (prevData) => prevData && produce(prevData, (draft) => {
         variables.forEach((variable) => {

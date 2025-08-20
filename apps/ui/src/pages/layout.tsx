@@ -15,7 +15,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/s
 import { Toaster } from '@/components/ui/sonner'
 import { LIGHT_THEME_COLOR } from '@/constants/theme'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { useAtomEffect, useStableCallback } from '@/hooks/useAtomEffect'
+import { useAtomEffect } from '@/hooks/useAtomEffect'
 import { useStyleObserver } from '@/hooks/useStyleObserver'
 import { supabaseAuth } from '@/lib/supabase'
 import { bodyBgColorAtom, mainBgColorAtom, myStore } from '@/store/useVocab'
@@ -33,7 +33,7 @@ const metaThemeColorAtom = atom((get) => {
 })
 
 function useAppEffects() {
-  useAtomEffect(useStableCallback((get, set) => {
+  useAtomEffect((get, set) => {
     const { data: { subscription } } = supabaseAuth.onAuthStateChange((event, session) => {
       set(authChangeEventAtom, event)
       set(sessionAtom, session)
@@ -41,18 +41,18 @@ function useAppEffects() {
     return () => {
       subscription.unsubscribe()
     }
-  }, []))
+  }, [])
   useStyleObserver(document.body, ([{ value }]) => {
     myStore.set(bodyBgColorAtom, value)
   }, {
     properties: ['background-color'],
   })
-  useAtomEffect(useStableCallback((get) => {
+  useAtomEffect((get) => {
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', get(metaThemeColorAtom))
-  }, []))
-  useAtomEffect(useStableCallback((get) => {
+  }, [])
+  useAtomEffect((get) => {
     document.documentElement.classList.toggle('dark', get(isDarkModeAtom))
-  }, []))
+  }, [])
 }
 
 function Header() {

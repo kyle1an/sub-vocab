@@ -23,7 +23,7 @@ import IconLucideLoader2 from '~icons/lucide/loader2'
 
 import type { LearningPhase } from '@/lib/LexiconTrie'
 import type { ColumnFilterFn } from '@/lib/table-utils'
-import type { VocabularySourceState } from '@/lib/vocab'
+import type { VocabularySourceData, VocabularySourceState } from '@/lib/vocab'
 
 import { STATUS_LABELS, userVocabularyAtom } from '@/api/vocab-api'
 import { vocabSubscriptionAtom } from '@/atoms/vocabulary'
@@ -40,13 +40,14 @@ import { AcquaintAllDialog } from '@/components/vocabulary/acquaint-all-dialog'
 import { useVocabularyCommonColumns } from '@/components/vocabulary/columns'
 import { VocabularyMenu } from '@/components/vocabulary/menu'
 import { VocabStatics } from '@/components/vocabulary/statics-bar'
-import { useLastTruthy } from '@/hooks'
+import { useClone, useLastTruthy } from '@/hooks'
 import { customFormatDistance, formatDistanceLocale } from '@/lib/date-utils'
 import { customFormatDistanceToNowStrict } from '@/lib/formatDistance'
 import { LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { combineFilters, noFilter } from '@/lib/table-utils'
 import { findClosest, getFallBack, isRegexValid } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
+import { useManagedVocabulary } from '@/lib/vocab-utils'
 import { searchFilterValue } from '@/utils/vocabulary/filters'
 import { narrow } from '@sub-vocab/utils/types'
 
@@ -165,16 +166,13 @@ function useDataColumns<T extends TableData>() {
 }
 
 export function VocabDataTable({
-  data,
-  onPurge,
+  data: rows,
   className = '',
 }: {
-  data: TableData[]
-  onPurge: () => void
+  data: VocabularySourceData[]
   className?: string
 }) {
-  // eslint-disable-next-line react-compiler/react-compiler
-  'use no memo'
+  const [data, handlePurge] = useManagedVocabulary(rows)
   const { t } = useTranslation()
   const [{ initialTableState, isUsingRegex, searchValue }, setCacheState] = useImmerAtom(cacheStateAtom)
   const deferredSearchValue = useDeferredValue(searchValue)
@@ -190,7 +188,7 @@ export function VocabDataTable({
   const inValidSearch = deferredIsUsingRegex && !isRegexValid(deferredSearchValue)
   const { refetch, isFetching: isLoadingUserVocab } = useAtomValue(userVocabularyAtom)
 
-  const table = useReactTable({
+  const table = useClone(useReactTable({
     data,
     columns,
     state: {
@@ -214,7 +212,7 @@ export function VocabDataTable({
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getSortedRowModel: getSortedRowModel(),
-  })
+  }))
 
   const tableState = table.getState()
   const { items } = usePagination({
@@ -258,7 +256,7 @@ export function VocabDataTable({
               disabled={isLoadingUserVocab}
               className="gap-3"
               onClick={(e) => {
-                requestAnimationFrame(() => refetch())
+                refetch()
               }}
             >
               <IconLucideLoader2
@@ -337,7 +335,7 @@ export function VocabDataTable({
           onValueChange={(newSegment) => {
             setSegment(newSegment)
             startTransition(() => {
-              onPurge()
+              handlePurge()
             })
           }}
           variant="ghost"

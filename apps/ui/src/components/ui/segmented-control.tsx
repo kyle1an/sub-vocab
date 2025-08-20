@@ -3,6 +3,7 @@ import type { VariantProps } from 'class-variance-authority'
 import { cva } from 'class-variance-authority'
 import clsx from 'clsx'
 import { once } from 'es-toolkit'
+import nstr from 'nstr'
 import { createContext, use, useId, useRef } from 'react'
 
 import { useIdentity } from '@/hooks'
@@ -103,7 +104,7 @@ export function SegmentedControl<T extends string>({
     const xPosition = previousIndicatorClientRect.left - currentClientRect.left
     element.style.setProperty(
       'transform',
-      `translateX(${xPosition}px) scaleX(${widthDelta})`,
+      `translateX(${nstr(xPosition)}px) scaleX(${nstr(widthDelta)})`,
     )
     element.getBoundingClientRect()
     element.style.setProperty('transform', '')

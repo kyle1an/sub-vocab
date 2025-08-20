@@ -13,6 +13,7 @@ import { maxBy, sum } from 'es-toolkit'
 import { produce } from 'immer'
 import { useAtom, useAtomValue, useStore } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
+import nstr from 'nstr'
 import { Fragment, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import IconLucideChevronRight from '~icons/lucide/chevron-right'
@@ -39,7 +40,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useRect } from '@/hooks'
+import { useClone, useRect } from '@/hooks'
 import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
 import { customFormatDistance, formatIntervalLocale } from '@/lib/date-utils'
 import { getFileId } from '@/lib/subtitle'
@@ -388,7 +389,7 @@ function TvNameSubRow<TData extends RowData>({
           hidden={!isEllipsisActive}
           className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
           style={{
-            '--max-width': `${maxWidth}px`,
+            '--max-width': `${nstr(maxWidth)}px`,
           }}
         >
           <span
@@ -489,8 +490,6 @@ export function TVSubtitleFiles({
 }: {
   id: number
 }) {
-  // eslint-disable-next-line react-compiler/react-compiler
-  'use no memo'
   const { t } = useTranslation()
   const { data: seriesDetail, isLoading: isSeriesDetailLoading } = useQuery($api.queryOptions(
     'get',
@@ -575,7 +574,7 @@ export function TVSubtitleFiles({
       } satisfies InitialTableState,
     }),
   ]))
-  const table = useReactTable({
+  const table = useClone(useReactTable({
     data: dataRows,
     columns,
     initialState: mediaInitialTableState,
@@ -597,7 +596,7 @@ export function TVSubtitleFiles({
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getSortedRowModel: getSortedRowModel(),
-  })
+  }))
   const tableState = table.getState()
   const { items } = usePagination({
     count: table.getPageCount(),
@@ -606,7 +605,7 @@ export function TVSubtitleFiles({
   const rowsFiltered = table.getFilteredRowModel().rows.filter((row) => row.depth === 0 && row.subRows.length >= 1)
   const totalSubtitles = sum(rowsFiltered.map((row) => row.subRows.length))
   const allAvailableRowsMatch = rowsFiltered.length === totalEpisodes
-  function handleRowSelectionChange(...[checked, row, mode]: Parameters<RowSelectionChangeFn<SubtitleData>>) {
+  const handleRowSelectionChange: RowSelectionChangeFn<SubtitleData> = (checked, row, mode) => {
     setMediaSubtitleState(({ tableState }) => {
       if (mode === 'singleRow') {
         tableState.rowSelection = {}
@@ -686,7 +685,7 @@ export function TVSubtitleFiles({
                 ))}
               </TableHeader>
               <tbody ref={tbodyRef}>
-                {table.getRowModel().rows.map((row, index) => {
+                {useClone(table.getRowModel().rows).map((row, index) => {
                   return (
                     <TableRow
                       key={row.id}

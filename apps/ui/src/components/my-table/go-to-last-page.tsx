@@ -7,15 +7,15 @@ import { Button } from '@/components/ui/button'
 import { HEAD_HEIGHT } from '@/components/ui/table-element'
 
 export function TableGoToLastPage<T>({
-  table: { getRowModel, setPageIndex, getPageCount },
+  table,
 }: {
   table: Table<T>
 }) {
-  const dataRows = getRowModel().rows
-  const canNavigateToLastPage = dataRows.length === 0 && getPageCount() > 0
+  const dataRows = table.getRowModel().rows
+  const canNavigateToLastPage = dataRows.length === 0 && table.getPageCount() > 0
 
   function handleGoToLastPage() {
-    setPageIndex(getPageCount() - 1)
+    table.setPageIndex(table.getPageCount() - 1)
   }
 
   return (
