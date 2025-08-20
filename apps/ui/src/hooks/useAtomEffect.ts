@@ -1,12 +1,13 @@
-// https://jotai.org/docs/recipes/use-atom-effect
+import type { DependencyList } from 'react'
+
 import { atomEffect } from 'jotai-effect'
 import { useAtomValue } from 'jotai/react'
-import { useMemoOne as useStableMemo } from 'use-memo-one'
+import { useCallbackOne as useStableCallback, useMemoOne as useStableMemo } from 'use-memo-one'
 
 type EffectFn = Parameters<typeof atomEffect>[0]
 
-export function useAtomEffect(effectFn: EffectFn) {
-  useAtomValue(useStableMemo(() => atomEffect(effectFn), [effectFn]))
+// https://jotai.org/docs/recipes/use-atom-effect
+export function useAtomEffect(effectFn: EffectFn, inputs: DependencyList | undefined) {
+  const effect = useStableCallback(effectFn, [inputs])
+  useAtomValue(useStableMemo(() => atomEffect(effect), [effect]))
 }
-
-export { useCallbackOne as useStableCallback } from 'use-memo-one'

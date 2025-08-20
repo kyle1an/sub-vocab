@@ -24,7 +24,7 @@ export function SortIcon({
           'absolute inset-0 transition-transform duration-300 transform-3d',
           isSorted === 'asc' && '[transform:rotateX(0deg)]',
           isSorted === 'desc' && '[transform:rotateX(180deg)]',
-          !isSorted && '[transform:rotateX(120deg)] opacity-0',
+          !isSorted && '[transform:rotateX(90deg)] opacity-0',
         )}
       >
         <IconLucideChevronUp

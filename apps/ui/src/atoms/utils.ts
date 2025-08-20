@@ -1,7 +1,7 @@
 import type { Atom, WritableAtom } from 'jotai'
-import type { AtomFamily } from 'jotai/vanilla/utils/atomFamily'
 
 import { pipe } from 'effect'
+import { noop } from 'es-toolkit'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai/utils'
 
@@ -35,13 +35,6 @@ export function myAtomFamily<Param, AtomType extends Atom<unknown>>(label: strin
     (x) => Object.assign(x, { paramsAtom }),
   )
 }
-
-function call<Param, AtomType>(family: AtomFamily<Param, AtomType>, param: Param): AtomType
-function call<A extends any[], R>(fn: (...args: A) => R, ...args: A): R {
-  return fn(...args)
-}
-
-export const useCall = call
 
 export function withMount<Value, Args extends unknown[], Result>(anAtom: WritableAtom<Value, Args, Result>, onMount: NonNullable<typeof anAtom['onMount']>) {
   anAtom.onMount = onMount
@@ -92,29 +85,27 @@ export const retimerAtomFamily = (label: string) => {
   const family = atomFamily((id: string) => {
     let timeoutId: undefined | number
     let isMounted = false
-    let isRetiming = false
 
     const retime = (handler?: () => void, timeout?: number) => {
       clearTimeout(timeoutId)
-      isRetiming = false
+      timeoutId = undefined
 
       if (handler) {
         timeoutId = setTimeout(() => {
-          isRetiming = false
+          timeoutId = undefined
           handler()
         }, timeout)
-        isRetiming = true
       }
     }
 
     const tryRemove = () => {
-      if (!isMounted && !isRetiming) {
+      if (!isMounted && !timeoutId) {
         family.remove(id)
       }
     }
 
     return pipe(
-      atom(() => Object.assign(retime, { tryRemove }), () => {}),
+      atom(() => Object.assign(retime, { tryRemove }), noop),
       (x) => withMount(x, () => {
         isMounted = true
         return () => {

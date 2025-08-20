@@ -7,6 +7,7 @@ import { flexRender } from '@tanstack/react-table'
 import clsx from 'clsx'
 import { sum } from 'es-toolkit'
 import ms from 'ms'
+import nstr from 'nstr'
 import React, { Fragment, useRef, useState } from 'react'
 
 import type { DivProps } from '@/components/ui/html-elements'
@@ -15,9 +16,8 @@ import type { GroupHeader } from '@/types/vocab'
 
 import { SortIcon } from '@/components/my-icon/sort-icon'
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
-import { useRect } from '@/hooks'
+import { useClone, useRect } from '@/hooks'
 import { useRetimer } from '@/hooks/useRetimer'
-import { useStickyValue } from '@/hooks/useStickyValue'
 import { cn } from '@/lib/utils'
 
 export const HEAD_HEIGHT = 30
@@ -29,7 +29,7 @@ function FlexRender<TProps extends object>({
   comp: Renderable<TProps>
   props: TProps
 }) {
-  return flexRender(comp, props)
+  return flexRender(comp, useClone(props))
 }
 
 export function TableHeader({
@@ -57,15 +57,14 @@ export function TableHeader({
 }
 
 export function TableHeaderCellRender<T>({ header }: { header: GroupHeader<T> }) {
-  // eslint-disable-next-line react-compiler/react-compiler
-  'use no memo'
+  const props = useClone(header.getContext())
   return (
     header.isPlaceholder ? (
       <TableHeaderCell header={header} />
     ) : (
       <FlexRender
         comp={header.column.columnDef.header}
-        props={header.getContext()}
+        props={props}
       />
     )
   )
@@ -184,7 +183,6 @@ export function TableRow<T>({
   const rowRef = useRef<HTMLTableRowElement>(null)
   const { height: rowHeight } = useRect(rowRef)
   const detailRef = useRef<HTMLTableRowElement>(null)
-  const detailElement = detailRef.current
   const [open, setOpen] = useState(getIsExpanded)
   const [animationOpen, setAnimationOpen] = useState(false)
   const retimeAnim = useRetimer()
@@ -195,15 +193,8 @@ export function TableRow<T>({
     const isOpening = !isClosing
     setAnimationOpen(true)
     setTransitionOpen(true)
-    if (detailElement || !children) {
-      setOpen(isOpening)
-      toggleExpanded()
-    } else {
-      requestAnimationFrame(() => {
-        setOpen(isOpening)
-        toggleExpanded()
-      })
-    }
+    setOpen(isOpening)
+    toggleExpanded()
     if (isOpening) {
       retimeAnim(() => setAnimationOpen(false), ANIM_DURATION)
     }
@@ -241,25 +232,25 @@ export function TableRow<T>({
     }
   }
 
-  const opened = useStickyValue(open)
-  const showDetail = Boolean(opened || open || animationOpen)
+  const showDetail = true
   const detailEntry = useIntersectionObserver(showDetail ? detailRef : null, {
     root: rootRef,
-    rootMargin: `${-HEAD_HEIGHT - rowHeight}px 0% 0%`,
+    rootMargin: `${nstr(-HEAD_HEIGHT - rowHeight)}px 0% 0%`,
   })
   const isDetailAboveRoot = detailEntry && detailEntry.boundingClientRect.bottom < (detailEntry.rootBounds?.top ?? 0)
   const detailEntry2 = useIntersectionObserver(showDetail ? detailRef : null, {
     root: rootRef,
-    rootMargin: `${-HEAD_HEIGHT - rowHeight + 1}px 0% -100%`,
+    rootMargin: `${nstr(-HEAD_HEIGHT - rowHeight + 1)}px 0% -100%`,
   })
   const isDetailVisibleIntersecting = Boolean(detailEntry2?.isIntersecting)
-  const visibleCells = getVisibleCells()
+  const visibleCells = useClone(getVisibleCells())
   const state = open ? 'open' : 'closed'
 
   let rowZIndex = index
   if (open && subRows.length >= 1) {
     rowZIndex += subRows.length + 1
   }
+  const canExpand = getCanExpand()
   return (
     <Fragment>
       <tr
@@ -271,7 +262,7 @@ export function TableRow<T>({
         }}
         data-row
         className="group/tr relative z-(--z-index) bg-background transition-shadow duration-0 [content-visibility:auto] data-boundary:shadow-intersect! data-[state=open]:sticky data-[state=open]:top-(--top) [[data-boundary]+*:empty+&>*]:border-t-transparent [[data-detail-above]+&]:shadow-collapse [[data-detail-above]+&]:duration-200 [[data-state=closed]+&]:shadow-collapse [[data-state=closed][data-disabled]+&]:shadow-none [[data-transition-open]+&]:duration-300"
-        data-disabled={!getCanExpand() || undefined}
+        data-disabled={!canExpand || undefined}
         data-state={state}
         data-boundary={(isDetailAboveRoot ? open : isDetailVisibleIntersecting) && !animationOpen ? '' : undefined}
       >
@@ -287,7 +278,7 @@ export function TableRow<T>({
           />
         ))}
       </tr>
-      {showDetail ? (
+      {canExpand ? (
         <tr
           ref={detailRef}
           style={{

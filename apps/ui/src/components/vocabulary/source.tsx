@@ -29,7 +29,7 @@ import IconLucideLoader from '~icons/lucide/loader'
 
 import type { LearningPhase, Sentence } from '@/lib/LexiconTrie'
 import type { ColumnFilterFn } from '@/lib/table-utils'
-import type { VocabularySourceState } from '@/lib/vocab'
+import type { VocabularySourceData, VocabularySourceState } from '@/lib/vocab'
 
 import { useTRPC } from '@/api/trpc'
 import { isSourceTextStaleAtom } from '@/atoms/vocabulary'
@@ -49,11 +49,12 @@ import { useVocabularyCommonColumns } from '@/components/vocabulary/columns'
 import { ExampleSentence } from '@/components/vocabulary/example-sentence'
 import { VocabularyMenu } from '@/components/vocabulary/menu'
 import { VocabStatics } from '@/components/vocabulary/statics-bar'
-import { useLastTruthy } from '@/hooks'
+import { useClone, useLastTruthy } from '@/hooks'
 import { LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { combineFilters, filterFn, noFilter } from '@/lib/table-utils'
 import { findClosest, isRegexValid } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
+import { useManagedVocabulary } from '@/lib/vocab-utils'
 import { getCategory } from '@/utils/prompts/getCategory'
 import { searchFilterValue } from '@/utils/vocabulary/filters'
 import { narrow } from '@sub-vocab/utils/types'
@@ -211,20 +212,17 @@ function useCategorize(vocabularyCategory: VocabularyCategory, data: VocabularyS
 }
 
 export function VocabSourceTable({
-  data,
+  data: rows,
   sentences,
-  onPurge: purgeVocabulary,
   className = '',
   onSentenceTrack,
 }: {
-  data: VocabularySourceState[]
+  data: VocabularySourceData[]
   sentences: Sentence[]
-  onPurge: () => void
   className?: string
   onSentenceTrack: (sentenceId: number) => void
 }) {
-  // eslint-disable-next-line react-compiler/react-compiler
-  'use no memo'
+  const [data, handlePurge] = useManagedVocabulary(rows)
   const [categoryAtomValue, setCategoryAtom] = useAtom(categoryAtom)
   const { t } = useTranslation()
   const [{ initialTableState, isUsingRegex, searchValue, filterValue }, setCacheState] = useImmerAtom(cacheStateAtom)
@@ -247,7 +245,7 @@ export function VocabSourceTable({
     lastTruthySearchFilterValue,
   ]
   const globalFilter = combineFilters(preCategoryFilters)
-  const table = useReactTable({
+  const table = useClone(useReactTable({
     data: categorizedData,
     columns,
     state: {
@@ -269,7 +267,7 @@ export function VocabSourceTable({
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getSortedRowModel: getSortedRowModel(),
-  })
+  }))
 
   const tableState = table.getState()
   const { items } = usePagination({
@@ -388,7 +386,7 @@ export function VocabSourceTable({
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </VocabularyMenu>
-        <div className="p-px"></div>
+        <div className="p-0.5"></div>
         <DataTableFacetedFilter
           title="Category"
           className="[--sq-r:.875rem]"
@@ -453,7 +451,7 @@ export function VocabSourceTable({
           onValueChange={(newSegment) => {
             setSegment(newSegment)
             startTransition(() => {
-              purgeVocabulary()
+              handlePurge()
             })
           }}
           variant="ghost"

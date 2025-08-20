@@ -1,5 +1,7 @@
 import type React from 'react'
 
+import { flow } from 'effect'
+
 import type { FileType } from '@/atoms/file-types'
 
 import { Textarea } from '@/components/ui/textarea'
@@ -23,13 +25,14 @@ export function TextareaInput({
   function dropHandler(event: React.DragEvent<HTMLTextAreaElement>) {
     event.preventDefault()
     Promise.all(dataTransferItemListReader.readDataTransferItemList(event.dataTransfer.items))
-      .then((fileContents) => {
-        const { title, content } = readEntryFiles(fileContents)
-        handleChange({
+      .then(flow(
+        (x) => readEntryFiles(x),
+        ({ title, content }) => ({
           value: content,
           name: title,
-        })
-      })
+        }),
+        handleChange,
+      ))
       .catch(console.error)
   }
 

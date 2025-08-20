@@ -1,12 +1,14 @@
 import clsx from 'clsx'
-import { atom, useAtomValue } from 'jotai'
-import { useSetImmerAtom } from 'jotai-immer'
+import { produce } from 'immer'
+import { atom } from 'jotai'
 import ms from 'ms'
 import * as React from 'react'
-import { useEffect, useId } from 'react'
+import { useId } from 'react'
 import { Drawer as DrawerPrimitive } from 'vaul'
 
-import { myAtomFamily, retimerAtomFamily, useCall } from '@/atoms/utils'
+import { myAtomFamily, retimerAtomFamily } from '@/atoms/utils'
+import { useCall } from '@/hooks'
+import { useAtomEffect } from '@/hooks/useAtomEffect'
 import { equalBy } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
 
@@ -18,7 +20,6 @@ const drawerStateFamily = myAtomFamily(
     ,
     initialValue = {
       open: false,
-      openAnimationEnd: false,
       shouldScaleBackground: false,
     },
   ]: [
@@ -46,30 +47,30 @@ function Drawer({
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
   const { shouldScaleBackground = false, open = false } = props
   const id = useId()
-  const retimeAnim = useAtomValue(useCall(animRetimerFamily, id))
-  const retimeRemoveDrawer = useAtomValue(useCall(removeRetimerFamily, id))
-  const setDrawerState = useSetImmerAtom(useCall(drawerStateFamily, [
+  const drawerStateAtom = useCall(() => drawerStateFamily([
     id,
     {
       open,
       shouldScaleBackground,
     },
   ]))
-  useEffect(() => {
-    setDrawerState((d) => {
+  useAtomEffect((get, set) => {
+    const retimeAnim = get(animRetimerFamily(id))
+    set(drawerStateAtom, produce((d) => {
       d.open = open
-    })
+    }))
     retimeAnim(() => {
-      setDrawerState((d) => {
+      set(drawerStateAtom, produce((d) => {
         d.openAnimationEnd = open
-      })
+      }))
       retimeAnim.tryRemove()
     }, TRANSITIONS_DURATION)
     return () => {
       retimeAnim.tryRemove()
     }
-  }, [open, retimeAnim, setDrawerState])
-  useEffect(() => {
+  }, [drawerStateAtom, id, open])
+  useAtomEffect((get) => {
+    const retimeRemoveDrawer = get(removeRetimerFamily(id))
     retimeRemoveDrawer()
     return () => {
       retimeRemoveDrawer(() => {
@@ -77,7 +78,7 @@ function Drawer({
         retimeRemoveDrawer.tryRemove()
       }, TRANSITIONS_DURATION)
     }
-  }, [id, retimeRemoveDrawer])
+  }, [id])
   return <DrawerPrimitive.Root data-slot="drawer" {...props} />
 }
 

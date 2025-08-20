@@ -4,16 +4,16 @@ import type { ImperativePanelGroupHandle } from 'react-resizable-panels'
 import { useIsomorphicLayoutEffect } from '@react-hookz/web'
 import clsx from 'clsx'
 import { useMediaQuery } from 'foxact/use-media-query'
-import { produce } from 'immer'
-import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
-import React, { useDeferredValue, useEffect, useRef, useState } from 'react'
+import { atom, useAtom, useAtomValue } from 'jotai'
+import nstr from 'nstr'
+import React, { useDeferredValue, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import getCaretCoordinates from 'textarea-caret'
 import { useEffectEvent } from 'use-effect-event'
 
 import type { Sentence } from '@/lib/LexiconTrie'
-import type { VocabularySourceState } from '@/lib/vocab'
+import type { VocabularySourceData } from '@/lib/vocab'
 
 import {
   baseVocabAtom,
@@ -29,10 +29,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { VocabSourceTable } from '@/components/vocabulary/source'
 import { VocabStatics } from '@/components/vocabulary/statics-bar'
 import { useRect } from '@/hooks'
+import { useAtomEffect } from '@/hooks/useAtomEffect'
 import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
 import { LEARNING_PHASE, LexiconTrie } from '@/lib/LexiconTrie'
 import { compareBy, normalizeNewlines } from '@/lib/utilities'
-import { statusRetainedList } from '@/lib/vocab-utils'
 import { FileSettings } from '@/pages/file-settings'
 
 const sourceCountAtom = atom({
@@ -41,7 +41,7 @@ const sourceCountAtom = atom({
   newCount: 0,
 })
 
-function getCount(list: VocabularySourceState[]): ExtractAtomValue<typeof sourceCountAtom> {
+function getCount(list: VocabularySourceData[]): ExtractAtomValue<typeof sourceCountAtom> {
   let acquaintedCount = 0
   let newCount = 0
   let rest = 0
@@ -75,8 +75,6 @@ function SourceVocab({
 }) {
   const { data: irregulars = [] } = useAtomValue(irregularWordsQueryAtom)
   const [baseVocab] = useAtom(baseVocabAtom)
-  const [rows, setRows] = useState([] as VocabularySourceState[])
-  const setSourceCountAtom = useSetAtom(sourceCountAtom)
   const trie = new LexiconTrie()
   trie.add(text)
   const list = trie
@@ -84,29 +82,13 @@ function SourceVocab({
     .filter((v) => v.locators.length > 0)
     .sort(compareBy((i) => [i.locators[0]!.sentenceId, i.locators[0]!.startOffset]))
   const sentences = trie.sentences
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
-    setRows(statusRetainedList(list))
+  useAtomEffect((get, set) => {
+    set(sourceCountAtom, getCount(list))
   }, [list])
-  useEffect(() => {
-    setSourceCountAtom(getCount(list))
-  }, [list, setSourceCountAtom])
-
-  function handlePurge() {
-    setRows(produce((draft) => {
-      draft.forEach((row) => {
-        if (row.inertialPhase !== row.trackedWord.learningPhase) {
-          row.inertialPhase = row.trackedWord.learningPhase
-        }
-      })
-    }))
-  }
-
   return (
     <VocabSourceTable
-      data={rows}
+      data={list}
       sentences={sentences}
-      onPurge={handlePurge}
       onSentenceTrack={(no) => {
         const sentence = sentences[no]
         if (sentence) {
@@ -129,13 +111,12 @@ export default function ResizeVocabularyPanel() {
   const [fileInfo, setFileInfo] = useAtom(fileInfoAtom)
   const [sourceText, setSourceText] = useAtom(sourceTextAtom)
   const deferredSourceText = useDeferredValue(sourceText)
-  const [isSourceTextStale, setIsSourceTextStale] = useAtom(isSourceTextStaleAtom)
-  useEffect(() => {
-    const isStale = sourceText.epoch !== deferredSourceText.epoch
-    if (isSourceTextStale !== isStale) {
-      setIsSourceTextStale(isStale)
+  useAtomEffect((get, set) => {
+    const isStale = get(sourceTextAtom).epoch !== deferredSourceText.epoch
+    if (get(isSourceTextStaleAtom) !== isStale) {
+      set(isSourceTextStaleAtom, isStale)
     }
-  }, [deferredSourceText.epoch, isSourceTextStale, setIsSourceTextStale, sourceText.epoch])
+  }, [deferredSourceText.epoch])
 
   function handleTextareaChange(ev: React.ChangeEvent<HTMLTextAreaElement>) {
     setSourceText((v) => ({
@@ -191,7 +172,7 @@ export default function ResizeVocabularyPanel() {
         textarea.focus()
         textarea.setSelectionRange(sentence.index, sentence.index + sentence.text.length)
         textarea.scrollTo({
-          top: coords.top - textarea.clientHeight / 2,
+          top: coords.top - 2,
           behavior: 'smooth',
         })
       })
@@ -261,7 +242,7 @@ export default function ResizeVocabularyPanel() {
                         hidden={!isEllipsisActive}
                         className="max-w-(--max-width) border bg-background text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
                         style={{
-                          '--max-width': `${window.innerWidth - fileInfoX + 12 - 1}px`,
+                          '--max-width': `${nstr(window.innerWidth - fileInfoX + 12 - 1)}px`,
                         }}
                       >
                         {fileInfo}

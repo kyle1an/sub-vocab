@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 
 export function TablePagination<T>({
   items,
-  table: { getCanPreviousPage, previousPage, setPageIndex, getPageCount, getCanNextPage, nextPage, getState },
+  table,
 }: {
   items: UsePaginationItem[]
   table: Table<T>
@@ -32,8 +32,8 @@ export function TablePagination<T>({
               type="button"
               aria-label="Previous page"
               className={cn(className, 'px-0')}
-              disabled={!getCanPreviousPage() || getPageCount() === 0}
-              onClick={previousPage}
+              disabled={!table.getCanPreviousPage() || table.getPageCount() === 0}
+              onClick={table.previousPage}
               key={type}
             >
               <IconLucideChevronLeft
@@ -50,7 +50,7 @@ export function TablePagination<T>({
               aria-label="Start ellipsis"
               type="button"
               onClick={() => {
-                setPageIndex(Math.max(0, getState().pagination.pageIndex - 2))
+                table.setPageIndex(Math.max(0, table.getState().pagination.pageIndex - 2))
               }}
               key={`${type}${page}`}
             >
@@ -71,7 +71,7 @@ export function TablePagination<T>({
               type="button"
               disabled={selected}
               onClick={() => {
-                setPageIndex(Number(page) - 1)
+                table.setPageIndex(Number(page) - 1)
               }}
               key={`${type}${page}`}
             >
@@ -87,7 +87,7 @@ export function TablePagination<T>({
               type="button"
               aria-label="End ellipsis"
               onClick={() => {
-                setPageIndex(Math.min(getState().pagination.pageIndex + 2, getPageCount() - 1))
+                table.setPageIndex(Math.min(table.getState().pagination.pageIndex + 2, table.getPageCount() - 1))
               }}
               key={`${type}${page}`}
             >
@@ -107,8 +107,8 @@ export function TablePagination<T>({
               className={cn(className)}
               type="button"
               aria-label="Next page"
-              disabled={!getCanNextPage()}
-              onClick={nextPage}
+              disabled={!table.getCanNextPage()}
+              onClick={table.nextPage}
               key={type}
             >
               <IconLucideChevronRight

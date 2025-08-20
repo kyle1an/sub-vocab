@@ -1,25 +1,50 @@
-import type { VocabularySourceState } from '@/lib/vocab'
+import { useUpdateEffect } from '@react-hookz/web'
+import { produce } from 'immer'
+import { useState } from 'react'
 
-export const statusRetainedList = (newRows: VocabularySourceState[]) => (oldRows: VocabularySourceState[]) => {
-  const newRowMap = new Map<string, VocabularySourceState>()
+import type { VocabularySourceData, VocabularySourceState } from '@/lib/vocab'
 
-  for (const newRow of newRows) {
-    for (const { pathe } of newRow.wordFamily) {
-      newRowMap.set(pathe, newRow)
+const preserveInertialPhase = (list: VocabularySourceState[]) => (oldRows: VocabularySourceState[]) => {
+  const listItemMap = new Map<string, VocabularySourceState>()
+
+  for (const listItem of list) {
+    for (const { pathe } of listItem.wordFamily) {
+      listItemMap.set(pathe, listItem)
     }
   }
 
   for (const oldRow of oldRows) {
     for (const { pathe } of oldRow.wordFamily) {
-      const newRow = newRowMap.get(pathe)
-      if (newRow) {
-        if (newRow.inertialPhase !== oldRow.inertialPhase) {
-          newRow.inertialPhase = oldRow.inertialPhase
+      const listItem = listItemMap.get(pathe)
+      if (listItem) {
+        if (listItem.inertialPhase !== oldRow.inertialPhase) {
+          listItem.inertialPhase = oldRow.inertialPhase
         }
         break
       }
     }
   }
 
-  return newRows
+  return list
+}
+
+export const useManagedVocabulary = (list: VocabularySourceData[]) => {
+  const vocabularyStates: VocabularySourceState[] = list.map((i) => ({
+    ...i,
+    inertialPhase: i.trackedWord.learningPhase,
+  }))
+  const [rows, setRows] = useState(vocabularyStates)
+  useUpdateEffect(() => {
+    setRows(preserveInertialPhase(vocabularyStates))
+  }, [vocabularyStates])
+  const syncPhases = () => {
+    setRows(produce((draft) => {
+      draft.forEach((row) => {
+        if (row.inertialPhase !== row.trackedWord.learningPhase) {
+          row.inertialPhase = row.trackedWord.learningPhase
+        }
+      })
+    }))
+  }
+  return [rows, syncPhases] as const
 }

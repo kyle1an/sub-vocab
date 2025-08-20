@@ -2,6 +2,8 @@ import type { FileTypeResult } from 'file-type'
 import type { PDFDocumentProxy } from 'pdfjs-dist'
 import type { TextContent } from 'pdfjs-dist/types/src/display/api'
 
+import { flow } from 'effect'
+
 import { isSingleItemArray } from '@sub-vocab/utils/lib'
 
 interface FileContent {
@@ -9,9 +11,9 @@ interface FileContent {
   error?: string
 }
 
-type RecursiveArray<T> = T | RecursiveArray<T>[]
+type NestedArray<T> = T | NestedArray<T>[]
 
-type EntryFiles = RecursiveArray<FileContent>
+type EntryFiles = NestedArray<FileContent>
 
 const FORMAT_ERROR = 'Unsupported file format'
 
@@ -33,10 +35,14 @@ async function getDocumentText(pdf: PDFDocumentProxy) {
   const pdfTexts: string [] = []
 
   for (let i = 1; i < pdf.numPages; i++) {
-    const page = await pdf.getPage(i)
-    const textContent = await page.getTextContent()
-    const text = formatTextContent(textContent)
-    pdfTexts.push(text)
+    await Promise.try(() => pdf.getPage(i))
+      .then((x) => x.getTextContent())
+      .then(flow(
+        formatTextContent,
+        (x) => {
+          pdfTexts.push(x)
+        },
+      ))
   }
 
   return pdfTexts.join(' ')
