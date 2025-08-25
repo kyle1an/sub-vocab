@@ -16,12 +16,13 @@ import type { LearningPhase, TrackedWord } from '@/lib/LexiconTrie'
 import type { Tables } from '@ui/database.types'
 
 import { sessionAtom, userIdAtom } from '@/atoms/auth'
-import { createRetimer } from '@/atoms/utils'
+import { withDelayedSetter } from '@/atoms/utils'
 import { vocabSubscriptionAtom } from '@/atoms/vocabulary'
 import { documentVisibilityStateAtom } from '@/hooks/utils'
 import { buildTrackedWord, LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { queryClient } from '@/lib/query-client'
 import { supabase } from '@/lib/supabase'
+import { createRetimer } from '@/lib/utilities'
 import { hasValue } from '@sub-vocab/utils/lib'
 import { narrow, narrowShallow } from '@sub-vocab/utils/types'
 
@@ -45,8 +46,12 @@ const userVocabularyOptionsAtom = atom((get) => {
     ),
     placeholderData: [],
     enabled: Boolean(userId),
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    ...get(vocabSubscriptionAtom) === 'SUBSCRIBED' ? {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      gcTime: Infinity,
+      staleTime: Infinity,
+    } : {},
   })
 })
 
@@ -216,7 +221,7 @@ export const STATUS_LABELS = {
 } as const satisfies Partial<Record<REALTIME_SUBSCRIBE_STATES, string>>
 
 const INACTIVITY_TIMEOUT = ms('1min')
-const COMPONENT_DEBOUNCE = ms('3s')
+const COMPONENT_DEBOUNCE = ms('0s')
 const retimeRefetchVocabulary = createRetimer()
 const channelBaseAtom = atom(undefined as RealtimeChannel | undefined)
 const initChannelAtom = atom(null, (get, set, userId: string) => {
@@ -262,48 +267,43 @@ const initChannelAtom = atom(null, (get, set, userId: string) => {
 
   set(channelBaseAtom, channel)
 })
-const removeChannelAtom = atom(null, (get, set) => {
+const removeChannelAtom = withDelayedSetter(atom(null, (get, set) => {
   const channel = get(channelBaseAtom)
   if (channel) {
-    channel.unsubscribe()
+    supabase.removeChannel(channel)
     set(channelBaseAtom, undefined)
   }
-})
-const retimeChannel = createRetimer()
+}))
 
 export const userVocabularyAtom = withAtomEffect(
   atomWithQuery((get) => get(userVocabularyOptionsAtom)),
   (get, set) => {
     if (get(documentVisibilityStateAtom) === 'hidden') {
-      retimeChannel(() => {
-        set(removeChannelAtom)
-      }, INACTIVITY_TIMEOUT)
-
+      set(removeChannelAtom.retimeAtom, INACTIVITY_TIMEOUT)
       return () => {
-        retimeChannel()
+        removeChannelAtom.retimeAtom.cancel()
       }
     }
 
+    removeChannelAtom.retimeAtom.cancel()
     const userId = get(userIdAtom)
     if (userId) {
       const controller = new AbortController()
-      retimeChannel()
       // https://github.com/supabase/realtime/issues/282#issuecomment-2630983759
       supabase.realtime.setAuth().then(() => {
         if (controller.signal.aborted) return
-        retimeChannel()
         set(initChannelAtom, userId)
       })
-
       return () => {
         controller.abort()
-        retimeChannel(() => {
+        if (userId === get(userIdAtom)) {
+          set(removeChannelAtom.retimeAtom, COMPONENT_DEBOUNCE)
+        } else {
           set(removeChannelAtom)
-        }, COMPONENT_DEBOUNCE)
+        }
       }
     }
 
-    retimeChannel()
     set(removeChannelAtom)
   },
 )

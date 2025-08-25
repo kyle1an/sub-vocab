@@ -12,9 +12,11 @@ import { cn } from '@/lib/utils'
 export function TablePagination<T>({
   items,
   table,
+  rootRef,
 }: {
   items: UsePaginationItem[]
   table: Table<T>
+  rootRef: React.RefObject<HTMLDivElement | null>
 }) {
   return (
     <div className="flex">
@@ -33,7 +35,10 @@ export function TablePagination<T>({
               aria-label="Previous page"
               className={cn(className, 'px-0')}
               disabled={!table.getCanPreviousPage() || table.getPageCount() === 0}
-              onClick={table.previousPage}
+              onClick={() => {
+                table.previousPage()
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
               key={type}
             >
               <IconLucideChevronLeft
@@ -51,6 +56,7 @@ export function TablePagination<T>({
               type="button"
               onClick={() => {
                 table.setPageIndex(Math.max(0, table.getState().pagination.pageIndex - 2))
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
               }}
               key={`${type}${page}`}
             >
@@ -72,6 +78,7 @@ export function TablePagination<T>({
               disabled={selected}
               onClick={() => {
                 table.setPageIndex(Number(page) - 1)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
               }}
               key={`${type}${page}`}
             >
@@ -88,6 +95,7 @@ export function TablePagination<T>({
               aria-label="End ellipsis"
               onClick={() => {
                 table.setPageIndex(Math.min(table.getState().pagination.pageIndex + 2, table.getPageCount() - 1))
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
               }}
               key={`${type}${page}`}
             >
@@ -108,7 +116,10 @@ export function TablePagination<T>({
               type="button"
               aria-label="Next page"
               disabled={!table.getCanNextPage()}
-              onClick={table.nextPage}
+              onClick={() => {
+                table.nextPage()
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
               key={type}
             >
               <IconLucideChevronRight

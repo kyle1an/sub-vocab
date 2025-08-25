@@ -232,13 +232,13 @@ export function TableRow<T>({
     }
   }
 
-  const showDetail = true
-  const detailEntry = useIntersectionObserver(showDetail ? detailRef : null, {
+  const canExpand = getCanExpand()
+  const detailEntry = useIntersectionObserver(canExpand ? detailRef : null, {
     root: rootRef,
     rootMargin: `${nstr(-HEAD_HEIGHT - rowHeight)}px 0% 0%`,
   })
   const isDetailAboveRoot = detailEntry && detailEntry.boundingClientRect.bottom < (detailEntry.rootBounds?.top ?? 0)
-  const detailEntry2 = useIntersectionObserver(showDetail ? detailRef : null, {
+  const detailEntry2 = useIntersectionObserver(canExpand ? detailRef : null, {
     root: rootRef,
     rootMargin: `${nstr(-HEAD_HEIGHT - rowHeight + 1)}px 0% -100%`,
   })
@@ -250,7 +250,6 @@ export function TableRow<T>({
   if (open && subRows.length >= 1) {
     rowZIndex += subRows.length + 1
   }
-  const canExpand = getCanExpand()
   return (
     <Fragment>
       <tr

@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^5.2.1",
-    "@effect/language-service": "^0.35.2",
+    "@effect/language-service": "^0.36.0",
     "@stylistic/eslint-plugin": "^5.2.3",
     "@t3-oss/env-core": "^0.13.8",
     "@total-typescript/ts-reset": "^0.6.1",
@@ -63,7 +63,7 @@
       "safe-buffer": "npm:@nolyfill/safe-buffer@^1.0.44",
       "safer-buffer": "npm:@nolyfill/safer-buffer@^1.0.44",
       "side-channel": "npm:@nolyfill/side-channel@^1.0.44",
-      "vite": "npm:rolldown-vite@^7.1.4",
+      "vite": "npm:rolldown-vite@^7.1.5",
       "whatwg-url": "^14.2.0",
       "which-typed-array": "npm:@nolyfill/which-typed-array@^1.0.44"
     },

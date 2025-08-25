@@ -93,3 +93,13 @@ export function equalBy<T>(map: (i: T) => any) {
     return map(a) === map(b)
   }
 }
+
+export const createRetimer = () => {
+  let timeoutId: undefined | number
+  return (handler?: () => void, timeout?: number) => {
+    clearTimeout(timeoutId)
+    if (handler) {
+      timeoutId = setTimeout(handler, timeout)
+    }
+  }
+}

@@ -26,7 +26,7 @@ import { VocabularyMenu } from '@/components/vocabulary/cells'
 import { VocabToggle } from '@/components/vocabulary/toggle-button'
 import { filterFn } from '@/lib/table-utils'
 
-export function useVocabularyCommonColumns<T extends VocabularySourceState = VocabularySourceState>(tbody?: React.RefObject<HTMLTableSectionElement | null>) {
+export function useVocabularyCommonColumns<T extends VocabularySourceState = VocabularySourceState>(tbodyRef?: React.RefObject<HTMLTableSectionElement | null>, rootRef?: React.RefObject<HTMLDivElement | null>) {
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
   const { mutateAsync: userWordPhaseMutation } = useUserWordPhaseMutation()
@@ -62,7 +62,10 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
           >
             <Div
               className="group gap-1.5 pr-1"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <Separator
                 orientation="vertical"
@@ -107,7 +110,7 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
                       </span>
                     </HoverCardTrigger>
                     <HoverCardContent
-                      container={tbody?.current}
+                      container={tbodyRef?.current}
                       side="top"
                       sideOffset={-1}
                       align="end"
@@ -143,7 +146,10 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
           >
             <Div
               className="group gap-2 pr-1 select-none"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <Separator
                 orientation="vertical"
@@ -187,7 +193,10 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
           >
             <Div
               className="group select-none"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <Separator
                 orientation="vertical"
@@ -228,7 +237,10 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
           >
             <Div
               className="group gap-2 pr-1 select-none"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <Separator
                 orientation="vertical"

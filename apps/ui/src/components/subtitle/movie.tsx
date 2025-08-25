@@ -1,5 +1,4 @@
 import type { CellContext, InitialTableState, RowData } from '@tanstack/react-table'
-import type { RefObject } from 'react'
 
 import usePagination from '@mui/material/usePagination'
 import NumberFlow from '@number-flow/react'
@@ -38,7 +37,7 @@ import { osLanguageAtom } from '@/store/useVocab'
 
 type MovieSubtitleData = SubtitleData
 
-function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTMLDivElement | null>, tbody: React.RefObject<HTMLTableSectionElement | null>) {
+function useMovieColumns<T extends MovieSubtitleData>(rootRef: React.RefObject<HTMLDivElement | null>, tbodyRef: React.RefObject<HTMLTableSectionElement | null>) {
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
   return [
@@ -54,7 +53,10 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
           >
             <Div
               className="justify-between gap-1 pr-1 pl-2 select-none signal/active:bg-background-active"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <div className="child flex" />
               <SortIcon isSorted={isSorted} />
@@ -103,7 +105,10 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
           >
             <Div
               className="group gap-2 pr-1"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <Separator
                 orientation="vertical"
@@ -122,8 +127,8 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
         return (
           <MovieNameCell
             {...ctx}
-            root={root}
-            tbody={tbody}
+            rootRef={rootRef}
+            tbodyRef={tbodyRef}
           />
         )
       },
@@ -132,18 +137,18 @@ function useMovieColumns<T extends MovieSubtitleData>(root: React.RefObject<HTML
 }
 
 function MovieNameCell<TData extends RowData>({
-  root,
-  tbody,
+  rootRef,
+  tbodyRef,
   cell,
   getValue,
 }: {
-  root: RefObject<HTMLDivElement | null>
-  tbody: React.RefObject<HTMLTableSectionElement | null>
+  rootRef: React.RefObject<HTMLDivElement | null>
+  tbodyRef: React.RefObject<HTMLTableSectionElement | null>
 } & CellContext<TData, string>) {
   const value = getValue()
   const ref = useRef<HTMLDivElement>(null)
   const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
-  const { x: rootX, width: rootWidth } = useRect(root)
+  const { x: rootX, width: rootWidth } = useRect(rootRef)
   const { x: refX } = useRect(ref)
   const className = 'tracking-[.04em] text-sm'
   const maxWidth = rootX + rootWidth - refX + 12 - 4
@@ -173,7 +178,7 @@ function MovieNameCell<TData extends RowData>({
               </div>
             </TooltipTrigger>
             <TooltipContent
-              container={tbody.current}
+              container={tbodyRef.current}
               side="bottom"
               sideOffset={-21 - 1}
               align="start"
@@ -239,8 +244,8 @@ function SubtitleFiles({
   subtitleData: Subtitles['Response']['data']
 }) {
   const { t } = useTranslation()
-  const commonColumns = useCommonColumns<MovieSubtitleData>()
   const rootRef = useRef<HTMLDivElement>(null)
+  const commonColumns = useCommonColumns<MovieSubtitleData>(rootRef)
   const tbodyRef = useRef<HTMLTableSectionElement>(null)
   const movieColumns = useMovieColumns(rootRef, tbodyRef)
   const columns = [...commonColumns, ...movieColumns]
@@ -342,6 +347,7 @@ function SubtitleFiles({
             <TablePagination
               items={items}
               table={table}
+              rootRef={rootRef}
             />
             <div className="flex grow items-center justify-end">
               <div className="flex items-center text-xs">

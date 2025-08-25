@@ -77,7 +77,7 @@ const cacheStateAtom = atom({
   }),
 })
 
-function useColumns<T extends TableData>() {
+function useColumns<T extends TableData>(rootRef: React.RefObject<HTMLDivElement | null>) {
   // Add this to prevent all columns from re-rendering on sort
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
@@ -93,7 +93,10 @@ function useColumns<T extends TableData>() {
           >
             <Div
               className="min-w-10 justify-center gap-2 select-none signal/active:bg-background-active"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <div
                 className="flex"
@@ -156,7 +159,10 @@ function useColumns<T extends TableData>() {
           >
             <Div
               className="group gap-2 pr-1 select-none"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <Separator
                 orientation="vertical"
@@ -196,7 +202,10 @@ function useColumns<T extends TableData>() {
           >
             <Div
               className="group gap-2 pr-1 select-none"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <Separator
                 orientation="vertical"
@@ -240,7 +249,10 @@ function useColumns<T extends TableData>() {
           >
             <Div
               className="group gap-2 pr-1"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <Separator
                 orientation="vertical"
@@ -283,7 +295,10 @@ function useColumns<T extends TableData>() {
           >
             <Div
               className="group gap-2 pr-1 select-none"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <Separator
                 orientation="vertical"
@@ -338,7 +353,10 @@ function useColumns<T extends TableData>() {
           >
             <Div
               className="group gap-2 pr-1 select-none"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <Separator
                 orientation="vertical"
@@ -378,7 +396,8 @@ export default function Subtitles() {
   const [query, setQuery] = useAtom(mediaSearchAtom)
   const [{ initialTableState }, setCacheState] = useImmerAtom(cacheStateAtom)
   const debouncedQuery = useDebouncedValue(query, 500)
-  const columns = useColumns()
+  const rootRef = useRef<HTMLDivElement>(null)
+  const columns = useColumns(rootRef)
   const setFileInfo = useSetAtom(fileInfoAtom)
   const setSourceText = useSetAtom(sourceTextAtom)
   const [subtitleDownloadProgress, setSubtitleDownloadProgress] = useImmer([] as Download['Body'][])
@@ -508,7 +527,6 @@ export default function Subtitles() {
       draft.initialTableState = tableState
     })
   })
-  const rootRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   useHotkeys('meta+f', (e) => {
     if (document.activeElement === inputRef.current) {
@@ -718,6 +736,7 @@ export default function Subtitles() {
             <TablePagination
               items={items}
               table={table}
+              rootRef={rootRef}
             />
             <div className="flex grow items-center justify-end">
               <div className="flex items-center text-xs">

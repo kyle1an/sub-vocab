@@ -1,12 +1,12 @@
 import clsx from 'clsx'
-import { produce } from 'immer'
 import { atom } from 'jotai'
+import { atomWithImmer } from 'jotai-immer'
 import ms from 'ms'
 import * as React from 'react'
 import { useId } from 'react'
 import { Drawer as DrawerPrimitive } from 'vaul'
 
-import { myAtomFamily, retimerAtomFamily } from '@/atoms/utils'
+import { myAtomFamily, retimerAtomFamily, setAtom } from '@/atoms/utils'
 import { useCall } from '@/hooks'
 import { useAtomEffect } from '@/hooks/useAtomEffect'
 import { equalBy } from '@/lib/utilities'
@@ -29,7 +29,7 @@ const drawerStateFamily = myAtomFamily(
       openAnimationEnd?: boolean
       shouldScaleBackground: boolean
     },
-  ]) => atom(initialValue),
+  ]) => atomWithImmer(initialValue),
   equalBy(([key]) => key),
 )
 
@@ -56,13 +56,14 @@ function Drawer({
   ]))
   useAtomEffect((get, set) => {
     const retimeAnim = get(animRetimerFamily(id))
-    set(drawerStateAtom, produce((d) => {
+    const setDrawerState = setAtom(set, drawerStateAtom)
+    setDrawerState((d) => {
       d.open = open
-    }))
+    })
     retimeAnim(() => {
-      set(drawerStateAtom, produce((d) => {
+      setDrawerState((d) => {
         d.openAnimationEnd = open
-      }))
+      })
       retimeAnim.tryRemove()
     }, TRANSITIONS_DURATION)
     return () => {
