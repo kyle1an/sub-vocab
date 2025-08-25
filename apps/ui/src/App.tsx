@@ -6,11 +6,9 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { createTRPCClient, httpBatchLink } from '@trpc/client'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
-import { Provider, useAtomValue } from 'jotai'
-import { DevTools } from 'jotai-devtools'
-import css from 'jotai-devtools/styles.css?inline'
+import { Provider } from 'jotai'
 import { queryClientAtom } from 'jotai-tanstack-query'
-import { atomWithStorage, useHydrateAtoms } from 'jotai/utils'
+import { useHydrateAtoms } from 'jotai/utils'
 import { Fragment } from 'react'
 import { I18nextProvider } from 'react-i18next'
 import { RouterProvider } from 'react-router/dom'
@@ -18,32 +16,13 @@ import { RouterProvider } from 'react-router/dom'
 import type { AppRouter } from '@backend/app'
 
 import { TRPCProvider } from '@/api/trpc'
-import { isDarkModeAtom } from '@/atoms/ui'
+import { JotaiDevtools } from '@/components/JotaiDevtools'
 import { env } from '@/env'
 import i18n from '@/i18n'
 import { queryClient } from '@/lib/query-client'
 import { omitUndefined } from '@/lib/utilities'
 import { router } from '@/router'
 import { myStore } from '@/store/useVocab'
-import devtoolsCss from '@/styles/devtools.css?inline'
-
-const jotaiDevtoolsIsShellOpenAtom = atomWithStorage(`jotai-devtools-is-shell-open-V0`, false, undefined, { getOnInit: true })
-
-function JotaiDevtools() {
-  const jotaiDevtoolsIsShellOpen = useAtomValue(jotaiDevtoolsIsShellOpenAtom)
-  const isDarkMode = useAtomValue(isDarkModeAtom)
-  return (
-    <Fragment>
-      <style>{css}</style>
-      <style>{devtoolsCss}</style>
-      <DevTools
-        store={myStore}
-        isInitialOpen={jotaiDevtoolsIsShellOpen}
-        theme={isDarkMode ? 'dark' : 'light'}
-      />
-    </Fragment>
-  )
-}
 
 const persister = createAsyncStoragePersister({
   storage: typeof localStorage === 'undefined' ? undefined : localStorage,
@@ -81,9 +60,9 @@ function App() {
                   <SpeedInsights />
                   <Analytics />
                 </Fragment>
-              ) : import.meta.env.DEV ? (
+              ) : (
                 <JotaiDevtools />
-              ) : null}
+              )}
             </HydrateAtoms>
           </Provider>
         </I18nextProvider>

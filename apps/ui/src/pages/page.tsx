@@ -3,6 +3,7 @@ import type { ImperativePanelGroupHandle } from 'react-resizable-panels'
 
 import { useIsomorphicLayoutEffect } from '@react-hookz/web'
 import clsx from 'clsx'
+import { pipe } from 'effect'
 import { useMediaQuery } from 'foxact/use-media-query'
 import { atom, useAtom, useAtomValue } from 'jotai'
 import nstr from 'nstr'
@@ -34,6 +35,7 @@ import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
 import { LEARNING_PHASE, LexiconTrie } from '@/lib/LexiconTrie'
 import { compareBy, normalizeNewlines } from '@/lib/utilities'
 import { FileSettings } from '@/pages/file-settings'
+import { tap } from '@sub-vocab/utils/lib'
 
 const sourceCountAtom = atom({
   totalText: 0,
@@ -75,8 +77,12 @@ function SourceVocab({
 }) {
   const { data: irregulars = [] } = useAtomValue(irregularWordsQueryAtom)
   const [baseVocab] = useAtom(baseVocabAtom)
-  const trie = new LexiconTrie()
-  trie.add(text)
+  const trie = pipe(
+    new LexiconTrie(),
+    tap((x) => {
+      x.add(text)
+    }),
+  )
   const list = trie
     .generate(irregulars, baseVocab)
     .filter((v) => v.locators.length > 0)

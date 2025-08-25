@@ -20,7 +20,7 @@ export type SubtitleData<T = undefined> = T extends undefined ? Subtitle : Subti
 const displayNames = new Intl.DisplayNames(['en'], { type: 'language' })
 const numberFormat = new Intl.NumberFormat('en')
 
-export function useCommonColumns<T extends SubtitleData>() {
+export function useCommonColumns<T extends SubtitleData>(rootRef: React.RefObject<HTMLDivElement | null>) {
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
   return [
@@ -36,7 +36,10 @@ export function useCommonColumns<T extends SubtitleData>() {
           >
             <Div
               className="group gap-2 pr-1 select-none"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <Separator
                 orientation="vertical"
@@ -79,7 +82,10 @@ export function useCommonColumns<T extends SubtitleData>() {
           >
             <Div
               className="group items-center gap-2 pr-1 select-none"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <Separator
                 orientation="vertical"
@@ -119,7 +125,10 @@ export function useCommonColumns<T extends SubtitleData>() {
           >
             <Div
               className="group gap-2 pr-1 select-none"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <Separator
                 orientation="vertical"

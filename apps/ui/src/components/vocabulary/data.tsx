@@ -115,7 +115,7 @@ function userOwnedFilter(filterSegment: Segment): ColumnFilterFn<TableData> {
   return (row) => filteredValue.includes(row.trackedWord.isUser)
 }
 
-function useDataColumns<T extends TableData>() {
+function useDataColumns<T extends TableData>(rootRef: React.RefObject<HTMLDivElement | null>) {
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
   return (
@@ -132,7 +132,10 @@ function useDataColumns<T extends TableData>() {
             >
               <Div
                 className="pr-1 pl-2 select-none"
-                onClick={header.column.getToggleSortingHandler()}
+                onClick={(e) => {
+                  header.column.getToggleSortingHandler()?.(e)
+                  requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+                }}
               >
                 <HeaderTitle
                   title={title}
@@ -178,8 +181,9 @@ export function VocabDataTable({
   const deferredSearchValue = useDeferredValue(searchValue)
   const deferredIsUsingRegex = useDeferredValue(isUsingRegex)
   const tbodyRef = useRef<HTMLTableSectionElement>(null)
-  const vocabularyCommonColumns = useVocabularyCommonColumns<TableData>(tbodyRef)
-  const dataColumns = useDataColumns()
+  const rootRef = useRef<HTMLDivElement>(null)
+  const vocabularyCommonColumns = useVocabularyCommonColumns<TableData>(tbodyRef, rootRef)
+  const dataColumns = useDataColumns(rootRef)
   const columns = [...vocabularyCommonColumns, ...dataColumns]
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'allAcquainted')
@@ -349,6 +353,7 @@ export function VocabDataTable({
         </SegmentedControl>
       </div>
       <div
+        ref={rootRef}
         className="w-full grow overflow-auto overflow-y-scroll overscroll-contain [scrollbar-width:thin]"
       >
         <table className="relative min-w-full border-separate border-spacing-0">
@@ -383,6 +388,7 @@ export function VocabDataTable({
         <TablePagination
           items={items}
           table={table}
+          rootRef={rootRef}
         />
         <div className="flex grow items-center justify-end">
           <div className="flex items-center text-xs">

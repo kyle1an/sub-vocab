@@ -113,7 +113,7 @@ function categoryFilter(filterValue: Record<string, boolean>): ColumnFilterFn<Ta
   return (row) => categories.includes(row.category || 'others')
 }
 
-function useSourceColumns<T extends TableData>() {
+function useSourceColumns<T extends TableData>(rootRef: React.RefObject<HTMLDivElement | null>) {
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
   return (
@@ -131,7 +131,10 @@ function useSourceColumns<T extends TableData>() {
             >
               <Div
                 className="min-w-18 grow gap-0.5 pr-1 pl-2 select-none"
-                onClick={header.column.getToggleSortingHandler()}
+                onClick={(e) => {
+                  header.column.getToggleSortingHandler()?.(e)
+                  requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+                }}
               >
                 <HeaderTitle
                   title={title}
@@ -229,8 +232,9 @@ export function VocabSourceTable({
   const deferredSearchValue = useDeferredValue(searchValue)
   const deferredIsUsingRegex = useDeferredValue(isUsingRegex)
   const tbodyRef = useRef<HTMLTableSectionElement>(null)
-  const vocabularyCommonColumns = useVocabularyCommonColumns<TableData>(tbodyRef)
-  const sourceColumns = useSourceColumns<TableData>()
+  const rootRef = useRef<HTMLDivElement>(null)
+  const vocabularyCommonColumns = useVocabularyCommonColumns<TableData>(tbodyRef, rootRef)
+  const sourceColumns = useSourceColumns<TableData>(rootRef)
   const columns = [...vocabularyCommonColumns, ...sourceColumns]
   const segments = useSegments()
   const [segment, setSegment] = useSessionStorage<Segment>(`${SEGMENT_NAME}-value`, 'all')
@@ -313,7 +317,6 @@ export function VocabSourceTable({
       draft.initialTableState = tableState
     })
   })
-  const rootRef = useRef<HTMLDivElement>(null)
   const isStale = isSourceTextStale || segment !== segmentDeferredValue || searchValue !== deferredSearchValue || isUsingRegex !== deferredIsUsingRegex
   const trpc = useTRPC()
   const { mutateAsync, isPending } = useMutation(trpc.ai.getCategory.mutationOptions({
@@ -508,6 +511,7 @@ export function VocabSourceTable({
         <TablePagination
           items={items}
           table={table}
+          rootRef={rootRef}
         />
         <div className="flex grow items-center justify-end">
           <div className="flex items-center text-xs">

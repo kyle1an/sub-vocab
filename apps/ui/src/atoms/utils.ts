@@ -1,4 +1,4 @@
-import type { Atom, WritableAtom } from 'jotai'
+import type { Atom, Setter, WritableAtom } from 'jotai'
 
 import { pipe } from 'effect'
 import { noop } from 'es-toolkit'
@@ -71,14 +71,20 @@ export const atomWithMediaQuery = (query: string) => {
   )
 }
 
-export const createRetimer = () => {
+export const withDelayedSetter = <Value, Args extends unknown[], Result>(setAtom: WritableAtom<Value, Args, Result>) => {
   let timeoutId: undefined | number
-  return (handler?: () => void, timeout?: number) => {
-    clearTimeout(timeoutId)
-    if (handler) {
-      timeoutId = setTimeout(handler, timeout)
-    }
-  }
+  const cancel = () => clearTimeout(timeoutId)
+  const retimeAtom = atom(null, (get, set, timeout: number, ...args: Args) => {
+    cancel()
+    timeoutId = setTimeout(() => {
+      set(setAtom, ...args)
+    }, timeout)
+  })
+  return Object.assign(setAtom, {
+    retimeAtom: Object.assign(retimeAtom, {
+      cancel,
+    }),
+  })
 }
 
 export const retimerAtomFamily = (label: string) => {
@@ -121,3 +127,5 @@ export const retimerAtomFamily = (label: string) => {
 
   return family
 }
+
+export const setAtom = <Value, Args extends unknown[], Result>(set: Setter, a: WritableAtom<Value, Args, Result>) => (...args: Args) => set(a, ...args)
