@@ -232,7 +232,8 @@ export function TableRow<T>({
     }
   }
 
-  const showDetail = true
+  const canExpand = getCanExpand()
+  const showDetail = canExpand
   const detailEntry = useIntersectionObserver(showDetail ? detailRef : null, {
     root: rootRef,
     rootMargin: `${nstr(-HEAD_HEIGHT - rowHeight)}px 0% 0%`,
@@ -250,7 +251,6 @@ export function TableRow<T>({
   if (open && subRows.length >= 1) {
     rowZIndex += subRows.length + 1
   }
-  const canExpand = getCanExpand()
   return (
     <Fragment>
       <tr
@@ -278,7 +278,7 @@ export function TableRow<T>({
           />
         ))}
       </tr>
-      {canExpand ? (
+      {showDetail ? (
         <tr
           ref={detailRef}
           style={{

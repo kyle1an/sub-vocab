@@ -1,6 +1,6 @@
 import NumberFlow from '@number-flow/react'
 import clsx from 'clsx'
-import { Fragment, useDeferredValue, useEffect, useState } from 'react'
+import { Fragment, useDeferredValue } from 'react'
 import IconLucideCheckCircle from '~icons/lucide/check-circle'
 import IconLucideCircle from '~icons/lucide/circle'
 
@@ -19,12 +19,7 @@ export function VocabStatics({
   completed: number
   progress?: boolean
 }) {
-  const [isPending, setAnimated] = useState(true)
-  useEffect(() => {
-    const timeoutId = setTimeout(() => requestAnimationFrame(() => setAnimated(false)), 0)
-    return () => clearTimeout(timeoutId)
-  }, [])
-  const animated = !isPending
+  const animated = true
   const percentage = Number(total === 0 ? 0 : (100 * (completed / total)).toFixed(1))
   const deferredRemaining = useDeferredValue(remaining) || 0
   const deferredCompleted = useDeferredValue(completed) || 0

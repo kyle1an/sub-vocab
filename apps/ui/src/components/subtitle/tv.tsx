@@ -1,5 +1,4 @@
 import type { CellContext, InitialTableState } from '@tanstack/react-table'
-import type { RefObject } from 'react'
 
 import usePagination from '@mui/material/usePagination'
 import NumberFlow from '@number-flow/react'
@@ -57,7 +56,7 @@ type TVSubtitleData = SubtitleData<Episode> & RowId
 
 type RowData = ExpandableRow<TVSubtitleData>
 
-function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber = 0, root: React.RefObject<HTMLDivElement | null>, tbody: React.RefObject<HTMLTableSectionElement | null>) {
+function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber = 0, rootRef: React.RefObject<HTMLDivElement | null>, tbodyRef: React.RefObject<HTMLTableSectionElement | null>) {
   const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
   const store = useStore()
@@ -78,7 +77,10 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           >
             <Div
               className="group gap-2 pr-1 select-none"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <Separator
                 orientation="vertical"
@@ -121,7 +123,10 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           >
             <Div
               className="justify-between gap-1.5 pr-1 pl-2 select-none signal/active:bg-background-active"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <div className="flex">
                 {osSession?.token ? (
@@ -223,7 +228,10 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           >
             <Div
               className="group gap-2 pr-1 select-none"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <Separator
                 orientation="vertical"
@@ -266,7 +274,10 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           >
             <Div
               className="group gap-2 pr-1"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <Separator
                 orientation="vertical"
@@ -285,8 +296,8 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
         return (
           <TvNameCell
             {...ctx}
-            root={root}
-            tbody={tbody}
+            rootRef={rootRef}
+            tbodyRef={tbodyRef}
           />
         )
       },
@@ -303,7 +314,10 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           >
             <Div
               className="group gap-2 pr-1 select-none"
-              onClick={header.column.getToggleSortingHandler()}
+              onClick={(e) => {
+                header.column.getToggleSortingHandler()?.(e)
+                requestAnimationFrame(() => rootRef?.current?.scrollTo({ top: 0 }))
+              }}
             >
               <Separator
                 orientation="vertical"
@@ -344,17 +358,17 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
 }
 
 function TvNameSubRow<TData extends RowData>({
-  root,
-  tbody,
+  rootRef,
+  tbodyRef,
   row,
 }: {
-  root: RefObject<HTMLDivElement | null>
-  tbody: React.RefObject<HTMLTableSectionElement | null>
+  rootRef: React.RefObject<HTMLDivElement | null>
+  tbodyRef: React.RefObject<HTMLTableSectionElement | null>
 } & Pick<CellContext<TData, string>, 'row'>) {
   const ref = useRef<HTMLDivElement>(null)
   const value = row.original.subtitle.attributes.files[0]?.file_name || ''
   const className = 'tracking-[.04em] text-sm'
-  const rootRect = useRect(root)
+  const rootRect = useRect(rootRef)
   const refRect = useRect(ref)
   const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
   let maxWidth = 0
@@ -380,7 +394,7 @@ function TvNameSubRow<TData extends RowData>({
           </div>
         </TooltipTrigger>
         <TooltipContent
-          container={tbody.current}
+          container={tbodyRef.current}
           side="bottom"
           sideOffset={-21 - 1}
           align="start"
@@ -404,14 +418,14 @@ function TvNameSubRow<TData extends RowData>({
 }
 
 function TvNameCell<TData extends RowData>({
-  root,
-  tbody,
+  rootRef,
+  tbodyRef,
   cell,
   getValue,
   row,
 }: {
-  root: RefObject<HTMLDivElement | null>
-  tbody: React.RefObject<HTMLTableSectionElement | null>
+  rootRef: React.RefObject<HTMLDivElement | null>
+  tbodyRef: React.RefObject<HTMLTableSectionElement | null>
 } & CellContext<TData, string>) {
   const value = getValue()
   return (
@@ -428,8 +442,8 @@ function TvNameCell<TData extends RowData>({
           </span>
         ) : (
           <TvNameSubRow
-            root={root}
-            tbody={tbody}
+            rootRef={rootRef}
+            tbodyRef={tbodyRef}
             row={row}
           />
         )}
@@ -551,8 +565,8 @@ export function TVSubtitleFiles({
   const isPending = isSeriesDetailLoading || isSubtitlesPending
   const highestEpisode = maxBy(subtitles, (d) => d.attributes.feature_details.episode_number ?? 0)
   const highestEpisodeNumber = highestEpisode?.attributes.feature_details.episode_number
-  const commonColumns = useCommonColumns<RowData>()
   const rootRef = useRef<HTMLDivElement>(null)
+  const commonColumns = useCommonColumns<RowData>(rootRef)
   const tbodyRef = useRef<HTMLTableSectionElement>(null)
   const tvColumns = useTVColumns(id, highestEpisodeNumber, rootRef, tbodyRef)
   const columns = [...commonColumns, ...tvColumns]
@@ -706,6 +720,7 @@ export function TVSubtitleFiles({
             <TablePagination
               items={items}
               table={table}
+              rootRef={rootRef}
             />
             <div className="flex grow items-center justify-end">
               <div className="flex items-center text-xs">
