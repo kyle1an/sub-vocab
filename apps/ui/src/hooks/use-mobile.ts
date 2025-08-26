@@ -2,10 +2,12 @@ import { pipe } from 'effect'
 import { atom, useAtomValue } from 'jotai'
 
 import { withAbortableMount, withReadonly } from '@/atoms/utils'
+import { isServer } from '@/lib/utilities'
 
 const MOBILE_BREAKPOINT = 768
 
 const isMobileAtom = (() => {
+  if (isServer) return atom(() => false)
   const getSnapshot = () => window.innerWidth < MOBILE_BREAKPOINT
   const mediaQueryList = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
   return pipe(
