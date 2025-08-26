@@ -57,6 +57,7 @@ export function withReadonly<Value, Args extends unknown[], Result>(anAtom: Writ
 }
 
 export const atomWithMediaQuery = (query: string) => {
+  if (typeof window === 'undefined') return atom(() => false)
   const mql = window.matchMedia(query)
   return pipe(
     atom(mql.matches),

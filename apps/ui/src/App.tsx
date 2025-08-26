@@ -11,7 +11,7 @@ import { queryClientAtom } from 'jotai-tanstack-query'
 import { useHydrateAtoms } from 'jotai/utils'
 import { Fragment } from 'react'
 import { I18nextProvider } from 'react-i18next'
-import { RouterProvider } from 'react-router/dom'
+import { Outlet } from 'react-router'
 
 import type { AppRouter } from '@backend/app'
 
@@ -21,7 +21,6 @@ import { env } from '@/env'
 import i18n from '@/i18n'
 import { queryClient } from '@/lib/query-client'
 import { omitUndefined } from '@/lib/utilities'
-import { router } from '@/router'
 import { myStore } from '@/store/useVocab'
 
 const persister = createAsyncStoragePersister({
@@ -53,7 +52,7 @@ function App() {
         <I18nextProvider i18n={i18n} defaultNS="translation">
           <Provider store={myStore}>
             <HydrateAtoms>
-              <RouterProvider router={router} />
+              <Outlet />
               <ReactQueryDevtools />
               {import.meta.env.PROD ? (
                 <Fragment>

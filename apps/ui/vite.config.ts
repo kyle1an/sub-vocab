@@ -1,14 +1,12 @@
-import react from '@vitejs/plugin-react'
+import { reactRouter } from '@react-router/dev/vite'
 import { resolve } from 'node:path'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { FileSystemIconLoader } from 'unplugin-icons/loaders'
 import Icons from 'unplugin-icons/vite'
 import { defineConfig } from 'vite'
 import babel from 'vite-plugin-babel'
-import { createHtmlPlugin } from 'vite-plugin-html'
+import devtoolsJson from 'vite-plugin-devtools-json'
 import Inspect from 'vite-plugin-inspect'
-
-import { chunks } from './vite/utils'
 
 const ReactCompilerConfig = {
 }
@@ -20,6 +18,8 @@ npx react-compiler-healthcheck --verbose
 export default defineConfig(({ mode }) => {
   return {
     plugins: [
+      // https://github.com/remix-run/react-router/issues/13516#issuecomment-2866533925
+      devtoolsJson(),
       Inspect(),
       Icons({
         compiler: 'jsx',
@@ -45,13 +45,7 @@ export default defineConfig(({ mode }) => {
           sourceMaps: true,
         },
       }),
-      react(),
-      ...mode !== 'test' ? [
-        createHtmlPlugin({
-          minify: true,
-        }),
-      ] : [
-      ],
+      reactRouter(),
       ...mode === 'production' ? [
         visualizer({
           gzipSize: true,
@@ -69,7 +63,6 @@ export default defineConfig(({ mode }) => {
       target: 'esnext',
       rollupOptions: {
         output: {
-          advancedChunks: chunks,
         },
       },
     },
