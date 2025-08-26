@@ -7,6 +7,7 @@ import { atomFamily } from 'jotai/utils'
 
 import type { AppendParameters } from '@/lib/utilities'
 
+import { isServer } from '@/lib/utilities'
 import { myStore } from '@/store/useVocab'
 import { tap } from '@sub-vocab/utils/lib'
 
@@ -57,7 +58,7 @@ export function withReadonly<Value, Args extends unknown[], Result>(anAtom: Writ
 }
 
 export const atomWithMediaQuery = (query: string) => {
-  if (typeof window === 'undefined') return atom(() => false)
+  if (isServer) return atom(() => false)
   const mql = window.matchMedia(query)
   return pipe(
     atom(mql.matches),

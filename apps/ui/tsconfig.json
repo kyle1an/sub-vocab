@@ -5,6 +5,7 @@
       "unplugin-icons/types/react",
       "vite/client"
     ],
+    "rootDirs": [".", "./.react-router/types"],
     "useDefineForClassFields": true,
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
@@ -22,6 +23,7 @@
     ]
   },
   "include": [
+    ".react-router/types/**/*",
     ".eslintrc.js",
     ".eslintrc.cjs",
     "**/*.config.js",

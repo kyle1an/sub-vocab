@@ -58,7 +58,7 @@ const FILE_SETTINGS_TITLE = `Select File Types`
 const FILE_SETTINGS_DESCRIPTION = `Choose the file types you want to include for text input.`
 
 export function FileSettings() {
-  const isMdScreen = useMediaQuery('(min-width: 768px)')
+  const isMdScreen = useMediaQuery('(min-width: 768px)', false)
   const [searchParams, setSearchParams] = useSearchParams()
   const open = searchParams.get('popup') === 'file-settings'
   const [fileTypes, setFileTypes] = useAtom(fileTypesAtom)

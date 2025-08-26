@@ -4,6 +4,7 @@ import type { ImperativePanelGroupHandle } from 'react-resizable-panels'
 import { useIsomorphicLayoutEffect } from '@react-hookz/web'
 import clsx from 'clsx'
 import { pipe } from 'effect'
+import { useIsClient } from 'foxact/use-is-client'
 import { useMediaQuery } from 'foxact/use-media-query'
 import { atom, useAtom, useAtomValue } from 'jotai'
 import nstr from 'nstr'
@@ -33,7 +34,8 @@ import { useRect } from '@/hooks'
 import { useAtomEffect } from '@/hooks/useAtomEffect'
 import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
 import { LEARNING_PHASE, LexiconTrie } from '@/lib/LexiconTrie'
-import { compareBy, normalizeNewlines } from '@/lib/utilities'
+import { compareBy, isServer, normalizeNewlines } from '@/lib/utilities'
+import { cn } from '@/lib/utils'
 import { FileSettings } from '@/pages/file-settings'
 import { tap } from '@sub-vocab/utils/lib'
 
@@ -134,7 +136,7 @@ export default function ResizeVocabularyPanel() {
   const [{ totalText: count, acquainted: acquaintedWordCount, newCount: newWordCount }] = useAtom(sourceCountAtom)
   const [horizontalDefaultSizes, setHorizontalDefaultSizes] = useAtom(horizontalDefaultSizesAtom)
   const [verticalDefaultSizes, setVerticalDefaultSizes] = useAtom(verticalDefaultSizesAtom)
-  const isMdScreen = useMediaQuery('(min-width: 1024px)')
+  const isMdScreen = useMediaQuery('(min-width: 1024px)', false)
   const direction = isMdScreen ? 'horizontal' : 'vertical'
   const defaultSizes = direction === 'vertical' ? verticalDefaultSizes : horizontalDefaultSizes
   const panelGroupRef = useRef<ImperativePanelGroupHandle>(null)
@@ -188,9 +190,15 @@ export default function ResizeVocabularyPanel() {
   const fileInfoRef = useRef<HTMLSpanElement>(null)
   const { x: fileInfoX } = useRect(fileInfoRef)
   const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive()
+  const isClient = useIsClient()
   return (
     (
-      <div className="flex h-full flex-col">
+      <div
+        className={cn(
+          'flex h-full flex-col',
+          !isClient ? 'invisible' : '',
+        )}
+      >
         <div className="pb-3">
           <div className="flex items-center gap-2">
             <FileInput
@@ -248,7 +256,7 @@ export default function ResizeVocabularyPanel() {
                         hidden={!isEllipsisActive}
                         className="max-w-(--max-width) border bg-background text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
                         style={{
-                          '--max-width': `${nstr(window.innerWidth - fileInfoX + 12 - 1)}px`,
+                          '--max-width': `${nstr(isServer ? 0 : window.innerWidth - fileInfoX + 12 - 1)}px`,
                         }}
                       >
                         {fileInfo}

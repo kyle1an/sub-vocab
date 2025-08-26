@@ -1,72 +1,25 @@
 import type { RouteConfig } from '@react-router/dev/routes'
 
+import { index, layout, route } from '@react-router/dev/routes'
+
 export default [
-  {
-    path: '/',
-    file: './pages/layout.tsx',
-    children: [
-      {
-        path: '/',
-        file: './pages/home.tsx',
-        children: [
-          {
-            path: '/',
-            file: './pages/page.tsx',
-          },
-          {
-            path: '/subtitles',
-            file: './pages/subtitles/page.tsx',
-          },
-        ],
-      },
-      {
-        path: '/mine',
-        file: './pages/mine/layout.tsx',
-        children: [
-          {
-            path: '/mine/vocabulary',
-            file: './pages/mine/vocabulary/page.tsx',
-          },
-          {
-            path: '/mine/chart',
-            file: './pages/mine/chart/page.tsx',
-          },
-        ],
-      },
-      {
-        path: '/about',
-        file: './pages/about/page.tsx',
-      },
-      {
-        path: '/login',
-        file: './pages/login/page.tsx',
-      },
-      {
-        path: '/reset-password',
-        file: './pages/reset-password/page.tsx',
-      },
-      {
-        path: '/update-password',
-        file: './pages/update-password/page.tsx',
-      },
-      {
-        path: '/register',
-        file: './pages/register/page.tsx',
-      },
-      {
-        path: '/user',
-        file: './pages/user/layout.tsx',
-        children: [
-          {
-            path: '/user/profile',
-            file: './pages/user/profile/page.tsx',
-          },
-          {
-            path: '/user/password',
-            file: './pages/user/password/page.tsx',
-          },
-        ],
-      },
-    ],
-  },
+  layout('./pages/layout.tsx', [
+    layout('./pages/home.tsx', [
+      index('./pages/page.tsx'),
+      route('/subtitles', './pages/subtitles/page.client.tsx'),
+    ]),
+    route('/mine', './pages/mine/layout.tsx', [
+      route('/mine/vocabulary', './pages/mine/vocabulary/page.tsx'),
+      route('/mine/chart', './pages/mine/chart/page.tsx'),
+    ]),
+    route('/about', './pages/about/page.tsx'),
+    route('/login', './pages/login/page.tsx'),
+    route('/reset-password', './pages/reset-password/page.tsx'),
+    route('/update-password', './pages/update-password/page.tsx'),
+    route('/register', './pages/register/page.tsx'),
+    route('/user', './pages/user/layout.tsx', [
+      route('/user/profile', './pages/user/profile/page.tsx'),
+      route('/user/password', './pages/user/password/page.tsx'),
+    ]),
+  ]),
 ] satisfies RouteConfig

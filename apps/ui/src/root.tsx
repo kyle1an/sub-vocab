@@ -7,7 +7,7 @@ import {
   ScrollRestoration,
 } from 'react-router'
 
-import App from '@/App'
+import { App } from '@/App'
 
 export function Layout({
   children,

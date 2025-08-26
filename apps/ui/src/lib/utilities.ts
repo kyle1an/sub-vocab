@@ -103,3 +103,5 @@ export const createRetimer = () => {
     }
   }
 }
+
+export const isServer = typeof window === 'undefined'
