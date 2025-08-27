@@ -1,5 +1,3 @@
-import type { Merge } from 'type-fest'
-
 import type { Entries } from './types'
 
 declare global {

@@ -14,16 +14,16 @@ import IconLucideCog from '~icons/lucide/cog'
 import IconMingcuteUser4Fill from '~icons/mingcute/user4-fill'
 import IconSolarLogout2Outline from '~icons/solar/logout2-outline'
 
+import { themeAtom } from '@/atoms'
 import { sessionAtom } from '@/atoms/auth'
 import { DEFAULT_THEME, THEMES } from '@/components/themes'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Menubar, MenubarContent, MenubarMenu, MenubarRadioGroup, MenubarRadioItem, MenubarTrigger } from '@/components/ui/menubar'
 import { localeAtom } from '@/i18n'
-import { bindApply } from '@/lib/bindApply'
-import { supabaseAuth } from '@/lib/supabase'
+import { supabaseAuth } from '@/utils/supabase'
 import { cn } from '@/lib/utils'
-import { themeAtom } from '@/store/useVocab'
+import { bindApply } from '@sub-vocab/utils/lib'
 
 const LOCALES = [
   {

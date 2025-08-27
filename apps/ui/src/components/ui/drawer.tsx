@@ -6,11 +6,11 @@ import * as React from 'react'
 import { useId } from 'react'
 import { Drawer as DrawerPrimitive } from 'vaul'
 
-import { myAtomFamily, retimerAtomFamily, setAtom } from '@/atoms/utils'
-import { useCall } from '@/hooks'
-import { useAtomEffect } from '@/hooks/useAtomEffect'
-import { equalBy } from '@/lib/utilities'
+import { myAtomFamily } from '@/atoms'
 import { cn } from '@/lib/utils'
+import { retimerAtomFamily, setAtom } from '@sub-vocab/utils/atoms'
+import { useAtomEffect, useCall } from '@sub-vocab/utils/hooks'
+import { equalBy } from '@sub-vocab/utils/lib'
 
 const TRANSITIONS_DURATION = ms('0.5s')
 

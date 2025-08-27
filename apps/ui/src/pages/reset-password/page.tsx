@@ -15,8 +15,8 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { bindApply } from '@/lib/bindApply'
-import { supabaseAuth } from '@/lib/supabase'
+import { supabaseAuth } from '@/utils/supabase'
+import { bindApply } from '@sub-vocab/utils/lib'
 
 function ResetEmailNotification() {
   return (

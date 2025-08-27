@@ -1,14 +1,15 @@
 import './globals.css'
 
 import { isSafari } from 'foxact/is-safari'
-import { useIsClient } from 'foxact/use-is-client'
 import { atom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { Fragment, Suspense, useRef } from 'react'
 import { Outlet } from 'react-router'
 import { ClientOnly } from 'remix-utils/client-only'
 
+import { bodyBgColorAtom, mainBgColorAtom } from '@/atoms'
 import { authChangeEventAtom, sessionAtom } from '@/atoms/auth'
+import { myStore } from '@/atoms/store'
 import { isDarkModeAtom } from '@/atoms/ui'
 import { AppSidebar } from '@/components/app-sidebar'
 import { NavActions } from '@/components/nav-actions'
@@ -17,12 +18,10 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/s
 import { Toaster } from '@/components/ui/sonner'
 import { LIGHT_THEME_COLOR } from '@/constants/theme'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { useAtomEffect } from '@/hooks/useAtomEffect'
-import { useStyleObserver } from '@/hooks/useStyleObserver'
-import { supabaseAuth } from '@/lib/supabase'
-import { isServer } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
-import { bodyBgColorAtom, mainBgColorAtom, myStore } from '@/store/useVocab'
+import { supabaseAuth } from '@/utils/supabase'
+import { useAtomEffect, useStyleObserver } from '@sub-vocab/utils/hooks'
+import { isServer } from '@sub-vocab/utils/lib'
 
 const isSafariAtom = atomWithStorage('isSafariAtom', isSafari())
 
@@ -87,28 +86,15 @@ function Content() {
     properties: ['background-color'],
   })
   useAppEffects()
-  const isClient = useIsClient()
   return (
     <Fragment>
-      <ClientOnly>
-        {() => (
-          <AppSidebar
-            collapsible="icon"
-            className={!isClient ? 'invisible' : ''}
-          />
-        )}
-      </ClientOnly>
+      <AppSidebar
+        collapsible="icon"
+      />
       <SidebarInset
         ref={ref}
-        className={!isClient ? 'invisible' : ''}
       >
-        <ClientOnly>
-          {() => (
-            <Header
-              className={!isClient ? 'invisible' : ''}
-            />
-          )}
-        </ClientOnly>
+        <Header />
         <Outlet />
       </SidebarInset>
     </Fragment>
@@ -121,7 +107,11 @@ export default function Root() {
       className="isolate h-svh pr-(--pr) antialiased sq:superellipse-[1.5]"
       data-vaul-drawer-wrapper=""
     >
-      <Content />
+      <ClientOnly>
+        {() => (
+          <Content />
+        )}
+      </ClientOnly>
       <Suspense fallback={null}>
         <Toaster
           closeButton

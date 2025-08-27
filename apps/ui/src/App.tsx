@@ -1,5 +1,3 @@
-import './main.css'
-
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
@@ -22,8 +20,10 @@ import { JotaiDevtools } from '@/components/Devtools'
 import { env } from '@/env'
 import i18n from '@/i18n'
 import { queryClient } from '@/lib/query-client'
-import { isServer, omitUndefined } from '@/lib/utilities'
-import { myStore } from '@/store/useVocab'
+import { isServer, omitUndefined } from '@sub-vocab/utils/lib'
+
+// after jotai-devtools
+import { myStore } from './atoms/store'
 
 const persister = createAsyncStoragePersister({
   storage: isServer ? undefined : localStorage,

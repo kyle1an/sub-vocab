@@ -9,7 +9,7 @@ export function useRetimer() {
 
     if (handler) {
       if (typeof timeout === 'number' || typeof timeout === 'undefined') {
-        timeoutIdRef.current = setTimeout(handler, timeout)
+        timeoutIdRef.current = window.setTimeout(handler, timeout)
       } else {
         handler()
       }

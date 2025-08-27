@@ -1,17 +1,16 @@
 import type { Atom, Setter, WritableAtom } from 'jotai'
+import type { Store } from 'jotai/vanilla/store'
 
 import { pipe } from 'effect'
 import { noop } from 'es-toolkit'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai/utils'
 
-import type { AppendParameters } from '@/lib/utilities'
+import type { AppendParameters } from '../lib'
 
-import { isServer } from '@/lib/utilities'
-import { myStore } from '@/store/useVocab'
-import { tap } from '@sub-vocab/utils/lib'
+import { isServer, tap } from '../lib'
 
-export function myAtomFamily<Param, AtomType extends Atom<unknown>>(label: string, initializeAtom: (param: Param) => AtomType, areEqual?: (a: Param, b: Param) => boolean) {
+export const atomFamilyFactory = (store: Store) => <Param, AtomType extends Atom<unknown>>(label: string, initializeAtom: (param: Param) => AtomType, areEqual?: (a: Param, b: Param) => boolean) => {
   const paramsAtom = atom([] as Param[])
   paramsAtom.debugLabel = `${label}.paramsAtom`
   return pipe(
@@ -28,7 +27,7 @@ export function myAtomFamily<Param, AtomType extends Atom<unknown>>(label: strin
         latestEvent = event
         queueMicrotask(() => {
           if (event === latestEvent) {
-            myStore.set(paramsAtom, [...getParams()])
+            store.set(paramsAtom, [...getParams()])
           }
         })
       })
@@ -78,7 +77,7 @@ export const withDelayedSetter = <Value, Args extends unknown[], Result>(setAtom
   const cancel = () => clearTimeout(timeoutId)
   const retimeAtom = atom(null, (get, set, timeout: number, ...args: Args) => {
     cancel()
-    timeoutId = setTimeout(() => {
+    timeoutId = window.setTimeout(() => {
       set(setAtom, ...args)
     }, timeout)
   })
@@ -99,7 +98,7 @@ export const retimerAtomFamily = (label: string) => {
       timeoutId = undefined
 
       if (handler) {
-        timeoutId = setTimeout(() => {
+        timeoutId = window.setTimeout(() => {
           timeoutId = undefined
           handler()
         }, timeout)

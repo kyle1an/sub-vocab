@@ -1,9 +1,8 @@
+import type { NonArrayObject } from '@sub-vocab/shared-types/types'
 import type { OverrideProperties, SetParameterType } from 'type-fest'
 
 import { useEffect } from 'react'
 import StyleObserver from 'style-observer'
-
-import type { NonArrayObject } from '@sub-vocab/shared-types/types'
 
 type StyleObserver_Record = Parameters<ConstructorParameters<typeof StyleObserver>[0]>[0][number]
 

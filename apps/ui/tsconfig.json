@@ -5,10 +5,13 @@
       "unplugin-icons/types/react",
       "vite/client"
     ],
-    "rootDirs": [".", "./.react-router/types"],
+    "rootDirs": [
+      ".",
+      "./.react-router/types"
+    ],
     "useDefineForClassFields": true,
     "moduleResolution": "bundler",
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
@@ -28,13 +31,9 @@
     ".eslintrc.cjs",
     "**/*.config.js",
     "**/*.config.cjs",
-    "**/*.config.ts",
-    "src/**/*",
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "/**/*.d.ts",
-    "/**/*.ts",
-    "/**/*.tsx"
+    "**/*.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
   ],
   "exclude": [
     "./vite/**/*",

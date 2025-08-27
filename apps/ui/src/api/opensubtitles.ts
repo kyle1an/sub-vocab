@@ -13,16 +13,14 @@ import createFetchClient from 'openapi-fetch'
 import createClient from 'openapi-react-query'
 import PQueue from 'p-queue'
 
-import type { paths } from '@/types/schema/opensubtitles'
+import type { os } from '@sub-vocab/utils/types'
 
 import { env } from '@/env'
-import { bindApply } from '@/lib/bindApply'
-import { downloadFile } from '@/lib/downloadFile'
-import { omitUndefined } from '@/lib/utilities'
+import { bindApply, downloadFile, omitUndefined } from '@sub-vocab/utils/lib'
 
 const baseUrl = env.VITE_SUB_API_URL
 
-const fetchClient = createFetchClient<paths>({
+const fetchClient = createFetchClient<os.paths>({
   baseUrl: `${baseUrl}/opensubtitles-proxy/def`,
 })
 export const $osApi = createClient(fetchClient)
@@ -60,8 +58,8 @@ export const opensubtitlesReqAtom = atom((get) => {
   * https://opensubtitles.stoplight.io/docs/opensubtitles-api/a172317bd5ccc-search-for-subtitles
   */
 export type Subtitles = {
-  Query: NonNullable<paths['/subtitles']['get']['parameters']['query']>
-  Response: paths['/discover/most_downloaded']['get']['responses'][200]['content']['application/json']
+  Query: NonNullable<os.paths['/subtitles']['get']['parameters']['query']>
+  Response: os.paths['/discover/most_downloaded']['get']['responses'][200]['content']['application/json']
 }
 
 export const openSubtitlesQueryOptionsAtom = atom((get) => {
@@ -93,16 +91,16 @@ export type SubtitleResponseData = NonNullable<ExtractAtomValue<ReturnType<typeo
   * https://opensubtitles.stoplight.io/docs/opensubtitles-api/73acf79accc0a-login
   */
 export type Login = {
-  Body: NonNullable<paths['/login']['post']['requestBody']>['content']['application/json']
-  Response: paths['/login']['post']['responses'][200]['content']['application/json']
+  Body: NonNullable<os.paths['/login']['post']['requestBody']>['content']['application/json']
+  Response: os.paths['/login']['post']['responses'][200]['content']['application/json']
 }
 
 /*
   * https://opensubtitles.stoplight.io/docs/opensubtitles-api/6be7f6ae2d918-download
   */
 export type Download = {
-  Body: NonNullable<paths['/download']['post']['requestBody']>['content']['application/json']
-  Response: paths['/download']['post']['responses'][200]['content']['application/json']
+  Body: NonNullable<os.paths['/download']['post']['requestBody']>['content']['application/json']
+  Response: os.paths['/download']['post']['responses'][200]['content']['application/json']
 }
 
 const osQueue = new PQueue({

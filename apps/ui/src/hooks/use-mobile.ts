@@ -1,8 +1,8 @@
 import { pipe } from 'effect'
 import { atom, useAtomValue } from 'jotai'
 
-import { withAbortableMount, withReadonly } from '@/atoms/utils'
-import { isServer } from '@/lib/utilities'
+import { withAbortableMount, withReadonly } from '@sub-vocab/utils/atoms'
+import { isServer } from '@sub-vocab/utils/lib'
 
 const MOBILE_BREAKPOINT = 768
 

@@ -4,7 +4,6 @@ import type { ImperativePanelGroupHandle } from 'react-resizable-panels'
 import { useIsomorphicLayoutEffect } from '@react-hookz/web'
 import clsx from 'clsx'
 import { pipe } from 'effect'
-import { useIsClient } from 'foxact/use-is-client'
 import { useMediaQuery } from 'foxact/use-media-query'
 import { atom, useAtom, useAtomValue } from 'jotai'
 import nstr from 'nstr'
@@ -30,14 +29,10 @@ import { TextareaInput } from '@/components/ui/textarea-input'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { VocabSourceTable } from '@/components/vocabulary/source'
 import { VocabStatics } from '@/components/vocabulary/statics-bar'
-import { useRect } from '@/hooks'
-import { useAtomEffect } from '@/hooks/useAtomEffect'
-import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
 import { LEARNING_PHASE, LexiconTrie } from '@/lib/LexiconTrie'
-import { compareBy, isServer, normalizeNewlines } from '@/lib/utilities'
-import { cn } from '@/lib/utils'
 import { FileSettings } from '@/pages/file-settings'
-import { tap } from '@sub-vocab/utils/lib'
+import { useAtomEffect, useIsEllipsisActive, useRect } from '@sub-vocab/utils/hooks'
+import { compareBy, isServer, normalizeNewlines, tap } from '@sub-vocab/utils/lib'
 
 const sourceCountAtom = atom({
   totalText: 0,
@@ -190,15 +185,9 @@ export default function ResizeVocabularyPanel() {
   const fileInfoRef = useRef<HTMLSpanElement>(null)
   const { x: fileInfoX } = useRect(fileInfoRef)
   const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive()
-  const isClient = useIsClient()
   return (
     (
-      <div
-        className={cn(
-          'flex h-full flex-col',
-          !isClient ? 'invisible' : '',
-        )}
-      >
+      <div className="flex h-full flex-col">
         <div className="pb-3">
           <div className="flex items-center gap-2">
             <FileInput

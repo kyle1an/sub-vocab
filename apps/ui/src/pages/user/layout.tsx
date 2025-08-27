@@ -1,12 +1,10 @@
 import { useAtom } from 'jotai'
-import { useTranslation } from 'react-i18next'
 import { Navigate, Outlet } from 'react-router'
 
 import { authChangeEventAtom, sessionAtom } from '@/atoms/auth'
 import { ContentRoot } from '@/components/content-root'
 
 export default function User() {
-  const { t } = useTranslation()
   const [session] = useAtom(sessionAtom)
   const user = session?.user
   const [authChangeEvent] = useAtom(authChangeEventAtom)

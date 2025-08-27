@@ -4,8 +4,8 @@ import css from 'jotai-devtools/styles.css?inline'
 import { atomWithStorage } from 'jotai/utils'
 import { Fragment } from 'react'
 
+import { myStore } from '@/atoms/store'
 import { isDarkModeAtom } from '@/atoms/ui'
-import { myStore } from '@/store/useVocab'
 import devtoolsCss from '@/styles/devtools.css?inline'
 
 const jotaiDevtoolsIsShellOpenAtom = atomWithStorage(`jotai-devtools-is-shell-open-V0`, false, undefined, { getOnInit: true })

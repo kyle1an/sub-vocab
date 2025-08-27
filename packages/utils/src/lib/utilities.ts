@@ -99,7 +99,7 @@ export const createRetimer = () => {
   return (handler?: () => void, timeout?: number) => {
     clearTimeout(timeoutId)
     if (handler) {
-      timeoutId = setTimeout(handler, timeout)
+      timeoutId = window.setTimeout(handler, timeout)
     }
   }
 }

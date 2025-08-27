@@ -6,8 +6,7 @@ import type { SubtitleResponseData } from '@/api/opensubtitles'
 import { Div } from '@/components/ui/html-elements'
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeaderCell } from '@/components/ui/table-element'
-import { customFormatDistance, formatDistanceLocale } from '@/lib/date-utils'
-import { customFormatDistanceToNowStrict } from '@/lib/formatDistance'
+import { customFormatDistance, customFormatDistanceToNowStrict, formatDistanceLocale } from '@sub-vocab/utils/lib'
 
 type Subtitle = {
   subtitle: SubtitleResponseData

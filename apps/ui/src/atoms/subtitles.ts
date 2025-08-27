@@ -1,14 +1,10 @@
 import type { InitialTableState, RowSelectionState } from '@tanstack/react-table'
-import type { Draft } from 'immer'
 import type { LiteralUnion } from 'type-fest'
 
 import { atom } from 'jotai'
 
-import { myAtomFamily } from '@/atoms/utils'
-import { equalBy } from '@/lib/utilities'
-import { createFactory } from '@sub-vocab/utils/lib'
-
-type Recipe<Base, D = Draft<Base>> = (draft: D) => D | void | undefined
+import { myAtomFamily } from '@/atoms'
+import { createFactory, equalBy } from '@sub-vocab/utils/lib'
 
 export type MediaSubtitleState = {
   episodeFilter?: LiteralUnion<'all', string>

@@ -1,11 +1,11 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "lib": ["es2024"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "module": "es2022",
     "moduleResolution": "bundler",
     "noEmit": true,
     "outDir": "./dist"
   },
-  "include": [".eslintrc.js", ".eslintrc.cjs", "**/*.config.js", "**/*.config.cjs", "**/*.config.ts", "**/*.js", "**/*.ts", "src/**/*.ts", "**/*.d.ts", "src/**/*.d.ts"]
+  "include": [".eslintrc.js", ".eslintrc.cjs", "**/*.config.js", "**/*.config.cjs", "**/*.config.ts", "**/*.js", "**/*.ts", "**/*.d.ts"]
 }

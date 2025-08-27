@@ -1,6 +1,6 @@
 import { atom } from 'jotai'
 
-import { prefersDarkAtom, themeAtom } from '@/store/useVocab'
+import { prefersDarkAtom, themeAtom } from '@/atoms'
 
 export const isDarkModeAtom = atom((get) => {
   const setting = get(themeAtom)
