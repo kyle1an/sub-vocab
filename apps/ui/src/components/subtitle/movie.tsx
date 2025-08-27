@@ -16,6 +16,7 @@ import type { SubtitleData } from '@/components/subtitle/columns'
 import type { RowSelectionChangeFn } from '@/types/utils'
 
 import { openSubtitlesSubtitlesAtom } from '@/api/opensubtitles'
+import { osLanguageAtom } from '@/atoms'
 import { buildMediaSubtitleState, mediaSubtitleAtomFamily } from '@/atoms/subtitles'
 import { SortIcon } from '@/components/my-icon/sort-icon'
 import { TableGoToLastPage } from '@/components/my-table/go-to-last-page'
@@ -28,12 +29,10 @@ import { Div } from '@/components/ui/html-elements'
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useClone, useRect } from '@/hooks'
-import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
-import { getFileId } from '@/lib/subtitle'
+import { getFileId } from '@/utils/subtitle'
 import { filterFn, sortBySelection } from '@/lib/table-utils'
-import { findClosest } from '@/lib/utilities'
-import { osLanguageAtom } from '@/store/useVocab'
+import { useClone, useIsEllipsisActive, useRect } from '@sub-vocab/utils/hooks'
+import { findClosest } from '@sub-vocab/utils/lib'
 
 type MovieSubtitleData = SubtitleData
 

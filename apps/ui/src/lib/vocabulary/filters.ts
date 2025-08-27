@@ -1,7 +1,7 @@
 import type { ColumnFilterFn } from '@/lib/table-utils'
 import type { VocabularySourceState } from '@/lib/vocab'
 
-import { tryGetRegex } from '@/lib/regex'
+import { tryGetRegex } from '@sub-vocab/utils/lib'
 
 export function searchFilterValue<T extends VocabularySourceState>(search: string, usingRegex: boolean): ColumnFilterFn<T> | undefined {
   if (usingRegex) {

@@ -90,7 +90,7 @@ export default typegen(antfu(
   },
   {
     ignores: [
-      'database.types.ts',
+      '**/database.types.ts',
       '**/types/schema/*.d.ts',
     ],
   },

@@ -13,17 +13,15 @@ import ms from 'ms'
 import { toast } from 'sonner'
 
 import type { LearningPhase, TrackedWord } from '@/lib/LexiconTrie'
-import type { Tables } from '@ui/database.types'
+import type { Tables } from '@ui/src/types/database.types.ts'
 
 import { sessionAtom, userIdAtom } from '@/atoms/auth'
-import { withDelayedSetter } from '@/atoms/utils'
 import { vocabSubscriptionAtom } from '@/atoms/vocabulary'
-import { documentVisibilityStateAtom } from '@/hooks/utils'
 import { buildTrackedWord, LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { queryClient } from '@/lib/query-client'
-import { supabase } from '@/lib/supabase'
-import { createRetimer } from '@/lib/utilities'
-import { hasValue } from '@sub-vocab/utils/lib'
+import { supabase } from '@/utils/supabase'
+import { documentVisibilityStateAtom, withDelayedSetter } from '@sub-vocab/utils/atoms'
+import { createRetimer, hasValue } from '@sub-vocab/utils/lib'
 import { narrow, narrowShallow } from '@sub-vocab/utils/types'
 
 const getLearningPhase = (acquainted: boolean | null): LearningPhase => acquainted ? LEARNING_PHASE.ACQUAINTED : LEARNING_PHASE.NEW

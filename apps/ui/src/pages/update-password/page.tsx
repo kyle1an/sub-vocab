@@ -17,8 +17,8 @@ import { Card } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PASSWORD_MIN_LENGTH } from '@/constants/constraints'
-import { bindApply } from '@/lib/bindApply'
-import { supabaseAuth } from '@/lib/supabase'
+import { supabaseAuth } from '@/utils/supabase'
+import { bindApply } from '@sub-vocab/utils/lib'
 
 export default function UpdatePassword() {
   const { t } = useTranslation()

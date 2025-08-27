@@ -2,7 +2,7 @@ import type { FormatDistanceFn, FormatDistanceLocale } from 'date-fns'
 
 import { enUS } from 'date-fns/locale/en-US'
 
-import { hasKey } from '@/lib/utilities'
+import { hasKey } from './utilities'
 
 type FormatDistanceTokenValue =
   | string

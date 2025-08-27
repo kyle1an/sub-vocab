@@ -1,13 +1,13 @@
 import createFetchClient from 'openapi-fetch'
 import createClient from 'openapi-react-query'
 
-import type { paths } from '@/types/schema/themoviedb'
+import type { tmdb } from '@sub-vocab/utils/types'
 
 import { env } from '@/env'
 
 const baseUrl = env.VITE_SUB_API_URL
 
-const fetchClient = createFetchClient<paths>({
+const fetchClient = createFetchClient<tmdb.paths>({
   baseUrl: `${baseUrl}/tmdb-proxy`,
 })
 export const $api = createClient(fetchClient)

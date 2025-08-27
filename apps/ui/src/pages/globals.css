@@ -318,3 +318,11 @@
     @apply bg-background text-foreground;
   }
 }
+
+:root {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  /* https://developer.chrome.com/blog/new-in-chrome-129?hl=en#animate */
+  interpolate-size: allow-keywords;
+}

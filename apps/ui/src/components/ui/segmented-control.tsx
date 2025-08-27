@@ -6,8 +6,8 @@ import { once } from 'es-toolkit'
 import nstr from 'nstr'
 import { createContext, use, useId, useRef } from 'react'
 
-import { useIdentity } from '@/hooks'
 import { cn } from '@/lib/utils'
+import { useIdentity } from '@sub-vocab/utils/hooks'
 
 const segmentedControlVariants = cva(
   clsx(

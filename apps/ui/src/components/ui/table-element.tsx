@@ -1,4 +1,4 @@
-import type { Cell, Renderable, Row, SortDirection } from '@tanstack/react-table'
+import type { Cell, Renderable, Row, SortDirection, Table } from '@tanstack/react-table'
 import type { ReactElement } from 'react'
 
 import { Slot } from '@radix-ui/react-slot'
@@ -12,13 +12,13 @@ import React, { Fragment, useRef, useState } from 'react'
 
 import type { DivProps } from '@/components/ui/html-elements'
 import type { RowSelectionChangeFn } from '@/types/utils'
-import type { GroupHeader } from '@/types/vocab'
 
 import { SortIcon } from '@/components/my-icon/sort-icon'
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
-import { useClone, useRect } from '@/hooks'
-import { useRetimer } from '@/hooks/useRetimer'
 import { cn } from '@/lib/utils'
+import { useClone, useRect, useRetimer } from '@sub-vocab/utils/hooks'
+
+type GroupHeader<T> = ReturnType<Table<T>['getHeaderGroups']>[number]['headers'][number]
 
 export const HEAD_HEIGHT = 30
 

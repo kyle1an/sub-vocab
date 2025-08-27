@@ -5,7 +5,7 @@ import { compareAsc, constructFrom, constructNow, toDate } from 'date-fns'
 import { millisecondsInMinute, minutesInDay, minutesInMonth, minutesInYear } from 'date-fns/constants'
 import { enUS } from 'date-fns/locale'
 
-import { omitUndefined } from '@/lib/utilities'
+import { omitUndefined } from './utilities'
 
 const minutesInWeek = 7 * minutesInDay
 

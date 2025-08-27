@@ -1,7 +1,7 @@
 import type { Leaf, LearningPhase, TrackedWord, WordLocator } from '@/lib/LexiconTrie'
 
 import { buildTrackedWord } from '@/lib/LexiconTrie'
-import { compareBy } from '@/lib/utilities'
+import { compareBy } from '@sub-vocab/utils/lib'
 
 export type WordOccurrencesInSentence = {
   sentenceId: number

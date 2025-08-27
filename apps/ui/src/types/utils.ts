@@ -8,8 +8,3 @@ export type RowSelectionChangeFn<TData extends RowData> = (checked: CheckedState
 export type ZodObj<T extends Record<PropertyKey, unknown>> = {
   [key in keyof T]: z.ZodMiniType<T[key]>
 }
-
-const cast = <T>(a: any) => a as T
-
-// https://github.com/microsoft/TypeScript/issues/27024#issuecomment-421529650
-export type Equals<X, Y> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2) ? true : false

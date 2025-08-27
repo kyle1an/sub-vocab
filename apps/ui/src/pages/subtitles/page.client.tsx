@@ -30,10 +30,11 @@ import MiChevronLeft from '~icons/mi/chevron-left'
 import IconOuiTokenKey from '~icons/oui/token-key'
 
 import type { Download } from '@/api/opensubtitles'
-import type { paths as PathsThemoviedb } from '@/types/schema/themoviedb'
+import type { tmdb } from '@sub-vocab/utils/types'
 
 import { $osApi, openSubtitlesDownloadAtom, openSubtitlesTextAtom } from '@/api/opensubtitles'
 import { $api } from '@/api/tmdb'
+import { osLanguageAtom } from '@/atoms'
 import { fileIdsAtom, mediaSubtitleAtomFamily } from '@/atoms/subtitles'
 import { fileInfoAtom, sourceTextAtom } from '@/atoms/vocabulary'
 import { MediaDetails } from '@/components/media-details'
@@ -50,11 +51,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
-import { useClone } from '@/hooks'
 import { filterFn } from '@/lib/table-utils'
-import { findClosest } from '@/lib/utilities'
-import { osLanguageAtom } from '@/store/useVocab'
-import { tap } from '@sub-vocab/utils/lib'
+import { useClone } from '@sub-vocab/utils/hooks'
+import { findClosest, tap } from '@sub-vocab/utils/lib'
 
 const mediaSearchAtom = atomWithStorage('mediaSearchAtom', '')
 
@@ -63,7 +62,7 @@ const voteNumberFormat = new Intl.NumberFormat('en', { maximumFractionDigits: 1,
 const voteCountFormat = new Intl.NumberFormat('en', { notation: 'compact', compactDisplay: 'short' })
 const listFormatter = new Intl.ListFormat('en', { style: 'long', type: 'conjunction' })
 
-type TableData = NonNullable<PathsThemoviedb['/3/search/multi']['get']['responses'][200]['content']['application/json']['results']>[number]
+type TableData = NonNullable<tmdb.paths['/3/search/multi']['get']['responses'][200]['content']['application/json']['results']>[number]
 
 /// keep-unique
 const PAGE_SIZES = [5, 10, 20] as const

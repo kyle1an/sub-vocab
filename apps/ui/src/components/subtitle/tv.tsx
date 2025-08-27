@@ -19,13 +19,14 @@ import IconLucideChevronRight from '~icons/lucide/chevron-right'
 
 import type { Subtitles } from '@/api/opensubtitles'
 import type { SubtitleData } from '@/components/subtitle/columns'
-import type { RowId } from '@/lib/subtitle'
+import type { RowId } from '@/utils/subtitle'
 import type { ColumnFilterFn } from '@/lib/table-utils'
-import type { paths } from '@/types/schema/themoviedb'
 import type { RowSelectionChangeFn } from '@/types/utils'
+import type { tmdb } from '@sub-vocab/utils/types'
 
 import { openSubtitlesQueryOptionsAtom, osSessionAtom } from '@/api/opensubtitles'
 import { $api } from '@/api/tmdb'
+import { osLanguageAtom } from '@/atoms'
 import { buildMediaSubtitleState, mediaSubtitleAtomFamily } from '@/atoms/subtitles'
 import { SortIcon } from '@/components/my-icon/sort-icon'
 import { TableGoToLastPage } from '@/components/my-table/go-to-last-page'
@@ -39,25 +40,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useClone, useRect } from '@/hooks'
-import { useIsEllipsisActive } from '@/hooks/useIsEllipsisActive'
-import { customFormatDistance, formatIntervalLocale } from '@/lib/date-utils'
-import { getFileId } from '@/lib/subtitle'
+import { getFileId } from '@/utils/subtitle'
 import { filterFn, noFilter, sortBySelection } from '@/lib/table-utils'
-import { compareBy, findClosest, naturalNumLength } from '@/lib/utilities'
-import { osLanguageAtom } from '@/store/useVocab'
-import { isNonEmptyArray } from '@sub-vocab/utils/lib'
+import { useClone, useIsEllipsisActive, useRect } from '@sub-vocab/utils/hooks'
+import { compareBy, customFormatDistance, findClosest, formatIntervalLocale, isNonEmptyArray, naturalNumLength } from '@sub-vocab/utils/lib'
 
 type ExpandableRow<T> = T & { subRows?: T[] }
 
-type Episode = NonNullable<paths['/3/tv/{series_id}/season/{season_number}']['get']['responses'][200]['content']['application/json']['episodes']>[number]
+type Episode = NonNullable<tmdb.paths['/3/tv/{series_id}/season/{season_number}']['get']['responses'][200]['content']['application/json']['episodes']>[number]
 
 type TVSubtitleData = SubtitleData<Episode> & RowId
 
 type RowData = ExpandableRow<TVSubtitleData>
 
 function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber = 0, rootRef: React.RefObject<HTMLDivElement | null>, tbodyRef: React.RefObject<HTMLTableSectionElement | null>) {
-  const { t } = useTranslation()
   const columnHelper = createColumnHelper<T>()
   const store = useStore()
   const [osSession] = useAtom(osSessionAtom)
@@ -371,10 +367,7 @@ function TvNameSubRow<TData extends RowData>({
   const rootRect = useRect(rootRef)
   const refRect = useRect(ref)
   const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
-  let maxWidth = 0
-  if (rootRect && refRect) {
-    maxWidth = rootRect.x + rootRect.width - refRect.x + 12 - 4
-  }
+  const maxWidth = rootRect.x + rootRect.width - refRect.x + 12 - 4
   return (
     <div
       ref={ref}
@@ -455,7 +448,7 @@ function TvNameCell<TData extends RowData>({
 /// keep-unique
 const PAGE_SIZES = [5, 6, 10, 20, 40, 50, 100, 200] as const
 
-type Season = paths['/3/tv/{series_id}/season/{season_number}']['get']['responses'][200]['content']['application/json']
+type Season = tmdb.paths['/3/tv/{series_id}/season/{season_number}']['get']['responses'][200]['content']['application/json']
 
 function subtitleEpisodeData(subtitles: Subtitles['Response']['data'], episodes: Season['episodes'] = []) {
   return pipe(

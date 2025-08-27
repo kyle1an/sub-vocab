@@ -7,15 +7,29 @@
   "description": "description",
   "exports": {
     ".": "./src/index.ts",
+    "./atoms": "./src/atoms/index.ts",
+    "./hooks": "./src/hooks/index.ts",
     "./lib": "./src/lib/index.ts",
     "./types": "./src/types/index.ts"
   },
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "scripts": {
+    "schema:opensubtitles": "npx openapi-typescript https://stoplight.io/api/v1/projects/opensubtitles/opensubtitles-api/nodes/open_api.json -o ./src/types/schema/opensubtitles.d.ts",
+    "schema:themoviedb": "npx openapi-typescript https://developer.themoviedb.org/openapi/64542913e1f86100738e227f -o ./src/types/schema/themoviedb.d.ts",
+    "schema:trakt": "curl -s https://trakt.docs.apiary.io/api-description-document -o trakt.apib && npx apib2swagger -i trakt.apib --open-api-3 --yaml -o trakt.yaml && npx openapi-typescript trakt.yaml -o ./src/types/schema/trakt.d.ts && rm trakt.apib trakt.yaml"
+  },
   "dependencies": {
-    "ofetch": "^1.4.1"
+    "@react-hookz/web": "^25.1.1",
+    "jotai": "^2.13.1",
+    "jotai-effect": "^2.0.5",
+    "react": "^19.1.1",
+    "style-observer": "^0.1.1",
+    "use-memo-one": "^1.1.3"
   },
   "devDependencies": {
-    "@sub-vocab/shared-types": "workspace:*"
+    "@sub-vocab/shared-types": "workspace:*",
+    "@types/react": "^19.1.11",
+    "@types/react-dom": "^19.1.8"
   }
 }
