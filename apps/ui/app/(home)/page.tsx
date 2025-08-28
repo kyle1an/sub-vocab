@@ -23,6 +23,7 @@ import {
 import { fileTypesAtom } from '@/atoms/file-types'
 import { fileInfoAtom, isSourceTextStaleAtom, sourceTextAtom } from '@/atoms/vocabulary'
 import { FileInput } from '@/components/file-input'
+import { FileSettings } from '@/components/file-settings'
 import { Button } from '@/components/ui/button'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { TextareaInput } from '@/components/ui/textarea-input'
@@ -30,7 +31,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { VocabSourceTable } from '@/components/vocabulary/source'
 import { VocabStatics } from '@/components/vocabulary/statics-bar'
 import { LEARNING_PHASE, LexiconTrie } from '@/lib/LexiconTrie'
-import { FileSettings } from '@/pages/file-settings'
 import { useAtomEffect, useIsEllipsisActive, useRect } from '@sub-vocab/utils/hooks'
 import { compareBy, isServer, normalizeNewlines, tap } from '@sub-vocab/utils/lib'
 

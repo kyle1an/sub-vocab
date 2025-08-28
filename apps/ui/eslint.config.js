@@ -84,14 +84,13 @@ export default typegen(antfu(
       tailwindcss: {
         callees: ['classnames', 'clsx', 'cn', 'ctl', 'cva', 'tv', 'twMerge', 'add'],
         // https://github.com/hyoban/eslint-plugin-tailwindcss/pull/3#issuecomment-3079169194
-        config: path.join(__dirname, 'src/pages/globals.css'),
+        config: path.join(__dirname, 'app/globals.css'),
       },
     },
   },
   {
     ignores: [
       '**/database.types.ts',
-      '**/types/schema/*.d.ts',
     ],
   },
 ))

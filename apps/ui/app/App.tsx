@@ -23,7 +23,7 @@ import { queryClient } from '@/lib/query-client'
 import { isServer, omitUndefined } from '@sub-vocab/utils/lib'
 
 // after jotai-devtools
-import { myStore } from './atoms/store'
+import { myStore } from '../atoms/store'
 
 const persister = createAsyncStoragePersister({
   storage: isServer ? undefined : localStorage,

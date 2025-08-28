@@ -103,4 +103,9 @@ export default typegen(antfu(
       'jsonc/sort-keys': 'off',
     },
   },
+  {
+    ignores: [
+      '**/schema/*.d.ts',
+    ],
+  },
 ))
