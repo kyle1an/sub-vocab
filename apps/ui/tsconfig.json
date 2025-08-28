@@ -5,6 +5,10 @@
       "unplugin-icons/types/react",
       "vite/client"
     ],
+    "paths": {
+      "@backend/*": ["./../backend/*"],
+      "@/*": ["./*"]
+    },
     "rootDirs": [
       ".",
       "./.react-router/types"

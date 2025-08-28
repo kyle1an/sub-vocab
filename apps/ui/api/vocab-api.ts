@@ -13,7 +13,7 @@ import ms from 'ms'
 import { toast } from 'sonner'
 
 import type { LearningPhase, TrackedWord } from '@/lib/LexiconTrie'
-import type { Tables } from '@ui/src/types/database.types.ts'
+import type { Tables } from '@/types/database.types'
 
 import { sessionAtom, userIdAtom } from '@/atoms/auth'
 import { vocabSubscriptionAtom } from '@/atoms/vocabulary'

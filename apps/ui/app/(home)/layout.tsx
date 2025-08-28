@@ -1,4 +1,4 @@
-import './globals.css'
+import '../globals.css'
 
 import { isSafari } from 'foxact/is-safari'
 import { atom } from 'jotai'

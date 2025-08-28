@@ -21,8 +21,8 @@ import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Menubar, MenubarContent, MenubarMenu, MenubarRadioGroup, MenubarRadioItem, MenubarTrigger } from '@/components/ui/menubar'
 import { localeAtom } from '@/i18n'
-import { supabaseAuth } from '@/utils/supabase'
 import { cn } from '@/lib/utils'
+import { supabaseAuth } from '@/utils/supabase'
 import { bindApply } from '@sub-vocab/utils/lib'
 
 const LOCALES = [

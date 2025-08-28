@@ -19,9 +19,9 @@ import IconLucideChevronRight from '~icons/lucide/chevron-right'
 
 import type { Subtitles } from '@/api/opensubtitles'
 import type { SubtitleData } from '@/components/subtitle/columns'
-import type { RowId } from '@/utils/subtitle'
 import type { ColumnFilterFn } from '@/lib/table-utils'
 import type { RowSelectionChangeFn } from '@/types/utils'
+import type { RowId } from '@/utils/subtitle'
 import type { tmdb } from '@sub-vocab/utils/types'
 
 import { openSubtitlesQueryOptionsAtom, osSessionAtom } from '@/api/opensubtitles'
@@ -40,8 +40,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { getFileId } from '@/utils/subtitle'
 import { filterFn, noFilter, sortBySelection } from '@/lib/table-utils'
+import { getFileId } from '@/utils/subtitle'
 import { useClone, useIsEllipsisActive, useRect } from '@sub-vocab/utils/hooks'
 import { compareBy, customFormatDistance, findClosest, formatIntervalLocale, isNonEmptyArray, naturalNumLength } from '@sub-vocab/utils/lib'
 

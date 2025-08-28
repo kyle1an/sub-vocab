@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 
-import type { Database } from '@ui/src/types/database.types.ts'
+import type { Database } from '@ui/types/database.types.ts'
 
 import * as schema from '@backend/drizzle/schema.ts'
 import { env } from '@backend/env.ts'
