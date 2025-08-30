@@ -1,6 +1,4 @@
 import clsx from 'clsx'
-import IconIonRefresh from '~icons/ion/refresh'
-import IconLucideLoader2 from '~icons/lucide/loader2'
 
 import { Button } from '@/components/ui/button'
 
@@ -20,15 +18,15 @@ export function RefetchButton({
       )}
       onClick={() => refetch()}
     >
-      <IconLucideLoader2
+      <svg
         className={clsx(
-          'size-3.5 animate-spin',
+          'icon-[lucide--loader-2] size-3.5 animate-spin',
           isFetching ? '' : 'hidden',
         )}
       />
-      <IconIonRefresh
+      <svg
         className={clsx(
-          'size-4',
+          'icon-[ion--refresh] size-4',
           isFetching ? 'hidden' : '',
         )}
       />

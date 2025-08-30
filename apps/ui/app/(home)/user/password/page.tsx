@@ -1,12 +1,11 @@
+'use client'
+
 import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
 import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod/v4-mini'
-import IconLucideEye from '~icons/lucide/eye'
-import IconLucideEyeOff from '~icons/lucide/eye-off'
-import IconLucideLoader2 from '~icons/lucide/loader2'
 
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -107,12 +106,12 @@ export default function Password() {
                           }}
                         >
                           {newPasswordVisible ? (
-                            <IconLucideEye
-                              className="size-4.5 text-neutral-600"
+                            <svg
+                              className="icon-[lucide--eye] size-4.5 text-neutral-600"
                             />
                           ) : (
-                            <IconLucideEyeOff
-                              className="size-4.5 text-neutral-600"
+                            <svg
+                              className="icon-[lucide--eye-off] size-4.5 text-neutral-600"
                             />
                           )}
                         </Button>
@@ -130,9 +129,7 @@ export default function Password() {
               >
                 {t('confirm_changes')}
                 {isPending ? (
-                  <IconLucideLoader2
-                    className="animate-spin"
-                  />
+                  <svg className="icon-[lucide--loader-2] animate-spin" />
                 ) : null}
               </Button>
             </form>

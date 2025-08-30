@@ -18,8 +18,6 @@ import { atom, useAtom, useAtomValue } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 import { startTransition, useDeferredValue, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import IconIonRefresh from '~icons/ion/refresh'
-import IconLucideLoader2 from '~icons/lucide/loader2'
 
 import type { LearningPhase } from '@/lib/LexiconTrie'
 import type { ColumnFilterFn } from '@/lib/table-utils'
@@ -261,15 +259,9 @@ export function VocabDataTable({
                 refetch()
               }}
             >
-              <IconLucideLoader2
+              <svg
                 className={clsx(
-                  'size-3.5 animate-spin',
-                  isLoadingUserVocab ? '' : 'hidden',
-                )}
-              />
-              <IconIonRefresh
-                className={clsx(
-                  'size-3.5',
+                  'icon-[ion--refresh] size-3.5',
                   isLoadingUserVocab ? 'hidden' : '',
                 )}
               />

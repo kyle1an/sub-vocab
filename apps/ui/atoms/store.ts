@@ -1,3 +1,3 @@
-import { getDefaultStore } from 'jotai'
+import { createStore } from 'jotai'
 
-export const myStore = getDefaultStore()
+export const myStore = createStore()

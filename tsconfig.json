@@ -24,9 +24,8 @@
     "moduleDetection": "force",
     "verbatimModuleSyntax": true,
     "paths": {
-      "@/*": ["./apps/ui/src/*"],
-      "@backend/*": ["./apps/backend/*"],
-      "@ui/*": ["./apps/ui/*"]
+      "@/*": ["./apps/ui/*"],
+      "@backend/*": ["./apps/backend/*"]
     },
     "noEmit": true,
     /* Strictness */

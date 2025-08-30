@@ -3,7 +3,7 @@ import type { LiteralUnion } from 'type-fest'
 
 import { atom } from 'jotai'
 
-import { myAtomFamily } from '@/atoms'
+import { myAtomFamily } from '@/app/providers'
 import { createFactory, equalBy } from '@sub-vocab/utils/lib'
 
 export type MediaSubtitleState = {
@@ -26,7 +26,7 @@ export const buildMediaSubtitleState = createFactory<MediaSubtitleState>()(() =>
   },
 }))
 
-export const mediaSubtitleAtomFamily = myAtomFamily(
+export const mediaSubtitleFamily = myAtomFamily(
   `mediaSubtitleAtomFamily`,
   ([
     ,
@@ -39,7 +39,7 @@ export const mediaSubtitleAtomFamily = myAtomFamily(
 )
 
 export const fileIdsAtom = atom((get) => {
-  return get(mediaSubtitleAtomFamily.paramsAtom)
-    .map((param) => get(mediaSubtitleAtomFamily(param)))
+  return get(mediaSubtitleFamily.paramsAtom)
+    .map((param) => get(mediaSubtitleFamily(param)))
     .flatMap(({ tableState }) => Object.entries(tableState.rowSelection).filter(([, v]) => v).map(([k]) => Number(k)))
 })

@@ -1,24 +1,21 @@
 /* eslint-disable react-refresh/only-export-components */
-import IconAkarIconsMoonFill from '~icons/akar-icons/moon-fill'
-import IconGgDarkMode from '~icons/gg/dark-mode'
-import IconPhSun from '~icons/ph/sun'
 
 export const DEFAULT_THEME = {
   value: 'auto',
   label: 'Auto',
-  icon: <IconGgDarkMode />,
+  icon: <svg className="icon-[gg--dark-mode]" />,
 } as const
 
 export const THEMES = [
   {
     value: 'light',
     label: 'Light',
-    icon: <IconPhSun />,
+    icon: <svg className="icon-[ph--sun]" />,
   },
   {
     value: 'dark',
     label: 'Dark',
-    icon: <IconAkarIconsMoonFill />,
+    icon: <svg className="icon-[akar-icons--moon-fill]" />,
   },
   DEFAULT_THEME,
 ] as const

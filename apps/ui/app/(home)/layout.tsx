@@ -1,18 +1,16 @@
-import '../globals.css'
+'use client'
 
 import { isSafari } from 'foxact/is-safari'
-import { atom } from 'jotai'
+import { atom, useStore } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { Fragment, Suspense, useRef } from 'react'
-import { Outlet } from 'react-router'
-import { ClientOnly } from 'remix-utils/client-only'
 
 import { bodyBgColorAtom, mainBgColorAtom } from '@/atoms'
 import { authChangeEventAtom, sessionAtom } from '@/atoms/auth'
-import { myStore } from '@/atoms/store'
 import { isDarkModeAtom } from '@/atoms/ui'
 import { AppSidebar } from '@/components/app-sidebar'
 import { NavActions } from '@/components/nav-actions'
+import { ClientOnly } from '@/components/NoSsr'
 import { isAnyDrawerOpenAtom } from '@/components/ui/drawer'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/sonner'
@@ -36,6 +34,7 @@ const metaThemeColorAtom = atom((get) => {
 })
 
 function useAppEffects() {
+  const store = useStore()
   useAtomEffect((get, set) => {
     const { data: { subscription } } = supabaseAuth.onAuthStateChange((event, session) => {
       set(authChangeEventAtom, event)
@@ -46,7 +45,7 @@ function useAppEffects() {
     }
   }, [])
   useStyleObserver(isServer ? null : document.body, ([{ value }]) => {
-    myStore.set(bodyBgColorAtom, value)
+    store.set(bodyBgColorAtom, value)
   }, {
     properties: ['background-color'],
   })
@@ -78,10 +77,11 @@ function Header({ className = '' }: { className?: string }) {
   )
 }
 
-function Content() {
+function Content({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null)
+  const store = useStore()
   useStyleObserver(ref, ([{ value }]) => {
-    myStore.set(mainBgColorAtom, value || LIGHT_THEME_COLOR)
+    store.set(mainBgColorAtom, value || LIGHT_THEME_COLOR)
   }, {
     properties: ['background-color'],
   })
@@ -95,22 +95,22 @@ function Content() {
         ref={ref}
       >
         <Header />
-        <Outlet />
+        {children}
       </SidebarInset>
     </Fragment>
   )
 }
 
-export default function Root() {
+export default function Root({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider
       className="isolate h-svh pr-(--pr) antialiased sq:superellipse-[1.5]"
       data-vaul-drawer-wrapper=""
     >
       <ClientOnly>
-        {() => (
-          <Content />
-        )}
+        <Content>
+          {children}
+        </Content>
       </ClientOnly>
       <Suspense fallback={null}>
         <Toaster

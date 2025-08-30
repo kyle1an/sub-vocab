@@ -18,7 +18,7 @@ import type { os } from '@sub-vocab/utils/types'
 import { env } from '@/env'
 import { bindApply, downloadFile, omitUndefined } from '@sub-vocab/utils/lib'
 
-const baseUrl = env.VITE_SUB_API_URL
+const baseUrl = env.NEXT_PUBLIC_SUB_API_URL
 
 const fetchClient = createFetchClient<os.paths>({
   baseUrl: `${baseUrl}/opensubtitles-proxy/def`,
@@ -40,7 +40,7 @@ export const opensubtitlesReqAtom = atom((get) => {
   if (osSession?.user?.vip) {
     const Authorization = get(opensubtitlesAuthorizationAtom)
     return {
-      baseUrl: `${env.VITE_SUB_API_URL}/opensubtitles-proxy/vip`,
+      baseUrl: `${env.NEXT_PUBLIC_SUB_API_URL}/opensubtitles-proxy/vip`,
       headers: omitUndefined({
         Authorization,
       }),
@@ -48,7 +48,7 @@ export const opensubtitlesReqAtom = atom((get) => {
   }
 
   return {
-    baseUrl: `${env.VITE_SUB_API_URL}/opensubtitles-proxy/def`,
+    baseUrl: `${env.NEXT_PUBLIC_SUB_API_URL}/opensubtitles-proxy/def`,
     headers: {
     },
   }

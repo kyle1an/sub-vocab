@@ -2,8 +2,6 @@ import type { SortDirection } from '@tanstack/react-table'
 
 import { Slot } from '@radix-ui/react-slot'
 import clsx from 'clsx'
-import IconCodiconBlank from '~icons/codicon/blank'
-import IconLucideChevronUp from '~icons/lucide/chevron-up'
 
 import { cn } from '@/lib/utils'
 
@@ -16,7 +14,7 @@ export function SortIcon({
   className?: string
   fallback?: React.ReactNode
 }) {
-  fallback = fallback ?? <IconCodiconBlank />
+  fallback = fallback ?? <svg className="icon-[codicon--blank]" />
   return (
     <div className="relative size-4 text-zinc-400">
       <div
@@ -27,8 +25,8 @@ export function SortIcon({
           !isSorted && '[transform:rotateX(90deg)] opacity-0',
         )}
       >
-        <IconLucideChevronUp
-          className={cn('size-4', className)}
+        <svg
+          className={cn('icon-[lucide--chevron-up] size-4', className)}
         />
       </div>
       <div

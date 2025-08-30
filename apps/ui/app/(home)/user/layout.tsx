@@ -1,10 +1,12 @@
+'use client'
+
 import { useAtom } from 'jotai'
-import { Navigate, Outlet } from 'react-router'
 
 import { authChangeEventAtom, sessionAtom } from '@/atoms/auth'
 import { ContentRoot } from '@/components/content-root'
+import Navigate from '@/components/Navigate'
 
-export default function User() {
+export default function User({ children }: { children: React.ReactNode }) {
   const [session] = useAtom(sessionAtom)
   const user = session?.user
   const [authChangeEvent] = useAtom(authChangeEventAtom)
@@ -25,7 +27,7 @@ export default function User() {
             <div className="pb-6 text-2xl">
               {account}
             </div>
-            <Outlet />
+            {children}
           </main>
         </div>
       </div>

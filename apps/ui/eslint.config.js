@@ -5,12 +5,11 @@ import eslintPluginTailwindCss from 'eslint-plugin-tailwindcss'
 // @ts-check
 /// <reference path="./eslint-typegen.d.ts" />
 import typegen from 'eslint-typegen'
-import path, { dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import path from 'node:path'
 
 import configs from '../../eslint.config.js'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+const __dirname = import.meta.dirname
 
 export default typegen(antfu(
   {
@@ -92,5 +91,10 @@ export default typegen(antfu(
     ignores: [
       '**/database.types.ts',
     ],
+  },
+  {
+    rules: {
+      'n/prefer-global/process': ['off'],
+    },
   },
 ))

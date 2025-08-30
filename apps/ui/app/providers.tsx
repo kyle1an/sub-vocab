@@ -1,22 +1,23 @@
+'use client'
+
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { createTRPCClient, httpBatchLink } from '@trpc/client'
-import { Analytics } from '@vercel/analytics/react'
-import { SpeedInsights } from '@vercel/speed-insights/react'
 import { ComposeContextProvider } from 'foxact/compose-context-provider'
-import { Provider } from 'jotai'
+import { Provider, useAtomValue } from 'jotai'
+import { DevTools } from 'jotai-devtools'
 import { queryClientAtom } from 'jotai-tanstack-query'
-import { useHydrateAtoms } from 'jotai/utils'
+import { atomWithStorage, useHydrateAtoms } from 'jotai/utils'
+import dynamic from 'next/dynamic'
 import { Fragment } from 'react'
 import { I18nextProvider } from 'react-i18next'
-import { Outlet } from 'react-router'
-import { ClientOnly } from 'remix-utils/client-only'
 
 import type { AppRouter } from '@backend/app'
 
 import { TRPCProvider } from '@/api/trpc'
-import { JotaiDevtools } from '@/components/Devtools'
+import { _myAtomFamily } from '@/atoms'
+import { isDarkModeAtom } from '@/atoms/ui'
 import { env } from '@/env'
 import i18n from '@/i18n'
 import { queryClient } from '@/lib/query-client'
@@ -25,6 +26,27 @@ import { isServer, omitUndefined } from '@sub-vocab/utils/lib'
 // after jotai-devtools
 import { myStore } from '../atoms/store'
 
+export const myAtomFamily = _myAtomFamily
+
+const StyleComponent = dynamic(() => import('../components/devtools-styles'))
+
+const jotaiDevtoolsIsShellOpenAtom = atomWithStorage(`jotai-devtools-is-shell-open-V0`, false, undefined, { getOnInit: true })
+
+function JotaiDevtools() {
+  const jotaiDevtoolsIsShellOpen = useAtomValue(jotaiDevtoolsIsShellOpenAtom)
+  const isDarkMode = useAtomValue(isDarkModeAtom)
+  return (
+    <Fragment>
+      <StyleComponent />
+      <DevTools
+        store={myStore}
+        isInitialOpen={jotaiDevtoolsIsShellOpen}
+        theme={isDarkMode ? 'dark' : 'light'}
+      />
+    </Fragment>
+  )
+}
+
 const persister = createAsyncStoragePersister({
   storage: isServer ? undefined : localStorage,
 })
@@ -32,7 +54,7 @@ const HydrateAtoms = ({ children }: { children: React.ReactNode }) => {
   useHydrateAtoms([[queryClientAtom, queryClient]])
   return children
 }
-const baseUrl = env.VITE_SUB_API_URL
+const baseUrl = env.NEXT_PUBLIC_SUB_API_URL
 const trpcClient = createTRPCClient<AppRouter>({
   links: [
     httpBatchLink({
@@ -47,7 +69,7 @@ const trpcClient = createTRPCClient<AppRouter>({
   ],
 })
 
-function App() {
+export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ComposeContextProvider
       contexts={[
@@ -58,21 +80,12 @@ function App() {
       ]}
     >
       <HydrateAtoms>
-        <Outlet />
         <ReactQueryDevtools />
-        <ClientOnly>
-          {() => import.meta.env.PROD ? (
-            <Fragment>
-              <SpeedInsights />
-              <Analytics />
-            </Fragment>
-          ) : (
-            <JotaiDevtools />
-          )}
-        </ClientOnly>
+        {children}
       </HydrateAtoms>
+      {process.env.NODE_ENV !== 'production' ? (
+        <JotaiDevtools />
+      ) : null}
     </ComposeContextProvider>
   )
 }
-
-export { App }

@@ -23,9 +23,6 @@ import { atomWithStorage } from 'jotai/utils'
 import { startTransition, useDeferredValue, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import IconIconoirSparks from '~icons/iconoir/sparks'
-import IconLucideChevronRight from '~icons/lucide/chevron-right'
-import IconLucideLoader from '~icons/lucide/loader'
 
 import type { LearningPhase, Sentence } from '@/lib/LexiconTrie'
 import type { ColumnFilterFn } from '@/lib/table-utils'
@@ -161,9 +158,9 @@ function useSourceColumns<T extends TableData>(rootRef: React.RefObject<HTMLDivE
                       onExpandedChange?.(isExpanded)
                     }}
                   >
-                    <IconLucideChevronRight
+                    <svg
                       className={clsx(
-                        'size-3.5 text-zinc-400 transition-transform duration-200 dark:text-zinc-500',
+                        'icon-[lucide--chevron-right] size-3.5 text-zinc-400 transition-transform duration-200 dark:text-zinc-500',
                         isExpanded ? 'rotate-90' : '',
                       )}
                     />
@@ -410,11 +407,11 @@ export function VocabSourceTable({
           aria-label="ai categorize"
         >
           {isPending ? (
-            <IconLucideLoader
-              className="size-4.5 animate-spin duration-1000 [animation-duration:2s]"
+            <svg
+              className="icon-[lucide--loader] size-4.5 animate-spin duration-1000 [animation-duration:2s]"
             />
           ) : (
-            <IconIconoirSparks className="size-4.5" />
+            <svg className="icon-[iconoir--sparks] size-4.5" />
           )}
         </Button>
         <div className="flex items-center px-2.5 text-base">

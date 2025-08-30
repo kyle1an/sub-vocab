@@ -1,15 +1,14 @@
-import { configDefaults, defineConfig, mergeConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+import tsconfigPaths from 'vite-tsconfig-paths'
+import { configDefaults, defineConfig } from 'vitest/config'
 
-import viteConfig from './vite.config'
-
-export default defineConfig((configEnv) => mergeConfig(
-  viteConfig(configEnv),
-  defineConfig({
-    test: {
-      exclude: [...configDefaults.exclude, 'packages/template/*'],
-      coverage: {
-        enabled: true,
-      },
+export default defineConfig({
+  plugins: [tsconfigPaths(), react()],
+  test: {
+    environment: 'jsdom',
+    exclude: [...configDefaults.exclude, 'packages/template/*'],
+    coverage: {
+      enabled: true,
     },
-  }),
-))
+  },
+})

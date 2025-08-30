@@ -1,6 +1,3 @@
-import IconLucideCheck from '~icons/lucide/check'
-import IconLucideLoader from '~icons/lucide/loader'
-
 import type { TrackedWord } from '@/lib/LexiconTrie'
 
 import { LEARNING_PHASE } from '@/lib/LexiconTrie'
@@ -40,15 +37,15 @@ export function VocabToggle<T extends TrackedWord>({
           onToggle(vocab)
         }}
       >
-        <IconLucideLoader
+        <svg
           className={cn(
-            'inline-flex w-full animate-spin items-center justify-center transition-colors duration-1000 [animation-duration:2s]',
+            'icon-[lucide--loader] inline-flex w-full animate-spin items-center justify-center transition-colors duration-1000 [animation-duration:2s]',
             (phase === RETAINING || phase === FADING) ? '' : 'hidden',
           )}
         />
-        <IconLucideCheck
+        <svg
           className={cn(
-            'inline-flex w-full items-center justify-center',
+            'icon-[lucide--check] inline-flex w-full items-center justify-center',
             (phase === NEW || phase === ACQUAINTED) ? '' : 'hidden',
             phase === NEW && 'text-transparent transition-colors duration-200 group-hover/tgl:text-black dark:group-hover/tgl:text-zinc-400',
             phase === ACQUAINTED && 'text-white dark:text-black',

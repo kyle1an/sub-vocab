@@ -15,7 +15,6 @@ import { useImmerAtom } from 'jotai-immer'
 import nstr from 'nstr'
 import { Fragment, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import IconLucideChevronRight from '~icons/lucide/chevron-right'
 
 import type { Subtitles } from '@/api/opensubtitles'
 import type { SubtitleData } from '@/components/subtitle/columns'
@@ -27,7 +26,7 @@ import type { tmdb } from '@sub-vocab/utils/types'
 import { openSubtitlesQueryOptionsAtom, osSessionAtom } from '@/api/opensubtitles'
 import { $api } from '@/api/tmdb'
 import { osLanguageAtom } from '@/atoms'
-import { buildMediaSubtitleState, mediaSubtitleAtomFamily } from '@/atoms/subtitles'
+import { buildMediaSubtitleState, mediaSubtitleFamily } from '@/atoms/subtitles'
 import { SortIcon } from '@/components/my-icon/sort-icon'
 import { TableGoToLastPage } from '@/components/my-table/go-to-last-page'
 import { TablePagination } from '@/components/my-table/pagination'
@@ -131,7 +130,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
                     className="child"
                     onClick={(e) => {
                       e.stopPropagation()
-                      store.set(mediaSubtitleAtomFamily([mediaId]), produce(({ tableState }) => {
+                      store.set(mediaSubtitleFamily([mediaId]), produce(({ tableState }) => {
                         parentRows.forEach(({ subRows, id }) => {
                           if (subRows.length === 0) {
                             tableState.rowSelection[id] = !checked
@@ -189,10 +188,10 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
                   }}
                 />
                 {'\u200B'}
-                <IconLucideChevronRight
+                <svg
                   className={clsx(
                     canExpand ? '' : 'invisible',
-                    'size-3.5 text-zinc-400 transition-transform duration-200 dark:text-zinc-500',
+                    'icon-[lucide--chevron-right] size-3.5 text-zinc-400 transition-transform duration-200 dark:text-zinc-500',
                     isExpanded ? 'rotate-90' : '',
                   )}
                 />
@@ -564,7 +563,7 @@ export function TVSubtitleFiles({
   const tvColumns = useTVColumns(id, highestEpisodeNumber, rootRef, tbodyRef)
   const columns = [...commonColumns, ...tvColumns]
   const dataRows = subtitleEpisodeData(subtitles, episodes)
-  const [{ episodeFilter: filterEpisode = 'all', initialTableState: mediaInitialTableState, tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleAtomFamily([
+  const [{ episodeFilter: filterEpisode = 'all', initialTableState: mediaInitialTableState, tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleFamily([
     id,
     buildMediaSubtitleState({
       initialTableState: {

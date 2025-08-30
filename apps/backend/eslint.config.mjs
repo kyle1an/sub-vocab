@@ -17,7 +17,7 @@ export default typegen(antfu(
         'error',
         {
           type: 'natural',
-          internalPattern: ['^@/.+', '^@backend/.+', '^@ui/.+', '^@sub-vocab/'],
+          internalPattern: ['^@/.+', '^@backend/.+', '^@sub-vocab/'],
         },
       ],
     },

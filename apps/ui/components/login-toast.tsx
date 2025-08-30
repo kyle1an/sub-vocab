@@ -1,4 +1,4 @@
-import { Link } from 'react-router'
+import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 
@@ -19,7 +19,7 @@ export function LoginToast() {
             size="sm"
           >
             <Link
-              to="/login"
+              href="/login"
               className="flex size-full items-center px-3"
             >
               Sign in

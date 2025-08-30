@@ -1,3 +1,5 @@
+'use client'
+
 import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
 import { useMutation } from '@tanstack/react-query'
 import clsx from 'clsx'
@@ -5,7 +7,6 @@ import { useAtom } from 'jotai'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod/v4-mini'
-import IconLucideLoader2 from '~icons/lucide/loader2'
 
 import { sessionAtom } from '@/atoms/auth'
 import { Button } from '@/components/ui/button'
@@ -156,9 +157,9 @@ export default function ProfilePage() {
                 disabled={isUsernameUpdatePending}
               >
                 {t('confirm_changes')}
-                <IconLucideLoader2
+                <svg
                   className={clsx(
-                    'animate-spin group-[:not(disabled)]:hidden',
+                    'icon-[lucide--loader-2] animate-spin group-[:not(disabled)]:hidden',
                   )}
                 />
               </Button>
@@ -197,7 +198,7 @@ export default function ProfilePage() {
                       </div>
                     </FormControl>
                     <FormMessage>{emailErrors.newEmail?.message ?? ''}</FormMessage>
-                    {email.endsWith(env.VITE_LEGACY_USER_EMAIL_SUFFIX) ? (
+                    {email.endsWith(env.NEXT_PUBLIC_LEGACY_USER_EMAIL_SUFFIX) ? (
                       <article className="text-sm">
                         <span className="text-neutral-700">
                           * This is an auto-generated placeholder email address.
@@ -214,8 +215,8 @@ export default function ProfilePage() {
                 disabled={isEmailUpdatePending}
               >
                 {t('confirm_changes')}
-                <IconLucideLoader2
-                  className="animate-spin group-[:not(disabled)]:hidden"
+                <svg
+                  className="icon-[lucide--loader-2] animate-spin group-[:not(disabled)]:hidden"
                 />
               </Button>
             </form>
