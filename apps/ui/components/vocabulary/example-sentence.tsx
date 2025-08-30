@@ -1,9 +1,5 @@
 import { useClipboard } from 'foxact/use-clipboard'
 import ms from 'ms'
-import BxBxsErrorCircle from '~icons/bx/bxs-error-circle'
-import IconamoonArrowRight1Bold from '~icons/iconamoon/arrow-right-1-bold'
-import MingcuteCheckFill from '~icons/mingcute/check-fill'
-import OouiCopyLtr from '~icons/ooui/copy-ltr'
 
 import type { Sentence } from '@/lib/LexiconTrie'
 import type { WordOccurrencesInSentence } from '@/lib/vocab'
@@ -28,14 +24,14 @@ function SentenceCopy({
       onClick={() => copy(sentence)}
     >
       <div className="flex size-(--leading) items-center justify-center *:size-[11px]!">
-        <MingcuteCheckFill
-          className={cn('', copied ? '' : 'hidden')}
+        <svg
+          className={cn('icon-[mingcute--check-fill]', copied ? '' : 'hidden')}
         />
-        <BxBxsErrorCircle
-          className={cn('text-red-500', error ? '' : 'hidden')}
+        <svg
+          className={cn('icon-[bx--bxs-error-circle] text-red-500', error ? '' : 'hidden')}
         />
-        <OouiCopyLtr
-          className={cn('opacity-0 transition-opacity delay-50 duration-100 [[data-state=open]_&]:group-hover:opacity-100', copied || error ? 'hidden' : '')}
+        <svg
+          className={cn('icon-[ooui--copy-ltr] opacity-0 transition-opacity delay-50 duration-100 [[data-state=open]_&]:group-hover:opacity-100', copied || error ? 'hidden' : '')}
         />
       </div>
     </Button>
@@ -69,8 +65,8 @@ export function ExampleSentence({
               onClick={() => onSentenceTrack(sentenceId)}
             >
               <div className="flex size-(--leading) items-center justify-center pl-[.5px]">
-                <IconamoonArrowRight1Bold
-                  className="size-[11px]"
+                <svg
+                  className="icon-[iconamoon--arrow-right-1-bold] size-[11px]"
                 />
               </div>
             </Button>

@@ -1,44 +1,30 @@
 import type { Atom, Setter, WritableAtom } from 'jotai'
-import type { Store } from 'jotai/vanilla/store'
 
 import { pipe } from 'effect'
 import { noop } from 'es-toolkit'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai/utils'
 
-import type { AppendParameters } from '../lib'
+import type { AppendParameters } from '../lib/utilities'
 
-import { isServer, tap } from '../lib'
+import { isServer } from '../lib/utilities'
+import { tap } from '../lib/utils'
 
-export const atomFamilyFactory = (store: Store) => <Param, AtomType extends Atom<unknown>>(label: string, initializeAtom: (param: Param) => AtomType, areEqual?: (a: Param, b: Param) => boolean) => {
-  const paramsAtom = atom([] as Param[])
-  paramsAtom.debugLabel = `${label}.paramsAtom`
+export function withMount<Value, Args extends unknown[], Result>(anAtom: WritableAtom<Value, Args, Result>, onMount: NonNullable<typeof anAtom['onMount']>) {
   return pipe(
-    atomFamily((param: NonNullable<Param>) => pipe(
-      initializeAtom(param),
-      tap((x) => {
-        const key = Array.isArray(param) ? param[0] : typeof param === 'object' && 'key' in param ? param.key : param
-        x.debugLabel = `${label}-${key}`
-      }),
-    ), areEqual),
-    tap(({ unstable_listen, getParams }) => {
-      let latestEvent: Parameters<Parameters<typeof unstable_listen>[0]>[0]
-      unstable_listen((event) => {
-        latestEvent = event
-        queueMicrotask(() => {
-          if (event === latestEvent) {
-            store.set(paramsAtom, [...getParams()])
-          }
-        })
-      })
+    anAtom,
+    tap((x) => {
+      x.onMount = onMount
     }),
-    (x) => Object.assign(x, { paramsAtom }),
   )
 }
 
-export function withMount<Value, Args extends unknown[], Result>(anAtom: WritableAtom<Value, Args, Result>, onMount: NonNullable<typeof anAtom['onMount']>) {
-  anAtom.onMount = onMount
-  return anAtom
+export function withReadOnlyMount<Value>(anAtom: Atom<Value>, onMount: NonNullable<WritableAtom<Value, [], void>['onMount']>) {
+  return pipe(
+    atom((get) => get(anAtom), noop),
+    (x) => withMount(x, onMount),
+    withReadonly,
+  )
 }
 
 export function withAbortableMount<Value, Args extends unknown[], Result>(anAtom: WritableAtom<Value, Args, Result>, onMount: AppendParameters<NonNullable<typeof anAtom['onMount']>, [signal: AbortSignal]>) {
@@ -112,14 +98,13 @@ export const retimerAtomFamily = (label: string) => {
     }
 
     return pipe(
-      atom(() => Object.assign(retime, { tryRemove }), noop),
-      (x) => withMount(x, () => {
+      atom(() => Object.assign(retime, { tryRemove })),
+      (x) => withReadOnlyMount(x, () => {
         isMounted = true
         return () => {
           isMounted = false
         }
       }),
-      withReadonly,
       tap((x) => {
         x.debugLabel = `${label}-${id}`
       }),

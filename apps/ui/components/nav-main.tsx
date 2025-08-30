@@ -1,10 +1,8 @@
 'use client'
 
-import type { LucideIcon } from 'lucide-react'
+import Link from 'next/link'
 
-import { useReactRouterIsMatch } from 'foxact/use-react-router-is-match'
-import { Link } from 'react-router'
-
+import { NavPathname } from '@/components/NavPathname'
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -14,7 +12,7 @@ import {
 type Item = {
   title: string
   url: string
-  icon?: LucideIcon
+  icon?: React.ReactNode
   isActive?: boolean
 }
 
@@ -26,33 +24,28 @@ export function NavMain({
   return (
     <SidebarMenu>
       {items.map((item) => (
-        <NavSidebarMenuItem
-          key={item.title}
-          item={item}
-        />
+        <NavPathname key={item.title}>
+          {(pathname) => (
+            <SidebarMenuItem
+              className="flex"
+            >
+              <SidebarMenuButton
+                isActive={pathname === item.url}
+                tooltip={item.title}
+                asChild
+              >
+                <Link
+                  href={item.url}
+                  className="flex"
+                >
+                  {item.icon && item.icon}
+                  <span>{item.title}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+        </NavPathname>
       ))}
     </SidebarMenu>
-  )
-}
-
-function NavSidebarMenuItem({ item }: { item: Item }) {
-  return (
-    <SidebarMenuItem
-      className="flex"
-    >
-      <SidebarMenuButton
-        isActive={useReactRouterIsMatch(item.url)}
-        tooltip={item.title}
-        asChild
-      >
-        <Link
-          to={item.url}
-          className="flex"
-        >
-          {item.icon && <item.icon />}
-          <span>{item.title}</span>
-        </Link>
-      </SidebarMenuButton>
-    </SidebarMenuItem>
   )
 }

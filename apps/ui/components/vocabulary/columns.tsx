@@ -9,7 +9,6 @@ import {
   useTranslation,
 } from 'react-i18next'
 import { toast } from 'sonner'
-import IconLucideCheckCircle from '~icons/lucide/check-circle'
 
 import type { TrackedWord } from '@/lib/LexiconTrie'
 import type { VocabularySourceState } from '@/lib/vocab'
@@ -205,7 +204,7 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
               <div className="flex min-w-[30px] grow items-center justify-center">
                 <SortIcon
                   isSorted={isSorted}
-                  fallback={<IconLucideCheckCircle />}
+                  fallback={<svg className="icon-[lucide--check-circle]" />}
                 />
               </div>
             </Div>

@@ -1,15 +1,16 @@
+'use client'
+
 import type { ExtractAtomValue } from 'jotai'
 import type { ImperativePanelGroupHandle } from 'react-resizable-panels'
 
 import { useIsomorphicLayoutEffect } from '@react-hookz/web'
 import clsx from 'clsx'
 import { pipe } from 'effect'
-import { useMediaQuery } from 'foxact/use-media-query'
 import { atom, useAtom, useAtomValue } from 'jotai'
+import Link from 'next/link'
 import nstr from 'nstr'
-import React, { useDeferredValue, useRef } from 'react'
+import React, { Suspense, useDeferredValue, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
 import getCaretCoordinates from 'textarea-caret'
 import { useEffectEvent } from 'use-effect-event'
 
@@ -20,8 +21,10 @@ import {
   baseVocabAtom,
   irregularWordsQueryAtom,
 } from '@/api/vocab-api'
+import { mediaQueryFamily } from '@/atoms'
 import { fileTypesAtom } from '@/atoms/file-types'
 import { fileInfoAtom, isSourceTextStaleAtom, sourceTextAtom } from '@/atoms/vocabulary'
+import { ContentRoot } from '@/components/content-root'
 import { FileInput } from '@/components/file-input'
 import { FileSettings } from '@/components/file-settings'
 import { Button } from '@/components/ui/button'
@@ -109,7 +112,7 @@ const verticalDefaultSizesAtom = atom([
   64,
 ])
 
-export default function ResizeVocabularyPanel() {
+function ResizeVocabularyPanel() {
   const { t } = useTranslation()
   const [fileInfo, setFileInfo] = useAtom(fileInfoAtom)
   const [sourceText, setSourceText] = useAtom(sourceTextAtom)
@@ -131,8 +134,8 @@ export default function ResizeVocabularyPanel() {
   const [{ totalText: count, acquainted: acquaintedWordCount, newCount: newWordCount }] = useAtom(sourceCountAtom)
   const [horizontalDefaultSizes, setHorizontalDefaultSizes] = useAtom(horizontalDefaultSizesAtom)
   const [verticalDefaultSizes, setVerticalDefaultSizes] = useAtom(verticalDefaultSizesAtom)
-  const isMdScreen = useMediaQuery('(min-width: 1024px)', false)
-  const direction = isMdScreen ? 'horizontal' : 'vertical'
+  const isLgScreen = useAtomValue(mediaQueryFamily.useA('(min-width: 1024px)'))
+  const direction = isLgScreen ? 'horizontal' : 'vertical'
   const defaultSizes = direction === 'vertical' ? verticalDefaultSizes : horizontalDefaultSizes
   const panelGroupRef = useRef<ImperativePanelGroupHandle>(null)
   const resetPanelLayout = useEffectEvent(() => {
@@ -196,13 +199,15 @@ export default function ResizeVocabularyPanel() {
             >
               {t('browseFiles')}
             </FileInput>
-            <FileSettings />
+            <Suspense>
+              <FileSettings />
+            </Suspense>
             <Button
               variant="secondary"
               className="h-8 px-3 text-xs"
               asChild
             >
-              <Link to="/subtitles">
+              <Link href="/subtitles">
                 Subtitles
               </Link>
             </Button>
@@ -290,5 +295,15 @@ export default function ResizeVocabularyPanel() {
         </div>
       </div>
     )
+  )
+}
+
+export default function Layout() {
+  return (
+    <ContentRoot className="-mt-1 overflow-hidden pt-1">
+      <div className="size-full max-w-(--breakpoint-xl) px-5 pb-7">
+        <ResizeVocabularyPanel />
+      </div>
+    </ContentRoot>
   )
 }

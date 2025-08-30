@@ -5,7 +5,7 @@ import type { tmdb } from '@sub-vocab/utils/types'
 
 import { env } from '@/env'
 
-const baseUrl = env.VITE_SUB_API_URL
+const baseUrl = env.NEXT_PUBLIC_SUB_API_URL
 
 const fetchClient = createFetchClient<tmdb.paths>({
   baseUrl: `${baseUrl}/tmdb-proxy`,

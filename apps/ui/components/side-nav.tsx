@@ -1,6 +1,7 @@
 import clsx from 'clsx'
-import { NavLink } from 'react-router'
+import Link from 'next/link'
 
+import { NavPathname } from '@/components/NavPathname'
 import { cn } from '@/lib/utils'
 
 export function SideNav({
@@ -17,25 +18,31 @@ export function SideNav({
     <aside className={cn('w-52 pr-4', className)}>
       <nav className="flex flex-col gap-0.5">
         {navList.map((nav) => (
-          <NavLink
+          <NavPathname
             key={nav.to}
-            to={nav.to}
-            className={(l) => clsx(
-              l.isActive && '*:bg-zinc-100 dark:*:bg-zinc-600',
-            )}
           >
-            <div
-              className="rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-600 sq:rounded-[.9375rem]"
-            >
-              <div
-                className="flex h-full items-center px-3 py-1.5 text-stone-700 hover:text-black dark:text-stone-300"
+            {(pathname) => (
+              <Link
+                key={nav.to}
+                href={nav.to}
+                className={clsx(
+                  pathname === nav.to && '*:bg-zinc-100 dark:*:bg-zinc-600',
+                )}
               >
-                <div className="text-sm">
-                  {nav.title}
+                <div
+                  className="rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-600 sq:rounded-[.9375rem]"
+                >
+                  <div
+                    className="flex h-full items-center px-3 py-1.5 text-stone-700 hover:text-black dark:text-stone-300"
+                  >
+                    <div className="text-sm">
+                      {nav.title}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </NavLink>
+              </Link>
+            )}
+          </NavPathname>
         ))}
       </nav>
     </aside>

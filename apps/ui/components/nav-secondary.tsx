@@ -1,9 +1,7 @@
-import type { LucideIcon } from 'lucide-react'
-
-import { useReactRouterIsMatch } from 'foxact/use-react-router-is-match'
+import Link from 'next/link'
 import React, { Fragment } from 'react'
-import { Link } from 'react-router'
 
+import { NavPathname } from '@/components/NavPathname'
 import {
   SidebarGroup,
   SidebarMenu,
@@ -15,7 +13,7 @@ import {
 type Item = {
   title: string
   url: string
-  icon: LucideIcon
+  icon: React.ReactNode
   badge?: React.ReactNode
 }
 
@@ -29,36 +27,31 @@ export function NavSecondary({
     <SidebarGroup {...props}>
       <SidebarMenu>
         {items.map((item) => (
-          <NavSidebarMenuItem
-            key={item.title}
-            item={item}
-          />
+          <NavPathname key={item.title}>
+            {(pathname) => (
+              <SidebarMenuItem
+                className="flex"
+              >
+                <Fragment>
+                  <SidebarMenuButton
+                    isActive={pathname === item.url}
+                    asChild
+                  >
+                    <Link
+                      href={item.url}
+                      className="flex"
+                    >
+                      {item.icon}
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                  {item.badge && <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>}
+                </Fragment>
+              </SidebarMenuItem>
+            )}
+          </NavPathname>
         ))}
       </SidebarMenu>
     </SidebarGroup>
-  )
-}
-
-function NavSidebarMenuItem({ item }: { item: Item }) {
-  return (
-    <SidebarMenuItem
-      className="flex"
-    >
-      <Fragment>
-        <SidebarMenuButton
-          isActive={useReactRouterIsMatch(item.url)}
-          asChild
-        >
-          <Link
-            to={item.url}
-            className="flex"
-          >
-            <item.icon />
-            <span>{item.title}</span>
-          </Link>
-        </SidebarMenuButton>
-        {item.badge && <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>}
-      </Fragment>
-    </SidebarMenuItem>
   )
 }

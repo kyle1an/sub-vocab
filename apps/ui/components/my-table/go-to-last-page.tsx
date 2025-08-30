@@ -1,7 +1,6 @@
 import type { Table } from '@tanstack/react-table'
 
 import { Fragment } from 'react'
-import MaterialSymbolsLightArrowBack2Outline from '~icons/material-symbols-light/arrow-back-2-outline'
 
 import { Button } from '@/components/ui/button'
 import { HEAD_HEIGHT } from '@/components/ui/table-element'
@@ -32,8 +31,8 @@ export function TableGoToLastPage<T>({
             className="size-full rounded-none sq:rounded-none"
             onClick={handleGoToLastPage}
           >
-            <MaterialSymbolsLightArrowBack2Outline
-              className="size-9"
+            <svg
+              className="icon-[material-symbols-light--arrow-back-2-outline] size-9"
             />
           </Button>
         </div>

@@ -1,19 +1,19 @@
+'use client'
+
 import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
 import { useMutation } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
+import Link from 'next/link'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, Navigate } from 'react-router'
 import { z } from 'zod/v4-mini'
-import IconLucideEye from '~icons/lucide/eye'
-import IconLucideEyeOff from '~icons/lucide/eye-off'
-import IconLucideLoader2 from '~icons/lucide/loader2'
 
 import type { ZodObj } from '@/types/utils'
 
 import { useSignInWithUsername } from '@/api/user'
 import { authChangeEventAtom, sessionAtom } from '@/atoms/auth'
 import { ContentRoot } from '@/components/content-root'
+import Navigate from '@/components/Navigate'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -145,7 +145,7 @@ export default function Login() {
                               Password
                             </span>
                             <Link
-                              to="/reset-password"
+                              href="/reset-password"
                               className="text-foreground opacity-60"
                             >
                               Forgot password?
@@ -171,13 +171,9 @@ export default function Login() {
                                 }}
                               >
                                 {passwordVisible ? (
-                                  <IconLucideEye
-                                    className="size-4.5 text-neutral-600"
-                                  />
+                                  <svg className="icon-[lucide--eye] size-4.5 text-neutral-600" />
                                 ) : (
-                                  <IconLucideEyeOff
-                                    className="size-4.5 text-neutral-600"
-                                  />
+                                  <svg className="icon-[lucide--eye-off] size-4.5 text-neutral-600" />
                                 )}
                               </Button>
                             </div>
@@ -194,9 +190,7 @@ export default function Login() {
                     >
                       Sign in
                       {isPending ? (
-                        <IconLucideLoader2
-                          className="animate-spin"
-                        />
+                        <svg className="icon-[lucide--loader-2] animate-spin" />
                       ) : null}
                     </Button>
                   </form>

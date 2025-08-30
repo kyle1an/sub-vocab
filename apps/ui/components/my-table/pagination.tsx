@@ -1,12 +1,6 @@
 import type { UsePaginationItem } from '@mui/material/usePagination'
 import type { Table } from '@tanstack/react-table'
 
-import IconLucideChevronLeft from '~icons/lucide/chevron-left'
-import IconLucideChevronRight from '~icons/lucide/chevron-right'
-import IconLucideChevronsLeft from '~icons/lucide/chevrons-left'
-import IconLucideChevronsRight from '~icons/lucide/chevrons-right'
-import IconPrimeEllipsisH from '~icons/prime/ellipsis-h'
-
 import { cn } from '@/lib/utils'
 
 export function TablePagination<T>({
@@ -41,8 +35,8 @@ export function TablePagination<T>({
               }}
               key={type}
             >
-              <IconLucideChevronLeft
-                className="size-4"
+              <svg
+                className="icon-[lucide--chevron-left] size-4"
               />
             </button>
           )
@@ -60,11 +54,11 @@ export function TablePagination<T>({
               }}
               key={`${type}${page}`}
             >
-              <IconLucideChevronsLeft
-                className="hidden size-4 group-hover:inline-block"
+              <svg
+                className="icon-[lucide--chevron-left] hidden size-4 group-hover:inline-block"
               />
-              <IconPrimeEllipsisH
-                className="size-4 group-hover:hidden"
+              <svg
+                className="icon-[prime--ellipsis-h] size-4 group-hover:hidden"
               />
             </button>
           )
@@ -99,11 +93,11 @@ export function TablePagination<T>({
               }}
               key={`${type}${page}`}
             >
-              <IconLucideChevronsRight
-                className="hidden size-4 group-hover:inline-block"
+              <svg
+                className="icon-[lucide--chevron-right] hidden size-4 group-hover:inline-block"
               />
-              <IconPrimeEllipsisH
-                className="size-4 group-hover:hidden"
+              <svg
+                className="icon-[prime--ellipsis-h] size-4 group-hover:hidden"
               />
             </button>
           )
@@ -122,8 +116,8 @@ export function TablePagination<T>({
               }}
               key={type}
             >
-              <IconLucideChevronRight
-                className="size-4"
+              <svg
+                className="icon-[lucide--chevron-right] size-4"
               />
             </button>
           )

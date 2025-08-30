@@ -1,20 +1,23 @@
+'use client'
+
 import type { CheckedState } from '@radix-ui/react-checkbox'
 
+import { pipe } from 'effect'
 import { isEqual } from 'es-toolkit'
-import { useMediaQuery } from 'foxact/use-media-query'
-import { useAtom } from 'jotai'
-import { useSearchParams } from 'react-router'
+import { useAtom, useAtomValue } from 'jotai'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useImmer } from 'use-immer'
-import IconLucideCog from '~icons/lucide/cog'
 
 import type { FileType } from '@/atoms/file-types'
 
+import { mediaQueryFamily } from '@/atoms'
 import { fileTypesAtom } from '@/atoms/file-types'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTrigger } from '@/components/ui/drawer'
 import { Separator } from '@/components/ui/separator'
 import { Toggle } from '@/components/ui/toggle'
+import { tap } from '@sub-vocab/utils/lib'
 
 function FileSettingsContent({
   className,
@@ -58,8 +61,17 @@ const FILE_SETTINGS_TITLE = `Select File Types`
 const FILE_SETTINGS_DESCRIPTION = `Choose the file types you want to include for text input.`
 
 export function FileSettings() {
-  const isMdScreen = useMediaQuery('(min-width: 768px)', false)
-  const [searchParams, setSearchParams] = useSearchParams()
+  const isMdScreen = useAtomValue(mediaQueryFamily.useA('(min-width: 768px)'))
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const createQueryString = (name: string, value: string) => pipe(
+    new URLSearchParams(searchParams.toString()),
+    tap((x) => {
+      x.set(name, value)
+    }),
+    (x) => x.toString(),
+  )
   const open = searchParams.get('popup') === 'file-settings'
   const [fileTypes, setFileTypes] = useAtom(fileTypesAtom)
   const [fileTypesInterim, setFileTypesInterim] = useImmer(fileTypes)
@@ -75,7 +87,7 @@ export function FileSettings() {
 
   function save() {
     setFileTypes(fileTypesInterim)
-    searchParams.delete('popup')
+    router.push(``)
   }
 
   const settingsUnchanged = isEqual(fileTypes, fileTypesInterim)
@@ -85,20 +97,17 @@ export function FileSettings() {
       variant="outline"
       className="size-8 p-0"
     >
-      <IconLucideCog
-        className="size-3.5"
-      />
+      <svg className="icon-[lucide--cog] size-3.5" />
     </Button>
   )
 
   function handleOpenChange(open: boolean) {
     if (open) {
-      searchParams.set('popup', 'file-settings')
+      router.push(`${pathname}?${createQueryString('popup', 'file-settings')}`)
     } else {
-      searchParams.delete('popup')
+      router.push(`${pathname}`)
       setFileTypesInterim(fileTypes)
     }
-    setSearchParams(searchParams)
   }
 
   if (isMdScreen) {

@@ -2,10 +2,10 @@ import { createClient } from '@supabase/supabase-js'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 
-import type { Database } from '@ui/types/database.types.ts'
-
 import * as schema from '@backend/drizzle/schema.ts'
 import { env } from '@backend/env.ts'
+
+import type { Database } from '../../../ui/types/database.types.ts'
 
 const connectionString = env.POSTGRES_URL
 // https://supabase.com/docs/guides/database/connecting-to-postgres#connection-pooler

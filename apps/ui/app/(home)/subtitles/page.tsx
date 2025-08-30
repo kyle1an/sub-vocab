@@ -1,3 +1,5 @@
+'use client'
+
 import type { InitialTableState } from '@tanstack/react-table'
 
 import usePagination from '@mui/material/usePagination'
@@ -15,19 +17,12 @@ import { atom, useAtom, useAtomValue, useSetAtom, useStore } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 import { atomWithStorage } from 'jotai/utils'
 import ms from 'ms'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Fragment, startTransition, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate } from 'react-router'
 import { useImmer } from 'use-immer'
-import IconClarityStarSolid from '~icons/clarity/star-solid'
-import IconF7ArrowDownCircleFill from '~icons/f7/arrow-down-circle-fill'
-import F7CaptionsBubbleFill from '~icons/f7/captions-bubble-fill'
-import IconF7MultiplyCircle from '~icons/f7/multiply-circle'
-import IconLucideChevronRight from '~icons/lucide/chevron-right'
-import IconLucideLoader2 from '~icons/lucide/loader2'
-import MiChevronLeft from '~icons/mi/chevron-left'
-import IconOuiTokenKey from '~icons/oui/token-key'
 
 import type { Download } from '@/api/opensubtitles'
 import type { tmdb } from '@sub-vocab/utils/types'
@@ -35,8 +30,9 @@ import type { tmdb } from '@sub-vocab/utils/types'
 import { $osApi, openSubtitlesDownloadAtom, openSubtitlesTextAtom } from '@/api/opensubtitles'
 import { $api } from '@/api/tmdb'
 import { osLanguageAtom } from '@/atoms'
-import { fileIdsAtom, mediaSubtitleAtomFamily } from '@/atoms/subtitles'
+import { fileIdsAtom, mediaSubtitleFamily } from '@/atoms/subtitles'
 import { fileInfoAtom, sourceTextAtom } from '@/atoms/vocabulary'
+import { ContentRoot } from '@/components/content-root'
 import { MediaDetails } from '@/components/media-details'
 import { SortIcon } from '@/components/my-icon/sort-icon'
 import { TableGoToLastPage } from '@/components/my-table/go-to-last-page'
@@ -127,9 +123,9 @@ function useColumns<T extends TableData>(rootRef: React.RefObject<HTMLDivElement
                 */}
                   {/* https://stackoverflow.com/questions/2876424/html-double-click-selection-oddity */}
                   {'\u200B'}
-                  <IconLucideChevronRight
+                  <svg
                     className={clsx(
-                      'size-3.5 text-zinc-400 transition-transform dark:text-zinc-500',
+                      'icon-[lucide--chevron-right] size-3.5 text-zinc-400 transition-transform dark:text-zinc-500',
                       isExpanded ? 'rotate-90' : '',
                     )}
                   />
@@ -323,7 +319,7 @@ function useColumns<T extends TableData>(rootRef: React.RefObject<HTMLDivElement
               voteCount >= 1 ? (
                 <Div className="flex flex-nowrap gap-1 px-1 tracking-[.03em] tabular-nums">
                   <div className="flex items-center gap-1.5">
-                    <IconClarityStarSolid className="text-neutral-800 dark:text-neutral-100" />
+                    <svg className="icon-[clarity--star-solid] text-neutral-800 dark:text-neutral-100" />
                     <span className="font-semibold">
                       {voteNumberFormat.format(value)}
                     </span>
@@ -388,7 +384,7 @@ function useColumns<T extends TableData>(rootRef: React.RefObject<HTMLDivElement
   ]
 }
 
-export default function Subtitles() {
+function Subtitles() {
   const store = useStore()
   const { isPending: isDownloadPending, mutateAsync: downloadText } = useAtomValue(openSubtitlesTextAtom)
   const { isPending: isFileDownloadPending, mutateAsync: downloadFile } = useAtomValue(openSubtitlesDownloadAtom)
@@ -459,7 +455,7 @@ export default function Subtitles() {
     getSortedRowModel: getSortedRowModel(),
   }))
   const rowsFiltered = table.getFilteredRowModel().rows
-  const navigate = useNavigate()
+  const router = useRouter()
   const [fileIds] = useAtom(fileIdsAtom)
 
   async function getText(fileIds: number[]) {
@@ -487,7 +483,7 @@ export default function Subtitles() {
         }))
       }),
     )
-    navigate('/')
+    router.push('/')
     startTransition(() => {
       setSubtitleDownloadProgress([])
     })
@@ -507,7 +503,7 @@ export default function Subtitles() {
   }
 
   function clearSelection() {
-    Array.from(mediaSubtitleAtomFamily.getParams(), mediaSubtitleAtomFamily).forEach((a) => {
+    Array.from(mediaSubtitleFamily.getParams(), mediaSubtitleFamily).forEach((a) => {
       store.set(a, produce(({ tableState }) => {
         tableState.rowSelection = {}
       }))
@@ -549,8 +545,8 @@ export default function Subtitles() {
             className="h-8 gap-0.5 pr-3 pl-2.5 text-xs"
             asChild
           >
-            <Link to="/">
-              <MiChevronLeft className="size-4.5" />
+            <Link href="/">
+              <svg className="icon-[mi--chevron-left] size-4.5" />
               Home
             </Link>
           </Button>
@@ -561,7 +557,7 @@ export default function Subtitles() {
                 variant="ghost"
                 className="gap-1.5 px-3"
               >
-                <IconOuiTokenKey className="min-w-[1em]" />
+                <svg className="icon-[oui--token-key] min-w-[1em]" />
                 <span className="hidden md:block">
                   OpenSubtitles
                 </span>
@@ -578,7 +574,7 @@ export default function Subtitles() {
             }}
             disabled={fileIds.length === 0 || isLoading}
           >
-            <F7CaptionsBubbleFill className="min-w-[1em]" />
+            <svg className="icon-[f7--captions-bubble-fill] min-w-[1em]" />
             <span className="hidden md:block">
               View Text
             </span>
@@ -590,7 +586,7 @@ export default function Subtitles() {
             }}
             disabled={fileIds.length === 0 || isLoading}
           >
-            <IconF7ArrowDownCircleFill className="min-w-[1em]" />
+            <svg className="icon-[f7--arrow-down-circle-fill] min-w-[1em]" />
             <span className="hidden md:block">
               Download
             </span>
@@ -640,9 +636,7 @@ export default function Subtitles() {
               </Select>
               <div className="flex aspect-square h-full grow items-center justify-start pl-1.5">
                 {isSearchLoading ? (
-                  <IconLucideLoader2
-                    className="animate-spin"
-                  />
+                  <svg className="icon-[lucide--loader-2] animate-spin" />
                 ) : null}
               </div>
               <Button
@@ -654,16 +648,14 @@ export default function Subtitles() {
                 disabled={fileIds.length === 0 || isLoading}
                 onClick={clearSelection}
               >
-                <IconF7MultiplyCircle className="min-w-[1em]" />
+                <svg className="icon-[f7--multiply-circle] min-w-[1em]" />
                 <span className="hidden md:block">
                   Clear
                 </span>
               </Button>
               <div className="flex items-center gap-1.5 pr-1.5 text-sm">
                 {isLoading ? (
-                  <IconLucideLoader2
-                    className="min-w-[1em] animate-spin"
-                  />
+                  <svg className="icon-[lucide--loader-2] min-w-[1em] animate-spin" />
                 ) : null}
                 {isLoading ? (
                   <div className="flex items-center gap-1.5">
@@ -766,5 +758,15 @@ export default function Subtitles() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function Layout() {
+  return (
+    <ContentRoot className="-mt-1 overflow-hidden pt-1">
+      <div className="size-full max-w-(--breakpoint-xl) px-5 pb-7">
+        <Subtitles />
+      </div>
+    </ContentRoot>
   )
 }

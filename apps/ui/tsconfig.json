@@ -2,27 +2,27 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "types": [
-      "unplugin-icons/types/react",
-      "vite/client"
     ],
+    "incremental": true,
+    "jsx": "preserve",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "paths": {
       "@backend/*": ["./../backend/*"],
       "@/*": ["./*"]
     },
-    "rootDirs": [
-      ".",
-      "./.react-router/types"
-    ],
-    "useDefineForClassFields": true,
-    "moduleResolution": "bundler",
-    "jsx": "preserve",
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": true,
-
-    "module": "ESNext",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "strict": true,
     "noEmit": true,
-
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     "lib": [
       "ESNext",
       "DOM",
@@ -30,22 +30,10 @@
     ]
   },
   "include": [
-    ".react-router/types/**/*",
-    ".eslintrc.js",
-    ".eslintrc.cjs",
-    "**/*.config.js",
-    "**/*.config.cjs",
-    "**/*.d.ts",
+    "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    ".next/types/**/*.ts"
   ],
-  "exclude": [
-    "./vite/**/*",
-    "vite.config.ts"
-  ],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
+  "exclude": ["node_modules"]
 }

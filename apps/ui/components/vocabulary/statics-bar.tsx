@@ -1,8 +1,6 @@
 import NumberFlow from '@number-flow/react'
 import clsx from 'clsx'
 import { Fragment, useDeferredValue } from 'react'
-import IconLucideCheckCircle from '~icons/lucide/check-circle'
-import IconLucideCircle from '~icons/lucide/circle'
 
 import { AnimatedCircularProgressBar } from '@/components/magicui/animated-circular-progress-bar'
 
@@ -53,8 +51,8 @@ export function VocabStatics({
                   isolate
                 />
               </span>
-              <IconLucideCircle
-                className="size-3.5 text-neutral-400"
+              <svg
+                className="icon-[lucide--circle] size-3.5 text-neutral-400"
               />
             </div>
           </div>
@@ -76,8 +74,8 @@ export function VocabStatics({
                   isolate
                 />
               </span>
-              <IconLucideCheckCircle
-                className="size-3.5 text-neutral-400"
+              <svg
+                className="icon-[lucide--check-circle] size-3.5 text-neutral-400"
               />
             </div>
           </div>

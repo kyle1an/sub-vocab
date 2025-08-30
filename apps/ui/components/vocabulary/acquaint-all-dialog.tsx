@@ -1,7 +1,6 @@
 import { useStore } from 'jotai'
 import { Trans, useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import IconSolarListCheckBold from '~icons/solar/list-check-bold'
 
 import type { TrackedWord } from '@/lib/LexiconTrie'
 
@@ -33,7 +32,7 @@ export function AcquaintAllDialog<T extends TrackedWord>({
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <div className="flex w-full flex-row items-center gap-3 px-2 py-1.5">
-          <IconSolarListCheckBold />
+          <svg className="icon-[solar--list-check-bold]" />
           <div className="">{t('acquaintedAll')}</div>
         </div>
       </AlertDialogTrigger>

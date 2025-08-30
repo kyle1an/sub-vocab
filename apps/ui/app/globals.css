@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin "tailwindcss-signals";
+@plugin "@iconify/tailwind4" {
+   scale: 1;
+}
 
 @custom-variant dark (&:where(.dark, .dark *));
 @custom-variant sq (@supports (corner-shape: squircle));
@@ -273,6 +276,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  /* --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono); */
   --color-foreground: var(--foreground);
   --color-background: var(--background);
   --radius-sm: calc(var(--radius) - 4px);
@@ -317,6 +322,18 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
 }
 
 :root {

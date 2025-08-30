@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import { pipe } from 'effect'
 import { atom } from 'jotai'
 import { atomWithImmer } from 'jotai-immer'
 import ms from 'ms'
@@ -6,15 +7,15 @@ import * as React from 'react'
 import { useId } from 'react'
 import { Drawer as DrawerPrimitive } from 'vaul'
 
-import { myAtomFamily } from '@/atoms'
+import { myAtomFamily } from '@/app/providers'
 import { cn } from '@/lib/utils'
 import { retimerAtomFamily, setAtom } from '@sub-vocab/utils/atoms'
-import { useAtomEffect, useCall } from '@sub-vocab/utils/hooks'
+import { useAtomEffect } from '@sub-vocab/utils/hooks'
 import { equalBy } from '@sub-vocab/utils/lib'
 
 const TRANSITIONS_DURATION = ms('0.5s')
 
-const drawerStateFamily = myAtomFamily(
+const drawerStateFamily = pipe(myAtomFamily(
   `drawerStateFamily`,
   ([
     ,
@@ -31,7 +32,9 @@ const drawerStateFamily = myAtomFamily(
     },
   ]) => atomWithImmer(initialValue),
   equalBy(([key]) => key),
-)
+), (x) => Object.assign(x, {
+  useA: x,
+}))
 
 export const isAnyDrawerOpenAtom = atom((get) => {
   return get(drawerStateFamily.paramsAtom)
@@ -47,13 +50,13 @@ function Drawer({
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
   const { shouldScaleBackground = false, open = false } = props
   const id = useId()
-  const drawerStateAtom = useCall(() => drawerStateFamily([
+  const drawerStateAtom = drawerStateFamily.useA([
     id,
     {
       open,
       shouldScaleBackground,
     },
-  ]))
+  ])
   useAtomEffect((get, set) => {
     const retimeAnim = get(animRetimerFamily(id))
     const setDrawerState = setAtom(set, drawerStateAtom)

@@ -2,9 +2,6 @@ import clsx from 'clsx'
 import { useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
-import IconCodiconRegex from '~icons/codicon/regex'
-import IconEpCircleCloseFilled from '~icons/ep/circle-close-filled'
-import IconIonSearch from '~icons/ion/search'
 
 import { Toggle } from '@/components/ui/toggle'
 import { cn } from '@/lib/utils'
@@ -48,8 +45,8 @@ export function SearchWidget({
         className,
       )}
     >
-      <IconIonSearch
-        className="size-4 text-neutral-500 dark:text-neutral-400"
+      <svg
+        className="icon-[ion--search] size-4 text-neutral-500 dark:text-neutral-400"
       />
       <input
         ref={inputRef}
@@ -66,8 +63,8 @@ export function SearchWidget({
         )}
       />
       {value ? (
-        <IconEpCircleCloseFilled
-          className="size-[17px] text-neutral-700 dark:text-neutral-300"
+        <svg
+          className="icon-[ep--circle-close-filled] size-[17px] text-neutral-700 dark:text-neutral-300"
           onClick={() => {
             onSearch('')
           }}
@@ -83,8 +80,8 @@ export function SearchWidget({
             onRegex(!isUsingRegex)
           }}
         >
-          <IconCodiconRegex
-            className="size-4.5"
+          <svg
+            className="icon-[codicon--regex] size-4.5"
           />
         </Toggle>
       </div>

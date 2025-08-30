@@ -1,6 +1,3 @@
-import IconIonEllipsisHorizontalCircleOutline from '~icons/ion/ellipsis-horizontal-circle-outline'
-import IconLucideChevronDown from '~icons/lucide/chevron-down'
-
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
@@ -19,11 +16,11 @@ export function VocabularyMenu({
           className="flex max-h-full gap-1 p-2! [--sq-r:.75rem]"
           variant="ghost"
         >
-          <IconIonEllipsisHorizontalCircleOutline
-            className="size-[19px]"
+          <svg
+            className="icon-[ion--ellipsis-horizontal-circle-outline] size-[19px]"
           />
-          <IconLucideChevronDown
-            className="size-3.5"
+          <svg
+            className="icon-[lucide--chevron-down] size-3.5"
           />
         </Button>
       </DropdownMenuTrigger>

@@ -5,14 +5,10 @@ import { useMutation } from '@tanstack/react-query'
 import { $trycatch } from '@tszen/trycatch'
 import clsx from 'clsx'
 import { useAtom } from 'jotai'
+import Link from 'next/link'
 import { Fragment, useTransition } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
 import { toast } from 'sonner'
-import IconFaLanguage from '~icons/fa/language'
-import IconLucideCog from '~icons/lucide/cog'
-import IconMingcuteUser4Fill from '~icons/mingcute/user4-fill'
-import IconSolarLogout2Outline from '~icons/solar/logout2-outline'
 
 import { themeAtom } from '@/atoms'
 import { sessionAtom } from '@/atoms/auth'
@@ -23,7 +19,7 @@ import { Menubar, MenubarContent, MenubarMenu, MenubarRadioGroup, MenubarRadioIt
 import { localeAtom } from '@/i18n'
 import { cn } from '@/lib/utils'
 import { supabaseAuth } from '@/utils/supabase'
-import { bindApply } from '@sub-vocab/utils/lib'
+import { bindApply, omitUndefined } from '@sub-vocab/utils/lib'
 
 const LOCALES = [
   {
@@ -39,12 +35,12 @@ const LOCALES = [
 function Account({ className, style, ...props }: React.ComponentProps<'a'>) {
   return (
     <Link
-      to="/register"
+      href="/register"
       className={cn('inline-flex items-center gap-3', className)}
-      {...props}
+      {...omitUndefined(props)}
     >
-      <IconLucideCog
-        className="size-4"
+      <svg
+        className="icon-[lucide--cog] size-4"
       />
       <span>Account</span>
     </Link>
@@ -54,12 +50,12 @@ function Account({ className, style, ...props }: React.ComponentProps<'a'>) {
 function SignIn({ className, ...props }: React.ComponentProps<'a'>) {
   return (
     <Link
-      to="/login"
+      href="/login"
       className={cn('inline-flex items-center gap-3', className)}
-      {...props}
+      {...omitUndefined(props)}
     >
-      <IconMingcuteUser4Fill
-        className="size-4"
+      <svg
+        className="icon-[mingcute--user-4-fill] size-4"
       />
       <span>Sign in</span>
     </Link>
@@ -93,8 +89,8 @@ function SignOut({ className, ...props }: React.ComponentProps<'button'>) {
       {...props}
       onClick={logout}
     >
-      <IconSolarLogout2Outline
-        className="size-4 -scale-x-100"
+      <svg
+        className="icon-[solar--logout-2-outline] size-4 -scale-x-100"
       />
       <span>
         {t('SignOut')}
@@ -179,8 +175,8 @@ export function TopBar({ className }: { className?: string }) {
                           className="size-8 justify-center p-0"
                         >
                           <div className="flex h-full items-center">
-                            <IconFaLanguage
-                              className="size-4 text-neutral-500 dark:text-neutral-400"
+                            <svg
+                              className="icon-[fa--language] size-4 text-neutral-500 dark:text-neutral-400"
                             />
                           </div>
                         </MenubarTrigger>
@@ -223,8 +219,8 @@ export function TopBar({ className }: { className?: string }) {
                             </Button>
                           ) : (
                             <Button variant="ghost">
-                              <IconMingcuteUser4Fill
-                                className="size-5.5 text-neutral-500"
+                              <svg
+                                className="icon-[mingcute--user-4-fill] size-5.5 text-neutral-500"
                               />
                             </Button>
                           )}

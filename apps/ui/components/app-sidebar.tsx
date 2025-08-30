@@ -2,12 +2,6 @@ import { useAtom } from 'jotai'
 import { Home } from 'lucide-react'
 import { Fragment } from 'react'
 import * as React from 'react'
-import AkarIconsKey from '~icons/akar-icons/key'
-import IconBiGithub from '~icons/bi/github'
-import LucideUserRoundPen from '~icons/lucide/user-round-pen'
-import MaterialSymbolsBarChart4Bars from '~icons/material-symbols/bar-chart-4-bars'
-import MaterialSymbolsInfoOutline from '~icons/material-symbols/info-outline'
-import SolarChecklistBold from '~icons/solar/checklist-bold'
 
 import { sessionAtom } from '@/atoms/auth'
 import { ArrowOutwardRounded } from '@/components/icons/arrow'
@@ -33,26 +27,26 @@ const data = {
     {
       title: 'Home',
       url: '/',
-      icon: Home,
+      icon: <Home />,
     },
   ],
   navSecondary: [
     {
       title: 'Vocabulary',
       url: '/mine/vocabulary',
-      icon: SolarChecklistBold,
+      icon: <svg className="icon-[solar--checklist-bold]" />,
     },
     {
       title: 'Chart',
       url: '/mine/chart',
-      icon: MaterialSymbolsBarChart4Bars,
+      icon: <svg className="icon-[material-symbols--bar-chart-4-bars]" />,
     },
   ],
   navFooter: [
     {
       title: 'About',
       url: '/about',
-      icon: MaterialSymbolsInfoOutline,
+      icon: <svg className="icon-[material-symbols--info-outline]" />,
     },
   ],
 }
@@ -61,12 +55,12 @@ const accountNav = [
   {
     title: 'User',
     url: '/user/profile',
-    icon: LucideUserRoundPen,
+    icon: <svg className="icon-[lucide--user-round-pen]" />,
   },
   {
     title: 'Password',
     url: '/user/password',
-    icon: AkarIconsKey,
+    icon: <svg className="icon-[akar-icons--key]" />,
   },
 ]
 
@@ -105,7 +99,9 @@ export function AppSidebar({ className, ...props }: React.ComponentProps<typeof 
                 rel="noreferrer noopener"
               >
                 <span className="sr-only">Subvocab on GitHub</span>
-                <IconBiGithub className="bg-sidebar group-hover/bg:bg-inherit" />
+                <span className="size-4 shrink-0 bg-sidebar group-hover/bg:bg-inherit">
+                  <span className="icon-[bi--github] size-full" />
+                </span>
                 <span className="grow">
                   <span className="bg-sidebar group-hover/bg:bg-inherit">GitHub</span>
                 </span>

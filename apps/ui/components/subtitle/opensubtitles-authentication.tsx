@@ -7,9 +7,6 @@ import { ofetch } from 'ofetch'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod/v4-mini'
-import IconLucideEye from '~icons/lucide/eye'
-import IconLucideEyeOff from '~icons/lucide/eye-off'
-import IconLucideLoader2 from '~icons/lucide/loader2'
 
 import type { Login } from '@/api/opensubtitles'
 
@@ -63,7 +60,7 @@ export function OpensubtitlesAuthentication() {
 
   async function onSubmit(values: FormValues) {
     setPasswordVisible(false)
-    const baseUrl = `${env.VITE_SUB_API_URL}/opensubtitles-proxy/def`
+    const baseUrl = `${env.NEXT_PUBLIC_SUB_API_URL}/opensubtitles-proxy/def`
     const result = await mutateAsync([
       `${baseUrl}/login`,
       {
@@ -157,12 +154,12 @@ export function OpensubtitlesAuthentication() {
                         }}
                       >
                         {passwordVisible ? (
-                          <IconLucideEye
-                            className="size-4.5 text-neutral-600"
+                          <svg
+                            className="icon-[lucide--eye] size-4.5 text-neutral-600"
                           />
                         ) : (
-                          <IconLucideEyeOff
-                            className="size-4.5 text-neutral-600"
+                          <svg
+                            className="icon-[lucide--eye-off] size-4.5 text-neutral-600"
                           />
                         )}
                       </Button>
@@ -180,8 +177,8 @@ export function OpensubtitlesAuthentication() {
             >
               Get Token
               {isPending ? (
-                <IconLucideLoader2
-                  className="animate-spin"
+                <svg
+                  className="icon-[lucide--loader-2] animate-spin"
                 />
               ) : null}
             </Button>

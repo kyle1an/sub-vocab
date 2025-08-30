@@ -1,3 +1,5 @@
+'use client'
+
 import { pipe } from 'effect'
 import { useAtom, useAtomValue } from 'jotai'
 

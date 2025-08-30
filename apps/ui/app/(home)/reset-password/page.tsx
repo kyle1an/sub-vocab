@@ -1,16 +1,18 @@
+'use client'
+
 import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
 import { useMutation } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import ms from 'ms'
+import { useRouter } from 'next/navigation'
 import { startTransition } from 'react'
 import { useForm } from 'react-hook-form'
-import { Navigate, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod/v4-mini'
-import IconLucideLoader2 from '~icons/lucide/loader2'
 
 import { authChangeEventAtom, sessionAtom } from '@/atoms/auth'
 import { ContentRoot } from '@/components/content-root'
+import Navigate from '@/components/Navigate'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -37,7 +39,7 @@ export default function ResetPassword() {
     mutationKey: ['resetPasswordForEmail'],
     mutationFn: bindApply(supabaseAuth.resetPasswordForEmail, supabaseAuth),
   })
-  const navigate = useNavigate()
+  const router = useRouter()
 
   const formDefaultValues = {
     email: '',
@@ -75,7 +77,7 @@ export default function ResetPassword() {
         duration: ms('1min'),
       })
       startTransition(() => {
-        navigate('/login')
+        router.push('/login')
       })
     }
   }
@@ -123,9 +125,7 @@ export default function ResetPassword() {
                     >
                       Send Reset Email
                       {isPending ? (
-                        <IconLucideLoader2
-                          className="animate-spin"
-                        />
+                        <svg className="icon-[lucide--loader-2] animate-spin" />
                       ) : null}
                     </Button>
                   </form>

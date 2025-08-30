@@ -17,7 +17,7 @@ import type { RowSelectionChangeFn } from '@/types/utils'
 
 import { openSubtitlesSubtitlesAtom } from '@/api/opensubtitles'
 import { osLanguageAtom } from '@/atoms'
-import { buildMediaSubtitleState, mediaSubtitleAtomFamily } from '@/atoms/subtitles'
+import { buildMediaSubtitleState, mediaSubtitleFamily } from '@/atoms/subtitles'
 import { SortIcon } from '@/components/my-icon/sort-icon'
 import { TableGoToLastPage } from '@/components/my-table/go-to-last-page'
 import { TablePagination } from '@/components/my-table/pagination'
@@ -248,7 +248,7 @@ function SubtitleFiles({
   const tbodyRef = useRef<HTMLTableSectionElement>(null)
   const movieColumns = useMovieColumns(rootRef, tbodyRef)
   const columns = [...commonColumns, ...movieColumns]
-  const [{ initialTableState: mediaInitialTableState, tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleAtomFamily([
+  const [{ initialTableState: mediaInitialTableState, tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleFamily([
     id,
     buildMediaSubtitleState({
       initialTableState: {

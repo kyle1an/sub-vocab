@@ -1,13 +1,10 @@
 import type { Resource } from 'i18next'
 
-import { pipe } from 'effect'
 import i18n from 'i18next'
 import I18nextBrowserLanguageDetector from 'i18next-browser-languagedetector'
 import { withAtomEffect } from 'jotai-effect'
 import { atomWithStorage } from 'jotai/utils'
 import { initReactI18next } from 'react-i18next'
-
-import { tap } from '@sub-vocab/utils/lib'
 
 import { en } from './en'
 import { zh } from './zh'
@@ -32,16 +29,12 @@ i18n
   })
 
 export const localeAtom = withAtomEffect(
-  pipe(
-    atomWithStorage('localeAtom', i18n.language, undefined, { getOnInit: true }),
-    tap((x) => {
-      x.debugLabel = `localeAtom`
-    }),
-  ),
+  atomWithStorage('localeAtom', i18n.language, undefined, { getOnInit: true }),
   (get) => {
     i18n.changeLanguage(get(localeAtom)).catch(console.error)
   },
 )
+localeAtom.debugLabel = `localeAtom`
 
 // https://github.com/i18next/react-i18next/issues/1483#issuecomment-2351003452
 export const transParams = (s: Record<string, unknown>) => s as unknown as React.ReactNode
