@@ -1,11 +1,11 @@
 import { createColumnHelper } from '@tanstack/react-table'
-import { useTranslation } from 'react-i18next'
 
 import type { SubtitleResponseData } from '@/api/opensubtitles'
 
 import { Div } from '@/components/ui/html-elements'
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeaderCell } from '@/components/ui/table-element'
+import { useI18n } from '@/locales/client'
 import { customFormatDistance, customFormatDistanceToNowStrict, formatDistanceLocale } from '@sub-vocab/utils/lib'
 
 type Subtitle = {
@@ -20,7 +20,7 @@ const displayNames = new Intl.DisplayNames(['en'], { type: 'language' })
 const numberFormat = new Intl.NumberFormat('en')
 
 export function useCommonColumns<T extends SubtitleData>(rootRef: React.RefObject<HTMLDivElement | null>) {
-  const { t } = useTranslation()
+  const t = useI18n()
   const columnHelper = createColumnHelper<T>()
   return [
     columnHelper.accessor((row) => row.subtitle.attributes.language, {

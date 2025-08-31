@@ -1,5 +1,4 @@
 import { useStore } from 'jotai'
-import { Trans, useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import type { TrackedWord } from '@/lib/LexiconTrie'
@@ -8,14 +7,14 @@ import { useUserWordPhaseMutation } from '@/api/vocab-api'
 import { sessionAtom } from '@/atoms/auth'
 import { LoginToast } from '@/components/login-toast'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
-import { transParams } from '@/i18n'
+import { useI18n } from '@/locales/client'
 
 export function AcquaintAllDialog<T extends TrackedWord>({
   vocabulary,
 }: {
   vocabulary: T[]
 }) {
-  const { t } = useTranslation()
+  const t = useI18n()
   const { mutateAsync: userWordPhaseMutation } = useUserWordPhaseMutation()
   const store = useStore()
   const acquaintAllVocab = (rows: T[]) => {
@@ -40,13 +39,7 @@ export function AcquaintAllDialog<T extends TrackedWord>({
         <AlertDialogHeader>
           <AlertDialogTitle>{t('acquaintedAll')}</AlertDialogTitle>
           <AlertDialogDescription>
-            <Trans
-              i18nKey="acquaintedAllConfirmText"
-              values={{ count }}
-            >
-              ()
-              <span className="font-bold text-foreground">{transParams({ count })}</span>
-            </Trans>
+            {t('acquaintedAllConfirmText', { count })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="">

@@ -1,5 +1,6 @@
 import type React from 'react'
 
+import { useIsClient } from 'foxact/use-is-client'
 import { useAtom } from 'jotai'
 import { Button as AriaButton, FileTrigger } from 'react-aria-components'
 
@@ -22,7 +23,7 @@ export function FileInput({
   const [fileTypes] = useAtom(fileTypesAtom)
   const fileTypeNames = fileTypes.filter((fileType) => fileType.checked).map((fileType) => fileType.type)
   const acceptedFileTypes = [...SUPPORTED_FILE_TYPES, ...fileTypeNames]
-
+  const isClient = useIsClient()
   return (
     <div
       onDrop={(ev) => {
@@ -46,11 +47,15 @@ export function FileInput({
         <div>
           <Button
             variant="outline"
-            asChild
+            asChild={isClient}
           >
-            <AriaButton>
-              {children}
-            </AriaButton>
+            {isClient ? (
+              <AriaButton>
+                {children}
+              </AriaButton>
+            ) : (
+              children
+            )}
           </Button>
         </div>
       </FileTrigger>

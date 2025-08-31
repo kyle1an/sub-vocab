@@ -1,10 +1,10 @@
 import clsx from 'clsx'
 import { useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { useTranslation } from 'react-i18next'
 
 import { Toggle } from '@/components/ui/toggle'
 import { cn } from '@/lib/utils'
+import { useI18n } from '@/locales/client'
 
 export function SearchWidget({
   value,
@@ -20,7 +20,7 @@ export function SearchWidget({
   onRegex: (arg: boolean) => void
   className?: string
 }) {
-  const { t } = useTranslation()
+  const t = useI18n()
   const inputRef = useRef<HTMLInputElement>(null)
   useHotkeys('meta+f', (e) => {
     if (document.activeElement === inputRef.current) {

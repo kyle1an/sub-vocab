@@ -83,7 +83,7 @@ export default typegen(antfu(
       tailwindcss: {
         callees: ['classnames', 'clsx', 'cn', 'ctl', 'cva', 'tv', 'twMerge', 'add'],
         // https://github.com/hyoban/eslint-plugin-tailwindcss/pull/3#issuecomment-3079169194
-        config: path.join(__dirname, 'app/globals.css'),
+        config: path.join(__dirname, 'app/[locale]/globals.css'),
       },
     },
   },

@@ -1,3 +1,5 @@
+'use client'
+
 import type { NonArrayObject } from '@sub-vocab/shared-types/types'
 import type { OverrideProperties, SetParameterType } from 'type-fest'
 

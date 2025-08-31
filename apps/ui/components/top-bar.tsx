@@ -7,17 +7,17 @@ import clsx from 'clsx'
 import { useAtom } from 'jotai'
 import Link from 'next/link'
 import { Fragment, useTransition } from 'react'
-import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { themeAtom } from '@/atoms'
 import { sessionAtom } from '@/atoms/auth'
+import { NoSSR } from '@/components/NoSsr'
 import { DEFAULT_THEME, THEMES } from '@/components/themes'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Menubar, MenubarContent, MenubarMenu, MenubarRadioGroup, MenubarRadioItem, MenubarTrigger } from '@/components/ui/menubar'
-import { localeAtom } from '@/i18n'
 import { cn } from '@/lib/utils'
+import { useChangeLocale, useCurrentLocale, useI18n } from '@/locales/client'
 import { supabaseAuth } from '@/utils/supabase'
 import { bindApply, omitUndefined } from '@sub-vocab/utils/lib'
 
@@ -63,7 +63,7 @@ function SignIn({ className, ...props }: React.ComponentProps<'a'>) {
 }
 
 function SignOut({ className, ...props }: React.ComponentProps<'button'>) {
-  const { t } = useTranslation()
+  const t = useI18n()
   const { mutateAsync: signOut } = useMutation({
     mutationKey: ['signOut'],
     mutationFn: bindApply(supabaseAuth.signOut, supabaseAuth),
@@ -100,11 +100,12 @@ function SignOut({ className, ...props }: React.ComponentProps<'button'>) {
 }
 
 export function TopBar({ className }: { className?: string }) {
-  const { t, i18n } = useTranslation()
+  const t = useI18n()
+  const changeLocale = useChangeLocale()
+  const locale = useCurrentLocale()
   const [session] = useAtom(sessionAtom)
   const user = session?.user
   const account = user?.user_metadata?.username || user?.email || ''
-  const [locale, updateLocale] = useAtom(localeAtom)
   const [themePreference, setThemePreference] = useAtom(themeAtom)
   const [isThemeTransitioning, startThemeTransition] = useTransition()
   const avatarSource = `https://avatar.vercel.sh/${account}?size=${22}`
@@ -121,7 +122,7 @@ export function TopBar({ className }: { className?: string }) {
         )}
       >
         <Fragment>
-          <Fragment>
+          <NoSSR>
             <div>
               <div>
                 <div className="flex h-11 items-center justify-between">
@@ -192,7 +193,7 @@ export function TopBar({ className }: { className?: string }) {
                                 value={language.value}
                                 disabled={language.value === locale}
                                 onSelect={() => {
-                                  updateLocale(language.value)
+                                  changeLocale(language.value)
                                 }}
                               >
                                 {language.label}
@@ -263,7 +264,7 @@ export function TopBar({ className }: { className?: string }) {
                 </div>
               </div>
             </div>
-          </Fragment>
+          </NoSSR>
         </Fragment>
       </nav>
     </div>

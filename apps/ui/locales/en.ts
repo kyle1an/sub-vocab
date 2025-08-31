@@ -1,4 +1,4 @@
-export const en = {
+export default {
   confirm_changes: 'Confirm changes',
   'Create Account': 'Create account',
   'log out': 'Log out',
@@ -58,6 +58,6 @@ export const en = {
   Y: 'Y',
   importVocab: 'Import vocabulary',
   acquaintedAll: 'Mark all as Acquainted',
-  acquaintedAllConfirmText: 'Are you sure to mark all (<1>{{count}}</1>) vocabulary as acquainted?',
+  acquaintedAllConfirmText: 'Are you sure to mark all ({count}) vocabulary as acquainted?',
   browseVocabFile: 'Browse vocabulary file',
 } as const

@@ -9,8 +9,7 @@ import { pipe } from 'effect'
 import { atom, useAtom, useAtomValue } from 'jotai'
 import Link from 'next/link'
 import nstr from 'nstr'
-import React, { Suspense, useDeferredValue, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
+import React, { Fragment, useDeferredValue, useRef } from 'react'
 import getCaretCoordinates from 'textarea-caret'
 import { useEffectEvent } from 'use-effect-event'
 
@@ -27,6 +26,7 @@ import { fileInfoAtom, isSourceTextStaleAtom, sourceTextAtom } from '@/atoms/voc
 import { ContentRoot } from '@/components/content-root'
 import { FileInput } from '@/components/file-input'
 import { FileSettings } from '@/components/file-settings'
+import { NoSSR } from '@/components/NoSsr'
 import { Button } from '@/components/ui/button'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { TextareaInput } from '@/components/ui/textarea-input'
@@ -34,6 +34,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { VocabSourceTable } from '@/components/vocabulary/source'
 import { VocabStatics } from '@/components/vocabulary/statics-bar'
 import { LEARNING_PHASE, LexiconTrie } from '@/lib/LexiconTrie'
+import { useI18n } from '@/locales/client'
 import { useAtomEffect, useIsEllipsisActive, useRect } from '@sub-vocab/utils/hooks'
 import { compareBy, isServer, normalizeNewlines, tap } from '@sub-vocab/utils/lib'
 
@@ -113,7 +114,7 @@ const verticalDefaultSizesAtom = atom([
 ])
 
 function ResizeVocabularyPanel() {
-  const { t } = useTranslation()
+  const t = useI18n()
   const [fileInfo, setFileInfo] = useAtom(fileInfoAtom)
   const [sourceText, setSourceText] = useAtom(sourceTextAtom)
   const deferredSourceText = useDeferredValue(sourceText)
@@ -189,7 +190,7 @@ function ResizeVocabularyPanel() {
   const { x: fileInfoX } = useRect(fileInfoRef)
   const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive()
   return (
-    (
+    <Fragment>
       <div className="flex h-full flex-col">
         <div className="pb-3">
           <div className="flex items-center gap-2">
@@ -199,9 +200,7 @@ function ResizeVocabularyPanel() {
             >
               {t('browseFiles')}
             </FileInput>
-            <Suspense>
-              <FileSettings />
-            </Suspense>
+            <FileSettings />
             <Button
               variant="secondary"
               className="h-8 px-3 text-xs"
@@ -215,86 +214,88 @@ function ResizeVocabularyPanel() {
           </div>
         </div>
         <div className="flex grow items-center justify-center overflow-hidden rounded-xl border drop-shadow-xs sq:rounded-3xl">
-          <ResizablePanelGroup
-            ref={panelGroupRef}
-            direction={direction}
-            className={clsx(
-              '[body:has(&[data-panel-group-direction=vertical])]:overflow-hidden', // prevent overscroll
-            )}
-            onLayout={handleLayoutChange}
-          >
-            <ResizablePanel defaultSize={defaultSizes[0]}>
-              <div className="flex h-full items-center justify-center">
-                <div className="relative flex h-full grow flex-col overflow-hidden">
-                  <div className="flex h-12 shrink-0 items-center bg-background py-2 pr-2 pl-4 text-xs">
-                    <Tooltip
-                      delayDuration={400}
-                    >
-                      <TooltipTrigger
-                        onMouseOver={handleOnMouseOver}
-                        asChild
+          <NoSSR>
+            <ResizablePanelGroup
+              ref={panelGroupRef}
+              direction={direction}
+              className={clsx(
+                '[body:has(&[data-panel-group-direction=vertical])]:overflow-hidden', // prevent overscroll
+              )}
+              onLayout={handleLayoutChange}
+            >
+              <ResizablePanel defaultSize={defaultSizes[0]}>
+                <div className="flex h-full items-center justify-center">
+                  <div className="relative flex h-full grow flex-col overflow-hidden">
+                    <div className="flex h-12 shrink-0 items-center bg-background py-2 pr-2 pl-4 text-xs">
+                      <Tooltip
+                        delayDuration={400}
                       >
-                        <span
-                          ref={fileInfoRef}
-                          className="grow truncate"
+                        <TooltipTrigger
+                          onMouseOver={handleOnMouseOver}
+                          asChild
+                        >
+                          <span
+                            ref={fileInfoRef}
+                            className="grow truncate"
+                          >
+                            {fileInfo}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="bottom"
+                          sideOffset={-22 - 1}
+                          align="start"
+                          alignOffset={-12 - 1}
+                          avoidCollisions={false}
+                          hidden={!isEllipsisActive}
+                          className="max-w-(--max-width) border bg-background text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
+                          style={{
+                            '--max-width': `${nstr(isServer ? 0 : window.innerWidth - fileInfoX + 12 - 1)}px`,
+                          }}
                         >
                           {fileInfo}
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent
-                        side="bottom"
-                        sideOffset={-22 - 1}
-                        align="start"
-                        alignOffset={-12 - 1}
-                        avoidCollisions={false}
-                        hidden={!isEllipsisActive}
-                        className="max-w-(--max-width) border bg-background text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
-                        style={{
-                          '--max-width': `${nstr(isServer ? 0 : window.innerWidth - fileInfoX + 12 - 1)}px`,
-                        }}
-                      >
-                        {fileInfo}
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                  <div className="z-10 h-px w-full border-b border-solid border-border shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)]" />
-                  <div className="size-full grow text-base text-zinc-700 md:text-sm">
-                    <TextareaInput
-                      ref={textareaRef}
-                      value={sourceText.value}
-                      placeholder={t('inputArea')}
-                      fileTypes={fileTypes}
-                      onChange={handleTextareaChange}
-                      onFileChange={handleFileChange}
-                    />
-                  </div>
-                  <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-neutral-800">
-                    <VocabStatics
-                      total={count}
-                      text={` ${t('words')}`}
-                      remaining={newWordCount}
-                      completed={acquaintedWordCount}
-                      progress
-                    />
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                    <div className="z-10 h-px w-full border-b border-solid border-border shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)]" />
+                    <div className="size-full grow text-base text-zinc-700 md:text-sm">
+                      <TextareaInput
+                        ref={textareaRef}
+                        value={sourceText.value}
+                        placeholder={t('inputArea')}
+                        fileTypes={fileTypes}
+                        onChange={handleTextareaChange}
+                        onFileChange={handleFileChange}
+                      />
+                    </div>
+                    <div className="flex w-full justify-center border-t border-solid border-t-zinc-200 bg-background dark:border-neutral-800">
+                      <VocabStatics
+                        total={count}
+                        text={` ${t('words')}`}
+                        remaining={newWordCount}
+                        completed={acquaintedWordCount}
+                        progress
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </ResizablePanel>
-            <ResizableHandle
-              withHandle
-              className="focus-visible:bg-ring focus-visible:ring-offset-[-1px]"
-            />
-            <ResizablePanel defaultSize={defaultSizes[1]}>
-              <SourceVocab
-                key={deferredSourceText.epoch}
-                text={deferredSourceText}
-                onSentenceTrack={onSentenceTrack}
+              </ResizablePanel>
+              <ResizableHandle
+                withHandle
+                className="focus-visible:bg-ring focus-visible:ring-offset-[-1px]"
               />
-            </ResizablePanel>
-          </ResizablePanelGroup>
+              <ResizablePanel defaultSize={defaultSizes[1]}>
+                <SourceVocab
+                  key={deferredSourceText.epoch}
+                  text={deferredSourceText}
+                  onSentenceTrack={onSentenceTrack}
+                />
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </NoSSR>
         </div>
       </div>
-    )
+    </Fragment>
   )
 }
 

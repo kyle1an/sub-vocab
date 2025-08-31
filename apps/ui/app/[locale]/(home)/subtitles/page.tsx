@@ -21,7 +21,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Fragment, startTransition, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { useTranslation } from 'react-i18next'
 import { useImmer } from 'use-immer'
 
 import type { Download } from '@/api/opensubtitles'
@@ -48,6 +47,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { filterFn } from '@/lib/table-utils'
+import { useI18n } from '@/locales/client'
 import { useClone } from '@sub-vocab/utils/hooks'
 import { findClosest, tap } from '@sub-vocab/utils/lib'
 
@@ -74,7 +74,7 @@ const cacheStateAtom = atom({
 
 function useColumns<T extends TableData>(rootRef: React.RefObject<HTMLDivElement | null>) {
   // Add this to prevent all columns from re-rendering on sort
-  const { t } = useTranslation()
+  const t = useI18n()
   const columnHelper = createColumnHelper<T>()
   return [
     columnHelper.accessor((row) => row.id, {
@@ -515,7 +515,7 @@ function Subtitles() {
     count: table.getPageCount(),
     page: tableState.pagination.pageIndex + 1,
   })
-  const { t } = useTranslation()
+  const t = useI18n()
 
   useUnmountEffect(() => {
     setCacheState((draft) => {
@@ -603,6 +603,7 @@ function Subtitles() {
                 <Input
                   ref={inputRef}
                   type="text"
+                  placeholder="Search"
                   value={query}
                   onChange={(e) => {
                     setQuery(e.target.value)

@@ -10,25 +10,24 @@ import { DevTools } from 'jotai-devtools'
 import { queryClientAtom } from 'jotai-tanstack-query'
 import { atomWithStorage, useHydrateAtoms } from 'jotai/utils'
 import dynamic from 'next/dynamic'
-import { Fragment } from 'react'
-import { I18nextProvider } from 'react-i18next'
 
 import type { AppRouter } from '@backend/app'
 
 import { TRPCProvider } from '@/api/trpc'
 import { _myAtomFamily } from '@/atoms'
 import { isDarkModeAtom } from '@/atoms/ui'
+import { NoSSR } from '@/components/NoSsr'
 import { env } from '@/env'
-import i18n from '@/i18n'
 import { queryClient } from '@/lib/query-client'
 import { isServer, omitUndefined } from '@sub-vocab/utils/lib'
 
 // after jotai-devtools
-import { myStore } from '../atoms/store'
+import { myStore } from '../../atoms/store'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const myAtomFamily = _myAtomFamily
 
-const StyleComponent = dynamic(() => import('../components/devtools-styles'))
+const StyleComponent = dynamic(() => import('@/components/devtools-styles'))
 
 const jotaiDevtoolsIsShellOpenAtom = atomWithStorage(`jotai-devtools-is-shell-open-V0`, false, undefined, { getOnInit: true })
 
@@ -36,14 +35,14 @@ function JotaiDevtools() {
   const jotaiDevtoolsIsShellOpen = useAtomValue(jotaiDevtoolsIsShellOpenAtom)
   const isDarkMode = useAtomValue(isDarkModeAtom)
   return (
-    <Fragment>
+    <NoSSR>
       <StyleComponent />
       <DevTools
         store={myStore}
         isInitialOpen={jotaiDevtoolsIsShellOpen}
         theme={isDarkMode ? 'dark' : 'light'}
       />
-    </Fragment>
+    </NoSSR>
   )
 }
 
@@ -73,10 +72,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ComposeContextProvider
       contexts={[
-        <PersistQueryClientProvider key="PersistQueryClientProvider" client={queryClient} persistOptions={{ persister }} />,
-        <TRPCProvider key="TRPCProvider" trpcClient={trpcClient} queryClient={queryClient} children={null} />,
-        <I18nextProvider key="I18nextProvider" i18n={i18n} defaultNS="translation" />,
-        <Provider key="Provider" store={myStore} />,
+        /* eslint-disable react/no-missing-key */
+        <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }} />,
+        <TRPCProvider trpcClient={trpcClient} queryClient={queryClient} children={null} />,
+        <Provider store={myStore} />,
+        /* eslint-enable react/no-missing-key */
       ]}
     >
       <HydrateAtoms>

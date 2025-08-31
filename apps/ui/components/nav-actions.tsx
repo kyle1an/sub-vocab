@@ -1,5 +1,3 @@
-'use client'
-
 import { TopBar } from '@/components/top-bar'
 
 export function NavActions() {

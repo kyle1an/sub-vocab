@@ -53,6 +53,7 @@
     "tmdb",
     "toolbelt",
     "trycatch",
+    "turbopack",
     "unplugin",
     "vaul",
     "vercel",
@@ -60,7 +61,7 @@
     "ying",
     "zustand"
   ],
-  "i18n-ally.localesPaths": ["ui/src/i18n"],
+  // "i18n-ally.localesPaths": ["ui/src/i18n"],
 
   // Enable the ESlint flat config support
   "eslint.useFlatConfig": true,

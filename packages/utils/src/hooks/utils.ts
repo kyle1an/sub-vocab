@@ -1,3 +1,5 @@
+'use client'
+
 import type { AtomFamily } from 'jotai/vanilla/utils/atomFamily'
 
 import { useResizeObserver } from '@react-hookz/web'

@@ -14,7 +14,6 @@ import { useAtom, useAtomValue, useStore } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 import nstr from 'nstr'
 import { Fragment, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
 
 import type { Subtitles } from '@/api/opensubtitles'
 import type { SubtitleData } from '@/components/subtitle/columns'
@@ -40,6 +39,7 @@ import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { filterFn, noFilter, sortBySelection } from '@/lib/table-utils'
+import { useI18n } from '@/locales/client'
 import { getFileId } from '@/utils/subtitle'
 import { useClone, useIsEllipsisActive, useRect } from '@sub-vocab/utils/hooks'
 import { compareBy, customFormatDistance, findClosest, formatIntervalLocale, isNonEmptyArray, naturalNumLength } from '@sub-vocab/utils/lib'
@@ -496,7 +496,7 @@ export function TVSubtitleFiles({
 }: {
   id: number
 }) {
-  const { t } = useTranslation()
+  const t = useI18n()
   const { data: seriesDetail, isLoading: isSeriesDetailLoading } = useQuery($api.queryOptions(
     'get',
     '/3/tv/{series_id}',
