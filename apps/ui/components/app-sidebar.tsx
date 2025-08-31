@@ -1,12 +1,15 @@
-import { useAtom } from 'jotai'
+'use client'
+
+import { useAtomValue } from 'jotai'
 import { Home } from 'lucide-react'
 import { Fragment } from 'react'
 import * as React from 'react'
 
-import { sessionAtom } from '@/atoms/auth'
+import { userIdAtom } from '@/atoms/auth'
 import { ArrowOutwardRounded } from '@/components/icons/arrow'
 import { NavMain } from '@/components/nav-main'
 import { NavSecondary } from '@/components/nav-secondary'
+import { NoSSR } from '@/components/NoSsr'
 import { Separator } from '@/components/ui/separator'
 import {
   Sidebar,
@@ -64,57 +67,63 @@ const accountNav = [
   },
 ]
 
-export function AppSidebar({ className, ...props }: React.ComponentProps<typeof Sidebar>) {
-  const [session] = useAtom(sessionAtom)
-  const user = session?.user
+export function AppSidebar({
+  className,
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
+  const userId = useAtomValue(userIdAtom)
   return (
-    <Sidebar className={cn('border-r-0', className)} {...props}>
-      <SidebarHeader className="gap-1.5">
-        <SidebarTrigger className="size-8" />
-        <NavMain items={data.navMain} />
-      </SidebarHeader>
-      <div className="flex w-full">
-        <Separator className="mx-3 shrink" />
-      </div>
-      <SidebarContent className="p-2">
-        <NavMain items={data.navSecondary} />
-        {user ? (<Fragment>
-          <Separator className="min-h-px shrink" />
-          <NavMain items={accountNav} />
-        </Fragment>) : null}
-      </SidebarContent>
-      <div className="flex w-full">
-        <Separator className="mx-3 shrink" />
-      </div>
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem className="flex">
-            <SidebarMenuButton
-              asChild
-            >
-              <a
-                href="https://github.com/kyle1an/sub-vocab"
-                target="_blank"
-                className="group/bg block px-2 *:z-10"
-                rel="noreferrer noopener"
+    <Fragment>
+      <Sidebar className={cn('border-r-0', className)} {...props}>
+        <SidebarHeader className="gap-1.5">
+          <SidebarTrigger className="size-8" />
+          <NavMain items={data.navMain} />
+        </SidebarHeader>
+        <div className="flex w-full">
+          <Separator className="mx-3 shrink" />
+        </div>
+        <SidebarContent className="p-2">
+          <NavMain items={data.navSecondary} />
+          <NoSSR>
+            {userId ? (<Fragment>
+              <Separator className="min-h-px shrink" />
+              <NavMain items={accountNav} />
+            </Fragment>) : null}
+          </NoSSR>
+        </SidebarContent>
+        <div className="flex w-full">
+          <Separator className="mx-3 shrink" />
+        </div>
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem className="flex">
+              <SidebarMenuButton
+                asChild
               >
-                <span className="sr-only">Subvocab on GitHub</span>
-                <span className="size-4 shrink-0 bg-sidebar group-hover/bg:bg-inherit">
-                  <span className="icon-[bi--github] size-full" />
-                </span>
-                <span className="grow">
-                  <span className="bg-sidebar group-hover/bg:bg-inherit">GitHub</span>
-                </span>
-              </a>
-            </SidebarMenuButton>
-            <SidebarMenuBadge>
-              <ArrowOutwardRounded />
-            </SidebarMenuBadge>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        <NavSecondary items={data.navFooter} className="mt-auto p-0" />
-      </SidebarFooter>
-      <SidebarRail />
-    </Sidebar>
+                <a
+                  href="https://github.com/kyle1an/sub-vocab"
+                  target="_blank"
+                  className="group/bg block px-2 *:z-10"
+                  rel="noreferrer noopener"
+                >
+                  <span className="sr-only">Subvocab on GitHub</span>
+                  <span className="size-4 shrink-0 bg-sidebar group-hover/bg:bg-inherit">
+                    <span className="icon-[bi--github] size-full" />
+                  </span>
+                  <span className="grow">
+                    <span className="bg-sidebar group-hover/bg:bg-inherit">GitHub</span>
+                  </span>
+                </a>
+              </SidebarMenuButton>
+              <SidebarMenuBadge>
+                <ArrowOutwardRounded />
+              </SidebarMenuBadge>
+            </SidebarMenuItem>
+          </SidebarMenu>
+          <NavSecondary items={data.navFooter} className="mt-auto p-0" />
+        </SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
+    </Fragment>
   )
 }

@@ -5,7 +5,6 @@ import { useMutation } from '@tanstack/react-query'
 import clsx from 'clsx'
 import { useAtom } from 'jotai'
 import { useForm } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
 import { z } from 'zod/v4-mini'
 
 import { sessionAtom } from '@/atoms/auth'
@@ -14,11 +13,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import { USERNAME_MIN_LENGTH } from '@/constants/constraints'
 import { env } from '@/env'
+import { useI18n } from '@/locales/client'
 import { supabaseAuth } from '@/utils/supabase'
 import { bindApply } from '@sub-vocab/utils/lib'
 
 export default function ProfilePage() {
-  const { t } = useTranslation()
+  const t = useI18n()
   const [session] = useAtom(sessionAtom)
   const username = session?.user?.user_metadata?.username || ''
   const email = session?.user?.email || ''

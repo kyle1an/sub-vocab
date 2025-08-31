@@ -1,6 +1,5 @@
+import IconTMDB from '@/../../public/tmdb.svg'
 import { ContentRoot } from '@/components/content-root'
-
-import IconTMDB from '../../../../../public/tmdb.svg'
 
 export default function AboutPage() {
   return (

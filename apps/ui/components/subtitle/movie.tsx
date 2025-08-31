@@ -9,7 +9,6 @@ import { useAtom, useAtomValue } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 import nstr from 'nstr'
 import { Fragment, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
 
 import type { Subtitles } from '@/api/opensubtitles'
 import type { SubtitleData } from '@/components/subtitle/columns'
@@ -30,6 +29,7 @@ import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { filterFn, sortBySelection } from '@/lib/table-utils'
+import { useI18n } from '@/locales/client'
 import { getFileId } from '@/utils/subtitle'
 import { useClone, useIsEllipsisActive, useRect } from '@sub-vocab/utils/hooks'
 import { findClosest } from '@sub-vocab/utils/lib'
@@ -37,7 +37,7 @@ import { findClosest } from '@sub-vocab/utils/lib'
 type MovieSubtitleData = SubtitleData
 
 function useMovieColumns<T extends MovieSubtitleData>(rootRef: React.RefObject<HTMLDivElement | null>, tbodyRef: React.RefObject<HTMLTableSectionElement | null>) {
-  const { t } = useTranslation()
+  const t = useI18n()
   const columnHelper = createColumnHelper<T>()
   return [
     columnHelper.accessor((row) => row.subtitle.id, {
@@ -242,7 +242,7 @@ function SubtitleFiles({
   id: number
   subtitleData: Subtitles['Response']['data']
 }) {
-  const { t } = useTranslation()
+  const t = useI18n()
   const rootRef = useRef<HTMLDivElement>(null)
   const commonColumns = useCommonColumns<MovieSubtitleData>(rootRef)
   const tbodyRef = useRef<HTMLTableSectionElement>(null)

@@ -21,7 +21,6 @@ import { atom, useAtom, useAtomValue } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 import { atomWithStorage } from 'jotai/utils'
 import { startTransition, useDeferredValue, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import type { LearningPhase, Sentence } from '@/lib/LexiconTrie'
@@ -52,6 +51,7 @@ import { combineFilters, filterFn, noFilter } from '@/lib/table-utils'
 import { cn } from '@/lib/utils'
 import { useManagedVocabulary } from '@/lib/vocab-utils'
 import { searchFilterValue } from '@/lib/vocabulary/filters'
+import { useI18n } from '@/locales/client'
 import { useClone, useLastTruthy } from '@sub-vocab/utils/hooks'
 import { findClosest, isRegexValid } from '@sub-vocab/utils/lib'
 import { narrow } from '@sub-vocab/utils/types'
@@ -77,7 +77,7 @@ const cacheStateAtom = atom({
 })
 
 function useSegments() {
-  const { t } = useTranslation()
+  const t = useI18n()
   return narrow([
     { value: 'all', label: t('all') },
     { value: 'new', label: t('new') },
@@ -111,7 +111,7 @@ function categoryFilter(filterValue: Record<string, boolean>): ColumnFilterFn<Ta
 }
 
 function useSourceColumns<T extends TableData>(rootRef: React.RefObject<HTMLDivElement | null>) {
-  const { t } = useTranslation()
+  const t = useI18n()
   const columnHelper = createColumnHelper<T>()
   return (
     [
@@ -193,7 +193,7 @@ type VocabularyCategory = {
 const categoryAtom = atomWithStorage<VocabularyCategory>('categoryAtom', {})
 
 function useCategorize(vocabularyCategory: VocabularyCategory, data: VocabularySourceState[]) {
-  const { t } = useTranslation()
+  const t = useI18n()
   const { properName = [], acronym = [] } = vocabularyCategory
 
   return data.map((d) => {
@@ -224,7 +224,7 @@ export function VocabSourceTable({
 }) {
   const [data, handlePurge] = useManagedVocabulary(rows)
   const [categoryAtomValue, setCategoryAtom] = useAtom(categoryAtom)
-  const { t } = useTranslation()
+  const t = useI18n()
   const [{ initialTableState, isUsingRegex, searchValue, filterValue }, setCacheState] = useImmerAtom(cacheStateAtom)
   const deferredSearchValue = useDeferredValue(searchValue)
   const deferredIsUsingRegex = useDeferredValue(isUsingRegex)

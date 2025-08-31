@@ -6,4 +6,6 @@ import { atomWithStorage } from 'jotai/utils'
 
 export const authChangeEventAtom = atom<AuthChangeEvent>()
 export const sessionAtom = atomWithStorage<PartialDeep<Session> | null>('sessionAtom', null, undefined, { getOnInit: true })
-export const userIdAtom = atom((get) => get(sessionAtom)?.user?.id)
+export const userIdAtom = atom((get) => get(sessionAtom)?.user?.id, (get, set, userId: string) => {
+  set(userIdAtom, userId)
+})

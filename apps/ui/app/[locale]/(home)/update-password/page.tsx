@@ -5,7 +5,6 @@ import { useMutation } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
 import { z } from 'zod/v4-mini'
 
 import { authChangeEventAtom, sessionAtom } from '@/atoms/auth'
@@ -16,11 +15,12 @@ import { Card } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PASSWORD_MIN_LENGTH } from '@/constants/constraints'
+import { useI18n } from '@/locales/client'
 import { supabaseAuth } from '@/utils/supabase'
 import { bindApply } from '@sub-vocab/utils/lib'
 
 export default function UpdatePassword() {
-  const { t } = useTranslation()
+  const t = useI18n()
   const { mutateAsync: signOut } = useMutation({
     mutationKey: ['signOut'],
     mutationFn: bindApply(supabaseAuth.signOut, supabaseAuth),

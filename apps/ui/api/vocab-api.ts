@@ -15,7 +15,7 @@ import { toast } from 'sonner'
 import type { LearningPhase, TrackedWord } from '@/lib/LexiconTrie'
 import type { Tables } from '@/types/database.types'
 
-import { sessionAtom, userIdAtom } from '@/atoms/auth'
+import { userIdAtom } from '@/atoms/auth'
 import { vocabSubscriptionAtom } from '@/atoms/vocabulary'
 import { buildTrackedWord, LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { queryClient } from '@/lib/query-client'
@@ -27,7 +27,7 @@ import { narrow, narrowShallow } from '@sub-vocab/utils/types'
 const getLearningPhase = (acquainted: boolean | null): LearningPhase => acquainted ? LEARNING_PHASE.ACQUAINTED : LEARNING_PHASE.NEW
 
 const userVocabularyOptionsAtom = atom((get) => {
-  const userId = get(sessionAtom)?.user?.id ?? ''
+  const userId = get(userIdAtom) ?? ''
   return queryOptions({
     queryKey: ['userVocabularyOptionsAtom', userId],
     queryFn: async () => pipe(
@@ -123,8 +123,7 @@ export const irregularWordsQueryAtom = atomWithQuery(() => {
 })
 
 export function useUserWordPhaseMutation() {
-  const session = useAtomValue(sessionAtom)
-  const userId = session?.user?.id ?? ''
+  const userId = useAtomValue(userIdAtom) ?? ''
   const vocabularyOptions = useAtomValue(userVocabularyOptionsAtom)
   return useMutation({
     mutationKey: ['useUserWordPhaseMutation'],

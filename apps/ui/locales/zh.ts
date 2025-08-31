@@ -1,4 +1,4 @@
-export const zh = {
+export default {
   confirm_changes: '确认修改',
   'Create Account': '创建账户',
   'log out': '退出',
@@ -60,6 +60,6 @@ export const zh = {
   Y: '年',
   importVocab: '导入单词',
   acquaintedAll: '全部标记为已认识',
-  acquaintedAllConfirmText: '确定将所有 (<1>{{count}}</1> 个) 单词标记为认识?',
+  acquaintedAllConfirmText: '确定将所有 ({count} 个) 单词标记为认识?',
   browseVocabFile: '浏览单词文件',
 } as const

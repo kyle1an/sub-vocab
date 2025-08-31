@@ -26,7 +26,7 @@ export function SortIcon({
         )}
       >
         <svg
-          className={cn('icon-[lucide--chevron-up] size-4', className)}
+          className={cn('icon-[lucide--chevron-up] size-full align-bottom', className)}
         />
       </div>
       <div
@@ -36,7 +36,7 @@ export function SortIcon({
         )}
       >
         <Slot
-          className={cn('size-4', className)}
+          className={cn('size-full align-bottom', className)}
         >
           {fallback}
         </Slot>

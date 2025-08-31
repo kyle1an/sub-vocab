@@ -12,7 +12,6 @@ import { rangeRight } from 'es-toolkit'
 import { useSessionStorage } from 'foxact/use-session-storage'
 import { useAtom } from 'jotai'
 import { Bar } from 'react-chartjs-2'
-import { useTranslation } from 'react-i18next'
 import colors from 'tailwindcss/colors'
 
 import type { TrackedWord } from '@/lib/LexiconTrie'
@@ -20,6 +19,7 @@ import type { TrackedWord } from '@/lib/LexiconTrie'
 import { baseVocabAtom } from '@/api/vocab-api'
 import { SegmentedControl, SegmentItem } from '@/components/ui/segmented-control'
 import { LEARNING_PHASE } from '@/lib/LexiconTrie'
+import { useI18n } from '@/locales/client'
 import { createFactory } from '@sub-vocab/utils/lib'
 import { narrow } from '@sub-vocab/utils/types'
 
@@ -234,7 +234,7 @@ const buildBarOptions = createFactory<ChartOptions<'bar'>>()(() => ({
 
 const SEGMENT_NAME = 'prev-chart-select'
 export default function Chart() {
-  const { t } = useTranslation()
+  const t = useI18n()
   const [userWords] = useAtom(baseVocabAtom)
 
   const segments = narrow([

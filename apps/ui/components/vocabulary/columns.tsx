@@ -5,9 +5,6 @@ import {
 import clsx from 'clsx'
 import { useStore } from 'jotai'
 import { Fragment } from 'react'
-import {
-  useTranslation,
-} from 'react-i18next'
 import { toast } from 'sonner'
 
 import type { TrackedWord } from '@/lib/LexiconTrie'
@@ -24,9 +21,10 @@ import { HeaderTitle, TableDataCell, TableHeaderCell } from '@/components/ui/tab
 import { VocabularyMenu } from '@/components/vocabulary/cells'
 import { VocabToggle } from '@/components/vocabulary/toggle-button'
 import { filterFn } from '@/lib/table-utils'
+import { useI18n } from '@/locales/client'
 
 export function useVocabularyCommonColumns<T extends VocabularySourceState = VocabularySourceState>(tbodyRef?: React.RefObject<HTMLTableSectionElement | null>, rootRef?: React.RefObject<HTMLDivElement | null>) {
-  const { t } = useTranslation()
+  const t = useI18n()
   const columnHelper = createColumnHelper<T>()
   const { mutateAsync: userWordPhaseMutation } = useUserWordPhaseMutation()
   const { online: isOnline } = useNetworkState()

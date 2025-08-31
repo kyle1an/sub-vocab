@@ -6,18 +6,20 @@ import { pipe } from 'effect'
 import { isEqual } from 'es-toolkit'
 import { useAtom, useAtomValue } from 'jotai'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 import { useImmer } from 'use-immer'
 
 import type { FileType } from '@/atoms/file-types'
 
 import { mediaQueryFamily } from '@/atoms'
 import { fileTypesAtom } from '@/atoms/file-types'
+import { NoSSR } from '@/components/NoSsr'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTrigger } from '@/components/ui/drawer'
 import { Separator } from '@/components/ui/separator'
 import { Toggle } from '@/components/ui/toggle'
-import { tap } from '@sub-vocab/utils/lib'
+import { isServer, tap } from '@sub-vocab/utils/lib'
 
 function FileSettingsContent({
   className,
@@ -60,7 +62,17 @@ function FileSettingsContent({
 const FILE_SETTINGS_TITLE = `Select File Types`
 const FILE_SETTINGS_DESCRIPTION = `Choose the file types you want to include for text input.`
 
-export function FileSettings() {
+const Trigger = (
+  <Button
+    variant="outline"
+    className="size-8 p-0"
+    suppressHydrationWarning
+  >
+    <svg className="icon-[lucide--cog] size-3.5" />
+  </Button>
+)
+
+export function Settings() {
   const isMdScreen = useAtomValue(mediaQueryFamily.useA('(min-width: 768px)'))
   const router = useRouter()
   const pathname = usePathname()
@@ -91,15 +103,6 @@ export function FileSettings() {
   }
 
   const settingsUnchanged = isEqual(fileTypes, fileTypesInterim)
-
-  const Trigger = (
-    <Button
-      variant="outline"
-      className="size-8 p-0"
-    >
-      <svg className="icon-[lucide--cog] size-3.5" />
-    </Button>
-  )
 
   function handleOpenChange(open: boolean) {
     if (open) {
@@ -200,5 +203,13 @@ export function FileSettings() {
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
+  )
+}
+
+export function FileSettings() {
+  return (
+    <Suspense>
+      <Settings />
+    </Suspense>
   )
 }

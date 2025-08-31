@@ -17,7 +17,6 @@ import { useSessionStorage } from 'foxact/use-session-storage'
 import { atom, useAtom, useAtomValue } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 import { startTransition, useDeferredValue, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
 
 import type { LearningPhase } from '@/lib/LexiconTrie'
 import type { ColumnFilterFn } from '@/lib/table-utils'
@@ -43,6 +42,7 @@ import { combineFilters, noFilter } from '@/lib/table-utils'
 import { cn } from '@/lib/utils'
 import { useManagedVocabulary } from '@/lib/vocab-utils'
 import { searchFilterValue } from '@/lib/vocabulary/filters'
+import { useI18n } from '@/locales/client'
 import { useClone, useLastTruthy } from '@sub-vocab/utils/hooks'
 import { customFormatDistance, customFormatDistanceToNowStrict, findClosest, formatDistanceLocale, getFallBack, isRegexValid } from '@sub-vocab/utils/lib'
 import { narrow } from '@sub-vocab/utils/types'
@@ -73,7 +73,7 @@ const cacheStateAtom = atom({
 })
 
 function useSegments() {
-  const { t } = useTranslation()
+  const t = useI18n()
   return narrow([
     { value: 'new', label: t('recent') },
     { value: 'allAcquainted', label: t('all') },
@@ -112,7 +112,7 @@ function userOwnedFilter(filterSegment: Segment): ColumnFilterFn<TableData> {
 }
 
 function useDataColumns<T extends TableData>(rootRef: React.RefObject<HTMLDivElement | null>) {
-  const { t } = useTranslation()
+  const t = useI18n()
   const columnHelper = createColumnHelper<T>()
   return (
     [
@@ -172,7 +172,7 @@ export function VocabDataTable({
   className?: string
 }) {
   const [data, handlePurge] = useManagedVocabulary(rows)
-  const { t } = useTranslation()
+  const t = useI18n()
   const [{ initialTableState, isUsingRegex, searchValue }, setCacheState] = useImmerAtom(cacheStateAtom)
   const deferredSearchValue = useDeferredValue(searchValue)
   const deferredIsUsingRegex = useDeferredValue(isUsingRegex)

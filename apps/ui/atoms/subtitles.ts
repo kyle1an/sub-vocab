@@ -3,7 +3,7 @@ import type { LiteralUnion } from 'type-fest'
 
 import { atom } from 'jotai'
 
-import { myAtomFamily } from '@/app/providers'
+import { myAtomFamily } from '@/app/[locale]/providers'
 import { createFactory, equalBy } from '@sub-vocab/utils/lib'
 
 export type MediaSubtitleState = {

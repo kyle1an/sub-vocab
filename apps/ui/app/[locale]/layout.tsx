@@ -5,9 +5,10 @@ import type { Metadata } from 'next'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Geist, Geist_Mono } from 'next/font/google'
-import { Fragment } from 'react'
+import { Fragment, use } from 'react'
 
-import { Providers } from '@/app/providers'
+import { Providers } from '@/app/[locale]/providers'
+import { I18nProviderClient } from '@/locales/client'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -25,14 +26,17 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({
+  params,
   children,
 }: Readonly<{
+  params: Promise<{ locale: string }>
   children: React.ReactNode
 }>) {
+  const { locale } = use(params)
   return (
-    <html lang="en">
+    <html lang={locale} suppressHydrationWarning>
       <head>
-        <link rel="icon" href="favicon.ico" type="image/x-icon" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="theme-color" content="white" />
         {/* <script crossOrigin="anonymous" src="//unpkg.com/react-scan/dist/auto.global.js" /> */}
@@ -55,9 +59,11 @@ export default function RootLayout({
       <body
         className={`overflow-y-scroll tracking-[.02em] text-foreground antialiased ${geistSans.variable} ${geistMono.variable}`}
       >
-        <Providers>
-          {children}
-        </Providers>
+        <I18nProviderClient locale={locale}>
+          <Providers>
+            {children}
+          </Providers>
+        </I18nProviderClient>
         {process.env.NODE_ENV === 'production' ? (
           <Fragment>
             <SpeedInsights />
