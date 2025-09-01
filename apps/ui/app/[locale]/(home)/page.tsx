@@ -20,7 +20,6 @@ import {
   baseVocabAtom,
   irregularWordsQueryAtom,
 } from '@/api/vocab-api'
-import { mediaQueryFamily } from '@/atoms'
 import { fileTypesAtom } from '@/atoms/file-types'
 import { fileInfoAtom, isSourceTextStaleAtom, sourceTextAtom } from '@/atoms/vocabulary'
 import { ContentRoot } from '@/components/content-root'
@@ -35,6 +34,7 @@ import { VocabSourceTable } from '@/components/vocabulary/source'
 import { VocabStatics } from '@/components/vocabulary/statics-bar'
 import { LEARNING_PHASE, LexiconTrie } from '@/lib/LexiconTrie'
 import { useI18n } from '@/locales/client'
+import { mediaQueryFamily } from '@sub-vocab/utils/atoms'
 import { useAtomEffect, useIsEllipsisActive, useRect } from '@sub-vocab/utils/hooks'
 import { compareBy, isServer, normalizeNewlines, tap } from '@sub-vocab/utils/lib'
 

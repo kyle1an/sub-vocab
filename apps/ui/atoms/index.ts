@@ -1,72 +1,56 @@
-import type { Atom } from 'jotai'
-import type { Store } from 'jotai/vanilla/store'
 import type { ArrayValues } from 'type-fest'
 
-import { pipe } from 'effect'
+import { isSafari } from 'foxact/is-safari'
 import { atom } from 'jotai'
-import { atomFamily, atomWithStorage } from 'jotai/utils'
+import { withAtomEffect } from 'jotai-effect'
+import { atomWithStorage } from 'jotai/utils'
+import ms from 'ms'
 
 import type { THEMES } from '@/components/themes'
 
-import { myStore } from '@/atoms/store'
 import { DEFAULT_THEME } from '@/components/themes'
-import { THEME_KEY } from '@/constants/keys'
+import { isAnyDrawerOpenAtom } from '@/components/ui/drawer'
+import { COLOR_THEME_SETTING_KEY } from '@/constants/keys'
 import { LIGHT_THEME_COLOR } from '@/constants/theme'
-import { atomWithMediaQuery, withReadOnlyMount } from '@sub-vocab/utils/atoms'
-import { tap } from '@sub-vocab/utils/lib'
-
-const createMyAtomFamily = (store: Store) => <Param, AtomType extends Atom<unknown>>(label: string, initializeAtom: (param: Param) => AtomType, areEqual?: (a: Param, b: Param) => boolean) => {
-  const paramsAtom = atom([] as Param[])
-  paramsAtom.debugLabel = `${label}.paramsAtom`
-  return pipe(
-    atomFamily((param: NonNullable<Param>) => pipe(
-      initializeAtom(param),
-      tap((x) => {
-        const key = Array.isArray(param) ? param[0] : typeof param === 'object' && 'key' in param ? param.key : param
-        x.debugLabel = `${label}-${key}`
-      }),
-    ), areEqual),
-    tap(({ unstable_listen, getParams }) => {
-      let latestEvent: Parameters<Parameters<typeof unstable_listen>[0]>[0]
-      unstable_listen((event) => {
-        latestEvent = event
-        queueMicrotask(() => {
-          if (event === latestEvent) {
-            store.set(paramsAtom, [...getParams()])
-          }
-        })
-      })
-    }),
-    (x) => Object.assign(x, { paramsAtom }),
-  )
-}
-
-export const _myAtomFamily = createMyAtomFamily(myStore)
+import { mediaQueryFamily } from '@sub-vocab/utils/atoms'
+import { isServer } from '@sub-vocab/utils/lib'
 
 export const osLanguageAtom = atomWithStorage('osLanguageAtom', 'en')
-export const themeAtom = atomWithStorage<ArrayValues<typeof THEMES>['value']>(THEME_KEY, DEFAULT_THEME.value, undefined, { getOnInit: true })
+export const colorThemeSettingAtom = withAtomEffect(
+  atomWithStorage<ArrayValues<typeof THEMES>['value']>(COLOR_THEME_SETTING_KEY, DEFAULT_THEME.value, undefined, { getOnInit: true }),
+  (get) => {
+    if (isServer) return
+    cookieStore.set({
+      name: COLOR_THEME_SETTING_KEY,
+      value: get(colorThemeSettingAtom),
+      expires: Date.now() + ms('400d'),
+    })
+    document.documentElement.setAttribute('data-color-theme', get(colorThemeSettingAtom))
+  },
+)
+export const isDarkModeAtom = atom((get) => {
+  const setting = get(colorThemeSettingAtom)
+  return setting === 'dark' || (setting === 'auto' && get(mediaQueryFamily('(prefers-color-scheme: dark)')))
+})
+
 export const bodyBgColorAtom = atomWithStorage('bodyBgColorAtom', LIGHT_THEME_COLOR, undefined, { getOnInit: true })
 export const mainBgColorAtom = atomWithStorage('mainBgColorAtom', LIGHT_THEME_COLOR, undefined, { getOnInit: true })
 
-export const mediaQueryFamily = pipe(atomFamily((query: string) => {
-  let isMounted = false
-  return pipe(
-    atomWithMediaQuery(query),
-    (x) => withReadOnlyMount(x, () => {
-      isMounted = true
-      return () => {
-        isMounted = false
-        queueMicrotask(() => {
-          if (!isMounted) {
-            mediaQueryFamily.remove(query)
-          }
-        })
+const isSafariAtom = atomWithStorage('isSafariAtom', isSafari())
+export const metaThemeColorAtom = withAtomEffect(
+  atom((get) => {
+    if (get(isAnyDrawerOpenAtom)) {
+      if (get(isSafariAtom) && !get(isDarkModeAtom)) {
+        return 'transparent'
       }
-    }),
-    tap((x) => {
-      x.debugLabel = `mediaQueryAtomFamily-${query}`
-    }),
-  )
-}), (x) => Object.assign(x, {
-  useA: x,
-}))
+      return get(bodyBgColorAtom)
+    }
+    return get(mainBgColorAtom)
+  }),
+  (get) => {
+    if (isServer) return
+    for (const e of document.querySelectorAll('meta[name="theme-color"]')) {
+      e.setAttribute('content', get(metaThemeColorAtom))
+    }
+  },
+)

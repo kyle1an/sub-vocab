@@ -2,15 +2,24 @@
 @import "tw-animate-css";
 @plugin "tailwindcss-signals";
 @plugin "@iconify/tailwind4" {
-   scale: 1;
+  scale: 1;
 }
 
-@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant dark {
+  &:where([data-color-theme="dark"], [data-color-theme="dark"] *) {
+    @slot;
+  }
+  &:where([data-color-theme="auto"], [data-color-theme="auto"] *) {
+    @media (prefers-color-scheme: dark) {
+      @slot;
+    }
+  }
+}
 @custom-variant sq (@supports (corner-shape: squircle));
 
 @theme {
   --font-*: initial;
-  --font-sans: -apple-system, "SF Compact Text", "Graphik", BlinkMacSystemFont, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans: "SF Compact Text", "Graphik", -apple-system, BlinkMacSystemFont, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-mono: monospace;
 
   --radius-lg: var(--radius);
@@ -201,7 +210,7 @@
   ---break---
 */
 
-.dark {
+[data-color-theme="dark"] {
   --background: oklch(0.145 0 0);
   --background-active: var(--color-neutral-800);
   --background-focus: var(--color-neutral-800);
@@ -240,6 +249,49 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-color-theme="auto"] {
+    --background: oklch(0.145 0 0);
+    --background-active: var(--color-neutral-800);
+    --background-focus: var(--color-neutral-800);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --destructive-foreground: 0 0% 98%;
+    --border: oklch(1 0 0 / 10%);
+    --border-td: --theme(--color-neutral-800 / 70%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.488 0.243 264.376);
+    --chart-2: oklch(0.696 0.17 162.48);
+    --chart-3: oklch(0.769 0.188 70.08);
+    --chart-4: oklch(0.627 0.265 303.9);
+    --chart-5: oklch(0.645 0.246 16.439);
+    --collapse: 0px -4px 10px -6px var(--color-neutral-600);
+    --intersect: 0 0 0 1px var(--color-neutral-900), 0px 2px 10px -6px var(--color-neutral-500);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
+  }
 }
 
 /*
@@ -321,13 +373,6 @@
   }
   body {
     @apply bg-background text-foreground;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
   }
 }
 

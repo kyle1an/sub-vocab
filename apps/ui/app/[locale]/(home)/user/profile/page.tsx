@@ -2,7 +2,6 @@
 
 import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
 import { useMutation } from '@tanstack/react-query'
-import clsx from 'clsx'
 import { useAtom } from 'jotai'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod/v4-mini'
@@ -157,11 +156,7 @@ export default function ProfilePage() {
                 disabled={isUsernameUpdatePending}
               >
                 {t('confirm_changes')}
-                <svg
-                  className={clsx(
-                    'icon-[lucide--loader-2] animate-spin group-[:not(disabled)]:hidden',
-                  )}
-                />
+                <svg className="icon-[lucide--loader-2] hidden animate-spin group-disabled:block" />
               </Button>
             </form>
           </Form>
@@ -215,9 +210,7 @@ export default function ProfilePage() {
                 disabled={isEmailUpdatePending}
               >
                 {t('confirm_changes')}
-                <svg
-                  className="icon-[lucide--loader-2] animate-spin group-[:not(disabled)]:hidden"
-                />
+                <svg className="icon-[lucide--loader-2] hidden animate-spin group-disabled:block" />
               </Button>
             </form>
           </Form>

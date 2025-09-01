@@ -9,6 +9,7 @@ import { Toaster } from '@/components/ui/sonner'
 export default function Root({ children }: { children: React.ReactNode }) {
   const cookieStore = use(cookies())
   const defaultOpen = cookieStore.get('sidebar_state')?.value !== 'false'
+  const user_id = cookieStore.get('user_id')?.value ?? ''
   return (
     <SidebarProvider
       defaultOpen={defaultOpen}
@@ -17,6 +18,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
     >
       <AppSidebar
         collapsible="icon"
+        user_id={user_id}
       />
       <AppSidebarInset>
         {children}

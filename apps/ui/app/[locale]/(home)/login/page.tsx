@@ -184,14 +184,12 @@ export default function Login() {
                     />
                     <FormMessage>{errors.root?.serverError?.message}</FormMessage>
                     <Button
-                      className="gap-1.5 px-4!"
+                      className="group gap-1.5"
                       type="submit"
                       disabled={isPending}
                     >
                       Sign in
-                      {isPending ? (
-                        <svg className="icon-[lucide--loader-2] animate-spin" />
-                      ) : null}
+                      <svg className="icon-[lucide--loader-2] hidden animate-spin group-disabled:block" />
                     </Button>
                   </form>
                 </Form>

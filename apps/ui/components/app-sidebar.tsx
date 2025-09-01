@@ -1,5 +1,6 @@
 'use client'
 
+import { useIsClient } from 'foxact/use-is-client'
 import { useAtomValue } from 'jotai'
 import { Home } from 'lucide-react'
 import { Fragment } from 'react'
@@ -9,7 +10,6 @@ import { userIdAtom } from '@/atoms/auth'
 import { ArrowOutwardRounded } from '@/components/icons/arrow'
 import { NavMain } from '@/components/nav-main'
 import { NavSecondary } from '@/components/nav-secondary'
-import { NoSSR } from '@/components/NoSsr'
 import { Separator } from '@/components/ui/separator'
 import {
   Sidebar,
@@ -68,10 +68,15 @@ const accountNav = [
 ]
 
 export function AppSidebar({
+  user_id,
   className,
   ...props
-}: React.ComponentProps<typeof Sidebar>) {
-  const userId = useAtomValue(userIdAtom)
+}: React.ComponentProps<typeof Sidebar> & {
+  user_id: string
+}) {
+  const isClient = useIsClient()
+  const userIdAtomValue = useAtomValue(userIdAtom)
+  const userId = isClient ? userIdAtomValue : user_id
   return (
     <Fragment>
       <Sidebar className={cn('border-r-0', className)} {...props}>
@@ -84,12 +89,10 @@ export function AppSidebar({
         </div>
         <SidebarContent className="p-2">
           <NavMain items={data.navSecondary} />
-          <NoSSR>
-            {userId ? (<Fragment>
-              <Separator className="min-h-px shrink" />
-              <NavMain items={accountNav} />
-            </Fragment>) : null}
-          </NoSSR>
+          {userId ? (<Fragment>
+            <Separator className="min-h-px shrink" />
+            <NavMain items={accountNav} />
+          </Fragment>) : null}
         </SidebarContent>
         <div className="flex w-full">
           <Separator className="mx-3 shrink" />

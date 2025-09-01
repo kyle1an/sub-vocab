@@ -160,14 +160,12 @@ export default function Register() {
                     />
                     <FormMessage>{errors.root?.serverError?.message}</FormMessage>
                     <Button
-                      className="gap-1.5"
+                      className="group gap-1.5"
                       type="submit"
                       disabled={isPending}
                     >
                       Create account
-                      {isPending ? (
-                        <svg className="icon-[lucide--loader-2] animate-spin" />
-                      ) : null}
+                      <svg className="icon-[lucide--loader-2] hidden animate-spin group-disabled:block" />
                     </Button>
                   </form>
                 </Form>
