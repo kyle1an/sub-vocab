@@ -9,7 +9,7 @@ import Link from 'next/link'
 import { Fragment, useTransition } from 'react'
 import { toast } from 'sonner'
 
-import { themeAtom } from '@/atoms'
+import { colorThemeSettingAtom } from '@/atoms'
 import { sessionAtom } from '@/atoms/auth'
 import { NoSSR } from '@/components/NoSsr'
 import { DEFAULT_THEME, THEMES } from '@/components/themes'
@@ -106,7 +106,7 @@ export function TopBar({ className }: { className?: string }) {
   const [session] = useAtom(sessionAtom)
   const user = session?.user
   const account = user?.user_metadata?.username || user?.email || ''
-  const [themePreference, setThemePreference] = useAtom(themeAtom)
+  const [colorThemeSetting, setColorThemeSetting] = useAtom(colorThemeSettingAtom)
   const [isThemeTransitioning, startThemeTransition] = useTransition()
   const avatarSource = `https://avatar.vercel.sh/${account}?size=${22}`
 
@@ -137,7 +137,7 @@ export function TopBar({ className }: { className?: string }) {
                             <Slot
                               className="size-4.25 text-neutral-500 dark:text-neutral-400"
                             >
-                              {THEMES.find((theme) => theme.value === themePreference)?.icon ?? DEFAULT_THEME.icon}
+                              {THEMES.find((theme) => theme.value === colorThemeSetting)?.icon ?? DEFAULT_THEME.icon}
                             </Slot>
                           </div>
                         </MenubarTrigger>
@@ -147,7 +147,7 @@ export function TopBar({ className }: { className?: string }) {
                           sideOffset={3}
                         >
                           <MenubarRadioGroup
-                            value={themePreference}
+                            value={colorThemeSetting}
                             // Potential conflict with style-observer.
                             className={clsx(isThemeTransitioning && '[body:has(&)_*::after]:transition-none! [body:has(&)_*::before]:transition-none! [body:has(&)_*:not(main)]:transition-none!')}
                           >
@@ -155,9 +155,9 @@ export function TopBar({ className }: { className?: string }) {
                               <MenubarRadioItem
                                 key={theme.value}
                                 value={theme.value}
-                                disabled={theme.value === themePreference}
+                                disabled={theme.value === colorThemeSetting}
                                 onSelect={() => {
-                                  setThemePreference(theme.value)
+                                  setColorThemeSetting(theme.value)
                                   startThemeTransition(() => {})
                                 }}
                               >

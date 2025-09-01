@@ -7,7 +7,7 @@ import * as React from 'react'
 import { useId } from 'react'
 import { Drawer as DrawerPrimitive } from 'vaul'
 
-import { myAtomFamily } from '@/app/[locale]/providers'
+import { myAtomFamily } from '@/atoms/store'
 import { cn } from '@/lib/utils'
 import { retimerAtomFamily, setAtom } from '@sub-vocab/utils/atoms'
 import { useAtomEffect } from '@sub-vocab/utils/hooks'

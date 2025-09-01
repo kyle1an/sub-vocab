@@ -14,18 +14,12 @@ import dynamic from 'next/dynamic'
 import type { AppRouter } from '@backend/app'
 
 import { TRPCProvider } from '@/api/trpc'
-import { _myAtomFamily } from '@/atoms'
-import { isDarkModeAtom } from '@/atoms/ui'
+import { isDarkModeAtom } from '@/atoms'
+import { myStore } from '@/atoms/store'
 import { NoSSR } from '@/components/NoSsr'
 import { env } from '@/env'
 import { queryClient } from '@/lib/query-client'
 import { isServer, omitUndefined } from '@sub-vocab/utils/lib'
-
-// after jotai-devtools
-import { myStore } from '../../atoms/store'
-
-// eslint-disable-next-line react-refresh/only-export-components
-export const myAtomFamily = _myAtomFamily
 
 const StyleComponent = dynamic(() => import('@/components/devtools-styles'))
 

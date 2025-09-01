@@ -35,7 +35,7 @@ import { cn } from '@/lib/utils'
 import { useIdentity } from '@sub-vocab/utils/hooks'
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state'
-const SIDEBAR_COOKIE_MAX_AGE = ms('400 days')
+const SIDEBAR_COOKIE_MAX_AGE = ms('400d')
 const SIDEBAR_WIDTH = '16rem'
 const SIDEBAR_WIDTH_MOBILE = '18rem'
 const SIDEBAR_WIDTH_ICON = '3rem'

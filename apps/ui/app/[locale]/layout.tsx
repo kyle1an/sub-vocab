@@ -4,21 +4,13 @@ import type { Metadata } from 'next'
 
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { cookies } from 'next/headers'
 import { Fragment, use } from 'react'
 
 import { Providers } from '@/app/[locale]/providers'
+import { COLOR_THEME_SETTING_KEY } from '@/constants/keys'
+import { DARK__BACKGROUND, LIGHT_THEME_COLOR } from '@/constants/theme'
 import { I18nProviderClient } from '@/locales/client'
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-})
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-})
 
 export const metadata: Metadata = {
   title: 'Subvocab',
@@ -28,36 +20,48 @@ export const metadata: Metadata = {
 export default function RootLayout({
   params,
   children,
-}: Readonly<{
-  params: Promise<{ locale: string }>
-  children: React.ReactNode
-}>) {
+}: LayoutProps<'/[locale]'>) {
   const { locale } = use(params)
+  const cookieStore = use(cookies())
+  const setting = cookieStore.get(COLOR_THEME_SETTING_KEY)?.value
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html
+      lang={locale}
+      data-color-theme={setting}
+    >
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon.ico" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="theme-color" content="white" />
+        {setting === 'dark' ? (
+          <meta name="theme-color" content={DARK__BACKGROUND} />
+        ) : setting === 'light' ? (
+          <meta name="theme-color" content={LIGHT_THEME_COLOR} />
+        ) : (
+          <Fragment>
+            <meta name="theme-color" media="(prefers-color-scheme: dark)" content={DARK__BACKGROUND} />
+            <meta name="theme-color" media="(prefers-color-scheme: light)" content={LIGHT_THEME_COLOR} />
+          </Fragment>
+        )}
         {/* <script crossOrigin="anonymous" src="//unpkg.com/react-scan/dist/auto.global.js" /> */}
         <script
           // https://x.com/shuding_/status/1948233116264321304
           // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
           dangerouslySetInnerHTML={{
             __html: `(${String(() => {
-              const THEME_KEY = 'themeAtom'
-              const setting = localStorage.getItem(THEME_KEY)
-              if (setting === `"dark"` || (setting !== `"light"` && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark')
-                const _dark__background = 'oklch(0.145 0 0)'
-                document.querySelector(`meta[name="theme-color"]`)?.setAttribute('content', _dark__background)
+              const COLOR_THEME_SETTING_KEY = 'color_theme_setting'
+              const DARK__BACKGROUND = 'oklch(0.145 0 0)'
+              const setting = localStorage.getItem(COLOR_THEME_SETTING_KEY)
+              if (setting === '"dark"' || (setting !== '"light"' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                for (const e of document.querySelectorAll('meta[name="theme-color"]')) {
+                  e.setAttribute('content', DARK__BACKGROUND)
+                }
               }
             })})()`,
           }}
         />
       </head>
       <body
-        className={`overflow-y-scroll tracking-[.02em] text-foreground antialiased ${geistSans.variable} ${geistMono.variable}`}
+        className="overflow-y-scroll tracking-[.02em] text-foreground antialiased"
       >
         <I18nProviderClient locale={locale}>
           <Providers>

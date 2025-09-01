@@ -11,15 +11,14 @@ import { useImmer } from 'use-immer'
 
 import type { FileType } from '@/atoms/file-types'
 
-import { mediaQueryFamily } from '@/atoms'
 import { fileTypesAtom } from '@/atoms/file-types'
-import { NoSSR } from '@/components/NoSsr'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTrigger } from '@/components/ui/drawer'
 import { Separator } from '@/components/ui/separator'
 import { Toggle } from '@/components/ui/toggle'
-import { isServer, tap } from '@sub-vocab/utils/lib'
+import { mediaQueryFamily } from '@sub-vocab/utils/atoms'
+import { tap } from '@sub-vocab/utils/lib'
 
 function FileSettingsContent({
   className,
@@ -66,6 +65,7 @@ const Trigger = (
   <Button
     variant="outline"
     className="size-8 p-0"
+    aria-label="Settings-Trigger"
     suppressHydrationWarning
   >
     <svg className="icon-[lucide--cog] size-3.5" />
