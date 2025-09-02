@@ -1,6 +1,5 @@
 'use client'
 
-import { useIsClient } from 'foxact/use-is-client'
 import { useAtomValue } from 'jotai'
 import { Home } from 'lucide-react'
 import { Fragment } from 'react'
@@ -68,15 +67,11 @@ const accountNav = [
 ]
 
 export function AppSidebar({
-  user_id,
   className,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
-  user_id: string
 }) {
-  const isClient = useIsClient()
-  const userIdAtomValue = useAtomValue(userIdAtom)
-  const userId = isClient ? userIdAtomValue : user_id
+  const userId = useAtomValue(userIdAtom)
   return (
     <Fragment>
       <Sidebar className={cn('border-r-0', className)} {...props}>

@@ -6,10 +6,10 @@
 }
 
 @custom-variant dark {
-  &:where([data-color-theme="dark"], [data-color-theme="dark"] *) {
+  &:where([data-color-mode="dark"], [data-color-mode="dark"] *) {
     @slot;
   }
-  &:where([data-color-theme="auto"], [data-color-theme="auto"] *) {
+  &:where([data-color-mode="auto"], [data-color-mode="auto"] *) {
     @media (prefers-color-scheme: dark) {
       @slot;
     }
@@ -210,7 +210,7 @@
   ---break---
 */
 
-[data-color-theme="dark"] {
+[data-color-mode="dark"] {
   --background: oklch(0.145 0 0);
   --background-active: var(--color-neutral-800);
   --background-focus: var(--color-neutral-800);
@@ -252,7 +252,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  [data-color-theme="auto"] {
+  [data-color-mode="auto"] {
     --background: oklch(0.145 0 0);
     --background-active: var(--color-neutral-800);
     --background-focus: var(--color-neutral-800);

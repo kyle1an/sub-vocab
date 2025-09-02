@@ -11,23 +11,23 @@ import { z } from 'zod/v4-mini'
 import type { ZodObj } from '@/types/utils'
 
 import { useSignInWithUsername } from '@/api/user'
-import { authChangeEventAtom, sessionAtom } from '@/atoms/auth'
+import { authChangeEventAtom, userAtom } from '@/atoms/auth'
 import { ContentRoot } from '@/components/content-root'
 import Navigate from '@/components/Navigate'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { supabaseAuth } from '@/utils/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { bindApply } from '@sub-vocab/utils/lib'
 
 export default function Login() {
-  const [session] = useAtom(sessionAtom)
-  const user = session?.user
+  const [user] = useAtom(userAtom)
   const [passwordVisible, setPasswordVisible] = useState(false)
+  const supabase = createClient()
   const { mutateAsync: signInWithPassword, isPending: isPendingEmailSignIn } = useMutation({
     mutationKey: ['signInWithPassword'],
-    mutationFn: bindApply(supabaseAuth.signInWithPassword, supabaseAuth),
+    mutationFn: bindApply(supabase.auth.signInWithPassword, supabase.auth),
   })
   const { mutateAsync: signInWithUsername, isPending: isPendingUsernameSignIn } = useSignInWithUsername()
   const formDefaultValues = {

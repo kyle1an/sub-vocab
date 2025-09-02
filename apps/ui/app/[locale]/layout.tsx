@@ -7,9 +7,15 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import { cookies } from 'next/headers'
 import { Fragment, use } from 'react'
 
-import { Providers } from '@/app/[locale]/providers'
-import { COLOR_THEME_SETTING_KEY } from '@/constants/keys'
+import type { ColorModeValue } from '@/components/themes'
+
+import { BodyProvider } from '@/app/[locale]/_components/BodyProvider'
+import { HydrateAtoms } from '@/app/[locale]/_components/HydrateAtoms'
+import { Providers } from '@/app/[locale]/_components/providers'
+import { JotaiProvider } from '@/atoms/Provider'
+import { COLOR_MODE_SETTING_KEY } from '@/constants/keys'
 import { DARK__BACKGROUND, LIGHT_THEME_COLOR } from '@/constants/theme'
+import { createClient } from '@/lib/supabase/server'
 import { I18nProviderClient } from '@/locales/client'
 
 export const metadata: Metadata = {
@@ -23,11 +29,13 @@ export default function RootLayout({
 }: LayoutProps<'/[locale]'>) {
   const { locale } = use(params)
   const cookieStore = use(cookies())
-  const setting = cookieStore.get(COLOR_THEME_SETTING_KEY)?.value
+  const supabase = use(createClient())
+  const { data: { user } } = use(supabase.auth.getUser())
+  const setting = cookieStore.get(COLOR_MODE_SETTING_KEY)?.value as ColorModeValue | undefined ?? 'auto'
   return (
     <html
       lang={locale}
-      data-color-theme={setting}
+      data-color-mode={setting}
     >
       <head>
         <link rel="icon" href="/favicon.ico" />
@@ -48,9 +56,9 @@ export default function RootLayout({
           // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
           dangerouslySetInnerHTML={{
             __html: `(${String(() => {
-              const COLOR_THEME_SETTING_KEY = 'color_theme_setting'
+              const COLOR_MODE_SETTING_KEY = 'color_mode_setting'
               const DARK__BACKGROUND = 'oklch(0.145 0 0)'
-              const setting = localStorage.getItem(COLOR_THEME_SETTING_KEY)
+              const setting = localStorage.getItem(COLOR_MODE_SETTING_KEY)
               if (setting === '"dark"' || (setting !== '"light"' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 for (const e of document.querySelectorAll('meta[name="theme-color"]')) {
                   e.setAttribute('content', DARK__BACKGROUND)
@@ -60,21 +68,26 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body
-        className="overflow-y-scroll tracking-[.02em] text-foreground antialiased"
-      >
-        <I18nProviderClient locale={locale}>
-          <Providers>
-            {children}
-          </Providers>
-        </I18nProviderClient>
-        {process.env.NODE_ENV === 'production' ? (
-          <Fragment>
-            <SpeedInsights />
-            <Analytics />
-          </Fragment>
-        ) : null}
-      </body>
+      <JotaiProvider>
+        <HydrateAtoms
+          colorModeSetting={setting}
+          user={user ?? undefined}
+        >
+          <I18nProviderClient locale={locale}>
+            <BodyProvider>
+              <Providers>
+                {children}
+              </Providers>
+              {process.env.NODE_ENV === 'production' ? (
+                <Fragment>
+                  <SpeedInsights />
+                  <Analytics />
+                </Fragment>
+              ) : null}
+            </BodyProvider>
+          </I18nProviderClient>
+        </HydrateAtoms>
+      </JotaiProvider>
     </html>
   )
 }

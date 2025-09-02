@@ -6,21 +6,21 @@ import { useAtom } from 'jotai'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod/v4-mini'
 
-import { sessionAtom } from '@/atoms/auth'
+import { userAtom } from '@/atoms/auth'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { USERNAME_MIN_LENGTH } from '@/constants/constraints'
 import { env } from '@/env'
+import { createClient } from '@/lib/supabase/client'
 import { useI18n } from '@/locales/client'
-import { supabaseAuth } from '@/utils/supabase'
 import { bindApply } from '@sub-vocab/utils/lib'
 
 export default function ProfilePage() {
   const t = useI18n()
-  const [session] = useAtom(sessionAtom)
-  const username = session?.user?.user_metadata?.username || ''
-  const email = session?.user?.email || ''
+  const [user] = useAtom(userAtom)
+  const username = user?.user_metadata?.username || ''
+  const email = user?.email || ''
   const usernameFormDefaultValues = {
     newUsername: username,
   }
@@ -56,13 +56,14 @@ export default function ProfilePage() {
     setError: setUsernameFormError,
   } = usernameForm
 
+  const supabase = createClient()
   const { mutateAsync: updateUsername, isPending: isUsernameUpdatePending } = useMutation({
     mutationKey: ['updateUsername'],
-    mutationFn: bindApply(supabaseAuth.updateUser, supabaseAuth),
+    mutationFn: bindApply(supabase.auth.updateUser, supabase.auth),
   })
   const { mutateAsync: updateEmail, isPending: isEmailUpdatePending } = useMutation({
     mutationKey: ['updateEmail'],
-    mutationFn: bindApply(supabaseAuth.updateUser, supabaseAuth),
+    mutationFn: bindApply(supabase.auth.updateUser, supabase.auth),
   })
 
   async function submitUsernameForm(values: UsernameFormValues) {

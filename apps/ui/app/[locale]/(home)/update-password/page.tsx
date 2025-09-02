@@ -7,7 +7,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod/v4-mini'
 
-import { authChangeEventAtom, sessionAtom } from '@/atoms/auth'
+import { authChangeEventAtom, userAtom } from '@/atoms/auth'
 import { ContentRoot } from '@/components/content-root'
 import Navigate from '@/components/Navigate'
 import { Button } from '@/components/ui/button'
@@ -15,18 +15,18 @@ import { Card } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PASSWORD_MIN_LENGTH } from '@/constants/constraints'
+import { createClient } from '@/lib/supabase/client'
 import { useI18n } from '@/locales/client'
-import { supabaseAuth } from '@/utils/supabase'
 import { bindApply } from '@sub-vocab/utils/lib'
 
 export default function UpdatePassword() {
   const t = useI18n()
+  const supabase = createClient()
   const { mutateAsync: signOut } = useMutation({
     mutationKey: ['signOut'],
-    mutationFn: bindApply(supabaseAuth.signOut, supabaseAuth),
+    mutationFn: bindApply(supabase.auth.signOut, supabase.auth),
   })
-  const [session] = useAtom(sessionAtom)
-  const user = session?.user
+  const [user] = useAtom(userAtom)
 
   const formDefaultValues = {
     newPassword: '',
@@ -58,7 +58,7 @@ export default function UpdatePassword() {
   const [newPasswordVisible, setNewPasswordVisible] = useState(false)
   const { mutateAsync: updatePassword, isPending } = useMutation({
     mutationKey: ['updatePassword'],
-    mutationFn: bindApply(supabaseAuth.updateUser, supabaseAuth),
+    mutationFn: bindApply(supabase.auth.updateUser, supabase.auth),
   })
 
   async function onSubmit(values: FormValues) {

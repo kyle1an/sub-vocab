@@ -10,15 +10,16 @@ import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PASSWORD_MIN_LENGTH } from '@/constants/constraints'
+import { createClient } from '@/lib/supabase/client'
 import { useI18n } from '@/locales/client'
-import { supabaseAuth } from '@/utils/supabase'
 import { bindApply } from '@sub-vocab/utils/lib'
 
 export default function Password() {
   const t = useI18n()
+  const supabase = createClient()
   const { mutateAsync: signOut } = useMutation({
     mutationKey: ['signOut'],
-    mutationFn: bindApply(supabaseAuth.signOut, supabaseAuth),
+    mutationFn: bindApply(supabase.auth.signOut, supabase.auth),
   })
 
   const formDefaultValues = {
@@ -51,7 +52,7 @@ export default function Password() {
   const [newPasswordVisible, setNewPasswordVisible] = useState(false)
   const { mutateAsync: updatePassword, isPending } = useMutation({
     mutationKey: ['updatePassword'],
-    mutationFn: bindApply(supabaseAuth.updateUser, supabaseAuth),
+    mutationFn: bindApply(supabase.auth.updateUser, supabase.auth),
   })
 
   async function onSubmit(values: FormValues) {

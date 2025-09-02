@@ -261,6 +261,12 @@ export function VocabDataTable({
             >
               <svg
                 className={clsx(
+                  'icon-[lucide--loader-2] size-3.5 animate-spin',
+                  isLoadingUserVocab ? '' : 'hidden',
+                )}
+              />
+              <svg
+                className={clsx(
                   'icon-[ion--refresh] size-3.5',
                   isLoadingUserVocab ? 'hidden' : '',
                 )}
