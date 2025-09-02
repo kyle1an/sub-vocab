@@ -1,3 +1,4 @@
+import type { AnyFunc } from '@sub-vocab/shared-types/types'
 import type { ArraySplice, ConditionalKeys, Simplify, UnknownArray, ValueOf } from 'type-fest'
 
 import { isUndefined, omitBy } from 'es-toolkit'
@@ -11,8 +12,7 @@ type RemoveNeverFields<T> = Omit<T, ConditionalKeys<Required<T>, never>>
 type RemoveUndefinedFields<T> = Simplify<RemoveNeverFields<Mutable<{
   [K in keyof T as undefined extends T[K] ? K : never]?: Exclude<T[K], undefined>;
 } & {
-  // eslint-disable-next-line ts/no-unsafe-function-type
-  [K in keyof T as undefined extends T[K] ? never : K]: T[K] extends Function ? T[K] : Mutable<T[K]> ;
+  [K in keyof T as undefined extends T[K] ? never : K]: T[K] extends AnyFunc ? T[K] : Mutable<T[K]> ;
 }>>>
 
 export function omitUndefined<const T extends object>(obj: T) {

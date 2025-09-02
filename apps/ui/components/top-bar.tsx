@@ -4,21 +4,20 @@ import { Slot } from '@radix-ui/react-slot'
 import { useMutation } from '@tanstack/react-query'
 import { $trycatch } from '@tszen/trycatch'
 import clsx from 'clsx'
-import { useAtom } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import Link from 'next/link'
 import { Fragment, useTransition } from 'react'
 import { toast } from 'sonner'
 
-import { colorThemeSettingAtom } from '@/atoms'
-import { sessionAtom } from '@/atoms/auth'
-import { NoSSR } from '@/components/NoSsr'
-import { DEFAULT_THEME, THEMES } from '@/components/themes'
+import { colorModeSettingAtom } from '@/atoms'
+import { accountAtom, avatarSourceAtom } from '@/atoms/auth'
+import { COLOR_MODE } from '@/components/themes'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Menubar, MenubarContent, MenubarMenu, MenubarRadioGroup, MenubarRadioItem, MenubarTrigger } from '@/components/ui/menubar'
+import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { useChangeLocale, useCurrentLocale, useI18n } from '@/locales/client'
-import { supabaseAuth } from '@/utils/supabase'
 import { bindApply, omitUndefined } from '@sub-vocab/utils/lib'
 
 const LOCALES = [
@@ -64,9 +63,10 @@ function SignIn({ className, ...props }: React.ComponentProps<'a'>) {
 
 function SignOut({ className, ...props }: React.ComponentProps<'button'>) {
   const t = useI18n()
+  const supabase = createClient()
   const { mutateAsync: signOut } = useMutation({
     mutationKey: ['signOut'],
-    mutationFn: bindApply(supabaseAuth.signOut, supabaseAuth),
+    mutationFn: bindApply(supabase.auth.signOut, supabase.auth),
   })
 
   const logout = async () => {
@@ -103,12 +103,10 @@ export function TopBar({ className }: { className?: string }) {
   const t = useI18n()
   const changeLocale = useChangeLocale()
   const locale = useCurrentLocale()
-  const [session] = useAtom(sessionAtom)
-  const user = session?.user
-  const account = user?.user_metadata?.username || user?.email || ''
-  const [colorThemeSetting, setColorThemeSetting] = useAtom(colorThemeSettingAtom)
+  const account = useAtomValue(accountAtom)
+  const [colorModeSetting, setColorThemeSetting] = useAtom(colorModeSettingAtom)
   const [isThemeTransitioning, startThemeTransition] = useTransition()
-  const avatarSource = `https://avatar.vercel.sh/${account}?size=${22}`
+  const avatarSource = useAtomValue(avatarSourceAtom)
 
   return (
     <div
@@ -122,7 +120,7 @@ export function TopBar({ className }: { className?: string }) {
         )}
       >
         <Fragment>
-          <NoSSR>
+          <Fragment>
             <div>
               <div>
                 <div className="flex h-11 items-center justify-between">
@@ -137,7 +135,7 @@ export function TopBar({ className }: { className?: string }) {
                             <Slot
                               className="size-4.25 text-neutral-500 dark:text-neutral-400"
                             >
-                              {THEMES.find((theme) => theme.value === colorThemeSetting)?.icon ?? DEFAULT_THEME.icon}
+                              {COLOR_MODE.ALL.find((theme) => theme.value === colorModeSetting)?.icon ?? COLOR_MODE.DEFAULT.icon}
                             </Slot>
                           </div>
                         </MenubarTrigger>
@@ -147,15 +145,15 @@ export function TopBar({ className }: { className?: string }) {
                           sideOffset={3}
                         >
                           <MenubarRadioGroup
-                            value={colorThemeSetting}
+                            value={colorModeSetting}
                             // Potential conflict with style-observer.
                             className={clsx(isThemeTransitioning && '[body:has(&)_*::after]:transition-none! [body:has(&)_*::before]:transition-none! [body:has(&)_*:not(main)]:transition-none!')}
                           >
-                            {THEMES.map((theme) => (
+                            {COLOR_MODE.ALL.map((theme) => (
                               <MenubarRadioItem
                                 key={theme.value}
                                 value={theme.value}
-                                disabled={theme.value === colorThemeSetting}
+                                disabled={theme.value === colorModeSetting}
                                 onSelect={() => {
                                   setColorThemeSetting(theme.value)
                                   startThemeTransition(() => {})
@@ -206,11 +204,12 @@ export function TopBar({ className }: { className?: string }) {
                     <div className="flex size-8 items-center justify-center">
                       <DropdownMenu>
                         <DropdownMenuTrigger
-                          asChild
                           aria-label="user"
                           className="flex size-8 p-0 select-none [--sq-r:.75rem]"
+                          suppressHydrationWarning
+                          asChild
                         >
-                          {user ? (
+                          {avatarSource ? (
                             <Button variant="ghost">
                               <img
                                 src={avatarSource}
@@ -230,7 +229,7 @@ export function TopBar({ className }: { className?: string }) {
                           className="w-[unset] [&_[role=menuitem]]:p-0 [&_[role=menuitem]_svg]:text-neutral-600 [&_[role=menuitem]>*]:grow [&_[role=menuitem]>*]:px-2 [&_[role=menuitem]>*]:py-1.5"
                           align="end"
                         >
-                          {user ? (
+                          {account ? (
                             <Fragment>
                               <DropdownMenuLabel>
                                 {account}
@@ -264,7 +263,7 @@ export function TopBar({ className }: { className?: string }) {
                 </div>
               </div>
             </div>
-          </NoSSR>
+          </Fragment>
         </Fragment>
       </nav>
     </div>

@@ -1,5 +1,3 @@
-import { useUnmountEffect } from '@react-hookz/web'
-
 import { Detail } from '@/components/subtitle/detail'
 import { MovieSubtitleFiles } from '@/components/subtitle/movie'
 import { TVSubtitleFiles } from '@/components/subtitle/tv'
@@ -11,11 +9,6 @@ export function MediaDetails({
   id: number
   media_type?: string | undefined
 }) {
-  useUnmountEffect(() => {
-    // TODO
-    // mediaSubtitleStateAtomFamily.remove(id)
-  })
-
   if (media_type === 'movie') {
     return (
       <Detail

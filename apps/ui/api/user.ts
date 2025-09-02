@@ -4,8 +4,8 @@ import { useMutation } from '@tanstack/react-query'
 
 import type { AppRouter } from '@backend/app'
 
-import { useTRPC } from '@/api/trpc'
-import { supabaseAuth } from '@/utils/supabase'
+import { createClient } from '@/lib/supabase/client'
+import { useTRPC } from '@/trpc/client'
 
 type SignInResponse = Awaited<ReturnType<TRPCClient<AppRouter>['user']['signIn']['mutate']>>
 
@@ -13,9 +13,10 @@ export function useSignInWithUsername() {
   const { mutateAsync } = useMutation({
     mutationKey: ['setSession'],
     mutationFn: async (result: SignInResponse) => {
+      const supabase = createClient()
       const session = result.data?.session
       if (session) {
-        await supabaseAuth.setSession(session)
+        await supabase.auth.setSession(session)
       }
       return result
     },

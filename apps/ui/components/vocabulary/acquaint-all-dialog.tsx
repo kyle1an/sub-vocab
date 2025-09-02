@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import type { TrackedWord } from '@/lib/LexiconTrie'
 
 import { useUserWordPhaseMutation } from '@/api/vocab-api'
-import { sessionAtom } from '@/atoms/auth'
+import { userAtom } from '@/atoms/auth'
 import { LoginToast } from '@/components/login-toast'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { useI18n } from '@/locales/client'
@@ -18,7 +18,7 @@ export function AcquaintAllDialog<T extends TrackedWord>({
   const { mutateAsync: userWordPhaseMutation } = useUserWordPhaseMutation()
   const store = useStore()
   const acquaintAllVocab = (rows: T[]) => {
-    if (!store.get(sessionAtom)?.user) {
+    if (!store.get(userAtom)) {
       toast(<LoginToast />)
       return
     }

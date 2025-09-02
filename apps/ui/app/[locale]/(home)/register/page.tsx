@@ -8,7 +8,7 @@ import { startTransition, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod/v4-mini'
 
-import { authChangeEventAtom, sessionAtom } from '@/atoms/auth'
+import { authChangeEventAtom, userAtom } from '@/atoms/auth'
 import { ContentRoot } from '@/components/content-root'
 import Navigate from '@/components/Navigate'
 import { Button } from '@/components/ui/button'
@@ -16,12 +16,11 @@ import { Card } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PASSWORD_MIN_LENGTH } from '@/constants/constraints'
-import { supabaseAuth } from '@/utils/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { bindApply } from '@sub-vocab/utils/lib'
 
 export default function Register() {
-  const [session] = useAtom(sessionAtom)
-  const user = session?.user
+  const [user] = useAtom(userAtom)
   const formDefaultValues = {
     email: '',
     password: '',
@@ -53,9 +52,10 @@ export default function Register() {
   } = form
 
   const [passwordVisible, setPasswordVisible] = useState(false)
+  const supabase = createClient()
   const { mutateAsync: signUp, isPending } = useMutation({
     mutationKey: ['signUp'],
-    mutationFn: bindApply(supabaseAuth.signUp, supabaseAuth),
+    mutationFn: bindApply(supabase.auth.signUp, supabase.auth),
   })
   const router = useRouter()
   const [authChangeEvent] = useAtom(authChangeEventAtom)

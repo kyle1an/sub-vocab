@@ -2,6 +2,8 @@ import type { NextRequest } from 'next/server'
 
 import { createI18nMiddleware } from 'next-international/middleware'
 
+import { updateSession } from '@/lib/supabase/middleware'
+
 const I18nMiddleware = createI18nMiddleware({
   locales: ['en', 'zh'],
   defaultLocale: 'en',
@@ -9,7 +11,9 @@ const I18nMiddleware = createI18nMiddleware({
 })
 
 export function middleware(request: NextRequest) {
-  return I18nMiddleware(request)
+  // https://next-intl.dev/docs/routing/middleware#example-integrating-with-supabase-authentication
+  const response = I18nMiddleware(request)
+  return updateSession(request, response)
 }
 
 export const config = {

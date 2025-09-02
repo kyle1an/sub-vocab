@@ -10,14 +10,14 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod/v4-mini'
 
-import { authChangeEventAtom, sessionAtom } from '@/atoms/auth'
+import { authChangeEventAtom, userAtom } from '@/atoms/auth'
 import { ContentRoot } from '@/components/content-root'
 import Navigate from '@/components/Navigate'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { supabaseAuth } from '@/utils/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { bindApply } from '@sub-vocab/utils/lib'
 
 function ResetEmailNotification() {
@@ -33,11 +33,11 @@ function ResetEmailNotification() {
 }
 
 export default function ResetPassword() {
-  const [session] = useAtom(sessionAtom)
-  const user = session?.user
+  const [user] = useAtom(userAtom)
+  const supabase = createClient()
   const { mutateAsync: resetPasswordForEmail, isPending } = useMutation({
     mutationKey: ['resetPasswordForEmail'],
-    mutationFn: bindApply(supabaseAuth.resetPasswordForEmail, supabaseAuth),
+    mutationFn: bindApply(supabase.auth.resetPasswordForEmail, supabase.auth),
   })
   const router = useRouter()
 

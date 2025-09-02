@@ -1,12 +1,12 @@
 import type { Atom } from 'jotai'
 
 import { pipe } from 'effect'
-import { atom, createStore } from 'jotai'
+import { atom, getDefaultStore } from 'jotai'
 import { atomFamily } from 'jotai/utils'
 
 import { tap } from '@sub-vocab/utils/lib'
 
-export const myStore = createStore()
+export const myStore = getDefaultStore()
 
 export const myAtomFamily = <Param, AtomType extends Atom<unknown>>(label: string, initializeAtom: (param: Param) => AtomType, areEqual?: (a: Param, b: Param) => boolean) => {
   const paramsAtom = atom([] as Param[])

@@ -2,13 +2,12 @@
 
 import { useAtom } from 'jotai'
 
-import { authChangeEventAtom, sessionAtom } from '@/atoms/auth'
+import { authChangeEventAtom, userAtom } from '@/atoms/auth'
 import { ContentRoot } from '@/components/content-root'
 import Navigate from '@/components/Navigate'
 
-export default function User({ children }: { children: React.ReactNode }) {
-  const [session] = useAtom(sessionAtom)
-  const user = session?.user
+export default function User({ children }: LayoutProps<'/[locale]/user'>) {
+  const [user] = useAtom(userAtom)
   const [authChangeEvent] = useAtom(authChangeEventAtom)
   if (!authChangeEvent) {
     return null

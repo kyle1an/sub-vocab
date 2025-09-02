@@ -19,7 +19,7 @@ import { userIdAtom } from '@/atoms/auth'
 import { vocabSubscriptionAtom } from '@/atoms/vocabulary'
 import { buildTrackedWord, LEARNING_PHASE } from '@/lib/LexiconTrie'
 import { queryClient } from '@/lib/query-client'
-import { supabase } from '@/utils/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { documentVisibilityStateAtom, withDelayedSetter } from '@sub-vocab/utils/atoms'
 import { createRetimer, hasValue } from '@sub-vocab/utils/lib'
 import { narrow, narrowShallow } from '@sub-vocab/utils/types'
@@ -31,7 +31,7 @@ const userVocabularyOptionsAtom = atom((get) => {
   return queryOptions({
     queryKey: ['userVocabularyOptionsAtom', userId],
     queryFn: async () => pipe(
-      await supabase
+      await createClient()
         .from('user_vocab_record')
         .select('w:vocabulary, t:time_modified, a:acquainted')
         .eq('user_id', userId)
@@ -57,7 +57,7 @@ const sharedVocabularyAtom = atomWithQuery(() => {
   return {
     queryKey: ['sharedVocabularyAtom'],
     queryFn: async () => pipe(
-      await supabase
+      await createClient()
         .from('vocabulary_list')
         .select('w:word, o:original, u:is_user, r:word_rank')
         .eq('share', true)
@@ -99,7 +99,7 @@ export const irregularWordsQueryAtom = atomWithQuery(() => {
   return {
     queryKey: ['irregularWordsQueryAtom'],
     queryFn: async () => pipe(
-      await supabase
+      await createClient()
         .from('derivation')
         .select('l:stem_word, i:derived_word')
         .order('stem_word')
@@ -128,7 +128,7 @@ export function useUserWordPhaseMutation() {
   return useMutation({
     mutationKey: ['useUserWordPhaseMutation'],
     mutationFn: async (vocab: TrackedWord[]) => pipe(
-      await supabase
+      await createClient()
         .from('user_vocab_record')
         .upsert(
           vocab.map((row) => ({
@@ -228,6 +228,7 @@ const initChannelAtom = atom(null, (get, set, userId: string) => {
     return
   }
 
+  const supabase = createClient()
   const channel = supabase.channel(`user_${userId}_user_vocab_record`)
   channel.on<user_vocab_record>(
     'postgres_changes',
@@ -267,6 +268,7 @@ const initChannelAtom = atom(null, (get, set, userId: string) => {
 const removeChannelAtom = withDelayedSetter(atom(null, (get, set) => {
   const channel = get(channelBaseAtom)
   if (channel) {
+    const supabase = createClient()
     supabase.removeChannel(channel)
     set(channelBaseAtom, undefined)
   }
@@ -287,6 +289,7 @@ export const userVocabularyAtom = withAtomEffect(
     if (userId) {
       const controller = new AbortController()
       // https://github.com/supabase/realtime/issues/282#issuecomment-2630983759
+      const supabase = createClient()
       supabase.realtime.setAuth().then(() => {
         if (controller.signal.aborted) return
         set(initChannelAtom, userId)

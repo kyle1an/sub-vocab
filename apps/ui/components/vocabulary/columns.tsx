@@ -11,7 +11,7 @@ import type { TrackedWord } from '@/lib/LexiconTrie'
 import type { VocabularySourceState } from '@/lib/vocab'
 
 import { useUserWordPhaseMutation } from '@/api/vocab-api'
-import { sessionAtom } from '@/atoms/auth'
+import { userAtom } from '@/atoms/auth'
 import { LoginToast } from '@/components/login-toast'
 import { SortIcon } from '@/components/my-icon/sort-icon'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
@@ -30,7 +30,7 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
   const { online: isOnline } = useNetworkState()
   const store = useStore()
   const handleVocabToggle = (vocab: TrackedWord) => {
-    if (!store.get(sessionAtom)?.user) {
+    if (!store.get(userAtom)) {
       toast(<LoginToast />)
       return
     }
