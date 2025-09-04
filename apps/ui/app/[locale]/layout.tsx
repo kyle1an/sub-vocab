@@ -4,15 +4,20 @@ import type { Metadata } from 'next'
 
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { ComposeContextProvider } from 'foxact/compose-context-provider'
 import { cookies } from 'next/headers'
-import { Fragment, use } from 'react'
+import { Fragment, Suspense, use } from 'react'
 
 import type { ColorModeValue } from '@/components/themes'
 
-import { BodyProvider } from '@/app/[locale]/_components/BodyProvider'
+import { AppSidebarInset } from '@/app/[locale]/_components/app-sidebar-inset'
+import { Body } from '@/app/[locale]/_components/BodyProvider'
 import { HydrateAtoms } from '@/app/[locale]/_components/HydrateAtoms'
+import { JotaiProvider } from '@/app/[locale]/_components/JotaiProvider'
 import { Providers } from '@/app/[locale]/_components/providers'
-import { JotaiProvider } from '@/atoms/Provider'
+import { AppSidebar } from '@/components/app-sidebar'
+import { SIDEBAR_COOKIE_NAME, SidebarProvider } from '@/components/ui/sidebar'
+import { Toaster } from '@/components/ui/sonner'
 import { COLOR_MODE_SETTING_KEY } from '@/constants/keys'
 import { DARK__BACKGROUND, LIGHT_THEME_COLOR } from '@/constants/theme'
 import { createClient } from '@/lib/supabase/server'
@@ -32,6 +37,7 @@ export default function RootLayout({
   const supabase = use(createClient())
   const { data: { user } } = use(supabase.auth.getUser())
   const setting = cookieStore.get(COLOR_MODE_SETTING_KEY)?.value as ColorModeValue | undefined ?? 'auto'
+  const defaultOpen = cookieStore.get(SIDEBAR_COOKIE_NAME)?.value !== 'false'
   return (
     <html
       lang={locale}
@@ -68,26 +74,44 @@ export default function RootLayout({
           }}
         />
       </head>
-      <JotaiProvider>
-        <HydrateAtoms
-          colorModeSetting={setting}
-          user={user ?? undefined}
-        >
-          <I18nProviderClient locale={locale}>
-            <BodyProvider>
-              <Providers>
-                {children}
-              </Providers>
-              {process.env.NODE_ENV === 'production' ? (
-                <Fragment>
-                  <SpeedInsights />
-                  <Analytics />
-                </Fragment>
-              ) : null}
-            </BodyProvider>
-          </I18nProviderClient>
-        </HydrateAtoms>
-      </JotaiProvider>
+      <ComposeContextProvider
+        contexts={[
+          /* eslint-disable react/no-missing-key */
+          <I18nProviderClient locale={locale} children={null} />,
+          <JotaiProvider />,
+          <HydrateAtoms
+            colorModeSetting={setting}
+            user={user}
+          />,
+          <Body />,
+          <Providers />,
+          <SidebarProvider
+            defaultOpen={defaultOpen}
+            className="isolate h-svh pr-(--pr) antialiased sq:superellipse-[1.5]"
+            data-vaul-drawer-wrapper=""
+          />,
+          /* eslint-enable react/no-missing-key */
+        ]}
+      >
+        <AppSidebar
+          collapsible="icon"
+        />
+        <AppSidebarInset>
+          {children}
+        </AppSidebarInset>
+        <Suspense fallback={null}>
+          <Toaster
+            closeButton
+            richColors
+          />
+        </Suspense>
+        {process.env.NODE_ENV === 'production' ? (
+          <Fragment>
+            <SpeedInsights />
+            <Analytics />
+          </Fragment>
+        ) : null}
+      </ComposeContextProvider>
     </html>
   )
 }

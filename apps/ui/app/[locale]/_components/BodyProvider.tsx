@@ -6,10 +6,10 @@ import { useRef } from 'react'
 import { bodyBgColorAtom } from '@/atoms'
 import { useStyleObserver } from '@sub-vocab/utils/hooks'
 
-export function BodyProvider({
+export function Body({
   children,
 }: {
-  children: React.ReactNode
+  children?: React.ReactNode
 }) {
   const ref = useRef<HTMLBodyElement>(null)
   const store = useStore()

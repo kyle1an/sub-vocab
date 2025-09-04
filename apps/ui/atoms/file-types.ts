@@ -12,4 +12,4 @@ export const fileTypesAtom = atomWithStorage(
   })),
 )
 
-export type FileType = ExtractAtomValue<typeof fileTypesAtom>[1]
+export type FileType = ExtractAtomValue<typeof fileTypesAtom>[number]

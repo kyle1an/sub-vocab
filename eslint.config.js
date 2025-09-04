@@ -106,6 +106,7 @@ export default typegen(antfu(
   {
     ignores: [
       '**/schema/*.d.ts',
+      '**/eslint-typegen.d.ts',
     ],
   },
 ))
