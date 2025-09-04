@@ -15,8 +15,8 @@ export const HydrateAtoms = ({
   children,
 }: {
   colorModeSetting: ColorModeValue
-  user: User | undefined
-  children: React.ReactNode
+  user: User | undefined | null
+  children?: React.ReactNode
 }) => {
   useHydrateAtoms([
     [colorModeSettingAtom, colorModeSetting],

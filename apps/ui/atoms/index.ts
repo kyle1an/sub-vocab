@@ -13,7 +13,6 @@ import { LIGHT_THEME_COLOR } from '@/constants/theme'
 import { mediaQueryFamily } from '@sub-vocab/utils/atoms'
 import { isServer } from '@sub-vocab/utils/lib'
 
-export const osLanguageAtom = atomWithStorage('osLanguageAtom', 'en')
 export const colorModeSettingAtom = withAtomEffect(
   atomWithStorage<ColorModeValue>(COLOR_MODE_SETTING_KEY, COLOR_MODE.DEFAULT.value, undefined, { getOnInit: true }),
   (get) => {
@@ -26,7 +25,7 @@ export const colorModeSettingAtom = withAtomEffect(
     document.documentElement.setAttribute('data-color-mode', get(colorModeSettingAtom))
   },
 )
-export const isDarkModeAtom = atom((get) => {
+const isDarkModeAtom = atom((get) => {
   const setting = get(colorModeSettingAtom)
   return setting === 'dark' || (setting === 'auto' && get(mediaQueryFamily('(prefers-color-scheme: dark)')))
 })

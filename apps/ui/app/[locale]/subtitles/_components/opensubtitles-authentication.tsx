@@ -1,0 +1,191 @@
+import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
+import { useUnmountEffect } from '@react-hookz/web'
+import { useMutation } from '@tanstack/react-query'
+import { get } from 'es-toolkit/compat'
+import { atom, useAtom } from 'jotai'
+import { ofetch } from 'ofetch'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod/v4-mini'
+
+import type { Login } from '@/app/[locale]/subtitles/_api/os'
+
+import { osSessionAtom } from '@/app/[locale]/subtitles/_api/os'
+import { Button } from '@/components/ui/button'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { env } from '@/env'
+import { bindApply } from '@sub-vocab/utils/lib'
+
+const osAuthAtom = atom({
+  username: '',
+  password: '',
+})
+
+export function OpensubtitlesAuthentication() {
+  const [passwordVisible, setPasswordVisible] = useState(false)
+  const [osAuth, setOsAuth] = useAtom(osAuthAtom)
+  const [osSession, setOsSession] = useAtom(osSessionAtom)
+  const { mutateAsync, isPending } = useMutation({
+    mutationKey: ['subtitles-login'],
+    mutationFn: bindApply(ofetch<Login['Response']>),
+  })
+  const formDefaultValues = osAuth
+  type FormValues = typeof formDefaultValues
+  const form = useForm<FormValues>({
+    defaultValues: formDefaultValues,
+    mode: 'onBlur',
+    resolver: zodResolver(
+      z
+        .object({
+          username: z
+            .string()
+            .check(z.minLength(1, {
+              error: 'Username is required',
+            })),
+          password: z
+            .string()
+            .check(z.minLength(1, {
+              error: 'Password is required',
+            })),
+        }),
+    ),
+  })
+
+  const {
+    handleSubmit,
+    formState: { errors },
+    setError,
+  } = form
+
+  async function onSubmit(values: FormValues) {
+    setPasswordVisible(false)
+    const baseUrl = `${env.NEXT_PUBLIC_SUB_API_URL}/opensubtitles-proxy/def`
+    const result = await mutateAsync([
+      `${baseUrl}/login`,
+      {
+        method: 'POST',
+        body: values satisfies Login['Body'],
+      },
+    ]).catch((e) => {
+      const message = get(e, 'data.message') ?? get(e, 'message') ?? 'Error'
+      setError('root.serverError', {
+        message,
+      })
+    })
+    if (result) {
+      setOsSession(result)
+    }
+  }
+
+  useUnmountEffect(() => {
+    setOsAuth(form.getValues())
+  })
+
+  return (
+    <div className="grid gap-4">
+      <div className="space-y-2">
+        <h4 className="leading-none font-medium">
+          Sign In to
+          {' '}
+          <a
+            href="https://www.opensubtitles.com/users/sign_up"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="underline"
+          >
+            OpenSubtitles
+          </a>
+        </h4>
+      </div>
+      <div className="grid gap-2">
+        <Form {...form}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-4"
+          >
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <div>
+                      <Input
+                        type="text"
+                        autoComplete="username"
+                        {...field}
+                        className="text-base md:text-sm"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage>{errors.username?.message ?? ''}</FormMessage>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="inline-flex w-full text-sm">
+                    <span className="grow">
+                      Password
+                    </span>
+                  </FormLabel>
+                  <FormControl>
+                    <div className="flex items-center gap-1">
+                      <div className="grow">
+                        <Input
+                          type={passwordVisible ? 'text' : 'password'}
+                          autoComplete="current-password"
+                          {...field}
+                          className="text-base md:text-sm"
+                        />
+                      </div>
+                      <Button
+                        variant="outline"
+                        className="px-2!"
+                        aria-checked={passwordVisible}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          setPasswordVisible(!passwordVisible)
+                        }}
+                      >
+                        {passwordVisible ? (
+                          <svg
+                            className="icon-[lucide--eye] size-4.5 text-neutral-600"
+                          />
+                        ) : (
+                          <svg
+                            className="icon-[lucide--eye-off] size-4.5 text-neutral-600"
+                          />
+                        )}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage>{errors.password?.message ?? ''}</FormMessage>
+                </FormItem>
+              )}
+            />
+            <FormMessage className="break-words">{errors.root?.serverError?.message}</FormMessage>
+            <Button
+              className="group gap-1.5"
+              type="submit"
+              disabled={isPending}
+            >
+              Get Token
+              <svg className="icon-[lucide--loader-2] hidden animate-spin group-disabled:block" />
+            </Button>
+          </form>
+        </Form>
+      </div>
+      {osSession?.token ? (
+        <div className="overflow-x-scroll">
+          <span>{osSession.token}</span>
+        </div>
+      ) : null}
+    </div>
+  )
+}

@@ -18,7 +18,7 @@ import { isServer, omitUndefined } from '@sub-vocab/utils/lib'
 const persister = createAsyncStoragePersister({
   storage: isServer ? undefined : localStorage,
 })
-const HydrateAtoms = ({ children }: { children: React.ReactNode }) => {
+const HydrateAtoms = ({ children }: { children?: React.ReactNode }) => {
   useHydrateAtoms([[queryClientAtom, queryClient]])
   return children
 }
@@ -37,20 +37,19 @@ const trpcClient = createTRPCClient<AppRouter>({
   ],
 })
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({ children }: { children?: React.ReactNode }) {
   return (
     <ComposeContextProvider
       contexts={[
         /* eslint-disable react/no-missing-key */
         <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }} />,
         <TRPCProvider trpcClient={trpcClient} queryClient={queryClient} children={null} />,
+        <HydrateAtoms />,
         /* eslint-enable react/no-missing-key */
       ]}
     >
-      <HydrateAtoms>
-        <ReactQueryDevtools />
-        {children}
-      </HydrateAtoms>
+      <ReactQueryDevtools />
+      {children}
     </ComposeContextProvider>
   )
 }

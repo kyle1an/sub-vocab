@@ -34,7 +34,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 import { useIdentity } from '@sub-vocab/utils/hooks'
 
-const SIDEBAR_COOKIE_NAME = 'sidebar_state'
+export const SIDEBAR_COOKIE_NAME = 'sidebar_state'
 const SIDEBAR_COOKIE_MAX_AGE = ms('400d')
 const SIDEBAR_WIDTH = '16rem'
 const SIDEBAR_WIDTH_MOBILE = '18rem'
