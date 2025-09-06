@@ -17,7 +17,7 @@ export const aiRouter = router({
       prompt: z.string().min(1),
     }))
     .mutation(({ input }) => Effect.gen(function* () {
-      const languageModel = google('gemini-2.5-flash-lite-preview-06-17')
+      const languageModel = google('gemini-2.5-flash-lite')
       const { object } = yield* Effect.tryPromise(() => generateObject({
         model: languageModel,
         temperature: 0,

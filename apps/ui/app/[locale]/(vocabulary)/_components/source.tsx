@@ -1,7 +1,7 @@
 import type { InitialTableState } from '@tanstack/react-table'
 
+import { experimental_useObject as useObject } from '@ai-sdk/react'
 import usePagination from '@mui/material/usePagination'
-import { useMutation } from '@tanstack/react-query'
 import {
   createColumnHelper,
   getCoreRowModel,
@@ -11,12 +11,10 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { TRPCClientError } from '@trpc/client'
-import { $trycatch } from '@tszen/trycatch'
 import clsx from 'clsx'
 import { identity } from 'es-toolkit'
 import { useSessionStorage } from 'foxact/use-session-storage'
-import { atom, useAtom, useAtomValue, useStore } from 'jotai'
+import { atom, useAtomValue, useStore } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 import { atomWithStorage } from 'jotai/utils'
 import { startTransition, useDeferredValue, useRef, useState } from 'react'
@@ -25,6 +23,7 @@ import { toast } from 'sonner'
 import type { LearningPhase, Sentence } from '@/app/[locale]/(vocabulary)/_lib/LexiconTrie'
 import type { VocabularySourceData, VocabularySourceState } from '@/app/[locale]/(vocabulary)/_lib/vocab'
 import type { ColumnFilterFn } from '@/lib/table-utils'
+import type { PartialObjectZ } from '@/types/utils'
 
 import { isSourceTextStaleAtom } from '@/app/[locale]/(vocabulary)/_atoms'
 import { AcquaintAllDialog } from '@/app/[locale]/(vocabulary)/_components/acquaint-all-dialog'
@@ -36,6 +35,7 @@ import { searchFilterValue } from '@/app/[locale]/(vocabulary)/_lib/filters'
 import { LEARNING_PHASE } from '@/app/[locale]/(vocabulary)/_lib/LexiconTrie'
 import { useManagedVocabulary } from '@/app/[locale]/(vocabulary)/_lib/vocab-utils'
 import { getCategory } from '@/app/[locale]/(vocabulary)/_prompts/getCategory'
+import { categorySchema } from '@/app/api/categories/schema'
 import { DataTableFacetedFilter } from '@/components/data-table/data-table-faceted-filter'
 import { TableGoToLastPage } from '@/components/my-table/go-to-last-page'
 import { TablePagination } from '@/components/my-table/pagination'
@@ -50,7 +50,6 @@ import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCe
 import { combineFilters, filterFn, noFilter } from '@/lib/table-utils'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/locales/client'
-import { useTRPC } from '@/trpc/client'
 import { useClone, useLastTruthy } from '@sub-vocab/utils/hooks'
 import { findClosest, isRegexValid } from '@sub-vocab/utils/lib'
 import { narrow } from '@sub-vocab/utils/types'
@@ -189,9 +188,9 @@ type VocabularyCategory = {
   [K in CategoryValue]?: string[]
 }
 
-const categoryAtom = atomWithStorage<VocabularyCategory>('categoryAtom', {})
+const categoryAtom = atomWithStorage<VocabularyCategory>('categoryAtom', {}, undefined, { getOnInit: true })
 
-function useCategorize(vocabularyCategory: VocabularyCategory, data: VocabularySourceState[]) {
+function useCategorize(vocabularyCategory: PartialObjectZ<VocabularyCategory>, data: VocabularySourceState[]) {
   const t = useI18n()
   const { properName = [], acronym = [] } = vocabularyCategory
 
@@ -222,7 +221,7 @@ export function VocabSourceTable({
   onSentenceTrack: (sentenceId: number) => void
 }) {
   const [data, handlePurge] = useManagedVocabulary(rows)
-  const [categoryAtomValue, setCategoryAtom] = useAtom(categoryAtom)
+  const store = useStore()
   const t = useI18n()
   const [{ isUsingRegex, searchValue, filterValue }, setCacheState] = useImmerAtom(cacheStateAtom)
   const deferredSearchValue = useDeferredValue(searchValue)
@@ -238,14 +237,28 @@ export function VocabSourceTable({
   const lastTruthySearchFilterValue = useLastTruthy(searchFilterValue(deferredSearchValue, deferredIsUsingRegex))() ?? noFilter
   const inValidSearch = deferredIsUsingRegex && !isRegexValid(deferredSearchValue)
   const isSourceTextStale = useAtomValue(isSourceTextStaleAtom)
-  const categorizedData = useCategorize(categoryAtomValue, data)
+  const { object: categoryValue = {}, submit, isLoading } = useObject({
+    api: '/api/categories',
+    schema: categorySchema,
+    onError: (error) => {
+      toast.error(error.message, {
+        duration: Infinity,
+      })
+    },
+    onFinish: (result) => {
+      if (result.object) {
+        store.set(categoryAtom, result.object)
+      }
+    },
+    initialValue: store.get(categoryAtom),
+  })
+  const categorizedData = useCategorize(categoryValue, data)
 
   const preCategoryFilters = [
     acquaintedStatusFilter(segmentDeferredValue),
     lastTruthySearchFilterValue,
   ]
   const globalFilter = combineFilters(preCategoryFilters)
-  const store = useStore()
   const table = useClone(useReactTable({
     data: categorizedData,
     columns,
@@ -314,10 +327,6 @@ export function VocabSourceTable({
     .map((row) => row.original.trackedWord)
 
   const isStale = isSourceTextStale || segment !== segmentDeferredValue || searchValue !== deferredSearchValue || isUsingRegex !== deferredIsUsingRegex
-  const trpc = useTRPC()
-  const { mutateAsync, isPending } = useMutation(trpc.ai.getCategory.mutationOptions({
-    retry: 1,
-  }))
   const options = [
     {
       label: 'Name',
@@ -339,33 +348,12 @@ export function VocabSourceTable({
   const freshVocabularies = data
     .filter((d) => d.trackedWord.learningPhase === LEARNING_PHASE.NEW && !d.trackedWord.rank)
 
-  const handleAiVocabCategorize = async () => {
+  const handleAiVocabCategorize = () => {
     const words = freshVocabularies
       .filter((d) => !d.trackedWord.isBaseForm && !d.trackedWord.isUser && !d.trackedWord.rank)
       .map((d) => d.wordFamily.map((w) => w.pathe))
       .flat()
-    const [value, error] = await $trycatch(mutateAsync({
-      prompt: getCategory(words),
-    }))
-    let message: string
-    if (error) {
-      if (error.cause instanceof TRPCClientError) {
-        message = error.cause.message
-      } else {
-        message = error.message
-      }
-    } else {
-      const { data: category, error } = value
-      if (error) {
-        message = error.message
-      } else {
-        setCategoryAtom(category)
-        return
-      }
-    }
-    toast.error(message, {
-      duration: Infinity,
-    })
+    submit(getCategory(words))
   }
 
   return (
@@ -401,11 +389,11 @@ export function VocabSourceTable({
         <Button
           className="aspect-square h-full p-0 [--sq-r:.8125rem]"
           variant="ghost"
-          disabled={freshVocabularies.length === 0 || isPending}
+          disabled={freshVocabularies.length === 0 || isLoading}
           onClick={handleAiVocabCategorize}
           aria-label="ai categorize"
         >
-          {isPending ? (
+          {isLoading ? (
             <svg
               className="icon-[lucide--loader] size-4.5 animate-spin duration-1000 [animation-duration:2s]"
             />
