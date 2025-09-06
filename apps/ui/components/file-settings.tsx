@@ -2,10 +2,9 @@
 
 import type { CheckedState } from '@radix-ui/react-checkbox'
 
-import { pipe } from 'effect'
 import { isEqual } from 'es-toolkit'
 import { useAtom, useAtomValue } from 'jotai'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useQueryState } from 'nuqs'
 import { Suspense } from 'react'
 import { useImmer } from 'use-immer'
 
@@ -18,7 +17,6 @@ import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, Dr
 import { Separator } from '@/components/ui/separator'
 import { Toggle } from '@/components/ui/toggle'
 import { mediaQueryFamily } from '@sub-vocab/utils/atoms'
-import { tap } from '@sub-vocab/utils/lib'
 
 function FileSettingsContent({
   className,
@@ -74,17 +72,8 @@ const Trigger = (
 
 export function Settings() {
   const isMdScreen = useAtomValue(mediaQueryFamily.useA('(min-width: 768px)'))
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const createQueryString = (name: string, value: string) => pipe(
-    new URLSearchParams(searchParams.toString()),
-    tap((x) => {
-      x.set(name, value)
-    }),
-    (x) => x.toString(),
-  )
-  const open = searchParams.get('popup') === 'file-settings'
+  const [popup, setPopup] = useQueryState('popup')
+  const open = popup === 'file-settings'
   const [fileTypes, setFileTypes] = useAtom(fileTypesAtom)
   const [fileTypesInterim, setFileTypesInterim] = useImmer(fileTypes)
 
@@ -99,16 +88,16 @@ export function Settings() {
 
   function save() {
     setFileTypes(fileTypesInterim)
-    router.push(``)
+    setPopup(null)
   }
 
   const settingsUnchanged = isEqual(fileTypes, fileTypesInterim)
 
   function handleOpenChange(open: boolean) {
     if (open) {
-      router.push(`${pathname}?${createQueryString('popup', 'file-settings')}`)
+      setPopup('file-settings')
     } else {
-      router.push(`${pathname}`)
+      setPopup(null)
       setFileTypesInterim(fileTypes)
     }
   }

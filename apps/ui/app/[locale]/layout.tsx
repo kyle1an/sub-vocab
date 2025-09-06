@@ -6,6 +6,7 @@ import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { ComposeContextProvider } from 'foxact/compose-context-provider'
 import { cookies } from 'next/headers'
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { Fragment, Suspense, use } from 'react'
 
 import type { ColorModeValue } from '@/components/themes'
@@ -91,6 +92,7 @@ export default function RootLayout({
             className="isolate h-svh pr-(--pr) antialiased sq:superellipse-[1.5]"
             data-vaul-drawer-wrapper=""
           />,
+          <NuqsAdapter children={null} />,
           /* eslint-enable react/no-missing-key */
         ]}
       >
