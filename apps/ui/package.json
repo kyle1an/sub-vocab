@@ -17,6 +17,8 @@
     "typegen": "next typegen"
   },
   "dependencies": {
+    "@ai-sdk/google": "^2.0.12",
+    "@ai-sdk/react": "^2.0.34",
     "@date-fns/utc": "^2.1.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
@@ -59,6 +61,7 @@
     "@vercel/analytics": "^1.5.0",
     "@vercel/edge": "^1.2.2",
     "@vercel/speed-insights": "^1.2.0",
+    "ai": "^5.0.34",
     "chart.js": "^4.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
