@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useAtomEffect } from '@sub-vocab/utils/hooks'
 
 export function useAppEffects() {
-  useAtomEffect((get, set) => {
+  useAtomEffect((_, set) => {
     const supabase = createClient()
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       set(authChangeEventAtom, event)

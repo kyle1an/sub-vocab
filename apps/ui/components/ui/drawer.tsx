@@ -1,49 +1,18 @@
 import clsx from 'clsx'
-import { pipe } from 'effect'
-import { atom } from 'jotai'
-import { atomWithImmer } from 'jotai-immer'
 import ms from 'ms'
 import * as React from 'react'
 import { useId } from 'react'
 import { Drawer as DrawerPrimitive } from 'vaul'
 
-import { myAtomFamily } from '@/atoms/store'
+import { drawerStateFamily } from '@/components/ui/drawer.var'
 import { cn } from '@/lib/utils'
 import { retimerAtomFamily, setAtom } from '@sub-vocab/utils/atoms'
 import { useAtomEffect } from '@sub-vocab/utils/hooks'
-import { equalBy } from '@sub-vocab/utils/lib'
 
 const TRANSITIONS_DURATION = ms('0.5s')
 
-const drawerStateFamily = pipe(myAtomFamily(
-  `drawerStateFamily`,
-  ([
-    ,
-    initialValue = {
-      open: false,
-      shouldScaleBackground: false,
-    },
-  ]: [
-    key: string,
-    initialValue?: {
-      open: boolean
-      openAnimationEnd?: boolean
-      shouldScaleBackground: boolean
-    },
-  ]) => atomWithImmer(initialValue),
-  equalBy(([key]) => key),
-), (x) => Object.assign(x, {
-  useA: x,
-}))
-
-export const isAnyDrawerOpenAtom = atom((get) => {
-  return get(drawerStateFamily.paramsAtom)
-    .map((p) => get(drawerStateFamily(p)))
-    .some(({ shouldScaleBackground, open, openAnimationEnd }) => shouldScaleBackground && (open || openAnimationEnd))
-})
-
-const animRetimerFamily = retimerAtomFamily(`animRetimerFamily`)
-const removeRetimerFamily = retimerAtomFamily(`removeRetimerFamily`)
+const animRetimerFamily = retimerAtomFamily()
+const removeRetimerFamily = retimerAtomFamily()
 
 function Drawer({
   ...props

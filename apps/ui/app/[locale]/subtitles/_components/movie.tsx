@@ -2,20 +2,19 @@ import type { CellContext, InitialTableState, RowData } from '@tanstack/react-ta
 
 import usePagination from '@mui/material/usePagination'
 import NumberFlow from '@number-flow/react'
-import { useUnmountEffect } from '@react-hookz/web'
 import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import clsx from 'clsx'
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtom, useAtomValue, useStore } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 import nstr from 'nstr'
-import { Fragment, useRef } from 'react'
+import { Fragment, useRef, useState } from 'react'
 
 import type { Subtitles } from '@/app/[locale]/subtitles/_api/os'
 import type { SubtitleData } from '@/app/[locale]/subtitles/_components/columns'
 import type { RowSelectionChangeFn } from '@/types/utils'
 
 import { openSubtitlesSubtitlesAtom } from '@/app/[locale]/subtitles/_api/os'
-import { buildMediaSubtitleState, mediaSubtitleFamily, osLanguageAtom } from '@/app/[locale]/subtitles/_atoms'
+import { buildInitialTableState, initialTableStateFamily, mediaSubtitleFamily, osLanguageAtom } from '@/app/[locale]/subtitles/_atoms'
 import { useCommonColumns } from '@/app/[locale]/subtitles/_components/columns'
 import { RefetchButton } from '@/app/[locale]/subtitles/_components/menu-items'
 import { getFileId } from '@/app/[locale]/subtitles/_utils'
@@ -35,7 +34,7 @@ import { findClosest } from '@sub-vocab/utils/lib'
 
 type MovieSubtitleData = SubtitleData
 
-function useMovieColumns<T extends MovieSubtitleData>(rootRef: React.RefObject<HTMLDivElement | null>, tbodyRef: React.RefObject<HTMLTableSectionElement | null>) {
+function useMovieColumns<T extends MovieSubtitleData>(rootRef: React.RefObject<HTMLDivElement | null>, tbody: HTMLTableSectionElement | null) {
   const t = useI18n()
   const columnHelper = createColumnHelper<T>()
   return [
@@ -126,7 +125,7 @@ function useMovieColumns<T extends MovieSubtitleData>(rootRef: React.RefObject<H
           <MovieNameCell
             {...ctx}
             rootRef={rootRef}
-            tbodyRef={tbodyRef}
+            tbody={tbody}
           />
         )
       },
@@ -136,12 +135,12 @@ function useMovieColumns<T extends MovieSubtitleData>(rootRef: React.RefObject<H
 
 function MovieNameCell<TData extends RowData>({
   rootRef,
-  tbodyRef,
+  tbody,
   cell,
   getValue,
 }: {
   rootRef: React.RefObject<HTMLDivElement | null>
-  tbodyRef: React.RefObject<HTMLTableSectionElement | null>
+  tbody: HTMLTableSectionElement | null
 } & CellContext<TData, string>) {
   const value = getValue()
   const ref = useRef<HTMLDivElement>(null)
@@ -176,7 +175,7 @@ function MovieNameCell<TData extends RowData>({
               </div>
             </TooltipTrigger>
             <TooltipContent
-              container={tbodyRef.current}
+              container={tbody}
               side="bottom"
               sideOffset={-21 - 1}
               align="start"
@@ -242,34 +241,36 @@ function SubtitleFiles({
   subtitleData: Subtitles['Response']['data']
 }) {
   const t = useI18n()
+  const store = useStore()
   const rootRef = useRef<HTMLDivElement>(null)
   const commonColumns = useCommonColumns<MovieSubtitleData>(rootRef)
-  const tbodyRef = useRef<HTMLTableSectionElement>(null)
-  const movieColumns = useMovieColumns(rootRef, tbodyRef)
+  const [tbody, setTbody] = useState<HTMLTableSectionElement | null>(null)
+  const movieColumns = useMovieColumns(rootRef, tbody)
   const columns = [...commonColumns, ...movieColumns]
-  const [{ initialTableState: mediaInitialTableState, tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleFamily([
+  const [{ tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleFamily.useA([
     id,
-    buildMediaSubtitleState({
-      initialTableState: {
-        sorting: [
-          {
-            id: 'download_count',
-            desc: true,
-          },
-        ],
-        columnOrder: ['action', 'movie_name', 'language', 'upload_date', 'download_count'],
-        pagination: {
-          pageSize: findClosest(10, PAGE_SIZES),
-        },
-      } satisfies InitialTableState,
-    }),
   ]))
+  const mediaSubtitleInitialTableStateAtom = initialTableStateFamily.useA([
+    id,
+    buildInitialTableState({
+      sorting: [
+        {
+          id: 'download_count',
+          desc: true,
+        },
+      ],
+      columnOrder: ['action', 'movie_name', 'language', 'upload_date', 'download_count'],
+      pagination: {
+        pageSize: findClosest(10, PAGE_SIZES),
+      },
+    } satisfies InitialTableState),
+  ])
   const table = useClone(useReactTable({
     data: subtitleData.map((subtitle) => ({
       subtitle,
     })),
     columns,
-    initialState: mediaInitialTableState,
+    initialState: store.get(mediaSubtitleInitialTableStateAtom),
     state: mediaTableState,
     autoResetPageIndex: false,
     getRowId: getFileId,
@@ -279,6 +280,10 @@ function SubtitleFiles({
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    onStateChange: (updater) => {
+      // eslint-disable-next-line ts/no-use-before-define
+      store.set(mediaSubtitleInitialTableStateAtom, typeof updater === 'function' ? updater(tableState) : updater)
+    },
   }))
   const rowsFiltered = table.getFilteredRowModel().rows
   const tableState = table.getState()
@@ -299,11 +304,6 @@ function SubtitleFiles({
       tableState.rowSelection[row.id] = Boolean(checked)
     })
   }
-  useUnmountEffect(() => {
-    setMediaSubtitleState((draft) => {
-      draft.initialTableState = table.getState()
-    })
-  })
   return (
     <Fragment>
       <Fragment>
@@ -325,7 +325,11 @@ function SubtitleFiles({
                   </tr>
                 ))}
               </TableHeader>
-              <tbody ref={tbodyRef}>
+              <tbody
+                ref={(element) => {
+                  setTbody(element)
+                }}
+              >
                 {useClone(table.getRowModel().rows).map((row) => {
                   return (
                     <TableRow
