@@ -62,6 +62,7 @@ function MenubarTrigger({
         'sq:rounded-[.75rem]',
         className,
       )}
+      suppressHydrationWarning
       {...props}
     />
   )

@@ -1,45 +1,80 @@
 import type { InitialTableState, RowSelectionState } from '@tanstack/react-table'
 import type { LiteralUnion } from 'type-fest'
 
+import { pipe } from 'effect'
+import { isEqual } from 'es-toolkit'
 import { atom } from 'jotai'
-import { atomWithStorage } from 'jotai/utils'
+import { atomFamily, atomWithStorage } from 'jotai/utils'
 
-import { myAtomFamily } from '@/atoms/store'
+import { withParamsAtomFamily } from '@/atoms/store'
+import { withUnmountCallbackAtom, withUseA } from '@sub-vocab/utils/atoms'
 import { createFactory, equalBy } from '@sub-vocab/utils/lib'
 
 export const osLanguageAtom = atomWithStorage('osLanguageAtom', 'en')
 
 export type MediaSubtitleState = {
   episodeFilter?: LiteralUnion<'all', string>
-  initialTableState: InitialTableState
   tableState: {
     rowSelection: RowSelectionState
   }
 }
 
-export const buildMediaSubtitleState = createFactory<MediaSubtitleState>()(() => ({
-  initialTableState: {
-    pagination: {
-      pageSize: 10,
-      pageIndex: 0,
-    },
-  },
+const buildMediaSubtitleState = createFactory<MediaSubtitleState>()(() => ({
   tableState: {
     rowSelection: {},
   },
 }))
 
-export const mediaSubtitleFamily = myAtomFamily(
-  `mediaSubtitleAtomFamily`,
+export const mediaSubtitleFamily = withParamsAtomFamily(
   ([
-    ,
+    key,
     initialValue = buildMediaSubtitleState(),
   ]: [
     key: number,
     initialValue?: MediaSubtitleState,
-  ]) => atom(initialValue),
+  ]) => {
+    return pipe(
+      atom(initialValue),
+      (x) => {
+        return withUnmountCallbackAtom(x, (get) => {
+          if (isEqual(get(x), initialValue)) {
+            mediaSubtitleFamily.remove([key])
+          }
+        })
+      },
+    )
+  },
   equalBy(([key]) => key),
 )
+
+export const buildInitialTableState = createFactory<InitialTableState>()(() => ({
+  pagination: {
+    pageSize: 10,
+    pageIndex: 0,
+  },
+}))
+
+export const initialTableStateFamily = withUseA(atomFamily(
+  ([
+    key,
+    initialValue = buildInitialTableState(),
+  ]: [
+    key: number,
+    initialValue?: InitialTableState,
+  ]) => {
+    return pipe(
+      atom(initialValue),
+      (x) => {
+        return withUnmountCallbackAtom(x, (get) => {
+          if (isEqual(get(x), initialValue)) {
+            initialTableStateFamily.remove([key])
+          }
+        })
+      },
+    )
+  },
+  equalBy(([key]) => key),
+))
 
 export const fileIdsAtom = atom((get) => {
   return get(mediaSubtitleFamily.paramsAtom)

@@ -4,7 +4,6 @@ import type { InitialTableState } from '@tanstack/react-table'
 
 import usePagination from '@mui/material/usePagination'
 import NumberFlow from '@number-flow/react'
-import { useUnmountEffect } from '@react-hookz/web'
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import clsx from 'clsx'
@@ -14,7 +13,6 @@ import { identity, uniqBy } from 'es-toolkit'
 import { useDebouncedValue } from 'foxact/use-debounced-value'
 import { produce } from 'immer'
 import { atom, useAtom, useAtomValue, useSetAtom, useStore } from 'jotai'
-import { useImmerAtom } from 'jotai-immer'
 import { atomWithStorage } from 'jotai/utils'
 import ms from 'ms'
 import Link from 'next/link'
@@ -61,14 +59,12 @@ type TableData = NonNullable<tmdb.paths['/3/search/multi']['get']['responses'][2
 /// keep-unique
 const PAGE_SIZES = [5, 10, 20] as const
 
-const cacheStateAtom = atom({
-  initialTableState: identity<InitialTableState>({
-    pagination: {
-      pageSize: findClosest(100, PAGE_SIZES),
-      pageIndex: 0,
-    },
-  }),
-})
+const initialTableStateAtom = atom(identity<InitialTableState>({
+  pagination: {
+    pageSize: findClosest(100, PAGE_SIZES),
+    pageIndex: 0,
+  },
+}))
 
 function useColumns<T extends TableData>(rootRef: React.RefObject<HTMLDivElement | null>) {
   // Add this to prevent all columns from re-rendering on sort
@@ -387,7 +383,6 @@ export default function Subtitles() {
   const { isPending: isDownloadPending, mutateAsync: downloadText } = useAtomValue(openSubtitlesTextAtom)
   const { isPending: isFileDownloadPending, mutateAsync: downloadFile } = useAtomValue(openSubtitlesDownloadAtom)
   const [query, setQuery] = useAtom(mediaSearchAtom)
-  const [{ initialTableState }, setCacheState] = useImmerAtom(cacheStateAtom)
   const debouncedQuery = useDebouncedValue(query, 500)
   const rootRef = useRef<HTMLDivElement>(null)
   const columns = useColumns(rootRef)
@@ -442,7 +437,7 @@ export default function Subtitles() {
   const table = useClone(useReactTable({
     data: tvAndMovieResults,
     columns,
-    initialState: initialTableState,
+    initialState: store.get(initialTableStateAtom),
     autoResetPageIndex: false,
     getRowId: (row) => String(row.id),
     getRowCanExpand: () => true,
@@ -451,6 +446,10 @@ export default function Subtitles() {
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    onStateChange: (updater) => {
+      // eslint-disable-next-line ts/no-use-before-define
+      store.set(initialTableStateAtom, typeof updater === 'function' ? updater(tableState) : updater)
+    },
   }))
   const rowsFiltered = table.getFilteredRowModel().rows
   const router = useRouter()
@@ -515,11 +514,6 @@ export default function Subtitles() {
   })
   const t = useI18n()
 
-  useUnmountEffect(() => {
-    setCacheState((draft) => {
-      draft.initialTableState = tableState
-    })
-  })
   const inputRef = useRef<HTMLInputElement>(null)
   useHotkeys('meta+f', (e) => {
     if (document.activeElement === inputRef.current) {

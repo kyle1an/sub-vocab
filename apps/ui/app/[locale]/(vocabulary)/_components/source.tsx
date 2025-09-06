@@ -1,7 +1,6 @@
 import type { InitialTableState } from '@tanstack/react-table'
 
 import usePagination from '@mui/material/usePagination'
-import { useUnmountEffect } from '@react-hookz/web'
 import { useMutation } from '@tanstack/react-query'
 import {
   createColumnHelper,
@@ -17,10 +16,10 @@ import { $trycatch } from '@tszen/trycatch'
 import clsx from 'clsx'
 import { identity } from 'es-toolkit'
 import { useSessionStorage } from 'foxact/use-session-storage'
-import { atom, useAtom, useAtomValue } from 'jotai'
+import { atom, useAtom, useAtomValue, useStore } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 import { atomWithStorage } from 'jotai/utils'
-import { startTransition, useDeferredValue, useRef } from 'react'
+import { startTransition, useDeferredValue, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import type { LearningPhase, Sentence } from '@/app/[locale]/(vocabulary)/_lib/LexiconTrie'
@@ -66,15 +65,15 @@ const PAGE_SIZES = [10, 20, 40, 50, 100, 200, 500, 1000] as const
 const cacheStateAtom = atom({
   isUsingRegex: false,
   searchValue: '',
-  initialTableState: identity<InitialTableState>({
-    columnOrder: ['frequency', 'word', 'word.length', 'acquaintedStatus', 'rank'],
-    pagination: {
-      pageSize: findClosest(100, PAGE_SIZES),
-      pageIndex: 0,
-    },
-  }),
   filterValue: identity<Record<string, boolean>>({}),
 })
+const initialTableStateAtom = atom(identity<InitialTableState>({
+  columnOrder: ['frequency', 'word', 'word.length', 'acquaintedStatus', 'rank'],
+  pagination: {
+    pageSize: findClosest(100, PAGE_SIZES),
+    pageIndex: 0,
+  },
+}))
 
 function useSegments() {
   const t = useI18n()
@@ -225,12 +224,12 @@ export function VocabSourceTable({
   const [data, handlePurge] = useManagedVocabulary(rows)
   const [categoryAtomValue, setCategoryAtom] = useAtom(categoryAtom)
   const t = useI18n()
-  const [{ initialTableState, isUsingRegex, searchValue, filterValue }, setCacheState] = useImmerAtom(cacheStateAtom)
+  const [{ isUsingRegex, searchValue, filterValue }, setCacheState] = useImmerAtom(cacheStateAtom)
   const deferredSearchValue = useDeferredValue(searchValue)
   const deferredIsUsingRegex = useDeferredValue(isUsingRegex)
-  const tbodyRef = useRef<HTMLTableSectionElement>(null)
+  const [tbody, setTbody] = useState<HTMLTableSectionElement | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
-  const vocabularyCommonColumns = useVocabularyCommonColumns<TableData>(tbodyRef, rootRef)
+  const vocabularyCommonColumns = useVocabularyCommonColumns<TableData>(tbody, rootRef)
   const sourceColumns = useSourceColumns<TableData>(rootRef)
   const columns = [...vocabularyCommonColumns, ...sourceColumns]
   const segments = useSegments()
@@ -246,6 +245,7 @@ export function VocabSourceTable({
     lastTruthySearchFilterValue,
   ]
   const globalFilter = combineFilters(preCategoryFilters)
+  const store = useStore()
   const table = useClone(useReactTable({
     data: categorizedData,
     columns,
@@ -259,7 +259,7 @@ export function VocabSourceTable({
       ],
     },
     globalFilterFn: filterFn,
-    initialState: initialTableState,
+    initialState: store.get(initialTableStateAtom),
     autoResetPageIndex: false,
     getRowId: (row) => row.trackedWord.form,
     getRowCanExpand: (row) => sentences.length > 0 && row.original.locators.length > 0,
@@ -267,6 +267,10 @@ export function VocabSourceTable({
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
+    onStateChange: (updater) => {
+      // eslint-disable-next-line ts/no-use-before-define
+      store.set(initialTableStateAtom, typeof updater === 'function' ? updater(tableState) : updater)
+    },
     getSortedRowModel: getSortedRowModel(),
   }))
 
@@ -309,11 +313,6 @@ export function VocabSourceTable({
   const rowsToRetain = rowsNew
     .map((row) => row.original.trackedWord)
 
-  useUnmountEffect(() => {
-    setCacheState((draft) => {
-      draft.initialTableState = tableState
-    })
-  })
   const isStale = isSourceTextStale || segment !== segmentDeferredValue || searchValue !== deferredSearchValue || isUsingRegex !== deferredIsUsingRegex
   const trpc = useTRPC()
   const { mutateAsync, isPending } = useMutation(trpc.ai.getCategory.mutationOptions({
@@ -445,7 +444,7 @@ export function VocabSourceTable({
         />
       </div>
       <div className="h-px w-full border-b border-transparent shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)]" />
-      <div className="z-10 w-full outline-1 outline-border outline-solid">
+      <div className="z-10 w-full bg-background outline-1 outline-border outline-solid">
         <SegmentedControl
           value={segment}
           onValueChange={(newSegment) => {
@@ -466,7 +465,7 @@ export function VocabSourceTable({
       </div>
       <div
         ref={rootRef}
-        className="w-full grow overflow-auto overflow-y-scroll overscroll-contain [scrollbar-width:thin]"
+        className="z-1 w-full grow overflow-auto overflow-y-scroll overscroll-contain [scrollbar-width:thin]"
       >
         <table className="relative min-w-full border-separate border-spacing-0">
           <TableHeader>
@@ -481,7 +480,11 @@ export function VocabSourceTable({
               </tr>
             ))}
           </TableHeader>
-          <tbody ref={tbodyRef}>
+          <tbody
+            ref={(element) => {
+              setTbody(element)
+            }}
+          >
             {table.getRowModel().rows.map((row, index) => {
               return (
                 <TableRow

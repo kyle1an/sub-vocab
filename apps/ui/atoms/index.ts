@@ -7,7 +7,7 @@ import ms from 'ms'
 import type { ColorModeValue } from '@/components/themes'
 
 import { COLOR_MODE } from '@/components/themes'
-import { isAnyDrawerOpenAtom } from '@/components/ui/drawer'
+import { isAnyDrawerOpenAtom } from '@/components/ui/drawer.var'
 import { COLOR_MODE_SETTING_KEY } from '@/constants/keys'
 import { LIGHT_THEME_COLOR } from '@/constants/theme'
 import { mediaQueryFamily } from '@sub-vocab/utils/atoms'

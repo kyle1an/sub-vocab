@@ -2,7 +2,6 @@ import type { CellContext, InitialTableState } from '@tanstack/react-table'
 
 import usePagination from '@mui/material/usePagination'
 import NumberFlow from '@number-flow/react'
-import { useUnmountEffect } from '@react-hookz/web'
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import clsx from 'clsx'
@@ -13,7 +12,7 @@ import { produce } from 'immer'
 import { useAtom, useAtomValue, useStore } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
 import nstr from 'nstr'
-import { Fragment, useRef } from 'react'
+import { Fragment, useRef, useState } from 'react'
 
 import type { Subtitles } from '@/app/[locale]/subtitles/_api/os'
 import type { SubtitleData } from '@/app/[locale]/subtitles/_components/columns'
@@ -24,7 +23,7 @@ import type { tmdb } from '@sub-vocab/utils/types'
 
 import { openSubtitlesQueryOptionsAtom, osSessionAtom } from '@/app/[locale]/subtitles/_api/os'
 import { $api } from '@/app/[locale]/subtitles/_api/tmdb'
-import { buildMediaSubtitleState, mediaSubtitleFamily, osLanguageAtom } from '@/app/[locale]/subtitles/_atoms'
+import { buildInitialTableState, initialTableStateFamily, mediaSubtitleFamily, osLanguageAtom } from '@/app/[locale]/subtitles/_atoms'
 import { useCommonColumns } from '@/app/[locale]/subtitles/_components/columns'
 import { RefetchButton } from '@/app/[locale]/subtitles/_components/menu-items'
 import { getFileId } from '@/app/[locale]/subtitles/_utils'
@@ -51,7 +50,7 @@ type TVSubtitleData = SubtitleData<Episode> & RowId
 
 type RowData = ExpandableRow<TVSubtitleData>
 
-function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber = 0, rootRef: React.RefObject<HTMLDivElement | null>, tbodyRef: React.RefObject<HTMLTableSectionElement | null>) {
+function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber = 0, rootRef: React.RefObject<HTMLDivElement | null>, tbody: HTMLTableSectionElement | null) {
   const columnHelper = createColumnHelper<T>()
   const store = useStore()
   const [osSession] = useAtom(osSessionAtom)
@@ -291,7 +290,7 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           <TvNameCell
             {...ctx}
             rootRef={rootRef}
-            tbodyRef={tbodyRef}
+            tbody={tbody}
           />
         )
       },
@@ -353,11 +352,11 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
 
 function TvNameSubRow<TData extends RowData>({
   rootRef,
-  tbodyRef,
+  tbody,
   row,
 }: {
   rootRef: React.RefObject<HTMLDivElement | null>
-  tbodyRef: React.RefObject<HTMLTableSectionElement | null>
+  tbody: HTMLTableSectionElement | null
 } & Pick<CellContext<TData, string>, 'row'>) {
   const ref = useRef<HTMLDivElement>(null)
   const value = row.original.subtitle.attributes.files[0]?.file_name || ''
@@ -385,7 +384,7 @@ function TvNameSubRow<TData extends RowData>({
           </div>
         </TooltipTrigger>
         <TooltipContent
-          container={tbodyRef.current}
+          container={tbody}
           side="bottom"
           sideOffset={-21 - 1}
           align="start"
@@ -410,13 +409,13 @@ function TvNameSubRow<TData extends RowData>({
 
 function TvNameCell<TData extends RowData>({
   rootRef,
-  tbodyRef,
+  tbody,
   cell,
   getValue,
   row,
 }: {
   rootRef: React.RefObject<HTMLDivElement | null>
-  tbodyRef: React.RefObject<HTMLTableSectionElement | null>
+  tbody: HTMLTableSectionElement | null
 } & CellContext<TData, string>) {
   const value = getValue()
   return (
@@ -434,7 +433,7 @@ function TvNameCell<TData extends RowData>({
         ) : (
           <TvNameSubRow
             rootRef={rootRef}
-            tbodyRef={tbodyRef}
+            tbody={tbody}
             row={row}
           />
         )}
@@ -496,6 +495,7 @@ export function TVSubtitleFiles({
   id: number
 }) {
   const t = useI18n()
+  const store = useStore()
   const { data: seriesDetail, isLoading: isSeriesDetailLoading } = useQuery($api.queryOptions(
     'get',
     '/3/tv/{series_id}',
@@ -558,31 +558,32 @@ export function TVSubtitleFiles({
   const highestEpisodeNumber = highestEpisode?.attributes.feature_details.episode_number
   const rootRef = useRef<HTMLDivElement>(null)
   const commonColumns = useCommonColumns<RowData>(rootRef)
-  const tbodyRef = useRef<HTMLTableSectionElement>(null)
-  const tvColumns = useTVColumns(id, highestEpisodeNumber, rootRef, tbodyRef)
+  const [tbody, setTbody] = useState<HTMLTableSectionElement | null>(null)
+  const tvColumns = useTVColumns(id, highestEpisodeNumber, rootRef, tbody)
   const columns = [...commonColumns, ...tvColumns]
   const dataRows = subtitleEpisodeData(subtitles, episodes)
-  const [{ episodeFilter: filterEpisode = 'all', initialTableState: mediaInitialTableState, tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleFamily([
+  const [{ episodeFilter: filterEpisode = 'all', tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleFamily.useA([
     id,
-    buildMediaSubtitleState({
-      initialTableState: {
-        sorting: [
-          {
-            id: 'season_episode',
-            desc: false,
-          },
-        ],
-        columnOrder: ['action', 'year', 'season_episode', 'movie_name', 'runtime', 'language', 'upload_date', 'download_count'],
-        pagination: {
-          pageSize: findClosest(10, PAGE_SIZES),
-        },
-      } satisfies InitialTableState,
-    }),
   ]))
+  const mediaSubtitleInitialTableStateAtom = initialTableStateFamily.useA([
+    id,
+    buildInitialTableState({
+      sorting: [
+        {
+          id: 'season_episode',
+          desc: false,
+        },
+      ],
+      columnOrder: ['action', 'year', 'season_episode', 'movie_name', 'runtime', 'language', 'upload_date', 'download_count'],
+      pagination: {
+        pageSize: findClosest(10, PAGE_SIZES),
+      },
+    } satisfies InitialTableState),
+  ])
   const table = useClone(useReactTable({
     data: dataRows,
     columns,
-    initialState: mediaInitialTableState,
+    initialState: store.get(mediaSubtitleInitialTableStateAtom),
     state: {
       ...mediaTableState,
       columnFilters: [
@@ -601,6 +602,10 @@ export function TVSubtitleFiles({
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    onStateChange: (updater) => {
+      // eslint-disable-next-line ts/no-use-before-define
+      store.set(mediaSubtitleInitialTableStateAtom, typeof updater === 'function' ? updater(tableState) : updater)
+    },
   }))
   const tableState = table.getState()
   const { items } = usePagination({
@@ -623,11 +628,6 @@ export function TVSubtitleFiles({
       tableState.rowSelection[row.id] = Boolean(checked)
     })
   }
-  useUnmountEffect(() => {
-    setMediaSubtitleState((draft) => {
-      draft.initialTableState = table.getState()
-    })
-  })
   return (
     <Fragment>
       <Fragment>
@@ -689,7 +689,11 @@ export function TVSubtitleFiles({
                   </tr>
                 ))}
               </TableHeader>
-              <tbody ref={tbodyRef}>
+              <tbody
+                ref={(element) => {
+                  setTbody(element)
+                }}
+              >
                 {useClone(table.getRowModel().rows).map((row, index) => {
                   return (
                     <TableRow

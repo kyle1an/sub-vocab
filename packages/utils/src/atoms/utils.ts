@@ -1,8 +1,9 @@
-import type { Atom, Setter, WritableAtom } from 'jotai'
+import type { Atom, Getter, Setter, WritableAtom } from 'jotai'
 
 import { pipe } from 'effect'
 import { noop } from 'es-toolkit'
 import { atom } from 'jotai'
+import { withAtomEffect } from 'jotai-effect'
 import { atomFamily } from 'jotai/utils'
 
 import type { AppendParameters } from '../lib/utilities'
@@ -61,7 +62,7 @@ export const atomWithMediaQuery = (query: string) => {
 export const withDelayedSetter = <Value, Args extends unknown[], Result>(setAtom: WritableAtom<Value, Args, Result>) => {
   let timeoutId: undefined | number
   const cancel = () => clearTimeout(timeoutId)
-  const retimeAtom = atom(null, (get, set, timeout: number, ...args: Args) => {
+  const retimeAtom = atom(null, (_, set, timeout: number, ...args: Args) => {
     cancel()
     timeoutId = window.setTimeout(() => {
       set(setAtom, ...args)
@@ -74,7 +75,7 @@ export const withDelayedSetter = <Value, Args extends unknown[], Result>(setAtom
   })
 }
 
-export const retimerAtomFamily = (label: string) => {
+export const retimerAtomFamily = () => {
   const family = atomFamily((id: string) => {
     let timeoutId: undefined | number
     let isMounted = false
@@ -105,9 +106,6 @@ export const retimerAtomFamily = (label: string) => {
           isMounted = false
         }
       }),
-      tap((x) => {
-        x.debugLabel = `${label}-${id}`
-      }),
     )
   })
 
@@ -115,3 +113,32 @@ export const retimerAtomFamily = (label: string) => {
 }
 
 export const setAtom = <Value, Args extends unknown[], Result>(set: Setter, a: WritableAtom<Value, Args, Result>) => (...args: Args) => set(a, ...args)
+
+export const withUseA = <T extends object>(x: T) => Object.assign(x, {
+  useA: x,
+})
+
+export function withUnmountCallbackAtom<Value, T extends Atom<Value>>(sourceAtom: T, onUnmount: (get: Getter, set: Setter) => void) {
+  let isMounted: boolean
+  return pipe(
+    atom(null, (get, set) => {
+      onUnmount(get, set)
+    }),
+    (x) => withMount(x, (setAtom) => {
+      isMounted = true
+      return () => {
+        isMounted = false
+        queueMicrotask(() => {
+          if (!isMounted) {
+            setAtom()
+          }
+        })
+      }
+    }),
+    (x) => {
+      return withAtomEffect(sourceAtom, (get) => {
+        get(x)
+      })
+    },
+  )
+}

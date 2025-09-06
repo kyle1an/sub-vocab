@@ -89,7 +89,7 @@ function SourceVocab({
     .filter((v) => v.locators.length > 0)
     .sort(compareBy((i) => [i.locators[0]!.sentenceId, i.locators[0]!.startOffset]))
   const sentences = trie.sentences
-  useAtomEffect((get, set) => {
+  useAtomEffect((_, set) => {
     set(sourceCountAtom, getCount(list))
   }, [list])
   return (

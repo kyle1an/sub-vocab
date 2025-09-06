@@ -23,7 +23,7 @@ import { HeaderTitle, TableDataCell, TableHeaderCell } from '@/components/ui/tab
 import { filterFn } from '@/lib/table-utils'
 import { useI18n } from '@/locales/client'
 
-export function useVocabularyCommonColumns<T extends VocabularySourceState = VocabularySourceState>(tbodyRef?: React.RefObject<HTMLTableSectionElement | null>, rootRef?: React.RefObject<HTMLDivElement | null>) {
+export function useVocabularyCommonColumns<T extends VocabularySourceState = VocabularySourceState>(tbody?: HTMLTableSectionElement | null, rootRef?: React.RefObject<HTMLDivElement | null>) {
   const t = useI18n()
   const columnHelper = createColumnHelper<T>()
   const { mutateAsync: userWordPhaseMutation } = useUserWordPhaseMutation()
@@ -107,7 +107,7 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
                       </span>
                     </HoverCardTrigger>
                     <HoverCardContent
-                      container={tbodyRef?.current}
+                      container={tbody}
                       side="top"
                       sideOffset={-1}
                       align="end"

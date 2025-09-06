@@ -3,6 +3,7 @@ import type { ToasterProps } from 'sonner'
 import { Toaster as Sonner } from 'sonner'
 
 import { cn } from '@/lib/utils'
+
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner

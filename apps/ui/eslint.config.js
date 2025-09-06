@@ -61,12 +61,6 @@ export default typegen(antfu(
       ],
     },
   },
-  {
-    files: ['src/components/ui/**/*.{js,ts,jsx,tsx}'],
-    rules: {
-      'react-refresh/only-export-components': 'off',
-    },
-  },
   ...pluginQuery.configs['flat/recommended'],
   ...eslintPluginTailwindCss.configs['flat/recommended'],
   {

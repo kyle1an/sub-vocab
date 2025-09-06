@@ -1,5 +1,7 @@
 import type { NextConfig } from 'next'
 
+import withBundleAnalyzer from '@next/bundle-analyzer'
+
 const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
@@ -29,4 +31,8 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default nextConfig
+const withAnalyzer = withBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+})
+
+export default withAnalyzer(nextConfig)
