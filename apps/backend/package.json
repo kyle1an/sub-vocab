@@ -8,29 +8,21 @@
   "scripts": {
     "build": "tsc && node esbuild.config.js",
     "dev": "tsx watch --trace-deprecation --env-file=.env server",
-    "introspect": "drizzle-kit introspect",
     "lint": "eslint . --report-unused-disable-directives",
     "lint:fix": "eslint . --fix",
     "start": "node --env-file=.env app.js",
     "vercel-build": "node --run build"
   },
   "dependencies": {
-    "@ai-sdk/google": "^2.0.12",
     "@fastify/cors": "^11.1.0",
     "@fastify/http-proxy": "^11.3.0",
     "@openrouter/ai-sdk-provider": "^1.2.0",
     "@sub-vocab/utils": "workspace:*",
-    "@trpc/server": "^11.5.1",
-    "ai": "^5.0.34",
-    "drizzle-orm": "^0.44.5",
     "fastify": "^5.6.0",
-    "ofetch": "^1.4.1",
-    "openapi-fetch": "^0.14.0",
-    "postgres": "^3.4.7"
+    "ofetch": "^1.4.1"
   },
   "devDependencies": {
     "@vercel/node": "^5.3.21",
-    "drizzle-kit": "^0.31.4",
     "esbuild": "^0.25.9",
     "tsx": "^4.20.5"
   }

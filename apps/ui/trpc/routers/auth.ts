@@ -2,9 +2,10 @@ import { eq } from 'drizzle-orm'
 import { Console, Data, Effect } from 'effect'
 import { z } from 'zod'
 
-import { profiles, usersInAuth } from '@backend/drizzle/schema.ts'
-import { publicProcedure, router } from '@backend/src/routes/trpc'
-import { db, supabase } from '@backend/src/utils/db.ts'
+import { profiles, usersInAuth } from '@/drizzle/schema.ts'
+import { db } from '@/lib/db'
+import { createClient } from '@/lib/supabase/server'
+import { baseProcedure, createTRPCRouter } from '@/trpc/init'
 
 const LOGIN_ERROR = 'Invalid username or password.'
 
@@ -42,6 +43,7 @@ const signInWithPassword = ({
   email: string
   password: string
 }) => Effect.gen(function* () {
+  const supabase = yield* Effect.tryPromise(() => createClient())
   const { data, error } = yield* Effect.tryPromise(() => supabase.auth.signInWithPassword({
     email,
     password,
@@ -52,8 +54,8 @@ const signInWithPassword = ({
   return data
 })
 
-export const userRouter = router({
-  signIn: publicProcedure
+export const userRouter = createTRPCRouter({
+  signIn: baseProcedure
     .input(z.object({
       username: z.string().min(1),
       password: z.string().min(1),

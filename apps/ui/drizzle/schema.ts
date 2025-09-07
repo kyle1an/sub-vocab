@@ -6,6 +6,7 @@ export const aalLevelInAuth = auth.enum("aal_level", ['aal1', 'aal2', 'aal3'])
 export const codeChallengeMethodInAuth = auth.enum("code_challenge_method", ['s256', 'plain'])
 export const factorStatusInAuth = auth.enum("factor_status", ['unverified', 'verified'])
 export const factorTypeInAuth = auth.enum("factor_type", ['totp', 'webauthn', 'phone'])
+export const oauthRegistrationTypeInAuth = auth.enum("oauth_registration_type", ['dynamic', 'manual'])
 export const oneTimeTokenTypeInAuth = auth.enum("one_time_token_type", ['confirmation_token', 'reauthentication_token', 'recovery_token', 'email_change_token_new', 'email_change_token_current', 'phone_change_token'])
 
 
@@ -131,6 +132,28 @@ export const auditLogEntriesInAuth = auth.table("audit_log_entries", {
 	ipAddress: varchar("ip_address", { length: 64 }).default('').notNull(),
 }, (table) => [
 	index("audit_logs_instance_id_idx").using("btree", table.instanceId.asc().nullsLast().op("uuid_ops")),
+]);
+
+export const oauthClientsInAuth = auth.table("oauth_clients", {
+	id: uuid().primaryKey().notNull(),
+	clientId: text("client_id").notNull(),
+	clientSecretHash: text("client_secret_hash").notNull(),
+	registrationType: oauthRegistrationTypeInAuth("registration_type").notNull(),
+	redirectUris: text("redirect_uris").notNull(),
+	grantTypes: text("grant_types").notNull(),
+	clientName: text("client_name"),
+	clientUri: text("client_uri"),
+	logoUri: text("logo_uri"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	deletedAt: timestamp("deleted_at", { withTimezone: true, mode: 'string' }),
+}, (table) => [
+	index("oauth_clients_client_id_idx").using("btree", table.clientId.asc().nullsLast().op("text_ops")),
+	index("oauth_clients_deleted_at_idx").using("btree", table.deletedAt.asc().nullsLast().op("timestamptz_ops")),
+	unique("oauth_clients_client_id_key").on(table.clientId),
+	check("oauth_clients_client_name_length", sql`char_length(client_name) <= 1024`),
+	check("oauth_clients_client_uri_length", sql`char_length(client_uri) <= 2048`),
+	check("oauth_clients_logo_uri_length", sql`char_length(logo_uri) <= 2048`),
 ]);
 
 export const ssoProvidersInAuth = auth.table("sso_providers", {

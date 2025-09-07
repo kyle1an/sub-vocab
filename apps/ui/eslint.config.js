@@ -84,6 +84,7 @@ export default typegen(antfu(
   {
     ignores: [
       '**/database.types.ts',
+      'drizzle/*',
     ],
   },
   {

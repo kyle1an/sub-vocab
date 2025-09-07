@@ -1,40 +1,39 @@
-import type { RealtimeChannel, RealtimePostgresInsertPayload, RealtimePostgresUpdatePayload } from '@supabase/supabase-js'
+import type { RealtimeChannel, RealtimePostgresInsertPayload, RealtimePostgresUpdatePayload, SupabaseClient } from '@supabase/supabase-js'
+import type { ExtractAtomValue } from 'jotai'
 
 import { UTCDateMini } from '@date-fns/utc'
 import { REALTIME_POSTGRES_CHANGES_LISTEN_EVENT, REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js'
-import { queryOptions, useMutation } from '@tanstack/react-query'
+import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query'
 import { pipe } from 'effect'
 import { identity, uniq } from 'es-toolkit'
 import { produce } from 'immer'
 import { atom, useAtomValue } from 'jotai'
 import { withAtomEffect } from 'jotai-effect'
-import { atomWithQuery } from 'jotai-tanstack-query'
+import { atomWithQuery, queryClientAtom } from 'jotai-tanstack-query'
 import ms from 'ms'
 import { toast } from 'sonner'
 
 import type { LearningPhase, TrackedWord } from '@/app/[locale]/(vocabulary)/_lib/LexiconTrie'
-import type { Tables } from '@/types/database.types'
+import type { Database, Tables } from '@/types/database.types'
 
 import { vocabSubscriptionAtom } from '@/app/[locale]/(vocabulary)/_atoms'
 import { buildTrackedWord, LEARNING_PHASE } from '@/app/[locale]/(vocabulary)/_lib/LexiconTrie'
 import { userIdAtom } from '@/atoms/auth'
-import { queryClient } from '@/lib/query-client'
 import { createClient } from '@/lib/supabase/client'
 import { documentVisibilityStateAtom, withDelayedSetter } from '@sub-vocab/utils/atoms'
-import { createRetimer, hasValue } from '@sub-vocab/utils/lib'
+import { createRetimer, hasValue, ignoreDeps } from '@sub-vocab/utils/lib'
 import { narrow, narrowShallow } from '@sub-vocab/utils/types'
 
 const getLearningPhase = (acquainted: boolean | null): LearningPhase => acquainted ? LEARNING_PHASE.ACQUAINTED : LEARNING_PHASE.NEW
 
-const userVocabularyOptionsAtom = atom((get) => {
-  const userId = get(userIdAtom) ?? ''
+export const userVocabularyOptions = (userId: ExtractAtomValue<typeof userIdAtom>, supabase: SupabaseClient<Database>, vocabSubscription: ExtractAtomValue<typeof vocabSubscriptionAtom> = REALTIME_SUBSCRIBE_STATES.CLOSED) => {
   return queryOptions({
-    queryKey: ['userVocabularyOptionsAtom', userId],
+    queryKey: ['userVocabularyOptionsAtom', userId, ignoreDeps(supabase)],
     queryFn: async () => pipe(
-      await createClient()
+      await supabase
         .from('user_vocab_record')
         .select('w:vocabulary, t:time_modified, a:acquainted')
-        .eq('user_id', userId)
+        .eq('user_id', userId ?? '')
         .throwOnError(),
       (x) => x.data.map(({ w, t, a }) => ({
         w,
@@ -44,17 +43,25 @@ const userVocabularyOptionsAtom = atom((get) => {
     ),
     placeholderData: [],
     enabled: Boolean(userId),
-    ...get(vocabSubscriptionAtom) === 'SUBSCRIBED' ? {
+    ...vocabSubscription === REALTIME_SUBSCRIBE_STATES.SUBSCRIBED ? {
       refetchOnWindowFocus: false,
       refetchOnMount: false,
       gcTime: Infinity,
       staleTime: Infinity,
     } : {},
   })
+}
+
+const userVocabularyOptionsAtom = atom((get) => {
+  return userVocabularyOptions(
+    get(userIdAtom) ?? '',
+    createClient(),
+    get(vocabSubscriptionAtom),
+  )
 })
 
-const sharedVocabularyAtom = atomWithQuery(() => {
-  return {
+export const sharedVocabularyOptions = () => {
+  return queryOptions({
     queryKey: ['sharedVocabularyAtom'],
     queryFn: async () => pipe(
       await createClient()
@@ -74,8 +81,10 @@ const sharedVocabularyAtom = atomWithQuery(() => {
       ])),
     ),
     placeholderData: [],
-  }
-})
+  })
+}
+
+const sharedVocabularyAtom = atomWithQuery(() => sharedVocabularyOptions())
 
 export const baseVocabAtom = atom((get) => {
   // eslint-disable-next-line ts/no-use-before-define
@@ -95,8 +104,8 @@ export const baseVocabAtom = atom((get) => {
   return map.values().toArray()
 })
 
-export const irregularWordsQueryAtom = atomWithQuery(() => {
-  return {
+export const irregularWordsQueryOptions = () => {
+  return queryOptions({
     queryKey: ['irregularWordsQueryAtom'],
     queryFn: async () => pipe(
       await createClient()
@@ -119,10 +128,13 @@ export const irregularWordsQueryAtom = atomWithQuery(() => {
         )),
     ),
     placeholderData: [],
-  }
-})
+  })
+}
+
+export const irregularWordsQueryAtom = atomWithQuery(() => irregularWordsQueryOptions())
 
 export function useUserWordPhaseMutation() {
+  const queryClient = useQueryClient()
   const userId = useAtomValue(userIdAtom) ?? ''
   const vocabularyOptions = useAtomValue(userVocabularyOptionsAtom)
   return useMutation({
@@ -192,6 +204,7 @@ export function useUserWordPhaseMutation() {
 type user_vocab_record = Tables<'user_vocab_record'>
 
 const upsertVocabularyCallbackAtom = atom((get) => {
+  const queryClient = get(queryClientAtom)
   const { queryKey } = get(userVocabularyOptionsAtom)
   return <T extends user_vocab_record>(payload: RealtimePostgresInsertPayload<T> | RealtimePostgresUpdatePayload<T>) => {
     const data = {

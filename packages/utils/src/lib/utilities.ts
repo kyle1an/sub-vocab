@@ -105,3 +105,7 @@ export const createRetimer = () => {
 }
 
 export const isServer = typeof window === 'undefined'
+
+export const ignoreDeps = (...deps: any) => {
+  return 'ignored-deps'
+}

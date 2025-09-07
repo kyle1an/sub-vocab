@@ -15,15 +15,15 @@ import { AppSidebarInset } from '@/app/[locale]/_components/app-sidebar-inset'
 import { Body } from '@/app/[locale]/_components/BodyProvider'
 import { HydrateAtoms } from '@/app/[locale]/_components/HydrateAtoms'
 import { JotaiProvider } from '@/app/[locale]/_components/JotaiProvider'
-import { Providers } from '@/app/[locale]/_components/providers'
 import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { SIDEBAR_COOKIE_NAME } from '@/components/ui/sidebar.var'
 import { Toaster } from '@/components/ui/sonner'
 import { COLOR_MODE_SETTING_KEY } from '@/constants/keys'
 import { DARK__BACKGROUND, LIGHT_THEME_COLOR } from '@/constants/theme'
-import { createClient } from '@/lib/supabase/server'
+import { supabaseAuthGetUser } from '@/lib/supabase/server'
 import { I18nProviderClient } from '@/locales/client'
+import { TRPCReactProvider } from '@/trpc/client'
 
 export const metadata: Metadata = {
   title: 'Subvocab',
@@ -35,9 +35,13 @@ export default function RootLayout({
   children,
 }: LayoutProps<'/[locale]'>) {
   const { locale } = use(params)
+  if (process.env.NODE_ENV === 'development') {
+    if (locale === 'src' || locale === '.well-known') {
+      return null
+    }
+  }
   const cookieStore = use(cookies())
-  const supabase = use(createClient())
-  const { data: { user } } = use(supabase.auth.getUser())
+  const { data: { user } } = use(supabaseAuthGetUser())
   const setting = cookieStore.get(COLOR_MODE_SETTING_KEY)?.value as ColorModeValue | undefined ?? 'auto'
   const defaultOpen = cookieStore.get(SIDEBAR_COOKIE_NAME)?.value !== 'false'
   return (
@@ -86,7 +90,7 @@ export default function RootLayout({
             user={user}
           />,
           <Body />,
-          <Providers />,
+          <TRPCReactProvider children={null} />,
           <SidebarProvider
             defaultOpen={defaultOpen}
             className="isolate h-svh pr-(--pr) antialiased sq:superellipse-[1.5]"

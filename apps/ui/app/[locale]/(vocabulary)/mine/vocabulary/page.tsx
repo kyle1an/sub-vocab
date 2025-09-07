@@ -6,6 +6,7 @@ import { useAtom, useAtomValue } from 'jotai'
 import { baseVocabAtom, irregularWordsQueryAtom } from '@/app/[locale]/(vocabulary)/_api'
 import { VocabDataTable } from '@/app/[locale]/(vocabulary)/_components/data'
 import { LexiconTrie } from '@/app/[locale]/(vocabulary)/_lib/LexiconTrie'
+import { NoSSR } from '@/components/NoSsr'
 import { tap } from '@sub-vocab/utils/lib'
 
 export default function VocabularyPage() {
@@ -21,9 +22,11 @@ export default function VocabularyPage() {
     },
   )
   return (
-    <VocabDataTable
-      data={list}
-      className="size-full md:mx-0 md:grow"
-    />
+    <NoSSR>
+      <VocabDataTable
+        data={list}
+        className="size-full md:mx-0 md:grow"
+      />
+    </NoSSR>
   )
 }
