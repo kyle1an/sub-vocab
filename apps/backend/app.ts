@@ -1,15 +1,8 @@
-import type { FastifyTRPCPluginOptions } from '@trpc/server/adapters/fastify'
-
 import cors from '@fastify/cors'
 import { fastifyHttpProxy } from '@fastify/http-proxy'
-import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify'
 import Fastify from 'fastify'
 
-import { createContext } from '@backend/context'
 import { env } from '@backend/env'
-import { aiRouter } from '@backend/src/routes/ai'
-import { userRouter } from '@backend/src/routes/auth'
-import { router } from '@backend/src/routes/trpc'
 
 const app = Fastify()
 
@@ -17,24 +10,6 @@ await app.register(cors, {
   origin: true,
   credentials: true,
   exposedHeaders: ['set-cookie'],
-})
-
-const appRouter = router({
-  user: userRouter,
-  ai: aiRouter,
-})
-
-export type AppRouter = typeof appRouter
-
-app.register(fastifyTRPCPlugin, {
-  prefix: '/trpc',
-  trpcOptions: {
-    router: appRouter,
-    createContext,
-    onError({ path, error }) {
-      console.error(`Error in tRPC handler on path '${path}':`, error)
-    },
-  } satisfies FastifyTRPCPluginOptions<AppRouter>['trpcOptions'],
 })
 
 ;[

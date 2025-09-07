@@ -10,6 +10,7 @@ export const env = createEnv({
   },
   server: {
     GOOGLE_GENERATIVE_AI_API_KEY: z.string().check(z.minLength(1)),
+    POSTGRES_URL: z.string().check(z.minLength(1)),
   },
   experimental__runtimeEnv: {
     NEXT_PUBLIC_SUB_API_URL: process.env.NEXT_PUBLIC_SUB_API_URL,

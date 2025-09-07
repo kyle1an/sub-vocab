@@ -11,7 +11,6 @@ import { endOfWeek, format, getMonth, isFirstDayOfMonth, isSunday, startOfMonth,
 import { rangeRight } from 'es-toolkit'
 import { useSessionStorage } from 'foxact/use-session-storage'
 import { useAtom } from 'jotai'
-import { Fragment } from 'react'
 import { Bar } from 'react-chartjs-2'
 import colors from 'tailwindcss/colors'
 
@@ -19,6 +18,7 @@ import type { TrackedWord } from '@/app/[locale]/(vocabulary)/_lib/LexiconTrie'
 
 import { baseVocabAtom } from '@/app/[locale]/(vocabulary)/_api'
 import { LEARNING_PHASE } from '@/app/[locale]/(vocabulary)/_lib/LexiconTrie'
+import { NoSSR } from '@/components/NoSsr'
 import { SegmentedControl, SegmentItem } from '@/components/ui/segmented-control'
 import { useI18n } from '@/locales/client'
 import { createFactory } from '@sub-vocab/utils/lib'
@@ -428,7 +428,7 @@ export default function Chart() {
   }
 
   return (
-    <Fragment>
+    <NoSSR>
       <SegmentedControl
         value={segment}
         onValueChange={setSegment}
@@ -445,6 +445,6 @@ export default function Chart() {
         data={chartData}
         className="w-full tabular-nums md:pb-0"
       />
-    </Fragment>
+    </NoSSR>
   )
 }
