@@ -87,7 +87,7 @@ export function TableHeaderCell<T>({
       key={id}
       colSpan={colSpan}
       className={cn(
-        'group/th border-y border-solid border-y-zinc-200 bg-background p-0 text-xs font-normal whitespace-nowrap dark:border-neutral-800',
+        'group/th border-y border-solid border-border bg-background p-0 text-xs font-normal whitespace-nowrap',
         className,
       )}
     >

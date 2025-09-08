@@ -326,8 +326,8 @@ export function VocabDataTable({
           className={inValidSearch ? '!border-red-500' : ''}
         />
       </div>
-      <div className="h-px w-full border-b border-transparent shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)]" />
-      <div className="z-10 w-full bg-background outline-1 outline-border outline-solid">
+      <div className="h-px w-full border-b border-border" />
+      <div className="z-10 w-full bg-background">
         <SegmentedControl
           value={segment}
           onValueChange={(newSegment) => {
