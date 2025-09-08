@@ -43,7 +43,7 @@
     "openapi-typescript": "^7.9.1",
     "pathe": "^2.0.3",
     "prettier": "^3.6.2",
-    "taze": "^19.5.0",
+    "taze": "^19.6.0",
     "ts-node": "^10.9.2",
     "ts-patch": "^3.3.0",
     "typescript": "^5.9.2"
@@ -80,7 +80,7 @@
       "string.prototype.matchall": "npm:@nolyfill/string.prototype.matchall@^1.0.44",
       "string.prototype.repeat": "npm:@nolyfill/string.prototype.repeat@^1.0.44",
       "string.prototype.trimend": "npm:@nolyfill/string.prototype.trimend@^1.0.44",
-      "vite": "npm:rolldown-vite@^7.1.5",
+      "vite": "npm:rolldown-vite@^7.1.7",
       "whatwg-url": "^14.2.0",
       "which-typed-array": "npm:@nolyfill/which-typed-array@^1.0.44"
     },

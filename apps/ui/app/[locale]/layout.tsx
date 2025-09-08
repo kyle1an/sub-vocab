@@ -17,9 +17,7 @@ import { HydrateAtoms } from '@/app/[locale]/_components/HydrateAtoms'
 import { JotaiProvider } from '@/app/[locale]/_components/JotaiProvider'
 import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarProvider } from '@/components/ui/sidebar'
-import { SIDEBAR_COOKIE_NAME } from '@/components/ui/sidebar.var'
 import { Toaster } from '@/components/ui/sonner'
-import { COLOR_MODE_SETTING_KEY } from '@/constants/keys'
 import { DARK__BACKGROUND, LIGHT_THEME_COLOR } from '@/constants/theme'
 import { supabaseAuthGetUser } from '@/lib/supabase/server'
 import { I18nProviderClient } from '@/locales/client'
@@ -42,8 +40,8 @@ export default function RootLayout({
   }
   const cookieStore = use(cookies())
   const { data: { user } } = use(supabaseAuthGetUser())
-  const setting = cookieStore.get(COLOR_MODE_SETTING_KEY)?.value as ColorModeValue | undefined ?? 'auto'
-  const defaultOpen = cookieStore.get(SIDEBAR_COOKIE_NAME)?.value !== 'false'
+  const setting = cookieStore.get('color_mode_setting')?.value as ColorModeValue | undefined ?? 'auto'
+  const defaultOpen = cookieStore.get('sidebar_state')?.value !== 'false'
   return (
     <html
       lang={locale}
@@ -68,9 +66,8 @@ export default function RootLayout({
           // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
           dangerouslySetInnerHTML={{
             __html: `(${String(() => {
-              const COLOR_MODE_SETTING_KEY = 'color_mode_setting'
               const DARK__BACKGROUND = 'oklch(0.145 0 0)'
-              const setting = localStorage.getItem(COLOR_MODE_SETTING_KEY)
+              const setting = localStorage.getItem('color_mode_setting')
               if (setting === '"dark"' || (setting !== '"light"' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 for (const e of document.querySelectorAll('meta[name="theme-color"]')) {
                   e.setAttribute('content', DARK__BACKGROUND)
