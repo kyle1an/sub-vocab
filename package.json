@@ -85,6 +85,7 @@
       "which-typed-array": "npm:@nolyfill/which-typed-array@^1.0.44"
     },
     "onlyBuiltDependencies": [
+      "@sentry/cli",
       "@tailwindcss/oxide",
       "@vercel/speed-insights",
       "esbuild",
