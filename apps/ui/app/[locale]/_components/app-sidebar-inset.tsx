@@ -8,7 +8,8 @@ import { mainBgColorAtom } from '@/atoms'
 import { NavActions } from '@/components/nav-actions'
 import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
 import { LIGHT_THEME_COLOR } from '@/constants/theme'
-import { useStyleObserver } from '@sub-vocab/utils/hooks'
+import { useAtomEffect, useStyleObserver } from '@sub-vocab/utils/hooks'
+import { isServer } from '@sub-vocab/utils/lib'
 
 export function AppSidebarInset({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -18,6 +19,11 @@ export function AppSidebarInset({ children }: { children: React.ReactNode }) {
   }, {
     properties: ['background-color'],
   })
+  // https://github.com/LeaVerou/style-observer/issues/45
+  useAtomEffect((_, set) => {
+    if (isServer || !ref.current) return
+    set(mainBgColorAtom, window.getComputedStyle(ref.current).backgroundColor)
+  }, [])
   useAppEffects()
   return (
     <SidebarInset

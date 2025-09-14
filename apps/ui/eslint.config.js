@@ -60,6 +60,12 @@ export default typegen(antfu(
         },
       ],
     },
+    settings: {
+      'react-hooks': {
+        // https://github.com/facebook/react/pull/34497
+        additionalEffectHooks: '(useIsomorphicLayoutEffect|useAbortableEffect|useMemoOne|useStableMemo|useCallbackOne|useStableCallback_|useAtomEffect|useUpdateEffect)',
+      },
+    },
   },
   ...pluginQuery.configs['flat/recommended'],
   ...eslintPluginTailwindCss.configs['flat/recommended'],

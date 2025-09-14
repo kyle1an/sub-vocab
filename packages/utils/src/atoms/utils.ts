@@ -75,7 +75,7 @@ export const withDelayedSetter = <Value, Args extends unknown[], Result>(setAtom
   })
 }
 
-export const retimerAtomFamily = () => {
+export const retimerAtomFamily = (label?: string) => {
   const family = atomFamily((id: string) => {
     let timeoutId: undefined | number
     let isMounted = false
@@ -104,6 +104,11 @@ export const retimerAtomFamily = () => {
         isMounted = true
         return () => {
           isMounted = false
+        }
+      }),
+      tap((x) => {
+        if (label) {
+          x.debugLabel = `retimerAtomFamily-${label}`
         }
       }),
     )

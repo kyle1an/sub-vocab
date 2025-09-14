@@ -1,9 +1,9 @@
-import { useStore } from 'jotai'
+import { useAtomCallback } from 'jotai/utils'
 import { toast } from 'sonner'
 
 import type { TrackedWord } from '@/app/[locale]/(vocabulary)/_lib/LexiconTrie'
 
-import { useUserWordPhaseMutation } from '@/app/[locale]/(vocabulary)/_api'
+import { userWordPhaseMutationAtom } from '@/app/[locale]/(vocabulary)/_api'
 import { userAtom } from '@/atoms/auth'
 import { LoginToast } from '@/components/login-toast'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
@@ -15,16 +15,14 @@ export function AcquaintAllDialog<T extends TrackedWord>({
   vocabulary: T[]
 }) {
   const t = useI18n()
-  const { mutateAsync: userWordPhaseMutation } = useUserWordPhaseMutation()
-  const store = useStore()
-  const acquaintAllVocab = (rows: T[]) => {
-    if (!store.get(userAtom)) {
+  const acquaintAllVocab = useAtomCallback((get, _, rows: T[]) => {
+    if (!get(userAtom)) {
       toast(<LoginToast />)
       return
     }
-    userWordPhaseMutation(rows)
+    get(userWordPhaseMutationAtom).mutateAsync(rows)
       .catch(console.error)
-  }
+  })
   const rowsToRetain = vocabulary.filter((row) => row.form.length <= 32)
   const count = rowsToRetain.length
   return (

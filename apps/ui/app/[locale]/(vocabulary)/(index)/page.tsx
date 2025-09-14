@@ -11,6 +11,7 @@ import Link from 'next/link'
 import nstr from 'nstr'
 import React, { Fragment, useDeferredValue, useRef } from 'react'
 import getCaretCoordinates from 'textarea-caret'
+// https://github.com/vercel/next.js/issues/84462
 import { useEffectEvent } from 'use-effect-event'
 
 import type { Sentence } from '@/app/[locale]/(vocabulary)/_lib/LexiconTrie'
@@ -43,6 +44,7 @@ const sourceCountAtom = atom({
   acquainted: 0,
   newCount: 0,
 })
+sourceCountAtom.debugLabel = 'sourceCountAtom'
 
 function getCount(list: VocabularySourceData[]): ExtractAtomValue<typeof sourceCountAtom> {
   let acquaintedCount = 0
@@ -74,7 +76,6 @@ function SourceVocab({
     value: string
   }
   onSentenceTrack: (sentenceId: Sentence) => void
-  key: React.Key
 }) {
   const { data: irregulars = [] } = useAtomValue(irregularWordsQueryAtom)
   const [baseVocab] = useAtom(baseVocabAtom)
@@ -108,10 +109,12 @@ function SourceVocab({
 }
 
 const horizontalDefaultSizesAtom = atom([50, 50])
+horizontalDefaultSizesAtom.debugLabel = 'horizontalDefaultSizesAtom'
 const verticalDefaultSizesAtom = atom([
   36,
   64,
 ])
+verticalDefaultSizesAtom.debugLabel = 'verticalDefaultSizesAtom'
 
 export default function Layout() {
   const t = useI18n()
@@ -179,7 +182,7 @@ export default function Layout() {
         textarea.focus()
         textarea.setSelectionRange(sentence.index, sentence.index + sentence.text.length)
         textarea.scrollTo({
-          top: coords.top - 2,
+          top: coords.top - 4,
           behavior: 'smooth',
         })
       })

@@ -3,14 +3,14 @@ import {
   createColumnHelper,
 } from '@tanstack/react-table'
 import clsx from 'clsx'
-import { useStore } from 'jotai'
+import { useAtomCallback } from 'jotai/utils'
 import { Fragment } from 'react'
 import { toast } from 'sonner'
 
 import type { TrackedWord } from '@/app/[locale]/(vocabulary)/_lib/LexiconTrie'
 import type { VocabularySourceState } from '@/app/[locale]/(vocabulary)/_lib/vocab'
 
-import { useUserWordPhaseMutation } from '@/app/[locale]/(vocabulary)/_api'
+import { userWordPhaseMutationAtom } from '@/app/[locale]/(vocabulary)/_api'
 import { VocabularyMenu } from '@/app/[locale]/(vocabulary)/_components/cells'
 import { VocabToggle } from '@/app/[locale]/(vocabulary)/_components/toggle-button'
 import { userAtom } from '@/atoms/auth'
@@ -26,11 +26,9 @@ import { useI18n } from '@/locales/client'
 export function useVocabularyCommonColumns<T extends VocabularySourceState = VocabularySourceState>(tbody?: HTMLTableSectionElement | null, rootRef?: React.RefObject<HTMLDivElement | null>) {
   const t = useI18n()
   const columnHelper = createColumnHelper<T>()
-  const { mutateAsync: userWordPhaseMutation } = useUserWordPhaseMutation()
   const { online: isOnline } = useNetworkState()
-  const store = useStore()
-  const handleVocabToggle = (vocab: TrackedWord) => {
-    if (!store.get(userAtom)) {
+  const handleVocabToggle = useAtomCallback((get, _, vocab: TrackedWord) => {
+    if (!get(userAtom)) {
       toast(<LoginToast />)
       return
     }
@@ -42,9 +40,9 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
     if (rows2Mutate.length === 0) {
       return
     }
-    userWordPhaseMutation(rows2Mutate)
+    get(userWordPhaseMutationAtom).mutateAsync(rows2Mutate)
       .catch(console.error)
-  }
+  })
   return [
     columnHelper.accessor((row) => row.trackedWord.form, {
       id: 'word',

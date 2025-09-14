@@ -1,4 +1,4 @@
-import { pgTable, pgSchema, index, uniqueIndex, foreignKey, unique, uuid, text, timestamp, jsonb, check, bigserial, varchar, boolean, json, pgPolicy, serial, integer, smallint, inet, primaryKey } from "drizzle-orm/pg-core"
+import { pgTable, pgSchema, index, uniqueIndex, foreignKey, uuid, text, timestamp, jsonb, check, bigserial, varchar, boolean, json, unique, pgPolicy, serial, integer, smallint, inet, primaryKey } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 export const auth = pgSchema("auth");
@@ -11,7 +11,7 @@ export const oneTimeTokenTypeInAuth = auth.enum("one_time_token_type", ['confirm
 
 
 export const mfaFactorsInAuth = auth.table("mfa_factors", {
-	id: uuid().primaryKey().notNull(),
+	id: uuid().notNull(),
 	userId: uuid("user_id").notNull(),
 	friendlyName: text("friendly_name"),
 	factorType: factorTypeInAuth("factor_type").notNull(),
@@ -33,7 +33,6 @@ export const mfaFactorsInAuth = auth.table("mfa_factors", {
 			foreignColumns: [usersInAuth.id],
 			name: "mfa_factors_user_id_fkey"
 		}).onDelete("cascade"),
-	unique("mfa_factors_last_challenged_at_key").on(table.lastChallengedAt),
 ]);
 
 export const identitiesInAuth = auth.table("identities", {
@@ -45,7 +44,7 @@ export const identitiesInAuth = auth.table("identities", {
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }),
 	email: text().generatedAlwaysAs(sql`lower((identity_data ->> 'email'::text))`),
-	id: uuid().defaultRandom().primaryKey().notNull(),
+	id: uuid().defaultRandom().notNull(),
 }, (table) => [
 	index("identities_email_idx").using("btree", table.email.asc().nullsLast().op("text_pattern_ops")),
 	index("identities_user_id_idx").using("btree", table.userId.asc().nullsLast().op("uuid_ops")),
@@ -54,11 +53,10 @@ export const identitiesInAuth = auth.table("identities", {
 			foreignColumns: [usersInAuth.id],
 			name: "identities_user_id_fkey"
 		}).onDelete("cascade"),
-	unique("identities_provider_id_provider_unique").on(table.providerId, table.provider),
 ]);
 
 export const oneTimeTokensInAuth = auth.table("one_time_tokens", {
-	id: uuid().primaryKey().notNull(),
+	id: uuid().notNull(),
 	userId: uuid("user_id").notNull(),
 	tokenType: oneTimeTokenTypeInAuth("token_type").notNull(),
 	tokenHash: text("token_hash").notNull(),
@@ -79,7 +77,7 @@ export const oneTimeTokensInAuth = auth.table("one_time_tokens", {
 
 export const refreshTokensInAuth = auth.table("refresh_tokens", {
 	instanceId: uuid("instance_id"),
-	id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
+	id: bigserial({ mode: "bigint" }).notNull(),
 	token: varchar({ length: 255 }),
 	userId: varchar("user_id", { length: 255 }),
 	revoked: boolean(),
@@ -98,11 +96,10 @@ export const refreshTokensInAuth = auth.table("refresh_tokens", {
 			foreignColumns: [sessionsInAuth.id],
 			name: "refresh_tokens_session_id_fkey"
 		}).onDelete("cascade"),
-	unique("refresh_tokens_token_unique").on(table.token),
 ]);
 
 export const instancesInAuth = auth.table("instances", {
-	id: uuid().primaryKey().notNull(),
+	id: uuid().notNull(),
 	uuid: uuid(),
 	rawBaseConfig: text("raw_base_config"),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }),
@@ -114,19 +111,18 @@ export const mfaAmrClaimsInAuth = auth.table("mfa_amr_claims", {
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).notNull(),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).notNull(),
 	authenticationMethod: text("authentication_method").notNull(),
-	id: uuid().primaryKey().notNull(),
+	id: uuid().notNull(),
 }, (table) => [
 	foreignKey({
 			columns: [table.sessionId],
 			foreignColumns: [sessionsInAuth.id],
 			name: "mfa_amr_claims_session_id_fkey"
 		}).onDelete("cascade"),
-	unique("mfa_amr_claims_session_id_authentication_method_pkey").on(table.sessionId, table.authenticationMethod),
 ]);
 
 export const auditLogEntriesInAuth = auth.table("audit_log_entries", {
 	instanceId: uuid("instance_id"),
-	id: uuid().primaryKey().notNull(),
+	id: uuid().notNull(),
 	payload: json(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }),
 	ipAddress: varchar("ip_address", { length: 64 }).default('').notNull(),
@@ -135,7 +131,7 @@ export const auditLogEntriesInAuth = auth.table("audit_log_entries", {
 ]);
 
 export const oauthClientsInAuth = auth.table("oauth_clients", {
-	id: uuid().primaryKey().notNull(),
+	id: uuid().notNull(),
 	clientId: text("client_id").notNull(),
 	clientSecretHash: text("client_secret_hash").notNull(),
 	registrationType: oauthRegistrationTypeInAuth("registration_type").notNull(),
@@ -150,14 +146,13 @@ export const oauthClientsInAuth = auth.table("oauth_clients", {
 }, (table) => [
 	index("oauth_clients_client_id_idx").using("btree", table.clientId.asc().nullsLast().op("text_ops")),
 	index("oauth_clients_deleted_at_idx").using("btree", table.deletedAt.asc().nullsLast().op("timestamptz_ops")),
-	unique("oauth_clients_client_id_key").on(table.clientId),
 	check("oauth_clients_client_name_length", sql`char_length(client_name) <= 1024`),
 	check("oauth_clients_client_uri_length", sql`char_length(client_uri) <= 2048`),
 	check("oauth_clients_logo_uri_length", sql`char_length(logo_uri) <= 2048`),
 ]);
 
 export const ssoProvidersInAuth = auth.table("sso_providers", {
-	id: uuid().primaryKey().notNull(),
+	id: uuid().notNull(),
 	resourceId: text("resource_id"),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }),
@@ -184,7 +179,7 @@ export const vocabularyList = pgTable("vocabulary_list", {
 
 export const usersInAuth = auth.table("users", {
 	instanceId: uuid("instance_id"),
-	id: uuid().primaryKey().notNull(),
+	id: uuid().notNull(),
 	aud: varchar({ length: 255 }),
 	role: varchar({ length: 255 }),
 	email: varchar({ length: 255 }),
@@ -228,9 +223,12 @@ export const usersInAuth = auth.table("users", {
 	index("users_instance_id_email_idx").using("btree", sql`instance_id`, sql`lower((email)::text)`),
 	index("users_instance_id_idx").using("btree", table.instanceId.asc().nullsLast().op("uuid_ops")),
 	index("users_is_anonymous_idx").using("btree", table.isAnonymous.asc().nullsLast().op("bool_ops")),
-	unique("users_phone_key").on(table.phone),
 	check("users_email_change_confirm_status_check", sql`(email_change_confirm_status >= 0) AND (email_change_confirm_status <= 2)`),
 ]);
+
+export const schemaMigrationsInAuth = auth.table("schema_migrations", {
+	version: varchar({ length: 255 }).notNull(),
+});
 
 export const userVocabRecord = pgTable("user_vocab_record", {
 	userId: uuid("user_id").notNull(),
@@ -267,7 +265,7 @@ export const profiles = pgTable("profiles", {
 ]);
 
 export const sessionsInAuth = auth.table("sessions", {
-	id: uuid().primaryKey().notNull(),
+	id: uuid().notNull(),
 	userId: uuid("user_id").notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }),
@@ -289,12 +287,8 @@ export const sessionsInAuth = auth.table("sessions", {
 		}).onDelete("cascade"),
 ]);
 
-export const schemaMigrationsInAuth = auth.table("schema_migrations", {
-	version: varchar({ length: 255 }).primaryKey().notNull(),
-});
-
 export const flowStateInAuth = auth.table("flow_state", {
-	id: uuid().primaryKey().notNull(),
+	id: uuid().notNull(),
 	userId: uuid("user_id"),
 	authCode: text("auth_code").notNull(),
 	codeChallengeMethod: codeChallengeMethodInAuth("code_challenge_method").notNull(),
@@ -313,7 +307,7 @@ export const flowStateInAuth = auth.table("flow_state", {
 ]);
 
 export const samlProvidersInAuth = auth.table("saml_providers", {
-	id: uuid().primaryKey().notNull(),
+	id: uuid().notNull(),
 	ssoProviderId: uuid("sso_provider_id").notNull(),
 	entityId: text("entity_id").notNull(),
 	metadataXml: text("metadata_xml").notNull(),
@@ -329,14 +323,13 @@ export const samlProvidersInAuth = auth.table("saml_providers", {
 			foreignColumns: [ssoProvidersInAuth.id],
 			name: "saml_providers_sso_provider_id_fkey"
 		}).onDelete("cascade"),
-	unique("saml_providers_entity_id_key").on(table.entityId),
 	check("entity_id not empty", sql`char_length(entity_id) > 0`),
 	check("metadata_url not empty", sql`(metadata_url = NULL::text) OR (char_length(metadata_url) > 0)`),
 	check("metadata_xml not empty", sql`char_length(metadata_xml) > 0`),
 ]);
 
 export const samlRelayStatesInAuth = auth.table("saml_relay_states", {
-	id: uuid().primaryKey().notNull(),
+	id: uuid().notNull(),
 	ssoProviderId: uuid("sso_provider_id").notNull(),
 	requestId: text("request_id").notNull(),
 	forEmail: text("for_email"),
@@ -362,7 +355,7 @@ export const samlRelayStatesInAuth = auth.table("saml_relay_states", {
 ]);
 
 export const ssoDomainsInAuth = auth.table("sso_domains", {
-	id: uuid().primaryKey().notNull(),
+	id: uuid().notNull(),
 	ssoProviderId: uuid("sso_provider_id").notNull(),
 	domain: text().notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }),
@@ -379,7 +372,7 @@ export const ssoDomainsInAuth = auth.table("sso_domains", {
 ]);
 
 export const mfaChallengesInAuth = auth.table("mfa_challenges", {
-	id: uuid().primaryKey().notNull(),
+	id: uuid().notNull(),
 	factorId: uuid("factor_id").notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).notNull(),
 	verifiedAt: timestamp("verified_at", { withTimezone: true, mode: 'string' }),

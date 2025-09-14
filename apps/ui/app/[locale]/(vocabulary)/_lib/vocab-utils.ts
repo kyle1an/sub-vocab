@@ -33,10 +33,13 @@ export const useManagedVocabulary = (list: VocabularySourceData[]) => {
     ...i,
     inertialPhase: i.trackedWord.learningPhase,
   }))
+  const [previousVocabularyStates, setPreviousVocabularyStates] = useState(vocabularyStates)
   const [rows, setRows] = useState(vocabularyStates)
-  useUpdateEffect(() => {
+  // https://react.dev/reference/react/useState#storing-information-from-previous-renders
+  if (previousVocabularyStates !== vocabularyStates) {
+    setPreviousVocabularyStates(vocabularyStates)
     setRows(preserveInertialPhase(vocabularyStates))
-  }, [vocabularyStates])
+  }
   const syncPhases = () => {
     setRows(produce((draft) => {
       draft.forEach((row) => {

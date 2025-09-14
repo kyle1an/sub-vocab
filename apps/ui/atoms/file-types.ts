@@ -11,5 +11,6 @@ export const fileTypesAtom = atomWithStorage(
     checked: true,
   })),
 )
+fileTypesAtom.debugLabel = 'fileTypesAtom'
 
 export type FileType = ExtractAtomValue<typeof fileTypesAtom>[number]

@@ -10,4 +10,4 @@ export type ZodObj<T extends Record<PropertyKey, unknown>> = {
   [key in keyof T]: z.ZodMiniType<T[key]>
 }
 
-export type PartialObjectZ<T> = PartialDeep<T, { recurseIntoArrays: true }>
+export type PartialObjectZ<T> = PartialDeep<T, { recurseIntoArrays: true, allowUndefinedInNonTupleArrays: true }>

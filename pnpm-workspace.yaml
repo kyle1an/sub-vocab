@@ -3,3 +3,6 @@ packages:
   - apps/*
 
 catalog:
+  jotai: ^2.15.0
+  jotai-effect: ^2.1.2
+  react: ^19.2.0

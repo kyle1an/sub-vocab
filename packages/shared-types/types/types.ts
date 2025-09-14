@@ -1,11 +1,11 @@
-import type { ConditionalPick } from 'type-fest'
-
 // https://stackoverflow.com/a/67452316
 // https://stackoverflow.com/a/60142095
 export type Entries<T> = Entry<T>[]
 
+type PickByValue<T, V> = Pick<T, { [K in keyof T]: T[K] extends V ? K : never }[keyof T]>
+
 export type Entry<T> = NonNullable<{
-  [K in keyof T]: [keyof ConditionalPick<Required<T>, Required<T>[K]>, Required<T>[K]]
+  [K in keyof T]: [keyof PickByValue<Required<T>, Required<T>[K]>, Required<T>[K]]
 }[keyof T]>
 
 export type AnyFunc = (...args: any) => any

@@ -11,6 +11,7 @@ import { withUnmountCallbackAtom, withUseA } from '@sub-vocab/utils/atoms'
 import { createFactory, equalBy } from '@sub-vocab/utils/lib'
 
 export const osLanguageAtom = atomWithStorage('osLanguageAtom', 'en')
+osLanguageAtom.debugLabel = 'osLanguageAtom'
 
 export type MediaSubtitleState = {
   episodeFilter?: LiteralUnion<'all', string>
@@ -45,6 +46,7 @@ export const mediaSubtitleFamily = withParamsAtomFamily(
     )
   },
   equalBy(([key]) => key),
+  `mediaSubtitleFamily`,
 )
 
 export const buildInitialTableState = createFactory<InitialTableState>()(() => ({
@@ -81,3 +83,4 @@ export const fileIdsAtom = atom((get) => {
     .map((param) => get(mediaSubtitleFamily(param)))
     .flatMap(({ tableState }) => Object.entries(tableState.rowSelection).filter(([, v]) => v).map(([k]) => Number(k)))
 })
+fileIdsAtom.debugLabel = 'fileIdsAtom'

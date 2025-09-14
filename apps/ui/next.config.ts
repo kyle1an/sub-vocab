@@ -4,11 +4,12 @@ import withBundleAnalyzer from '@next/bundle-analyzer'
 import { withSentryConfig } from '@sentry/nextjs'
 
 const nextConfig: NextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   experimental: {
     reactCompiler: true,
+  },
+  transpilePackages: ['jotai-devtools'],
+  eslint: {
+    ignoreDuringBuilds: true,
   },
   turbopack: {
     rules: {
@@ -29,6 +30,17 @@ const nextConfig: NextConfig = {
   },
   devIndicators: {
     position: 'top-left',
+  },
+  // https://nextjs.org/docs/app/guides/redirecting#redirects-in-nextconfigjs
+  async redirects() {
+    return [
+      {
+        // https://web.dev/articles/change-password-url
+        source: '/.well-known/change-password',
+        destination: '/user/password',
+        permanent: true,
+      },
+    ]
   },
 }
 

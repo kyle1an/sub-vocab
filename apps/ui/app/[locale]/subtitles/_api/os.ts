@@ -112,13 +112,13 @@ const osQueue = new PQueue({
 
 const withHighPriorityOsQueue = <A extends any[], R>(f: (...a: A) => R) => (...a: A) => {
   return osQueue.add(() => f(...a), {
-    throwOnTimeout: true,
+    // https://github.com/tokyodrift1993/p-queue/commit/e48716fa1236fdd8ac0ad88f7831467f2455976a
   })
 }
 
 const withNormalPriorityOsQueue = <A extends any[], R>(f: (...a: A) => R) => (...a: A) => {
   return osQueue.add(() => f(...a), {
-    throwOnTimeout: true,
+    // https://github.com/tokyodrift1993/p-queue/commit/e48716fa1236fdd8ac0ad88f7831467f2455976a
     priority: 2,
   })
 }

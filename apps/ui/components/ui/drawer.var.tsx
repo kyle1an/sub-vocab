@@ -20,6 +20,7 @@ export const drawerStateFamily = withParamsAtomFamily(
     },
   ]) => atomWithImmer(initialValue),
   equalBy(([key]) => key),
+  `drawerStateFamily`,
 )
 
 export const isAnyDrawerOpenAtom = atom((get) => {
@@ -27,3 +28,4 @@ export const isAnyDrawerOpenAtom = atom((get) => {
     .map((p) => get(drawerStateFamily(p)))
     .some(({ shouldScaleBackground, open, openAnimationEnd }) => shouldScaleBackground && (open || openAnimationEnd))
 })
+isAnyDrawerOpenAtom.debugLabel = 'isAnyDrawerOpenAtom'

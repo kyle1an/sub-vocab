@@ -19,7 +19,7 @@ const mockLeaf = createFactory<Leaf>()(() => ({
 describe('lexiconTrie', () => {
   it('should create and return nodes correctly with getNode', () => {
     const trie = new LexiconTrie()
-    const node = trie.getNode('test')
+    const node = trie.getOrCreateNode('test')
     expect(node).toBeDefined()
     expect(trie.root.t?.e?.s?.t).toBe(node)
   })

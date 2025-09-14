@@ -102,7 +102,7 @@ class Trie {
   public readonly root: LexiconNode = {}
   public readonly sentences: Sentence[] = []
   private readonly nodeMap = new Map<string, LexiconNode>()
-  public getNode(path: string) {
+  public getOrCreateNode(path: string) {
     path = path.toLowerCase()
     let node = this.nodeMap.get(path)
     if (node) {
@@ -117,7 +117,7 @@ class Trie {
   }
   private createBasePath(sieve: TrackedWord) {
     const sieveForm = sieve.form
-    const node = this.getNode(sieveForm)
+    const node = this.getOrCreateNode(sieveForm)
     if (!node.$) {
       node.$ = {
         pathe: sieveForm,
@@ -151,7 +151,7 @@ class Trie {
   }
   public mergeDerivedWordIntoStem(irregulars: NonEmptyArray<string>[]) {
     for (const [lemma, ...inflections] of irregulars) {
-      const lemmaNode = this.getNode(lemma)
+      const lemmaNode = this.getOrCreateNode(lemma)
       lemmaNode.$ ??= {
         pathe: lemma,
         locators: [],
@@ -161,7 +161,7 @@ class Trie {
         }),
       }
       for (const inflection of inflections) {
-        const inflectedNode = this.getNode(inflection)
+        const inflectedNode = this.getOrCreateNode(inflection)
         inflectedNode.$ ??= {
           pathe: inflection,
           locators: [],
@@ -192,7 +192,7 @@ class Trie {
     SENTENCE_REGEX.lastIndex = 0
   }
   public update(original: string, index: number, sentenceId: number) {
-    const node = this.getNode(original)
+    const node = this.getOrCreateNode(original)
     const locator = {
       sentenceId,
       startOffset: index,

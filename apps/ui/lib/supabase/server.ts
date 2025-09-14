@@ -11,7 +11,7 @@ import { env } from '@/env'
  * global variable. Always create a new client within each function when using
  * it.
  */
-async function createSupabaseClient() {
+export const createClient = cache(async () => {
   const cookieStore = await cookies()
 
   return createServerClient<Database>(
@@ -36,13 +36,9 @@ async function createSupabaseClient() {
       },
     },
   )
-}
+})
 
-export const createClient = cache(createSupabaseClient)
-
-async function getUser() {
+export const getUser = cache(async () => {
   const supabase = await createClient()
   return supabase.auth.getUser()
-}
-
-export const supabaseAuthGetUser = cache(getUser)
+})

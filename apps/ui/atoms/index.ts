@@ -25,15 +25,20 @@ export const colorModeSettingAtom = withAtomEffect(
     document.documentElement.setAttribute('data-color-mode', get(colorModeSettingAtom))
   },
 )
+colorModeSettingAtom.debugLabel = 'colorModeSettingAtom'
 const isDarkModeAtom = atom((get) => {
   const setting = get(colorModeSettingAtom)
   return setting === 'dark' || (setting === 'auto' && get(mediaQueryFamily('(prefers-color-scheme: dark)')))
 })
+isDarkModeAtom.debugLabel = 'isDarkModeAtom'
 
 export const bodyBgColorAtom = atomWithStorage('bodyBgColorAtom', LIGHT_THEME_COLOR, undefined, { getOnInit: true })
+bodyBgColorAtom.debugLabel = 'bodyBgColorAtom'
 export const mainBgColorAtom = atomWithStorage('mainBgColorAtom', LIGHT_THEME_COLOR, undefined, { getOnInit: true })
+mainBgColorAtom.debugLabel = 'mainBgColorAtom'
 
 const isSafariAtom = atomWithStorage('isSafariAtom', isSafari())
+isSafariAtom.debugLabel = 'isSafariAtom'
 export const metaThemeColorAtom = withAtomEffect(
   atom((get) => {
     if (get(isAnyDrawerOpenAtom)) {
@@ -51,3 +56,4 @@ export const metaThemeColorAtom = withAtomEffect(
     }
   },
 )
+metaThemeColorAtom.debugLabel = 'metaThemeColorAtom'
