@@ -1,7 +1,7 @@
 import { google } from '@ai-sdk/google'
 import { streamObject } from 'ai'
 
-import { categorySchema } from '@/app/api/categories/schema'
+import { categoriesSchema } from '@/app/api/categories/schema'
 
 export const maxDuration = 60
 
@@ -10,7 +10,7 @@ export async function POST(req: Request) {
 
   const result = streamObject({
     model: google('gemini-2.5-flash-lite'),
-    schema: categorySchema,
+    schema: categoriesSchema,
     prompt:
       `${context}`,
   })

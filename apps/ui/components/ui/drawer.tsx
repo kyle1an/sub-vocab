@@ -11,8 +11,8 @@ import { useAtomEffect } from '@sub-vocab/utils/hooks'
 
 const TRANSITIONS_DURATION = ms('0.5s')
 
-const animRetimerFamily = retimerAtomFamily()
-const removeRetimerFamily = retimerAtomFamily()
+const animRetimerFamily = retimerAtomFamily(`animRetimerFamily`)
+const removeRetimerFamily = retimerAtomFamily(`removeRetimerFamily`)
 
 function Drawer({
   ...props

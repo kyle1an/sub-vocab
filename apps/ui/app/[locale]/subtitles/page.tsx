@@ -60,6 +60,12 @@ type TableData = NonNullable<tmdb.paths['/3/search/multi']['get']['responses'][2
 const PAGE_SIZES = [5, 10, 20] as const
 
 const initialTableStateAtom = atom(identity<InitialTableState>({
+  sorting: [
+    {
+      id: 'popularity',
+      desc: true,
+    },
+  ],
   pagination: {
     pageSize: findClosest(100, PAGE_SIZES),
     pageIndex: 0,
@@ -67,7 +73,6 @@ const initialTableStateAtom = atom(identity<InitialTableState>({
 }))
 
 function useColumns<T extends TableData>(rootRef: React.RefObject<HTMLDivElement | null>) {
-  // Add this to prevent all columns from re-rendering on sort
   const t = useI18n()
   const columnHelper = createColumnHelper<T>()
   return [

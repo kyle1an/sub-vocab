@@ -43,6 +43,7 @@ const sourceCountAtom = atom({
   acquainted: 0,
   newCount: 0,
 })
+sourceCountAtom.debugLabel = 'sourceCountAtom'
 
 function getCount(list: VocabularySourceData[]): ExtractAtomValue<typeof sourceCountAtom> {
   let acquaintedCount = 0
@@ -74,7 +75,6 @@ function SourceVocab({
     value: string
   }
   onSentenceTrack: (sentenceId: Sentence) => void
-  key: React.Key
 }) {
   const { data: irregulars = [] } = useAtomValue(irregularWordsQueryAtom)
   const [baseVocab] = useAtom(baseVocabAtom)
@@ -108,10 +108,12 @@ function SourceVocab({
 }
 
 const horizontalDefaultSizesAtom = atom([50, 50])
+horizontalDefaultSizesAtom.debugLabel = 'horizontalDefaultSizesAtom'
 const verticalDefaultSizesAtom = atom([
   36,
   64,
 ])
+verticalDefaultSizesAtom.debugLabel = 'verticalDefaultSizesAtom'
 
 export default function Layout() {
   const t = useI18n()

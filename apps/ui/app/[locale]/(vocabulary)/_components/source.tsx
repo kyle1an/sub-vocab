@@ -35,7 +35,7 @@ import { searchFilterValue } from '@/app/[locale]/(vocabulary)/_lib/filters'
 import { LEARNING_PHASE } from '@/app/[locale]/(vocabulary)/_lib/LexiconTrie'
 import { useManagedVocabulary } from '@/app/[locale]/(vocabulary)/_lib/vocab-utils'
 import { getCategory } from '@/app/[locale]/(vocabulary)/_prompts/getCategory'
-import { categorySchema } from '@/app/api/categories/schema'
+import { categoriesSchema } from '@/app/api/categories/schema'
 import { DataTableFacetedFilter } from '@/components/data-table/data-table-faceted-filter'
 import { TableGoToLastPage } from '@/components/my-table/go-to-last-page'
 import { TablePagination } from '@/components/my-table/pagination'
@@ -189,6 +189,7 @@ type VocabularyCategory = {
 }
 
 const categoryAtom = atomWithStorage<VocabularyCategory>('categoryAtom', {}, undefined, { getOnInit: true })
+categoryAtom.debugLabel = 'categoryAtom'
 
 function useCategorize(vocabularyCategory: PartialObjectZ<VocabularyCategory>, data: VocabularySourceState[]) {
   const t = useI18n()
@@ -239,7 +240,7 @@ export function VocabSourceTable({
   const isSourceTextStale = useAtomValue(isSourceTextStaleAtom)
   const { object: categoryValue = {}, submit, isLoading } = useObject({
     api: '/api/categories',
-    schema: categorySchema,
+    schema: categoriesSchema,
     onError: (error) => {
       toast.error(error.message, {
         duration: Infinity,

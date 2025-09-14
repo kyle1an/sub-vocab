@@ -2,14 +2,12 @@
 
 import { standardSchemaResolver as zodResolver } from '@hookform/resolvers/standard-schema'
 import { useMutation } from '@tanstack/react-query'
-import { useAtom } from 'jotai'
 import { Fragment, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod/v4-mini'
 
+import { ProtectedRoute } from '@/app/[locale]/(auth)/_components/ProtectedRoute'
 import { PASSWORD_MIN_LENGTH } from '@/app/[locale]/(auth)/_constants/constraints'
-import { authChangeEventAtom, userAtom } from '@/atoms/auth'
-import Navigate from '@/components/Navigate'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -24,7 +22,6 @@ export default function UpdatePassword() {
     mutationKey: ['signOut'],
     mutationFn: bindApply(supabase.auth.signOut, supabase.auth),
   })
-  const [user] = useAtom(userAtom)
 
   const formDefaultValues = {
     newPassword: '',
@@ -73,17 +70,8 @@ export default function UpdatePassword() {
     signOut([{ scope: 'local' }])
   }
 
-  const [authChangeEvent] = useAtom(authChangeEventAtom)
-  if (!authChangeEvent) {
-    return null
-  }
-
-  if (!user) {
-    return <Navigate to="/login" />
-  }
-
   return (
-    <Fragment>
+    <ProtectedRoute>
       <Fragment>
         <Fragment>
           <Fragment>
@@ -147,6 +135,6 @@ export default function UpdatePassword() {
           </Fragment>
         </Fragment>
       </Fragment>
-    </Fragment>
+    </ProtectedRoute>
   )
 }

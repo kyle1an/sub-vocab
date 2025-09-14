@@ -12,14 +12,13 @@ import { Fragment, Suspense, use } from 'react'
 import type { ColorModeValue } from '@/components/themes'
 
 import { AppSidebarInset } from '@/app/[locale]/_components/app-sidebar-inset'
-import { Body } from '@/app/[locale]/_components/BodyProvider'
 import { HydrateAtoms } from '@/app/[locale]/_components/HydrateAtoms'
 import { JotaiProvider } from '@/app/[locale]/_components/JotaiProvider'
 import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/sonner'
 import { DARK__BACKGROUND, LIGHT_THEME_COLOR } from '@/constants/theme'
-import { supabaseAuthGetUser } from '@/lib/supabase/server'
+import { getUser } from '@/lib/supabase/server'
 import { I18nProviderClient } from '@/locales/client'
 import { TRPCReactProvider } from '@/trpc/client'
 
@@ -39,7 +38,7 @@ export default function RootLayout({
     }
   }
   const cookieStore = use(cookies())
-  const { data: { user } } = use(supabaseAuthGetUser())
+  const { data: { user } } = use(getUser())
   const setting = cookieStore.get('color_mode_setting')?.value as ColorModeValue | undefined ?? 'auto'
   const defaultOpen = cookieStore.get('sidebar_state')?.value !== 'false'
   return (
@@ -86,7 +85,6 @@ export default function RootLayout({
             colorModeSetting={setting}
             user={user}
           />,
-          <Body />,
           <TRPCReactProvider children={null} />,
           <SidebarProvider
             defaultOpen={defaultOpen}

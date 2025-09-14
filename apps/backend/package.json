@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@10.15.1",
+  "packageManager": "pnpm@10.16.1",
   "description": "description",
   "scripts": {
     "build": "tsc && node esbuild.config.js",
@@ -22,7 +22,7 @@
     "ofetch": "^1.4.1"
   },
   "devDependencies": {
-    "@vercel/node": "^5.3.21",
+    "@vercel/node": "^5.3.22",
     "esbuild": "^0.25.9",
     "tsx": "^4.20.5"
   }

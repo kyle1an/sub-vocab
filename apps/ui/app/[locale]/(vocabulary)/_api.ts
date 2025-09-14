@@ -59,6 +59,7 @@ const userVocabularyOptionsAtom = atom((get) => {
     get(vocabSubscriptionAtom),
   )
 })
+userVocabularyOptionsAtom.debugLabel = 'userVocabularyOptionsAtom'
 
 export const sharedVocabularyOptions = () => {
   return queryOptions({
@@ -85,6 +86,7 @@ export const sharedVocabularyOptions = () => {
 }
 
 const sharedVocabularyAtom = atomWithQuery(() => sharedVocabularyOptions())
+sharedVocabularyAtom.debugLabel = 'sharedVocabularyAtom'
 
 export const baseVocabAtom = atom((get) => {
   // eslint-disable-next-line ts/no-use-before-define
@@ -103,6 +105,7 @@ export const baseVocabAtom = atom((get) => {
   })
   return map.values().toArray()
 })
+baseVocabAtom.debugLabel = 'baseVocabAtom'
 
 export const irregularWordsQueryOptions = () => {
   return queryOptions({
@@ -132,6 +135,7 @@ export const irregularWordsQueryOptions = () => {
 }
 
 export const irregularWordsQueryAtom = atomWithQuery(() => irregularWordsQueryOptions())
+irregularWordsQueryAtom.debugLabel = 'irregularWordsQueryAtom'
 
 export function useUserWordPhaseMutation() {
   const queryClient = useQueryClient()
@@ -222,6 +226,7 @@ const upsertVocabularyCallbackAtom = atom((get) => {
     }))
   }
 })
+upsertVocabularyCallbackAtom.debugLabel = 'upsertVocabularyCallbackAtom'
 
 export const STATUS_LABELS = {
   SUBSCRIBED: 'Connected',
@@ -234,6 +239,7 @@ const INACTIVITY_TIMEOUT = ms('1min')
 const COMPONENT_DEBOUNCE = ms('0s')
 const retimeRefetchVocabulary = createRetimer()
 const channelBaseAtom = atom(undefined as RealtimeChannel | undefined)
+channelBaseAtom.debugLabel = 'channelBaseAtom'
 const initChannelAtom = atom(null, (get, set, userId: string) => {
   const prevChannel = get(channelBaseAtom)
 
@@ -320,3 +326,4 @@ export const userVocabularyAtom = withAtomEffect(
     set(removeChannelAtom)
   },
 )
+userVocabularyAtom.debugLabel = 'userVocabularyAtom'

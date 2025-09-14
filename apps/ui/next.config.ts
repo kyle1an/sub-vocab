@@ -4,6 +4,7 @@ import withBundleAnalyzer from '@next/bundle-analyzer'
 import { withSentryConfig } from '@sentry/nextjs'
 
 const nextConfig: NextConfig = {
+  transpilePackages: ['jotai-devtools'],
   eslint: {
     ignoreDuringBuilds: true,
   },
