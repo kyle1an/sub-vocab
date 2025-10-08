@@ -10,7 +10,7 @@ const I18nMiddleware = createI18nMiddleware({
   urlMappingStrategy: 'rewrite',
 })
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // https://next-intl.dev/docs/routing/middleware#example-integrating-with-supabase-authentication
   const response = I18nMiddleware(request)
   return updateSession(request, response)

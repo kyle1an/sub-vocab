@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@10.18.0",
+  "packageManager": "pnpm@10.20.0",
   "description": "description",
   "exports": {
     ".": "./src/index.ts",
@@ -20,16 +20,16 @@
     "schema:trakt": "curl -s https://trakt.docs.apiary.io/api-description-document -o trakt.apib && npx apib2swagger -i trakt.apib --open-api-3 --yaml -o trakt.yaml && npx openapi-typescript trakt.yaml -o ./src/types/schema/trakt.d.ts && rm trakt.apib trakt.yaml"
   },
   "dependencies": {
-    "@react-hookz/web": "^25.1.1",
+    "@react-hookz/web": "^25.2.0",
     "jotai": "catalog:",
     "jotai-effect": "catalog:",
     "react": "catalog:",
-    "style-observer": "^0.1.1",
+    "style-observer": "^0.1.2",
     "use-memo-one": "^1.1.3"
   },
   "devDependencies": {
     "@sub-vocab/shared-types": "workspace:*",
-    "@types/react": "^19.2.0",
-    "@types/react-dom": "^19.2.0"
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2"
   }
 }

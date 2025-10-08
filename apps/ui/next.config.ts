@@ -4,13 +4,8 @@ import withBundleAnalyzer from '@next/bundle-analyzer'
 import { withSentryConfig } from '@sentry/nextjs'
 
 const nextConfig: NextConfig = {
-  experimental: {
-    reactCompiler: true,
-  },
+  reactCompiler: true,
   transpilePackages: ['jotai-devtools'],
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   turbopack: {
     rules: {
       '*.svg': {

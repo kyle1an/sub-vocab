@@ -19,7 +19,7 @@
 
 @theme {
   --font-*: initial;
-  --font-sans: "SF Compact Text", "Graphik", -apple-system, BlinkMacSystemFont, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans: -apple-system, BlinkMacSystemFont, "Graphik", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-mono: monospace;
 
   --radius-lg: var(--radius);
@@ -124,9 +124,11 @@
 }
 
 @utility tracking-* {
+  --tw-tracking: --value([length]);
+  letter-spacing: var(--tw-tracking);
   :is(& *) {
     --tw-tracking: --value([length]);
-    letter-spacing: --value([length]);
+    letter-spacing: var(--tw-tracking);
   }
 }
 

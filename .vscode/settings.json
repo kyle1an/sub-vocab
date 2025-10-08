@@ -69,7 +69,7 @@
 
   // Disable the default formatter, use eslint instead
   "prettier.enable": true, // HTML only; excludes !/**/*.html in .prettierignore
-  "editor.formatOnSave": false,
+  // "editor.formatOnSave": false,
 
   // Auto fix
   "editor.codeActionsOnSave": {

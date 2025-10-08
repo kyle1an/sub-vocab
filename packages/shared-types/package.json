@@ -3,6 +3,7 @@
   "type": "module",
   "version": "1.0.0",
   "description": "description",
+  "license": "MIT",
   "exports": {
     ".": {
       "types": "./index.d.ts"

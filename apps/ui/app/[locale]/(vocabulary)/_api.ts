@@ -305,6 +305,7 @@ export const userVocabularyAtom = withAtomEffect(
     if (userId) {
       const controller = new AbortController()
       // https://github.com/supabase/realtime/issues/282#issuecomment-2630983759
+      // https://github.com/supabase/supabase-js/issues/1304
       const supabase = createClient()
       supabase.realtime.setAuth().then(() => {
         if (controller.signal.aborted) return

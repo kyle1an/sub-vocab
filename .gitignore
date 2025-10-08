@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+node_modules
 /.pnp
 .pnp.js
 
@@ -28,6 +29,7 @@ built/
 
 # local env files
 .env*.local
+.env
 
 # vercel
 .vercel
@@ -37,6 +39,8 @@ built/
 
 .env.local
 .env.*.local
+# compiled output
+dist
 /dist
 
 # debug
@@ -64,3 +68,16 @@ launch.json
 
 .vercel
 eslint-typegen.d.ts
+
+# IDE - VSCode
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# misc
+/coverage
+
+# System Files
+Thumbs.db

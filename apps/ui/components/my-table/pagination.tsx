@@ -55,7 +55,7 @@ export function TablePagination<T>({
               key={`${type}${page}`}
             >
               <svg
-                className="icon-[lucide--chevron-left] hidden size-4 group-hover:inline-block"
+                className="icon-[lucide--chevrons-left] hidden size-4 group-hover:inline-block"
               />
               <svg
                 className="icon-[prime--ellipsis-h] size-4 group-hover:hidden"
@@ -94,7 +94,7 @@ export function TablePagination<T>({
               key={`${type}${page}`}
             >
               <svg
-                className="icon-[lucide--chevron-right] hidden size-4 group-hover:inline-block"
+                className="icon-[lucide--chevrons-right] hidden size-4 group-hover:inline-block"
               />
               <svg
                 className="icon-[prime--ellipsis-h] size-4 group-hover:hidden"

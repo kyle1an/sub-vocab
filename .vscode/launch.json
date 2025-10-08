@@ -1,0 +1,103 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    // https://code.visualstudio.com/docs/nodejs/nodejs-debugging#_launch-configuration-support-for-npm-and-other-tools
+    {
+      // https://vitest.dev/guide/debugging
+      "name": "Vitest",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/ui",
+      "skipFiles": [
+        //
+        "<node_internals>/**",
+        "**/node_modules/**",
+        "**/wasm/*.wat"
+      ],
+      "runtimeArgs": ["run-script", "test"],
+      "console": "integratedTerminal",
+      "runtimeExecutable": "npm",
+      "runtimeVersion": "22",
+      "outputCapture": "std"
+    },
+    {
+      "name": "Fastify",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/backend",
+      // https://stackoverflow.com/questions/47556495/how-do-i-skip-external-code-when-debugging-in-vs-code
+      "skipFiles": [
+        // "${workspaceFolder}/node_modules/**",
+        "<node_internals>/**",
+        "**/node_modules/**",
+        "**/wasm/*.wat"
+      ],
+      "console": "integratedTerminal",
+      "runtimeExecutable": "npm",
+      "runtimeVersion": "22",
+      "runtimeArgs": ["run-script", "dev"]
+    },
+    {
+      "name": "full stack",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/ui",
+      "serverReadyAction": {
+        "pattern": "Local:.+http://localhost:([0-9]+)",
+        "action": "startDebugging",
+        "name": "client-side",
+        "killOnServerStop": true
+      },
+      "skipFiles": [
+        // "${workspaceFolder}\\node_modules\\**\\*.js",
+        "**/.next/**",
+        "<node_internals>/**",
+        "**/node_modules/**",
+        "**/wasm/*.wat"
+      ],
+      "console": "integratedTerminal",
+      "runtimeExecutable": "npm",
+      "runtimeVersion": "22",
+      "runtimeArgs": ["run-script", "dev"]
+    },
+    {
+      "name": "client-side",
+      "type": "chrome",
+      "request": "launch",
+      // https://stackoverflow.com/a/37048286/10903455
+      "runtimeExecutable": "beta",
+      "url": "http://localhost:3000",
+      "userDataDir": "/Users/ian/Documents/Dev/chrome-user-data",
+      // "runtimeArgs": ["--auto-open-devtools-for-tabs"],
+      "skipFiles": [
+        //
+        "**/.next/**",
+        "<node_internals>/**",
+        "**/node_modules/**",
+        "**/wasm/*.wat"
+      ],
+      "webRoot": "${workspaceFolder}/apps/ui",
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "file:///Users/ian/Dropbox/Root/Dev/sub-vocab/packages/utils/src/*": "${workspaceFolder}/packages/utils/src/*",
+        // "file:///Users/ian/Dropbox/Root/Dev/sub-vocab/apps/ui/app/%5Blocale%5D/%28vocabulary%29/_components/Users/ian/Dropbox/Root/Dev/sub-vocab/apps/ui/app/%5Blocale%5D/%28vocabulary%29/_components/*": "${workspaceFolder}/apps/ui/app/[locale]/(vocabulary)/_components/*",
+        // "file:///Users/ian/Dropbox/Root/Dev/sub-vocab/apps/ui/app/%5Blocale%5D/%28vocabulary%29/%28index%29/Users/ian/Dropbox/Root/Dev/sub-vocab/apps/ui/app/%5Blocale%5D/%28vocabulary%29/%28index%29/*": "${workspaceFolder}/apps/ui/app/[locale]/(vocabulary)/(index)/*"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "configurations": ["full stack", "Fastify"],
+      "name": "full stack + Fastify",
+      "stopAll": true
+    },
+    {
+      "configurations": ["full stack"],
+      "name": "full stack",
+      "stopAll": true
+    }
+  ]
+}

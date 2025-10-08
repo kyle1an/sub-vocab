@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@10.18.0",
+  "packageManager": "pnpm@10.20.0",
   "description": "description",
   "scripts": {
     "build": "tsc && node esbuild.config.js",
@@ -19,11 +19,11 @@
     "@openrouter/ai-sdk-provider": "^1.2.0",
     "@sub-vocab/utils": "workspace:*",
     "fastify": "^5.6.1",
-    "ofetch": "^1.4.1"
+    "ofetch": "^1.5.1"
   },
   "devDependencies": {
-    "@vercel/node": "^5.3.24",
-    "esbuild": "^0.25.10",
+    "@vercel/node": "^5.5.4",
+    "esbuild": "^0.25.12",
     "tsx": "^4.20.6"
   }
 }

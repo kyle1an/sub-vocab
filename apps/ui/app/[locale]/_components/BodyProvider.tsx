@@ -21,7 +21,7 @@ export function Body({
   return (
     <body
       ref={ref}
-      className="overflow-y-scroll tracking-[.02em] text-foreground antialiased"
+      className="overflow-y-scroll tracking-[.03em] text-foreground font-stretch-90% antialiased"
     >
       {children}
     </body>
