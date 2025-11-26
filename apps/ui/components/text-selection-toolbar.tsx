@@ -14,7 +14,10 @@ export function TextSelectionToolbar() {
   const [selection, setSelection] = React.useState<string | null>(null)
   const [position, setPosition] = React.useState<{ top: number, left: number } | null>(null)
   const [mounted, setMounted] = React.useState(false)
+  const [isDragging, setIsDragging] = React.useState(false)
   const lastSelectionRef = React.useRef<string | null>(null)
+  const dragStartRef = React.useRef<{ x: number, y: number, initialLeft: number, initialTop: number } | null>(null)
+  const hasDraggedRef = React.useRef(false)
 
   const { completion, complete, isLoading, setCompletion, error } = useCompletion({
     api: '/api/explain',
@@ -56,7 +59,56 @@ export function TextSelectionToolbar() {
     }
   }, [setCompletion])
 
-  const handleExplain = () => {
+  React.useEffect(() => {
+    if (!isDragging) return
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!dragStartRef.current) return
+      const dx = e.clientX - dragStartRef.current.x
+      const dy = e.clientY - dragStartRef.current.y
+
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+        hasDraggedRef.current = true
+      }
+
+      setPosition({
+        left: dragStartRef.current.initialLeft + dx,
+        top: dragStartRef.current.initialTop + dy,
+      })
+    }
+
+    const handleMouseUp = () => {
+      setIsDragging(false)
+      dragStartRef.current = null
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isDragging])
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    if (e.button !== 0) return // Only left click
+
+    setIsDragging(true)
+    hasDraggedRef.current = false
+    if (position) {
+      dragStartRef.current = {
+        x: e.clientX,
+        y: e.clientY,
+        initialLeft: position.left,
+        initialTop: position.top,
+      }
+    }
+  }
+
+  const handleExplain = (e: React.MouseEvent) => {
+    if (hasDraggedRef.current) return
     if (!selection) return
     complete(selection)
   }
@@ -71,8 +123,9 @@ export function TextSelectionToolbar() {
         left: position.left,
         transform: 'translateX(-50%)',
         zIndex: 50,
+        cursor: isDragging ? 'grabbing' : 'grab',
       }}
-      onMouseDown={(e) => e.preventDefault()}
+      onMouseDown={handleMouseDown}
     >
       <Card className="w-64 animate-in py-0 shadow-lg duration-200 fade-in zoom-in">
         <CardContent className="p-2">
@@ -87,7 +140,19 @@ export function TextSelectionToolbar() {
             <div className="max-h-60 overflow-y-auto text-sm">
               <div className="sticky top-0 mb-2 flex items-center justify-between border-b bg-background pb-2">
                 <span className="text-xs font-semibold text-muted-foreground">Explanation</span>
-                <Button variant="ghost" size="icon" className="h-4 w-4" onClick={() => { }}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-4 w-4"
+                  onClick={(e) => {
+                    if (hasDraggedRef.current) {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      return
+                    }
+                    setSelection(null)
+                  }}
+                >
                   <Cross2Icon />
                 </Button>
               </div>
