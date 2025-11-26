@@ -15,6 +15,7 @@ import { AppSidebarInset } from '@/app/[locale]/_components/app-sidebar-inset'
 import { HydrateAtoms } from '@/app/[locale]/_components/HydrateAtoms'
 import { JotaiProvider } from '@/app/[locale]/_components/JotaiProvider'
 import { AppSidebar } from '@/components/app-sidebar'
+import { TextSelectionToolbar } from '@/components/text-selection-toolbar'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/sonner'
 import { DARK__BACKGROUND, LIGHT_THEME_COLOR } from '@/constants/theme'
@@ -107,6 +108,7 @@ export default function RootLayout({
             richColors
           />
         </Suspense>
+        <TextSelectionToolbar />
         {process.env.NODE_ENV === 'production' ? (
           <Fragment>
             <SpeedInsights />
