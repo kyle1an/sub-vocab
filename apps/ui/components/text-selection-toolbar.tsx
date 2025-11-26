@@ -4,6 +4,7 @@ import { useCompletion } from '@ai-sdk/react'
 import { Cross2Icon } from '@radix-ui/react-icons'
 import * as React from 'react'
 import { createPortal } from 'react-dom'
+import { Streamdown } from 'streamdown'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -90,10 +91,10 @@ export function TextSelectionToolbar() {
                   <Cross2Icon />
                 </Button>
               </div>
-              <p className="text-xs leading-relaxed">
-                {completion}
+              <div className="text-xs leading-relaxed">
+                <Streamdown>{completion}</Streamdown>
                 {isLoading && <Spinner className="ml-2 inline-block h-3 w-3" />}
-              </p>
+              </div>
             </div>
           )}
         </CardContent>

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "../../../../node_modules/streamdown/dist/*.js";
 @import "tw-animate-css";
 @plugin "tailwindcss-signals";
 @plugin "@iconify/tailwind4" {
