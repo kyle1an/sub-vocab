@@ -137,26 +137,20 @@ export function TextSelectionToolbar() {
               {error ? <p className="mt-2 text-xs text-red-500">Failed to load explanation.</p> : null}
             </React.Fragment>
           ) : (
-            <div className="max-h-60 overflow-y-auto text-sm">
-              <div className="sticky top-0 mb-2 flex items-center justify-between border-b bg-background pb-2">
+            <div className="flex max-h-60 flex-col text-sm">
+              <div className="mb-2 flex shrink-0 items-center justify-between border-b pb-2">
                 <span className="text-xs font-semibold text-muted-foreground">Explanation</span>
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-4 w-4"
-                  onClick={(e) => {
-                    if (hasDraggedRef.current) {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      return
-                    }
-                    setSelection(null)
-                  }}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={() => setSelection(null)}
                 >
                   <Cross2Icon />
                 </Button>
               </div>
-              <div className="text-xs leading-relaxed">
+              <div className="overflow-y-auto text-xs leading-relaxed">
                 <Streamdown>{completion}</Streamdown>
                 {isLoading && <Spinner className="ml-2 inline-block h-3 w-3" />}
               </div>
