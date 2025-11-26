@@ -74,7 +74,7 @@ export function TextSelectionToolbar() {
       }}
       onMouseDown={(e) => e.preventDefault()}
     >
-      <Card className="w-64 animate-in shadow-lg duration-200 fade-in zoom-in">
+      <Card className="w-64 animate-in py-0 shadow-lg duration-200 fade-in zoom-in">
         <CardContent className="p-2">
           {!completion && !isLoading ? (
             <React.Fragment>
