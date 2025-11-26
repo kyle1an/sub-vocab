@@ -1,10 +1,10 @@
 'use client'
 
+import { useCompletion } from '@ai-sdk/react'
 import { Cross2Icon } from '@radix-ui/react-icons'
 import * as React from 'react'
 import { createPortal } from 'react-dom'
 
-import { explainText } from '@/app/actions/explain'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
@@ -12,10 +12,12 @@ import { Spinner } from '@/components/ui/spinner'
 export function TextSelectionToolbar() {
   const [selection, setSelection] = React.useState<string | null>(null)
   const [position, setPosition] = React.useState<{ top: number, left: number } | null>(null)
-  const [explanation, setExplanation] = React.useState<string | null>(null)
-  const [loading, setLoading] = React.useState(false)
   const [mounted, setMounted] = React.useState(false)
   const lastSelectionRef = React.useRef<string | null>(null)
+
+  const { completion, complete, isLoading, setCompletion, error } = useCompletion({
+    api: '/api/explain',
+  })
 
   React.useEffect(() => {
     setMounted(true)
@@ -36,13 +38,13 @@ export function TextSelectionToolbar() {
         })
 
         if (lastSelectionRef.current !== text) {
-          setExplanation(null)
+          setCompletion('')
           lastSelectionRef.current = text
         }
       } else {
         setSelection(null)
         setPosition(null)
-        setExplanation(null)
+        setCompletion('')
         lastSelectionRef.current = null
       }
     }
@@ -51,18 +53,11 @@ export function TextSelectionToolbar() {
     return () => {
       document.removeEventListener('selectionchange', handleSelectionChange)
     }
-  }, [])
+  }, [setCompletion])
 
-  const handleExplain = async () => {
+  const handleExplain = () => {
     if (!selection) return
-    setLoading(true)
-    const result = await explainText(selection)
-    setLoading(false)
-    if (result.success) {
-      setExplanation(result.data || 'No explanation found.')
-    } else {
-      setExplanation('Failed to get explanation.')
-    }
+    complete(selection)
   }
 
   if (!mounted || !selection || !position) return null
@@ -80,20 +75,25 @@ export function TextSelectionToolbar() {
     >
       <Card className="w-64 animate-in shadow-lg duration-200 fade-in zoom-in">
         <CardContent className="p-2">
-          {!explanation ? (
-            <Button size="sm" onClick={handleExplain} disabled={loading} className="h-8 w-full">
-              {loading ? <Spinner className="mr-2 h-3 w-3" /> : null}
-              Explain
-            </Button>
+          {!completion && !isLoading ? (
+            <React.Fragment>
+              <Button size="sm" onClick={handleExplain} disabled={isLoading} className="h-8 w-full">
+                Explain
+              </Button>
+              {error ? <p className="mt-2 text-xs text-red-500">Failed to load explanation.</p> : null}
+            </React.Fragment>
           ) : (
             <div className="max-h-60 overflow-y-auto text-sm">
               <div className="sticky top-0 mb-2 flex items-center justify-between border-b bg-background pb-2">
                 <span className="text-xs font-semibold text-muted-foreground">Explanation</span>
-                <Button variant="ghost" size="icon" className="h-4 w-4" onClick={() => setExplanation(null)}>
+                <Button variant="ghost" size="icon" className="h-4 w-4" onClick={() => { }}>
                   <Cross2Icon />
                 </Button>
               </div>
-              <p className="text-xs leading-relaxed">{explanation}</p>
+              <p className="text-xs leading-relaxed">
+                {completion}
+                {isLoading && <Spinner className="ml-2 inline-block h-3 w-3" />}
+              </p>
             </div>
           )}
         </CardContent>
