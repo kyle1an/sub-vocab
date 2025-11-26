@@ -8,7 +8,7 @@
   "scripts": {
     "build": "next build --turbopack",
     "build:analyze": "ANALYZE=true next build",
-    "dev": "next dev --hostname localhost --turbopack",
+    "dev": "next dev --turbopack",
     "introspect": "pnpm run introspect:drizzle && pnpm run introspect:supabase",
     "introspect:drizzle": "drizzle-kit introspect",
     "introspect:supabase": "dotenv -- sh -c 'supabase gen types --lang=typescript --project-id $PROJECT_REF --schema public > ./types/database.types.ts'",
@@ -91,6 +91,7 @@
     "p-queue": "^9.0.1",
     "pdfjs-dist": "^5.4.394",
     "postgres": "^3.4.7",
+    "re-resizable": "^6.11.2",
     "react": "catalog:",
     "react-aria-components": "^1.13.0",
     "react-chartjs-2": "^5.3.1",
