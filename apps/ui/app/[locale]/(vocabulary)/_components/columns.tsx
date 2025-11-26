@@ -91,7 +91,7 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
                   onClick={(ev) => ev.stopPropagation()}
                 >
                   <HoverCard
-                    openDelay={200}
+                    openDelay={100}
                     closeDelay={100}
                   >
                     <HoverCardTrigger asChild>
@@ -112,7 +112,7 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
                       style={{
                         '--z-index': 999_999_999,
                       }}
-                      className="z-(--z-index) flex size-6 justify-center p-0.5 [[data-radix-popper-content-wrapper]:has(&)]:z-[1991991991]!"
+                      className="z-(--z-index) flex size-6 justify-center p-0.5 [[data-radix-popper-content-wrapper]:has(&)]:z-1991991991!"
                     >
                       <VocabularyMenu
                         word={w}
