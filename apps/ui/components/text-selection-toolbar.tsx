@@ -127,18 +127,24 @@ export function TextSelectionToolbar() {
       }}
       onMouseDown={handleMouseDown}
     >
-      <Card className="w-64 animate-in py-0 shadow-lg duration-200 fade-in zoom-in">
-        <CardContent className="p-2">
+      <Card className="w-64 animate-in overflow-hidden py-0 shadow-lg duration-200 fade-in zoom-in">
+        <CardContent className="p-0">
           {!completion && !isLoading ? (
-            <React.Fragment>
-              <Button size="sm" onClick={handleExplain} disabled={isLoading} className="h-8 w-full">
+            <div className="p-2">
+              <Button
+                size="sm"
+                onClick={handleExplain}
+                onMouseDown={(e) => e.stopPropagation()}
+                disabled={isLoading}
+                className="h-8 w-full"
+              >
                 Explain
               </Button>
               {error ? <p className="mt-2 text-xs text-red-500">Failed to load explanation.</p> : null}
-            </React.Fragment>
+            </div>
           ) : (
             <div className="flex max-h-60 flex-col text-sm">
-              <div className="mb-2 flex shrink-0 items-center justify-between border-b pb-2">
+              <div className="flex shrink-0 items-center justify-between border-b bg-muted/50 px-3 py-2">
                 <span className="text-xs font-semibold text-muted-foreground">Explanation</span>
                 <Button
                   variant="ghost"
@@ -150,7 +156,7 @@ export function TextSelectionToolbar() {
                   <Cross2Icon />
                 </Button>
               </div>
-              <div className="overflow-y-auto text-xs leading-relaxed">
+              <div className="overflow-y-auto p-3 text-xs leading-relaxed">
                 <Streamdown>{completion}</Streamdown>
                 {isLoading && <Spinner className="ml-2 inline-block h-3 w-3" />}
               </div>
