@@ -197,7 +197,7 @@ export function TextSelectionToolbar() {
                     </Button>
                   </div>
                 </div>
-                <div className="flex-1 overflow-y-auto p-3 text-xs leading-relaxed">
+                <div className="flex-1 overflow-y-auto p-3 text-sm leading-relaxed">
                   <Streamdown>{completion}</Streamdown>
                   {isLoading && <Spinner className="ml-2 inline-block h-3 w-3" />}
                 </div>

@@ -391,7 +391,7 @@ function TvNameSubRow<TData extends RowData>({
           alignOffset={-8 - 1}
           avoidCollisions={false}
           hidden={!isEllipsisActive}
-          className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
+          className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:data-[slot=tooltip-arrow]:hidden!"
           style={{
             '--max-width': `${nstr(maxWidth)}px`,
           }}

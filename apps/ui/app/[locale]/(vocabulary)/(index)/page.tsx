@@ -251,7 +251,7 @@ export default function Layout() {
                           alignOffset={-12 - 1}
                           avoidCollisions={false}
                           hidden={!isEllipsisActive}
-                          className="max-w-(--max-width) border bg-background text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
+                          className="max-w-(--max-width) border bg-background text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:data-[slot=tooltip-arrow]:hidden!"
                           style={{
                             '--max-width': `${nstr(isServer ? 0 : window.innerWidth - fileInfoX + 12 - 1)}px`,
                           }}

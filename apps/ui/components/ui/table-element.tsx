@@ -299,7 +299,7 @@ export function TableRow<T>({
                 <CollapsibleContent
                   data-no-anim-open={!animationOpen || undefined}
                   data-no-anim-closed={(isDetailAboveRoot && !open) || undefined}
-                  className="overflow-hidden data-[state=closed]:animate-accordion-up data-[no-anim-closed]:data-[state=closed]:[animation-duration:0s] data-[state=open]:animate-accordion-down data-[no-anim-open]:data-[state=open]:[animation-duration:0s]"
+                  className="overflow-hidden data-[state=closed]:animate-accordion-up data-no-anim-closed:data-[state=closed]:animation-duration-[0s] data-[state=open]:animate-accordion-down data-no-anim-open:data-[state=open]:animation-duration-[0s]"
                 >
                   {children}
                 </CollapsibleContent>
