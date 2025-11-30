@@ -4,6 +4,7 @@ import { useCompletion } from '@ai-sdk/react'
 import { Cross2Icon, StopIcon } from '@radix-ui/react-icons'
 import { Resizable } from 're-resizable'
 import * as React from 'react'
+import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { Streamdown } from 'streamdown'
 
@@ -27,7 +28,7 @@ export function TextSelectionToolbar() {
     api: '/api/explain',
   })
 
-  React.useEffect(() => {
+  useEffect(() => {
     const savedSize = localStorage.getItem('text-selection-toolbar-size')
     if (savedSize) {
       try {
@@ -40,7 +41,7 @@ export function TextSelectionToolbar() {
     setMounted(true)
   }, [])
 
-  React.useEffect(() => {
+  useEffect(() => {
     const controller = new AbortController()
     const handleSelectionChange = () => {
       const sel = window.getSelection()
@@ -77,7 +78,7 @@ export function TextSelectionToolbar() {
     return () => controller.abort()
   }, [setCompletion])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isDragging) return
 
     const controller = new AbortController()
