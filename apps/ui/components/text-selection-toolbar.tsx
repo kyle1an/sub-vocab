@@ -175,7 +175,7 @@ export function TextSelectionToolbar() {
                   onMouseDown={handleMouseDown}
                 >
                   <span className="text-xs font-semibold text-muted-foreground">Explanation</span>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-2">
                     {isLoading && (
                       <Button
                         variant="ghost"
@@ -184,7 +184,7 @@ export function TextSelectionToolbar() {
                         onMouseDown={(e) => e.stopPropagation()}
                         onClick={stop}
                       >
-                        <StopIcon />
+                        <svg className="icon-[solar--stop-circle-bold] size-4.5 text-neutral-600" />
                       </Button>
                     )}
                     <Button

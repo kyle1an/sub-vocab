@@ -96,6 +96,7 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
                   >
                     <HoverCardTrigger asChild>
                       <span
+                        data-vocab-trigger
                         className={clsx(
                           'rounded-lg px-1 py-0.5 transition-colors delay-100 hover:bg-background-focus',
                           i === 0 && src.length >= 1 ? '' : 'text-neutral-500 dark:text-neutral-400',
@@ -105,7 +106,12 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
                       </span>
                     </HoverCardTrigger>
                     <HoverCardContent
-                      container={tbody}
+                      onPointerDownOutside={(e) => {
+                        if (e.target instanceof Element && e.target.closest('[data-vocab-trigger]')) {
+                          e.preventDefault()
+                        }
+                      }}
+                      // container={tbody}
                       side="top"
                       sideOffset={-1}
                       align="end"
