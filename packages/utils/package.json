@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@10.20.0",
+  "packageManager": "pnpm@10.24.0",
   "description": "description",
   "exports": {
     ".": "./src/index.ts",
@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@sub-vocab/shared-types": "workspace:*",
-    "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.2"
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3"
   }
 }
