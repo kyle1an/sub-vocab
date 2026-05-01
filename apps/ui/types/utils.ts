@@ -1,8 +1,8 @@
-import type { CheckedState } from '@radix-ui/react-checkbox'
 import type { Row, RowData } from '@tanstack/react-table'
 import type { PartialDeep } from 'type-fest'
 import type z from 'zod/v4-mini'
 
+export type CheckedState = boolean | 'indeterminate'
 export type RowSelectionChangeFn<TData extends RowData> = (checked: CheckedState, row: Row<TData>, mode?: 'singleRow' | 'singleSubRow') => void
 
 // https://github.com/colinhacks/zod/issues/53#issuecomment-1386446580

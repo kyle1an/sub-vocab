@@ -1,5 +1,4 @@
-import { Slot } from '@radix-ui/react-slot'
-
+import { Slot } from '@/components/ui/slot'
 import { cn } from '@/lib/utils'
 
 export interface DivProps extends

@@ -1,7 +1,8 @@
-import * as SheetPrimitive from '@radix-ui/react-dialog'
+import { Dialog as SheetPrimitive } from '@base-ui/react/dialog'
 import { Cross2Icon as XIcon } from '@radix-ui/react-icons'
 import * as React from 'react'
 
+import { getNativeButtonProp, getRenderChildren, getRenderProp } from '@/components/ui/base-ui-compat'
 import { cn } from '@/lib/utils'
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
@@ -9,15 +10,45 @@ function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
 }
 
 function SheetTrigger({
+  asChild,
+  children,
   ...props
-}: React.ComponentProps<typeof SheetPrimitive.Trigger>) {
-  return <SheetPrimitive.Trigger data-slot="sheet-trigger" {...props} />
+}: Omit<React.ComponentProps<typeof SheetPrimitive.Trigger>, 'render'> & {
+  asChild?: boolean
+}) {
+  const render = getRenderProp(asChild, children)
+
+  return (
+    <SheetPrimitive.Trigger
+      data-slot="sheet-trigger"
+      nativeButton={getNativeButtonProp(asChild, children)}
+      render={render}
+      {...props}
+    >
+      {getRenderChildren(asChild, children)}
+    </SheetPrimitive.Trigger>
+  )
 }
 
 function SheetClose({
+  asChild,
+  children,
   ...props
-}: React.ComponentProps<typeof SheetPrimitive.Close>) {
-  return <SheetPrimitive.Close data-slot="sheet-close" {...props} />
+}: Omit<React.ComponentProps<typeof SheetPrimitive.Close>, 'render'> & {
+  asChild?: boolean
+}) {
+  const render = getRenderProp(asChild, children)
+
+  return (
+    <SheetPrimitive.Close
+      data-slot="sheet-close"
+      nativeButton={getNativeButtonProp(asChild, children)}
+      render={render}
+      {...props}
+    >
+      {getRenderChildren(asChild, children)}
+    </SheetPrimitive.Close>
+  )
 }
 
 function SheetPortal({
@@ -29,12 +60,12 @@ function SheetPortal({
 function SheetOverlay({
   className,
   ...props
-}: React.ComponentProps<typeof SheetPrimitive.Overlay>) {
+}: React.ComponentProps<typeof SheetPrimitive.Backdrop>) {
   return (
-    <SheetPrimitive.Overlay
+    <SheetPrimitive.Backdrop
       data-slot="sheet-overlay"
       className={cn(
-        'fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0',
+        'fixed inset-0 z-50 bg-black/50 opacity-100 transition-opacity duration-200 data-[closed]:opacity-0 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0',
         className,
       )}
       {...props}
@@ -47,34 +78,34 @@ function SheetContent({
   children,
   side = 'right',
   ...props
-}: React.ComponentProps<typeof SheetPrimitive.Content> & {
+}: React.ComponentProps<typeof SheetPrimitive.Popup> & {
   side?: 'top' | 'right' | 'bottom' | 'left'
 }) {
   return (
     <SheetPortal>
       <SheetOverlay />
-      <SheetPrimitive.Content
+      <SheetPrimitive.Popup
         data-slot="sheet-content"
         className={cn(
-          'fixed z-50 flex flex-col gap-4 bg-background shadow-lg transition ease-in-out data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:animate-in data-[state=open]:duration-500',
+          'fixed z-50 flex flex-col gap-4 bg-background shadow-lg transition ease-in-out data-[closed]:animate-out data-[closed]:duration-300 data-[open]:animate-in data-[open]:duration-500',
           side === 'right'
-          && 'inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm',
+          && 'inset-y-0 right-0 h-full w-3/4 border-l data-[closed]:slide-out-to-right data-[open]:slide-in-from-right sm:max-w-sm',
           side === 'left'
-          && 'inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm',
+          && 'inset-y-0 left-0 h-full w-3/4 border-r data-[closed]:slide-out-to-left data-[open]:slide-in-from-left sm:max-w-sm',
           side === 'top'
-          && 'inset-x-0 top-0 h-auto border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top',
+          && 'inset-x-0 top-0 h-auto border-b data-[closed]:slide-out-to-top data-[open]:slide-in-from-top',
           side === 'bottom'
-          && 'inset-x-0 bottom-0 h-auto border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
+          && 'inset-x-0 bottom-0 h-auto border-t data-[closed]:slide-out-to-bottom data-[open]:slide-in-from-bottom',
           className,
         )}
         {...props}
       >
         {children}
-        <SheetPrimitive.Close className="absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-secondary">
+        <SheetPrimitive.Close className="absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[open]:bg-secondary">
           <XIcon className="size-4" />
           <span className="sr-only">Close</span>
         </SheetPrimitive.Close>
-      </SheetPrimitive.Content>
+      </SheetPrimitive.Popup>
     </SheetPortal>
   )
 }

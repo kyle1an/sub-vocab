@@ -1,7 +1,6 @@
 import type { Cell, Renderable, Row, SortDirection, Table } from '@tanstack/react-table'
 import type { ReactElement } from 'react'
 
-import { Slot } from '@radix-ui/react-slot'
 import { useIntersectionObserver } from '@react-hookz/web'
 import { flexRender } from '@tanstack/react-table'
 import clsx from 'clsx'
@@ -16,6 +15,7 @@ import type { RowSelectionChangeFn } from '@/types/utils'
 
 import { SortIcon } from '@/components/my-icon/sort-icon'
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
+import { Slot } from '@/components/ui/slot'
 import { cn } from '@/lib/utils'
 import { useClone, useRect, useRetimer } from '@sub-vocab/utils/hooks'
 
@@ -300,7 +300,7 @@ export function TableRow<T>({
                 <CollapsibleContent
                   data-no-anim-open={!animationOpen || undefined}
                   data-no-anim-closed={(isDetailAboveRoot && !open) || undefined}
-                  className="overflow-hidden data-[state=closed]:animate-accordion-up data-no-anim-closed:data-[state=closed]:animation-duration-0 data-[state=open]:animate-accordion-down data-no-anim-open:data-[state=open]:animation-duration-0"
+                  className="overflow-hidden data-[closed]:animate-accordion-up data-no-anim-closed:data-[closed]:animation-duration-0 data-[open]:animate-accordion-down data-no-anim-open:data-[open]:animation-duration-0"
                 >
                   {children}
                 </CollapsibleContent>

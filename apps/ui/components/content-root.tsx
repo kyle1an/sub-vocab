@@ -1,7 +1,6 @@
-import { Slot } from '@radix-ui/react-slot'
-
 import type { DivProps } from '@/components/ui/html-elements'
 
+import { Slot } from '@/components/ui/slot'
 import { cn } from '@/lib/utils'
 
 export function ContentRoot({

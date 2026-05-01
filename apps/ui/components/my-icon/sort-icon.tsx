@@ -1,8 +1,8 @@
 import type { SortDirection } from '@tanstack/react-table'
 
-import { Slot } from '@radix-ui/react-slot'
 import clsx from 'clsx'
 
+import { Slot } from '@/components/ui/slot'
 import { cn } from '@/lib/utils'
 
 export function SortIcon({

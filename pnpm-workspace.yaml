@@ -1,3 +1,14 @@
+
+packages:
+  - packages/*
+  - apps/*
+
+catalog:
+  '@base-ui/react': ^1.4.1
+  jotai: ^2.19.1
+  jotai-effect: ^2.2.3
+  jotai-family: ^1.0.1
+  react: ^19.2.5
 catalogMode: prefer
 cleanupUnusedCatalogs: true
 
@@ -5,13 +16,5 @@ minimumReleaseAge: 10080
 
 shellEmulator: true
 trustPolicy: no-downgrade
-
-packages:
-  - packages/*
-  - apps/*
-
-catalog:
-  jotai: ^2.19.1
-  jotai-effect: ^2.2.3
-  jotai-family: ^1.0.1
-  react: ^19.2.5
+trustPolicyExclude:
+  - reselect

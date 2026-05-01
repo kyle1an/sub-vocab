@@ -1,4 +1,7 @@
-import * as CollapsiblePrimitive from '@radix-ui/react-collapsible'
+import { Collapsible as CollapsiblePrimitive } from '@base-ui/react/collapsible'
+import type * as React from 'react'
+
+import { getNativeButtonProp, getRenderChildren, getRenderProp } from '@/components/ui/base-ui-compat'
 
 function Collapsible({
   ...props
@@ -7,21 +10,31 @@ function Collapsible({
 }
 
 function CollapsibleTrigger({
+  asChild,
+  children,
   ...props
-}: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleTrigger>) {
+}: Omit<React.ComponentProps<typeof CollapsiblePrimitive.Trigger>, 'render'> & {
+  asChild?: boolean
+}) {
+  const render = getRenderProp(asChild, children)
+
   return (
-    <CollapsiblePrimitive.CollapsibleTrigger
+    <CollapsiblePrimitive.Trigger
       data-slot="collapsible-trigger"
+      nativeButton={getNativeButtonProp(asChild, children)}
+      render={render}
       {...props}
-    />
+    >
+      {getRenderChildren(asChild, children)}
+    </CollapsiblePrimitive.Trigger>
   )
 }
 
 function CollapsibleContent({
   ...props
-}: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleContent>) {
+}: React.ComponentProps<typeof CollapsiblePrimitive.Panel>) {
   return (
-    <CollapsiblePrimitive.CollapsibleContent
+    <CollapsiblePrimitive.Panel
       data-slot="collapsible-content"
       {...props}
     />

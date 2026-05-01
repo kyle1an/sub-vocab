@@ -4,7 +4,6 @@ import type { VariantProps } from 'class-variance-authority'
 import type { SetStateAction } from 'react'
 
 import { ViewVerticalIcon as PanelLeftIcon } from '@radix-ui/react-icons'
-import { Slot } from '@radix-ui/react-slot'
 import { useCookieValue } from '@react-hookz/web/useCookieValue/index.js'
 import { cva } from 'class-variance-authority'
 import clsx from 'clsx'
@@ -25,6 +24,7 @@ import {
 } from '@/components/ui/sheet'
 import { SIDEBAR_COOKIE_NAME, SidebarContext, useSidebar } from '@/components/ui/sidebar.var'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Slot } from '@/components/ui/slot'
 import {
   Tooltip,
   TooltipContent,

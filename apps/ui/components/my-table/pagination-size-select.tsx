@@ -26,9 +26,20 @@ export function TablePaginationSizeSelect<T>({
   value: number
 }) {
   const itemsNum = uniq([table.getFilteredRowModel().rows.length]).filter(Boolean).filter((n) => !sizes.includes(n) && n > Math.min(...sizes))
+  const hasPageSizeItem = [...sizes, ...itemsNum].includes(pageSize)
+  const selectItems = [
+    ...sizes,
+    ...(hasPageSizeItem ? [] : [pageSize]),
+    ...itemsNum,
+  ].map((size) => ({
+    label: size.toLocaleString('en-US'),
+    value: String(size),
+  }))
+
   return (
     <Select
       defaultValue={String(pageSize)}
+      items={selectItems}
       onValueChange={(e) => {
         table.setPageSize(Number(e))
       }}
@@ -50,7 +61,7 @@ export function TablePaginationSizeSelect<T>({
             />
           ))}
         </SelectGroup>
-        {![...sizes, ...itemsNum].includes(pageSize) ? (
+        {!hasPageSizeItem ? (
           <Fragment>
             <SelectSeparator />
             <SelectGroup>

@@ -1,7 +1,5 @@
 'use client'
 
-import type { CheckedState } from '@radix-ui/react-checkbox'
-
 import { isEqual } from 'es-toolkit'
 import { useAtom, useAtomValue } from 'jotai'
 import { useQueryState } from 'nuqs'
@@ -9,6 +7,7 @@ import { Suspense } from 'react'
 import { useImmer } from 'use-immer'
 
 import type { FileType } from '@/atoms/file-types'
+import type { CheckedState } from '@/types/utils'
 
 import { fileTypesAtom } from '@/atoms/file-types'
 import { Button } from '@/components/ui/button'
