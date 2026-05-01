@@ -109,4 +109,10 @@ export default typegen(antfu(
       '**/eslint-typegen.d.ts',
     ],
   },
+  {
+    rules: {
+      'pnpm/json-enforce-catalog': 'off',
+      'pnpm/json-prefer-workspace-settings': 'off',
+    },
+  },
 ))

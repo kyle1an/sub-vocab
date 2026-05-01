@@ -8,7 +8,8 @@ import clsx from 'clsx'
 import { sum } from 'es-toolkit'
 import ms from 'ms'
 import nstr from 'nstr'
-import React, { Fragment, useRef, useState } from 'react'
+import * as React from 'react'
+import { Fragment, useRef, useState } from 'react'
 
 import type { DivProps } from '@/components/ui/html-elements'
 import type { RowSelectionChangeFn } from '@/types/utils'
@@ -299,7 +300,7 @@ export function TableRow<T>({
                 <CollapsibleContent
                   data-no-anim-open={!animationOpen || undefined}
                   data-no-anim-closed={(isDetailAboveRoot && !open) || undefined}
-                  className="overflow-hidden data-[state=closed]:animate-accordion-up data-[no-anim-closed]:data-[state=closed]:[animation-duration:0s] data-[state=open]:animate-accordion-down data-[no-anim-open]:data-[state=open]:[animation-duration:0s]"
+                  className="overflow-hidden data-[state=closed]:animate-accordion-up data-no-anim-closed:data-[state=closed]:animation-duration-0 data-[state=open]:animate-accordion-down data-no-anim-open:data-[state=open]:animation-duration-0"
                 >
                   {children}
                 </CollapsibleContent>

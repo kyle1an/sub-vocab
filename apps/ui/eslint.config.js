@@ -16,6 +16,16 @@ export default typegen(antfu(
     react: true,
     stylistic: false,
   },
+  {
+    name: 'ui/type-aware-linting',
+    files: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts'],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: __dirname,
+      },
+    },
+  },
   configs,
   {
     name: 'ui/perfectionist',

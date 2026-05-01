@@ -19,6 +19,8 @@
     "chartjs",
     "clsx",
     "cmdk",
+    "esbuild",
+    "fastify",
     "fkey",
     "foxact",
     "healthcheck",
@@ -59,6 +61,7 @@
     "vaul",
     "vercel",
     "VITE",
+    "vitest",
     "ying",
     "zustand"
   ],

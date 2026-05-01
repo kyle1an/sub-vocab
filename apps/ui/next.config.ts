@@ -6,6 +6,7 @@ import { withSentryConfig } from '@sentry/nextjs'
 const nextConfig: NextConfig = {
   reactCompiler: true,
   transpilePackages: ['jotai-devtools'],
+  productionBrowserSourceMaps: process.env.VERCEL_ENV !== 'production',
   turbopack: {
     rules: {
       '*.svg': {

@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import React, { Fragment } from 'react'
+import * as React from 'react'
+import { Fragment } from 'react'
 
 import { NavPathname } from '@/components/NavPathname'
 import {

@@ -31,7 +31,7 @@ function SentenceCopy({
           className={cn('icon-[bx--bxs-error-circle] text-red-500', error ? '' : 'hidden')}
         />
         <svg
-          className={cn('icon-[ooui--copy-ltr] opacity-0 transition-opacity delay-50 duration-100 [[data-state=open]_&]:group-hover:opacity-100', copied || error ? 'hidden' : '')}
+          className={cn('icon-[ooui--copy-ltr] opacity-0 transition-opacity delay-50 duration-100 in-data-[state=open]:group-hover:opacity-100', copied || error ? 'hidden' : '')}
         />
       </div>
     </Button>
@@ -57,11 +57,11 @@ export function ExampleSentence({
         return (
           <div
             key={sentenceId}
-            className="group flex items-stretch gap-1 break-words [word-break:break-word] transition-colors duration-150 hover:text-black dark:text-neutral-500 dark:hover:text-neutral-300"
+            className="group flex items-stretch gap-1 wrap-break-word [word-break:break-word] transition-colors duration-150 hover:text-black dark:text-neutral-500 dark:hover:text-neutral-300"
           >
             <Button
               variant="ghost"
-              className="flex h-auto min-w-(--leading) items-start p-0 opacity-0 transition-opacity delay-50 duration-100 [[data-state=open]_&]:group-hover:opacity-100"
+              className="flex h-auto min-w-(--leading) items-start p-0 opacity-0 transition-opacity delay-50 duration-100 in-data-[state=open]:group-hover:opacity-100"
               onClick={() => onSentenceTrack(sentenceId)}
             >
               <div className="flex size-(--leading) items-center justify-center pl-[.5px]">

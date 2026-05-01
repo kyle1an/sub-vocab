@@ -20,6 +20,52 @@ import { bindApply, downloadFile, omitUndefined } from '@sub-vocab/utils/lib'
 
 const baseUrl = env.NEXT_PUBLIC_SUB_API_URL
 
+const OS_MAX_RETRIES = 4
+
+const getErrorStatusCode = (error: unknown): number | undefined => {
+  if (!error || typeof error !== 'object') {
+    return undefined
+  }
+
+  const statusCode = Reflect.get(error, 'statusCode')
+  if (typeof statusCode === 'number') {
+    return statusCode
+  }
+
+  const status = Reflect.get(error, 'status')
+  if (typeof status === 'number') {
+    return status
+  }
+
+  const response = Reflect.get(error, 'response')
+  if (!response || typeof response !== 'object') {
+    return undefined
+  }
+
+  const responseStatus = Reflect.get(response, 'status')
+  if (typeof responseStatus === 'number') {
+    return responseStatus
+  }
+}
+
+const shouldRetryOsRequest = (failureCount: number, error: unknown) => {
+  if (failureCount >= OS_MAX_RETRIES) {
+    return false
+  }
+
+  const statusCode = getErrorStatusCode(error)
+
+  if (statusCode === undefined) {
+    return true
+  }
+
+  if (statusCode >= 400 && statusCode < 500) {
+    return false
+  }
+
+  return statusCode >= 500
+}
+
 const fetchClient = createFetchClient<os.paths>({
   baseUrl: `${baseUrl}/opensubtitles-proxy/def`,
 })
@@ -79,6 +125,7 @@ export const openSubtitlesQueryOptionsAtom = atom((get) => {
         headers,
       }),
       select: (data) => data.data,
+      retry: shouldRetryOsRequest,
     })
   }
 })
@@ -133,7 +180,7 @@ const requestSubtitleURLAtom = atomWithMutation((get) => {
         Authorization: get(opensubtitlesAuthorizationAtom),
       }),
     }),
-    retry: 4,
+    retry: shouldRetryOsRequest,
   }
 })
 
@@ -141,7 +188,7 @@ const fileAtom = atomWithMutation(() => {
   return {
     mutationKey: ['fileAtom'] as const,
     mutationFn: identity(bindApply(ofetch<string, 'text'>)),
-    retry: 4,
+    retry: shouldRetryOsRequest,
   }
 })
 
@@ -149,7 +196,7 @@ const downloadFileByLinkAtom = atomWithMutation(() => {
   return {
     mutationKey: ['downloadFileByLinkAtom'] as const,
     mutationFn: identity(bindApply(downloadFile)),
-    retry: 4,
+    retry: shouldRetryOsRequest,
   }
 })
 
@@ -164,7 +211,7 @@ export const openSubtitlesTextAtom = atomWithMutation((get) => {
         text,
       }
     },
-    retry: 4,
+    retry: shouldRetryOsRequest,
   }
 })
 
@@ -175,6 +222,6 @@ export const openSubtitlesDownloadAtom = atomWithMutation((get) => {
       const file = await withHighPriorityOsQueue(get(requestSubtitleURLAtom).mutateAsync)(body)
       await withNormalPriorityOsQueue(get(downloadFileByLinkAtom).mutateAsync)([file.link, file.file_name])
     },
-    retry: 4,
+    retry: shouldRetryOsRequest,
   }
 })

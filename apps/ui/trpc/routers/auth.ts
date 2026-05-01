@@ -76,13 +76,13 @@ export const userRouter = createTRPCRouter({
         error: null,
       })),
       Effect.tapError(Console.error),
-      Effect.catchAll((error) => Effect.succeed({
+      Effect.catch((error) => Effect.succeed({
         data: null,
         error: {
           message: error.message,
         },
       })),
-      Effect.ensureErrorType<never>(),
+      Effect.satisfiesErrorType<never>(),
       Effect.runPromise,
     )),
 })

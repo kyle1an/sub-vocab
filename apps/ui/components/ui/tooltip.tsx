@@ -9,7 +9,6 @@ function TooltipProvider({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
   return (
-    // eslint-disable-next-line react/no-context-provider
     <TooltipPrimitive.Provider
       data-slot="tooltip-provider"
       delayDuration={delayDuration}
@@ -31,7 +30,9 @@ function Tooltip({
 function TooltipTrigger({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
-  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />
+  return (
+    <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />
+  )
 }
 
 function TooltipContent({
@@ -59,8 +60,8 @@ function TooltipContent({
         <TooltipPrimitive.Arrow
           data-slot="tooltip-arrow"
           className={clsx(
-            'z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] bg-primary fill-primary',
-            'sq:rounded-[.25rem]',
+            'z-50 size-2.5 translate-y-[calc(-50%-2px)] rotate-45 rounded-[2px] bg-primary fill-primary',
+            'sq:rounded-[.251rem]',
           )}
         />
       </TooltipPrimitive.Content>

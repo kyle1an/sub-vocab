@@ -95,7 +95,7 @@ export function VocabStatics({
             <div className="flex justify-center *:[--CircularProgress-size:16px]!">
               <AnimatedCircularProgressBar
                 value={percentage}
-                className="text-md size-3 [--stroke-primary:var(--muted-foreground)] [--stroke-secondary:var(--border)] *:[[data-current-value]]:hidden"
+                className="text-md size-3 [--stroke-primary:var(--muted-foreground)] [--stroke-secondary:var(--border)] *:data-current-value:hidden"
               />
             </div>
             <span className="text-neutral-300 dark:text-neutral-600">)</span>

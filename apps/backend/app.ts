@@ -12,6 +12,7 @@ await app.register(cors, {
   exposedHeaders: ['set-cookie'],
 })
 
+// https://92500a62-df9e-42ed-82a4-e6b3eeb89365.site.hbuptime.com/
 ;[
   {
     path: '/def',
@@ -31,7 +32,9 @@ await app.register(cors, {
   upstream: target.href,
   prefix: `/opensubtitles-proxy${path}`,
   replyOptions: {
-    rewriteRequestHeaders: (request, headers) => ({
+    // Observed on dev: forwarding browser Origin can trigger
+    // upstream 503 "VCL failed" (Varnish), so strip Origin.
+    rewriteRequestHeaders: (request, { origin, ...headers }) => ({
       ...headers,
       'user-agent': env.APP_NAME__V_APP_VERSION,
       'api-key': env.OPENSUBTITLES_API_KEY,

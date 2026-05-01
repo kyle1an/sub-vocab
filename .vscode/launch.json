@@ -20,7 +20,7 @@
       "runtimeArgs": ["run-script", "test"],
       "console": "integratedTerminal",
       "runtimeExecutable": "npm",
-      "runtimeVersion": "22",
+      "runtimeVersion": "24",
       "outputCapture": "std"
     },
     {
@@ -37,7 +37,7 @@
       ],
       "console": "integratedTerminal",
       "runtimeExecutable": "npm",
-      "runtimeVersion": "22",
+      "runtimeVersion": "24",
       "runtimeArgs": ["run-script", "dev"]
     },
     {
@@ -60,7 +60,7 @@
       ],
       "console": "integratedTerminal",
       "runtimeExecutable": "npm",
-      "runtimeVersion": "22",
+      "runtimeVersion": "24",
       "runtimeArgs": ["run-script", "dev"]
     },
     {

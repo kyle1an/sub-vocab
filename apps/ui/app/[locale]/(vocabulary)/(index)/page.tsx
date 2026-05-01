@@ -9,10 +9,9 @@ import { pipe } from 'effect'
 import { atom, useAtom, useAtomValue } from 'jotai'
 import Link from 'next/link'
 import nstr from 'nstr'
-import React, { Fragment, useDeferredValue, useRef } from 'react'
+import * as React from 'react'
+import { Fragment, useDeferredValue, useEffectEvent, useRef } from 'react'
 import getCaretCoordinates from 'textarea-caret'
-// https://github.com/vercel/next.js/issues/84462
-import { useEffectEvent } from 'use-effect-event'
 
 import type { Sentence } from '@/app/[locale]/(vocabulary)/_lib/LexiconTrie'
 import type { VocabularySourceData } from '@/app/[locale]/(vocabulary)/_lib/vocab'
@@ -251,7 +250,7 @@ export default function Layout() {
                           alignOffset={-12 - 1}
                           avoidCollisions={false}
                           hidden={!isEllipsisActive}
-                          className="max-w-(--max-width) border bg-background text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:[[data-slot=tooltip-arrow]]:hidden!"
+                          className="max-w-(--max-width) border bg-background text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:data-[slot=tooltip-arrow]:hidden!"
                           style={{
                             '--max-width': `${nstr(isServer ? 0 : window.innerWidth - fileInfoX + 12 - 1)}px`,
                           }}
