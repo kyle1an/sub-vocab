@@ -1,6 +1,8 @@
 catalogMode: prefer
 cleanupUnusedCatalogs: true
 
+minimumReleaseAge: 10080
+
 shellEmulator: true
 trustPolicy: no-downgrade
 
@@ -9,6 +11,7 @@ packages:
   - apps/*
 
 catalog:
-  jotai: ^2.18.0
+  jotai: ^2.19.1
   jotai-effect: ^2.2.3
-  react: ^19.2.4
+  jotai-family: ^1.0.1
+  react: ^19.2.5

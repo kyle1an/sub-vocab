@@ -1,4 +1,4 @@
-import type { AtomFamily } from 'jotai/vanilla/utils/atomFamily'
+import type { AtomFamily } from 'jotai-family'
 
 import { useResizeObserver } from '@react-hookz/web'
 import { clone, identity } from 'es-toolkit'

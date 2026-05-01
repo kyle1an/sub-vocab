@@ -4,7 +4,7 @@ import { pipe } from 'effect'
 import { noop } from 'es-toolkit'
 import { atom } from 'jotai'
 import { withAtomEffect } from 'jotai-effect'
-import { atomFamily } from 'jotai/utils'
+import { atomFamily } from 'jotai-family'
 
 import type { AppendParameters } from '../lib/utilities'
 

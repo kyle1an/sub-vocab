@@ -1,5 +1,5 @@
 import { pipe } from 'effect'
-import { atomFamily } from 'jotai/utils'
+import { atomFamily } from 'jotai-family'
 
 import { atomWithMediaQuery, withUnmountCallbackAtom, withUseA } from './utils'
 

@@ -2,7 +2,7 @@ import type { Atom } from 'jotai'
 
 import { pipe } from 'effect'
 import { atom, createStore } from 'jotai'
-import { atomFamily } from 'jotai/utils'
+import { atomFamily } from 'jotai-family'
 
 import { withUseA } from '@sub-vocab/utils/atoms'
 import { tap } from '@sub-vocab/utils/lib'
