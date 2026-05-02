@@ -1,7 +1,6 @@
 import { Tooltip as TooltipPrimitive } from '@base-ui/react/tooltip'
 import * as React from 'react'
 
-import { getRenderChildren, getRenderProp } from '@/components/ui/base-ui-compat'
 import { cn } from '@/lib/utils'
 
 type PositionerProps = Pick<
@@ -51,22 +50,13 @@ function Tooltip({
 }
 
 function TooltipTrigger({
-  asChild,
-  children,
   ...props
-}: Omit<React.ComponentProps<typeof TooltipPrimitive.Trigger>, 'render'> & {
-  asChild?: boolean
-}) {
-  const render = getRenderProp(asChild, children)
-
+}: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
   return (
     <TooltipPrimitive.Trigger
       data-slot="tooltip-trigger"
-      render={render}
       {...props}
-    >
-      {getRenderChildren(asChild, children)}
-    </TooltipPrimitive.Trigger>
+    />
   )
 }
 
@@ -140,14 +130,14 @@ function TooltipContent({
           ref={popupRef}
           data-slot="tooltip-content"
           className={cn(
-            'z-50 flex w-fit origin-(--transform-origin) flex-col rounded-md bg-[canvas] px-2 py-1 text-sm text-[canvastext] [color-scheme:light] shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-ending-style:scale-90 data-ending-style:opacity-0 data-instant:transition-none data-starting-style:scale-90 data-starting-style:opacity-0 dark:[color-scheme:dark] dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300',
+            'z-50 flex w-fit origin-(--transform-origin) flex-col rounded-md bg-[canvas] px-2 py-1 text-sm text-[canvastext] scheme-light shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-ending-style:scale-90 data-ending-style:opacity-0 data-instant:transition-none data-starting-style:scale-90 data-starting-style:opacity-0 dark:scheme-dark dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300',
             className,
           )}
           {...props}
         >
           <TooltipPrimitive.Arrow
             data-slot="tooltip-arrow"
-            className="flex data-[side=bottom]:-top-2 data-[side=bottom]:rotate-0 data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:-bottom-2 data-[side=top]:rotate-180"
+            className="flex data-[side=bottom]:-top-2 data-[side=bottom]:rotate-0 data-[side=left]:-right-3.25 data-[side=left]:rotate-90 data-[side=right]:-left-3.25 data-[side=right]:-rotate-90 data-[side=top]:-bottom-2 data-[side=top]:rotate-180"
           >
             <TooltipArrowSvg />
           </TooltipPrimitive.Arrow>

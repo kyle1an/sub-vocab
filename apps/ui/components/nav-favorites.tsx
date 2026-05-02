@@ -50,12 +50,14 @@ export function NavFavorites({
               </a>
             </SidebarMenuButton>
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuAction showOnHover>
-                  <DotsHorizontalIcon />
-                  <span className="sr-only">More</span>
-                </SidebarMenuAction>
-              </DropdownMenuTrigger>
+              <DropdownMenuTrigger
+                render={(
+                  <SidebarMenuAction showOnHover>
+                    <DotsHorizontalIcon />
+                    <span className="sr-only">More</span>
+                  </SidebarMenuAction>
+                )}
+              />
               <DropdownMenuContent
                 className="w-56 rounded-lg"
                 side={isMobile ? 'bottom' : 'right'}

@@ -94,16 +94,18 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
                     openDelay={200}
                     closeDelay={100}
                   >
-                    <HoverCardTrigger asChild>
-                      <span
-                        className={clsx(
-                          'rounded-lg px-1 py-0.5 transition-colors delay-100 hover:bg-background-focus',
-                          i === 0 && src.length >= 1 ? '' : 'text-neutral-500 dark:text-neutral-400',
-                        )}
-                      >
-                        {w}
-                      </span>
-                    </HoverCardTrigger>
+                    <HoverCardTrigger
+                      render={(
+                        <span
+                          className={clsx(
+                            'rounded-lg px-1 py-0.5 transition-colors delay-100 hover:bg-background-focus',
+                            i === 0 && src.length >= 1 ? '' : 'text-neutral-500 dark:text-neutral-400',
+                          )}
+                        >
+                          {w}
+                        </span>
+                      )}
+                    />
                     <HoverCardContent
                       container={tbody}
                       side="top"

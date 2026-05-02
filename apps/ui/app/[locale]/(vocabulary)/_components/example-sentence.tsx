@@ -23,7 +23,7 @@ function SentenceCopy({
       )}
       onClick={() => copy(sentence)}
     >
-      <div className="flex size-(--leading) items-center justify-center *:size-[11px]!">
+      <div className="flex size-(--leading) items-center justify-center *:size-2.75!">
         <svg
           className={cn('icon-[mingcute--check-fill]', copied ? '' : 'hidden')}
         />
@@ -66,7 +66,7 @@ export function ExampleSentence({
             >
               <div className="flex size-(--leading) items-center justify-center pl-[.5px]">
                 <svg
-                  className="icon-[iconamoon--arrow-right-1-bold] size-[11px]"
+                  className="icon-[iconamoon--arrow-right-1-bold] size-2.75"
                 />
               </div>
             </Button>

@@ -10,20 +10,20 @@ export function VocabularyMenu({
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label="vocabulary menu"
-        asChild
-      >
-        <Button
-          className="flex max-h-full gap-1 p-2! [--sq-r:.75rem]"
-          variant="ghost"
-        >
-          <svg
-            className="icon-[ion--ellipsis-horizontal-circle-outline] size-[19px]"
-          />
-          <svg
-            className="icon-[lucide--chevron-down] size-3.5"
-          />
-        </Button>
-      </DropdownMenuTrigger>
+        render={(
+          <Button
+            className="flex max-h-full gap-1 p-2! [--sq-r:.75rem]"
+            variant="ghost"
+          >
+            <svg
+              className="icon-[ion--ellipsis-horizontal-circle-outline] size-4.75"
+            />
+            <svg
+              className="icon-[lucide--chevron-down] size-3.5"
+            />
+          </Button>
+        )}
+      />
       <DropdownMenuContent
         className="w-52"
         align="start"

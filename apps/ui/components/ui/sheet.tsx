@@ -2,7 +2,6 @@ import { Dialog as SheetPrimitive } from '@base-ui/react/dialog'
 import { Cross2Icon as XIcon } from '@radix-ui/react-icons'
 import * as React from 'react'
 
-import { getNativeButtonProp, getRenderChildren, getRenderProp } from '@/components/ui/base-ui-compat'
 import { cn } from '@/lib/utils'
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
@@ -10,44 +9,24 @@ function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
 }
 
 function SheetTrigger({
-  asChild,
-  children,
   ...props
-}: Omit<React.ComponentProps<typeof SheetPrimitive.Trigger>, 'render'> & {
-  asChild?: boolean
-}) {
-  const render = getRenderProp(asChild, children)
-
+}: React.ComponentProps<typeof SheetPrimitive.Trigger>) {
   return (
     <SheetPrimitive.Trigger
       data-slot="sheet-trigger"
-      nativeButton={getNativeButtonProp(asChild, children)}
-      render={render}
       {...props}
-    >
-      {getRenderChildren(asChild, children)}
-    </SheetPrimitive.Trigger>
+    />
   )
 }
 
 function SheetClose({
-  asChild,
-  children,
   ...props
-}: Omit<React.ComponentProps<typeof SheetPrimitive.Close>, 'render'> & {
-  asChild?: boolean
-}) {
-  const render = getRenderProp(asChild, children)
-
+}: React.ComponentProps<typeof SheetPrimitive.Close>) {
   return (
     <SheetPrimitive.Close
       data-slot="sheet-close"
-      nativeButton={getNativeButtonProp(asChild, children)}
-      render={render}
       {...props}
-    >
-      {getRenderChildren(asChild, children)}
-    </SheetPrimitive.Close>
+    />
   )
 }
 
@@ -87,21 +66,21 @@ function SheetContent({
       <SheetPrimitive.Popup
         data-slot="sheet-content"
         className={cn(
-          'fixed z-50 flex flex-col gap-4 bg-background shadow-lg transition ease-in-out data-[closed]:animate-out data-[closed]:duration-300 data-[open]:animate-in data-[open]:duration-500',
+          'fixed z-50 flex flex-col gap-4 bg-background shadow-lg transition ease-in-out data-closed:animate-out data-closed:duration-300 data-open:animate-in data-open:duration-500',
           side === 'right'
-          && 'inset-y-0 right-0 h-full w-3/4 border-l data-[closed]:slide-out-to-right data-[open]:slide-in-from-right sm:max-w-sm',
+          && 'inset-y-0 right-0 h-full w-3/4 border-l data-closed:slide-out-to-right data-open:slide-in-from-right sm:max-w-sm',
           side === 'left'
-          && 'inset-y-0 left-0 h-full w-3/4 border-r data-[closed]:slide-out-to-left data-[open]:slide-in-from-left sm:max-w-sm',
+          && 'inset-y-0 left-0 h-full w-3/4 border-r data-closed:slide-out-to-left data-open:slide-in-from-left sm:max-w-sm',
           side === 'top'
-          && 'inset-x-0 top-0 h-auto border-b data-[closed]:slide-out-to-top data-[open]:slide-in-from-top',
+          && 'inset-x-0 top-0 h-auto border-b data-closed:slide-out-to-top data-open:slide-in-from-top',
           side === 'bottom'
-          && 'inset-x-0 bottom-0 h-auto border-t data-[closed]:slide-out-to-bottom data-[open]:slide-in-from-bottom',
+          && 'inset-x-0 bottom-0 h-auto border-t data-closed:slide-out-to-bottom data-open:slide-in-from-bottom',
           className,
         )}
         {...props}
       >
         {children}
-        <SheetPrimitive.Close className="absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[open]:bg-secondary">
+        <SheetPrimitive.Close className="absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-open:bg-secondary">
           <XIcon className="size-4" />
           <span className="sr-only">Close</span>
         </SheetPrimitive.Close>

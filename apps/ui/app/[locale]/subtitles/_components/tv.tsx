@@ -503,6 +503,13 @@ export function TVSubtitleFiles({
     },
   ))
   const seasons = (seriesDetail?.seasons ?? []).filter((season) => season.season_number >= 1)
+  const seasonItems = [
+    { label: 'All Seasons', value: 'all' },
+    ...seasons.map((season) => ({
+      label: `Season ${season.season_number}`,
+      value: String(season.season_number),
+    })),
+  ]
   const { data: episodes } = useQueries({
     queries: seasons.map((season) => $api.queryOptions(
       'get',
@@ -629,6 +636,7 @@ export function TVSubtitleFiles({
           <div>
             <div className="flex h-9 gap-1.5 p-1.5">
               <Select
+                items={seasonItems}
                 value={filterEpisode}
                 onValueChange={(e) => {
                   setMediaSubtitleState((draft) => {

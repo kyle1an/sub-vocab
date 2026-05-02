@@ -40,7 +40,7 @@ function FileSettingsContent({
                 pressed={checked}
                 variant="outline"
                 aria-label="Regular expression"
-                className="size-fit min-w-[35px] px-1.5 py-1 text-muted-foreground"
+                className="size-fit min-w-8.75 px-1.5 py-1 text-muted-foreground"
                 onPressedChange={(pressed) => {
                   setFileType(fileType, pressed)
                 }}
@@ -109,11 +109,9 @@ export function Settings() {
       >
         <DialogTrigger
           aria-label="file-settings"
-          asChild
-        >
-          {Trigger}
-        </DialogTrigger>
-        <DialogContent className="flex max-h-[calc(100vh-1rem)] flex-col gap-0 sm:max-w-[425px]">
+          render={Trigger}
+        />
+        <DialogContent className="flex max-h-[calc(100vh-1rem)] flex-col gap-0 sm:max-w-106.25">
           <DialogHeader className="pb-2">
             <DialogTitle>{FILE_SETTINGS_TITLE}</DialogTitle>
             <DialogDescription>
@@ -129,11 +127,13 @@ export function Settings() {
           </div>
           <Separator />
           <DialogFooter className="pt-3">
-            <DialogClose asChild>
-              <Button variant="outline">
-                Cancel
-              </Button>
-            </DialogClose>
+            <DialogClose
+              render={(
+                <Button variant="outline">
+                  Cancel
+                </Button>
+              )}
+            />
             <Button
               type="submit"
               disabled={settingsUnchanged}

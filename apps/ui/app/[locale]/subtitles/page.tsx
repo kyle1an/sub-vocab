@@ -438,6 +438,10 @@ export default function Subtitles() {
       (language) => language.language_code,
     ).sort((a, b) => a.language_name.localeCompare(b.language_name)),
   ]
+  const languageItems = languageOptions.map((language) => ({
+    label: language.language_name,
+    value: language.language_code,
+  }))
   const tvAndMovieResults = queryEnabled ? (multiData?.results ?? []).filter(({ media_type }) => media_type === 'tv' || media_type === 'movie') : []
   const table = useClone(useReactTable({
     data: tvAndMovieResults,
@@ -549,17 +553,19 @@ export default function Subtitles() {
           </Button>
           <div className="grow" />
           <Popover>
-            <PopoverTrigger className="h-8" asChild>
-              <Button
-                variant="ghost"
-                className="gap-1.5 px-3"
-              >
-                <svg className="icon-[oui--token-key] min-w-[1em]" />
-                <span className="hidden md:block">
-                  OpenSubtitles
-                </span>
-              </Button>
-            </PopoverTrigger>
+            <PopoverTrigger
+              render={(
+                <Button
+                  variant="ghost"
+                  className="h-8 gap-1.5 px-3"
+                >
+                  <svg className="icon-[oui--token-key] min-w-[1em]" />
+                  <span className="hidden md:block">
+                    OpenSubtitles
+                  </span>
+                </Button>
+              )}
+            />
             <PopoverContent className="w-72 [--sq-r:1.75rem]">
               <OpensubtitlesAuthentication />
             </PopoverContent>
@@ -609,6 +615,7 @@ export default function Subtitles() {
                 />
               </div>
               <Select
+                items={languageItems}
                 value={language}
                 onValueChange={(e) => {
                   setLanguage(e)

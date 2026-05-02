@@ -39,7 +39,7 @@ export function SearchWidget({
   return (
     <div
       className={cn(
-        'flex max-w-48 flex-row items-center gap-1 overflow-visible rounded-md border p-1.5 pr-[.3125rem] dark:text-neutral-400',
+        'flex max-w-48 flex-row items-center gap-1 overflow-visible rounded-md border p-1.5 pr-1.25 dark:text-neutral-400',
         'shadow-xs [--sq-r:.75rem] sq:rounded-(--sq-r) sq:shadow-none sq:drop-shadow-xs',
         'transition-[color,box-shadow,border-color] has-[>:focus]:border-ring has-[>:focus]:ring-[3px] has-[>:focus]:ring-ring/50',
         className,
@@ -64,7 +64,7 @@ export function SearchWidget({
       />
       {value ? (
         <svg
-          className="icon-[ep--circle-close-filled] size-[17px] text-neutral-700 dark:text-neutral-300"
+          className="icon-[ep--circle-close-filled] size-4.25 text-neutral-700 dark:text-neutral-300"
           onClick={() => {
             onSearch('')
           }}

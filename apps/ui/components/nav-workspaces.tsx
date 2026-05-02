@@ -46,14 +46,16 @@ export function NavWorkspaces({
                     <span>{workspace.name}</span>
                   </a>
                 </SidebarMenuButton>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuAction
-                    className="left-2 bg-sidebar-accent text-sidebar-accent-foreground data-[panel-open]:rotate-90"
-                    showOnHover
-                  >
-                    <ChevronRightIcon />
-                  </SidebarMenuAction>
-                </CollapsibleTrigger>
+                <CollapsibleTrigger
+                  render={(
+                    <SidebarMenuAction
+                      className="left-2 bg-sidebar-accent text-sidebar-accent-foreground data-panel-open:rotate-90"
+                      showOnHover
+                    >
+                      <ChevronRightIcon />
+                    </SidebarMenuAction>
+                  )}
+                />
                 <SidebarMenuAction showOnHover>
                   <PlusIcon />
                 </SidebarMenuAction>

@@ -2,7 +2,6 @@ import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
 import { Cross2Icon as XIcon } from '@radix-ui/react-icons'
 import * as React from 'react'
 
-import { getNativeButtonProp, getRenderChildren, getRenderProp } from '@/components/ui/base-ui-compat'
 import { cn } from '@/lib/utils'
 
 type DialogProps = Omit<
@@ -19,23 +18,13 @@ function Dialog({
 }
 
 function DialogTrigger({
-  asChild,
-  children,
   ...props
-}: Omit<React.ComponentProps<typeof DialogPrimitive.Trigger>, 'render'> & {
-  asChild?: boolean
-}) {
-  const render = getRenderProp(asChild, children)
-
+}: React.ComponentProps<typeof DialogPrimitive.Trigger>) {
   return (
     <DialogPrimitive.Trigger
       data-slot="dialog-trigger"
-      nativeButton={getNativeButtonProp(asChild, children)}
-      render={render}
       {...props}
-    >
-      {getRenderChildren(asChild, children)}
-    </DialogPrimitive.Trigger>
+    />
   )
 }
 
@@ -46,23 +35,13 @@ function DialogPortal({
 }
 
 function DialogClose({
-  asChild,
-  children,
   ...props
-}: Omit<React.ComponentProps<typeof DialogPrimitive.Close>, 'render'> & {
-  asChild?: boolean
-}) {
-  const render = getRenderProp(asChild, children)
-
+}: React.ComponentProps<typeof DialogPrimitive.Close>) {
   return (
     <DialogPrimitive.Close
       data-slot="dialog-close"
-      nativeButton={getNativeButtonProp(asChild, children)}
-      render={render}
       {...props}
-    >
-      {getRenderChildren(asChild, children)}
-    </DialogPrimitive.Close>
+    />
   )
 }
 
@@ -74,7 +53,7 @@ function DialogOverlay({
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
       className={cn(
-        'fixed inset-0 z-50 bg-black/50 duration-200 data-[closed]:animate-out data-[closed]:fade-out-0 data-[open]:animate-in data-[open]:fade-in-0',
+        'fixed inset-0 z-50 bg-black/50 duration-200 data-closed:animate-out data-closed:fade-out-0 data-open:animate-in data-open:fade-in-0',
         className,
       )}
       {...props}
@@ -96,7 +75,7 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          'fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 data-[closed]:animate-out data-[closed]:fade-out-0 data-[closed]:zoom-out-95 data-[open]:animate-in data-[open]:fade-in-0 data-[open]:zoom-in-95 sm:max-w-lg',
+          'fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 sm:max-w-lg',
           '[--sq-r:1.25rem] sq:shadow-none sq:drop-shadow-lg sq:sm:rounded-(--sq-r)',
           className,
         )}
@@ -107,8 +86,8 @@ function DialogContent({
           <DialogPrimitive.Close
             data-slot="dialog-close"
             className={cn(
-              "absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[open]:bg-accent data-[open]:text-muted-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-              '[--sq-r:.5rem] sq:rounded-[var(--sq-r)]',
+              "absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-open:bg-accent data-open:text-muted-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+              '[--sq-r:.5rem] sq:rounded-(--sq-r)',
             )}
           >
             <XIcon className="size-4" />

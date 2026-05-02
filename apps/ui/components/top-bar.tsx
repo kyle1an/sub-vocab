@@ -207,9 +207,7 @@ export function TopBar({ className }: { className?: string }) {
                           aria-label="user"
                           className="flex size-8 p-0 select-none [--sq-r:.75rem]"
                           suppressHydrationWarning
-                          asChild
-                        >
-                          {avatarSource ? (
+                          render={avatarSource ? (
                             <Button variant="ghost">
                               <img
                                 src={avatarSource}
@@ -224,9 +222,9 @@ export function TopBar({ className }: { className?: string }) {
                               />
                             </Button>
                           )}
-                        </DropdownMenuTrigger>
+                        />
                         <DropdownMenuContent
-                          className="w-[unset] [&_[role=menuitem]]:p-0 [&_[role=menuitem]_svg]:text-neutral-600 [&_[role=menuitem]>*]:grow [&_[role=menuitem]>*]:px-2 [&_[role=menuitem]>*]:py-1.5"
+                          className="w-[unset] [&_[role=menuitem]_svg]:text-neutral-600 [&_[role=menuitem]>*]:grow [&_[role=menuitem]>*]:px-2 [&_[role=menuitem]>*]:py-1.5 **:[[role=menuitem]]:p-0"
                           align="end"
                         >
                           {account ? (

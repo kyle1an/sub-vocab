@@ -1,7 +1,6 @@
 import { Popover as PopoverPrimitive } from '@base-ui/react/popover'
 import * as React from 'react'
 
-import { getNativeButtonProp, getRenderChildren, getRenderProp } from '@/components/ui/base-ui-compat'
 import { cn } from '@/lib/utils'
 
 type PositionerProps = Pick<
@@ -21,23 +20,13 @@ function Popover({
 }
 
 function PopoverTrigger({
-  asChild,
-  children,
   ...props
-}: Omit<React.ComponentProps<typeof PopoverPrimitive.Trigger>, 'render'> & {
-  asChild?: boolean
-}) {
-  const render = getRenderProp(asChild, children)
-
+}: React.ComponentProps<typeof PopoverPrimitive.Trigger>) {
   return (
     <PopoverPrimitive.Trigger
       data-slot="popover-trigger"
-      nativeButton={getNativeButtonProp(asChild, children)}
-      render={render}
       {...props}
-    >
-      {getRenderChildren(asChild, children)}
-    </PopoverPrimitive.Trigger>
+    />
   )
 }
 

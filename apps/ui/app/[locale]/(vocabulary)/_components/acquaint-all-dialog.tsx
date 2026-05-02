@@ -27,13 +27,16 @@ export function AcquaintAllDialog<T extends TrackedWord>({
   const count = rowsToRetain.length
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <div className="flex w-full flex-row items-center gap-3 px-2 py-1.5">
-          <svg className="icon-[solar--list-check-bold]" />
-          <div className="">{t('acquaintedAll')}</div>
-        </div>
-      </AlertDialogTrigger>
-      <AlertDialogContent className="sm:max-w-[425px]">
+      <AlertDialogTrigger
+        nativeButton={false}
+        render={(
+          <div className="flex w-full flex-row items-center gap-3 px-2 py-1.5">
+            <svg className="icon-[solar--list-check-bold]" />
+            <div className="">{t('acquaintedAll')}</div>
+          </div>
+        )}
+      />
+      <AlertDialogContent className="sm:max-w-106.25">
         <AlertDialogHeader>
           <AlertDialogTitle>{t('acquaintedAll')}</AlertDialogTitle>
           <AlertDialogDescription>

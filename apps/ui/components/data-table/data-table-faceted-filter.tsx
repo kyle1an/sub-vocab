@@ -42,60 +42,59 @@ export function DataTableFacetedFilter({
   return (
     <Popover>
       <PopoverTrigger
-        className="gap-0 border-dashed"
-        asChild
-      >
-        <Button
-          variant="outline"
-          size="sm"
-          className={cn('h-8 p-0 text-xs shadow-none drop-shadow-none!', className)}
-        >
-          <Fragment>
-            <div className="inline-flex h-full items-center justify-center space-x-[2.5px] px-1.5 has-[>*:nth-child(2)]:pl-[5.5px]">
-              {/* <IconSiFilterListDuotone className="size-[15px]" /> */}
-              {/* <IconLucideFilter className="size-[16px]" /> */}
-              <span className="">
-                {title}
-              </span>
-            </div>
-            {selected.length > 0 && (
-              <Fragment>
-                <Separator orientation="vertical" className="h-4" />
-                <div className="flex space-x-1 px-1 lg:hidden">
-                  <Badge
-                    variant="secondary"
-                    className="px-1 font-normal [--sq-r:.5625rem]"
-                  >
-                    {selected.length}
-                  </Badge>
-                </div>
-                <div className="hidden space-x-1 px-1 lg:flex">
-                  {selected.length >= 2 ? (
+        render={(
+          <Button
+            variant="outline"
+            size="sm"
+            className={cn('h-8 gap-0 border-dashed p-0 text-xs shadow-none drop-shadow-none!', className)}
+          >
+            <Fragment>
+              <div className="inline-flex h-full items-center justify-center space-x-[2.5px] px-1.5 has-[>*:nth-child(2)]:pl-[5.5px]">
+                {/* <IconSiFilterListDuotone className="size-[15px]" /> */}
+                {/* <IconLucideFilter className="size-[16px]" /> */}
+                <span className="">
+                  {title}
+                </span>
+              </div>
+              {selected.length > 0 && (
+                <Fragment>
+                  <Separator orientation="vertical" className="h-4" />
+                  <div className="flex space-x-1 px-1 lg:hidden">
                     <Badge
                       variant="secondary"
                       className="px-1 font-normal [--sq-r:.5625rem]"
                     >
                       {selected.length}
                     </Badge>
-                  ) : (
-                    options
-                      .filter((option) => filterValue[option.value])
-                      .map((option) => (
-                        <Badge
-                          variant="secondary"
-                          key={option.value}
-                          className="px-1 font-normal [--sq-r:.5625rem]"
-                        >
-                          {option.label}
-                        </Badge>
-                      ))
-                  )}
-                </div>
-              </Fragment>
-            )}
-          </Fragment>
-        </Button>
-      </PopoverTrigger>
+                  </div>
+                  <div className="hidden space-x-1 px-1 lg:flex">
+                    {selected.length >= 2 ? (
+                      <Badge
+                        variant="secondary"
+                        className="px-1 font-normal [--sq-r:.5625rem]"
+                      >
+                        {selected.length}
+                      </Badge>
+                    ) : (
+                      options
+                        .filter((option) => filterValue[option.value])
+                        .map((option) => (
+                          <Badge
+                            variant="secondary"
+                            key={option.value}
+                            className="px-1 font-normal [--sq-r:.5625rem]"
+                          >
+                            {option.label}
+                          </Badge>
+                        ))
+                    )}
+                  </div>
+                </Fragment>
+              )}
+            </Fragment>
+          </Button>
+        )}
+      />
       <PopoverContent className="w-50 p-0" align="start">
         <Command className="rounded-none bg-transparent">
           <CommandInput placeholder={title} />

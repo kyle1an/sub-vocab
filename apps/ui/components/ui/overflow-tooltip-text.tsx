@@ -127,14 +127,14 @@ export function OverflowTooltipText({
       >
         <TooltipTrigger
           onMouseOver={handleTriggerMouseOver}
-          asChild
-        >
-          <div
-            className={cn('truncate', className)}
-          >
-            {value}
-          </div>
-        </TooltipTrigger>
+          render={(
+            <div
+              className={cn('truncate', className)}
+            >
+              {value}
+            </div>
+          )}
+        />
         <TooltipContent
           side={side}
           sideOffset={sideOffset}

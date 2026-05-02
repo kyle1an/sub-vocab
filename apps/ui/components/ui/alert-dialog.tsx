@@ -1,7 +1,6 @@
 import { AlertDialog as AlertDialogPrimitive } from '@base-ui/react/alert-dialog'
 import * as React from 'react'
 
-import { getNativeButtonProp, getRenderChildren, getRenderProp } from '@/components/ui/base-ui-compat'
 import { buttonVariants } from '@/components/ui/button.var'
 import { cn } from '@/lib/utils'
 
@@ -12,23 +11,13 @@ function AlertDialog({
 }
 
 function AlertDialogTrigger({
-  asChild,
-  children,
   ...props
-}: Omit<React.ComponentProps<typeof AlertDialogPrimitive.Trigger>, 'render'> & {
-  asChild?: boolean
-}) {
-  const render = getRenderProp(asChild, children)
-
+}: React.ComponentProps<typeof AlertDialogPrimitive.Trigger>) {
   return (
     <AlertDialogPrimitive.Trigger
       data-slot="alert-dialog-trigger"
-      nativeButton={getNativeButtonProp(asChild, children)}
-      render={render}
       {...props}
-    >
-      {getRenderChildren(asChild, children)}
-    </AlertDialogPrimitive.Trigger>
+    />
   )
 }
 
@@ -66,7 +55,7 @@ function AlertDialogContent({
       <AlertDialogPrimitive.Popup
         data-slot="alert-dialog-content"
         className={cn(
-          'fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 data-[closed]:animate-out data-[closed]:fade-out-0 data-[closed]:zoom-out-95 data-[open]:animate-in data-[open]:fade-in-0 data-[open]:zoom-in-95 sm:max-w-lg',
+          'fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 sm:max-w-lg',
           '[--sq-r:1.25rem] sq:shadow-none sq:drop-shadow-lg sq:sm:rounded-(--sq-r)',
           className,
         )}
@@ -133,45 +122,25 @@ function AlertDialogDescription({
 
 function AlertDialogAction({
   className,
-  asChild,
-  children,
   ...props
-}: Omit<React.ComponentProps<typeof AlertDialogPrimitive.Close>, 'render'> & {
-  asChild?: boolean
-}) {
-  const render = getRenderProp(asChild, children)
-
+}: React.ComponentProps<typeof AlertDialogPrimitive.Close>) {
   return (
     <AlertDialogPrimitive.Close
-      nativeButton={getNativeButtonProp(asChild, children)}
-      render={render}
       className={cn(buttonVariants(), className)}
       {...props}
-    >
-      {getRenderChildren(asChild, children)}
-    </AlertDialogPrimitive.Close>
+    />
   )
 }
 
 function AlertDialogCancel({
   className,
-  asChild,
-  children,
   ...props
-}: Omit<React.ComponentProps<typeof AlertDialogPrimitive.Close>, 'render'> & {
-  asChild?: boolean
-}) {
-  const render = getRenderProp(asChild, children)
-
+}: React.ComponentProps<typeof AlertDialogPrimitive.Close>) {
   return (
     <AlertDialogPrimitive.Close
-      nativeButton={getNativeButtonProp(asChild, children)}
-      render={render}
       className={cn(buttonVariants({ variant: 'outline' }), className)}
       {...props}
-    >
-      {getRenderChildren(asChild, children)}
-    </AlertDialogPrimitive.Close>
+    />
   )
 }
 

@@ -6,7 +6,6 @@ import {
 } from '@base-ui/react/preview-card'
 import * as React from 'react'
 
-import { getRenderChildren, getRenderProp } from '@/components/ui/base-ui-compat'
 import { cn } from '@/lib/utils'
 
 type PositionerProps = Pick<
@@ -42,36 +41,28 @@ function HoverCard({
   ...props
 }: HoverCardProps) {
   return (
-    <HoverCardDelayContext.Provider value={{ closeDelay, openDelay }}>
+    <HoverCardDelayContext value={{ closeDelay, openDelay }}>
       <HoverCardPrimitive.Root data-slot="hover-card" {...props}>
         {children}
       </HoverCardPrimitive.Root>
-    </HoverCardDelayContext.Provider>
+    </HoverCardDelayContext>
   )
 }
 
 function HoverCardTrigger({
-  asChild,
-  children,
   closeDelay,
   delay,
   ...props
-}: Omit<React.ComponentProps<typeof HoverCardPrimitive.Trigger>, 'render'> & {
-  asChild?: boolean
-}) {
-  const delayConfig = React.useContext(HoverCardDelayContext)
-  const render = getRenderProp(asChild, children)
+}: React.ComponentProps<typeof HoverCardPrimitive.Trigger>) {
+  const delayConfig = React.use(HoverCardDelayContext)
 
   return (
     <HoverCardPrimitive.Trigger
       data-slot="hover-card-trigger"
       closeDelay={closeDelay ?? delayConfig.closeDelay}
       delay={delay ?? delayConfig.openDelay}
-      render={render}
       {...props}
-    >
-      {getRenderChildren(asChild, children)}
-    </HoverCardPrimitive.Trigger>
+    />
   )
 }
 
