@@ -1,5 +1,7 @@
 'use client'
 
+/* eslint-disable react-refresh/only-export-components */
+
 import dynamic from 'next/dynamic'
 import { Fragment } from 'react'
 

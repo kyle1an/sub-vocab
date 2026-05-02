@@ -116,8 +116,8 @@ export const openSubtitlesQueryOptionsAtom = atom((get) => {
       Object.entries(query).sort(),
       (x) => Object.fromEntries(x),
     )
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
     return queryOptions({
-      // eslint-disable-next-line @tanstack/query/exhaustive-deps
       queryKey: ['opensubtitles-subtitles', sortedQuery],
       queryFn: () => ofetch<Subtitles['Response']>(`${baseUrl}/subtitles`, {
         method: 'GET',

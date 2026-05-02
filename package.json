@@ -90,6 +90,7 @@
       "@tailwindcss/oxide",
       "@vercel/speed-insights",
       "esbuild",
+      "msgpackr-extract",
       "sharp",
       "supabase",
       "unrs-resolver"

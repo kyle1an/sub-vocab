@@ -1,6 +1,7 @@
 import antfu from '@antfu/eslint-config'
 import pluginQuery from '@tanstack/eslint-plugin-query'
 import reactCompiler from 'eslint-plugin-react-compiler'
+import reactHooks from 'eslint-plugin-react-hooks'
 import eslintPluginTailwindCss from 'eslint-plugin-tailwindcss'
 // @ts-check
 /// <reference path="./eslint-typegen.d.ts" />
@@ -10,8 +11,32 @@ import path from 'node:path'
 import configs from '../../eslint.config.js'
 
 const __dirname = import.meta.dirname
+const tailwindSourceFiles = ['**/*.{cjs,cts,js,jsx,mjs,mts,ts,tsx}']
 
-export default typegen(antfu(
+// @antfu/eslint-config 8 expects @eslint-react v3 subplugins; v4 leaves those
+// aliases undefined, which breaks eslint-typegen and ESLint config validation.
+function stripUndefinedPlugins(configs) {
+  return configs.then((resolved) => resolved.map((config) => {
+    if (!config.plugins) {
+      return config
+    }
+
+    const plugins = Object.fromEntries(
+      Object.entries(config.plugins).filter(([, plugin]) => plugin != null),
+    )
+
+    if (Object.keys(plugins).length === Object.keys(config.plugins).length) {
+      return config
+    }
+
+    return {
+      ...config,
+      plugins,
+    }
+  }))
+}
+
+export default typegen(stripUndefinedPlugins(antfu(
   {
     react: true,
     stylistic: false,
@@ -61,6 +86,9 @@ export default typegen(antfu(
   reactCompiler.configs.recommended,
   {
     name: 'react',
+    plugins: {
+      'react-hooks': reactHooks,
+    },
     rules: {
       'react/prefer-destructuring-assignment': 'off',
       'react-hooks/exhaustive-deps': [
@@ -78,22 +106,17 @@ export default typegen(antfu(
     },
   },
   ...pluginQuery.configs['flat/recommended'],
-  ...eslintPluginTailwindCss.configs['flat/recommended'],
+  {
+    ...eslintPluginTailwindCss.configs.recommended,
+    files: tailwindSourceFiles,
+  },
   {
     name: 'tailwindcss',
-    rules: {
-      'tailwindcss/no-custom-classname': ['warn', {
-        callees: ['classnames', 'clsx', 'cn', 'ctl', 'cva', 'tv', 'twMerge', 'add'],
-        skipClassAttribute: true,
-      }],
-      'tailwindcss/migration-from-tailwind-2': 'off',
-      'tailwindcss/enforces-negative-arbitrary-values': 'off',
-    },
+    files: tailwindSourceFiles,
     settings: {
       tailwindcss: {
-        callees: ['classnames', 'clsx', 'cn', 'ctl', 'cva', 'tv', 'twMerge', 'add'],
-        // https://github.com/hyoban/eslint-plugin-tailwindcss/pull/3#issuecomment-3079169194
-        config: path.join(__dirname, 'app/[locale]/globals.css'),
+        cssConfigPath: path.join(__dirname, 'app/[locale]/globals.css'),
+        functions: ['classnames', 'clsx', 'cn', 'ctl', 'cva', 'tv', 'tw', 'twMerge', 'add'],
       },
     },
   },
@@ -108,4 +131,4 @@ export default typegen(antfu(
       'n/prefer-global/process': ['off'],
     },
   },
-))
+)))

@@ -148,6 +148,7 @@ export default function Layout() {
     }
   })
   useIsomorphicLayoutEffect(() => {
+    // eslint-disable-next-line react/rules-of-hooks
     resetPanelLayout()
   }, [direction])
 

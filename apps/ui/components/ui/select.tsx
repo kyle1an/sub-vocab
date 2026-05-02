@@ -1,13 +1,12 @@
+import type { SelectRootProps } from '@base-ui/react/select'
+
+import { Select as SelectPrimitive } from '@base-ui/react/select'
 import {
   CaretSortIcon,
   CheckIcon,
   ChevronDownIcon,
   ChevronUpIcon,
 } from '@radix-ui/react-icons'
-import {
-  Select as SelectPrimitive,
-  type SelectRootProps,
-} from '@base-ui/react/select'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
@@ -30,7 +29,7 @@ type PortalProps = Pick<
   'container'
 >
 
-type SelectValue<Value, Multiple extends boolean | undefined> =
+type SelectValueType<Value, Multiple extends boolean | undefined> =
   Multiple extends true ? Value[] : Value
 
 type SelectProps<
@@ -38,7 +37,7 @@ type SelectProps<
   Multiple extends boolean | undefined = false,
 > = Omit<SelectRootProps<Value, Multiple>, 'onValueChange'> & {
   onValueChange?: ((
-    value: SelectValue<Value, Multiple>,
+    value: SelectValueType<Value, Multiple>,
     eventDetails: Parameters<
       NonNullable<SelectRootProps<Value, Multiple>['onValueChange']>
     >[1],
@@ -67,7 +66,7 @@ function Select<Value = string, Multiple extends boolean | undefined = false>({
         items={derivedItems}
         onValueChange={(value, eventDetails) => {
           if (value !== null) {
-            onValueChange(value as SelectValue<Value, Multiple>, eventDetails)
+            onValueChange(value as SelectValueType<Value, Multiple>, eventDetails)
           }
         }}
         {...props}
@@ -213,7 +212,7 @@ function SelectItem({
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "relative flex h-6 w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-6 text-sm outline-hidden select-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        "relative flex h-6 w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-6 text-sm outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-accent data-highlighted:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
         '[--sq-r:.5rem] sq:rounded-(--sq-r)',
         className,
       )}

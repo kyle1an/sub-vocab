@@ -62,7 +62,7 @@ export default function RootLayout({
         {/* <script crossOrigin="anonymous" src="//unpkg.com/react-scan/dist/auto.global.js" /> */}
         <script
           // https://x.com/shuding_/status/1948233116264321304
-          // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
+          // eslint-disable-next-line react/dom-no-dangerously-set-innerhtml
           dangerouslySetInnerHTML={{
             __html: `(${String(() => {
               const DARK__BACKGROUND = 'oklch(0.145 0 0)'

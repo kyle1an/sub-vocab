@@ -1,5 +1,6 @@
-import { Collapsible as CollapsiblePrimitive } from '@base-ui/react/collapsible'
 import type * as React from 'react'
+
+import { Collapsible as CollapsiblePrimitive } from '@base-ui/react/collapsible'
 
 import { getNativeButtonProp, getRenderChildren, getRenderProp } from '@/components/ui/base-ui-compat'
 
