@@ -12,7 +12,7 @@ import type { CheckedState } from '@/types/utils'
 import { fileTypesAtom } from '@/atoms/file-types'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTrigger } from '@/components/ui/drawer'
+import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
 import { Separator } from '@/components/ui/separator'
 import { Toggle } from '@/components/ui/toggle'
 import { mediaQueryFamily } from '@sub-vocab/utils/atoms'
@@ -158,12 +158,12 @@ export function Settings() {
       </DrawerTrigger>
       <DrawerContent>
         <div className="w-full border-b pt-1 pb-3 text-lg">
-          <DialogTitle className="m-auto w-fit text-lg leading-none font-semibold">
+          <DrawerTitle className="m-auto w-fit text-lg leading-none font-semibold">
             {FILE_SETTINGS_TITLE}
-          </DialogTitle>
+          </DrawerTitle>
         </div>
         <div className="size-full overflow-y-scroll px-6 pb-4">
-          <div className="mx-auto max-w-[425px]">
+          <div className="mx-auto max-w-106.25">
             <DrawerHeader className="px-0 text-left">
               <DrawerDescription>
                 {FILE_SETTINGS_DESCRIPTION}
