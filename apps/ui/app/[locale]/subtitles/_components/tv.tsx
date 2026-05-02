@@ -11,8 +11,7 @@ import { maxBy, sum } from 'es-toolkit'
 import { produce } from 'immer'
 import { useAtom, useAtomValue, useStore } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
-import nstr from 'nstr'
-import { Fragment, useRef, useState } from 'react'
+import { Fragment, useRef } from 'react'
 
 import type { Subtitles } from '@/app/[locale]/subtitles/_api/os'
 import type { SubtitleData } from '@/app/[locale]/subtitles/_components/columns'
@@ -33,13 +32,13 @@ import { TablePagination } from '@/components/my-table/pagination'
 import { TablePaginationSizeSelect } from '@/components/my-table/pagination-size-select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Div } from '@/components/ui/html-elements'
+import { OverflowTooltipText } from '@/components/ui/overflow-tooltip-text'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { filterFn, noFilter, sortBySelection } from '@/lib/table-utils'
 import { useI18n } from '@/locales/client'
-import { useClone, useIsEllipsisActive, useRect } from '@sub-vocab/utils/hooks'
+import { useClone } from '@sub-vocab/utils/hooks'
 import { compareBy, customFormatDistance, findClosest, formatIntervalLocale, isNonEmptyArray, naturalNumLength } from '@sub-vocab/utils/lib'
 
 type ExpandableRow<T> = T & { subRows?: T[] }
@@ -50,7 +49,18 @@ type TVSubtitleData = SubtitleData<Episode> & RowId
 
 type RowData = ExpandableRow<TVSubtitleData>
 
-function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber = 0, rootRef: React.RefObject<HTMLDivElement | null>, tbody: HTMLTableSectionElement | null) {
+function isCheckboxClickTarget(target: EventTarget | null) {
+  if (!(target instanceof Element)) {
+    return false
+  }
+
+  return (
+    (target instanceof HTMLInputElement && target.type === 'checkbox')
+    || Boolean(target.closest('[data-slot="checkbox"]'))
+  )
+}
+
+function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber = 0, rootRef: React.RefObject<HTMLDivElement | null>) {
   const columnHelper = createColumnHelper<T>()
   const store = useStore()
   const [osSession] = useAtom(osSessionAtom)
@@ -164,7 +174,11 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
                   'flex h-full grow items-center justify-between pr-1 pl-2',
                   canExpand && 'cursor-pointer',
                 )}
-                onClick={() => {
+                onClick={(event) => {
+                  if (!canExpand || isCheckboxClickTarget(event.target)) {
+                    return
+                  }
+
                   onExpandedChange?.(isExpanded)
                 }}
               >
@@ -186,13 +200,22 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
                   }}
                 />
                 {'\u200B'}
-                <svg
+                <button
+                  type="button"
+                  aria-label={isExpanded ? 'Collapse episode' : 'Expand episode'}
+                  disabled={!canExpand}
                   className={clsx(
-                    canExpand ? '' : 'invisible',
-                    'icon-[lucide--chevron-right] size-3.5 text-zinc-400 transition-transform duration-200 dark:text-zinc-500',
-                    isExpanded ? 'rotate-90' : '',
+                    'flex size-4 items-center justify-center rounded-sm border-0 bg-transparent p-0 text-zinc-400 transition-colors dark:text-zinc-500',
+                    canExpand ? 'cursor-pointer hover:text-zinc-600 dark:hover:text-zinc-300' : 'invisible',
                   )}
-                />
+                >
+                  <svg
+                    className={clsx(
+                      'icon-[lucide--chevron-right] size-3.5 transition-transform duration-200',
+                      isExpanded ? 'rotate-90' : '',
+                    )}
+                  />
+                </button>
               </div>
             </Div>
           </TableDataCell>
@@ -290,7 +313,6 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
           <TvNameCell
             {...ctx}
             rootRef={rootRef}
-            tbody={tbody}
           />
         )
       },
@@ -352,70 +374,27 @@ function useTVColumns<T extends RowData>(mediaId: number, highestEpisodeNumber =
 
 function TvNameSubRow<TData extends RowData>({
   rootRef,
-  tbody,
   row,
 }: {
   rootRef: React.RefObject<HTMLDivElement | null>
-  tbody: HTMLTableSectionElement | null
 } & Pick<CellContext<TData, string>, 'row'>) {
-  const ref = useRef<HTMLDivElement>(null)
   const value = row.original.subtitle.attributes.files[0]?.file_name || ''
-  const className = 'tracking-[.04em] text-sm'
-  const rootRect = useRect(rootRef)
-  const refRect = useRect(ref)
-  const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
-  const maxWidth = rootRect.x + rootRect.width - refRect.x + 12 - 4
   return (
-    <div
-      ref={ref}
-      className="w-0 grow truncate"
-    >
-      <Tooltip
-        delayDuration={500}
-      >
-        <TooltipTrigger
-          onMouseOver={handleOnMouseOver}
-          asChild
-        >
-          <div
-            className={clsx('truncate', className)}
-          >
-            {value}
-          </div>
-        </TooltipTrigger>
-        <TooltipContent
-          container={tbody}
-          side="bottom"
-          sideOffset={-21 - 1}
-          align="start"
-          alignOffset={-8 - 1}
-          avoidCollisions={false}
-          hidden={!isEllipsisActive}
-          className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:data-[slot=tooltip-arrow]:hidden!"
-          style={{
-            '--max-width': `${nstr(maxWidth)}px`,
-          }}
-        >
-          <span
-            className={className}
-          >
-            {value}
-          </span>
-        </TooltipContent>
-      </Tooltip>
-    </div>
+    <OverflowTooltipText
+      rootRef={rootRef}
+      value={value}
+      className="text-sm tracking-[.04em]"
+    />
   )
 }
 
 function TvNameCell<TData extends RowData>({
   rootRef,
-  tbody,
   cell,
   getValue,
   row,
 }: {
   rootRef: React.RefObject<HTMLDivElement | null>
-  tbody: HTMLTableSectionElement | null
 } & CellContext<TData, string>) {
   const value = getValue()
   return (
@@ -423,22 +402,38 @@ function TvNameCell<TData extends RowData>({
       cell={cell}
     >
       <Div
-        className="cursor-text py-1 pr-px pl-2.5 tracking-[.04em] select-text"
+        className="cursor-text py-1 pr-px pl-2.5 select-text"
         onClick={(ev) => ev.stopPropagation()}
       >
         {row.depth === 0 ? (
-          <span>
-            {value}
-          </span>
+          <TvNameParentRow
+            rootRef={rootRef}
+            value={value}
+          />
         ) : (
           <TvNameSubRow
             rootRef={rootRef}
-            tbody={tbody}
             row={row}
           />
         )}
       </Div>
     </TableDataCell>
+  )
+}
+
+function TvNameParentRow({
+  rootRef,
+  value,
+}: {
+  rootRef: React.RefObject<HTMLDivElement | null>
+  value: string
+}) {
+  return (
+    <OverflowTooltipText
+      rootRef={rootRef}
+      value={value}
+      className="text-sm tracking-[.04em]"
+    />
   )
 }
 
@@ -558,8 +553,7 @@ export function TVSubtitleFiles({
   const highestEpisodeNumber = highestEpisode?.attributes.feature_details.episode_number
   const rootRef = useRef<HTMLDivElement>(null)
   const commonColumns = useCommonColumns<RowData>(rootRef)
-  const [tbody, setTbody] = useState<HTMLTableSectionElement | null>(null)
-  const tvColumns = useTVColumns(id, highestEpisodeNumber, rootRef, tbody)
+  const tvColumns = useTVColumns(id, highestEpisodeNumber, rootRef)
   const columns = [...commonColumns, ...tvColumns]
   const dataRows = subtitleEpisodeData(subtitles, episodes)
   const [{ episodeFilter: filterEpisode = 'all', tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleFamily.useA([
@@ -689,11 +683,7 @@ export function TVSubtitleFiles({
                   </tr>
                 ))}
               </TableHeader>
-              <tbody
-                ref={(element) => {
-                  setTbody(element)
-                }}
-              >
+              <tbody>
                 {useClone(table.getRowModel().rows).map((row, index) => {
                   return (
                     <TableRow

@@ -38,7 +38,7 @@ export function TablePaginationSizeSelect<T>({
 
   return (
     <Select
-      defaultValue={String(pageSize)}
+      value={String(pageSize)}
       items={selectItems}
       onValueChange={(e) => {
         table.setPageSize(Number(e))

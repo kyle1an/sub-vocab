@@ -8,7 +8,6 @@ import clsx from 'clsx'
 import { pipe } from 'effect'
 import { atom, useAtom, useAtomValue } from 'jotai'
 import Link from 'next/link'
-import nstr from 'nstr'
 import * as React from 'react'
 import { Fragment, useDeferredValue, useEffectEvent, useRef } from 'react'
 import { useGroupRef } from 'react-resizable-panels'
@@ -31,13 +30,13 @@ import { FileInput } from '@/components/file-input'
 import { FileSettings } from '@/components/file-settings'
 import { NoSSR } from '@/components/NoSsr'
 import { Button } from '@/components/ui/button'
+import { OverflowTooltipText } from '@/components/ui/overflow-tooltip-text'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { TextareaInput } from '@/components/ui/textarea-input'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useI18n } from '@/locales/client'
 import { mediaQueryFamily } from '@sub-vocab/utils/atoms'
-import { useAtomEffect, useIsEllipsisActive, useRect } from '@sub-vocab/utils/hooks'
-import { compareBy, isServer, normalizeNewlines, tap } from '@sub-vocab/utils/lib'
+import { useAtomEffect } from '@sub-vocab/utils/hooks'
+import { compareBy, normalizeNewlines, tap } from '@sub-vocab/utils/lib'
 
 const sourceCountAtom = atom({
   totalText: 0,
@@ -205,9 +204,6 @@ export default function Layout() {
     }
   }
 
-  const fileInfoRef = useRef<HTMLSpanElement>(null)
-  const { x: fileInfoX } = useRect(fileInfoRef)
-  const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive()
   return (
     <Fragment>
       <Fragment>
@@ -249,35 +245,15 @@ export default function Layout() {
                 <div className="flex h-full items-center justify-center">
                   <div className="relative flex h-full grow flex-col overflow-hidden">
                     <div className="flex h-12 shrink-0 items-center bg-background py-2 pr-2 pl-4 text-xs">
-                      <Tooltip
+                      <OverflowTooltipText
+                        value={fileInfo}
                         delayDuration={400}
-                      >
-                        <TooltipTrigger
-                          onMouseOver={handleOnMouseOver}
-                          asChild
-                        >
-                          <span
-                            ref={fileInfoRef}
-                            className="grow truncate"
-                          >
-                            {fileInfo}
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent
-                          side="bottom"
-                          sideOffset={-22 - 1}
-                          align="start"
-                          alignOffset={-12 - 1}
-                          avoidCollisions={false}
-                          hidden={!isEllipsisActive}
-                          className="max-w-(--max-width) border bg-background text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:data-[slot=tooltip-arrow]:hidden!"
-                          style={{
-                            '--max-width': `${nstr(isServer ? 0 : window.innerWidth - fileInfoX + 12 - 1)}px`,
-                          }}
-                        >
-                          {fileInfo}
-                        </TooltipContent>
-                      </Tooltip>
+                        wrapperClassName="grow truncate"
+                        sideOffset={-22 - 1}
+                        alignOffset={-12 - 1}
+                        maxWidthOffset={12 - 3}
+                        contentClassName="px-3 py-1.5 text-xs"
+                      />
                     </div>
                     <div className="z-10 h-px w-full border-b border-solid border-border shadow-[0_0.4px_2px_0_rgb(0_0_0/0.05)]" />
                     <div className="size-full grow text-base text-zinc-700 md:text-sm">

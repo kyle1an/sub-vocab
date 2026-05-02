@@ -17,7 +17,10 @@
         "**/node_modules/**",
         "**/wasm/*.wat"
       ],
-      "runtimeArgs": ["run-script", "test"],
+      "runtimeArgs": [
+        "run-script",
+        "test"
+      ],
       "console": "integratedTerminal",
       "runtimeExecutable": "npm",
       "runtimeVersion": "24",
@@ -38,17 +41,40 @@
       "console": "integratedTerminal",
       "runtimeExecutable": "npm",
       "runtimeVersion": "24",
-      "runtimeArgs": ["run-script", "dev"]
+      "runtimeArgs": [
+        "run-script",
+        "dev"
+      ]
     },
     {
-      "name": "full stack",
+      "name": "Next.js",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/ui",
+      "skipFiles": [
+        // "${workspaceFolder}\\node_modules\\**\\*.js",
+        "**/.next/**",
+        "<node_internals>/**",
+        "**/node_modules/**",
+        "**/wasm/*.wat"
+      ],
+      "console": "integratedTerminal",
+      "runtimeExecutable": "npm",
+      "runtimeVersion": "24",
+      "runtimeArgs": [
+        "run-script",
+        "dev"
+      ]
+    },
+    {
+      "name": "Next.js + Chrome",
       "type": "node",
       "request": "launch",
       "cwd": "${workspaceFolder}/apps/ui",
       "serverReadyAction": {
         "pattern": "Local:.+http://localhost:([0-9]+)",
         "action": "startDebugging",
-        "name": "client-side",
+        "name": "→ Chrome",
         "killOnServerStop": true
       },
       "skipFiles": [
@@ -61,10 +87,13 @@
       "console": "integratedTerminal",
       "runtimeExecutable": "npm",
       "runtimeVersion": "24",
-      "runtimeArgs": ["run-script", "dev"]
+      "runtimeArgs": [
+        "run-script",
+        "dev"
+      ]
     },
     {
-      "name": "client-side",
+      "name": "→ Chrome",
       "type": "chrome",
       "request": "launch",
       // https://stackoverflow.com/a/37048286/10903455
@@ -90,13 +119,19 @@
   ],
   "compounds": [
     {
-      "configurations": ["full stack", "Fastify"],
-      "name": "full stack + Fastify",
+      "configurations": [
+        "Next.js",
+        "Fastify"
+      ],
+      "name": "Next.js + Fastify",
       "stopAll": true
     },
     {
-      "configurations": ["full stack"],
-      "name": "full stack",
+      "configurations": [
+        "Next.js + Chrome",
+        "Fastify"
+      ],
+      "name": "Next.js + Fastify + Chrome",
       "stopAll": true
     }
   ]

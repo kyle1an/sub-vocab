@@ -6,8 +6,7 @@ import { createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRo
 import clsx from 'clsx'
 import { useAtom, useAtomValue, useStore } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
-import nstr from 'nstr'
-import { Fragment, useRef, useState } from 'react'
+import { Fragment, useRef } from 'react'
 
 import type { Subtitles } from '@/app/[locale]/subtitles/_api/os'
 import type { SubtitleData } from '@/app/[locale]/subtitles/_components/columns'
@@ -24,17 +23,17 @@ import { TablePagination } from '@/components/my-table/pagination'
 import { TablePaginationSizeSelect } from '@/components/my-table/pagination-size-select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Div } from '@/components/ui/html-elements'
+import { OverflowTooltipText } from '@/components/ui/overflow-tooltip-text'
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeader, TableHeaderCell, TableHeaderCellRender, TableRow } from '@/components/ui/table-element'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { filterFn, sortBySelection } from '@/lib/table-utils'
 import { useI18n } from '@/locales/client'
-import { useClone, useIsEllipsisActive, useRect } from '@sub-vocab/utils/hooks'
+import { useClone } from '@sub-vocab/utils/hooks'
 import { findClosest } from '@sub-vocab/utils/lib'
 
 type MovieSubtitleData = SubtitleData
 
-function useMovieColumns<T extends MovieSubtitleData>(rootRef: React.RefObject<HTMLDivElement | null>, tbody: HTMLTableSectionElement | null) {
+function useMovieColumns<T extends MovieSubtitleData>(rootRef: React.RefObject<HTMLDivElement | null>) {
   const t = useI18n()
   const columnHelper = createColumnHelper<T>()
   return [
@@ -125,7 +124,6 @@ function useMovieColumns<T extends MovieSubtitleData>(rootRef: React.RefObject<H
           <MovieNameCell
             {...ctx}
             rootRef={rootRef}
-            tbody={tbody}
           />
         )
       },
@@ -135,20 +133,12 @@ function useMovieColumns<T extends MovieSubtitleData>(rootRef: React.RefObject<H
 
 function MovieNameCell<TData extends RowData>({
   rootRef,
-  tbody,
   cell,
   getValue,
 }: {
   rootRef: React.RefObject<HTMLDivElement | null>
-  tbody: HTMLTableSectionElement | null
 } & CellContext<TData, string>) {
   const value = getValue()
-  const ref = useRef<HTMLDivElement>(null)
-  const [isEllipsisActive, handleOnMouseOver] = useIsEllipsisActive<HTMLButtonElement>()
-  const { x: rootX, width: rootWidth } = useRect(rootRef)
-  const { x: refX } = useRect(ref)
-  const className = 'tracking-[.04em] text-sm'
-  const maxWidth = rootX + rootWidth - refX + 12 - 4
   return (
     <TableDataCell
       cell={cell}
@@ -157,44 +147,11 @@ function MovieNameCell<TData extends RowData>({
         className="cursor-text py-1 pr-px pl-2.5"
         onClick={(ev) => ev.stopPropagation()}
       >
-        <div
-          ref={ref}
-          className="w-0 grow truncate"
-        >
-          <Tooltip
-            delayDuration={500}
-          >
-            <TooltipTrigger
-              onMouseOver={handleOnMouseOver}
-              asChild
-            >
-              <div
-                className={clsx('truncate', className)}
-              >
-                {value}
-              </div>
-            </TooltipTrigger>
-            <TooltipContent
-              container={tbody}
-              side="bottom"
-              sideOffset={-21 - 1}
-              align="start"
-              alignOffset={-8 - 1}
-              avoidCollisions={false}
-              hidden={!isEllipsisActive}
-              className="max-w-(--max-width) border bg-background px-2 py-px text-foreground shadow-xs slide-in-from-top-0! zoom-in-100! zoom-out-100! [word-wrap:break-word] **:data-[slot=tooltip-arrow]:hidden!"
-              style={{
-                '--max-width': `${nstr(maxWidth)}px`,
-              }}
-            >
-              <span
-                className={className}
-              >
-                {value}
-              </span>
-            </TooltipContent>
-          </Tooltip>
-        </div>
+        <OverflowTooltipText
+          rootRef={rootRef}
+          value={value}
+          className="text-sm tracking-[.04em]"
+        />
       </Div>
     </TableDataCell>
   )
@@ -244,8 +201,7 @@ function SubtitleFiles({
   const store = useStore()
   const rootRef = useRef<HTMLDivElement>(null)
   const commonColumns = useCommonColumns<MovieSubtitleData>(rootRef)
-  const [tbody, setTbody] = useState<HTMLTableSectionElement | null>(null)
-  const movieColumns = useMovieColumns(rootRef, tbody)
+  const movieColumns = useMovieColumns(rootRef)
   const columns = [...commonColumns, ...movieColumns]
   const [{ tableState: mediaTableState }, setMediaSubtitleState] = useImmerAtom(mediaSubtitleFamily.useA([
     id,
@@ -325,11 +281,7 @@ function SubtitleFiles({
                   </tr>
                 ))}
               </TableHeader>
-              <tbody
-                ref={(element) => {
-                  setTbody(element)
-                }}
-              >
+              <tbody>
                 {useClone(table.getRowModel().rows).map((row) => {
                   return (
                     <TableRow
