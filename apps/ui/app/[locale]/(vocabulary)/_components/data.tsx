@@ -15,7 +15,7 @@ import { identity } from 'es-toolkit'
 import { useSessionStorage } from 'foxact/use-session-storage'
 import { atom, useAtom, useAtomValue, useStore } from 'jotai'
 import { useImmerAtom } from 'jotai-immer'
-import { startTransition, useDeferredValue, useRef, useState } from 'react'
+import { startTransition, useDeferredValue, useRef } from 'react'
 
 import type { LearningPhase } from '@/app/[locale]/(vocabulary)/_lib/LexiconTrie'
 import type { VocabularySourceData, VocabularySourceState } from '@/app/[locale]/(vocabulary)/_lib/vocab'
@@ -175,9 +175,8 @@ export function VocabDataTable({
   const [{ isUsingRegex, searchValue }, setCacheState] = useImmerAtom(cacheStateAtom)
   const deferredSearchValue = useDeferredValue(searchValue)
   const deferredIsUsingRegex = useDeferredValue(isUsingRegex)
-  const [tbody, setTbody] = useState<HTMLTableSectionElement | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
-  const vocabularyCommonColumns = useVocabularyCommonColumns<TableData>(tbody, rootRef)
+  const vocabularyCommonColumns = useVocabularyCommonColumns<TableData>(rootRef)
   const dataColumns = useDataColumns(rootRef)
   const columns = [...vocabularyCommonColumns, ...dataColumns]
   const segments = useSegments()
@@ -363,11 +362,7 @@ export function VocabDataTable({
               </tr>
             ))}
           </TableHeader>
-          <tbody
-            ref={(element) => {
-              setTbody(element)
-            }}
-          >
+          <tbody>
             {table.getRowModel().rows.map((row) => {
               return (
                 <TableRow

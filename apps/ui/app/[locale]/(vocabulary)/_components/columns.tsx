@@ -2,7 +2,6 @@ import { useNetworkState } from '@react-hookz/web'
 import {
   createColumnHelper,
 } from '@tanstack/react-table'
-import clsx from 'clsx'
 import { useAtomCallback } from 'jotai/utils'
 import { Fragment } from 'react'
 import { toast } from 'sonner'
@@ -11,19 +10,18 @@ import type { TrackedWord } from '@/app/[locale]/(vocabulary)/_lib/LexiconTrie'
 import type { VocabularySourceState } from '@/app/[locale]/(vocabulary)/_lib/vocab'
 
 import { userWordPhaseMutationAtom } from '@/app/[locale]/(vocabulary)/_api'
-import { VocabularyMenu } from '@/app/[locale]/(vocabulary)/_components/cells'
+import { VocabularyWordAction } from '@/app/[locale]/(vocabulary)/_components/cells'
 import { VocabToggle } from '@/app/[locale]/(vocabulary)/_components/toggle-button'
 import { userAtom } from '@/atoms/auth'
 import { LoginToast } from '@/components/login-toast'
 import { SortIcon } from '@/components/my-icon/sort-icon'
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 import { Div } from '@/components/ui/html-elements'
 import { Separator } from '@/components/ui/separator'
 import { HeaderTitle, TableDataCell, TableHeaderCell } from '@/components/ui/table-element'
 import { filterFn } from '@/lib/table-utils'
 import { useI18n } from '@/locales/client'
 
-export function useVocabularyCommonColumns<T extends VocabularySourceState = VocabularySourceState>(tbody?: HTMLTableSectionElement | null, rootRef?: React.RefObject<HTMLDivElement | null>) {
+export function useVocabularyCommonColumns<T extends VocabularySourceState = VocabularySourceState>(rootRef?: React.RefObject<HTMLDivElement | null>) {
   const t = useI18n()
   const columnHelper = createColumnHelper<T>()
   const { online: isOnline } = useNetworkState()
@@ -85,46 +83,17 @@ export function useVocabularyCommonColumns<T extends VocabularySourceState = Voc
           >
             <Fragment>
               {wordFamily.map(({ pathe: w, locators: src }, i) => (
-                <div
+                <Fragment
                   key={w}
-                  className="inline-block cursor-text pl-1 tracking-[.04em] select-text"
-                  onClick={(ev) => ev.stopPropagation()}
                 >
-                  <HoverCard
-                    openDelay={200}
-                    closeDelay={100}
-                  >
-                    <HoverCardTrigger
-                      render={(
-                        <span
-                          className={clsx(
-                            'rounded-lg px-1 py-0.5 transition-colors delay-100 hover:bg-background-focus',
-                            i === 0 && src.length >= 1 ? '' : 'text-neutral-500 dark:text-neutral-400',
-                          )}
-                        >
-                          {w}
-                        </span>
-                      )}
-                    />
-                    <HoverCardContent
-                      container={tbody}
-                      side="top"
-                      sideOffset={-1}
-                      align="end"
-                      style={{
-                        '--z-index': 999_999_999,
-                      }}
-                      className="z-(--z-index) flex size-6 justify-center p-0.5"
-                    >
-                      <VocabularyMenu
-                        word={w}
-                      />
-                    </HoverCardContent>
-                  </HoverCard>
+                  <VocabularyWordAction
+                    isMuted={i !== 0 || src.length === 0}
+                    word={w}
+                  />
                   {i < last && (
                     <span className="text-neutral-500 dark:text-neutral-400">, </span>
                   )}
-                </div>
+                </Fragment>
               ))}
             </Fragment>
           </TableDataCell>
