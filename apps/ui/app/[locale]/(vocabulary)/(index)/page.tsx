@@ -1,7 +1,7 @@
 'use client'
 
 import type { ExtractAtomValue } from 'jotai'
-import type { ImperativePanelGroupHandle } from 'react-resizable-panels'
+import type { Layout as ResizableLayout } from 'react-resizable-panels'
 
 import { useIsomorphicLayoutEffect } from '@react-hookz/web'
 import clsx from 'clsx'
@@ -11,6 +11,7 @@ import Link from 'next/link'
 import nstr from 'nstr'
 import * as React from 'react'
 import { Fragment, useDeferredValue, useEffectEvent, useRef } from 'react'
+import { useGroupRef } from 'react-resizable-panels'
 import getCaretCoordinates from 'textarea-caret'
 
 import type { Sentence } from '@/app/[locale]/(vocabulary)/_lib/LexiconTrie'
@@ -114,6 +115,15 @@ const verticalDefaultSizesAtom = atom([
   64,
 ])
 verticalDefaultSizesAtom.debugLabel = 'verticalDefaultSizesAtom'
+const sourceInputPanelId = 'source-input'
+const sourceVocabPanelId = 'source-vocab'
+
+function getResizableLayout(sizes: number[]): ResizableLayout {
+  return {
+    [sourceInputPanelId]: sizes[0] ?? 50,
+    [sourceVocabPanelId]: sizes[1] ?? 50,
+  }
+}
 
 export default function Layout() {
   const t = useI18n()
@@ -140,11 +150,11 @@ export default function Layout() {
   const isLgScreen = useAtomValue(mediaQueryFamily.useA('(min-width: 1024px)'))
   const direction = isLgScreen ? 'horizontal' : 'vertical'
   const defaultSizes = direction === 'vertical' ? verticalDefaultSizes : horizontalDefaultSizes
-  const panelGroupRef = useRef<ImperativePanelGroupHandle>(null)
+  const panelGroupRef = useGroupRef()
   const resetPanelLayout = useEffectEvent(() => {
     const panelGroup = panelGroupRef.current
     if (panelGroup) {
-      panelGroup.setLayout(defaultSizes)
+      panelGroup.setLayout(getResizableLayout(defaultSizes))
     }
   })
   useIsomorphicLayoutEffect(() => {
@@ -152,11 +162,17 @@ export default function Layout() {
     resetPanelLayout()
   }, [direction])
 
-  function handleLayoutChange(sizes: number[]) {
+  function handleLayoutChange(layout: ResizableLayout) {
+    const sourceInputSize = layout[sourceInputPanelId]
+    const sourceVocabSize = layout[sourceVocabPanelId]
+    if (typeof sourceInputSize !== 'number' || typeof sourceVocabSize !== 'number') {
+      return
+    }
+    const nextSizes = [sourceInputSize, sourceVocabSize]
     if (direction === 'vertical') {
-      setVerticalDefaultSizes(sizes)
+      setVerticalDefaultSizes(nextSizes)
     } else {
-      setHorizontalDefaultSizes(sizes)
+      setHorizontalDefaultSizes(nextSizes)
     }
   }
 
@@ -219,14 +235,17 @@ export default function Layout() {
         <div className="flex grow items-center justify-center overflow-hidden rounded-xl border drop-shadow-xs sq:rounded-3xl">
           <NoSSR>
             <ResizablePanelGroup
-              ref={panelGroupRef}
-              direction={direction}
+              groupRef={panelGroupRef}
+              orientation={direction}
               className={clsx(
                 '[body:has(&[data-panel-group-direction=vertical])]:overflow-hidden', // prevent overscroll
               )}
-              onLayout={handleLayoutChange}
+              onLayoutChanged={handleLayoutChange}
             >
-              <ResizablePanel defaultSize={defaultSizes[0]}>
+              <ResizablePanel
+                id={sourceInputPanelId}
+                defaultSize={`${defaultSizes[0]}%`}
+              >
                 <div className="flex h-full items-center justify-center">
                   <div className="relative flex h-full grow flex-col overflow-hidden">
                     <div className="flex h-12 shrink-0 items-center bg-background py-2 pr-2 pl-4 text-xs">
@@ -287,7 +306,10 @@ export default function Layout() {
                 withHandle
                 className="focus-visible:bg-ring focus-visible:ring-offset-[-1px]"
               />
-              <ResizablePanel defaultSize={defaultSizes[1]}>
+              <ResizablePanel
+                id={sourceVocabPanelId}
+                defaultSize={`${defaultSizes[1]}%`}
+              >
                 <SourceVocab
                   key={deferredSourceText.epoch}
                   text={deferredSourceText}

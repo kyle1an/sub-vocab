@@ -9,6 +9,7 @@ catalog:
   jotai-effect: ^2.2.3
   jotai-family: ^1.0.1
   react: ^19.2.5
+  react-resizable-panels: ^4.10.0
 catalogMode: prefer
 cleanupUnusedCatalogs: true
 

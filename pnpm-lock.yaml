@@ -24,6 +24,9 @@ catalogs:
     react:
       specifier: ^19.2.5
       version: 19.2.5
+    react-resizable-panels:
+      specifier: ^4.10.0
+      version: 4.10.0
 
 overrides:
   '@vercel/node>ts-node': ^10.9.2
@@ -383,8 +386,8 @@ importers:
         specifier: ^0.9.2
         version: 0.9.2(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       react-resizable-panels:
-        specifier: ^3.0.6
-        version: 3.0.6(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: 'catalog:'
+        version: 4.10.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       require-in-the-middle:
         specifier: ^8.0.1
         version: 8.0.1
@@ -8082,11 +8085,11 @@ packages:
       react: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
       react-dom: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
 
-  react-resizable-panels@3.0.6:
-    resolution: {integrity: sha512-b3qKHQ3MLqOgSS+FRYKapNkJZf5EQzuf6+RLiq1/IlTHw99YrZ2NJZLk4hQIzTnnIkRg2LUqyVinu6YWWpUYew==}
+  react-resizable-panels@4.10.0:
+    resolution: {integrity: sha512-frjewRQt7TCv/vCH1pJfjZ7RxAhr5pKuqVQtVgzFq/vherxBFOWyC3xMbryx5Ti2wylViGUFc93Etg4rB3E0UA==}
     peerDependencies:
-      react: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
-      react-dom: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
 
   react-stately@3.46.0:
     resolution: {integrity: sha512-OdxhWvHgs2L4OJGIs7hnuTr5WjjMM6enhNEAMRqiekhF8+ITvA2LRwNftOZwcogaoCslGYq5S2VQTQwnm0GbCA==}
@@ -17159,7 +17162,7 @@ snapshots:
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
 
-  react-resizable-panels@3.0.6(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
+  react-resizable-panels@4.10.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
     dependencies:
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
